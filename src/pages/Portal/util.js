@@ -8,6 +8,7 @@ export const compatibleWorksheetRoute = (worksheetId, rowId, viewId) => {
   api.getAppSimpleInfo({ workSheetId: worksheetId }).then(({ appId, appSectionId, workSheetId }) => {
     if (appId) {
       let url = '';
+
       if (rowId) {
         if (getSuffix(location.href) !== md.global.Account.addressSuffix) {
           url = `/app/${appId}/${workSheetId}/row/${rowId}`;
@@ -27,6 +28,7 @@ export const compatibleWorksheetRoute = (worksheetId, rowId, viewId) => {
           url = `/${md.global.Account.addressSuffix}/${appSectionId}/${workSheetId}`;
         }
       }
+
       location.href = `${window.subPath || ''}${url}`;
     }
   });

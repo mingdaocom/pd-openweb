@@ -35,6 +35,7 @@ export default function DetailItem(props) {
   });
   const { coverImage, allAttachments } = getRecordAttachments(itemData[coverCid]);
   let coverData = { ...(controls.find(it => it.controlId === coverCid) || {}), value: itemData[coverCid] };
+
   if (coverData.type === 45) {
     //嵌入字段 dataSource需要转换
     let dataSource = transferValue(coverData.value);
@@ -67,10 +68,12 @@ export default function DetailItem(props) {
     const arr = [];
 
     const titleControl = getTitleControlForCard(currentView, controls);
+
     if (titleControl) {
       // 标题字段
       arr.push({ ..._.pick(titleControl, RENDER_RECORD_NECESSARY_ATTR), value: parsedRow[titleControl.controlId] });
     }
+
     const isShowWorkflowSys = isOpenPermit(permitList.sysControlSwitch, sheetSwitchPermit);
     let displayControlsCopy = !isShowWorkflowSys
       ? displayControls.filter(
@@ -84,6 +87,7 @@ export default function DetailItem(props) {
     // 配置的显示字段
     displayControlsCopy.forEach(id => {
       const currentControl = _.find(controls, ({ controlId }) => controlId === id);
+
       if (currentControl) {
         const value = parsedRow[id];
         arr.push({ ..._.pick(currentControl, RENDER_RECORD_NECESSARY_ATTR), value });

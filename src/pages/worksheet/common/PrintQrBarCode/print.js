@@ -41,6 +41,7 @@ function cutString(text, maxWidth, fontSize, maxLine = 3) {
       break;
     }
   }
+
   return lines;
 }
 
@@ -57,18 +58,22 @@ function genTextCanvas({
   lineOverEllipsis = false,
 }) {
   let texts;
+
   if (!_.isArray(text)) {
     texts = [text];
   } else {
     texts = text;
   }
+
   if (!texts[0]) {
     firstIsBigger = false;
   }
+
   if (pixelScale && pixelScale > 1) {
     width = width * pixelScale;
     fontSize = fontSize * pixelScale;
   }
+
   texts = texts.filter(t => t);
   const canvas = document.createElement('canvas');
   canvas.width = width;
@@ -78,12 +83,14 @@ function genTextCanvas({
   if (isCenter) {
     ctx.textAlign = 'center';
   }
+
   ctx.fillStyle = color;
   ctx.font = `${bolder ? 'bold ' : ''}${fontSize}px PingFang SC`;
   texts.forEach((t, i) => {
     if (lineOverEllipsis && ctx.measureText(t).width > width) {
       t = cutString(t, width, fontSize, 1)[0];
     }
+
     if (firstIsBigger && i === 0) {
       ctx.fillStyle = '#151515';
       ctx.font = `bold ${fontSize + 1}px PingFang SC`;
@@ -98,8 +105,10 @@ function genTextCanvas({
     // canvas 为空时 添加到 pdf 会报错
     canvas.height = 1;
   }
+
   return canvas;
 }
+
 function getQrDataurl(
   url,
   options = {
@@ -141,6 +150,7 @@ export class QrPdf {
   async renderQr() {
     const config = this.config;
     let width, height;
+
     if (config.labelSize === QR_LABEL_SIZE.CUSTOM) {
       width = config.labelCustomWidth;
       height = config.labelCustomHeight;
@@ -148,16 +158,20 @@ export class QrPdf {
       width = QR_LABEL_SIZES[config.labelSize].width;
       height = QR_LABEL_SIZES[config.labelSize].height;
     }
+
     this.doc = new this.jsPDF(this.config.layout === QR_LAYOUT.PORTRAIT ? 'p' : 'l', 'mm', [width, height], true);
     this.doc.setProperties({
       title: '打印二维码',
     });
     let isFirst = true;
+
     while (this.printData.length) {
       const qrData = this.printData.shift();
+
       if (!isFirst) {
         this.doc.addPage();
       }
+
       const labelObject = createQrLabeObjectFromConfig(this.config, qrData.value, qrData.texts, { pixelRadio: 1.5 });
       await labelObject.render();
       this.doc.addImage(
@@ -176,6 +190,7 @@ export class QrPdf {
   async renderBar() {
     const config = this.config;
     let width, height;
+
     if (config.labelSize === BAR_LABEL_SIZE.CUSTOM) {
       width = config.labelCustomWidth;
       height = config.labelCustomHeight;
@@ -183,16 +198,20 @@ export class QrPdf {
       width = BAR_LABEL_SIZES[config.labelSize].width;
       height = BAR_LABEL_SIZES[config.labelSize].height;
     }
+
     this.doc = new this.jsPDF(this.config.layout === BAR_LAYOUT.PORTRAIT ? 'p' : 'l', 'mm', [width, height], true);
     this.doc.setProperties({
       title: '打印条形码',
     });
     let isFirst = true;
+
     while (this.printData.length) {
       const barData = this.printData.shift();
+
       if (!isFirst) {
         this.doc.addPage();
       }
+
       const labelObject = createBarLabeObjectFromConfig(this.config, barData.value, barData.texts, { pixelRadio: 1.5 });
       await labelObject.render();
       this.doc.addImage(
@@ -218,10 +237,12 @@ export class QrPdf {
     });
     const { col, row } = this.option;
     const qrPages = _.chunk(this.printData, col && row ? col * row : 1);
+
     for (let pageIndex = 0; pageIndex < qrPages.length; pageIndex++) {
       if (pageIndex) {
         this.doc.addPage();
       }
+
       if (this.layout === 1) {
         this.render1x1(qrPages[pageIndex]);
       } else {
@@ -239,9 +260,11 @@ export class QrPdf {
     for (let rowIndex = 0; rowIndex < row; rowIndex++) {
       for (let colIndex = 0; colIndex < col; colIndex++) {
         const qrindex = rowIndex * col + colIndex;
+
         if (!printData[qrindex]) {
           return;
         }
+
         const texts = printData[qrindex].texts.map(t => t.text);
         const qrdataurl = getQrDataurl(printData[qrindex].value, {
           correctLevel: this.correctLevel || QRErrorCorrectLevel.H,
@@ -255,6 +278,7 @@ export class QrPdf {
           pixelScale,
           bolder: true,
         });
+
         if (texts.length > 1) {
           textCanvas = genTextCanvas({
             text: texts.slice(1),
@@ -266,6 +290,7 @@ export class QrPdf {
             lineOverEllipsis: true,
           });
         }
+
         const colgap = is2x2
           ? (A4_SIZE.px.width - col * width) / (col + 1)
           : (A4_SIZE.px.width - col * (width + textLeft + textWidth)) / (col + 1);
@@ -355,6 +380,7 @@ export class QrPdf {
     });
     const titleTextCanvasWidth = titleTextCanvas.width / pixelScale;
     const titleTextCanvasHeight = titleTextCanvas.height / pixelScale;
+
     if (texts.length > 1) {
       textCanvas = genTextCanvas({
         text: texts.slice(1),
@@ -369,6 +395,7 @@ export class QrPdf {
       textCanvasWidth = textCanvas.width / pixelScale;
       textCanvasHeight = textCanvas.height / pixelScale;
     }
+
     this.doc.addImage(
       qrdataurl,
       'JPEG',
@@ -436,6 +463,7 @@ export default async function (
 ) {
   console.time('render qr');
   const pdf = new QrPdf({ worksheetName, printType, layout, printData, correctLevel, config });
+
   if (pdf.isPdfKit) {
     this.doc.end();
     this.stream.on('finish', function () {
@@ -447,6 +475,7 @@ export default async function (
   } else {
     await pdf.render();
   }
+
   console.timeEnd('render qr');
   pdf.openDialog();
   cb();

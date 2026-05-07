@@ -24,6 +24,7 @@ export default class ApplicationList extends Component {
 
   componentDidMount() {
     const dashboardHideGroup = localStorage.getItem(`dashboardExpandGroup_${md.global.Account.accountId}`);
+
     if (dashboardHideGroup) {
       this.setState({ dashboardHideGroup: dashboardHideGroup.split(',') });
     }
@@ -39,6 +40,7 @@ export default class ApplicationList extends Component {
     const { externalApps } = this.props.myAppData || {};
 
     const projects = _.get(md, ['global', 'Account', 'projects']);
+
     if (_.isEmpty(projects)) {
       return (
         <Fragment>
@@ -140,6 +142,7 @@ export default class ApplicationList extends Component {
         if (action.key === 'application') {
           window.mobileNavigateTo(`/mobile/appBox`);
         }
+
         if (action.key === 'add') {
           const title = window.isWxWork ? _l('创建自定义应用请前往企业微信PC桌面端') : _l('创建自定义应用请前往PC端');
           Dialog.alert({
@@ -148,6 +151,7 @@ export default class ApplicationList extends Component {
             onAction: () => {},
           });
         }
+
         this.actionSheetHandler.close();
       },
     });
@@ -180,6 +184,7 @@ export default class ApplicationList extends Component {
         </div>
       );
     }
+
     return (
       <div className="flexRow alignItemsCenter">
         {iconUrl ? (

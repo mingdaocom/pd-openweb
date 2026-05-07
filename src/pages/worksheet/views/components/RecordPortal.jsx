@@ -14,6 +14,7 @@ export default function RecordPortal({ children, closeEdit = _.noop }) {
         closeEdit();
       }
     };
+
     $el.addEventListener('click', clickHandler);
     return () => {
       $el.parentElement && $el.parentElement.removeChild($el);

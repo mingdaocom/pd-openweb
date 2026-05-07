@@ -31,13 +31,16 @@ class EditableBlock extends React.Component {
 
   renameHandle() {
     const value = this.state.value;
+
     if (!this.props.validateFileName(value)) {
       this.inputFileName.focus();
       return false;
     }
+
     if (value !== this.state.value2) {
       this.props.onChange(value);
     }
+
     this.setState({
       isEditing: false,
     });
@@ -57,6 +60,7 @@ class EditableBlock extends React.Component {
             if (!this.props.canEdit) {
               return;
             }
+
             this.setState(
               {
                 isEditing: true,
@@ -89,6 +93,7 @@ class EditableBlock extends React.Component {
             if (evt.keyCode === 13) {
               evt.target.blur();
             }
+
             evt.stopPropagation();
             evt.nativeEvent.stopImmediatePropagation();
           }}

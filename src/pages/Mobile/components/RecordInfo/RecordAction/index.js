@@ -41,6 +41,19 @@ class RecordAction extends Component {
       previewRecord: {},
       percent: 0,
       num: 0,
+      printList:
+        _.get(window, 'shareState.isPublicRecord') ||
+        _.get(window, 'shareState.isPublicView') ||
+        _.get(window, 'shareState.isPublicPage') ||
+        _.get(window, 'shareState.isPublicQuery') ||
+        _.get(window, 'shareState.isPublicForm') ||
+        _.get(window, 'shareState.isPublicWorkflowRecord') ||
+        _.get(window, 'shareState.isPublicPrint') ||
+        window.isWeiXin ||
+        window.isWeLink ||
+        window.isDingTalk
+          ? []
+          : [{}],
     };
     const { isSubList, editable } = getRequest();
     this.isSubList = isSubList == 'true';
@@ -80,6 +93,7 @@ class RecordAction extends Component {
 
   handleRecordWorkflowUpdate = ({ recordId: triggerRecordId, triggerBtnId, isSuccess }) => {
     const { rowId } = this.props;
+
     if (this.continueFill && isSuccess && rowId === triggerRecordId && triggerBtnId === get(this.activeBtn, 'btnId')) {
       this.setState({ fillRecordVisible: false });
       this.handleTriggerCustomBtn(this.activeBtn);
@@ -102,10 +116,12 @@ class RecordAction extends Component {
     this.setState({ custBtnName: btn.name });
     this.remark = undefined;
     const _this = this;
+
     if (window.isPublicApp) {
       alert(_l('预览模式下，不能操作'), 3);
       return;
     }
+
     this.activeBtn = btn;
     appendDataToLocalPushUniqueId(_this.tipConfig);
     const run = ({ remark } = {}) => {
@@ -114,8 +130,10 @@ class RecordAction extends Component {
           handleBatchOperateCustomBtn(btn);
           return;
         }
+
         _this.triggerImmediately(btn);
       };
+
       if (_.get(btn, 'advancedSetting.enableremark') && remark) {
         if (_.isFunction(handleUpdateWorksheetRow)) {
           handleUpdateWorksheetRow({
@@ -129,6 +147,7 @@ class RecordAction extends Component {
           });
           return;
         }
+
         worksheetAjax.updateWorksheetRow({
           worksheetId,
           rowId: rowId,
@@ -142,8 +161,10 @@ class RecordAction extends Component {
         trigger();
       }
     };
+
     const handleTrigger = () => {
       const needConfirm = btn.enableConfirm || btn.clickType === CUSTOM_BUTTOM_CLICK_TYPE.CONFIRM;
+
       function confirm({ onOk, onClose = () => {} } = {}) {
         const translateInfo = getTranslateInfo(appId, worksheetId, btn.btnId);
         const { confirmcontent, enableremark, remarkname, remarkhint, remarkrequired, remarktype } =
@@ -179,6 +200,7 @@ class RecordAction extends Component {
           onClose,
         });
       }
+
       if (btn.clickType === CUSTOM_BUTTOM_CLICK_TYPE.FILL_RECORD) {
         // 填写字段
         _this.fillRecord({
@@ -199,6 +221,7 @@ class RecordAction extends Component {
         });
         return;
       }
+
       function verifyAndRun() {
         if (btn.verifyPwd) {
           verifyPassword({
@@ -220,6 +243,7 @@ class RecordAction extends Component {
           run();
         }
       }
+
       if (needConfirm) {
         // 二次确认
         confirm();
@@ -227,6 +251,7 @@ class RecordAction extends Component {
         verifyAndRun();
       }
     };
+
     if (batchOptCheckedData.length > 1000) {
       Dialog.confirm({
         content: _l('最大支持批量执行1000行记录，是否只选中并执行前1000行数据？'),
@@ -235,6 +260,7 @@ class RecordAction extends Component {
     } else {
       handleTrigger();
     }
+
     this.props.hideRecordActionVisible();
   };
 
@@ -278,6 +304,7 @@ class RecordAction extends Component {
     const { worksheetId, rowId } = this.props;
     let rowInfo;
     let worksheetInfo;
+
     if (rowId) {
       rowInfo = await getRowDetail({
         worksheetId,
@@ -294,6 +321,7 @@ class RecordAction extends Component {
         receiveControls: worksheetInfo.template.controls,
       };
     }
+
     const caseStr = btn.writeObject + '' + btn.writeType;
     const relationControl = _.find(rowInfo.receiveControls, c => c.controlId === btn.relationControl);
     const addRelationControl = _.find(rowInfo.receiveControls, c => c.controlId === btn.addRelationControl);
@@ -309,6 +337,7 @@ class RecordAction extends Component {
           alert(_l('%0已锁定', worksheetInfo?.entityName || rowInfo?.entityName || '记录'), 2);
           return;
         }
+
         this.btnRelateWorksheetId = worksheetId;
         this.fillRecordId = rowId;
         this.fillRecordProps = {
@@ -328,8 +357,10 @@ class RecordAction extends Component {
           });
           return;
         }
+
         try {
           const controldata = JSON.parse(addRelationControl.value);
+
           if (addRelationControl.enumDefault === 1 && controldata.length) {
             Dialog.alert({
               title: _l('无法执行按钮“%0”', btn.name),
@@ -343,6 +374,7 @@ class RecordAction extends Component {
         } catch (err) {
           console.log(err);
         }
+
         this.btnAddRelateWorksheetId = addRelationControl.dataSource;
         this.masterRecord = {
           rowId: rowId,
@@ -358,6 +390,7 @@ class RecordAction extends Component {
         if (!relationControl || !_.isObject(relationControl)) {
           return;
         }
+
         this.btnRelateWorksheetId = relationControl.dataSource;
         try {
           const controldata = JSON.parse(relationControl.value);
@@ -379,6 +412,7 @@ class RecordAction extends Component {
           });
           return;
         }
+
         this.setState({
           fillRecordVisible: true,
         });
@@ -387,6 +421,7 @@ class RecordAction extends Component {
         if (!relationControl || !_.isObject(relationControl)) {
           return;
         }
+
         try {
           const controldata = JSON.parse(relationControl.value);
           this.fillRecordId = controldata[0].sid;
@@ -402,17 +437,20 @@ class RecordAction extends Component {
           });
           return;
         }
+
         break;
     }
   }
   addRelateRecordRelateRecord(relationControl, relationControlrelationControlId) {
     let controldata;
+
     try {
       controldata = JSON.parse(relationControl.value);
     } catch (err) {
       console.log(err);
       return;
     }
+
     getRowDetail({
       worksheetId: relationControl.dataSource,
       getType: 1,
@@ -423,6 +461,7 @@ class RecordAction extends Component {
         data.formData,
         c => c.controlId === relationControlrelationControlId,
       );
+
       if (!relationControlrelationControl) {
         Dialog.alert({
           title: _l('无法执行按钮“%0”', this.activeBtn.name),
@@ -431,8 +470,10 @@ class RecordAction extends Component {
         });
         return;
       }
+
       try {
         const relationControlrelationControlData = JSON.parse(relationControlrelationControl.value);
+
         if (relationControlrelationControl.enumDefault === 1 && relationControlrelationControlData.length) {
           Dialog.alert({
             title: _l('无法执行按钮“%0”', this.activeBtn.name),
@@ -448,6 +489,7 @@ class RecordAction extends Component {
       } catch (err) {
         console.log(err);
       }
+
       this.masterRecord = {
         rowId: controldata[0].sid,
         controlId: relationControlrelationControl.controlId,
@@ -532,11 +574,13 @@ class RecordAction extends Component {
       workflowType: this.activeBtn.workflowType,
       btnRemark: this.remark,
     };
+
     if (_.isFunction(handleUpdateWorksheetRow)) {
       handleUpdateWorksheetRow(args);
       this.setState({ fillRecordVisible: false });
       return;
     }
+
     worksheetAjax.updateWorksheetRow(args).then(res => {
       if (res && res.data) {
         this.props.loadRow();
@@ -544,9 +588,11 @@ class RecordAction extends Component {
         if (this.activeBtn.workflowType === 2 && get(this.tipConfig, 'enableTip')) {
           alert(get(this.tipConfig, 'tipText'));
         }
+
         if (_.isFunction(onUpdate) && targetOptions.recordId === rowId) {
           onUpdate(_.pick(res.data, newControls.map(c => c.controlId).concat('isviewdata')), res.data, newControls);
         }
+
         if (!this.continueFill) {
           this.setState({
             fillRecordVisible: false,
@@ -566,9 +612,11 @@ class RecordAction extends Component {
   };
   handleAddRecordCallback = () => {
     const { isBatchOperate } = this.props;
+
     if (this.activeBtn.workflowType === 2 && get(this.tipConfig, 'enableTip')) {
       alert(get(this.tipConfig, 'tipText'));
     }
+
     !isBatchOperate && this.props.loadRow();
     this.props.loadCustomBtns();
   };
@@ -683,6 +731,8 @@ class RecordAction extends Component {
       appId,
       worksheetId,
       rowId,
+      instanceId,
+      workId,
       switchPermit,
       isBatchOperate,
       loading,
@@ -690,11 +740,13 @@ class RecordAction extends Component {
       changeActionSheetModalIndex,
       isRecordLock,
       isEditLock,
+      batchOptCheckedData,
       handleCollectRecord = () => {},
       updateRecordLock = () => {},
       updatePrintList = () => {},
+      formData,
     } = this.props;
-    const { btnDisable, rowInfo } = this.state;
+    const { btnDisable, rowInfo, printList } = this.state;
     const projectId = sheetRow.projectId || worksheetInfo.projectId;
     const isExternal = _.isEmpty(getCurrentProject(projectId));
     const allowDelete =
@@ -734,8 +786,8 @@ class RecordAction extends Component {
             <div className="flexRow justifyContentCenter alignItemsCenter mBottom30">
               <LoadDiv />
             </div>
-          ) : _.isEmpty(customBtns) && !(appId && !isBatchOperate) ? (
-            <div className="textPrimary bold mBottom30 TxtLeft pLeft15">{_l('暂无按钮')}</div>
+          ) : isBatchOperate && _.isEmpty(customBtns) && _.isEmpty(printList) ? (
+            <div className="textPrimary bold mBottom30 TxtLeft pLeft15">{_l('暂无操作')}</div>
           ) : (
             <div className="popupContentBox">
               {!_.isEmpty(customBtns) && (
@@ -780,12 +832,14 @@ class RecordAction extends Component {
                   </div>
                 </Fragment>
               )}
-              {appId && !isBatchOperate ? (
+              {appId ? (
                 <div className="extrBtnBox">
-                  <div className="splitLineBox">
-                    <div className="splitLine"></div>
-                  </div>
-                  {allowShare && (
+                  {!_.isEmpty(customBtns) && (!isBatchOperate || (isBatchOperate && !_.isEmpty(printList))) && (
+                    <div className="splitLineBox">
+                      <div className="splitLine"></div>
+                    </div>
+                  )}
+                  {!isBatchOperate && allowShare && (
                     <div className="flexRow extraBtnItem">
                       <Icon icon="shareLink" className="Font18 delIcon textTertiary" />
                       <div className="flex delTxt Font15 textPrimary" onClick={this.props.onShare}>
@@ -793,37 +847,27 @@ class RecordAction extends Component {
                       </div>
                     </div>
                   )}
-                  {!isPublicShare &&
-                    _.isFunction(this.props.handlePrint) &&
-                    window.isMingDaoApp &&
-                    !window.isWeiXin &&
-                    !window.isWeLink &&
-                    !window.isDingTalk && (
-                      <div className="flexRow extraBtnItem">
-                        <Icon icon="archive" className="Font20 delIcon textTertiary" />
-                        <div className="flex Font15 textPrimary" onClick={this.props.handlePrint}>
-                          {_l('打印/导出')}
-                        </div>
-                      </div>
-                    )}
-                  {!isPublicShare &&
-                    !window.isMingDaoApp &&
-                    !window.isWeiXin &&
-                    !window.isWeLink &&
-                    !window.isDingTalk && (
-                      <MobilePrintList
-                        appId={appId}
-                        worksheetId={worksheetId}
-                        viewId={viewId}
-                        rowId={rowId}
-                        projectId={projectId}
-                        controls={rowInfo.receiveControls}
-                        hideRecordActionVisible={hideRecordActionVisible}
-                        switchPermit={switchPermit}
-                        updatePrintList={updatePrintList}
-                      />
-                    )}
-                  {!window.shareState.shareId && !md.global.Account.isPortal && !isExternal && (
+                  {!isPublicShare && !window.isWeiXin && !window.isWeLink && !window.isDingTalk && (
+                    <MobilePrintList
+                      isBatchOperate={isBatchOperate}
+                      appId={appId}
+                      worksheetId={worksheetId}
+                      viewId={viewId}
+                      rowId={rowId}
+                      rowIds={isBatchOperate ? batchOptCheckedData : undefined}
+                      projectId={projectId}
+                      instanceId={instanceId}
+                      workId={workId}
+                      controls={formData || rowInfo.receiveControls}
+                      hideRecordActionVisible={hideRecordActionVisible}
+                      switchPermit={switchPermit}
+                      updatePrintList={printList => {
+                        this.setState({ printList, printListLoading: false });
+                        updatePrintList(printList);
+                      }}
+                    />
+                  )}
+                  {!isBatchOperate && !window.shareState.shareId && !md.global.Account.isPortal && !isExternal && (
                     <div className="flexRow extraBtnItem">
                       <Icon
                         icon="star_3"
@@ -834,7 +878,7 @@ class RecordAction extends Component {
                       </div>
                     </div>
                   )}
-                  {roleType === 2 && (
+                  {!isBatchOperate && roleType === 2 && (
                     <div className="flexRow extraBtnItem">
                       <Icon
                         icon={isRecordLock ? 'task-new-no-locked' : 'lock'}
@@ -845,7 +889,7 @@ class RecordAction extends Component {
                       </div>
                     </div>
                   )}
-                  {allowDelete && !isRecordLock && (
+                  {!isBatchOperate && allowDelete && !isRecordLock && (
                     <div className="flexRow extraBtnItem">
                       <Icon icon="delete_12" className="Font18 delIcon" />
                       <div className="flex delTxt Font15" onClick={this.handleDeleteAlert}>

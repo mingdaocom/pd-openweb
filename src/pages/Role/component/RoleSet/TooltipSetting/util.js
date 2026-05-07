@@ -7,12 +7,14 @@ export const getFunction = function (keyName) {
     return { isAll, isPart };
   };
 };
+
 export const getDecryptCheckboxProps = fields => {
   let fieldData = fields.filter(o => o.dataMask === '1');
   const isAll = _.every(fieldData, o => o.isDecrypt);
   const isPart = !isAll && _.some(fieldData, o => o.isDecrypt);
   return { isAll, isPart };
 };
+
 export const formatFields = (checked, fieldId, key, fields) => {
   const changeField = field => {
     if (key === 'notEdit' && !checked) {
@@ -22,6 +24,7 @@ export const formatFields = (checked, fieldId, key, fields) => {
         notRead: checked,
       };
     }
+
     if (key === 'notRead' && checked) {
       return {
         ...field,
@@ -30,6 +33,7 @@ export const formatFields = (checked, fieldId, key, fields) => {
         isDecrypt: false, //取消查看，同时取消解密
       };
     }
+
     //勾选解密时，同时勾选查看
     if (key === 'isDecrypt' && checked && field.dataMask === '1') {
       return {
@@ -38,28 +42,35 @@ export const formatFields = (checked, fieldId, key, fields) => {
         notRead: false,
       };
     }
+
     return {
       ...field,
       [key]: checked,
     };
   };
+
   let fieldsN = _.map(fields, field => {
     // 全选切换
     if (fieldId === undefined) {
       return changeField(field);
     }
+
     // 单选切换
     if (field.fieldId === fieldId) {
       return changeField(field);
     }
+
     return field;
   });
+
   const formatDataBysection = list => {
     const ids = getSectionIds(list);
     const field = list.find(o => o.fieldId === fieldId);
+
     if (!fieldId || (!ids.includes(fieldId) && !field.sectionId)) {
       return list;
     }
+
     if (field.type === 52) {
       return list.map(o => {
         if (o.fieldId === fieldId || o.sectionId === fieldId) {
@@ -76,15 +87,18 @@ export const formatFields = (checked, fieldId, key, fields) => {
     } else if (field.sectionId) {
       const bros = list.filter(o => o.sectionId === field.sectionId);
       const brosC = bros.filter(o => o[key] === checked);
+
       if (bros.length <= brosC.length || !checked) {
         return list.map(o => {
           if (field.sectionId === o.fieldId) {
             let obj = {};
+
             if (key === 'notEdit' && !checked) {
               obj = {
                 notRead: false,
               };
             }
+
             return {
               ...o,
               ...obj,
@@ -98,6 +112,7 @@ export const formatFields = (checked, fieldId, key, fields) => {
         });
       }
     }
+
     return list;
   };
 

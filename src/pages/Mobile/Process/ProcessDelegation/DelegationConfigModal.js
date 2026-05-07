@@ -190,10 +190,12 @@ export default function DelegationConfigModal(props) {
       trustee: user.accountId,
       apkIds: scope === 2 && !_.isEmpty(selectedApps) ? selectedApps.map(item => item.appId) : undefined,
     };
+
     if (moment(dateInfo.endDate).diff(moment(dateInfo.startDate), 'minutes') <= 0) {
       alert(_l('委托结束时间应大于开始时间'), 2);
       return;
     }
+
     if (isEdit) {
       delegationApi.update({ ...params, id: entrustData.id, status: entrustData.status }).then(res => {
         if (res) {
@@ -205,6 +207,7 @@ export default function DelegationConfigModal(props) {
       });
       return;
     }
+
     delegationApi.add(params).then(res => {
       if (res) {
         onCancel();
@@ -254,7 +257,7 @@ export default function DelegationConfigModal(props) {
               <span className="requied">*</span>
               {_l('委托给')}
             </div>
-            <div className="formCon flexRow client">
+            <div className="formCon flexRow client alignItemsCenter">
               {!_.isEmpty(user) && (
                 <div className="userItemWrapper">
                   <div className="pointer circle">
@@ -480,6 +483,7 @@ export default function DelegationConfigModal(props) {
                     if (it.projectId !== orgInfo.projectId) {
                       setUser({});
                     }
+
                     setOrgInfo(it);
                     setProjectListVisible(false);
                   }}

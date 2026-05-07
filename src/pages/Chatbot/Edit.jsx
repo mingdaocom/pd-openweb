@@ -95,16 +95,19 @@ const Edit = props => {
   const allowUploadOffice = uploadPermission.split('')[1] === '1';
 
   const handleSave = param => {
+    const config = {
+      ...chatbotConfig,
+      ...param,
+    };
     processApi
       .saveChatbotConfig({
         chatbotId: data.chatbotId,
-        ...chatbotConfig,
-        ...param,
+        ...config,
       })
       .then(() => {
         const data = {
-          ...chatbotConfig,
-          ...param,
+          ...config,
+          iconUrl: config.previewIconUrl || config.iconUrl,
         };
         onChatbotConfig(data);
         setOriginalChatbotConfig(data);
@@ -132,6 +135,7 @@ const Edit = props => {
             }}
             onBlur={event => {
               const { value } = event.target;
+
               if (value) {
                 handleSave({ name: value.trim() });
               } else {
@@ -183,6 +187,7 @@ const Edit = props => {
             }}
             onBlur={event => {
               const { value } = event.target;
+
               if (value) {
                 handleSave({ welcomeText: value.trim() });
               } else {
@@ -207,8 +212,10 @@ const Edit = props => {
             }}
             onBlur={event => {
               const { value } = event.target;
+
               if (value) {
                 const list = value.split('\n').filter(item => item.trim());
+
                 if (list.length > 5) {
                   alert(_l('预置提问最多设置5个'), 3);
                   onChatbotConfig(values => ({ ...values, presetQuestion: originalChatbotConfig.presetQuestion }));

@@ -47,7 +47,7 @@ const MobileList = styled.div`
         visibility: hidden;
       }
       &:hover {
-        background-color: var(--color-background-disabled);
+        background-color: var(--color-background-hover);
         .add {
           visibility: visible;
         }
@@ -93,6 +93,7 @@ const dealComponents = (components = []) => {
   });
   return { hidedComponents, visibleComponents };
 };
+
 export default function MobileLayout(props) {
   const { components, updateWidgetVisible, config, appPkg, apk } = props;
   const { hidedComponents, visibleComponents } = dealComponents(components);

@@ -16,6 +16,7 @@ const Preview = styled.div`
 
 export default ({ companyId, processId, relationId, selectNodeId, data, selectMsgKey, updateSource, onClose }) => {
   const [selectMsg, setMsg] = useState(data[selectMsgKey]);
+
   const getNodeText = value => {
     const arr = value.match(/\$[^ \r\n]+?\$/g);
 
@@ -59,6 +60,7 @@ export default ({ companyId, processId, relationId, selectNodeId, data, selectMs
         selectNodeId={selectNodeId}
         type={2}
         height={0}
+        showCurrent
         content={selectMsg}
         formulaMap={data.formulaMap}
         onChange={(err, value) => setMsg(value)}

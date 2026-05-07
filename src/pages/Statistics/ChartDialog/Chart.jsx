@@ -151,6 +151,7 @@ export default class Chart extends Component {
         />
       );
     }
+
     if ([reportTypes.CountryLayer, reportTypes.WorldMap].includes(reportType)) {
       const { map, country, summary } = reportData;
       return map.length ? (
@@ -169,6 +170,7 @@ export default class Chart extends Component {
         <WithoutData />
       );
     }
+
     if ([reportTypes.GaugeChart, reportTypes.ProgressChart].includes(reportType)) {
       const { map } = reportData;
       return (
@@ -181,6 +183,7 @@ export default class Chart extends Component {
         />
       );
     }
+
     if (
       [
         reportTypes.BarChart,
@@ -212,6 +215,7 @@ export default class Chart extends Component {
         <WithoutData />
       );
     }
+
     if ([reportTypes.PieChart].includes(reportType)) {
       const { map, summary } = reportData;
       return map.length || isDisplayEmptyData ? (
@@ -228,6 +232,7 @@ export default class Chart extends Component {
         <WithoutData />
       );
     }
+
     if ([reportTypes.NumberChart].includes(reportType)) {
       const { map, contrast, contrastMap } = reportData;
       const params = {
@@ -316,6 +321,7 @@ export default class Chart extends Component {
                     },
                     () => {
                       const { style } = reportData;
+
                       if (
                         direction === 'vertical' &&
                         reportData.reportType === reportTypes.PivotTable &&

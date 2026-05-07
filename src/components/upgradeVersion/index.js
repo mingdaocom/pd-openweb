@@ -10,7 +10,6 @@ import { getCurrentProject, getSyncLicenseInfo } from 'src/utils/project';
 export const upgradeVersionDialog = options => {
   const hint = options.hint || _l('当前版本无法使用此功能');
   const explainText = options.explainText || _l('请升级至专业版或旗舰版解锁开启');
-
   const isExternal = _.isEmpty(getCurrentProject(options.projectId)); // 是否为外协人员
 
   const descFunc = () => {
@@ -50,6 +49,7 @@ export function buriedUpgradeVersionDialog(projectId, featureId, extra, onOk) {
 
   if (!window.platformENV.isOverseas && !window.platformENV.isLocal) {
     const TYPE_NAME = { 1: _l('标准版'), 2: _l('专业版'), 3: _l('旗舰版') };
+
     const getFeatureType = versionIdV2 => {
       const versionInfo = _.find(Versions || [], item => item.VersionIdV2 === versionIdV2) || {};
       return {

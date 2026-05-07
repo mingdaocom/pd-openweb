@@ -1,9 +1,9 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import ClipboardButton from 'react-clipboard.js';
 import { Drawer } from 'antd';
 import cx from 'classnames';
+import copy from 'copy-to-clipboard';
 import update from 'immutability-helper';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
@@ -211,6 +211,7 @@ class PublicConfig extends React.Component {
         return false;
       }
     }
+
     //填写时段校验
     if (limitWriteTime.isEnable) {
       const monthType = limitWriteTime.monthSetting.monthType;
@@ -246,6 +247,7 @@ class PublicConfig extends React.Component {
 
       if (hourType === TIME_PERIOD_TYPE.SPECIFY_RANGE_HOUR) {
         const isNoValidRange = timeRange[TIME_TYPE.HOUR].filter(item => item.start && item.end).length === 0;
+
         if (isNoValidRange) {
           alert(_l('请至少完整填写一个时间指定范围'), 3);
           return false;
@@ -282,6 +284,7 @@ class PublicConfig extends React.Component {
         alert(_l('已开启凭密码填写，请设置密码'), 3);
         return false;
       }
+
       if (!/^\w{4,8}$/.test(limitPasswordWrite.limitPasswordWrite)) {
         alert(_l('密码必须为4-8位的英文或数字'), 3);
         return false;
@@ -292,6 +295,7 @@ class PublicConfig extends React.Component {
     if (cacheFieldData.isEnable) {
       const cacheFieldArr = cacheFieldData.cacheField || [];
       const selectedCount = originalControls.filter(item => _.includes(cacheFieldArr, item.controlId)).length;
+
       if (!cacheFieldArr.length || !selectedCount) {
         alert(_l('已开启本地填写数据缓存，请选择需要缓存的字段'), 3);
         return false;
@@ -304,16 +308,27 @@ class PublicConfig extends React.Component {
         alert(_l('微信OpenID不能为空'), 3);
         return false;
       }
+
       if (weChatSetting.collectChannel === 2 && !weChatBind.isBind) {
         alert(_l('微信登录必须绑定微信服务号'), 2);
         return false;
       }
+
+      if (weChatSetting.collectChannel === 2 && !weChatBind.appId) {
+        alert(_l('请设置服务号'), 2);
+        return false;
+      }
+    }
+
+    if (weChatSetting.collectChannel === 2) {
+      weChatSetting.appId = weChatBind.appId || '';
     }
 
     //功能增强校验
     if (abilityExpand.autoFillField.isAutoFillField) {
       const autoFillFieldArr = abilityExpand.autoFillField.autoFillFields || [];
       const selectedCount = originalControls.filter(item => _.includes(autoFillFieldArr, item.controlId)).length;
+
       if (!autoFillFieldArr.length || !selectedCount) {
         alert(_l('请选择自动填充字段'), 3);
         return false;
@@ -332,12 +347,14 @@ class PublicConfig extends React.Component {
 
     // 微信分享卡片消息
     const shareConfig = safeParse(_.get(extendDatas, 'shareConfig'));
+
     if (!shareConfig.title) {
       alert(_l('请填写分享标题'), 3);
       return false;
     }
 
     const afterSubmit = safeParse(_.get(extendDatas, 'afterSubmit'));
+
     if (afterSubmit.action === 2 && !afterSubmit.content) {
       alert(_l('请填写跳转链接'), 3);
       return false;
@@ -374,9 +391,11 @@ class PublicConfig extends React.Component {
     } = this.state;
     const { updateSettings, hideControl, worksheetInfo } = this.props;
     const changesIds = this.getChangedIds();
+
     if (changesIds && changesIds.length) {
       hideControl(changesIds);
     }
+
     const setWechatSetting = !weChatSetting.isRequireAuth
       ? Object.assign({}, weChatSetting, { fieldMaps: _.pick(weChatSetting.fieldMaps, [WECHAT_FIELD_KEY.OPEN_ID]) })
       : weChatSetting;
@@ -411,6 +430,7 @@ class PublicConfig extends React.Component {
           const shareCardId = `${worksheetInfo.worksheetId}_${SHARECARDTYPS.PUBLICWORKSHEET}`;
           this.shareCardSetRef.current.onSave(this.shareCardSetRef.current.shareConfigValue || {}, shareCardId);
         }
+
         cb();
         this.cacheSettings = newSettings;
       }
@@ -433,6 +453,7 @@ class PublicConfig extends React.Component {
   handleGenUrl = () => {
     const { sourceKeys, extendDatas } = this.state;
     const value = this.keyinput.value;
+
     if (value.trim() === '') {
       alert(_l('参数不能为空'), 3);
       return;
@@ -762,13 +783,14 @@ class PublicConfig extends React.Component {
                 {this.getIframeUrl()}
               </TipBlock>
               <div className="mTop16">
-                <ClipboardButton
-                  component="span"
-                  data-clipboard-text={this.getIframeUrl()}
-                  onSuccess={() => alert(_l('复制成功'))}
+                <Button
+                  onClick={() => {
+                    copy(this.getIframeUrl());
+                    alert(_l('复制成功'));
+                  }}
                 >
-                  <Button>{_l('复制')}</Button>
-                </ClipboardButton>
+                  {_l('复制')}
+                </Button>
               </div>
               <div className="bold mTop32">{_l('链接设置')}</div>
               <div className="flexRow alignItemsCenter mTop20">

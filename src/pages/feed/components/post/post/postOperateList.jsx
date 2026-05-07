@@ -65,6 +65,7 @@ class PostOperateList extends React.Component {
     const postItem = this.props.postItem;
     const isComment = !!postItem.commentID;
     let header;
+
     if (isComment) {
       header = _l('确认删除此条回复') /* 确认删除此条回复*/ + '?';
     } else {
@@ -73,6 +74,7 @@ class PostOperateList extends React.Component {
           ? _l('确认要删除此动态吗？')
           : _l('移除后，该动态在动态墙中不可见，确认继续？');
     }
+
     Dialog.confirm({
       width: 420,
       title: header,
@@ -182,6 +184,7 @@ class PostOperateList extends React.Component {
       noLink: true,
       doNotEscapeHTML: true,
     });
+
     if (param === 1) {
       createTask({
         MemberArray: _.chain(postItem.rUserList)
@@ -242,6 +245,7 @@ class PostOperateList extends React.Component {
 
     // Top
     let topOption;
+
     if (canTop) {
       topOption = isTop ? (
         <MenuItem onClick={this.handleRemoveTop}>{_l('取消此条置顶')}</MenuItem>
@@ -252,6 +256,7 @@ class PostOperateList extends React.Component {
 
     // Task
     let taskHtml;
+
     if (postItem.postType != POST_TYPE.video && postItem.postType != POST_TYPE.vote && postItem.postType != '5') {
       if (!postItem.source || postItem.source.id != md.global.APPInfo.taskAppID) {
         taskHtml = (
@@ -281,6 +286,7 @@ class PostOperateList extends React.Component {
 
     // Calendar
     let calendarOption;
+
     if (postItem.postType != '7' && postItem.postType != '5') {
       if (postItem.source == undefined || postItem.source.id !== md.global.APPInfo.calendarAppID) {
         calendarOption = (
@@ -299,6 +305,7 @@ class PostOperateList extends React.Component {
 
     // edit vote end time
     let editVoteEndTime;
+
     if (postItem.isMy && postItem.postType === '7' && !postItem.isPostVote) {
       editVoteEndTime = <MenuItem onClick={this.handleEditVoteEndTime}>{_l('修改截止日期')}</MenuItem>;
     }
@@ -307,6 +314,7 @@ class PostOperateList extends React.Component {
     // 发布者
     // 管理员 && 有且仅有1个企业网络下的至少一个群组。
     let editScope;
+
     if (postItem.isMy || (postItem.projectIds.length === 1 && this.props.allowOperate)) {
       editScope = <MenuItem onClick={() => this.handleEditScope()}>{_l('修改可见范围')}</MenuItem>;
     }
@@ -326,6 +334,7 @@ class PostOperateList extends React.Component {
         </ClickAway>
       );
     }
+
     return (
       <ClickAway onClickAway={this.componentClickAway}>
         <Menu>

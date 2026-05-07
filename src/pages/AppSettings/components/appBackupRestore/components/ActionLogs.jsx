@@ -129,6 +129,7 @@ const OPERATION_DATA_LIST = {
 };
 
 const PAGESIZE = 10;
+
 export default function ActionLogs(props) {
   const { appId, projectId, onClose = () => {} } = props;
   const selectUserRef = useRef();

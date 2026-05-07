@@ -222,6 +222,7 @@ class RoleManage extends Component {
     Promise.all(promiseList).then(res => {
       res.forEach((resLi, i) => {
         let index = _.findIndex(data, l => l.orgRoleGroupId === orgRoleGroupIds[i]);
+
         if (index === 0) {
           const list = resLi.list.map(l => {
             return {
@@ -258,9 +259,11 @@ class RoleManage extends Component {
 
       if (updateCurrentRole && data[0]) {
         let roleItem = data[0].children[0];
+
         if (updateCurrentRole === 'add') {
           roleItem = _.last(data.find(l => l.orgRoleGroupId === orgRoleGroupIds[0]).children);
         }
+
         if (roleItem) {
           this.handleClick(roleItem, true);
         } else {
@@ -268,6 +271,7 @@ class RoleManage extends Component {
           this.props.updateCurrentRole({});
         }
       }
+
       this.setState({
         treeData: _.cloneDeep(data),
         loading: false,
@@ -376,6 +380,7 @@ class RoleManage extends Component {
   handleDelete = item => {
     const { treeData, expandedKeys, searchRes } = this.state;
     const { projectId, searchValue } = this.props;
+
     if (!item.isLeaf) {
       organizeAjax
         .removeOrgRoleGroup({
@@ -444,6 +449,7 @@ class RoleManage extends Component {
 
   handleClick = (item, forceUpdate = false) => {
     const { treeData } = this.state;
+
     if (item.key === 'isMore') {
       this.setState({ pageIndex: this.state.pageIndex + 1 }, () => this.updateChildren(treeData, [''], false));
       return;
@@ -817,6 +823,7 @@ class RoleManage extends Component {
         const treeData = _.cloneDeep(this.state.treeData);
         this.setState({ actionPopupVisible: false });
         const index = treeData.findIndex(v => v.orgRoleGroupId === orgRole.orgRoleGroupId);
+
         if (orgRole.organizeId) {
           // 停用当前角色
           const childIndex = treeData[index].children.findIndex(v => v.organizeId === orgRole.organizeId);
@@ -831,6 +838,7 @@ class RoleManage extends Component {
             }));
           }
         }
+
         this.setState({ treeData });
         alert(orgRole.disabled ? _l('恢复成功') : _l('停用成功'));
       } else {
@@ -859,7 +867,7 @@ class RoleManage extends Component {
 
     return (
       <div className="roleManageContainer">
-        <AdminTitle prefix={_l('角色')} />
+        <AdminTitle prefix={_l('用户 - 角色')} />
         <div className="roleManageLeft">
           <div className="Bold Font17 mBottom20 pLeft24 mTop24">{_l('角色')}</div>
           <RoleSearchBox

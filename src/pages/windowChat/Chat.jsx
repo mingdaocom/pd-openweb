@@ -1,23 +1,19 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import DocumentTitle from 'react-document-title';
+import _ from 'lodash';
 import styled from 'styled-components';
+import { Icon } from 'ming-ui';
 import DragMask from 'worksheet/common/DragMask';
 import 'src/pages/chat/containers/ChatList/index.less';
 import ChatPanel from 'src/pages/chat/containers/ChatPanel';
-import nodataPng from 'src/pages/chat/containers/SessionList/resource/nodata.png';
 import SessionListDrawer from 'src/pages/chat/containers/SessionListDrawer';
 import * as socket from 'src/pages/chat/utils/socketEvent';
+import globalEvents from 'src/router/globalEvents';
 
 const Wrap = styled.div`
   .sessionListWrap {
     border-right: 1px solid var(--color-border-primary);
-  }
-  .noSession {
-    height: 92px;
-    width: 100px;
-    background: url(${nodataPng});
-    transform: scale(1.2);
   }
   .ChatPanel-header .icon-maximizing_a {
     display: none;
@@ -59,8 +55,19 @@ export default class WindowChat extends Component {
     };
   }
   componentDidMount() {
+    globalEvents();
     socket.socketInitEvent.call(this);
+    document.body.addEventListener('keydown', this.closeChatPanel);
   }
+  componentWillUnmount() {
+    document.body.removeEventListener('keydown', this.closeChatPanel);
+  }
+  closeChatPanel = e => {
+    if ((e.key === 'Escape' || e.keyCode === 26) && _.isEmpty(window.closeFns)) {
+      const closeEl = document.querySelector('.ChatPanel .icon-close');
+      closeEl && closeEl.click();
+    }
+  };
   render() {
     const { sessionListWidth, dragMaskVisible } = this.state;
     return (
@@ -92,7 +99,7 @@ export default class WindowChat extends Component {
         <div className="flex bgSecondary Relative">
           <ChatPanel embed={true} />
           <div className="flexRow alignItemsCenter justifyContentCenter h100">
-            <div className="noSession" />
+            <Icon icon="chat-full" className="textDisabled" style={{ fontSize: 100 }} />
           </div>
         </div>
       </Wrap>

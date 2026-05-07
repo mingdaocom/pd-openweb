@@ -13,7 +13,7 @@ export default class PageTableCon extends Component {
     super(props);
     this.state = {
       pageIndex: 1, // 页码
-      pageSize: 50, // 条数
+      pageSize: props.paginationInfo?.pageSize || 50, // 条数
       searchParams: {},
       columns: props.columns || [],
       checkedCols: props.columns.map(it => it.dataIndex),
@@ -24,6 +24,7 @@ export default class PageTableCon extends Component {
     if (this.props.paginationInfo !== nextProps.paginationInfo) {
       this.setState({ pageIndex: nextProps.paginationInfo.pageIndex, pageSize: nextProps.paginationInfo.pageSize });
     }
+
     if (!_.isEqual(this.props.columns, nextProps.columns)) {
       this.setState({ columns: nextProps.columns });
     }
@@ -55,11 +56,13 @@ export default class PageTableCon extends Component {
             checked={_.every(columns, item => _.includes(checkedCols, item.dataIndex))}
             onClick={checked => {
               let checkedCols = [];
+
               if (checked) {
                 checkedCols = columns.filter(it => it.disabled).map(it => it.dataIndex);
               } else {
                 checkedCols = columns.map(it => it.dataIndex);
               }
+
               this.setCheckedCols(checkedCols);
             }}
           >
@@ -75,11 +78,13 @@ export default class PageTableCon extends Component {
                   disabled={item.disabled}
                   onClick={checked => {
                     let copyCheckedCols = [...checkedCols];
+
                     if (checked) {
                       copyCheckedCols = copyCheckedCols.filter(it => it !== item.dataIndex);
                     } else {
                       copyCheckedCols = copyCheckedCols.concat(item.dataIndex);
                     }
+
                     this.setCheckedCols(copyCheckedCols);
                   }}
                 >
@@ -176,10 +181,12 @@ export default class PageTableCon extends Component {
                       whiteSpace: 'nowrap',
                       textOverflow: 'ellipsis',
                     };
+
                     // Firefox 对表格单元格的 fit-content 支持有问题，需要特殊处理
                     if (item.width !== 'fit-content') {
                       cellStyle.maxWidth = item.width || 150;
                     }
+
                     return { style: cellStyle };
                   },
                 }))}

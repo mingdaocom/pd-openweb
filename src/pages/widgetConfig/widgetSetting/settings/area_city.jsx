@@ -83,9 +83,11 @@ export default function Area(props) {
       { ajaxOptions: { sync: true } },
     );
     let list = citys.map(i => ({ ...i, text: i.name, value: i.id }));
+
     if (!enumDefault) {
       list = list.filter(l => !l.last);
     }
+
     return list;
   };
 
@@ -103,6 +105,7 @@ export default function Area(props) {
       if (!isChina(value)) {
         return enumDefault2 > 2 ? 2 : enumDefault2 || 2;
       }
+
       return enumDefault2 > 3 ? 3 : enumDefault2 || 3;
     }
   };
@@ -112,9 +115,11 @@ export default function Area(props) {
     if (!chooserange) {
       fixedDataController.getRegionConfigInfos({ projectId: globalSheetInfo.projectId }).then(res => {
         let code = 'CN';
+
         if (!_.isEmpty(res)) {
           code = _.get(res, 'code');
         }
+
         onChange({
           ...handleAdvancedSettingChange(data, { chooserange: code }),
           enumDefault2: getEnum2(code),
@@ -131,8 +136,10 @@ export default function Area(props) {
       ) {
         return <div className="text textSecondary">{_l('默认')}</div>;
       }
+
       return <div className="text">{_l('%0个', filterCommonData.length)}</div>;
     }
+
     return <div className="text textDisabled">{_l('请选择')}</div>;
   };
 

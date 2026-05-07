@@ -114,7 +114,15 @@ export default class DataFormat {
     this.instanceId = instanceId;
     this.workId = workId;
     this.masterRecordRowId = masterRecordRowId;
-    this.data = _.cloneDeep(data).map(c => ({ ...c, store: undefined }));
+    this.data = _.cloneDeep(data).map(c => {
+      const item = { ...c, store: undefined };
+
+      if (item.type === 53 && item.dataSource) {
+        item.advancedSetting = { ...item.advancedSetting, defaultfunc: item.dataSource, defaulttype: '1' };
+      }
+
+      return item;
+    });
     this.masterData = masterData;
     this.embedData = embedData;
     this.loadingInfo = {};
@@ -129,16 +137,19 @@ export default class DataFormat {
     this.onAsyncChange = (...args) => {
       onAsyncChange(...args, this);
     };
+
     this.updateLoadingItems = updateLoadingItems;
     this.activeTrigger = activeTrigger;
     this.loopList = [];
     this.isMobile = browserIsMobile();
     this.loadRowsWhenChildTableStoreCreated = loadRowsWhenChildTableStoreCreated;
+    this.mobileCheckRuleLocked = false;
 
     this.requestPool = requestPool || createRequestPool({ abortController });
     this.debounceMap = new Map();
     this.debounceByKey = (fn, wait) => {
       const { debounceMap } = this;
+
       return function (key, ...args) {
         if (!debounceMap.has(key)) {
           debounceMap.set(
@@ -146,6 +157,7 @@ export default class DataFormat {
             _.debounce((resolve, ...args) => resolve(fn(...args)), wait),
           );
         }
+
         const debouncedFn = debounceMap.get(key);
 
         return new Promise(resolve => {
@@ -153,6 +165,7 @@ export default class DataFormat {
         });
       };
     };
+
     this.debounceGetFilterRowsData = this.debounceByKey(this.getFilterRowsData, 100);
     const departmentIds = [];
     const locationIds = [];
@@ -163,10 +176,6 @@ export default class DataFormat {
     const initStore = () => {
       this.data.forEach(item => {
         if (item.hidden) return;
-
-        if (item.type === 53 && item.dataSource) {
-          item.advancedSetting = { ...item.advancedSetting, defaultfunc: item.dataSource, defaulttype: '1' };
-        }
 
         if (item.storeFromDefault) {
           item.store = item.storeFromDefault;
@@ -181,6 +190,7 @@ export default class DataFormat {
         ) {
           item.store = this.getControlStore(item);
         }
+
         try {
           if (item.store) {
             item.store.setLoadingInfo = (key, status) => {
@@ -205,13 +215,11 @@ export default class DataFormat {
           control.type === 29 && (_.get(control, 'advancedSetting.defsource') || '').startsWith('[{"staticValue":')
         );
       }
+
       const dataForInit = this.data
         .filter(isRelateRecordWithStaticValue)
         .concat(this.data.filter(c => !isRelateRecordWithStaticValue(c)));
       dataForInit.forEach(item => {
-        if (item.type === 53 && item.dataSource) {
-          item.advancedSetting = { ...item.advancedSetting, defaultfunc: item.dataSource, defaulttype: '1' };
-        }
         if (item.value) {
           this.updateDataSource({ controlId: item.controlId, value: item.value, notInsertControlIds: true, isInit });
         } else if (item.advancedSetting && item.advancedSetting.defaultfunc && item.type !== 30) {
@@ -236,12 +244,14 @@ export default class DataFormat {
               formData: this.data,
               fnControl: item,
             });
+
             if (value) {
               this.updateDataSource({ controlId: item.controlId, value, isInit });
             }
           }
         } else if (item.advancedSetting && item.advancedSetting.defsource && item.type !== 30) {
           const value = getDynamicValue(this.data, item, this.masterData);
+
           if (this.isMobile && item.type === 29 && _.isString(value) && _.isEmpty(JSON.parse(value))) {
             this.updateDataSource({ controlId: item.controlId, value: null, isInit });
           } else if (value) {
@@ -262,6 +272,7 @@ export default class DataFormat {
           const unit = TIME_UNIT[item.unit] || 'd';
           const today = moment().startOf(unit);
           const time = moment(item.sourceControlId);
+
           if (item.advancedSetting.dateformulatype === '1' || _.isUndefined(item.advancedSetting.dateformulatype)) {
             item.value = String(Math.floor(moment(time).diff(today, unit)));
           } else {
@@ -314,6 +325,7 @@ export default class DataFormat {
 
     if (!(isCreate || ignoreLock) && checkRuleLocked(rules, this.data, _.get(this.embedData, 'recordId'))) {
       disabled = true;
+      this.mobileCheckRuleLocked = true;
     }
 
     this.data.forEach(item => {
@@ -369,6 +381,11 @@ export default class DataFormat {
         item.size = halfSwitchSize(item, from);
       }
 
+      // 业务规则设置只读所有字段时，更改disable状态与H5呈现/编辑状态冲突，导致只读所有字段时子表快速编辑检查项只读无效
+      if (this.isMobile && item.type === 34) {
+        item.mobileCheckRuleLocked = this.mobileCheckRuleLocked;
+      }
+
       const { errorType, errorText } = onValidator({
         item,
         data,
@@ -407,9 +424,11 @@ export default class DataFormat {
   getControlStore(control) {
     const { appId, recordId, instanceId, workId, worksheetId, from, loadRowsWhenChildTableStoreCreated } = this;
     let store = this.storeCenter[control.controlId];
+
     if (store) {
       return store;
     }
+
     if (control.type === 34) {
       store = generateSubListStore(control, {
         from,
@@ -441,6 +460,7 @@ export default class DataFormat {
         DataFormat,
       });
       const subListNeedValidate = control.required || find(control.relationControls, c => c.required);
+
       if (loadRowsWhenChildTableStoreCreated || (subListNeedValidate && !!recordId)) {
         store.initAndLoadRows({
           worksheetId: this.worksheetId,
@@ -461,11 +481,13 @@ export default class DataFormat {
         workId,
       });
     }
+
     // generateRelateRecordTableStore
     if (!store) {
       console.error('create store fail!');
       return;
     }
+
     this.storeCenter[control.controlId] = store;
     return store;
   }
@@ -475,6 +497,7 @@ export default class DataFormat {
    */
   setControlItemValue(controlId, value) {
     const targetControl = find(this.data, { controlId });
+
     if (targetControl) {
       targetControl.value = value;
     }
@@ -503,11 +526,13 @@ export default class DataFormat {
             // 子表被动赋值
             if (item.type === 34 && !item.isSubList && item.store) {
               let loading = true;
+
               try {
                 loading = item.store.getState().baseLoading;
               } catch (err) {
                 console.log(err);
               }
+
               const params = {
                 recordId: this.recordId,
                 masterData: {
@@ -517,6 +542,7 @@ export default class DataFormat {
                 },
                 abortController: this.abortController,
               };
+
               if (_.get(value, 'action') === 'append') {
                 params.staticRows = value.rows.filter(i => !i.rowid);
                 params.type = 'append';
@@ -529,19 +555,23 @@ export default class DataFormat {
                     type: 'DELETE_ALL',
                   });
                 }
+
                 item.value = '';
               } else if (typeof value === 'string' && !_.isEmpty(safeParse(value))) {
                 const parsedRows = safeParse(value);
                 params.staticRows = parsedRows;
               }
+
               if (params.staticRows) {
                 const hasRequiredError = find(this.errorItems, {
                   controlId: item.controlId,
                   errorType: FORM_ERROR_TYPE.REQUIRED,
                 });
+
                 if (hasRequiredError) {
                   _.remove(this.errorItems, obj => obj.controlId === item.controlId);
                 }
+
                 if (loading || (get(value, 'fireWhenLoaded') && this.recordId && !item.store.getState().base.loaded)) {
                   (get(value, 'fireWhenLoaded') && this.recordId && !item.store.getState().base.loaded
                     ? item.store.waitListForLoadRows
@@ -567,10 +597,12 @@ export default class DataFormat {
                 } else {
                   setRowsFromStaticRows(params)(item.store.getState, item.store.dispatch, DataFormat);
                 }
+
                 this.controlIds.push(controlId);
                 return;
               }
             }
+
             // 表单内关联表格组件被动赋值
             if (
               !this.isMobile &&
@@ -666,6 +698,7 @@ export default class DataFormat {
 
             // 工作表查询
             const needSearch = this.getFilterConfigs(item, 'onBlur');
+
             if (!currentIgnoreSearch && (currentSearchByChange ? isUnTextWidget(item) : needSearch.length > 0)) {
               this.updateDataBySearchConfigs({ control: item, searchType: 'onBlur' });
             }
@@ -715,6 +748,7 @@ export default class DataFormat {
           }
         });
       };
+
       const updateControlData = (controlId, data) => {
         this.data.forEach(item => {
           if (controlId === item.controlId) {
@@ -722,10 +756,12 @@ export default class DataFormat {
           }
         });
       };
+
       const depthUpdateData = (controlId, depth, value) => {
         const currentItem = _.find(this.data, item => item.controlId === controlId);
         let currentSearchByChange = depth === 0 ? searchByChange : false;
         let currentIgnoreSearch = depth === 0 ? ignoreSearch : false;
+
         // onChange主动更新，清空循环列表
         if (currentSearchByChange || userTriggerChange) {
           this.loopList = [];
@@ -778,9 +814,11 @@ export default class DataFormat {
               // 公式
               if (singleControl.type === 31) {
                 let formulaResult = parseNewFormula(this.data, singleControl);
+
                 if (formulaResult.columnIsUndefined) {
                   return '';
                 }
+
                 // 文本组合涉及百分比公式，特殊处理
                 if (
                   singleControl.advancedSetting &&
@@ -789,6 +827,7 @@ export default class DataFormat {
                 ) {
                   formulaResult.result = parseFloat(formulaResult.result) * 100;
                 }
+
                 return formulaResult.error || _.isNull(formulaResult.result)
                   ? ''
                   : `${formulaResult.result}${singleControl.unit}`;
@@ -860,14 +899,18 @@ export default class DataFormat {
             ) {
               return;
             }
+
             const sourceSheetControl = _.find(
               this.data,
               item => item.controlId === currentItem.dataSource.slice(1, -1),
             );
+
             if (!sourceSheetControl) {
               return;
             }
+
             let records = [];
+
             try {
               if (sourceSheetControl.type === 29) {
                 try {
@@ -882,6 +925,7 @@ export default class DataFormat {
                     records = sourceSheetControl.data;
                   } else {
                     let parsedValue = safeParse(sourceSheetControl.value);
+
                     if (_.isArray(parsedValue)) {
                       records = parsedValue;
                     }
@@ -895,11 +939,13 @@ export default class DataFormat {
                 } else {
                   records = sourceSheetControl.value.rows || [];
                 }
+
                 records = filterEmptyChildTableRows(records);
               }
             } catch (err) {
               console.error(err);
             }
+
             if (!currentItem.sourceControlId) {
               // 记录数量
               value = records.length;
@@ -908,6 +954,7 @@ export default class DataFormat {
                 sourceSheetControl.relationControls.concat(SYSTEM_CONTROL_WITH_UAID),
                 c => c.controlId === currentItem.sourceControlId,
               );
+
               if (sourceControl) {
                 const valuesOfRecords = records.map(
                   record =>
@@ -916,10 +963,12 @@ export default class DataFormat {
                     ],
                 );
                 const noUndefinedValues = valuesOfRecords.filter(value => !_.isUndefined(value));
+
                 if (valuesOfRecords.length) {
                   const isDate =
                     _.includes([15, 16, 46], currentItem.type) ||
                     (currentItem.type === 37 && _.includes([15, 16, 46], currentItem.enumDefault2));
+
                   switch (currentItem.enumDefault) {
                     case 13: // 已填
                       value = valuesOfRecords.filter(c => {
@@ -992,6 +1041,7 @@ export default class DataFormat {
                           ),
                         );
                       }
+
                       break;
                     case 3: // 最小 最早
                       if (isDate) {
@@ -1017,6 +1067,7 @@ export default class DataFormat {
                           ),
                         );
                       }
+
                       break;
                   }
                 }
@@ -1070,6 +1121,7 @@ export default class DataFormat {
       if (data) {
         updateControlData(controlId, data);
       }
+
       depthUpdateData(controlId, 0, value);
     } catch (err) {
       console.error('UpdateSource Error:', err);
@@ -1121,6 +1173,7 @@ export default class DataFormat {
     this.data.forEach(i => {
       if (((i.type === 2 && i.advancedSetting && i.advancedSetting.filterregex) || '').indexOf(item.controlId) > -1) {
         const error = checkValueByFilterRegex(i, i.value, this.data);
+
         if (error) {
           _.remove(this.errorItems, e => e.controlId === i.controlId && e.errorType === FORM_ERROR_TYPE.CUSTOM);
           this.errorItems.push({
@@ -1208,6 +1261,7 @@ export default class DataFormat {
         const parentControl = _.find(this.data, item =>
           _.find(item.relationControls || [], i => controlId.includes(i.controlId)),
         );
+
         if (parentControl) {
           this.loadingInfo[parentControl.controlId] = status;
         }
@@ -1340,6 +1394,7 @@ export default class DataFormat {
     if (!ids.length) return;
 
     const isGoogle = !!getMapConfig();
+
     if (isGoogle) {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(position => {
@@ -1365,6 +1420,7 @@ export default class DataFormat {
           });
         });
       }
+
       return;
     }
 
@@ -1376,6 +1432,7 @@ export default class DataFormat {
           ids.forEach(controlId => {
             let value = null;
             const control = _.find(this.data, { controlId });
+
             if ((typeof control.strDefault === 'string' ? control.strDefault : '00')[0] === '1') {
               value = JSON.stringify({
                 x: longitude,
@@ -1393,6 +1450,7 @@ export default class DataFormat {
                 title,
               });
             }
+
             this.updateDataSource({
               controlId,
               value,
@@ -1412,6 +1470,7 @@ export default class DataFormat {
         },
         cancel: res => {
           const { errMsg } = res;
+
           if (!(errMsg.includes('cancel') || errMsg.includes('canceled'))) {
             window.nativeAlert(JSON.stringify(res));
           }
@@ -1445,6 +1504,7 @@ export default class DataFormat {
                   }),
                 });
               }
+
               mapHandler.destroyMap();
             },
             false,
@@ -1479,11 +1539,13 @@ export default class DataFormat {
         worksheetId,
         rowId: sid,
       };
+
       // 公开表单
       if (window.isPublicWorksheet && window.publicWorksheetShareId) {
         params.shareId = window.publicWorksheetShareId;
         params.getType = 3;
       }
+
       // 填写链接
       if (_.get(window, 'shareState.isPublicWorkflowRecord') && _.get(window, 'shareState.shareId')) {
         params.shareId = _.get(window, 'shareState.shareId');
@@ -1531,6 +1593,7 @@ export default class DataFormat {
         if (item.isImportFromExcel && !checkCellIsEmpty(item.value)) {
           return;
         }
+
         // 部门 | 组织角色
         if (item.type === 27 || item.type === 48) {
           const accounts = safeParse(
@@ -1572,6 +1635,7 @@ export default class DataFormat {
 
             const infoObj = INFO_OPTIONS[item.type];
             let ajaxParams = { projectId: this.projectId, accountIds: accounts.map(o => o.accountId) };
+
             if (item.type === 27) {
               ajaxParams.includePath = true;
             }
@@ -1659,9 +1723,11 @@ export default class DataFormat {
       _.pick(i, ['controlId', 'value', 'values', 'maxValue', 'minValue']),
     );
     const existFilters = this.loopList.filter(i => i.loopId === `${effectControlId}-${controlId}`);
+
     if (_.some(existFilters, e => _.isEqual(tempFilterValue, e.loopFilter))) {
       return Promise.resolve(null);
     }
+
     this.loopList.push({ loopId: `${effectControlId}-${controlId}`, loopFilter: tempFilterValue });
 
     let params = {
@@ -1672,9 +1738,11 @@ export default class DataFormat {
       getType: 7,
       ...para,
     };
+
     if (window.isPublicWorksheet) {
       params.formId = window.publicWorksheetShareId;
     }
+
     return this.requestPool.getFilterRowsByQueryDefault(params, this.abortController);
   };
 
@@ -1708,9 +1776,11 @@ export default class DataFormat {
               _.find(this.data, d => d.controlId === controlId),
               'value',
             );
+
             if (control.isImportFromExcel && curValue) {
               return;
             }
+
             return _.some(
               getItemFilters(items),
               item => _.get(item.dynamicSource[0] || {}, 'cid') === control.controlId,
@@ -1766,11 +1836,13 @@ export default class DataFormat {
       const controls = _.get(templates[0] || {}, 'controls') || [];
       //当前配置查询的控件
       const currentControl = _.find(this.data, da => da.controlId === controlId);
+
       // 他表不执行查询
       if (!currentControl || currentControl.type === 30) {
         this.setLoadingInfo(controlId, false, true);
         return;
       }
+
       // 表单类型转换，矫正数量配置
       let queryCount = getDefaultCount(currentControl, currentConfig.queryCount);
       // 满足查询时机
@@ -1837,6 +1909,7 @@ export default class DataFormat {
               name: getCurrentValue(titleControl, nameValue, { type: 2 }),
             };
           });
+
           if ((_.isEmpty(newValue) || emptyValue) && _.includes([29], controlType)) {
             this.isMobile ? updateData('') : updateData('deleteRowIds: all');
           } else {
@@ -1898,14 +1971,17 @@ export default class DataFormat {
           }
 
           const filterData = res.data || [];
+
           //子表
           if (controlType === 34) {
             const newValue = [];
+
             if (filterData.length) {
               filterData.forEach(item => {
                 let row = {};
                 canMapConfigs.map(({ cid = '', subCid = '' }) => {
                   const controlVal = _.find(currentControl.relationControls || [], re => re.controlId === cid);
+
                   if (controlVal) {
                     if (subCid === 'rowid') {
                       row[cid] =
@@ -1921,6 +1997,7 @@ export default class DataFormat {
                           : item.rowid;
                       return;
                     }
+
                     row[cid] = formatSearchResultValue({
                       targetControl: _.find(controls, s => s.controlId === subCid),
                       currentControl: controlVal,
@@ -1940,6 +2017,7 @@ export default class DataFormat {
                 }
               });
             }
+
             updateData({
               action: 'clearAndSet',
               isDefault: true,
@@ -1956,11 +2034,13 @@ export default class DataFormat {
               controls,
               searchResult: (filterData[0] || {})[currentId],
             });
+
             // 防止新建的时候无效变更引起的报错提示
             if (searchType === 'init' && _.isEqual(value, currentControl.value)) {
               this.setLoadingInfo(controlId, false, true);
               return;
             }
+
             updateData(value);
           }
         }

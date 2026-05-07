@@ -39,10 +39,12 @@ class ChangeRole extends React.Component {
     let projectOrganizeIds = _.map(this.state.projectOrganizeInfos, ({ projectOrganizeId }) => projectOrganizeId);
     let jobIds = _.map(this.state.jobInfos, ({ jobId }) => jobId);
     const { params } = this.props.match;
+
     if (moveRoleFetch) {
       this.props.history.push(`/mobile/members/${params.appId}`);
       return '';
     }
+
     if (isRoleListLoading) {
       return (
         <div className="flexRow justifyContentCenter alignItemsCenter h100">

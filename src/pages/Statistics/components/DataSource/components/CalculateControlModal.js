@@ -52,14 +52,17 @@ class CalculateControl extends Component {
     const { currentReport, editCalculateControl } = this.props;
     const { formulas, yaxisList } = currentReport;
     const { controlName, formulaStr, dot } = this.state;
+
     if (_.isEmpty(controlName)) {
       alert(_l('字段名称不能为空'), 2);
       return;
     }
+
     if (_.isEmpty(formulaStr)) {
       alert(_l('计算值不能为空'), 2);
       return;
     }
+
     if (editCalculateControl) {
       const newFormulas = formulas.map(item => {
         if (item.controlId === editCalculateControl.controlId) {
@@ -76,6 +79,7 @@ class CalculateControl extends Component {
       const param = {
         formulas: newFormulas,
       };
+
       if (_.find(yaxisList, { controlId: editCalculateControl.controlId })) {
         param.yaxisList = yaxisList.map(item => {
           if (item.controlId === editCalculateControl.controlId) {
@@ -89,6 +93,7 @@ class CalculateControl extends Component {
           }
         });
       }
+
       this.props.onChangeCurrentReport(param, true);
     } else {
       const data = { controlId: uuidv4(), controlName: controlName, type: 10000001, dataSource: formulaStr, dot };
@@ -96,6 +101,7 @@ class CalculateControl extends Component {
         formulas: formulas.concat(data),
       });
     }
+
     this.props.onChangeDialogVisible(false);
   };
   handleChange = (err, value, obj) => {
@@ -103,16 +109,20 @@ class CalculateControl extends Component {
       // this.handleError(err);
       return;
     }
+
     const { fnmatch } = this.state;
     let newFnmatch = '';
+
     if (obj.origin === '+input') {
       if (!/[0-9|+|\-|*|/|(|),]/.test(obj.text[0])) {
         newFnmatch = fnmatch + obj.text[0];
       }
     }
+
     if (obj.origin === '+delete' && fnmatch && obj.removed[0]) {
       newFnmatch = /^[A-Z0-9]+$/.test(obj.removed[0]) ? fnmatch.replace(new RegExp(`${obj.removed[0]}$`), '') : '';
     }
+
     this.setState({
       formulaStr: value,
       fnmatch: newFnmatch,
@@ -122,6 +132,7 @@ class CalculateControl extends Component {
   };
   handleChangeDot = value => {
     let count = '';
+
     if (value) {
       count = parseInt(value);
       count = isNaN(count) ? 0 : count;
@@ -129,6 +140,7 @@ class CalculateControl extends Component {
     } else {
       count = 0;
     }
+
     this.setState({ dot: count });
   };
   renderControlTypeOverlay({ controlId, type, enumDefault }, norm) {
@@ -179,6 +191,7 @@ class CalculateControl extends Component {
     const type = showDropdownId.replace(/\w+-/, '');
     const isNumber = isNumberControl(control.type) || control.enumDefault === 1;
     const norm = _.find(isNumber ? calculateControlNormTypes : textControlNormTypes, { value: Number(type) }) || {};
+
     if (showDropdownId) {
       return (
         <Dropdown
@@ -207,6 +220,7 @@ class CalculateControl extends Component {
           type: 6,
         };
       }
+
       return n;
     });
     return (

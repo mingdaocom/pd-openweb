@@ -112,6 +112,7 @@ export default function AuthorizationList(props) {
     if (!fetchState.loading) {
       return;
     }
+
     packageVersionAjax
       .getAuthorizationList(
         {

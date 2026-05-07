@@ -140,6 +140,7 @@ export default function (props) {
                 ) {
                   return alert(_l('结束时间不能早于开始时间'), 3);
                 }
+
                 let registerInfo = {
                   ..._.get(portalSetModel, 'registerInfo'),
                   startTime: date ? moment(date).format('YYYY-MM-DD HH:mm:ss') : '',
@@ -172,6 +173,7 @@ export default function (props) {
                 ) {
                   return alert(_l('结束时间不能早于开始时间'), 3);
                 }
+
                 let registerInfo = {
                   ..._.get(portalSetModel, 'registerInfo'),
                   endTime: date ? moment(date).format('YYYY-MM-DD HH:mm:ss') : '',

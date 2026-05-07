@@ -39,6 +39,7 @@ const MyUpdater = {
       .off()
       .on('click', function () {
         let targetDivID = $(this).attr('targetDiv');
+
         // $('#Div_JoinKnowledge').hide();
         // 附件
         if (targetDivID == '#Attachment_updater') {
@@ -99,9 +100,11 @@ const MyUpdater = {
           ) {
             $('#textarea_Updater').val(langShareLink).addClass('textTertiary');
           }
+
           $('#Link_updater .visualDocTextBox').show();
           $('#text_LinkUrl').on('keydown', function (e) {
             let key = window.event ? e.keyCode : e.which;
+
             if (key == 13) {
               $(this).parent().next().find("input[type='button']").click();
               return false;
@@ -119,6 +122,7 @@ const MyUpdater = {
           ) {
             $('#textarea_Updater').val(langVoteQuestion).addClass('textTertiary');
           }
+
           VoteUpdater.init($('#Vote_updater'));
         } else {
           $('#hidden_UpdaterType').val('0');
@@ -147,6 +151,7 @@ const MyUpdater = {
               });
           }
         }
+
         $('#updateCloseContainer').show();
       });
     // 右上角关闭
@@ -182,6 +187,7 @@ const MyUpdater = {
       })
       .focus(function () {
         let msg = $textareaUpdater.val().trim();
+
         if (
           msg == _l('知会工作是一种美德') + '...' ||
           msg == langUploadFiles ||
@@ -191,6 +197,7 @@ const MyUpdater = {
         ) {
           $textareaUpdater.val('');
         }
+
         $textareaUpdater.removeClass('textTertiary');
         MyUpdater.options.updaterInputAreaFocus = true;
         $('#myupdaterOP').slideDown(function () {
@@ -275,6 +282,7 @@ const MyUpdater = {
   ResetUpdaterDiv: function () {
     if ($('#textarea_Updater')) {
       let msg = $('#textarea_Updater').val().trim();
+
       if (
         msg == '' ||
         msg == langUploadFiles ||
@@ -333,18 +341,22 @@ const MyUpdater = {
       $('#Vote_updater div[pluploadid]').show();
       $('#Vote_updater .voteOptions li:gt(1)').remove();
     }
+
     if ($('#voteAvailableNumber').length > 0) {
       $('#voteAvailableNumber').get(0).selectedIndex = 0;
     }
+
     if ($('#voteAnonymous').length > 0) {
       $('#voteAnonymous').removeAttr('checked');
     }
+
     if ($('#voteVisble').length > 0) {
       $('#voteVisble').attr('checked', 'checked');
     }
 
     if ($('#Vote_updater .voteOptions li').length > 0) {
       let oplength = $('#Vote_updater .voteOptions li').lenght;
+
       if (oplength > 0) {
         for (let i = 0; i < oplength; i++) {
           if (i > 1) {
@@ -353,6 +365,7 @@ const MyUpdater = {
         }
       }
     }
+
     // 关闭按钮
     $('#updateCloseContainer').hide();
     $('#currentUploadSize').html('0M');
@@ -363,6 +376,7 @@ const MyUpdater = {
   // 预览分享链接
   ViewLink: function (obj) {
     let linkUrl = $('#text_LinkUrl').val().trim();
+
     if (!linkUrl || linkUrl == 'http://') {
       alert(_l('请输入链接'), 3);
       return false;
@@ -381,6 +395,7 @@ const MyUpdater = {
           alert(_l('链接提取失败'), 2);
           data = null;
         }
+
         MyUpdater.options.linkViewData = data;
         $el.val(_l('预览')).attr('disabled', false).removeClass('Disabled');
         $btnShare.attr('disabled', false).removeClass('Disabled');
@@ -390,6 +405,7 @@ const MyUpdater = {
   PostUpdater: function (result, obj, successCallback, isPost) {
     document.querySelector('#textarea_Updater').val(data => {
       let postMsg = data;
+
       if (
         !postMsg ||
         !postMsg.trim() ||
@@ -412,6 +428,7 @@ const MyUpdater = {
         alert(_l('请输入链接'), 3);
         return false;
       }
+
       // 验证是否有附件
       if (postType == '9' && MyUpdater != 'undefined') {
         if (typeof result.isUploadComplete !== 'undefined' && !result.isUploadComplete) {
@@ -423,6 +440,7 @@ const MyUpdater = {
       let rData = { postType: postType, postMsg: postMsg };
 
       let voteData;
+
       if (postType == '7') {
         let $voteUpdater = $('#Vote_updater');
         voteData = VoteUpdater.getData($voteUpdater);
@@ -457,6 +475,7 @@ const MyUpdater = {
           let addToKcRootId, addToKcParentId;
           let addToKcType = $('#addAttachmentToKcLink').data('type');
           let addToKcNode = $('#addAttachmentToKcLink').data('node');
+
           if (addToKcType == 2 /* ROOT*/) {
             addToKcRootId = addToKcParentId = addToKcNode.id;
           } else if (addToKcType == 3 /* NODE*/) {
@@ -466,10 +485,12 @@ const MyUpdater = {
             /* MY*/
             addToKcRootId = addToKcParentId = null;
           }
+
           rData.addToKc = true;
           if (addToKcRootId) {
             rData.addToKcRootId = addToKcRootId;
           }
+
           if (addToKcParentId) {
             rData.addToKcParentId = addToKcParentId;
           }
@@ -487,6 +508,7 @@ const MyUpdater = {
       // 当前动态是不是以问号结尾 “是”则提示加入问答中心
       if (!isPost && postType == 0) {
         let reg = /.*[?？吗](\s*@[^\s]+)*\s*$/;
+
         if (reg.test(postMsg)) {
           MyUpdater.PostToReward(obj, successCallback);
           return;
@@ -498,6 +520,7 @@ const MyUpdater = {
         let originName = result.attachmentData.length
           ? result.attachmentData[0].originalFileName
           : $('#Attachment_updater .kcAttachmentList').children().first().data('name');
+
         if (postMsg == originName) {
           if (!confirm(_l('确认要以原始附件名作为发布动态内容？'))) {
             return false;
@@ -508,6 +531,7 @@ const MyUpdater = {
       $(obj).attr('disabled', 'disabled').addClass('Disabled');
 
       let checkValidPromises = [];
+
       if (postType == '9' && result.attachmentData.length && $('#addAttachmentToKcToggle').prop('checked')) {
         let addToKcSize = result.attachmentData
           .map(function (file) {
@@ -546,6 +570,7 @@ const MyUpdater = {
                 alert(_l('发布动态失败'), 2);
                 return;
               }
+
               alert(_l('发布成功'));
 
               $('#textarea_Updater').val('');

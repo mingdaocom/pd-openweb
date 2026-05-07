@@ -38,10 +38,13 @@ export default class Text extends React.Component {
     if (nextProps.cell.value !== this.props.cell.value) {
       this.setState({ value: safeParse(nextProps.cell.value, 'array') });
     }
+
     const single = nextProps.cell.enumDefault === 0;
+
     if (this.cell.current && single && !this.props.isediting && nextProps.isediting) {
       this.handleSelect();
     }
+
     if (!single && !this.props.isediting && nextProps.isediting && _.isEmpty(this.props.cell.value)) {
       setTimeout(() => {
         this.handleSelect();
@@ -59,6 +62,7 @@ export default class Text extends React.Component {
         if (!this.isSelecting) {
           this.handleSelect();
         }
+
         break;
       default:
         break;
@@ -88,6 +92,7 @@ export default class Text extends React.Component {
       alert(_l('您不是该组织成员，无法获取其组织角色列表，请联系组织管理员'), 3);
       return;
     }
+
     const orgRange = dealUserRange(cell, _.isFunction(rowFormData) ? rowFormData() : rowFormData, masterData());
 
     quickSelectRole(target, {
@@ -130,6 +135,7 @@ export default class Text extends React.Component {
       );
     } else {
       let newData = [];
+
       try {
         newData = isCancel
           ? value.filter(l => l.organizeId !== filterData[0].organizeId)
@@ -137,6 +143,7 @@ export default class Text extends React.Component {
       } catch (err) {
         console.log(err);
       }
+
       this.setState(
         {
           value: newData,

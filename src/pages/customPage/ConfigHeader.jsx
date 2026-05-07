@@ -24,7 +24,7 @@ const ConfigHeader = styled(FlexCenter)`
   padding: 0 24px;
   z-index: 9;
   background-color: var(--color-background-primary);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.24);
+  box-shadow: var(--shadow-sm);
   .iconWrap {
     padding-right: 24px;
     cursor: pointer;
@@ -91,7 +91,7 @@ const ConfigHeader = styled(FlexCenter)`
     }
   }
   .close {
-    background-color: var(--color-background-secondary);
+    background-color: var(--color-background-tertiary);
     color: var(--color-text-tertiary);
     margin-right: 10px;
     &:hover {
@@ -104,6 +104,7 @@ const ConfigHeader = styled(FlexCenter)`
     cursor: pointer;
   }
 `;
+
 export default props => {
   const {
     appId,
@@ -125,9 +126,11 @@ export default props => {
   const [name, setName] = useState(pageName);
   const [configVisible, setConfigVisible] = useState(false);
   const { current: originName } = useRef(pageName);
+
   const save = () => {
     onSave();
     const newName = name.trim();
+
     if (originName !== newName) {
       appManagementAjax
         .editWorkSheetInfoForApp({
@@ -140,6 +143,7 @@ export default props => {
           if (res) {
             updatePageInfo({ pageName: newName });
             const { currentPcNaviStyle } = store.getState().appPkg;
+
             if ([1, 3].includes(currentPcNaviStyle)) {
               const singleRef = getAppSectionRef(groupId);
               singleRef.dispatch(
@@ -154,11 +158,13 @@ export default props => {
         });
     }
   };
+
   const handleClose = () => {
     if (!modified) {
       onBack();
       return;
     }
+
     Dialog.confirm({
       width: 520,
       onlyClose: true,
@@ -171,6 +177,7 @@ export default props => {
       onCancel: cancelModified,
     });
   };
+
   return (
     <ConfigHeader>
       {apk.appId && (
@@ -193,6 +200,7 @@ export default props => {
               if (!name) {
                 setName(originName);
               }
+
               setEdit(false);
             }}
           />

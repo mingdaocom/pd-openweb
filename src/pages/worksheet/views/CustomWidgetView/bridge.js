@@ -42,9 +42,11 @@ export default class WidgetBridge {
       // };
       this.onLoad();
       let loadUrl = this.cache.current.scriptUrl;
+
       if (this.cache.current.isServerUrl) {
         loadUrl = `${md.global.FileStoreConfig.pubHost}/${this.cache.current.scriptUrl}`;
       }
+
       this.sendWidgetBridge({
         action: 'load-widget',
         value: loadUrl,
@@ -53,9 +55,11 @@ export default class WidgetBridge {
       try {
         if (e.data.containerId !== this.containerId) return;
         const { functionName, args } = e.data;
+
         if (!isFunction(api[functionName])) {
           throw new Error('not a md api function');
         }
+
         const result = await api[functionName](args);
         e.ports[0].postMessage({
           result,
@@ -69,9 +73,11 @@ export default class WidgetBridge {
       if (e.data.containerId !== this.containerId) return;
       try {
         const { functionName, args } = e.data;
+
         if (!isFunction(utils[functionName])) {
           throw new Error('not a md api function');
         }
+
         const result = await utils[functionName]({
           ...args,
           projectId: get(this, 'cache.current.config.worksheetInfo.projectId'),

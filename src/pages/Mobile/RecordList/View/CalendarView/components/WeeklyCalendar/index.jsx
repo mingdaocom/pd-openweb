@@ -56,10 +56,12 @@ const WeeklyCalendar = forwardRef((props, ref) => {
     setCalendarTitle(getWeekTitle(dates));
 
     const isForceToday = baseDate.isSame(moment(), 'day');
+
     if (isForceToday) {
       updateSelectDate(todayStr);
       return;
     }
+
     // 其他周，选中对应的日期
     const newSelectedDate = calcDateByWeekAndIndex(dates[0], selectedDayIndex);
     updateSelectDate(newSelectedDate);

@@ -162,15 +162,19 @@ class DialogBase extends Component {
 
   getZIndex() {
     const dialog = [...document.querySelectorAll('.mui-dialog-container')].pop();
+
     if (!dialog || typeof window.getComputedStyle !== 'function') {
       return;
     }
+
     let zIndex;
+
     try {
       zIndex = parseInt(window.getComputedStyle(dialog).zIndex, 10) + 100;
     } catch (err) {
       console.log(err);
     }
+
     return zIndex;
   }
 
@@ -179,6 +183,7 @@ class DialogBase extends Component {
       const windowHeight = window.innerHeight || document.body.clientHeight || document.documentElement.clientHeight;
       const propsMaxHeight = parseInt(this.props.maxHeight, 10);
       let maxHeight = windowHeight;
+
       if (this.props.type !== 'fixed' && (maxHeight > propsMaxHeight || this.props.type === 'scroll')) {
         maxHeight = propsMaxHeight;
       }
@@ -191,6 +196,7 @@ class DialogBase extends Component {
       if (this.props.type !== 'scroll') {
         this._dialog.style.maxHeight = `${maxHeight}px`;
       }
+
       if (this.props.type === 'fixed' || !this.props.type) {
         this._dialog.style.maxHeight = `${maxHeight - dialogContainerPadding * 2}px`;
       }
@@ -208,6 +214,7 @@ class DialogBase extends Component {
         this._dialog.style.width = `${dialogWidth}px`;
       }
     }
+
     this.setDislocate();
   };
 
@@ -223,8 +230,10 @@ class DialogBase extends Component {
     if (this.props.dislocate && dislocateIndex > 1) {
       const dialogBaseLeft = (windowWidth - dialogWidth) / 2;
       let marginLeft = (dislocateIndex - 1) * 10;
+
       if ((dislocateIndex - 1) * 10 >= (windowWidth - dialogWidth) / 2 - 32) {
         const maxLeft = Math.floor(((windowWidth - dialogWidth) / 2 - 32) / 10) * 10;
+
         if (dialogWidth - (dislocateIndex - 1) * 10 >= 1087) {
           dialogWidth = dialogWidth - ((dislocateIndex - 1) * 10 - maxLeft);
         } else {
@@ -232,9 +241,11 @@ class DialogBase extends Component {
           dialogWidth = 1087;
         }
       }
+
       this._dialog.style.position = 'absolute';
       this._dialog.style.left = dialogBaseLeft + marginLeft + 'px';
     }
+
     this._dialog.style.width = `${dialogWidth}px`;
   };
 
@@ -242,14 +253,18 @@ class DialogBase extends Component {
     const { autoZIndex, dialogClasses, containerClassName, style, overlayClosable } = this.props;
     const { dislocateIndex } = this.state;
     const dialogContainerStyle = {};
+
     if (autoZIndex) {
       dialogContainerStyle.zIndex = this.getZIndex();
     }
+
     const containerClassList = ['mui-dialog-scroll-container'];
+
     // type
     if (this.props.type === 'fixed') {
       containerClassList.push('mui-dialog-fixed');
     }
+
     if (this.props.type === 'scroll') {
       containerClassList.push('mui-dialog-scroll');
     }
@@ -257,30 +272,38 @@ class DialogBase extends Component {
     const containerClasses = containerClassList.join(' ');
 
     let dialogClassList = ['mui-dialog-dialog'];
+
     // size
     if (this.props.size === 'medium') {
       dialogClassList.push('mui-dialog-medium');
     }
+
     if (this.props.size === 'large') {
       dialogClassList.push('mui-dialog-large');
     }
+
     if (this.props.size === 'huge') {
       dialogClassList.push('mui-dialog-huge');
     }
+
     // confirm
     if (this.props.confirm === 'confirm') {
       dialogClassList.push('mui-dialog-confirm');
     }
+
     if (this.props.confirm === 'success') {
       dialogClassList.push('mui-dialog-confirm', 'mui-dialog-success');
     }
+
     if (this.props.confirm === 'danger') {
       dialogClassList.push('mui-dialog-confirm', 'mui-dialog-danger');
     }
+
     // anim
     if (this.props.anim) {
       dialogClassList.push('mui-dialog-anim');
     }
+
     // props.className
     if (this.props.className) {
       dialogClassList = dialogClassList.concat(this.props.className.split(' '));
@@ -296,16 +319,21 @@ class DialogBase extends Component {
         this.props.onClose(e);
       }
     };
+
     // container
     let container = null;
+
     if (this.props.visible) {
       let mask = null;
+
       if (this.props.overlay) {
         mask = <div className="mui-dialog-mask" />;
       }
+
       if (this.props.dislocate && dislocateIndex > 1) {
         mask = <div className="mui-dialog-mask" style={{ backgroundColor: 'rgba(0, 0, 0, 0.2)' }} />;
       }
+
       container = (
         <div className={cx('mui-dialog-container', dialogClasses)} style={dialogContainerStyle}>
           {mask}

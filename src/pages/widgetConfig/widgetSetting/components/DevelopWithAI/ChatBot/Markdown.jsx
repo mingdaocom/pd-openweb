@@ -35,6 +35,7 @@ const Markdown = React.memo(
             onAiCodeUpdate(str);
             return highlight(str, languages.js);
           }
+
           return highlight(str, languages.js);
         },
       });
@@ -49,6 +50,7 @@ const Markdown = React.memo(
 
       // 如果是流式传输，只对 jsx 代码块特殊处理
       const defaultFence = md.renderer.rules.fence; // 保存默认的fence处理器
+
       md.renderer.rules.fence = (tokens, idx, options, env, self) => {
         const token = tokens[idx];
         const lang = token.params.split(/\s+/)[0]; // 获取语言标识
@@ -73,12 +75,14 @@ const Markdown = React.memo(
               messageId: id,
             });
           }
+
           return `<div class="code-card" data-message-id="${id}">
   <div class="title">${title || '字段控件'}</div>
   <div class="file-name">${fileName || 'Free_field.jsx'}</div>
   ${codeIsClosed === false ? '<div class="border-beam"></div>' : ''}
 </div>`;
         }
+
         if (lang.startsWith('custom_block_')) {
           return renderCustomBlock({
             type: lang,

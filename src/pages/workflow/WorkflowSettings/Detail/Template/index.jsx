@@ -3,6 +3,7 @@ import _ from 'lodash';
 import { Dropdown, LoadDiv, Radio, ScrollView } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import flowNode from '../../../api/flowNode';
+import WeChatServiceAccount from 'src/components/WeChatServiceAccountsDialog';
 import { RELATION_TYPE } from '../../enum';
 import {
   CustomTextarea,
@@ -47,14 +48,20 @@ export default class Template extends Component {
    * 获取节点详情
    */
   getNodeDetail(props, appId) {
-    const { processId, selectNodeId, selectNodeType, instanceId } = props;
+    const { processId, selectNodeId, selectNodeType, instanceId, isUpdateWeChatService } = props;
 
     flowNode
       .getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType, appId, instanceId })
       .then(result => {
         this.setState({
           data: appId
-            ? Object.assign({}, this.state.data, { appId, controls: result.controls, fields: result.fields })
+            ? Object.assign({}, this.state.data, {
+                appId: isUpdateWeChatService ? undefined : appId, // 更改微信服务号时清空选中模板信息
+                controls: result.controls,
+                fields: result.fields,
+                appList: result.appList,
+                service: result.service,
+              })
             : result,
           cacheKey: +new Date(),
           detailType: result.templateNode.appId || result.templateNode.pagePath ? 1 : 0,
@@ -115,6 +122,7 @@ export default class Template extends Component {
    * 渲染描述
    */
   renderDesc() {
+    const { companyId, relationId } = this.props;
     const { data } = this.state;
 
     return (
@@ -123,27 +131,31 @@ export default class Template extends Component {
           {_l(
             '发送服务号消息是指向已关注服务号的微信用户发送模版消息。发送对象支持使用人员字段（通过微信授权注册的外部门户用户）或文本字段（存储微信服务号openid）。使用微信服务号模板消息需要组织后台绑定已认证的企业服务号，并在微信服务号后台开通“模板消息”功能。',
           )}
+          <div className="textError">
+            {_l('注意：若发送对象为外部用户，请选择与外部门户一致的微信服务号，否则会发送失败。')}
+          </div>
         </div>
         <div className="mTop20 bold">{_l('服务号')}</div>
-        {data.service.appId ? (
-          <div className="workflowDetailDesc mTop10">
-            {_l('官方认证服务号')}
-            <span className="mLeft5" style={{ color: 'var(--color-task)' }}>
-              {data.service.serviceName}
-            </span>
-          </div>
-        ) : (
-          <div className="textSecondary workflowDetailDesc mTop10">
-            {_l('当前应用外部门户未开通微信登录，请前往')}
-            <a
-              href={`/app/${this.props.relationId}/role/external`}
-              className="ThemeColor3 ThemeHoverColor2"
-              target={location.href.indexOf('role/external') ? '_blank' : '_self'}
-            >
-              {_l('门户设置')}
-            </a>
-          </div>
-        )}
+
+        <WeChatServiceAccount
+          className="mTop10 workflowDetailDesc pTop10 pBottom10"
+          projectId={companyId}
+          appId={relationId}
+          selectedServiceAppId={data.service?.appId || data.appId}
+          unbindContent={
+            <div className="textSecondary workflowDetailDesc mTop10">
+              {_l('当前应用外部门户未开通微信登录，请前往')}
+              <a href={`/app/${relationId}/role/external`} className="ThemeColor3 ThemeHoverColor2" target="_self">
+                {_l('门户设置')}
+              </a>
+            </div>
+          }
+          updateWeChatServiceInfo={({ service }) => {
+            if (service.appId !== data.service.appId) {
+              this.getNodeDetail({ ...this.props, isUpdateWeChatService: true }, service.appId);
+            }
+          }}
+        />
       </Fragment>
     );
   }
@@ -205,6 +217,7 @@ export default class Template extends Component {
         className: item.id === data.appId ? 'ThemeColor3' : '',
       };
     });
+    const selectAppItem = _.find(appList, item => item.value === data.appId);
     const list = [
       { text: _l('H5链接'), value: 0 },
       { text: _l('小程序路径'), value: 1 },
@@ -224,6 +237,9 @@ export default class Template extends Component {
           className="flowDropdown mTop10"
           data={appList}
           value={data.appId || undefined}
+          renderTitle={
+            data.appId && !selectAppItem ? () => <span className="errorColor">{_l('模板已删除')}</span> : undefined
+          }
           border
           openSearch
           noData={_l('服务号未添加消息模板')}
@@ -235,8 +251,14 @@ export default class Template extends Component {
           <Fragment>
             <div className="mTop20 bold">{_l('内容设置')}</div>
             <div className="mTop15 Font13 textSecondary">{_l('标题')}</div>
-            <div className="mTop8 actionControlBox actionDisabled pLeft10 pRight10">
-              {(_.find(appList, item => item.value === data.appId) || {}).text}
+            <div
+              className={`mTop8 actionControlBox actionDisabled pLeft10 pRight10 ${data.appId && !selectAppItem ? 'errorBG' : ''}`}
+            >
+              {data.appId && !selectAppItem ? (
+                <span className="errorColor">{_l('模板已删除')}</span>
+              ) : (
+                selectAppItem?.text
+              )}
             </div>
 
             {data.fields.map((item, i) => {

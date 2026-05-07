@@ -19,10 +19,10 @@ export default class DataCom extends Component {
     const { type } = props.match.params || {};
 
     this.state = {
-      watermark: false,
+      enabledWatermark: false,
       showWebProxySetting: false,
       showLimitDownload: false,
-      enabledWatermarkTxt: undefined,
+      enabledWatermarkTxt: '',
       showAppAccess: false,
       attachmentSettingInfo: {},
       showEncryptRules: type === 'isShowEncryptRules',
@@ -37,92 +37,58 @@ export default class DataCom extends Component {
 
   getEnabledWatermark = () => {
     projectSettingController.getEnabledWatermark({ projectId: Config.projectId }).then(res => {
-      this.setState({ watermark: res.enabledWatermark, enabledWatermarkTxt: res.enabledWatermarkTxt });
+      this.setState(res);
     });
   };
 
   getApiProxyState = () => {
     projectSettingController.getApiProxyState({ projectId: Config.projectId }).then(res => {
-      this.setState({ webProxy: res });
+      this.setState({ apiProxyEnabled: res });
     });
   };
 
   getAttachmentSetting = () => {
     dataLimitAjax.getAttachmentSetting({ projectId: Config.projectId }).then(res => {
-      this.setState({
-        limitFileDownload: res.status,
-        limitType: res.limitType,
-        attachmentSettingInfo: res,
-      });
+      this.setState({ attachmentSettingInfo: res });
     });
   };
 
-  setEnabledWatermark = () => {
-    const { watermark } = this.state;
-
-    projectSettingController
-      .setEnabledWatermark({ projectId: Config.projectId, enabledWatermark: !watermark })
-      .then(res => {
-        if (res) {
-          this.setState({ watermark: !watermark });
-          setTimeout(() => {
-            location.reload();
-          }, 500);
-        }
-      });
-  };
-
   updateWebProxyState = () => {
-    const { webProxy } = this.state;
+    const { apiProxyEnabled } = this.state;
     projectSettingController
       .setApiProxyState({
         projectId: Config.projectId,
-        state: !webProxy,
+        state: !apiProxyEnabled,
       })
       .then(res => {
         if (!res) {
           alert(_l('操作失败'), 2);
         } else {
-          this.setState({ webProxy: !webProxy });
-        }
-      });
-  };
-
-  setLimitDownloadStatus = () => {
-    const { limitFileDownload, limitType } = this.state;
-    dataLimitAjax
-      .editAttachmentSetting({
-        projectId: Config.projectId,
-        status: limitFileDownload ? 0 : 1,
-        limitType,
-      })
-      .then(res => {
-        if (res) {
-          this.setState({
-            limitFileDownload: !limitFileDownload,
-          });
+          this.setState({ apiProxyEnabled: !apiProxyEnabled });
         }
       });
   };
 
   renderWaterMarkSetting = () => {
-    const { showWaterMarkSetting, enabledWatermarkTxt } = this.state;
+    const { showWaterMarkSetting, enabledWatermarkTxt, enabledWatermark } = this.state;
 
     if (!showWaterMarkSetting) return null;
 
     return (
       <WaterMarkSettingDialog
         visible={showWaterMarkSetting}
-        defaultValue={enabledWatermarkTxt || ''}
+        enabledWatermarkTxt={enabledWatermarkTxt}
+        enabledWatermark={enabledWatermark}
+        updateEnabledWatermark={newEnabledWatermark => this.setState({ enabledWatermark: newEnabledWatermark })}
         onClose={() => this.setState({ showWaterMarkSetting: false })}
       />
     );
   };
 
   renderAttachmentSetting = () => {
-    const { attachmentSettingInfo, limitFileDownload } = this.state;
-    const { limitType, useType, modelType, ipList = [] } = attachmentSettingInfo;
-    if (!limitFileDownload) return null;
+    const { attachmentSettingInfo } = this.state;
+    const { limitType, useType, modelType, ipList = [], status } = attachmentSettingInfo;
+    if (!status) return null;
 
     return (
       <div className="flexRow">
@@ -150,10 +116,9 @@ export default class DataCom extends Component {
   render() {
     const {
       showEncryptRules,
-      watermark,
+      enabledWatermark,
       showWebProxySetting,
-      webProxy,
-      limitFileDownload,
+      apiProxyEnabled,
       showLimitDownload,
       showAppAccess,
       attachmentSettingInfo,
@@ -169,8 +134,16 @@ export default class DataCom extends Component {
     }
 
     if (showWebProxySetting) {
-      return <WebProxySetting onClose={() => this.setState({ showWebProxySetting: false })} projectId={projectId} />;
+      return (
+        <WebProxySetting
+          projectId={projectId}
+          apiProxyEnabled={apiProxyEnabled}
+          updateApiProxyEnabled={newApiProxyEnabled => this.setState({ apiProxyEnabled: newApiProxyEnabled })}
+          onClose={() => this.setState({ showWebProxySetting: false })}
+        />
+      );
     }
+
     if (showLimitDownload) {
       return (
         <LimitFileDownloadSetting
@@ -178,10 +151,7 @@ export default class DataCom extends Component {
           attachmentSettingInfo={attachmentSettingInfo}
           onClose={() => this.setState({ showLimitDownload: false })}
           updateSettingData={newAttachmentSettingInfo =>
-            this.setState({
-              attachmentSettingInfo: newAttachmentSettingInfo,
-              limitType: attachmentSettingInfo.limitType,
-            })
+            this.setState({ attachmentSettingInfo: newAttachmentSettingInfo })
           }
         />
       );
@@ -189,68 +159,63 @@ export default class DataCom extends Component {
 
     return (
       <div className="orgManagementWrap">
-        <AdminTitle prefix={_l('安全 - 数据')} />
-        <div className="orgManagementHeader Font17">{_l('数据')}</div>
+        <AdminTitle prefix={_l('安全 - 数据与访问')} />
+        <div className="orgManagementHeader Font17">{_l('数据与访问')}</div>
         <div className="orgManagementContent pAll0">
           <FeatureListWrap
             projectId={projectId}
             configs={[
               {
+                key: 'desc',
+                description: _l('对组织成员的数据访问、下载与关键操作进行统一管控，降低数据泄露与误操作风险'),
+              },
+              {
                 key: 'appAccess',
-                title: _l('应用访问'),
-                description: _l('设置访问应用策略。保护组织应用数据安全'),
+                title: _l('应用访问策略'),
+                description: _l('限制成员在特定网络和设备环境下可访问应用，可基于 IP、设备类型等设置访问范围'),
                 showSlideIcon: true,
                 featureId: VersionProductType.appAccessPolicy,
                 onClick: () => this.setState({ showAppAccess: true }),
               },
               {
                 key: 'limitFileDownload',
-                title: _l('附件下载'),
-                description: _l('禁止成员下载应用、讨论附件，保护组织文件安全'),
-                showSlideIcon: false,
-                showSwitch: true,
-                showSetting: limitFileDownload ? true : false,
-                switchChecked: limitFileDownload ? true : false,
+                title: _l('限制附件下载'),
+                description: _l('限制成员在特定网络或设备环境下下载附件，防止文件外泄'),
+                showSlideIcon: true,
                 customContent: this.renderAttachmentSetting(),
                 featureId: VersionProductType.attachmentDownPolicy,
-                clickSwitch: this.setLimitDownloadStatus,
-                clickSetting: () => this.setState({ showLimitDownload: true }),
+                isEnabled: !!attachmentSettingInfo.status,
+                onClick: () => this.setState({ showLimitDownload: true }),
               },
               {
                 key: 'watermark',
                 title: _l('屏幕水印'),
-                description: _l('启用水印配置后，将在组织所有应用内显示水印。可自定义水印文字'),
-                showSlideIcon: false,
-                showSwitch: true,
-                switchChecked: watermark,
-                showSetting: watermark,
-                clickSwitch: this.setEnabledWatermark,
-                clickSetting: () => this.setState({ showWaterMarkSetting: true }),
-              },
-              {
-                key: 'addressVisibleRange',
-                title: _l('加密规则'),
-                description: _l('配置工作表字段加密存储时可以选择的加密方式'),
+                description: _l('为组织内所有应用内容显示屏幕水印，防止截图、拍照等场景下的数据外泄'),
                 showSlideIcon: true,
-                featureId: VersionProductType.dataEnctypt,
-                onClick: () => this.setState({ showEncryptRules: true }),
+                isEnabled: enabledWatermark,
+                onClick: () => this.setState({ showWaterMarkSetting: true }),
               },
               {
                 key: 'webProxy',
                 title: _l('API网络代理'),
                 description: (
                   <span>
-                    {_l('在发送API请求时可选择通过设置的代理服务器发送')}
+                    {_l('通过设置的代理服务发送API请求，适用于内网部署、专线访问或网络合规场景')}
                     <Support text={_l('帮助')} type={3} href="https://help.mingdao.com/org/security#apiproxy" />
                   </span>
                 ),
-                showSlideIcon: false,
-                showSetting: webProxy,
-                showSwitch: true,
-                switchChecked: webProxy,
+                showSlideIcon: true,
                 featureId: VersionProductType.apiRequestProxy,
-                clickSwitch: this.updateWebProxyState,
-                clickSetting: () => this.setState({ showWebProxySetting: true }),
+                isEnabled: apiProxyEnabled,
+                onClick: () => this.setState({ showWebProxySetting: true }),
+              },
+              {
+                key: 'addressVisibleRange',
+                title: _l('加密规则'),
+                description: _l('配置工作表字段的加密存储规则，用于保护敏感数据的数据库安全'),
+                showSlideIcon: true,
+                featureId: VersionProductType.dataEnctypt,
+                onClick: () => this.setState({ showEncryptRules: true }),
               },
             ]}
           />

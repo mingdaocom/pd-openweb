@@ -127,16 +127,19 @@ export default function AddAndEditAppAccess(props) {
       if (_.find(hearderRule, item => !_.trim(item.key) || !_.trim(item.value))) {
         return alert(_l('请求头不能为空'), 2);
       }
+
       params.hearderRule = arrayToObject(hearderRule);
     } else if (accessType === 2) {
       if (_.some(addressRule, item => !_.trim(item))) {
         return alert(_l('域名不能为空'), 2);
       }
+
       params.addressRule = addressRule;
     } else {
       if (_.isEmpty(clientRule)) {
         return alert(_l('客户端不能为空'), 2);
       }
+
       params.clientRule = clientRule;
     }
 
@@ -166,6 +169,7 @@ export default function AddAndEditAppAccess(props) {
         });
       return;
     }
+
     updateAppLimit(
       params,
       () => {

@@ -88,9 +88,11 @@ function OperateMenu(props) {
   const formatApps = function (validProject) {
     const appList = [];
     const project = validProject.filter(item => item.projectId === projectId)[0];
+
     if (project && project.projectApps && project.projectApps.length) {
       project.projectApps.forEach(app => {
         const isCharge = canEditApp(app.permissionType);
+
         if (isCharge && appId !== app.id) {
           appList.push({
             text: app.name,
@@ -99,8 +101,10 @@ function OperateMenu(props) {
         }
       });
     }
+
     return appList;
   };
+
   useEffect(() => {
     homeApp.getAllHomeApp().then(result => {
       const { validProject } = result;
@@ -127,6 +131,7 @@ function OperateMenu(props) {
   const cancel = () => {
     setVisible(false);
   };
+
   const onOk = () => {
     setVisible(false);
     moveSheet({
@@ -137,6 +142,7 @@ function OperateMenu(props) {
       workSheetsInfo: [currentSheet],
     });
   };
+
   const moveSheetToOtherGroup = targetGroupId => {
     setVisible(false);
     moveSheet({
@@ -147,6 +153,7 @@ function OperateMenu(props) {
       workSheetsInfo: [currentSheet],
     });
   };
+
   const renderFooter = () => {
     return (
       <div>
@@ -164,6 +171,7 @@ function OperateMenu(props) {
       </div>
     );
   };
+
   const renderDialog = () => {
     return (
       <Dialog
@@ -208,6 +216,7 @@ function OperateMenu(props) {
       </Dialog>
     );
   };
+
   return otherAppVisible ? (
     renderDialog()
   ) : (
@@ -227,9 +236,11 @@ function OperateMenu(props) {
           if (o.type === 'editCanvas' || o.type === 'displaySetting') {
             return !currentSheet.urlTemplate;
           }
+
           if (o.type === 'editPage') {
             return !!currentSheet.urlTemplate;
           }
+
           return true;
         })
         .map(({ type, text, icon, ...rest }, index) => {
@@ -267,6 +278,7 @@ function OperateMenu(props) {
               </SubMenu>
             );
           }
+
           if (type === 'displaySetting') {
             return (
               <SubMenu
@@ -297,6 +309,7 @@ function OperateMenu(props) {
               </SubMenu>
             );
           }
+
           return (
             <Menu.Item data-event={type} key={type} onClick={() => onClick(type)} {...rest}>
               <i className={`icon-${icon}`}></i>

@@ -30,15 +30,18 @@ const units = ['B', 'KB', 'MB', 'GB', 'TB'];
 
 export const formatChartData = (type, initData = [], isFilterByDepartment) => {
   let data = [];
+
   switch (type) {
     case 'attachment':
       if (_.isEmpty(initData)) {
         initData = [{ value: 0, subType: 1 }];
       }
+
       _.forEach(initData, item => {
         const temp = [];
         _.forEach(isFilterByDepartment ? [1] : [1, 2, 3, 4, 5, 6], v => {
           const currentTypeValue = _.find(item.value || [], s => s.subType === v);
+
           if (!currentTypeValue) {
             temp.push({ value: 0, subType: v, date: item.date, category: subTypeNames[v] });
           } else {

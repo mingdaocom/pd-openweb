@@ -7,6 +7,7 @@ export default function StrInput({ rule, deleteRule, updateRule }) {
   const { controlId } = rule;
   const [status, setStatus] = useState('');
   const [tempValue, setValue] = useState(controlId);
+
   const getStyle = () => {
     if (status === 'error') {
       return {
@@ -14,6 +15,7 @@ export default function StrInput({ rule, deleteRule, updateRule }) {
         boxShadow: '0 0 4px 1px rgba(244,67,54,.25)',
       };
     }
+
     return {};
   };
 
@@ -33,17 +35,21 @@ export default function StrInput({ rule, deleteRule, updateRule }) {
         style={getStyle()}
         onBlur={e => {
           const value = (e.target.value || '').substring(0, 64);
+
           if (!value) {
             setStatus('error');
           }
+
           setValue(value);
           updateRule({ controlId: value });
         }}
         onChange={e => {
           const value = e.target.value;
+
           if (value) {
             setStatus('');
           }
+
           setValue(value);
         }}
       />

@@ -14,6 +14,7 @@ import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum';
 import { navigateTo } from 'src/router/navigateTo';
 import { getTranslateInfo } from 'src/utils/app';
 import { setFavicon } from 'src/utils/app';
+import { VersionProductType } from 'src/utils/enum';
 import { getCurrentProject, getFeatureStatus } from 'src/utils/project';
 import Beta from './components/Beta';
 import { routerConfigs } from './routerConfig';
@@ -53,10 +54,23 @@ class AppSettings extends Component {
         manageBackupFilesVisible: true,
       });
     }
+
     if (_.get(this.props, 'match.params.navTab') !== _.get(nextProps, 'match.params.navTab')) {
       this.setState({ currentConfigType: _.get(nextProps, 'match.params.navTab') });
     }
   }
+
+  getFilteredRouterConfigs = (routerConfigs, projectId, permissionType) => {
+    const { hideRagEmbedFun } = md.global.SysSettings;
+
+    const filtered = hideRagEmbedFun
+      ? routerConfigs.filter(item => item.featureId !== VersionProductType.vectorKnowledgeBase)
+      : routerConfigs;
+
+    return getAppConfig(filtered, permissionType).filter(
+      item => !item.featureId || getFeatureStatus(projectId, item.featureId),
+    );
+  };
 
   getData = () => {
     const { appId } = _.get(this.props, 'match.params');
@@ -70,13 +84,14 @@ class AppSettings extends Component {
       .then(data => {
         setFavicon(data.iconUrl, data.iconColor);
         const { permissionType, id, isLock, isPassword, projectId } = data;
-        const list = getAppConfig(routerConfigs, permissionType).filter(
-          it => !it.featureId || getFeatureStatus(projectId, it.featureId),
-        );
+
+        const list = this.getFilteredRouterConfigs(routerConfigs, projectId, permissionType);
+
         if (!permissionType || (isLock && isPassword) || _.isEmpty(list)) {
           navigateTo(`/app/${id}`); // 普通角色、加锁应用、无应用管理中特性时跳至应用首页
           return;
         }
+
         data.name = getTranslateInfo(id, null, id).name || data.name;
         this.setState({ data, loading: false }, () => {
           this.getMyPermissions();
@@ -112,13 +127,14 @@ class AppSettings extends Component {
       ],
       permissionType,
     );
-    const configList = getAppConfig(routerConfigs, permissionType)
-      .filter(it => !it.featureId || getFeatureStatus(projectId, it.featureId))
+    const list = this.getFilteredRouterConfigs(routerConfigs, projectId, permissionType);
+    const configList = list
       .filter(it => {
         if (it.type === 'lock') {
           if (canLock && data.isPassword) return true; // 管理员、开发者、运营者+开发者、拥有者对自己已解锁的应用有恢复锁定权限
           if (!(isOwner && isNormalApp && !isLock && !isPassword)) return false; // 仅普通应用的拥有者可锁定应用
         }
+
         return true;
       })
       .filter(it => {
@@ -130,19 +146,23 @@ class AppSettings extends Component {
           if (['export'].includes(it.type)) {
             return data.exported;
           }
+
           // 模版应用
           if (license.goodsPushType === 1) {
             return true;
           }
+
           // 免费
           if (license.licenseType === 0) {
             return !isLock;
           }
+
           // 收费
           if (license.licenseType === 1) {
             return false;
           }
         }
+
         return true;
       });
 
@@ -244,6 +264,7 @@ class AppSettings extends Component {
                           this.setState({ delAppConfirmVisible: true });
                           return;
                         }
+
                         safeLocalStorageSetItem('appManageMenu', type);
                         navigateTo(`/app/${appId}/settings/${type}`);
                         this.setState({ currentConfigType: type });
@@ -260,12 +281,12 @@ class AppSettings extends Component {
                         <Fragment>
                           <span className="flex">
                             {text}
-                            {['appOfflineSubmit'].includes(type) && <Beta className="mRight15" />}
+                            {['appOfflineSubmit', 'knowledge'].includes(type) && <Beta className="mRight15" />}
                           </span>
                           {item.featureId &&
                             getFeatureStatus(projectId, item.featureId) === '2' &&
                             _.includes(
-                              ['backup', 'recyclebin', 'variables', 'language', 'upgrade', 'aggregations'],
+                              ['backup', 'recyclebin', 'variables', 'language', 'upgrade', 'aggregations', 'knowledge'],
                               type,
                             ) && <UpgradeIcon />}
                         </Fragment>
@@ -310,7 +331,9 @@ class AppSettings extends Component {
                   dialogType: 'content',
                 })}
               </div>
-            ) : featureType && featureType === '2' && !['variables', 'aggregations'].includes(currentConfigType) ? (
+            ) : featureType &&
+              featureType === '2' &&
+              !['variables', 'aggregations', 'knowledge'].includes(currentConfigType) ? (
               <UpgradeCom projectId={projectId} featureId={featureId} />
             ) : (
               <Component {...componentProps} />

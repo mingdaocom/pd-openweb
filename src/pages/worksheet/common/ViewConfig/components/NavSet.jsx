@@ -12,6 +12,7 @@ const Wrap = styled.div`
     }
   }
 `;
+
 export default function NavSet(props) {
   const {
     appId,
@@ -52,9 +53,11 @@ export default function NavSet(props) {
         value={navshow}
         onChange={newValue => {
           let param = newValue;
+
           if (newValue.navshow === '2') {
             param = { ...param, navsorts: '', customitems: '' };
           }
+
           updateCurrentView({
             ...view,
             appId,

@@ -73,7 +73,7 @@ const DropItemWrap = styled.div`
   .itemBox {
     width: 18px;
     height: 18px;
-    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+    box-shadow: var(--shadow-lg);
     ${props => (props.backgroundColor ? `background: ${props.backgroundColor}` : '')}
     opacity: 1;
     border-radius: 2px;
@@ -162,6 +162,7 @@ export function WidgetStyleSetting(props) {
     .filter(a => canSetAsTitle(a))
     .map(a => ({ text: a.controlName, value: a.controlId }));
   const titleControl = _.find(allControls, a => a.attribute === 1);
+
   // 关联表支持搜索的控件
   const relateSearchUnSupport = controlData => {
     const tempData = controlData || titleControl;
@@ -198,6 +199,7 @@ export function WidgetStyleSetting(props) {
               value={_.get(titleControl, 'controlId')}
               onChange={value => {
                 const selectControl = _.find(allControls, t => t.controlId === value);
+
                 if (selectControl) {
                   const newWidgets = resetWidgets(widgets, { attribute: 0 });
                   setWidgets(
@@ -313,9 +315,11 @@ export function WidgetStyleSetting(props) {
                       if (value > 1000) {
                         value = 1000;
                       }
+
                       if (value < 100) {
                         value = 100;
                       }
+
                       setTempInfo({ ...tempInfo, coverHeight: value });
                       handleChange({ coverheight: value });
                     }}
@@ -407,9 +411,11 @@ export function WidgetStyleSetting(props) {
                           if (value > item.maxWidth) {
                             value = item.maxWidth;
                           }
+
                           if (value < 40) {
                             value = 40;
                           }
+
                           setTempInfo({ ...tempInfo, [item.widthKey]: value });
                           handleChange({ [item.widthKey]: value });
                         }}

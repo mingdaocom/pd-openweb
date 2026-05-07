@@ -44,7 +44,7 @@ const ControlLabel = styled.div`
       }
     }}
     font-size: ${props => props.titleSize || '0.8em'}!important;
-    color: ${props => props.titleColor || 'var(--color-text-secondary)'};
+    color: ${props => props.titleColor || 'var(--color-text-title)'};
     ${props => props.titleStyle || ''};
   }
   .requiredBtnBox .customFormItemLoading {
@@ -77,7 +77,7 @@ export default ({
     valuesize = '0',
     titlesize = item.type === 34 ? '1' : '0',
     titlestyle = '0000',
-    titlecolor = item.type === 34 ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
+    titlecolor = item.type === 34 ? 'var(--color-text-primary)' : 'var(--color-text-title)',
     allowlink,
     hidetitle,
     required,
@@ -221,11 +221,7 @@ export default ({
               (item.type === 51 ? <RelationSearchCount control={item} recordId={recordId} /> : renderCount(item))}
           </div>
         ) : (
-          <div
-            title={item.controlName}
-            className="controlLabelName flexRow"
-            style={{ paddingRight: recordId ? 100 : 40 }}
-          >
+          <div title={item.controlName} className="controlLabelName flexRow">
             <div className="flex ellipsis">{item.controlName}</div>
             {showCount && renderCount(item)}
           </div>

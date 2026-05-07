@@ -19,6 +19,7 @@ const Time = props => {
 
   const onChange = value => {
     const mode = unit === '6' ? 'HH:mm:ss' : 'HH:mm';
+
     if (value) {
       value = moment(moment(value).format('HH:mm:ss'), mode).format('HH:mm:ss');
     }
@@ -33,9 +34,11 @@ const Time = props => {
 
   useEffect(() => {
     let _value = value;
+
     if (/^\d+$/.test(String(_value)) && String(_value).length < 5) {
       _value = '';
     }
+
     setCurrentValue(formatValueToMoment(_value));
   }, [value]);
 
@@ -66,7 +69,7 @@ const Time = props => {
   return (
     <Fragment>
       <div
-        className={cx('customFormControlBox flexRow flexCenter', {
+        className={cx('customFormControlBox bgInput flexRow flexCenter', {
           controlEditReadonly: !formDisabled && currentValue && disabled,
           controlDisabled: formDisabled,
         })}

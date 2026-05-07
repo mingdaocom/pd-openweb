@@ -38,6 +38,7 @@ const getDualAxesData = (data = []) => {
       },
     ];
   }
+
   return data;
 };
 
@@ -67,13 +68,16 @@ export default class LineChart extends React.Component {
   };
   getCeil = max => {
     let bite = 0;
+
     if (max < 10) {
       return 10;
     }
+
     while (max >= 10) {
       max /= 10;
       bite += 1;
     }
+
     return Math.ceil(max) * Math.pow(10, bite);
   };
   renderChart = () => {
@@ -164,7 +168,7 @@ export default class LineChart extends React.Component {
               },
               style: {
                 fontSize: 13,
-                fill: '#151515',
+                fill: window.themeMode === 'dark' ? '#fafafa' : '#151515',
               },
             },
             itemSpacing: 50,
@@ -183,6 +187,7 @@ export default class LineChart extends React.Component {
                 : isMonth
                   ? moment(title).endOf('month').format('YYYY/MM/DD')
                   : '';
+
               if (nextDate && moment().isBefore(nextDate)) {
                 nextDate = moment().format('YYYY/MM/DD');
               }
@@ -191,7 +196,7 @@ export default class LineChart extends React.Component {
                 ? `${currentDate}-${nextDate}${isWeek ? '(' + _l('第%0周', moment(title).week()) + ')' : ''}`
                 : currentDate;
 
-              return `<div class="g2TooltipWrap">
+              return `<div class="g2TooltipWrap bgCard">
               <div class="g2-tooltip-title">${customTitle}</div>
               <ul class="g2-tooltip-list">
               ${(function () {
@@ -233,7 +238,7 @@ export default class LineChart extends React.Component {
               },
               style: {
                 fontSize: 13,
-                fill: '#151515',
+                fill: window.themeMode === 'dark' ? '#fafafa' : '#151515',
               },
             },
             marker: {
@@ -268,6 +273,7 @@ export default class LineChart extends React.Component {
                 : isMonth
                   ? moment(date).endOf('month').format('YYYY/MM/DD')
                   : '';
+
               if (nextDate && moment().isBefore(nextDate)) {
                 nextDate = moment().format('YYYY/MM/DD');
               }
@@ -320,7 +326,7 @@ export default class LineChart extends React.Component {
               },
               style: {
                 fontSize: 13,
-                fill: '#151515',
+                fill: window.themeMode === 'dark' ? '#fafafa' : '#151515',
               },
             },
             maxWidth: this.lineChartEle.clientWidth <= 1100 ? 800 : 1200,
@@ -335,7 +341,7 @@ export default class LineChart extends React.Component {
               const currentTotal = _.reduce(items, (sum, item) => (sum = sum + Number(item.value)), 0);
               let unit = currentTotal > 0 ? _.get(items, '[0].data.unit') : total.slice(total.length - 2);
 
-              return `<div class="g2TooltipWrap">
+              return `<div class="g2TooltipWrap bgCard">
                 <div class="g2-tooltip-title">${title}</div>
                 <div class="bold mTop12">${_l('总计：')}${
                   currentTotal > 0 ? formatter(currentTotal.toFixed(2)) + ' ' + unit : 0 + ' ' + unit

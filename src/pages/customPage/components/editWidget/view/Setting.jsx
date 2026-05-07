@@ -21,7 +21,7 @@ const Wrap = styled.div`
   overflow: auto;
 
   .Dropdown--input {
-    background-color: var(--color-background-primary);
+    background-color: var(--color-background-input);
   }
   .ant-checkbox-input {
     position: absolute;
@@ -35,8 +35,19 @@ function Setting(props) {
   const { appPkg = {}, ids = {}, setting, setSetting, setLoading, components } = props;
   const { appId } = ids;
   const projectId = appPkg.projectId || appPkg.id;
-  const { value, viewId, config = { isAddRecord: true, searchRecord: true, openView: true } } = setting;
-  const { name, maxCount, isAddRecord, searchRecord, openView } = config;
+  const {
+    value,
+    viewId,
+    config = {
+      isAddRecord: true,
+      searchRecord: true,
+      openView: true,
+      allowFilter: true,
+      allowDraft: true,
+      allowImport: false,
+    },
+  } = setting;
+  const { name, maxCount, isAddRecord, searchRecord, openView, allowFilter, allowDraft, allowImport } = config;
 
   const [dataSource, setDataSource] = useState({ views: [] });
   // eslint-disable-next-line no-unused-vars
@@ -65,10 +76,11 @@ function Setting(props) {
         .then(res => {
           const { views = [] } = res;
           setDataSource({
-            views: getShowViews(views).map(({ viewId, name, viewType }) => ({
+            views: getShowViews(views).map(({ viewId, name, viewType, advancedSetting }) => ({
               text: getTranslateInfo(appId, null, viewId).name || name,
               value: viewId,
-              viewType,
+              viewType: String(viewType),
+              advancedSetting,
             })),
           });
         });
@@ -137,7 +149,7 @@ function Setting(props) {
           />
         </div>
       </div>
-      {view && [VIEW_DISPLAY_TYPE.sheet, VIEW_DISPLAY_TYPE.gallery].includes(String(view.viewType)) && (
+      {view && [VIEW_DISPLAY_TYPE.sheet, VIEW_DISPLAY_TYPE.gallery].includes(view.viewType) && (
         <div className="mTop10">
           <div className="mBottom12 bold">{_l('数据展示数量')}</div>
           <Input
@@ -176,6 +188,40 @@ function Setting(props) {
             }}
           >
             {_l('搜索记录')}
+          </Checkbox>
+        </div>
+        {view &&
+          view.viewType !== VIEW_DISPLAY_TYPE.gunter &&
+          _.get(view, 'advancedSetting.hierarchyViewType') !== '3' && (
+            <div className="mBottom12">
+              <Checkbox
+                checked={allowFilter}
+                onChange={e => {
+                  changeConfig({ allowFilter: e.target.checked });
+                }}
+              >
+                {_l('筛选')}
+              </Checkbox>
+            </div>
+          )}
+        <div className="mBottom12">
+          <Checkbox
+            checked={allowDraft}
+            onChange={e => {
+              changeConfig({ allowDraft: e.target.checked });
+            }}
+          >
+            {_l('草稿箱')}
+          </Checkbox>
+        </div>
+        <div className="mBottom12">
+          <Checkbox
+            checked={allowImport}
+            onChange={e => {
+              changeConfig({ allowImport: e.target.checked });
+            }}
+          >
+            {_l('导入')}
           </Checkbox>
         </div>
         <div className="mBottom12">

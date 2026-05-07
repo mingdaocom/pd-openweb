@@ -176,6 +176,7 @@ export default function Groups(props) {
                   navigateTo('/app/my', false, true);
                   actions.loadAppAndGroups({ projectId, noGroupsLoading: true });
                 }
+
                 alert(_l('删除分组成功'));
               } else {
                 alert(_l('删除分组失败'), 3);

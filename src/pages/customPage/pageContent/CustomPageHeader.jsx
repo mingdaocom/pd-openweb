@@ -75,6 +75,7 @@ export default function CustomPageHeader(props) {
     window.editCustomPage = () => {
       handleClick(urlTemplate ? 'editPage' : 'editCanvas');
     };
+
     return () => {
       updatePageInfo({ linkageFiltersGroup: {} });
       delete window.editCustomPage;
@@ -207,6 +208,7 @@ export default function CustomPageHeader(props) {
               worksheetId: pageId,
               parentGroupId: currentSheet.parentGroupId,
             };
+
             if ([1, 3].includes(currentPcNaviStyle)) {
               const singleRef = getAppSectionRef(groupId);
               singleRef.dispatch(deleteSheet(data));
@@ -222,9 +224,11 @@ export default function CustomPageHeader(props) {
         break;
     }
   };
+
   const handleVisibleChange = (value, type) => {
     updateVisible(update(visible, { [type]: { $set: value } }));
   };
+
   const isPublicShare = location.href.includes('public/page');
   const isEmbedPage = location.href.includes('embed/page');
   const isEmbed = location.href.includes('#embed');
@@ -232,6 +236,7 @@ export default function CustomPageHeader(props) {
   const renderLinkageFiltersPopover = () => {
     const toArray = () => {
       let result = [];
+
       for (let key in linkageFiltersGroup) {
         const item = linkageFiltersGroup[key];
         result.push({
@@ -239,8 +244,10 @@ export default function CustomPageHeader(props) {
           ...item,
         });
       }
+
       return result;
     };
+
     const res = toArray();
     return (
       <div className="customPageAutoLinkagePopover">
@@ -342,7 +349,7 @@ export default function CustomPageHeader(props) {
                     navigateTo(`/app/${appId}/${groupId}`);
                   }}
                 >
-                  <Icon icon="close_fullscreen" className="hoverGray fullRotate Font20" />
+                  <Icon icon="close_fullscreen" className="hoverGray pointer fullRotate Font20" />
                 </div>
               </Tooltip>
             ) : (

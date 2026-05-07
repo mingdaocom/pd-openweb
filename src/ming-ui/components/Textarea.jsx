@@ -58,13 +58,17 @@ class Textarea extends Component {
   getScrollParent(element) {
     if (!element) return null;
     let parent = element.parentElement;
+
     while (parent) {
       const { overflow, overflowY } = window.getComputedStyle(parent);
+
       if (overflow === 'auto' || overflow === 'scroll' || overflowY === 'auto' || overflowY === 'scroll') {
         return parent;
       }
+
       parent = parent.parentElement;
     }
+
     return null;
   }
 

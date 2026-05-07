@@ -64,6 +64,7 @@ export default function CalculationDialog(props) {
       type: 31,
     },
   });
+
   const getData = () => {
     return {
       ...calculation,
@@ -114,10 +115,12 @@ export default function CalculationDialog(props) {
           { controls: allControls },
         );
         const funcObj = safeParse(calculation.dataSource || '{}');
+
         if (!info.isValid || (calculation.type === 53 && _.get(funcObj, 'status') === -1)) {
           alert(info.text || _l('表达式错误，请修改后保存'), 3);
           return;
         }
+
         if (calculation.type === 53 && calculation.enumDefault2 !== 6) {
           onOk({ ..._.omit(calculation, 'dot'), advancedSetting: { ..._.omit(calculation.advancedSetting, 'dot') } });
           return;

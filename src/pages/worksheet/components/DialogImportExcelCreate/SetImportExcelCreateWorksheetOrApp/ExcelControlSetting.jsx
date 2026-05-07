@@ -62,7 +62,9 @@ export default class ExcelControlSetting extends Component {
     if (this.fieldName) {
       this.fieldName.focus();
     }
+
     const { data: { type, dataSource } = {} } = this.props;
+
     if (type === 29 && dataSource && _.isEmpty(this.state.controls)) {
       this.getControls(dataSource);
     }
@@ -70,6 +72,7 @@ export default class ExcelControlSetting extends Component {
 
   componentWillReceiveProps(nextProps) {
     const { data: { type, dataSource } = {} } = nextProps;
+
     if (type === 29 && dataSource && dataSource !== (this.props.data || {}).dataSource) {
       this.getControls(dataSource);
     }
@@ -106,9 +109,11 @@ export default class ExcelControlSetting extends Component {
             enumDefault2: _.includes([15, 16], obj.type) ? 0 : obj.enumDefault2,
           };
     let newData = { ...this.props.data, ...newObj };
+
     if (newData.type !== 29) {
       delete newData.sourceConfig;
     }
+
     this.props.onChange(newData);
   };
 

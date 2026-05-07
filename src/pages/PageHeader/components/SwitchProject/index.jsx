@@ -31,7 +31,7 @@ const ProjectSwitch = styled(VerticalMiddle)`
 
 const ProjectsMenuCon = styled.div`
   width: 300px;
-  background: var(--color-background-primary);
+  background: var(--color-background-card);
   border-radius: 3px;
   padding-bottom: 5px;
   box-shadow: var(--shadow-lg);
@@ -87,6 +87,7 @@ function SwitchProject() {
 
   useEffect(() => {
     const project = getCurrentProject(projectId || localStorage.getItem('currentProjectId'));
+
     if (_.isEmpty(project)) {
       if (projects[0] && projects[0].projectId) {
         setCurrentProject(projects[0]);
@@ -117,9 +118,11 @@ function SwitchProject() {
       ))}
     </ProjectsMenu>
   );
+
   if (projects.length > Math.ceil((window.innerHeight - 160) / 40)) {
     menuContent = <ScrollCon height={Math.ceil((window.innerHeight - 160) / 40) * 40}>{menuContent}</ScrollCon>;
   }
+
   const canCreateProject = md.global.Account.superAdmin || md.global.SysSettings.enableCreateProject;
   return currentProject ? (
     <Trigger

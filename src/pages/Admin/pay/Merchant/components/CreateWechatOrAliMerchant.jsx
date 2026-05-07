@@ -7,6 +7,7 @@ import _, { isEmpty } from 'lodash';
 import { Button, Dialog, Icon, LoadDiv, Textarea } from 'ming-ui';
 import paymentAjax from 'src/api/payment';
 import projectAjax from 'src/api/project';
+import WeChatServiceAccount, { setWeChatServiceAccountsDialog } from 'src/components/WeChatServiceAccountsDialog';
 import { handlePrePayOrder } from 'src/pages/Admin/pay/PrePayorder';
 import { PUBLIC_KEY } from 'src/utils/enum';
 import './createMerchant.less';
@@ -53,6 +54,7 @@ export default function CreateWechatOrAliMerchant(props) {
 
   const [formData, setFormData] = useSetState({});
   const [showSecretDialog, setShowSecretDialog] = useState(false);
+  const [weChatServiceAccounts, setWeChatServiceAccounts] = useState([]);
 
   const {
     appId,
@@ -142,7 +144,13 @@ export default function CreateWechatOrAliMerchant(props) {
   };
 
   const clearSecretInfo = appId => {
-    return { appSecret: '', privateKey: '', publicKey: '', sellerId: '', appId: isWechat ? appId : '' };
+    return {
+      appSecret: '',
+      privateKey: '',
+      publicKey: '',
+      sellerId: '',
+      appId: isWechat ? currentMerchantInfo.merchantPayConfigInfo.appId : '',
+    };
   };
 
   // 验证&创建&保存商户
@@ -159,6 +167,7 @@ export default function CreateWechatOrAliMerchant(props) {
       setFormData({ isSubmit: true });
       return;
     }
+
     setFormData({ isSubmit: false });
 
     paymentAjax
@@ -198,8 +207,14 @@ export default function CreateWechatOrAliMerchant(props) {
       .getWeiXinBindingInfo({ projectId })
       .then(res => {
         if (res && _.isArray(res) && !isEmpty(res)) {
-          setFormData({ appId: res[0].appId });
+          // 只有一个微信服务号时默认选中，多个服务号用户自行选择其中一个
+          if (isCreate) {
+            setFormData({ appId: res.length === 1 ? res[0].appId : '' });
+          }
+
+          setWeChatServiceAccounts(res);
         }
+
         setLoading(false);
       })
       .catch(() => {
@@ -211,12 +226,14 @@ export default function CreateWechatOrAliMerchant(props) {
     if (!isCreate && loading) {
       getMerchant();
     }
-    if (!isWechat || !isCreate) return;
+
+    if (!isWechat) return;
     getWeiXinBindingInfo();
   }, []);
 
   useEffect(() => {
     const ele = document.querySelector('.secretBody');
+
     if (ele) {
       setIsScroll(ele.scrollHeight > ele.clientHeight);
     }
@@ -225,6 +242,62 @@ export default function CreateWechatOrAliMerchant(props) {
   if (!isCreate && loading) {
     return <LoadDiv className="mTop90" />;
   }
+
+  const renderAppId = item => {
+    if (!formData?.appId && weChatServiceAccounts.length > 1) {
+      return (
+        <div
+          className="Hand colorPrimary hoverTextPrimaryLight mTop10"
+          onClick={() =>
+            setWeChatServiceAccountsDialog({
+              projectId,
+              weChatServiceAccounts,
+              appId: formData?.appId,
+              onOk: appId => {
+                setFormData({ ...formData, appId });
+              },
+            })
+          }
+        >
+          {_l('设置')}
+        </div>
+      );
+    }
+
+    return (
+      <div className="appIdWrap w100 Relative">
+        <Textarea
+          className="w100 placeholderColor isSingleLine"
+          style={{ maxHeight: 350 }}
+          value={formData[item.field]}
+          placeholder={item.placeholder}
+          onChange={value => {
+            setFormData({
+              [item.field]: value,
+              isSubmit: !value,
+              formChanged: _.trim(value) !== initData[item.field],
+            });
+          }}
+        />
+
+        {weChatServiceAccounts.length > 1 ? (
+          <i
+            className="icon icon-exchange textTertiary Hand hoverColorPrimary Font20 Absolute exchangeIcon"
+            onClick={() => {
+              setWeChatServiceAccountsDialog({
+                projectId,
+                weChatServiceAccounts,
+                appId: formData?.appId,
+                onOk: appId => {
+                  setFormData({ ...formData, appId });
+                },
+              });
+            }}
+          />
+        ) : null}
+      </div>
+    );
+  };
 
   const renderFormInfo = forData => {
     return forData.map(item => {
@@ -244,21 +317,25 @@ export default function CreateWechatOrAliMerchant(props) {
             {item.label}
           </div>
           <div className="form">
-            <Textarea
-              className={`w100 placeholderColor ${
-                _.includes(['privateKey', 'publicKey'], item.field) ? '' : 'isSingleLine'
-              }`}
-              style={{ maxHeight: 350 }}
-              value={formData[item.field]}
-              placeholder={item.placeholder}
-              onChange={value => {
-                setFormData({
-                  [item.field]: value,
-                  isSubmit: !value,
-                  formChanged: _.trim(value) !== initData[item.field],
-                });
-              }}
-            />
+            {item.field === 'appId' ? (
+              renderAppId(item)
+            ) : (
+              <Textarea
+                className={`w100 placeholderColor ${
+                  _.includes(['privateKey', 'publicKey'], item.field) ? '' : 'isSingleLine'
+                }`}
+                style={{ maxHeight: 350 }}
+                value={formData[item.field]}
+                placeholder={item.placeholder}
+                onChange={value => {
+                  setFormData({
+                    [item.field]: value,
+                    isSubmit: !value,
+                    formChanged: _.trim(value) !== initData[item.field],
+                  });
+                }}
+              />
+            )}
           </div>
         </div>
       );

@@ -25,12 +25,14 @@ export default function (Comp, { onlyWidth } = {}) {
             : {},
         });
       }
+
       if (process.env.NODE_ENV !== 'production' && !window.sheetAutoSized) {
         setTimeout(setSize.bind(this), 300);
         window.sheetAutoSized = true;
       } else {
         setSize.apply(this);
       }
+
       this.debounceHandleUpdate = _.debounce(this.handleUpdate, 100);
       if (typeof ResizeObserver !== 'undefined') {
         this.resizeOb = new ResizeObserver(() => {
@@ -69,6 +71,7 @@ export default function (Comp, { onlyWidth } = {}) {
         this.resizeOb.disconnect();
         delete this.resizeOb;
       }
+
       if (this.sizeWatcher) {
         clearInterval(this.sizeWatcher);
         delete this.sizeWatcher;

@@ -81,10 +81,12 @@ export default function DelateDialog({ options = [], colorful, onOk, onCancel })
                       alert(_l('选项不得超过1000个'), 3);
                       return;
                     }
+
                     if (_.find(noDelOptions, n => n.value === item.value)) {
                       alert(_l('与列表中选项重复'), 3);
                       return;
                     }
+
                     const newOptions = options.map(i => {
                       return i.key === item.key ? { ...i, isDeleted: false } : i;
                     });

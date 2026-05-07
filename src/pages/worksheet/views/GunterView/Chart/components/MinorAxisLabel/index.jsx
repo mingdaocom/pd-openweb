@@ -24,9 +24,11 @@ const AxisLabel = styled.div`
 
 const formatDate = (date, type) => {
   const [, month, day] = date.split('-');
+
   if (type === PERIOD_TYPE.day) {
     return day;
   }
+
   if (type === PERIOD_TYPE.week) {
     const time = moment(date);
     const week = time.isoWeek();
@@ -37,15 +39,19 @@ const formatDate = (date, type) => {
       </Fragment>
     );
   }
+
   if (type === PERIOD_TYPE.month) {
     return _l('%0月', month);
   }
+
   if (type === PERIOD_TYPE.quarter) {
     return `Q${moment(date).quarter()}`;
   }
+
   if (type === PERIOD_TYPE.year) {
     return month == '01' ? _l('上半年') : _l('下半年');
   }
+
   return date;
 };
 

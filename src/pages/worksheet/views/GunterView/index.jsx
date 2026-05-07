@@ -61,6 +61,7 @@ export default class Gunter extends Component {
         : calendartype
           ? Number(calendartype)
           : PERIOD_TYPE.day;
+
       if (!noLoadAtDidMount) {
         this.props.fetchRows(grouping => {
           this.props.updataPeriodType(periodType, getMaxTime(grouping));
@@ -88,6 +89,7 @@ export default class Gunter extends Component {
       });
       return;
     }
+
     if (
       view.advancedSetting.navshow !== this.props.view.advancedSetting.navshow ||
       view.advancedSetting.navfilters !== this.props.view.advancedSetting.navfilters ||
@@ -98,21 +100,26 @@ export default class Gunter extends Component {
         directoryWidth: this.getDirectoryWidth(view.viewId),
       });
     }
+
     if (view.advancedSetting.calendartype !== this.props.view.advancedSetting.calendartype) {
       const type = view.advancedSetting.calendartype ? Number(view.advancedSetting.calendartype) : PERIOD_TYPE.day;
       this.props.changeViewType(type);
     }
+
     if (view.advancedSetting.unweekday !== this.props.view.advancedSetting.unweekday) {
       this.props.updateViewConfig();
       this.props.refreshGunterView();
     }
+
     if (view.advancedSetting.colorid !== this.props.view.advancedSetting.colorid) {
       this.props.updateViewConfig();
       this.props.updateRecordTimeBlockColor();
     }
+
     if (view.advancedSetting.clicktype !== this.props.view.advancedSetting.clicktype) {
       this.props.updateViewConfig();
     }
+
     if (
       view.viewControl !== this.props.view.viewControl ||
       view.advancedSetting.viewtitle !== this.props.view.advancedSetting.viewtitle ||
@@ -126,6 +133,7 @@ export default class Gunter extends Component {
       this.props.updateViewConfig();
       this.props.fetchRows();
     }
+
     if (
       !_.isEqual(view.displayControls, this.props.view.displayControls) ||
       !_.isEqual(view.showControls, this.props.view.showControls) ||

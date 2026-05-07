@@ -88,9 +88,11 @@ export default class RecordInfo extends Component {
   get discussId() {
     const url = new URL(location.href);
     const discussId = url.searchParams.get('inboxId');
+
     if (!this.props.isModal && discussId) {
       return discussId;
     }
+
     return undefined;
   }
 
@@ -109,6 +111,7 @@ export default class RecordInfo extends Component {
   componentDidUpdate(prevProps) {
     const { relationRow } = this.props;
     const { currentTab, isEditRecord } = this.state;
+
     if (
       this.customwidget &&
       this.customwidget.current &&
@@ -173,7 +176,7 @@ export default class RecordInfo extends Component {
       });
   };
 
-  loadRecord = async ({ needReLoadSheetSwitch = true } = {}) => {
+  loadRecord = async ({ needReLoadSheetSwitch = true } = {}, cb = _.noop) => {
     const {
       from,
       view = {},
@@ -207,9 +210,11 @@ export default class RecordInfo extends Component {
         relationWorksheetId,
         discussId: this.discussId,
       });
+
       if (needReLoadSheetSwitch) {
         switchPermit = await worksheetApi.getSwitchPermit({ worksheetId });
       }
+
       data.worksheetName = getTranslateInfo(appId, null, worksheetId).name || data.worksheetName;
 
       // 设置隐藏字段的 hidden 属性
@@ -223,6 +228,7 @@ export default class RecordInfo extends Component {
               console.error(err);
             }
           }
+
           return {
             ...c,
             hidden: c.hidden || (view.controls || _.get(data, 'view.controls') || []).includes(c.controlId),
@@ -241,6 +247,7 @@ export default class RecordInfo extends Component {
           : [],
         rulesLocked: checkRuleLocked(data.rules, data.formData, recordId),
       };
+
       if (_.get(window, 'shareState.shareId') || window.shareAuthor) {
         recordInfo.allowEdit = false;
         recordInfo.allowDelete = false;
@@ -286,7 +293,8 @@ export default class RecordInfo extends Component {
           switchPermit,
           isRecordLock: data.isLock,
         },
-        () => {
+        (...args) => {
+          cb(...args);
           this.getPortalConfigSet();
           if (_.isFunction(this.props.updateRow) && !data.isViewData && _.isFunction(this.props.onClose)) {
             const rowData = safeParse(data.rowData);
@@ -297,6 +305,7 @@ export default class RecordInfo extends Component {
             });
             this.props.onClose();
           }
+
           if (window.isWeiXin) {
             ShareCardConfig({
               title: renderCellText((data.formData || []).find(o => o.attribute === 1)),
@@ -321,6 +330,7 @@ export default class RecordInfo extends Component {
 
   updateRecordLock = () => {
     const { recordInfo } = this.state;
+
     if (recordInfo?.roleType === 2 && !isPublicLink()) {
       updateRecordLockStatus(
         {
@@ -331,6 +341,7 @@ export default class RecordInfo extends Component {
           if (resdata) {
             this.setState({ isRecordLock: resdata.sys_lock });
             const entityName = recordInfo.entityName || _l('记录');
+
             if (resdata.sys_lock) {
               alert(_l('%0锁定成功', entityName));
             } else {
@@ -346,14 +357,27 @@ export default class RecordInfo extends Component {
     if (this.state.isEditRecord || this.state.refreshBtnNeedLoading) {
       return;
     }
+
     const isPublicForm = _.get(window, 'shareState.isPublicForm') && window.shareState.shareId;
     this.setState({ refreshBtnNeedLoading: true }, () => {
-      this.loadRecord({ needReLoadSheetSwitch: false });
+      this.loadRecord(
+        {
+          needReLoadSheetSwitch: false,
+        },
+        () => {
+          _.each(this.refreshEvents || {}, fn => {
+            if (_.isFunction(fn)) {
+              fn();
+            }
+          });
+        },
+      );
       this.getPayConfig();
     });
     if (_.isFunction(this.refreshEvents.loadCustomBtns) && !isPublicForm) {
       this.refreshEvents.loadCustomBtns();
     }
+
     if (this.chatCountRef && this.chatCountRef.current) {
       this.chatCountRef.current.getDiscussionsCount();
     }
@@ -370,11 +394,13 @@ export default class RecordInfo extends Component {
       this.isPublicShare ||
       _.get(window, 'shareState.isPublicForm') ||
       _.get(window, 'shareState.isPublicWorkflowRecord');
+
     if (isSameApp) {
       portalConfigSet = portalConfig;
     } else if (!isPublic && getDataType !== 21) {
       const showDiscuss = isOpenPermit(permitList.recordDiscussSwitch, switchPermit, viewId);
       const showApprove = isOpenPermit(permitList.approveDetailsSwitch, switchPermit, viewId);
+
       if (appId && (showDiscuss || showApprove)) {
         // 非同一个应用且讨论或审批没有关闭 去获取外部门户讨论设置
         try {
@@ -384,6 +410,7 @@ export default class RecordInfo extends Component {
         }
       }
     }
+
     portalConfigSet.allowExAccountDiscuss = portalConfigSet.allowExAccountDiscuss && portalConfigSet.isEnable;
     this.setState({
       externalPortalConfig: portalConfigSet,
@@ -398,6 +425,7 @@ export default class RecordInfo extends Component {
 
     this.setState({ formChanged: true });
     const { viewId, recordId } = recordBase;
+
     if (viewId) {
       const tempRecordValue = getRecordTempValue(data, undefined, { updateControlIds: ids });
       saveTempRecordValueToLocal(
@@ -413,6 +441,7 @@ export default class RecordInfo extends Component {
     const { recordId, viewId } = recordBase;
     if (!viewId) return;
     let tempData;
+
     const handleFillValue = () => {
       if (tempData && !formChanged) {
         const savedData = safeParse(tempData);
@@ -421,6 +450,7 @@ export default class RecordInfo extends Component {
         const { create_at, value } = savedData;
         const tempRecordCreateTime = new Date(create_at);
         const recordUpdateTime = new Date(updateTime);
+
         if (tempRecordCreateTime > recordUpdateTime) {
           const newTempData = tempFormData.map(c =>
             typeof value[c.controlId] !== 'undefined' && !((c.type === 29 && c.enumDefault !== 1) || c.type === 34)
@@ -436,6 +466,7 @@ export default class RecordInfo extends Component {
                 }
               : c,
           );
+
           if (
             _.isEmpty(
               newTempData.filter(
@@ -448,6 +479,7 @@ export default class RecordInfo extends Component {
             this.setState({ isSettingTempData: false });
             return;
           }
+
           this.setState(
             {
               isSettingTempData: false,
@@ -502,6 +534,7 @@ export default class RecordInfo extends Component {
       alert(_l('预览模式下，不能操作'), 3);
       return;
     }
+
     this.submitOptions = { callback, noSave, ignoreError };
     this.setState({ submitLoading: true });
     this.customwidget.current.submitFormData({ ignoreAlert, silent, ignoreDialog });
@@ -546,6 +579,7 @@ export default class RecordInfo extends Component {
       alert(_l('附件正在上传，请稍后'), 3);
       return;
     }
+
     this.draftType = draftType;
     this.confirmHandler && this.confirmHandler.close();
     this.setState({
@@ -560,7 +594,7 @@ export default class RecordInfo extends Component {
       ignoreDialog: isDraftSave,
     });
   };
-  handleSave = (error, { data, updateControlIds }) => {
+  handleSave = (error, { data, updateControlIds, isQuickUpdateCheck }) => {
     const {
       allowEmptySubmit,
       isRelateRecord,
@@ -579,6 +613,7 @@ export default class RecordInfo extends Component {
     }
 
     let hasError;
+
     if (hasError && !ignoreError) {
       alert(_l('请正确填写%0', recordInfo.entityName), 3);
       callback({ error: true });
@@ -624,6 +659,7 @@ export default class RecordInfo extends Component {
               // 新开页提交成功后刷新成正常记录
               location.href = `${location.origin}/mobile/record/${recordBase.appId}/${recordBase.worksheetId}/${rowData.rowid}`;
             }
+
             // 更新记录列表
             if (_.isFunction(addNewRecord)) {
               addNewRecord(rowData);
@@ -684,6 +720,7 @@ export default class RecordInfo extends Component {
           if (_.isFunction(updateDraftList)) {
             updateDraftList(recordBase.recordId, Object.assign(recordInfo, { formData }));
           }
+
           this.setState({
             isEditRecord: false,
             random: Date.now(),
@@ -694,15 +731,18 @@ export default class RecordInfo extends Component {
           if (_.isFunction(callback)) {
             callback({ logId });
           }
+
           if (!workflow) {
             this.loadRecord();
             this.getPayConfig();
           }
+
           this.refreshSubList(data, updateControlIds);
           if (_.isFunction(this.refreshEvents.loadCustomBtns) && !isPublicForm) {
             this.refreshEvents.loadCustomBtns();
           }
-          if (!resdata.isviewdata && _.isFunction(onClose)) {
+
+          if (!isQuickUpdateCheck && !resdata.isviewdata && _.isFunction(onClose)) {
             onClose();
           }
         } else {
@@ -782,7 +822,9 @@ export default class RecordInfo extends Component {
             alert(_l('预览模式下，不能操作'), 3);
             return;
           }
+
           const doubleConfirm = safeParse(_.get(worksheetInfo, 'advancedSetting.doubleconfirm'));
+
           if (_.get(worksheetInfo, 'advancedSetting.enableconfirm') === '1') {
             // 提交二次确认
             let actionHandler = ActionSheet.show({
@@ -855,13 +897,16 @@ export default class RecordInfo extends Component {
             alert(_l('预览模式下，不能操作'), 3);
             return;
           }
+
           this.handleTriggerSave(getDataType === 21 ? { draftType: 'save' } : undefined);
         }}
         onUpdate={(changedValue, record) => {
           let newValue = { ...changedValue };
+
           if (_.filter(tempFormData, c => c.type === 34 && changedValue[c.controlId]).length) {
             newValue = _.omit(record, ['allowedit', 'allowdelete']);
           }
+
           const newFormData = tempFormData.map(c =>
             _.assign({}, c, {
               value: !_.isUndefined(newValue[c.controlId]) ? newValue[c.controlId] : c.value,
@@ -904,9 +949,11 @@ export default class RecordInfo extends Component {
         handleClickFlow: () => this.setState({ random: Date.now() }),
       });
     }
+
     if (this.isPublicShare || (currentTab.type === 51 && !isEditRecord) || ['approve', 'pay'].includes(currentTab.id)) {
       return null;
     }
+
     if (currentTab.type === 29 && !isEditRecord) {
       return !editLockedUser ? (
         <RelationAction
@@ -919,6 +966,7 @@ export default class RecordInfo extends Component {
         />
       ) : null;
     }
+
     return this.renderRecordBtns();
   }
   renderChatCount() {
@@ -996,14 +1044,17 @@ export default class RecordInfo extends Component {
       return record && record.rowid === recordId;
     });
     const newIndex = isNextRecord ? index + 1 : index - 1;
+
     if (!currentSheetRows[newIndex]) {
       if (!loadedRecordsOver && currentSheetRows.length >= 20) {
         loadNextPageRecords();
       } else {
         this.setState({ currentRecordIndex: index });
       }
+
       return;
     }
+
     const newRecordId = currentSheetRows[newIndex].rowid;
 
     this.setState(
@@ -1023,6 +1074,7 @@ export default class RecordInfo extends Component {
 
   handleDeleteSuccess = rowid => {
     const { isModal, onClose = () => {}, deleteRow, deleteCallback = () => {} } = this.props;
+
     if (isModal) {
       const { currentSheetRows = [], changeMobileSheetRows = () => {} } = this.props;
       changeMobileSheetRows(currentSheetRows.filter(r => r.rowid !== rowid));
@@ -1093,6 +1145,7 @@ export default class RecordInfo extends Component {
       isDraft,
       filledByAiMap,
       recordTitle,
+      isCharge,
     } = this.props;
     const {
       random,
@@ -1161,6 +1214,7 @@ export default class RecordInfo extends Component {
             registerCell={({ item, cell }) => (this.cellObjs[item.controlId] = { item, cell })}
             controlProps={{
               discussId: this.discussId,
+              isCharge,
               addRefreshEvents: (id, fn) => {
                 this.refreshEvents[id] = fn;
               },
@@ -1184,6 +1238,7 @@ export default class RecordInfo extends Component {
               if (isEditRecord) {
                 this.props.updateRelationRows([], 0);
               }
+
               this.ignoreUpdateRelationCount = !isEditRecord;
               this.setState({ currentTab: { id: tab.controlId, ...tab } });
             }}

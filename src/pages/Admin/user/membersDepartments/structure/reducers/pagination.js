@@ -19,6 +19,7 @@ const mergeUserList = (action, type) => {
   const { response, departmentId, pageIndex } = action;
   let userList = [];
   let allCountNum = 0;
+
   if (type === APPROVAL_USER_SUCCESS) {
     let {
       users: { list = [], allCount = 0 },
@@ -56,6 +57,7 @@ const updatePagination = (
 ) => {
   const { type } = action;
   const [requestType, successType, failureType] = [USER_REQUEST, USER_SUCCESS, USER_FAILURE];
+
   switch (type) {
     case requestType:
     case APPROVAL_USER_REQUEST:

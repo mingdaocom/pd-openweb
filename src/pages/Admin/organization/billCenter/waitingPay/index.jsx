@@ -58,6 +58,7 @@ export default class WaitingPay extends Component {
       alert(_l('传入参数无效'), 3);
       return false;
     }
+
     const _this = this;
 
     orderController
@@ -90,6 +91,7 @@ export default class WaitingPay extends Component {
 
   backNavigate = () => {
     const request = getRequest();
+
     if (request.ReturnUrl) {
       window.location.href = request.ReturnUrl;
     } else {
@@ -113,25 +115,28 @@ export default class WaitingPay extends Component {
       this.backNavigate();
       return false;
     }
+
     let temp = _payStyleArr.filter(it => {
       if (it.id === 'balancePay' && (_.includes([ReCharge, Ultimate, Enterprise], recordType) || !hasFinanceAuth)) {
         //充值、升级没有余额支付
         return false;
       } else if (
         price === 0 ||
-        ([25, 26].includes(recordType) && (!window.platformENV.isOverseas || window.platformENV.isLocal))
+        ([25, 26].includes(recordType) && (!window.platformENV.isOverseas || window.platformENV.isLocal)) // 专属算力私有部署
       ) {
         // 免费试用支付订单只保留余额支付
         return !_.includes(['aliPay', 'wechartPay', 'bankPay'], it.id);
       }
+
       if (price > 6000) {
         return it.id !== 'wechartPay';
       }
+
       return true;
     });
 
     //payStyle默认第一项
-    const firstItem = temp[0].id;
+    const firstItem = temp.length > 0 ? temp[0]?.id : '';
     this.setState({
       payStyleArr: temp,
       payStyle: firstItem,
@@ -141,6 +146,7 @@ export default class WaitingPay extends Component {
 
   renderTitle() {
     let text = '';
+
     switch (this.state.currRecordObj.recordType) {
       case billCommon.orderRecordType.MemberPackage:
         text = _l('感谢您购买用户包');
@@ -181,6 +187,7 @@ export default class WaitingPay extends Component {
       default:
         break;
     }
+
     return text;
   }
 
@@ -297,6 +304,7 @@ export default class WaitingPay extends Component {
   //支付宝
   aliPay() {
     const request = getRequest();
+
     if (confirm(_l('确定以【支付宝付款】方式进行本次付款？'))) {
       window.open(
         addToken(md.global.Config.AjaxApiUrl + 'pay/alipay?projectId=' + Config.projectId + '&orderNumber=' + orderId),
@@ -312,9 +320,11 @@ export default class WaitingPay extends Component {
 
   render() {
     const { payStyle, balanceNotEnough, currRecordObj, needEmail, isPay, loading, balance } = this.state;
+
     if (loading) {
       return <LoadDiv />;
     }
+
     return (
       <div className="warpCenter waitingPay">
         <div className="valueAddServerHeader">

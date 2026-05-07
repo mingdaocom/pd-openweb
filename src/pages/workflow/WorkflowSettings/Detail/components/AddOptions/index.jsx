@@ -15,6 +15,7 @@ export default ({ checked, fields, index, updateSource }) => {
               if (i === index) {
                 o.allowAddOptions = !checked;
               }
+
               return o;
             }),
           })

@@ -24,6 +24,7 @@ export default function ClearISaventergrationModal(props) {
       onSave();
     }
   };
+
   return (
     <Dialog
       visible

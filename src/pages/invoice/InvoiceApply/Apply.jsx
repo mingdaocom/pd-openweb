@@ -1,4 +1,5 @@
 import React, { Fragment, useEffect, useState } from 'react';
+import FocusLock from 'react-focus-lock';
 import { useSetState } from 'react-use';
 import { Popup } from 'antd-mobile';
 import _ from 'lodash';
@@ -76,6 +77,16 @@ export default function Apply(props) {
       return;
     }
 
+    if (formData.bankCode && !/^\d+$/.test(formData.bankCode)) {
+      alert(_l('请输入正确的开户行账号'), 3);
+      return;
+    }
+
+    if (formData.phoneNumber && !/^(1[3-9]\d{9}|0\d{2,3}-?\d{7,8})$/.test(formData.phoneNumber)) {
+      alert(_l('请输入正确的电话'), 3);
+      return;
+    }
+
     return true;
   };
 
@@ -85,7 +96,17 @@ export default function Apply(props) {
       merchantInvoiceApi
         .create({
           orderId,
-          ..._.pick(formData, ['invoiceOutputType', 'invoiceType', 'invoiceTitle', 'taxPayerNo', 'email']),
+          ..._.pick(formData, [
+            'invoiceOutputType',
+            'invoiceType',
+            'invoiceTitle',
+            'taxPayerNo',
+            'email',
+            'bankName',
+            'bankCode',
+            'address',
+            'phoneNumber',
+          ]),
         })
         .then(res => {
           if (res) {
@@ -93,6 +114,7 @@ export default function Apply(props) {
             alert(isEdit ? _l('修改成功') : _l('申请开票成功'));
             onApplySuccess(res);
           }
+
           setSubmitting(false);
         })
         .catch(() => {
@@ -148,7 +170,9 @@ export default function Apply(props) {
       okDisabled={submitting}
       onOk={onOk}
     >
-      {renderContent()}
+      <FocusLock returnFocus lockProps={{ onKeyDownCapture: e => e.key === 'Tab' && e.stopPropagation() }}>
+        {renderContent()}
+      </FocusLock>
     </Dialog>
   ) : (
     <Popup position="bottom" className="mobileModal topRadius invoicePopup" visible onMaskClick={onCancel}>

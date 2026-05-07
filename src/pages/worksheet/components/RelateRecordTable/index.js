@@ -1,7 +1,7 @@
 ﻿import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { Provider } from 'react-redux';
 import cx from 'classnames';
-import { get, isEqual, isFunction } from 'lodash';
+import { get, includes, isEqual, isFunction } from 'lodash';
 import { arrayOf, bool, func, number, shape, string } from 'prop-types';
 import styled from 'styled-components';
 import { RecordFormContext } from 'worksheet/common/recordInfo/RecordForm';
@@ -68,21 +68,33 @@ export default function RelateRecordTableIndex(props) {
     store.subscribe(() => {
       if (cache.current.storeVersion !== store.version) return;
       const state = store.getState();
+      const lastAction = get(state, 'lastAction');
+
+      if (includes(['UPDATE_BASE', 'UPDATE_TABLE_STATE'], lastAction?.type)) {
+        return;
+      }
+
       const keywords = state?.tableState?.keywords;
+
       if (keywords) {
         return;
       }
+
       let changed = !isEqual(cache.current.changes, state.changes) && !isEqual(state.changes, initialChanges);
-      if (get(state, 'lastAction.type') === 'DELETE_RECORDS') {
+
+      if (lastAction?.type === 'DELETE_RECORDS') {
         changed = true;
       }
+
       const newCount =
         !state.base.saveSync && typeof state.tableState.countForShow !== 'undefined'
           ? state.tableState.countForShow
           : state.tableState.count;
-      if ((cache.current.count !== newCount || !recordId) && isFunction(onCountChange) && !state.loading) {
+
+      if ((cache.current.count !== newCount || !recordId) && isFunction(onCountChange)) {
         onCountChange(newCount, get(state, 'base.isTab') ? get(state, 'changes.changed') : changed);
       }
+
       cache.current.count = newCount;
       cache.current.changes = state.changes;
     });

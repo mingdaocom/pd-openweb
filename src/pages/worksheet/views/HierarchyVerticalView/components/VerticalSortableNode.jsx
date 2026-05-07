@@ -93,19 +93,23 @@ export default class VerticalSortableRecordItem extends Component {
       window.location.href = `/mobile/record/${appId}/${curInfo.wsid}/${rowId}`;
       return;
     }
+
     handlePushState('page', 'recordDetail');
     this.setState({ recordInfoRowId: rowId, recordInfoVisible: true });
   };
   getRecordInfoPara = () => {
     const { worksheetId, viewId, view, data, controls, hierarchyRelateSheetControls } = this.props;
     const { childType, viewControls } = view;
+
     if (String(childType) === '2') {
       const configIndex = data.pathId.length - 1;
       const { worksheetId, controlId } = viewControls[configIndex] || {};
+
       // 第一级 (本表)
       if (configIndex === 0 || viewControls.length === 1) {
         return { worksheetId, viewId };
       }
+
       // 获取关联控件配置的viewId
       const relateSheetId = getRelateSheetId(view, data.pathId);
       const currentControls = configIndex > 1 ? hierarchyRelateSheetControls[relateSheetId] : controls;
@@ -120,6 +124,7 @@ export default class VerticalSortableRecordItem extends Component {
         viewControl: viewControlInfo,
       };
     }
+
     return { worksheetId, viewId };
   };
   getCurrentSheetRows = () => {
@@ -127,6 +132,7 @@ export default class VerticalSortableRecordItem extends Component {
 
     const getLayerRows = (arr = [], rows = []) => {
       const { data = {}, treeData = {} } = this.props;
+
       if (arr.length) {
         arr.forEach(item => {
           if (_.get(item, 'pathId.length') === _.get(data, 'pathId.length')) {
@@ -135,13 +141,16 @@ export default class VerticalSortableRecordItem extends Component {
               row: treeData[item.rowId],
             });
           }
+
           if (_.get(item, 'children.length')) {
             getLayerRows(item.children, rows);
           }
         });
       }
+
       return rows;
     };
+
     const newRows = getLayerRows(stateTree);
     return _.sortBy(newRows, 'index').map(i => i.row);
   };
@@ -225,6 +234,7 @@ export default class VerticalSortableRecordItem extends Component {
                 if (!relateSheet.isviewdata) {
                   return;
                 }
+
                 updateHierarchyData({ path, pathId, recordId: recordIds[0], value, relateSheet });
               }}
               appId={appId}

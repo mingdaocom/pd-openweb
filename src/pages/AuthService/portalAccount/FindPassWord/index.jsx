@@ -39,22 +39,27 @@ function ContainerCon(props) {
         .then(res => {
           const { portalSetResult = {}, isExist, status } = res;
           const { isEnable, appId } = portalSetResult;
+
           if (portalSetResult.pageTitle) {
             setdocumentTitle(_l('忘记密码 - %0', portalSetResult.pageTitle));
           } else {
             setdocumentTitle(_l('忘记密码'));
           }
+
           const isErrCustomUrl = customLink && isErrSet(portalSetResult);
+
           if (status === 40 || isErrCustomUrl) {
             //扩展链接不存在 || 你访问的链接已停止访问
             setStatus(40);
             setLoading(false);
           }
+
           if (!isEnable || !isExist) {
             !isEnable && setStatus(20000);
             !isExist && setStatus(10000);
             setLoading(false);
           }
+
           setFixInfo({
             fixAccount: res.fixAccount,
             fixRemark: res.fixRemark,
@@ -73,10 +78,13 @@ function ContainerCon(props) {
   if (loading) {
     return <LoadDiv className="" style={{ margin: '120px auto' }} />;
   }
+
   const tipStyle =
     baseSetInfo.pageMode === 6 && !browserIsMobile() ? { marginTop: document.documentElement.clientHeight / 4 } : {};
+
   const getWaring = status => {
     const { isErrUrl } = props;
+
     switch (status) {
       case 2:
         return _l('您的账号已被停用');
@@ -100,6 +108,7 @@ function ContainerCon(props) {
         return _l('当前应用不存在');
     }
   };
+
   return (
     <Wrap
       style={

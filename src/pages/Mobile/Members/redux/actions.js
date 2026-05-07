@@ -65,6 +65,7 @@ export const getMembers = appId => dispatch => {
       dispatch(getAppApplyInfo(appId));
       return;
     }
+
     dispatch({ type: 'MOBILE_FETCH_MEMBER_SUCCESS' });
   });
 };

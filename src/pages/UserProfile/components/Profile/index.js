@@ -7,9 +7,11 @@ import './index.less';
 class UserProfile extends Component {
   renderFeed() {
     const { isLoading, isMe, userInfo: { fullname, accountId } = {} } = this.props;
+
     if (isLoading) {
       return <LoadDiv size="small" className={'mTop10'} />;
     }
+
     const title = isMe ? _l('我的动态墙') : _l('%0的动态墙', fullname);
     return (
       <div className="mTop10">

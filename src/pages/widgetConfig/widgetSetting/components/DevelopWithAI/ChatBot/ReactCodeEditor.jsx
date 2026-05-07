@@ -99,6 +99,7 @@ const CodeEditor = ({ value = '', onChange = () => {} }) => {
   useEffect(() => {
     // 扩展 JavaScript hints，添加 React 相关关键字
     const originalJavaScriptHint = CodeMirror.hint.javascript;
+
     CodeMirror.hint.javascript = function (editor) {
       const cursor = editor.getCursor();
       const token = editor.getTokenAt(cursor);
@@ -220,6 +221,7 @@ const CodeEditor = ({ value = '', onChange = () => {} }) => {
         },
         Tab: cm => {
           const spaces = Array(cm.getOption('indentUnit') + 1).join(' ');
+
           if (cm.somethingSelected()) {
             cm.indentSelection('add');
           } else {
@@ -268,10 +270,12 @@ const CodeEditor = ({ value = '', onChange = () => {} }) => {
     editorRef.current.on('change', editor => {
       const value = editor.getValue();
       const blobSizeOfKb = new Blob([value]).size / 1024;
+
       if (blobSizeOfKb > 64) {
         alert(_l('代码无法保存，代码长度不能超过64KB'), 3);
         return;
       }
+
       onChange(value);
     });
 

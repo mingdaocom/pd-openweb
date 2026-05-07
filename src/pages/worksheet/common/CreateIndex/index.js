@@ -152,6 +152,7 @@ export default class CreateIndex extends Component {
     if (isExistTestIndexFileds && hasTestIndex) {
       return alert(_l('每张工作表只能创建一个文本索引'), 3);
     }
+
     // 如果同时包含多个数组型字段，保存时 Toast 提示「索引只能包含一个多选类型字段」
     let arrTypeNum = selectedIndexList.filter(item => item.type === 3).length;
     if (arrTypeNum > 1) return alert(_l('索引只能包含一个多选类型字段'), 3);
@@ -159,6 +160,7 @@ export default class CreateIndex extends Component {
     if (isExistTestIndexFileds && selectedIndexList.some(item => item.type === 3)) {
       return alert(_l('索引不能同时包含文本索引与多选类型字段'), 3);
     }
+
     this.setState({ saveLoading: true });
     let params = {
       appId,
@@ -174,11 +176,13 @@ export default class CreateIndex extends Component {
       sparseIndex: false, // 是否 稀疏索引
       backgroundIndex: isExistTestIndexFileds ? false : true, // 是否 后台索引
     };
+
     if (isEdit) {
       params.indexConfigId = currentIndexInfo.indexConfigId || '';
       params.isSystemIndex = currentIndexInfo.isSystem;
       params.systemIndexName = currentIndexInfo.systemIndexName;
     }
+
     if (!isEdit) {
       worksheetAjax
         .addRowIndex(params)
@@ -196,6 +200,7 @@ export default class CreateIndex extends Component {
           } else if (res.responseEnum === 4) {
             alert(_l('索引已存在'), 3);
           }
+
           this.setState({ saveLoading: false });
           getIndexesInfo();
         })
@@ -225,6 +230,7 @@ export default class CreateIndex extends Component {
           } else if (res.responseEnum === 4) {
             alert(_l('索引已存在'), 3);
           }
+
           this.setState({ saveLoading: false });
           getIndexesInfo();
         })
@@ -232,6 +238,7 @@ export default class CreateIndex extends Component {
           this.setState({ saveLoading: false });
         });
     }
+
     this.props.onClose();
   };
   changeIndexField = (value, index) => {
@@ -248,6 +255,7 @@ export default class CreateIndex extends Component {
           indexType: 1,
         };
       }
+
       return item;
     });
     let selectFiledsList = _.differenceWith(
@@ -300,11 +308,13 @@ export default class CreateIndex extends Component {
 
   openAndClose = num => {
     let temp = [...this.state.showQAList];
+
     if (_.includes(temp, num)) {
       temp = temp.filter(v => v !== num);
     } else {
       temp.push(num);
     }
+
     this.setState({ showQAList: temp });
   };
 

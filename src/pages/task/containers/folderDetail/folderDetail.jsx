@@ -88,8 +88,10 @@ class FolderDetail extends Component {
 
         // 文件夹下小红点计数
         const $projectFolder = $li.closest('.projectFolder');
+
         if ($projectFolder.length) {
           const length = $projectFolder.find('.projectFolderUl .folderNewTip').length;
+
           if (!length) {
             $projectFolder.find('.folderTitle .folderNewTip').addClass('Hidden');
           }
@@ -97,6 +99,7 @@ class FolderDetail extends Component {
 
         // 网络下小红点计数
         let $networkFolderList = $li.closest('.networkFolderList');
+
         if ($networkFolderList.length) {
           count = parseInt($networkFolderList.attr('data-count'), 10) - 1;
           $networkFolderList.attr('data-count', count);
@@ -107,6 +110,7 @@ class FolderDetail extends Component {
 
         // 置顶项目小红点处理
         const $topFolderList = $li.closest('.topFolderList');
+
         // 打开的是置顶项目  项目对应的网络未展开
         if ($topFolderList.length && $li.length === 1) {
           let projectId = $li.data('projectid');
@@ -215,8 +219,10 @@ class FolderDetail extends Component {
    */
   renderFolderAdmin() {
     const { data } = this.state;
+
     const getOpHtml = item => {
       const { accountID, avatar, fullName } = item;
+
       if (data.chargeUser.accountID === md.global.Account.accountId) {
         return (
           <Fragment>
@@ -258,6 +264,7 @@ class FolderDetail extends Component {
           </Fragment>
         );
       }
+
       return null;
     };
 
@@ -298,8 +305,10 @@ class FolderDetail extends Component {
    */
   renderFolderMember() {
     const { data } = this.state;
+
     const getOpHtml = (item, isApply) => {
       const { accountID, avatar, fullName } = item;
+
       if (isApply && data.isAdmin) {
         return (
           <Fragment>
@@ -496,6 +505,7 @@ class FolderDetail extends Component {
     const { data } = this.state;
     const { folderId, projectId } = this.props.taskConfig;
     let existsIds = [];
+
     const callback = users => {
       this.addFolderMembers(users, isAdmin);
     };
@@ -627,6 +637,7 @@ class FolderDetail extends Component {
   removeFolderMember(accountId) {
     const that = this;
     let msg = _l('是否确认移除该成员');
+
     if (accountId === md.global.Account.accountId) {
       msg = _l('确定退出该项目？');
     }
@@ -764,13 +775,16 @@ class FolderDetail extends Component {
           if (source.data && source.data.limitedCount) {
             alert(_l('有%0位外部用户邀请失败。外部用户短信邀请用量达到上限', source.data.limitedCount), 3);
           }
+
           if (source.data && source.data.successMember) {
             const data = _.cloneDeep(this.state.data);
+
             if (isAdmin) {
               data.admins = data.admins.concat(source.data.successMember);
             } else {
               data.ordinaryMembers = data.ordinaryMembers.concat(source.data.successMember);
             }
+
             this.setState({ data });
           }
         } else {

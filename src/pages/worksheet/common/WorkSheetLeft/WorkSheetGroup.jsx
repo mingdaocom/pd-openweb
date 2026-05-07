@@ -82,12 +82,15 @@ export default function WorkSheetGroup(props) {
 
   const renderIcon = () => {
     let icon = 'visibility_off';
+
     if (status === 3) {
       icon = 'desktop_off';
     }
+
     if (status === 4) {
       icon = 'mobile_off';
     }
+
     return (
       [2, 3, 4].includes(status) && (
         <Tooltip
@@ -121,6 +124,7 @@ export default function WorkSheetGroup(props) {
           onClick={e => {
             if (sheetListVisible) {
               const { classList } = e.target;
+
               if (classList.contains('nameWrap') || classList.contains('name') || classList.contains('arrowIcon')) {
                 if (!childrenVisible) {
                   localStorage.setItem(childrenOpenKey, 1);
@@ -145,6 +149,7 @@ export default function WorkSheetGroup(props) {
           }}
           onMouseMove={() => {
             const now = Date.now();
+
             if (window.dragNow && now - window.dragNow > 50) {
               setIsDrag(true);
               setChildrenVisible(false);

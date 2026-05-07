@@ -99,8 +99,10 @@ export default class Widgets extends Component {
     if (!value) {
       return false;
     }
+
     try {
       const file = JSON.parse(value)[0];
+
       if (!file) {
         return false;
       } else {
@@ -109,19 +111,23 @@ export default class Widgets extends Component {
     } catch (err) {
       console.log(err);
     }
+
     return false;
   }
 
   loadAttachments(props) {
     const { value, worksheetId, recordId, controlId, isDraft } = props || this.props;
     let fileIds = [];
+
     try {
       fileIds = JSON.parse(value).map(f => f.fileId);
     } catch (err) {
       console.log(err);
       this.setState({ loading: false, value: '' });
     }
+
     const args = { fileIds, worksheetId, rowId: recordId, controlId };
+
     if (window.shareState && window.shareState.shareId) {
       args.shareId = window.shareState.shareId;
       args.type = window.shareState.isPublicRecord
@@ -130,9 +136,11 @@ export default class Widgets extends Component {
           ? 11
           : 14;
     }
+
     if (isDraft) {
       args.type = 21;
     }
+
     attachmentApi
       .getAttachmentToList(args)
       .then(data => {
@@ -234,6 +242,7 @@ export default class Widgets extends Component {
       if (item.fileID === id) {
         item.originalFilename = newName;
       }
+
       return item;
     });
 
@@ -270,6 +279,7 @@ export default class Widgets extends Component {
     const { projectId, appId, worksheetId, controlId, formData, advancedSetting } = this.props;
     const control = _.find(formData, { controlId }) || {};
     let h5watermark = '';
+
     if (!mingdaoAppError && advancedSetting.h5watermark) {
       const h5watermarkArr = advancedSetting.h5watermark.split('$');
       const data = formData.filter(v => _.includes([2, 3, 4, 5, 6, 8, 15, 16, 46], v.type));
@@ -281,6 +291,7 @@ export default class Widgets extends Component {
         })
         .join('');
     }
+
     const count = advancedSetting.maxcount
       ? Number(advancedSetting.maxcount) - knowledgeAtts.length - mobileFiles.length
       : undefined;
@@ -325,6 +336,7 @@ export default class Widgets extends Component {
               if (completed) {
                 const attrs = completed.filter(v => v.refId);
                 const nomalAttrs = completed.filter(v => !v.refId);
+
                 if (attrs.length) {
                   const newKnowledgeAtts = _.uniqBy(knowledgeAtts, 'fileID')
                     .concat(attrs)
@@ -341,6 +353,7 @@ export default class Widgets extends Component {
                     this.filesChanged(this.state.knowledgeAtts, 'knowledgeAtts');
                   });
                 }
+
                 if (nomalAttrs.length) {
                   this.setState(
                     {
@@ -426,9 +439,11 @@ export default class Widgets extends Component {
       if (!this._mapHandler) {
         this._mapHandler = new MapHandler();
       }
+
       this._mapHandler.getCurrentPos(
         (status, result) => {
           const { formattedAddress, position } = result;
+
           if (status === 'complete' && formattedAddress) {
             this.setState({ currentLocation: { formattedAddress, position }, gettingLocation: false });
           } else {
@@ -532,6 +547,7 @@ export default class Widgets extends Component {
                 },
               );
             }
+
             if (type === 'camera') {
               this.setState(
                 {
@@ -545,6 +561,7 @@ export default class Widgets extends Component {
                 },
               );
             }
+
             if (type === 'camcorder') {
               this.setState(
                 {
@@ -558,6 +575,7 @@ export default class Widgets extends Component {
                 },
               );
             }
+
             if (isComplete) {
               this.mobileFileRef[type].setState({
                 files: [],
@@ -775,6 +793,7 @@ export default class Widgets extends Component {
                 });
               }
             }
+
             if (showCamera) {
               const { currentFile, state } = this.mobileFileRef['camera'];
               currentFile && currentFile.removeFile({ id: data.id });
@@ -784,6 +803,7 @@ export default class Widgets extends Component {
                 });
               }
             }
+
             if (showCamcorder) {
               const { currentFile, state } = this.mobileFileRef['camcorder'];
               currentFile && currentFile.removeFile({ id: data.id });
@@ -793,6 +813,7 @@ export default class Widgets extends Component {
                 });
               }
             }
+
             this.handleCheckMobileFiles(_.find(attachments, { id: data.id }));
             this.filesChanged(
               attachments.filter(item => item.id !== data.id),

@@ -153,11 +153,13 @@ class CustomBtnCon extends Component {
   optionWorksheetBtn = (btnId, optionType, callback) => {
     const { worksheetId, appId, viewId } = this.props;
     let worksheetIdN = '';
+
     if (this.state.optionType === 9) {
       worksheetIdN = '';
     } else {
       worksheetIdN = worksheetId;
     }
+
     sheetAjax
       .optionWorksheetBtn({
         appId, //* @param { string } args.appId 应用iD

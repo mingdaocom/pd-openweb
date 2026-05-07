@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from 'react';
+﻿import React, { useCallback, useRef, useState } from 'react';
 import cx from 'classnames';
 import _, { get } from 'lodash';
 import { arrayOf, bool, func, number, shape, string } from 'prop-types';
@@ -71,7 +71,7 @@ const DropButton = styled(Button)`
   &.operates-icon {
     border-color: transparent !important;
     &:hover {
-      background: rgba(0, 0, 0, 0.03) !important;
+      background: var(--color-background-secondary) !important;
     }
   }
   &.operates-text {
@@ -79,44 +79,60 @@ const DropButton = styled(Button)`
     background: transparent !important;
     &:hover {
       border-color: transparent !important;
-      background: rgba(0, 0, 0, 0.03) !important;
+      background: var(--color-background-secondary) !important;
     }
   }
   &.operates-standard {
     background: var(--color-background-primary) !important;
     &:hover {
-      background: rgba(0, 0, 0, 0.03) !important;
+      background: var(--color-background-secondary) !important;
     }
   }
 `;
 
 function getButtonWidth(button, type) {
+  const isDebug = window.isDebug;
   let result;
   const div = document.createElement('div');
+
   if (type === 'iconText') {
-    const { icon, name } = button;
-    div.style.visibility = 'hidden';
+    const { name } = button;
+    if (!isDebug) {
+      div.style.visibility = 'hidden';
+    } else {
+      div.style.position = 'absolute';
+      div.style.left = '200px';
+      div.style.top = '200px';
+      div.style.zIndex = '99999';
+      div.style.backgroundColor = '#ffffff';
+    }
     div.style.display = 'inline-block';
     div.innerHTML = `<div style="display: inline-block; margin: 0 12px; white-space: nowrap;">
-      <span class="icon icon-${icon || 'custom_actions'}" style="margin: 0 2px;font-size: 18px;"></span>
+      <span style="display: inline-block; margin: 0 2px; width:18px;"></span>
       <span  style="font-size: 13px;">${name}</span>
     </div>`;
   } else {
     div.style.position = 'absolute';
-    div.style.left = '-10000px';
-    div.style.top = '-10000px';
+    if (!isDebug) {
+      div.style.left = '-10000px';
+      div.style.top = '-10000px';
+    } else {
+      div.style.left = '200px';
+      div.style.top = '200px';
+    }
     div.style.zIndex = '99999';
-    div.style.border = '1px solid';
     div.style.border = '1px solid';
     div.innerHTML = `<span class="InlineBlock borderBox"><button type="button" class="ming Button--small Button--ghost Button recordCustomButton overflowHidden"><div class="content ellipsis"><i class="${`icon icon-${
       button.icon || 'custom_actions'
     }`}"></i><span class="breakAll overflow_ellipsis">${button.name}</span></div></button></span>`;
   }
+
   document.body.appendChild(div);
   result = div.clientWidth;
   if (type === 'button') {
     result += 6;
   }
+
   document.body.removeChild(div);
   return result;
 }
@@ -134,24 +150,32 @@ function Buttons(props) {
     projectId,
     worksheetId,
     selectedRows = [],
+    btnDisable = {},
     isAll,
-    buttons,
     visibleNum,
     handleTriggerCustomBtn,
     handleUpdateWorksheetRow,
     onUpdateRow,
   } = props;
+  let { buttons } = props;
   const cache = useRef({});
   const [popupVisible, setPopupVisible] = useState(false);
   const operateHeight = (props.rowHeight && props.rowHeight) > 34 || props.isInCard ? 32 : 26;
   const moreWidth = props.isInCard ? 32 : 26;
   const hideDisabled = type === 'iconText' || !viewId;
+
+  if (hideDisabled) {
+    buttons = buttons.filter(button => !(btnDisable[button.btnId] || button.disabled));
+  }
+
   let buttonShowNum = 1;
+
   if (typeof visibleNum === 'number') {
     buttonShowNum = visibleNum;
   } else {
     const sumWidth = _.sum(buttons.map(button => getButtonWidth(button, type)));
     const moreButtonWidth = getButtonWidth({ name: _l('更多') }, type) - 6;
+
     if (sumWidth < width) {
       buttonShowNum = buttons.length;
     } else {
@@ -168,6 +192,7 @@ function Buttons(props) {
       }
     }
   }
+
   const buttonsProps = {
     isFromBatchEdit: true,
     operateHeight,
@@ -190,9 +215,11 @@ function Buttons(props) {
     if (cache.current.customButtonActive && !newValue) {
       return;
     }
+
     setPopupVisible(newValue);
   });
   let moreContent;
+
   if (isOperates) {
     moreContent = (
       <DropButton
@@ -232,6 +259,7 @@ function Buttons(props) {
       </MoreBtn>
     );
   }
+
   return (
     <Con className={cx('customButtonsCon')}>
       <CustomButtons

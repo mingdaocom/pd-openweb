@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import _ from 'lodash';
+import _, { identity } from 'lodash';
 import worksheetAjax from 'src/api/worksheet';
 import workflowPushSoket from 'mobile/components/socket/workflowPushSoket';
 import QuickFilterSearch from 'mobile/RecordList/QuickFilter/QuickFilterSearch';
@@ -13,6 +13,7 @@ import * as navFilterActions from 'src/pages/worksheet/redux/actions/navFilter';
 import { getRequest } from 'src/utils/common';
 import { emitter } from 'src/utils/common';
 import { mdAppResponse } from 'src/utils/project';
+import { filterButtonBySheetSwitchPermit, getSheetOperatesButtons } from 'src/utils/worksheet';
 import GroupFilter from '../GroupFilter';
 import GroupFilterList from '../GroupFilter/GroupFilterList';
 import MobileSheetContext from '../MobileSheetContext';
@@ -51,11 +52,13 @@ class View extends Component {
   componentDidMount() {
     const { view, base = {} } = this.props;
     const { getFilters, openMode } = getRequest();
+
     if (openMode) {
       window.APP_OPEN_NEW_PAGE = openMode === 'tab'; // 导航模式下记录详情、新建记录等在APP内新开页打开
     } else {
       window.APP_OPEN_NEW_PAGE = base.type === 'single';
     }
+
     loadSDK();
     if (getFilters === 'true') {
       mdAppResponse({ sessionId: 'Filter test session', type: 'getFilters' }).then(data => {
@@ -72,17 +75,21 @@ class View extends Component {
         this.props.fetchSheetRows();
       }
     }
+
     emitter.addListener('MOBILE_RELOAD_RECORD_INFO', this.refreshList);
 
     if (base.type !== 'single') {
       workflowPushSoket();
     }
+
     this.props.handleLoadOperateButtons({ worksheetInfo: this.props.worksheetInfo });
   }
   componentWillReceiveProps(nextProps) {
     if (!_.isEqual(this.props.mobileNavGroupFilters, nextProps.mobileNavGroupFilters)) {
       this.props.fetchSheetRows({ navGroupFilters: nextProps.mobileNavGroupFilters });
     }
+
+    this.checkWorksheetRowsBtn(nextProps);
   }
   componentWillUnmount() {
     window.APP_OPEN_NEW_PAGE = undefined;
@@ -90,6 +97,43 @@ class View extends Component {
     if (!window.IM) return;
     IM.socket.off('workflow_push');
   }
+  getOperateButtons = props => {
+    const { view, sheetButtons, printList } = props;
+    let operatesButtons = getSheetOperatesButtons(view, {
+      buttons: sheetButtons,
+      printList,
+    });
+    operatesButtons = filterButtonBySheetSwitchPermit(operatesButtons, this.sheetSwitchPermit, view.viewId);
+    return operatesButtons;
+  };
+
+  checkWorksheetRowsBtn = nextProps => {
+    const { currentSheetRows, sheetButtons, base, view, updateButtonsCheckStatus = () => {} } = nextProps;
+
+    if (
+      [0, 1, 3].includes(view.viewType) &&
+      !_.isEmpty(currentSheetRows) &&
+      !_.isEmpty(sheetButtons) &&
+      (!_.isEqual(currentSheetRows, this.props.currentSheetRows) ||
+        !_.isEqual(this.getOperateButtons(nextProps), this.getOperateButtons(this.props)))
+    ) {
+      worksheetAjax
+        .checkWorksheetRowsBtn({
+          worksheetId: base?.worksheetId,
+          rowIds: currentSheetRows.map(r => r.rowid).filter(identity),
+          btnIds: sheetButtons.map(b => b.btnId),
+        })
+        .then(data => {
+          const buttonsCheckStatus = {};
+          data.forEach(item => {
+            item.rowIds.forEach(rowId => {
+              buttonsCheckStatus[`${rowId}-${item.btnId}`] = true;
+            });
+          });
+          updateButtonsCheckStatus(buttonsCheckStatus);
+        });
+    }
+  };
 
   refreshList = ({ worksheetId, recordId }) => {
     const { view, base = {}, currentSheetRows = [], updateRow } = this.props;
@@ -142,6 +186,8 @@ class View extends Component {
       updateActiveSavedFilter = () => {},
       sheetButtons,
       printList,
+      buttonsCheckStatus,
+      config = {},
     } = this.props;
 
     const { viewType, advancedSetting = {} } = view;
@@ -203,6 +249,7 @@ class View extends Component {
       printList,
       sheetSwitchPermit,
       worksheetInfo,
+      buttonsCheckStatus,
     };
 
     if (
@@ -263,6 +310,7 @@ class View extends Component {
               activeSavedFilter={activeSavedFilter}
               updateActiveSavedFilter={updateActiveSavedFilter}
               base={base}
+              config={config}
             />
           )}
           {_.includes(
@@ -321,6 +369,7 @@ export default connect(
       'filterControls',
       'sheetButtons',
       'printList',
+      'buttonsCheckStatus',
     ]),
   }),
   dispatch =>
@@ -344,6 +393,7 @@ export default connect(
           'updateBatchCheckAll',
           'updateFilterControls',
           'handleLoadOperateButtons',
+          'updateButtonsCheckStatus',
         ]),
       },
       dispatch,

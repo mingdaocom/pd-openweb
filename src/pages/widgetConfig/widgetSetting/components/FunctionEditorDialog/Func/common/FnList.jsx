@@ -18,8 +18,13 @@ const ExpandIcon = styled.i`
 
 const Con = styled.div`
   padding: 10px 0;
+  .ant-collapse,
+  .ant-collapse-borderless {
+    background-color: transparent !important;
+  }
   .fnTitle {
     font-weight: bold;
+    color: var(--color-text-primary);
   }
   .ant-collapse-header {
     padding: 12px 14px !important;
@@ -37,7 +42,7 @@ const Con = styled.div`
     }
     .fnName {
       font-size: 12px;
-      color: var(--color-text-tertiary);
+      color: var(--color-text-secondary);
       cursor: pointer;
     }
     &:hover {
@@ -68,6 +73,7 @@ export default function FnList(props) {
   const { keywords, insertFn, control } = props;
   const functionNames = Object.keys(functionDetails);
   let types = Object.keys(functionTypes);
+
   if (keywords) {
     types = types.filter(type =>
       _.find(
@@ -79,6 +85,7 @@ export default function FnList(props) {
       ),
     );
   }
+
   let functionListOfTypes = types.map(type => ({
     name: functionTypes[type],
     type,
@@ -94,9 +101,11 @@ export default function FnList(props) {
     type: 'commonly',
     functions: ['IF', 'CONCAT', 'AVERAGE', 'SUM', 'NETWORKDAY', 'DATEADD', 'DATEIF'],
   };
+
   if (!keywords && commonly.functions.length) {
     functionListOfTypes = [commonly].concat(functionListOfTypes);
   }
+
   return (
     <Con>
       <Collapse

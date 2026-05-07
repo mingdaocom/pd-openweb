@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react';
-import ClipboardButton from 'react-clipboard.js';
 import cx from 'classnames';
+import copy from 'copy-to-clipboard';
 import _ from 'lodash';
 import { Checkbox, Dialog, Icon, Support } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
@@ -127,6 +127,7 @@ export default class ExportApp extends React.Component {
     if (!reason) {
       delete copyErrors[checkFiled];
     }
+
     let errors = reason ? { ...copyErrors, [checkFiled]: reason } : copyErrors;
 
     return errors;
@@ -209,16 +210,17 @@ export default class ExportApp extends React.Component {
                 </span>
               )}
               {!canEdit && (
-                <ClipboardButton
+                <span
                   className="adminHoverColor Hand textTertiary copyIcon"
-                  component="span"
-                  data-clipboard-text={this.state[password]}
-                  onSuccess={() => alert(_l('复制成功'))}
+                  onClick={() => {
+                    copy(this.state[password]);
+                    alert(_l('复制成功'));
+                  }}
                 >
                   <Tooltip title={_l('复制')} placement="bottom">
                     <span className="icon-content-copy Hand" />
                   </Tooltip>
-                </ClipboardButton>
+                </span>
               )}
             </div>
           )}

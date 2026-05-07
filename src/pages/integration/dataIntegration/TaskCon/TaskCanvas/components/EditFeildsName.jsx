@@ -8,6 +8,7 @@ const Wrap = styled.div`
     height: 30px;
   }
 `;
+
 export default function EditFeildsName(props) {
   const [{ showInput, title }, setState] = useSetState({
     showInput: false,

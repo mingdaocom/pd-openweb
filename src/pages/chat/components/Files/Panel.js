@@ -91,6 +91,7 @@ export default class FilesPanel extends Component {
       fileType,
       [session.isGroup ? 'groupId' : 'withUser']: session.id,
     };
+
     if (session.isGroup) {
       param.fromUser = fromUser;
     } else {
@@ -100,13 +101,16 @@ export default class FilesPanel extends Component {
         param.fromUser = fromUser;
       }
     }
+
     if (start || end) {
       param.start = start;
       param.end = end;
     }
+
     if (loading || !pageIndex) {
       return;
     }
+
     this.setState({
       loading: true,
     });

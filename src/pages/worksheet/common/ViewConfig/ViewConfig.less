@@ -70,61 +70,15 @@
 
     ul.cardUl {
       > li {
+        color: var(--color-text-disabled);
         display: inline-block;
         width: ~'calc(50% - 6px)';
         height: 106px;
         border-radius: 3px;
         position: relative;
-        vertical-align: top;
-
-        &::before,
-        &::after {
-          content: '';
-          display: block;
-          width: 100%;
-          height: 100%;
-          background-image: url('./components/mobileSet/img/line2.png');
-          background-repeat: no-repeat;
-          background-size: 100%;
-          position: absolute;
-          top: 0px;
-        }
-
-        &::after {
-          display: none;
-          background-image: url('./components/mobileSet/img/line2Active.png');
-        }
-
-        &:first-child {
-          &::before {
-            background-image: url('./components/mobileSet/img/line1.png');
-          }
-
-          &::after {
-            background-image: url('./components/mobileSet/img/line1Active.png');
-          }
-        }
-
-        &:last-child {
-          height: 88px;
-
-          &::before {
-            background-image: url('./components/mobileSet/img/line3.png');
-          }
-
-          &::after {
-            background-image: url('./components/mobileSet/img/line3Active.png');
-          }
-        }
-
+        &:hover,
         &.current {
-          &::before {
-            display: none;
-          }
-
-          &::after {
-            display: block;
-          }
+          color: var(--color-primary);
         }
       }
     }

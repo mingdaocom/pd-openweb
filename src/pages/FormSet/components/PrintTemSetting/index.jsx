@@ -2,7 +2,8 @@ import React, { Fragment, useEffect } from 'react';
 import _ from 'lodash';
 import moment from 'moment';
 import styled from 'styled-components';
-import { Checkbox, Input, Radio } from 'ming-ui';
+import { Checkbox, Icon, Input, Radio } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import sheetAjax from 'src/api/worksheet';
 import { getAdvanceSetting } from 'src/pages/widgetConfig/util/setting';
 import DynamicDefaultValue from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue';
@@ -55,15 +56,14 @@ function PrintTemSetting(props) {
     updateExampleData = () => {},
   } = props;
 
-  const type =
-    _.get(
-      _.find(advanceSettings, i => i.key === 'export_type'),
-      'value',
-    ) || '0';
-  const exportName = _.get(
-    _.find(advanceSettings, i => i.key === 'export_name'),
-    'value',
-  );
+  const advanceMap = _.keyBy(advanceSettings, 'key');
+
+  const type = advanceMap.export_type?.value || '0';
+  const exportName = advanceMap.export_name?.value;
+  const enableEmptyPlaceholder = !!Number(advanceMap.enableEmptyPlaceholder?.value);
+  const emptyPlaceholderMode = advanceMap.emptyPlaceholderMode?.value;
+  console.log('boolean', enableEmptyPlaceholder);
+
   const titleControl = _.find(controls, i => i.attribute === 1);
 
   useEffect(() => {
@@ -108,7 +108,7 @@ function PrintTemSetting(props) {
 
         if (value) return renderCellText({ ...control, value: value });
 
-        return 'undefined';
+        return '未命名';
     }
   };
 
@@ -123,6 +123,7 @@ function PrintTemSetting(props) {
     let fields = '';
     safeParse(defsource || '[]').forEach(item => {
       const { cid, rcid, staticValue } = item;
+
       if (cid) {
         fields += rcid ? `$${cid}~${rcid}$` : `$${cid}$`;
       } else {
@@ -217,6 +218,31 @@ function PrintTemSetting(props) {
           >
             {_l('允许编辑后再打印')}
           </Checkbox>
+        )}
+        <Checkbox
+          className="Font14 mTop18"
+          checked={enableEmptyPlaceholder}
+          onClick={() => onChangeAdvance({ key: 'enableEmptyPlaceholder', value: Number(!enableEmptyPlaceholder) })}
+        >
+          {_l('空值填充占位符')}
+          <Tooltip
+            placement="bottom"
+            title={_l('开启后，字段为空时将打印占位符内容，用于保持打印板式完整，避免空白显示')}
+          >
+            <Icon icon="help" className="mTop2 mLeft5 Font14 textTertiary" />
+          </Tooltip>
+        </Checkbox>
+        {enableEmptyPlaceholder && (
+          <div className="pLeft26">
+            <Input
+              className="mTop10 w100"
+              placeholder={_l('请输入占位符')}
+              value={emptyPlaceholderMode}
+              onChange={value => {
+                onChangeAdvance({ key: 'emptyPlaceholderMode', value });
+              }}
+            />
+          </div>
         )}
       </div>
     </Fragment>

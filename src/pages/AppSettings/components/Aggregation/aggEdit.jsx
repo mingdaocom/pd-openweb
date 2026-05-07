@@ -36,14 +36,17 @@ export default function AggregationEdit(props) {
         setFavicon(data.iconUrl, data.iconColor);
         const { permissionType, id, isLock, isPassword, projectId, name } = data;
         const featureType = getFeatureStatus(projectId, VersionProductType.aggregation);
+
         if (!permissionType || (isLock && isPassword) || !featureType) {
           navigateTo(`/app/${id}`); // 普通角色、加锁应用、无应用管理中特性时跳至应用首页
           return;
         }
+
         if (featureType === '2') {
           buriedUpgradeVersionDialog(projectId, VersionProductType.aggregation);
           return;
         }
+
         setState({ loading: false, projectId, name });
       });
   };

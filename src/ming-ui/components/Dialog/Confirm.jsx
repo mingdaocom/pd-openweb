@@ -11,6 +11,7 @@ export default function confirm(props) {
   document.body.appendChild(div);
 
   const root = createRoot(div);
+
   const handleClose = (needExecCancel = true, isOkBtn) => {
     setTimeout(() => {
       root.unmount();
@@ -46,11 +47,13 @@ export default function confirm(props) {
       )}
     </div>
   );
+
   if (props.noFooter) {
     footer = null;
   }
 
   let dealProps = props;
+
   if (props.onlyClose) {
     dealProps = { ...dealProps, handleClose: () => handleClose(false) };
   }

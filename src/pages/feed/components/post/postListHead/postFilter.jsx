@@ -100,9 +100,11 @@ class HomePostFilter extends React.Component {
 
   searchPost = () => {
     const searchInput = ReactDom.findDOMNode(this.searchInput);
+
     if (!searchInput) {
       return;
     }
+
     const keywords = searchInput.value;
     this.props.dispatch(
       filter({
@@ -143,6 +145,7 @@ class HomePostFilter extends React.Component {
     );
 
     let left, typeSelectAtLeft;
+
     if (this.props.options.accountId !== md.global.Account.accountId) {
       // 群组或个人首页
       left = <div className="left postListTitle">{this.props.title || _l('动态墙')}</div>;
@@ -168,6 +171,7 @@ class HomePostFilter extends React.Component {
         </div>
       );
     }
+
     return (
       <div className="postHeader homePostFilter clearfix">
         {left}

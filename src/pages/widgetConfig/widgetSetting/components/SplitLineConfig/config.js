@@ -50,10 +50,12 @@ export const getExpandWidgetIds = (controls = [], data = {}, from) => {
     if (a.row === b.row) {
       return a.col - b.col;
     }
+
     return a.row - b.row;
   });
 
   let searchStatus = false;
+
   for (let item of widgets) {
     if (searchStatus) {
       if (
@@ -67,7 +69,9 @@ export const getExpandWidgetIds = (controls = [], data = {}, from) => {
         expandWidgetIds.push(item.controlId);
       }
     }
+
     if (item.controlId === controlId) searchStatus = true;
   }
+
   return expandWidgetIds;
 };

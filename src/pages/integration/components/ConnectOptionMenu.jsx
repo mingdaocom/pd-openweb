@@ -31,6 +31,7 @@ function ConnectOptionMenu(props) {
   if (!isConnectOwner && !hasAuth) {
     return '';
   }
+
   const isAuthorizedFromOther = !isOwner && hasAuth; // 授权来的连接
   //非私有部署或nocoly-saas环境有上架  只有自建的连接才有上架
   const showPublish = !window.platformENV.isLocal && type === 1 && !isAuthorizedFromOther && isConnectOwner;

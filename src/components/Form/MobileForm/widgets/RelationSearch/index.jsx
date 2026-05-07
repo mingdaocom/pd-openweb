@@ -67,6 +67,7 @@ export default function RelationSearch(props) {
     enumDefault2 !== 1 &&
     enumDefault2 !== 11 &&
     !window.isPublicWorksheet;
+
   const loadRecords = async (pageIndex = 1, keywords = '') => {
     let relationControls = [...controls];
     setState(oldState => ({ ...oldState, isLoadingMore: true, loading: pageIndex === 1 }));
@@ -83,6 +84,7 @@ export default function RelationSearch(props) {
         });
       setState(oldState => ({ ...oldState, controls: relationControls }));
     }
+
     const filterControls = getFilter({
       control: { ...control, relationControls, recordId },
       formData: control.formData,
@@ -94,6 +96,7 @@ export default function RelationSearch(props) {
       setState(oldState => ({ ...oldState, isLoadingMore: false, loading: false }));
       return;
     }
+
     const args = {
       worksheetId,
       viewId,
@@ -119,6 +122,7 @@ export default function RelationSearch(props) {
           _.get(res, 'worksheet.template.controls'),
         );
       }
+
       setState(oldState => {
         const mergedRecords = pageIndex === 1 ? res.data : [...(oldState.records || []), ...(res.data || [])];
         const newRecords = _.uniqBy(mergedRecords, 'rowid');
@@ -137,6 +141,7 @@ export default function RelationSearch(props) {
       });
     });
   };
+
   const debounceClearAndLoad = useCallback(
     _.debounce(() => {
       setState(oldState => ({ ...oldState, records: [] }));
@@ -186,6 +191,7 @@ export default function RelationSearch(props) {
       filterKey: 'resultfilters',
       appId: control.appId,
     });
+
     if (!_.isUndefined(cache.current.filter) && newFilter && !_.isEqual(cache.current.filter, newFilter)) {
       cache.current.filter = newFilter;
       debounceClearAndLoad();

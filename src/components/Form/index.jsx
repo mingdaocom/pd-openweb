@@ -34,9 +34,11 @@ export const EntranceContext = createContext();
 
 export const useFormStore = () => {
   const context = useContext(EntranceContext);
+
   if (!context) {
     throw new Error('useFormStore must be used within a EntranceContext');
   }
+
   return context;
 };
 
@@ -327,6 +329,7 @@ const Entrance = React.forwardRef((props, ref) => {
         />
       );
     }
+
     return null;
   };
 
@@ -334,6 +337,7 @@ const Entrance = React.forwardRef((props, ref) => {
   const newErrorDialog = (errors, options) => {
     const isAllIgnoreError = errors.every(i => i.ignoreErrorMessage);
     const uniqueErrors = _.uniqBy(errors, 'errorMessage');
+
     if (isMobile) {
       mobileConfirmPopupFunc({
         title: _l('表单存在以下错误，请正确填写'),
@@ -419,6 +423,7 @@ const Entrance = React.forwardRef((props, ref) => {
     const { rulesLoading, searchConfig } = state;
 
     const { data, disabled, isWorksheetQuery } = props;
+
     if (!rulesLoading && !isWorksheetQuery) {
       initSourceAction(data, disabled);
     } else if (rulesLoading || (isWorksheetQuery && searchConfig && !searchConfig.length)) {
@@ -431,6 +436,7 @@ const Entrance = React.forwardRef((props, ref) => {
         window.scrollTo(0, 0);
       });
     }
+
     loadSDK();
   }, []);
 
@@ -481,6 +487,7 @@ const Entrance = React.forwardRef((props, ref) => {
       firstRenderMap.current.flag = false;
       return;
     }
+
     initSourceAction(props.data, props.disabled, true);
   }, [props.flag, props.data.length, props.disabled, props.isRecordLock]);
 
@@ -490,6 +497,7 @@ const Entrance = React.forwardRef((props, ref) => {
       firstRenderMap.current.worksheetId = false;
       return;
     }
+
     getConfig({ getRules: true, getSearchConfig: true });
   }, [props.worksheetId]);
 
@@ -499,6 +507,7 @@ const Entrance = React.forwardRef((props, ref) => {
       firstRenderMap.current.recordId = false;
       return;
     }
+
     storeCenter.current = {};
   }, [props.recordId]);
 

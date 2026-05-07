@@ -26,6 +26,7 @@ const getStateIsRecurChange = (oldState, state) => {
   if (oldState.isRecur !== state.isRecur) {
     return true;
   }
+
   // 重复频率改变
   if (oldState.frequency !== state.frequency) {
     return true;
@@ -34,6 +35,7 @@ const getStateIsRecurChange = (oldState, state) => {
   } else if (state.frequency === FREQUENCY.WEEK && oldState.weekDay !== state.weekDay) {
     return true;
   }
+
   // 重复日程结束方式改变
   if (
     oldState.recurType !== state.recurType ||
@@ -45,6 +47,7 @@ const getStateIsRecurChange = (oldState, state) => {
   } else if (state.recurType === RECURTYPE.DATE && oldState.untilDate !== state.untilDate) {
     return true;
   }
+
   return false;
 };
 
@@ -52,11 +55,13 @@ const getStateIsRemindChange = (oldState, state) => {
   if (oldState.remindType !== state.remindType) {
     return true;
   }
+
   if (oldState.remindType !== state.remindType) {
     return true;
   } else if (oldState.remindTime !== state.remindTime) {
     return true;
   }
+
   return false;
 };
 
@@ -131,6 +136,7 @@ export default class CalendarDetail extends Component {
       const { scrollTop, clientHeight } = scrollInfo;
       var $commentList = scrollViewContainer.find('.calendarComments');
       const commentListOffsetTop = $commentList.get(0).offsetTop;
+
       if (scrollTop > commentListOffsetTop || scrollTop + clientHeight < commentListOffsetTop) {
         this.scrollView.scrollTo({ top: commentListOffsetTop });
       }
@@ -184,9 +190,11 @@ export default class CalendarDetail extends Component {
       if (!state.interval) {
         diff.interval = 1;
       }
+
       if (typeof state.recurType === 'undefined') {
         diff.recurType = RECURTYPE.NONE;
       }
+
       if (state.frequency === FREQUENCY.WEEK) {
         if (!state.weekDay) {
           const startDay = moment(state.start).get('day');
@@ -206,6 +214,7 @@ export default class CalendarDetail extends Component {
       ) {
         diff.untilDate = moment(state.end).add(1, 'd').format('YYYY-MM-DD');
       }
+
       if (state.recurType === RECURTYPE.COUNT && !state.recurCount) {
         diff.recurCount = 1;
       }
@@ -226,6 +235,7 @@ export default class CalendarDetail extends Component {
     const { showConfirm, showRefuse } = Common.formatAuth(this.state);
     const isShowBar = showConfirm || this.state.isShowUpdateBar;
     const type = showConfirm ? 'confirm' : showRefuse ? 'refused' : 'update';
+
     const save = () => {
       Common.editCalendar(_.omit(this.state, this.omitKeys), true, {
         originStartTime: this.state.originStartTime,
@@ -254,6 +264,7 @@ export default class CalendarDetail extends Component {
         }
       });
     };
+
     const cancel = () => {
       this.setState({
         isShowUpdateBar: false,
@@ -261,14 +272,17 @@ export default class CalendarDetail extends Component {
       });
       this.props.reFetchData(false);
     };
+
     const confirm = () => {
       const { id, recurTime, catID } = this.state;
       Comm.inviteCalendar.confirm(id, recurTime, catID);
     };
+
     const refuse = () => {
       const { id, recurTime, catID } = this.state;
       Comm.inviteCalendar.refuse(id, recurTime, catID);
     };
+
     const actionProps = {
       // variable
       type,
@@ -284,13 +298,16 @@ export default class CalendarDetail extends Component {
   renderHeader() {
     const changeTitle = v => {
       const value = v.replace(/\n/g, '');
+
       if (value === '') {
         return alert(_l('标题不可为空'), 2);
       }
+
       this.mapNewState({
         title: value,
       });
     };
+
     const changeCategory = item => {
       const { id, catID } = this.state;
       if (catID === item.catID) return;
@@ -305,6 +322,7 @@ export default class CalendarDetail extends Component {
         }
       });
     };
+
     const openDetailPage = () => {
       const { id, recurTime } = this.state;
       window.open(
@@ -315,6 +333,7 @@ export default class CalendarDetail extends Component {
           getAppFeaturesPath(),
       );
     };
+
     const joinOutLook = () => {
       const { id, recurTime } = this.state;
       window.open(
@@ -323,14 +342,17 @@ export default class CalendarDetail extends Component {
         ),
       );
     };
+
     const postMessage = () => {
       const { members } = this.state;
+
       if (members && members.length > 1) {
         postMessageDialog(this.state);
       } else {
         alert(_l('请先添加成员'), 3);
       }
     };
+
     const shareCalendar = () => {
       const { createUser, id, title, start, end, recurTime, address, keyStatus, token } = this.state;
       Common.shareCalendar(
@@ -354,14 +376,17 @@ export default class CalendarDetail extends Component {
         },
       );
     };
+
     const exitCalendar = () => {
       const { id, recurTime, originRecur, isChildCalendar } = this.state;
       Common.removeMember(md.global.Account.accountId, { id, recurTime, originRecur, isChildCalendar });
     };
+
     const deleteCalendar = () => {
       const { id, recurTime, originRecur, isChildCalendar } = this.state;
       Common.deleteCalendar({ id, recurTime, originRecur, isChildCalendar });
     };
+
     const createTask = () => {
       const { id, recurTime, title, members, description } = this.state;
       let memberArray = [];
@@ -411,6 +436,7 @@ export default class CalendarDetail extends Component {
   renderMain() {
     const addCalendarMember = () => {
       const { id, originRecur, isChildCalendar, recurTime, members } = this.state;
+
       const addMemberCallback = ({ source, isAllCalendar }) => {
         const {
           data: { successMember },
@@ -484,6 +510,7 @@ export default class CalendarDetail extends Component {
             member.remark = '';
             return true;
           }
+
           return false;
         });
         this.setState({

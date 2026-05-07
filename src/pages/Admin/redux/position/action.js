@@ -2,9 +2,11 @@ import _ from 'lodash';
 import jobAjax from 'src/api/job';
 
 const PAGE_SIZE = 50;
+
 export const updateProjectId = projectId => dispatch => {
   dispatch({ type: 'CHANGE_PROJECT_ID', projectId });
 };
+
 export const getPositionList = () => (dispatch, getState) => {
   const { positionPageInfo = {}, projectId, positionList = [], searchValue } = getState().orgManagePage.position;
   const { pageIndex } = positionPageInfo;
@@ -31,30 +33,37 @@ export const getPositionList = () => (dispatch, getState) => {
       }
     });
 };
+
 export const updateIsLoading = loading => dispatch => {
   dispatch({
     type: 'UPDATE_IS_LOADING',
     isLoading: loading,
   });
 };
+
 export const updatePositionList = list => dispatch => {
   dispatch({
     type: 'UPDATE_POSITION_LIST',
     positionList: list || [],
   });
 };
+
 export const updatePositionPageInfo = data => dispatch => {
   dispatch({ type: 'UPDATE_POSITION_PAGE_INFO', data });
 };
+
 export const updateCurrentPosition = currentPosition => dispatch => {
   dispatch({ type: 'UPDATE_CURRENT_POSITION', currentPosition });
 };
+
 export const updateSearchValue = searchValue => dispatch => {
   dispatch({ type: 'UPDATE_SEARCH_VALUE', searchValue });
 };
+
 export const updateUserPageIndex = userPageIndex => dispatch => {
   dispatch({ type: 'UPDATE_USER_PAGE_INDEX', userPageIndex });
 };
+
 export const getUserList = params => (dispatch, getState) => {
   const { jobId = '' } = params;
   const { projectId, userPageIndex } = getState().orgManagePage.position;
@@ -73,12 +82,15 @@ export const getUserList = params => (dispatch, getState) => {
       dispatch({ type: 'UPDATE_USER_COUNT', allUserCount: allCount });
     });
 };
+
 export const updateUserloading = userLoading => dispatch => {
   dispatch({ type: 'UPDATE_USER_LOADING', userLoading });
 };
+
 export const updateSelectUserIds = selectUserIds => dispatch => {
   dispatch({ type: 'UPDATE_SELECT_USER_IDS', selectUserIds });
 };
+
 export const updateIsImportRole = data => dispatch => {
   dispatch({ type: 'UPDATE_IS_IMPORT_ROLE', data });
 };

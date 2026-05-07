@@ -4,7 +4,7 @@ import { Circle } from 'worksheet/styled';
 export const AddRecord = styled(Circle)`
   background-color: var(--color-background-primary);
   justify-content: center;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.24);
+  box-shadow: var(--shadow-md);
   cursor: pointer;
   .icon {
     font-size: 18px;

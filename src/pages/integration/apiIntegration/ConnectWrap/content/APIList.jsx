@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
 import loadScript from 'load-script';
+import _ from 'lodash';
 import moment from 'moment';
 import styled from 'styled-components';
 import { Dialog, Icon, LoadDiv, SortableList } from 'ming-ui';
@@ -59,7 +60,7 @@ const Wrap = styled.div`
 // 用户可以上下拖动卡片进行排序，拖动释放后自动保存排序；
 // 点击卡片可以侧拉弹出API详情；
 function APIList(props) {
-  let str = 'https://alifile.mingdaocloud.com/open/js/apilibrary_v5.js' + '?' + moment().format('YYYYMMDD');
+  let str = 'https://alifile.mingdaocloud.com/open/js/apilibrary_v6.js' + '?' + moment().format('YYYYMMDD');
   const featureType = getFeatureStatus(props.companyId, VersionProductType.apiIntergration);
   const [{ list, keywords, show, listId, loading, pageIndex, publishing, showType, change, listSearch }, setState] =
     useSetState({
@@ -74,6 +75,7 @@ function APIList(props) {
       change: 0,
       listSearch: props.apiList || [],
     });
+
   const fetchData = () => {
     setState({ loading: true });
     packageVersionAjax
@@ -93,6 +95,7 @@ function APIList(props) {
         props.updateList(res); //更新tab上的计数
       });
   };
+
   useEffect(() => {
     fetchData();
   }, [pageIndex, change]);
@@ -107,9 +110,11 @@ function APIList(props) {
       });
     }
   };
+
   const installCallBack = () => {
     setState({ keywords: '', pageIndex: 1, change: change + 1 });
   };
+
   const showInstall = () => {
     window.MDAPIInstallDialog({
       featureType: featureType,
@@ -124,6 +129,7 @@ function APIList(props) {
       installUrl: __api_server__.integration || md.global.Config.IntegrationAPIUrl,
     });
   };
+
   /**
    * 切换流程的启用状态
    */
@@ -131,20 +137,24 @@ function APIList(props) {
     if (publishing) {
       return;
     }
+
     setState({ publishing: true });
     processAjax.publish({ isPublish: !item.enabled, processId: item.id }, { isIntegration: true }).then(publishData => {
       const { isPublish } = publishData;
+
       if (isPublish) {
         let listN = list.map(o => {
           if (o.id !== item.id) {
             return o;
           } else {
             let data = {};
+
             if (!item.enabled) {
               data = {
                 publishStatus: 2,
               };
             }
+
             return { ...o, enabled: !item.enabled, ...data };
           }
         });
@@ -162,6 +172,7 @@ function APIList(props) {
       }
     });
   };
+
   /**
    * 复制工作流
    */
@@ -179,6 +190,7 @@ function APIList(props) {
       },
     });
   };
+
   /**
    * 删除api
    */
@@ -233,6 +245,7 @@ function APIList(props) {
       },
     });
   };
+
   const noDataRender = () => {
     return (
       <div className="noData TxtCenter">
@@ -266,10 +279,11 @@ function APIList(props) {
       </div>
     );
   };
+
   //拖拽排序
   const handleSortEnd = listNew => {
-    // 安装的连接 api 不能排序
-    if (props.connectType === 2) return;
+    // 安装的连接 api 不能排序（allowEdit 为 true 时可排序）
+    if (props.connectType === 2 && !_.get(props.connectData, 'info.allowEdit')) return;
     setState({
       list: listNew,
       listSearch: listNew,
@@ -344,7 +358,7 @@ function APIList(props) {
                     item={options.item}
                     sortIndex={options.index}
                     isConnectOwner={props.isConnectOwner}
-                    canEdit={props.type === 1 && props.isConnectOwner}
+                    canEdit={(props.type === 1 || _.get(props.connectData, 'info.allowEdit')) && props.isConnectOwner}
                     onOpenInfo={item => {
                       setState({ show: true, listId: item.id });
                     }}

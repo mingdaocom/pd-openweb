@@ -7,6 +7,7 @@ export default function KcListEmpty(props) {
   const { isReadOnly, isRecycle, root, keywords, openUploadAssistant } = props;
   let iconClassName;
   let statusText;
+
   if (root === PICK_TYPE.RECENT) {
     iconClassName = 'recently';
   } else if (root === PICK_TYPE.STARED) {
@@ -14,6 +15,7 @@ export default function KcListEmpty(props) {
   } else {
     iconClassName = 'noFile';
   }
+
   if (keywords) {
     statusText = _l('搜索无结果');
   } else if (root === PICK_TYPE.RECENT) {
@@ -23,6 +25,7 @@ export default function KcListEmpty(props) {
   } else {
     statusText = _l('您当前没有文件');
   }
+
   return (
     <ul className="clearPadding">
       <div className="clearStyle">

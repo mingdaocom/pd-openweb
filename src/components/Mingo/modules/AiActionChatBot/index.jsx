@@ -58,7 +58,7 @@ const MingoContentWrap = styled.div`
     font-weight: bold;
     margin: 26px 0 6px;
     font-size: 15px;
-    color: var(--color-text-title);
+    color: var(--color-text-primary);
   }
   .sendCon {
     position: relative;
@@ -162,6 +162,7 @@ function contentIsEmpty(content) {
       }).length === 0
     );
   }
+
   return false;
 }
 
@@ -176,6 +177,7 @@ function getContentOfMessage(message) {
       ];
   const toolMap = message.tool_map || {};
   const filteredToolCalls = filterToolCalls(message.tool_calls || []);
+
   if (!isEmpty(filteredToolCalls)) {
     content = [
       ...content,
@@ -185,6 +187,7 @@ function getContentOfMessage(message) {
       },
     ];
   }
+
   return content;
 }
 
@@ -192,6 +195,7 @@ export function formatMessage(message) {
   if (!['user', 'assistant'].includes(message.role)) {
     return;
   }
+
   const result = {};
   result.id = get(message, 'metadata.id');
   result.instanceId = message.instanceId;
@@ -204,6 +208,7 @@ export function formatMessage(message) {
   if (isEmpty(result.content) && isEmpty(result.media)) {
     return;
   }
+
   return result;
 }
 
@@ -249,9 +254,11 @@ export function formatMessages(messages) {
 
 function getLoadingText(name = '') {
   const toolName = getToolName(name);
+
   if (toolName) {
     return _l('正在调用工具：%0', toolName);
   }
+
   return _l('思考中');
 }
 
@@ -329,6 +336,7 @@ function MingoContent(props, ref) {
     if (!targetButton) {
       return {};
     }
+
     return targetButton;
   }, [activeButtonId]);
   const title = useMemo(() => {
@@ -357,11 +365,14 @@ function MingoContent(props, ref) {
           triggerId: cache.current.activeButton?.btnId,
           sourceId: recordId,
           conversationId,
+          pushUniqueId: get(md, 'global.Config.pushUniqueId'),
           messages: messages.slice(-1).map(item => {
             const result = omit(item, ['id']);
+
             if (result.role === 'user') {
               delete result.media;
             }
+
             return result;
           }),
           prevUserMessageId,
@@ -369,7 +380,6 @@ function MingoContent(props, ref) {
           ...(isTest
             ? {
                 processId,
-                pushUniqueId: get(md, 'global.Config.pushUniqueId'),
                 debugEvents: [-1, 0, 1, 2, 3],
               }
             : {}),
@@ -386,11 +396,13 @@ function MingoContent(props, ref) {
       if (cache.current.autoPlay) {
         speechSynthesizer.current.speakStream(messageContent);
       }
+
       if (!cache.current.conversationId && messageData.conversationId) {
         setConversationId(messageData.conversationId);
         cache.current.conversationId = messageData.conversationId;
         cache.current.needSetGenerateConversation = messageData.conversationId;
       }
+
       if (messageData.step === 'TOOL') {
         setLoadingStatus({ statusText: getLoadingText(messageData.name), type: 'TOOL' });
       } else {
@@ -402,6 +414,7 @@ function MingoContent(props, ref) {
         onGenerateConversation(cache.current.needSetGenerateConversation);
         cache.current.needSetGenerateConversation = undefined;
       }
+
       setLoadingStatus();
       console.log('onMessageDone', messages);
       localStorage.setItem(`aiActionLatestButton-${get(md, 'global.Account.accountId')}-${recordId}`, activeButtonId);
@@ -474,6 +487,7 @@ function MingoContent(props, ref) {
     if (sessionStorage.getItem(`chatbotNewCreate-${chatbotId}`)) {
       handleHideGuide();
     }
+
     setError();
     setIsChatting(true);
     setHasScrolledToBottom(true);
@@ -487,6 +501,7 @@ function MingoContent(props, ref) {
       handleScrollToBottom();
     }, 100);
   };
+
   const filteredMessages = messages.filter(item => {
     if (item.hidden) return false;
     if (contentIsEmpty(item.content) && isEmpty(item.media)) return false;
@@ -508,6 +523,7 @@ function MingoContent(props, ref) {
       if (cache.current.loadAbortController) {
         cache.current.loadAbortController.abort();
       }
+
       setIsChatting(false);
       cache.current = {};
     },
@@ -601,6 +617,7 @@ function MingoContent(props, ref) {
     if (isTest || isMobileSkip) {
       return;
     }
+
     setActiveButtonId(undefined);
     setMode(MODE.BUTTONS);
     handleClear();
@@ -610,9 +627,11 @@ function MingoContent(props, ref) {
     if ((!activeButton || !activeButton.btnId) && !isTest) {
       return;
     }
+
     if (!isTest) {
       handleClear();
     }
+
     if (!isTest) {
       chatbotAjax
         .getMessageListAndConversation({
@@ -624,6 +643,7 @@ function MingoContent(props, ref) {
           let messages = [];
           let chatbotId = '';
           let conversationId = '';
+
           if (!isTest) {
             messages = res.messages;
             chatbotId = res.chatbotId;
@@ -631,6 +651,7 @@ function MingoContent(props, ref) {
           } else {
             messages = res;
           }
+
           const formattedMessages = formatMessages(
             messages.sort((a, b) => new Date(a.ctime) - new Date(b.ctime)),
           ).filter(identity);
@@ -638,9 +659,11 @@ function MingoContent(props, ref) {
           if (chatbotId) {
             setChatbotId(chatbotId);
           }
+
           if (conversationId) {
             setConversationId(conversationId);
           }
+
           setIsLoadingMessages(false);
           if (!messages.length) {
             handleSend(activeButton.name || props.buttonName);
@@ -671,11 +694,13 @@ function MingoContent(props, ref) {
         `aiActionLatestButton-${get(md, 'global.Account.accountId')}-${recordId}`,
       );
       const latestButton = find(buttons, { btnId: latestButtonId });
+
       if (latestButton) {
         setMode(MODE.CHAT);
         setActiveButtonId(latestButton.btnId);
       }
     }
+
     return () => {
       console.log('unmount');
     };
@@ -688,12 +713,14 @@ function MingoContent(props, ref) {
   const handleDragMouseDown = useCallback(() => {
     if (!dragRef.current) return;
     let newDragLeft = window.innerWidth - panelWidth;
+
     try {
       const dragRect = dragRef.current.getBoundingClientRect();
       newDragLeft = dragRect.left;
     } catch (e) {
       console.log(e);
     }
+
     setDragMaskVisible(true);
     setDragLeft(newDragLeft);
   }, [panelWidth]);
@@ -763,6 +790,7 @@ function MingoContent(props, ref) {
               alert(_l('预览模式下，不能操作'), 3);
               return;
             }
+
             setMode(MODE.CHAT);
             setActiveButtonId(item.btnId);
           }}
@@ -856,9 +884,11 @@ function MingoContent(props, ref) {
             { messageId, modelMessageId, needConfirm, isLastAssistantMessage, isLastPart },
           ) => {
             const filteredToolCalls = filterToolCalls(toolCalls);
+
             if (isEmpty(filteredToolCalls)) {
               return null;
             }
+
             return (
               <ToolCallsCon>
                 <div className="tool-calls-message t-flex t-flex-row t-items-center t-space-between">
@@ -877,6 +907,7 @@ function MingoContent(props, ref) {
                         if (item.id === messageId) {
                           return { ...item, hasSubmit: false };
                         }
+
                         return item;
                       });
                     });

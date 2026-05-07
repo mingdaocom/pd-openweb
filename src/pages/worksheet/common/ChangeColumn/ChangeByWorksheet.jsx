@@ -8,8 +8,8 @@ const PopupCon = styled.div`
   width: 360px;
   border-radius: 2px;
   padding: 20px;
-  box-shadow: 0px 4px 16px 0px rgba(0, 0, 0, 0.16);
-  background-color: var(--color-background-primary);
+  box-shadow: var(--shadow-lg);
+  background-color: var(--color-background-card);
   .title {
     font-size: 15px;
     color: var(--color-text-title);

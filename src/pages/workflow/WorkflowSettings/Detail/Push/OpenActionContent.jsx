@@ -87,7 +87,7 @@ export default class OpenActionContent extends Component {
           value={data.appId}
           renderTitle={
             !data.appId || worksheetInfo === null
-              ? () => <span className="textSecondary">{_l('请选择')}</span>
+              ? () => <span className="textPlaceholder">{_l('请选择')}</span>
               : data.appId && _.isEmpty(worksheetInfo)
                 ? () => (
                     <span className="errorColor">
@@ -154,7 +154,7 @@ export default class OpenActionContent extends Component {
           value={data.viewId}
           renderTitle={
             !data.viewId
-              ? () => <span className="textSecondary">{_l('请选择')}</span>
+              ? () => <span className="textPlaceholder">{_l('请选择')}</span>
               : data.viewId && !selectView
                 ? () => <span className="errorColor">{_l('视图无效或已删除')}</span>
                 : () => <span>{selectView.text}</span>
@@ -204,6 +204,7 @@ export default class OpenActionContent extends Component {
       { text: _l('打开新页面'), value: 2 },
       { text: _l('推送模态窗口'), value: 4 },
     ];
+
     const isRemove = value => {
       switch (data.pushType) {
         case PUSH_TYPE.DETAIL:

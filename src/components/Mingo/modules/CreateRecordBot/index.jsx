@@ -1,6 +1,6 @@
 import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import cx from 'classnames';
-import { get, isArray } from 'lodash';
+import { get, isArray, omit } from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { BgIconButton } from 'ming-ui';
@@ -27,7 +27,7 @@ const MingoContentWrap = styled.div`
     font-weight: bold;
     margin: 26px 0 6px;
     font-size: 15px;
-    color: var(--color-text-title);
+    color: var(--color-text-primary);
   }
   .sendCon {
     position: relative;
@@ -148,7 +148,7 @@ function MingoContent(props, ref) {
             worksheetId,
             isSmartFill: cache.current.isSmartFill,
             messageList: messages.map(message => ({
-              ...message,
+              ...omit(message, ['media']),
               content: isArray(message.content)
                 ? message.content.filter(item => item.type !== 'tool_calls')
                 : message.content,
@@ -189,13 +189,15 @@ function MingoContent(props, ref) {
       }, timeout);
     }
   }, []);
-  const handleSend = (newMessage, { fromMessageId, images } = {}) => {
+
+  const handleSend = (newMessage, { fromMessageId, images, fileIds, media, useFileContentFormat } = {}) => {
     setIsChatting(true);
-    sendMessage(newMessage, { fromMessageId, images });
+    sendMessage(newMessage, { fromMessageId, images, fileIds, media, useFileContentFormat });
     setTimeout(() => {
       handleScrollToBottom();
     }, 100);
   };
+
   useImperativeHandle(ref, () => ({
     destroy: () => {
       abortRequest();
@@ -204,6 +206,7 @@ function MingoContent(props, ref) {
       if (cache.current.loadAbortController) {
         cache.current.loadAbortController.abort();
       }
+
       setIsChatting(false);
       cache.current = {};
     },
@@ -228,8 +231,10 @@ function MingoContent(props, ref) {
       } catch (error) {
         console.error(error);
       }
+
       window.crateRecordInput = undefined;
     }
+
     emitter.on('MINGO_CREATE_RECORD_CLEAN', handleClean);
     emitter.on('NEW_RECORD_UNMOUNT', handleBackAndClose);
     emitter.emit('MINGO_CREATE_RECORD', base);
@@ -301,6 +306,7 @@ function MingoContent(props, ref) {
               />
             );
           }
+
           return null;
         }}
         renderToolCalls={() => ''}
@@ -333,6 +339,15 @@ function MingoContent(props, ref) {
           </div>
           <Send
             allowUpload
+            needOcr
+            mingoOcr
+            allowMimeTypes={[
+              { title: 'image', extensions: 'jpg,jpeg,png,heic' },
+              { title: 'office', extensions: 'pdf,doc,docx,xls,xlsx,txt' },
+            ]}
+            uploadFileToolTip={_l(
+              '文件数量：最多5个\n文件大小：单个文件不超过10M\n总字数：所有文档的总字数最多50k，超出自动忽略\n文件格式：PDF / TXT / Word / Excel / 图片',
+            )}
             ref={sendRef}
             allowMultiSelection={false}
             isChatting={isChatting}
@@ -343,11 +358,13 @@ function MingoContent(props, ref) {
               cache.current.autoPlay = value;
             }}
             onSend={(value, { files }) => {
+              const imageFiles = files.filter(f => f.type.startsWith('image/'));
+              const ocrFiles = files.filter(f => !f.type.startsWith('image/') && f.ocrId);
               handleSend(value, {
-                images: files
-                  .filter(f => f.type.startsWith('image/'))
-                  .map(f => f.file?.url)
-                  .filter(Boolean),
+                images: imageFiles.map(f => f.url).filter(Boolean),
+                fileIds: ocrFiles.map(f => f.ocrId).filter(Boolean),
+                media: ocrFiles.map(f => f.commonAttachment),
+                useFileContentFormat: true,
               });
             }}
           />

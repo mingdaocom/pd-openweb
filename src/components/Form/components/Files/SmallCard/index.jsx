@@ -158,8 +158,10 @@ const SmallCard = props => {
       ref={wrapRef}
       onMouseEnter={() => {
         const current = _.get(wrapRef, 'current.parentNode.parentNode');
+
         if (current) {
           const diffWidth = current.clientWidth - 300;
+
           if (diffWidth < 0) {
             setDiffWidth(diffWidth + -10);
             setShowDownloadOfDeleteBtn(false);

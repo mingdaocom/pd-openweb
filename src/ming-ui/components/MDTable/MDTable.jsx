@@ -108,10 +108,12 @@ export default class MDTable extends React.Component {
     $(this.mdtable).on('mousewheel', this.handleMouseWheel);
     if (columnScrollStartIndex > fixedColumnCount) {
       const column = document.querySelector('.row-0.col-' + (columnScrollStartIndex - fixedColumnCount + 1));
+
       if (column) {
         this.setScroll({ left: column.offsetLeft });
       }
     }
+
     if (defaultScrollLeft) {
       this.setScroll({ left: defaultScrollLeft });
     }
@@ -124,10 +126,12 @@ export default class MDTable extends React.Component {
       if (this.mainleftgrid.current) {
         this.mainleftgrid.current.resetAfterIndices({ columnIndex: 0, rowIndex: 0 });
       }
+
       if (this.mainrightgrid.current) {
         this.mainrightgrid.current.resetAfterIndices({ columnIndex: 0, rowIndex: 0 });
       }
     }
+
     if (
       !_.isEqual(nextProps.sheetColumnWidths, this.props.sheetColumnWidths) ||
       nextProps.fixedColumnCount !== this.props.fixedColumnCount ||
@@ -138,6 +142,7 @@ export default class MDTable extends React.Component {
     ) {
       this.updateTableLayout(nextProps);
     }
+
     if (nextProps.defaultScrollLeft !== this.props.defaultScrollLeft) {
       this.setScroll({ left: nextProps.defaultScrollLeft });
     }
@@ -188,6 +193,7 @@ export default class MDTable extends React.Component {
       this.fixedColumnCount = 1;
       fixedWidth = this.getSumSize(this.fixedColumnCount, props.getCellWidth);
     }
+
     return fixedWidth;
   }
 
@@ -201,6 +207,7 @@ export default class MDTable extends React.Component {
     if (window.disableTableScroll) {
       return;
     }
+
     const isScrollVer = Math.abs(e.deltaY) > Math.abs(e.deltaX);
     this.leftForHammer = this.leftForHammer + this.lastPandeltaX - e.deltaX;
     this.topForHammer = this.topForHammer + this.lastPandeltaY - e.deltaY;
@@ -235,6 +242,7 @@ export default class MDTable extends React.Component {
       ) {
         return;
       }
+
       event.stopPropagation();
       event.preventDefault();
     }
@@ -257,6 +265,7 @@ export default class MDTable extends React.Component {
 
   handleCellLeave = () => {
     const { onCellLeave = () => {} } = this.props;
+
     if (this.mdtable) {
       $(this.mdtable).find('.cell').removeClass('hover');
       onCellLeave();
@@ -267,6 +276,7 @@ export default class MDTable extends React.Component {
     const { onCellEnter = () => {} } = this.props;
     const $target = $(e.originalEvent.target).closest('.cell');
     const classMatch = $target.attr('class').match(/.*(row-[0-9]+) .*/);
+
     if (classMatch && this.mdtable) {
       $(this.mdtable).find('.cell').removeClass('hover');
       $(this.mdtable)
@@ -284,18 +294,23 @@ export default class MDTable extends React.Component {
     if (this.topleftgrid.current) {
       this.topleftgrid.current.resetAfterIndices({ columnIndex: 0, rowIndex: 0 });
     }
+
     if (this.toprightgrid.current) {
       this.toprightgrid.current.resetAfterIndices({ columnIndex: 0, rowIndex: 0 });
     }
+
     if (this.mainleftgrid.current) {
       this.mainleftgrid.current.resetAfterIndices({ columnIndex: 0, rowIndex: 0 });
     }
+
     if (this.mainrightgrid.current) {
       this.mainrightgrid.current.resetAfterIndices({ columnIndex: 0, rowIndex: 0 });
     }
+
     if (this.bottomleftgrid.current) {
       this.bottomleftgrid.current.resetAfterIndices({ columnIndex: 0, rowIndex: 0 });
     }
+
     if (this.bottomrightgrid.current) {
       this.bottomrightgrid.current.resetAfterIndices({ columnIndex: 0, rowIndex: 0 });
     }
@@ -303,6 +318,7 @@ export default class MDTable extends React.Component {
 
   getSumSize(index, size) {
     let width = 0;
+
     for (let i = 0; i < index; i++) {
       if (typeof size === 'function') {
         width += size(i);
@@ -310,6 +326,7 @@ export default class MDTable extends React.Component {
         width += size;
       }
     }
+
     return width;
   }
 
@@ -317,6 +334,7 @@ export default class MDTable extends React.Component {
     if (_.isNumber(top) && this.scrollver) {
       this.scrollver.scrollTop = top;
     }
+
     if (_.isNumber(left) && this.scrollhor) {
       this.scrollhor.scrollLeft = left;
     }
@@ -324,17 +342,21 @@ export default class MDTable extends React.Component {
 
   setScroll = ({ left, top }) => {
     const newPos = {};
+
     if (_.isNumber(left)) {
       newPos.left = left;
     }
+
     if (_.isNumber(top)) {
       newPos.top = top;
     }
+
     if (!_.isEmpty(newPos)) {
       this.scrollTo(newPos);
       if (!_.isUndefined(left) && this.scrollhor) {
         this.scrollhor.scrollLeft = left;
       }
+
       if (!_.isUndefined(top) && this.scrollver) {
         this.scrollver.scrollTop = top;
       }
@@ -350,17 +372,20 @@ export default class MDTable extends React.Component {
           scrollLeft: left,
         });
       }
+
       if (this.mainrightgrid.current) {
         this.mainrightgrid.current.scrollTo({
           scrollLeft: left,
         });
       }
+
       if (this.bottomrightgrid.current) {
         this.bottomrightgrid.current.scrollTo({
           scrollLeft: left,
         });
       }
     }
+
     if (_.isNumber(top)) {
       this.scrollTop = top;
       if (this.mainrightgrid.current) {
@@ -368,6 +393,7 @@ export default class MDTable extends React.Component {
           scrollTop: top,
         });
       }
+
       if (this.mainleftgrid.current) {
         this.mainleftgrid.current.scrollTo({
           scrollTop: top,
@@ -396,6 +422,7 @@ export default class MDTable extends React.Component {
     let cellHeight;
     let gridHeight;
     const fixedRowCount = topFixed ? 1 : 0;
+
     if (renderFooter) {
       cellHeight = FOOTER_ROW_HEIGHT;
       gridHeight = FOOTER_ROW_HEIGHT;
@@ -408,9 +435,11 @@ export default class MDTable extends React.Component {
         ? (rowCount - fixedRowCount) * rowHeight + heightOffset
         : height - FIXED_ROW_HEIGHT - (showFooterRow ? FOOTER_ROW_HEIGHT : 0);
     }
+
     if (hide) {
       return;
     }
+
     return (
       <VariableSizeGrid
         key={index}

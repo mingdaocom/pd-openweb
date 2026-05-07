@@ -73,6 +73,7 @@ export default class ExportAppCom extends Component {
             if (v.id === id) {
               return { ...v, [passwordType]: res, [`show_${passwordType}`]: true };
             }
+
             return v;
           }),
         });
@@ -81,6 +82,7 @@ export default class ExportAppCom extends Component {
 
   checkPassword = ({ id, passwordType, password }) => {
     const { records = [] } = this.state;
+
     if (password) {
       this.setState({
         records: records.map(o => {

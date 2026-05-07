@@ -64,7 +64,9 @@ class Score extends Component {
 
     if (this.props.disabled) {
       this.onSelect = () => {};
+
       this.onMouseEnter = () => {};
+
       this.onMouseLeave = () => {};
     } else {
       this.onSelect = this.onSelect.bind(this);
@@ -87,6 +89,7 @@ class Score extends Component {
     if (index === this.state.lastScore) {
       index = 0;
     }
+
     this.setState({
       lastScore: index,
       score: index,

@@ -155,7 +155,7 @@ const WrapItem = styled.div(
 );
 const WrapDrop = styled.div`
   background: var(--color-background-primary);
-  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+  box-shadow: var(--shadow-lg);
   border-radius: 3px;
   padding: 5px 0;
   max-height: 360px;
@@ -167,6 +167,7 @@ const WrapAdd = styled.span`
   position: relative;
   z-index: 1;
 `;
+
 export default function GroupDialog(props) {
   const { onHide, onOk, visible, className, sourceInfos = [], flowData } = props;
   const tbodyContainer = useRef(null);
@@ -235,6 +236,7 @@ export default function GroupDialog(props) {
                             } else {
                               o = _.omit(o, ['isLimit']);
                             }
+
                             return o;
                           }),
                       };
@@ -242,9 +244,11 @@ export default function GroupDialog(props) {
                 },
               ];
               let isDel = !_.get(item, `fields[${i}].name`);
+
               if (!isDel) {
                 isDel = isDelStatus(_.get(item, `fields[${i}]`), [sourceInfo]);
               }
+
               const fieldsName = !_.get(item, `fields[${i}].name`)
                 ? _l('选择字段')
                 : isDel
@@ -369,6 +373,7 @@ export default function GroupDialog(props) {
       </WrapItem>
     );
   };
+
   const onSave = () => {
     //字段名称显示第一个工作表，第一个字段的名称。
     let isErr = false;
@@ -386,6 +391,7 @@ export default function GroupDialog(props) {
       alert(_l('配置存在错误，请完整配置'), 3);
       return;
     }
+
     let newGroupControls = groupControls.map(o => {
       if (!!o.resultField && o.resultField.oid === o.fields[0].oid) {
         return o;
@@ -408,13 +414,16 @@ export default function GroupDialog(props) {
       } else {
         let suffix = 1;
         let uniqueName = newName + suffix;
+
         while (aliasList.some(item => item === uniqueName)) {
           suffix++;
           uniqueName = newName + suffix;
         }
+
         return uniqueName;
       }
     };
+
     onOk(
       newGroupControls.map(o => {
         let data = o.resultField;
@@ -424,16 +433,19 @@ export default function GroupDialog(props) {
           ...o,
           resultField: { ...data, alias: name, name },
         };
+
         if (!canArraySplit(it.resultField.controlSetting)) {
           it = _.omit(it, ['arraySplit']);
         } else if (isUndefined(it.arraySplit)) {
           it.arraySplit = !isUnique(it.resultField.controlSetting);
         }
+
         return it;
       }),
     );
     onHide();
   };
+
   return (
     <Dialog
       dialogClasses={className}

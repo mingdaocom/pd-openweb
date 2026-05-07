@@ -39,10 +39,12 @@ class DialogFooter extends Component {
         </div>
       </div>
     );
+
     // 如果未定义footer使用默认的footer
     if (footer === undefined) {
       return defaultFooter;
     }
+
     if (footer) {
       return (
         <div className="mui-dialog-footer flexRow">
@@ -51,6 +53,7 @@ class DialogFooter extends Component {
         </div>
       );
     }
+
     return footer;
   }
 }

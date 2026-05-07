@@ -18,7 +18,7 @@ export default class UploadAction extends React.Component {
 
     switch (status) {
       case UPLOAD_STATUS.ERROR:
-        icon = <Icon icon="turnLeft" />;
+        icon = <Icon icon="turnLeft" className="Font14" />;
         title = _l('重试');
         action = retryUpload;
         break;

@@ -35,6 +35,7 @@ const Wrap = styled.div`
     padding: 16px;
   }
 `;
+
 export default function LogDialog(props) {
   const { logInfo = {} } = props;
   const [{ data, tab }, setState] = useSetState({
@@ -62,11 +63,14 @@ export default function LogDialog(props) {
       </div>
     );
   };
+
   const getInfo = info => {
     let da = {};
+
     if (!info) {
       return da;
     }
+
     try {
       da = JSON.parse(info);
     } catch (error) {
@@ -75,8 +79,10 @@ export default function LogDialog(props) {
         data: info,
       };
     }
+
     return da;
   };
+
   return (
     <Dialog
       className=""
@@ -89,7 +95,12 @@ export default function LogDialog(props) {
       <Wrap className="">
         {!logInfo.requestCatch ? (
           <div className="con mTop16">
-            <JsonView src={logInfo.msg || {}} displayDataTypes={false} displayObjectSize={false} />
+            <JsonView
+              theme={window.themeMode === 'dark' ? 'monokai' : 'rjv-default'}
+              src={logInfo.msg || {}}
+              displayDataTypes={false}
+              displayObjectSize={false}
+            />
           </div>
         ) : (
           <React.Fragment>

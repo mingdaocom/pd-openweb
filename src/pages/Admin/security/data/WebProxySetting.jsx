@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { Checkbox, Input } from 'antd';
 import styled from 'styled-components';
 import { Button, Icon, LoadDiv, Switch } from 'ming-ui';
@@ -14,7 +14,9 @@ const portRegExp = new RegExp(
 const FormBox = styled.div`
   flex: 1;
   min-height: 0;
-  padding: 0 32px;
+  padding: 0 32px 24px 32px;
+  display: flex;
+  flex-direction: column;
   .formModuleTitle {
     color: var(--color-text-title);
     font-size: 15px;
@@ -64,8 +66,23 @@ const FormBox = styled.div`
       color: var(--color-error);
     }
   }
-  .mLeft150 {
-    margin-left: 150px;
+
+  .enableBtn {
+    background: var(--color-success);
+    &:hover {
+      background: var(--color-success-hover);
+    }
+  }
+  .closeBtn {
+    border-color: var(--color-error);
+    color: var(--color-error);
+    &:hover {
+      background: var(--color-error);
+    }
+    &.Button--disabled {
+      color: var(--color-error);
+      background: transparent !important;
+    }
   }
 `;
 
@@ -94,6 +111,7 @@ export default class WebProxySetting extends Component {
             webProxyPassword: res.password,
           });
         }
+
         this.setState({ loading: false });
       })
       .catch(() => {
@@ -101,7 +119,7 @@ export default class WebProxySetting extends Component {
       });
   }
 
-  handleSaveWebProxy = () => {
+  handleSaveWebProxy = isEnable => {
     const { http, https, ip, portNumber, openIdentityValidate, userName, webProxyPassword } = this.state;
     this.setState({ isSaveWebProxy: true });
     if (
@@ -114,6 +132,7 @@ export default class WebProxySetting extends Component {
     ) {
       return;
     }
+
     this.setState({ saveDisabled: true });
     projectSettingController
       .editApiProxySettings({
@@ -126,11 +145,12 @@ export default class WebProxySetting extends Component {
         projectId: this.props.projectId,
       })
       .then(res => {
-        this.setState({ isSaveWebProxy: false, saveDisabled: false });
         if (res) {
-          alert(_l('保存成功'));
+          alert(_l('操作成功'));
+          isEnable ? this.updateWebProxyState() : this.setState({ isSaveWebProxy: false, saveDisabled: false });
         } else {
-          alert(_l('保存失败'), 2);
+          alert(_l('操作失败'), 2);
+          this.setState({ isSaveWebProxy: false, saveDisabled: false });
         }
       })
       .catch(() => {
@@ -138,8 +158,21 @@ export default class WebProxySetting extends Component {
       });
   };
 
+  updateWebProxyState = () => {
+    const { projectId, apiProxyEnabled, updateApiProxyEnabled } = this.props;
+
+    this.setState({ saveDisabled: true });
+    projectSettingController.setApiProxyState({ projectId, state: !apiProxyEnabled }).then(res => {
+      if (res) {
+        updateApiProxyEnabled(!apiProxyEnabled);
+        this.setState({ saveDisabled: false, isSaveWebProxy: false });
+      }
+    });
+  };
+
   changeValue = (val, field, type) => {
     let value;
+
     switch (type) {
       case 'checkbox':
         value = val.target.checked;
@@ -152,13 +185,15 @@ export default class WebProxySetting extends Component {
         break;
       default:
     }
+
     this.setState({ [field]: value });
   };
 
   render() {
-    const { onClose = () => {} } = this.props;
+    const { onClose = () => {}, apiProxyEnabled } = this.props;
     const { http, https, ip, portNumber, openIdentityValidate, userName, webProxyPassword, isSaveWebProxy, loading } =
       this.state;
+
     return (
       <div className="orgManagementWrap">
         <div className="orgManagementHeader">
@@ -173,142 +208,166 @@ export default class WebProxySetting extends Component {
           </div>
         ) : (
           <FormBox className="formBox">
-            <div className="formModuleTitle">{_l('代理服务器设置')}</div>
-            <div className="formItem">
-              <div className="formLabel width135">
-                <span className="TxtMiddle Red">*</span>
-                {_l('接口类型')}
-              </div>
-              <div className="formRight flexRow">
-                <div className="formInput directionRow pTop8">
-                  <Checkbox
-                    checked={http}
-                    onChange={checked => {
-                      this.changeValue(checked, 'http', 'checkbox');
-                    }}
-                  >
-                    HTTP
-                  </Checkbox>
-                  <Checkbox
-                    checked={https}
-                    onChange={checked => {
-                      this.changeValue(checked, 'https', 'checkbox');
-                    }}
-                  >
-                    HTTPS
-                  </Checkbox>
-                </div>
-                <div className="errorMsg">{isSaveWebProxy && !http && !https ? _l('请选择接口类型') : ''}</div>
-              </div>
-            </div>
-            <div className="formItem">
-              <div className="formLabel width135">
-                <span className="TxtMiddle Red">*</span>
-                {_l('服务器地址')}
-              </div>
-              <div className="formRight">
-                <div className="formInput flexRow directionRow">
-                  <Input
-                    style={{ width: 180 }}
-                    placeholder={_l('IP、域名')}
-                    value={ip}
-                    onChange={e => {
-                      this.changeValue(e, 'ip', 'input');
-                    }}
-                  />
-                  <span className="mLeft10 mRight10 LineHeight32">:</span>
-                  <Input
-                    style={{ width: 100 }}
-                    placeholder={_l('端口号')}
-                    value={portNumber}
-                    onChange={e => {
-                      this.changeValue(e, 'portNumber', 'input');
-                    }}
-                  />
-                </div>
-                <div className="errorMsg">
-                  {isSaveWebProxy &&
-                    (!ip || !portNumber
-                      ? _l('请输入服务器地址')
-                      : !ipRegExp.test(ip)
-                        ? _l('地址格式不正确')
-                        : !portRegExp.test(portNumber)
-                          ? _l('无效的端口号')
-                          : '')}
-                </div>
-              </div>
-            </div>
-            <div className="formItem">
-              <div className="formLabel width135">{_l('身份验证')}</div>
-              <div className="formRight pTop8">
-                <div className="formInput">
-                  <Switch
-                    size="small"
-                    checked={openIdentityValidate}
-                    onClick={checked => {
-                      this.changeValue(checked, 'openIdentityValidate', 'switch');
-                    }}
-                  />
-                </div>
-                <div className="errorMsg"></div>
-              </div>
-            </div>
-            {openIdentityValidate && (
+            <div className="flex">
+              <div className="formModuleTitle">{_l('代理服务器设置')}</div>
               <div className="formItem">
                 <div className="formLabel width135">
                   <span className="TxtMiddle Red">*</span>
-                  {_l('用户名')}
+                  {_l('接口类型')}
+                </div>
+                <div className="formRight flexRow">
+                  <div className="formInput directionRow pTop8">
+                    <Checkbox
+                      checked={http}
+                      onChange={checked => {
+                        this.changeValue(checked, 'http', 'checkbox');
+                      }}
+                    >
+                      HTTP
+                    </Checkbox>
+                    <Checkbox
+                      checked={https}
+                      onChange={checked => {
+                        this.changeValue(checked, 'https', 'checkbox');
+                      }}
+                    >
+                      HTTPS
+                    </Checkbox>
+                  </div>
+                  <div className="errorMsg">{isSaveWebProxy && !http && !https ? _l('请选择接口类型') : ''}</div>
+                </div>
+              </div>
+              <div className="formItem">
+                <div className="formLabel width135">
+                  <span className="TxtMiddle Red">*</span>
+                  {_l('服务器地址')}
                 </div>
                 <div className="formRight">
-                  <div className="formInput">
+                  <div className="formInput flexRow directionRow">
                     <Input
-                      placeholder={_l('用户名')}
-                      style={{ width: 302 }}
-                      value={userName}
+                      style={{ width: 180 }}
+                      placeholder={_l('IP、域名')}
+                      value={ip}
                       onChange={e => {
-                        this.changeValue(e, 'userName', 'input');
+                        this.changeValue(e, 'ip', 'input');
+                      }}
+                    />
+                    <span className="mLeft10 mRight10 LineHeight32">:</span>
+                    <Input
+                      style={{ width: 100 }}
+                      placeholder={_l('端口号')}
+                      value={portNumber}
+                      onChange={e => {
+                        this.changeValue(e, 'portNumber', 'input');
                       }}
                     />
                   </div>
                   <div className="errorMsg">
-                    {isSaveWebProxy && openIdentityValidate && !userName ? _l('请输入用户名') : ''}
+                    {isSaveWebProxy &&
+                      (!ip || !portNumber
+                        ? _l('请输入服务器地址')
+                        : !ipRegExp.test(ip)
+                          ? _l('地址格式不正确')
+                          : !portRegExp.test(portNumber)
+                            ? _l('无效的端口号')
+                            : '')}
                   </div>
                 </div>
               </div>
-            )}
-            {openIdentityValidate && (
               <div className="formItem">
-                <div className="formLabel width135">
-                  <span className="TxtMiddle Red">*</span>
-                  {_l('密码')}
-                </div>
-                <div className="formRight">
+                <div className="formLabel width135">{_l('身份验证')}</div>
+                <div className="formRight pTop8">
                   <div className="formInput">
-                    <Input.Password
-                      placeholder={_l('密码')}
-                      style={{ width: 302 }}
-                      value={webProxyPassword}
-                      autocomplete="new-password"
-                      onChange={e => {
-                        this.changeValue(e, 'webProxyPassword', 'input');
+                    <Switch
+                      size="small"
+                      checked={openIdentityValidate}
+                      onClick={checked => {
+                        this.changeValue(checked, 'openIdentityValidate', 'switch');
                       }}
                     />
                   </div>
-                  <div className="errorMsg">
-                    {isSaveWebProxy && openIdentityValidate && !webProxyPassword ? _l('请输入密码') : ''}
-                  </div>
+                  <div className="errorMsg"></div>
                 </div>
               </div>
-            )}
-            <Button
-              className="mLeft150"
-              radius
-              type="primary"
-              onClick={this.handleSaveWebProxy}
-              disabled={this.state.saveDisabled}
-            >
-              {this.state.saveDisabled ? _l('保存中') : _l('保存')}
-            </Button>
+              {openIdentityValidate && (
+                <div className="formItem">
+                  <div className="formLabel width135">
+                    <span className="TxtMiddle Red">*</span>
+                    {_l('用户名')}
+                  </div>
+                  <div className="formRight">
+                    <div className="formInput">
+                      <Input
+                        placeholder={_l('用户名')}
+                        style={{ width: 302 }}
+                        value={userName}
+                        onChange={e => {
+                          this.changeValue(e, 'userName', 'input');
+                        }}
+                      />
+                    </div>
+                    <div className="errorMsg">
+                      {isSaveWebProxy && openIdentityValidate && !userName ? _l('请输入用户名') : ''}
+                    </div>
+                  </div>
+                </div>
+              )}
+              {openIdentityValidate && (
+                <div className="formItem">
+                  <div className="formLabel width135">
+                    <span className="TxtMiddle Red">*</span>
+                    {_l('密码')}
+                  </div>
+                  <div className="formRight">
+                    <div className="formInput">
+                      <Input.Password
+                        placeholder={_l('密码')}
+                        style={{ width: 302 }}
+                        value={webProxyPassword}
+                        autocomplete="new-password"
+                        onChange={e => {
+                          this.changeValue(e, 'webProxyPassword', 'input');
+                        }}
+                      />
+                    </div>
+                    <div className="errorMsg">
+                      {isSaveWebProxy && openIdentityValidate && !webProxyPassword ? _l('请输入密码') : ''}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+            <div className="flexRow alignItemsCenter">
+              {apiProxyEnabled ? (
+                <Fragment>
+                  <Button
+                    type="primary"
+                    className="mRight10"
+                    onClick={() => this.handleSaveWebProxy(false)}
+                    disabled={this.state.saveDisabled}
+                  >
+                    {_l('更新设置')}
+                  </Button>
+                  <Button
+                    type="ghost"
+                    className="closeBtn"
+                    onClick={this.updateWebProxyState}
+                    disabled={this.state.saveDisabled}
+                  >
+                    {_l('关闭此功能')}
+                  </Button>
+                </Fragment>
+              ) : (
+                <Button
+                  type="primary"
+                  className="enableBtn"
+                  onClick={() => this.handleSaveWebProxy(true)}
+                  disabled={this.state.saveDisabled}
+                >
+                  {_l('启用')}
+                </Button>
+              )}
+            </div>
           </FormBox>
         )}
       </div>

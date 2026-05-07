@@ -1,0 +1,35 @@
+.markdownPreview {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--color-text-primary);
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid var(--color-border-primary);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  thead th {
+    background-color: var(--color-background-secondary);
+    font-weight: 600;
+    padding: 10px 12px;
+    border: 1px solid var(--color-border-primary);
+    text-align: left;
+  }
+
+  tbody td {
+    padding: 10px 12px;
+    border: 1px solid var(--color-border-primary);
+    text-align: left;
+  }
+
+  tbody tr:nth-child(even) td {
+    background-color: var(--color-background-tertiary);
+  }
+
+  p {
+    word-break: break-all;
+  }
+}

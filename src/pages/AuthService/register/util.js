@@ -1,9 +1,8 @@
 import _ from 'lodash';
 import registerApi from 'src/api/register';
 import { AccountNextActions, ActionResult } from 'src/pages/AuthService/config';
-import { getDataByFilterXSS, toMDPage } from 'src/pages/AuthService/util';
-import { getRequest } from 'src/utils/common';
-import { encrypt } from 'src/utils/common';
+import { registerSuc } from 'src/pages/AuthService/util';
+import { encrypt, getRequest } from 'src/utils/common';
 import { mdAppResponse } from 'src/utils/project';
 import { setPssId } from 'src/utils/pssId';
 import { InviteFromType } from '../config';
@@ -11,6 +10,7 @@ import { InviteFromType } from '../config';
 export const getTitle = () => {
   const { type } = getRequest();
   let str = _l('注册');
+
   switch (type) {
     case 'create':
       str = _l('创建组织');
@@ -22,11 +22,13 @@ export const getTitle = () => {
     default:
       break;
   }
+
   return str;
 };
 
 export const getDes = authInfo => {
   let titleDesc = '';
+
   switch (authInfo.fromType) {
     case InviteFromType.friend:
       titleDesc = _l('成为协作好友');
@@ -48,6 +50,7 @@ export const getDes = authInfo => {
       titleDesc = _l('项目');
       break;
   }
+
   return titleDesc;
 };
 
@@ -151,8 +154,10 @@ export const doCreateAccount = ({ accountInfo, callback, onChange }) => {
               settings: { action: 'registerSuccess', account: dialCode + emailOrTel, password },
             });
           }
+
           return;
         }
+
         callback && callback();
       } else if (data.actionResult == ActionResult.userAccountExists) {
         onChange({ focusDiv: '', warnList: [{ tipDom: 'inputAccount', warnTxt: _l('账号已注册') }] });
@@ -288,24 +293,5 @@ export const registerAction = ({ res = {}, info = {}, onChange = () => {}, callb
         doCreateAccount({ accountInfo: info, callback, onChange });
       }
     }
-  }
-};
-
-//  注册流程后登录成功跳转
-export const registerSuc = ({ emailOrTel, dialCode, password }, action) => {
-  let request = getRequest();
-  let returnUrl = getDataByFilterXSS(request.ReturnUrl || '');
-  if (returnUrl.indexOf('type=privatekey') > -1) {
-    location.href = returnUrl;
-  } else {
-    toMDPage();
-  }
-
-  if (window.isMingDaoApp) {
-    mdAppResponse({
-      sessionId: 'register',
-      type: 'native',
-      settings: { action: action ? action : 'registerSuccess', account: dialCode + emailOrTel, password },
-    });
   }
 };

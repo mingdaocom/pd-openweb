@@ -43,14 +43,17 @@ export default class EditInfo extends React.Component {
   //验证
   validateContract() {
     const { baseInfo } = this.state;
+
     if (baseInfo.snsLinkedin !== '' && !RegExpValidator.isURL(baseInfo.snsLinkedin)) {
       alert(_l('LinkedIn输入不正确,请输入有效的URL'), 3);
       return false;
     }
+
     if (baseInfo.snsSina !== '' && !RegExpValidator.isURL(baseInfo.snsSina)) {
       alert(_l('新浪微博主页输入不正确,请输入有效的URL'), 3);
       return false;
     }
+
     return true;
   }
 

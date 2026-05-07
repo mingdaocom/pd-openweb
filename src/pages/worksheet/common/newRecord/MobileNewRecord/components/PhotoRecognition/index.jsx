@@ -52,6 +52,7 @@ const PhotoRecognition = forwardRef((props, ref) => {
     );
 
     const allHaveUrl = existingFilesRef.current.every(f => !!f.url);
+
     if (existingFilesRef.current.length && allHaveUrl) {
       onGenerateRecord({ filesList: existingFilesRef.current });
     }
@@ -59,9 +60,11 @@ const PhotoRecognition = forwardRef((props, ref) => {
 
   const getFileInput = () => {
     const uploader = uploadFilesRef.current?.uploader;
+
     if (uploader) {
       return uploader.upload?.nextElementSibling?.firstElementChild;
     }
+
     return null;
   };
 

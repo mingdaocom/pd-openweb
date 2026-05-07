@@ -140,6 +140,7 @@ export default class GeneraSelect extends Component {
       this.promiseObj.abort();
       this.promiseObj = '';
     }
+
     this.promiseObj = promise;
     return this.promiseObj;
   }
@@ -172,6 +173,7 @@ export default class GeneraSelect extends Component {
 
   updateEvent() {
     let page = false;
+
     if (this.state.chooseType === ChooseType.USER) {
       page = this.getTabItem().page;
     } else if (this.state.chooseType === ChooseType.RESIGNED) {
@@ -194,9 +196,11 @@ export default class GeneraSelect extends Component {
 
   getResultData() {
     const { mainData } = this.state;
+
     if (!mainData) {
       return [];
     }
+
     switch (mainData.renderType) {
       case RenderTypes.CONTACK_USER:
         const data = mainData.data || {};
@@ -214,10 +218,13 @@ export default class GeneraSelect extends Component {
     if (this.promiseObj) {
       return false;
     }
+
     const { currentIndex, chooseType } = this.state;
     const flattenResult = this.getResultData();
+
     if (chooseType === ChooseType.USER && $('#dialogBoxSelectUser') && this.scrollView && flattenResult.length) {
       const { which, ctrlKey, metaKey } = event;
+
       if (which === 38) {
         this.setState(
           {
@@ -258,6 +265,7 @@ export default class GeneraSelect extends Component {
     if (!scrollViewEl && currentIndex === -1) {
       return;
     }
+
     if (direction === 'up') {
       if ($currentEl.position().top < 0 || $currentEl.position().top + $currentEl.height() >= $scrollViewEl.height()) {
         this.scrollView.scrollToElement($currentEl[0]);
@@ -326,6 +334,7 @@ export default class GeneraSelect extends Component {
         userSettings.defaultTabs.push(item);
       });
     }
+
     let tabs = [];
     let { showTabs = [] } = userSettings;
     showTabs.forEach(id => {
@@ -380,6 +389,7 @@ export default class GeneraSelect extends Component {
     const userSettings = this.userSettings;
     const commonSettings = this.commonSettings;
     let tabItem = userSettings.defaultTabs.filter(tab => tab.id === this.state.selectedUserTabId)[0];
+
     // 组建请求数据
     if (tabItem) {
       const reqData = {
@@ -442,6 +452,7 @@ export default class GeneraSelect extends Component {
           loading: true,
         });
       }
+
       this.handlePromise(doAction(reqData)).then(data => {
         if (tabItem.type === RenderTypes.DEPARTMENT_USER) {
           if (
@@ -452,14 +463,18 @@ export default class GeneraSelect extends Component {
             this.setState({ defaultCheckedDepId: (!_.isEmpty(data) && data[0].departmentId) || null });
           }
         }
+
         let haveMore = true;
+
         if (reqData.pageIndex > 1) {
           let nowUserData = this.state.mainData;
+
           if (tabItem.type === RenderTypes.CONTACK_USER) {
             // 姓氏排名
             if (data.users.list.length < this.state.pageSize) {
               haveMore = false;
             }
+
             nowUserData.data.users.list = [...nowUserData.data.users.list, ...data.users.list];
             data = nowUserData.data;
           } else if (tabItem.type !== RenderTypes.DEPARTMENT_USER) {
@@ -467,6 +482,7 @@ export default class GeneraSelect extends Component {
             if (data.list.length < this.state.pageSize) {
               haveMore = false;
             }
+
             data.list = [...nowUserData.data.list, ...data.list];
           }
         }
@@ -498,11 +514,13 @@ export default class GeneraSelect extends Component {
       loading: true,
     });
     let getTree;
+
     if (this.state.keywords) {
       getTree = this.getSearchDepartmentTree.bind(this);
     } else {
       getTree = this.getDepartmentTree.bind(this);
     }
+
     departmentController
       .searchDepartment({
         projectId: commonSettings.projectId,
@@ -522,14 +540,17 @@ export default class GeneraSelect extends Component {
   /** 请求群组 */
   groupAction() {
     let { pageSize, pageIndex, firstLetter, keywords } = this.state;
+
     if (!this.state.haveMore) {
       return false;
     }
+
     if (pageIndex === 1) {
       this.setState({
         loading: true,
       });
     }
+
     groupController
       .getGroupsSearch({
         projectId: this.commonSettings.projectId,
@@ -546,9 +567,11 @@ export default class GeneraSelect extends Component {
           ];
           let allCount = this.state.mainData.data.normalGroups.allCount;
           let haveMore = true;
+
           if (normalGroupsList.length === allCount) {
             haveMore = false;
           }
+
           this.setState({
             loading: false,
             mainData: {
@@ -578,6 +601,7 @@ export default class GeneraSelect extends Component {
   /** 请求已离职 */
   resignedAction() {
     let { pageSize, pageIndex, keywords, mainData = {} } = this.state;
+
     if (!this.state.haveMore) {
       return false;
     }
@@ -587,6 +611,7 @@ export default class GeneraSelect extends Component {
         loading: true,
       });
     }
+
     const resignedApi = userController.getProjectResignedUserList({
       projectId: this.commonSettings.projectId,
       pageSize: pageSize,
@@ -628,9 +653,11 @@ export default class GeneraSelect extends Component {
     return data.map(item => {
       const { departmentId, departmentName, userCount, haveSubDepartment } = item;
       let disabled = false;
+
       if (this.departmentSettings.disabledDepartmentIds.indexOf(departmentId) >= 0) {
         disabled = true;
       }
+
       return {
         departmentId,
         departmentName,
@@ -646,13 +673,17 @@ export default class GeneraSelect extends Component {
   getSearchDepartmentTree(data) {
     return data.map(item => {
       let { departmentId, departmentName, userCount, haveSubDepartment, subDepartments = [] } = item;
+
       if (subDepartments.length) {
         subDepartments = this.getSearchDepartmentTree(subDepartments);
       }
+
       let disabled = false;
+
       if (this.departmentSettings.disabledDepartmentIds.indexOf(departmentId) >= 0) {
         disabled = true;
       }
+
       return {
         departmentId,
         departmentName,
@@ -670,6 +701,7 @@ export default class GeneraSelect extends Component {
     let ID = null;
     let NAME = null;
     let COUNT = null;
+
     switch (tabId) {
       case UserTabsId.DEPARTMENT:
         ID = 'departmentId';
@@ -682,6 +714,7 @@ export default class GeneraSelect extends Component {
         COUNT = 'groupMemberCount';
         break;
     }
+
     return {
       ID,
       NAME,
@@ -692,6 +725,7 @@ export default class GeneraSelect extends Component {
   /** tabId换成renderType */
   getRenderTypeByTabId(tabId) {
     let renderType;
+
     if (tabId === UserTabsId.CONACT_USER) {
       renderType = RenderTypes.CONTACK_USER;
     } else if (tabId === UserTabsId.DEPARTMENT) {
@@ -703,6 +737,7 @@ export default class GeneraSelect extends Component {
     } else {
       renderType = RenderTypes.OTHER_USER;
     }
+
     return renderType;
   }
 
@@ -715,10 +750,12 @@ export default class GeneraSelect extends Component {
   getDepartmentById(departmentTree, id) {
     for (let i = 0; i < departmentTree.length; i++) {
       let department = departmentTree[i];
+
       if (department.departmentId === id) {
         return department;
       } else if (department.subDepartments.length) {
         let oDepartment = this.getDepartmentById(department.subDepartments, id);
+
         if (oDepartment) {
           return this.getDepartmentById(department.subDepartments, id);
         }
@@ -748,6 +785,7 @@ export default class GeneraSelect extends Component {
 
   changeSelect(chooseType, data, idKey) {
     let selectedArr;
+
     switch (chooseType) {
       case ChooseType.USER:
         selectedArr = this.selectedUsers;
@@ -756,6 +794,7 @@ export default class GeneraSelect extends Component {
         selectedArr = this.selectedDepartment;
         break;
     }
+
     if (selectedArr.filter(item => item[idKey] === data[idKey]).length) {
       // 如果user里面有就反选
       this.deleteData(chooseType, data[idKey], idKey);
@@ -793,6 +832,7 @@ export default class GeneraSelect extends Component {
       if (item.type === chooseType) {
         return item.data[idKey] !== id;
       }
+
       return true;
     });
     this.setState({
@@ -807,14 +847,17 @@ export default class GeneraSelect extends Component {
    */
   addData = (chooseType, data) => {
     let selectedArr = [...this.state.selectedData];
+
     if (chooseType === ChooseType.USER && this.userSettings.unique) {
       selectedArr = selectedArr.filter(item => {
         if (item.type === ChooseType.USER) {
           return false;
         }
+
         return true;
       });
     }
+
     selectedArr.push({
       type: chooseType,
       data,
@@ -836,9 +879,11 @@ export default class GeneraSelect extends Component {
   toggleDepartmentList = id => {
     let departmentTree = [...this.state.mainData.data];
     let department = this.getDepartmentById(departmentTree, id);
+
     if (!department.haveSubDepartment) {
       return false;
     }
+
     if (!department.open) {
       if (department.subDepartments.length) {
         department.open = true;
@@ -863,6 +908,7 @@ export default class GeneraSelect extends Component {
     } else {
       department.open = false;
     }
+
     this.setState({
       mainData: {
         renderType: RenderTypes.DEPARTMENT,
@@ -885,14 +931,18 @@ export default class GeneraSelect extends Component {
   /** 搜索 */
   search = keywords => {
     const { showTabs = [] } = this.userSettings;
+
     if (!keywords) {
       this.closeSearch();
       return;
     }
+
     let selectedTabId = UserTabsId.CONACT_USER;
+
     if (keywords) {
       const searchTabs = this.getDefaultSearchTabs();
       const curTab = _.find(searchTabs, { id: this.state.selectedUserTabId });
+
       if (curTab) {
         selectedTabId = curTab.id;
       }
@@ -903,6 +953,7 @@ export default class GeneraSelect extends Component {
     } else if (_.includes(showTabs, 'ruleMember')) {
       selectedTabId = 'ruleMember';
     }
+
     this.setState(
       {
         keywords,
@@ -924,6 +975,7 @@ export default class GeneraSelect extends Component {
   closeSearch = () => {
     const { showTabs = [] } = this.userSettings;
     let selectedTabId = UserTabsId.CONACT_USER;
+
     if (_.includes(showTabs, 'structureUsers')) {
       selectedTabId = 'structureUsers';
     } else if (_.includes(showTabs, 'ruleMember')) {
@@ -972,6 +1024,7 @@ export default class GeneraSelect extends Component {
       });
     } else {
       let promiseObj = null;
+
       if (this.state.selectedUserTabId === UserTabsId.DEPARTMENT) {
         promiseObj = this.handlePromise(
           tabItem.actions.getDepartmentUsers({
@@ -990,18 +1043,22 @@ export default class GeneraSelect extends Component {
           }),
         );
       }
+
       promiseObj.then(req => {
         let list = null;
+
         if (this.state.selectedUserTabId === UserTabsId.DEPARTMENT) {
           list = req.list;
         } else {
           list = req;
         }
+
         data.list = data.list.map(item => {
           if (item[ID] === id) {
             item.users = list;
             item.open = true;
           }
+
           return item;
         });
         this.setState({
@@ -1045,6 +1102,7 @@ export default class GeneraSelect extends Component {
             return type === ChooseType.USER && accountId;
           });
         }
+
         return item;
       });
       this.setState({
@@ -1091,6 +1149,7 @@ export default class GeneraSelect extends Component {
       });
     } else {
       let list = group.users;
+
       if (checked) {
         this.setState({
           selectedData: selectedData.filter(i => !_.find(list, l => l.accountId === _.get(i, 'data.accountId'))),
@@ -1121,6 +1180,7 @@ export default class GeneraSelect extends Component {
       this.changeChooseType(ChooseType.USER);
       return false;
     }
+
     return true;
   };
 
@@ -1129,6 +1189,7 @@ export default class GeneraSelect extends Component {
     let selectedUsers = this.selectedUsers;
     let selectedDepartments = this.selectedDepartment;
     let selectedResigned = this.selectedResigned;
+
     if (
       this.commonSettings.selectModes.indexOf('user') >= 0 &&
       !this.userSettings.allowSelectNull &&
@@ -1137,6 +1198,7 @@ export default class GeneraSelect extends Component {
       alert(_l('请选择用户'), 3);
       return;
     }
+
     let data = {
       users: [],
       departments: [],
@@ -1148,16 +1210,19 @@ export default class GeneraSelect extends Component {
         data.users = users;
         return users;
       }
+
       if (mode === ChooseType.DEPARTMENT) {
         let departments = this.getOriginDepartment(selectedDepartments);
         data.departments = departments;
         return departments;
       }
+
       if (mode === ChooseType.RESIGNED) {
         let resigned = selectedResigned;
         data.resigned = selectedResigned;
         return resigned;
       }
+
       return null;
     });
     this.userSettings.callback(...params); // 兼容老的selectUsers回调
@@ -1282,6 +1347,7 @@ export default class GeneraSelect extends Component {
             />
           );
         }
+
       /** 渲染群组列表 */
       case RenderTypes.GROUP:
         return (
@@ -1325,7 +1391,9 @@ export default class GeneraSelect extends Component {
       let avatar = null;
       let id = null;
       let name = null;
+
       let deleteFn = () => {};
+
       switch (item.type) {
         case ChooseType.USER:
         case ChooseType.RESIGNED:
@@ -1335,6 +1403,7 @@ export default class GeneraSelect extends Component {
           deleteFn = accountId => {
             this.deleteData(item.type, accountId, 'accountId');
           };
+
           break;
         case ChooseType.DEPARTMENT:
           avatar = (
@@ -1347,8 +1416,10 @@ export default class GeneraSelect extends Component {
           deleteFn = departmentId => {
             this.deleteData(item.type, departmentId, 'departmentId');
           };
+
           break;
       }
+
       const props = {
         avatar,
         id,
@@ -1387,6 +1458,7 @@ export default class GeneraSelect extends Component {
   getCount = tabId => {
     const { mainData: { data = {}, renderType } = {} } = this.state;
     const type = this.getRenderTypeByTabId(tabId);
+
     if (type === renderType) {
       if (tabId === UserTabsId.CONACT_USER) {
         const totalUsers = ((data.users || {}).list || []).concat((data.oftenUsers || {}).list || []);
@@ -1405,9 +1477,11 @@ export default class GeneraSelect extends Component {
     const searchTabs = (this.userSettings.defaultTabs || []).filter(i =>
       _.includes([UserTabsId.CONACT_USER, UserTabsId.DEPARTMENT, UserTabsId.GROUP], i.id),
     );
+
     if (!this.userSettings.filterResigned) {
       return searchTabs.concat(SearchUserTabs);
     }
+
     return searchTabs;
   };
 
@@ -1507,6 +1581,7 @@ export default class GeneraSelect extends Component {
             {_l('选择群组')}
           </li>
         );
+
         if (!this.state.isProject) {
           // 不显示联系人的筛选
           SelectUsers = (
@@ -1522,6 +1597,7 @@ export default class GeneraSelect extends Component {
           );
           SelectGroups = SelectDepartments = null;
         }
+
         Tabs = this.commonSettings.selectModes.map(mode => {
           if (mode === ChooseType.USER) {
             return SelectUsers;
@@ -1530,9 +1606,11 @@ export default class GeneraSelect extends Component {
           } else if (mode === ChooseType.GROUP) {
             return SelectGroups;
           }
+
           return null;
         });
       }
+
       return <ul className="GSelect-head-navbar">{Tabs}</ul>;
     }
   }
@@ -1568,9 +1646,11 @@ export default class GeneraSelect extends Component {
     if (this.state.loading) {
       return <LoadDiv />;
     }
+
     if (!this.state.mainData && !this.state.loading) {
       return null;
     }
+
     if (
       this.state.mainData.renderType === RenderTypes.CONTACK_USER ||
       this.state.mainData.renderType === RenderTypes.DEPARTMENT_USER ||

@@ -76,9 +76,6 @@ const ListBox = styled.div`
       .titleText {
         color: var(--color-primary);
       }
-      .optionIcon {
-        background: rgba(247, 247, 247, 1);
-      }
     }
 
     .titleIcon {
@@ -189,6 +186,7 @@ export default function MirrorList(props) {
     if (ajaxPromise) {
       ajaxPromise.abort();
     }
+
     ajaxPromise = dataMirrorApi.getWorkTableMirrorDataList({
       projectId: props.projectId,
       pageNo: param.pageNo,
@@ -252,6 +250,7 @@ export default function MirrorList(props) {
               } else {
                 sortFlag = sortFlag === 2 ? 0 : sortFlag + 1;
               }
+
               onFetch({
                 ...fetchState,
                 pageNo: 0,
@@ -368,6 +367,7 @@ export default function MirrorList(props) {
                 } else {
                   alert(_l('删除失败'), 3);
                 }
+
                 cb && cb();
               });
           }}

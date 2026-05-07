@@ -116,7 +116,7 @@ function APILibraryCon(props) {
       if (window.MDAPILibrary) {
         renderLibCon();
       } else {
-        loadScript(`https://alifile.mingdaocloud.com/open/js/apilibrary_v5.js?${+new Date()}`, err => {
+        loadScript(`https://alifile.mingdaocloud.com/open/js/apilibrary_v6.js?${+new Date()}`, err => {
           if (!err && window.MDAPILibrary) {
             renderLibCon();
           }
@@ -160,6 +160,7 @@ function APILibraryCon(props) {
                         if (tab === o.type) {
                           return;
                         }
+
                         safeLocalStorageSetItem(`apiLibTab`, o.type);
                         setTab(o.type);
                       }}

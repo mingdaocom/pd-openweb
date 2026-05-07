@@ -27,6 +27,7 @@ export function sheetViewConfig(state = initialSheetViewConfig, action) {
       if (_.get(action, 'value.noClearSelected')) {
         return { ...state };
       }
+
       return { ...state, allWorksheetIsSelected: false, sheetSelectedRows: [] };
     // 列宽调整逻辑
     case 'WORKSHEET_SHEETVIEW_INIT_COLUMN_WIDTH':
@@ -151,6 +152,7 @@ export function sheetViewData(state = initialSheetViewData, action) {
           },
         };
       }
+
     // 隐藏记录
     case 'WORKSHEET_SHEETVIEW_HIDE_ROWS':
       return {

@@ -56,6 +56,7 @@ const DefaultChildWrap = styled.div`
   align-items: center;
   margin-right: 10px;
 `;
+
 export function SelectGroup(props) {
   const {
     projectId,
@@ -389,9 +390,11 @@ export function SelectGroupTrigger(props) {
             if (!force && props.isDynamic) {
               return;
             }
+
             if (_.isFunction(props.onClose)) {
               props.onClose();
             }
+
             setVisible(false);
           }}
           onChange={onChange}
@@ -440,6 +443,7 @@ export default function quickSelectGroup(target, props = {}) {
   let height = 0;
   const { offset = { top: 0, left: 0 }, zIndex = 1001 } = props;
   const $con = document.createElement('div');
+
   function setPosition() {
     if (_.isFunction(_.get(target, 'getBoundingClientRect'))) {
       const rect = target.getBoundingClientRect();
@@ -451,11 +455,13 @@ export default function quickSelectGroup(target, props = {}) {
       if (x + panelWidth > window.innerWidth) {
         x = targetLeft - 10 - panelWidth;
       }
+
       if (y + panelHeight > window.innerHeight) {
         y = targetTop - panelHeight - 4;
         if (y < 0) {
           y = 0;
         }
+
         if (targetTop < panelHeight) {
           x = targetLeft - 10 - panelWidth;
           if (x < panelWidth) {
@@ -463,12 +469,14 @@ export default function quickSelectGroup(target, props = {}) {
           }
         }
       }
+
       $con.style.position = 'absolute';
       $con.style.left = x + 'px';
       $con.style.top = y + 'px';
       $con.style.zIndex = zIndex;
     }
   }
+
   setPosition();
   document.body.appendChild($con);
   const root = createRoot($con);
@@ -486,9 +494,11 @@ export default function quickSelectGroup(target, props = {}) {
           setTimeout(setPosition, 100);
           return;
         }
+
         if (_.isFunction(props.onClose)) {
           props.onClose();
         }
+
         destory();
       }}
     />,

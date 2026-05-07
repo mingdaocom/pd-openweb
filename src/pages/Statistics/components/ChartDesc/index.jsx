@@ -28,11 +28,13 @@ export default class ChartDesc extends Component {
   handleSave = () => {
     const newDesc = this.state.desc.trim();
     const { desc, reportId, onSave, onClose } = this.props;
+
     if (!reportId) {
       onSave(newDesc);
       onClose();
       return;
     }
+
     if (newDesc !== desc) {
       reportConfig
         .updateReportName({

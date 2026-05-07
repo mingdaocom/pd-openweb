@@ -62,17 +62,20 @@ export default class RowDetail extends React.Component {
       alert(_l('附件正在上传，请稍后'), 3);
       return;
     }
+
     const { data, onSave, onClose, openNextRecord, disabled } = this.props;
     const submitData = this.customwidget.current.getSubmitData({ ignoreAlert, ...extraParams });
     const updateControlIds = this.customwidget.current.dataFormat.getUpdateControlIds();
     const formdata = submitData.fullData;
 
-    if (submitData.error) {
+    if (submitData.error && !extraParams.ignoreHiddenRequired) {
       return false;
     } else {
       const row = [{}, ...formdata].reduce((a = {}, b = {}) => Object.assign(a, { [b.controlId]: b.value }));
       !disabled && onSave({ ...data, ...row, empty: false }, updateControlIds);
-      if (isSwitchSave) {
+      if (extraParams.ignoreHiddenRequired && submitData.error) {
+        return false;
+      } else if (isSwitchSave) {
         return row;
       } else if (nextContinue) {
         this.setState({ flag: Math.random() }, () => {
@@ -80,6 +83,7 @@ export default class RowDetail extends React.Component {
             const $firstText = this.formcon.current.querySelector(
               '.customMobileFormContainer .customFormItem .customFormTextareaBox input.smallInput',
             );
+
             if ($firstText) {
               $firstText.click();
             }
@@ -87,6 +91,7 @@ export default class RowDetail extends React.Component {
         });
         openNextRecord();
       }
+
       if (!isCopy && !nextContinue) onClose();
       return row;
     }
@@ -98,10 +103,12 @@ export default class RowDetail extends React.Component {
 
   handleClose = () => {
     const { onClose } = this.props;
+
     if ($(this.formcon.current).find('.Progress--circle').length > 0) {
       alert(_l('附件正在上传，请稍后'), 3);
       return;
     }
+
     onClose();
   };
 

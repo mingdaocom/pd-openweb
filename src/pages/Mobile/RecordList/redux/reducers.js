@@ -32,6 +32,7 @@ export const currentSheetRows = (state = [], action) => {
         if (action.recordId === row.rowid) {
           return action.isViewData ? { ...row, ...action.rowUpdatedValue } : null;
         }
+
         return row;
       });
       return newState.filter(Boolean);
@@ -183,6 +184,7 @@ export const mobileNavGroupFilters = (state = [], action) => {
       return state;
   }
 };
+
 export const batchOptVisible = (state = false, action) => {
   switch (action.type) {
     case 'CHABGE_MOBILE_BATCHOPT_VISIBLE':
@@ -376,6 +378,7 @@ export const calenderNotScheduled = (
         list: { [index]: { $merge: action.rowData } },
       });
     }
+
     case 'MOBILE_DELETE_CALENDAR_NOT_SCHEDULED': {
       const index = state.list.findIndex(item => item.rowid === action.rowid);
       if (index === -1) return state;
@@ -384,9 +387,11 @@ export const calenderNotScheduled = (
         total: { $apply: total => total - 1 },
       });
     }
+
     case 'MOBILE_CHANGE_CALENDAR_NOT_SCHEDULED_TOTAL': {
       return { ...state, total: action.total };
     }
+
     default:
       return state;
   }
@@ -405,6 +410,15 @@ export function printList(state = [], action) {
   switch (action.type) {
     case 'MOBILE_WORKSHEET_UPDATE_PRINT_LIST':
       return action.printList;
+    default:
+      return state;
+  }
+}
+
+export function buttonsCheckStatus(state = {}, action) {
+  switch (action.type) {
+    case 'MOBILE_UPDATE_BUTTONS_CHECK_STATUS':
+      return action.buttonsCheckStatus;
     default:
       return state;
   }

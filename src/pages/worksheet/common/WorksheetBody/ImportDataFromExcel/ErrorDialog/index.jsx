@@ -5,6 +5,7 @@ import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { Dialog, Icon, ScrollView } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
+import worksheetApi from 'src/api/worksheet';
 import WorksheetItem from 'src/pages/worksheet/components/DialogImportExcelCreate/SetImportExcelCreateWorksheetOrApp/WorksheetItem';
 import './index.less';
 
@@ -12,6 +13,7 @@ class ErrorDialog extends Component {
   static propTypes = {
     fileKey: PropTypes.string,
     isBatch: PropTypes.bool,
+    isAttachment: PropTypes.bool,
   };
 
   constructor(props) {
@@ -27,6 +29,8 @@ class ErrorDialog extends Component {
   componentDidMount() {
     if (this.props.isBatch) {
       this.getBatchErrorLog();
+    } else if (this.props.isAttachment) {
+      this.getAttachmentErrorLog();
     } else {
       this.getSuccess();
     }
@@ -51,6 +55,7 @@ class ErrorDialog extends Component {
         });
       });
   }
+
   getBatchErrorLog = () => {
     const { fileKey } = this.props;
     const requestData = { randomKey: fileKey };
@@ -80,6 +85,14 @@ class ErrorDialog extends Component {
       });
   };
 
+  getAttachmentErrorLog = () => {
+    const { fileKey } = this.props;
+
+    worksheetApi.getImportByAttachmentsLog({ randomKey: fileKey }).then(res => {
+      res && this.setState({ complete: true, data: res });
+    });
+  };
+
   renderTitle = () => {
     const { isBatch } = this.props;
     const { currentSheetInfo = {} } = this.state;
@@ -88,9 +101,11 @@ class ErrorDialog extends Component {
       : _.find(this.state.data, it => it.worksheetId === currentSheetInfo.worksheetId) || {};
     const data = isBatch ? temp : this.state.data;
     const { addCount, errorCount, repeatCount, skipCount, updateCount, repeated } = data;
+
     const formatNum = num => {
       return num.toString().replace(/(\d{1,3})(?=(?:\d{3})+$)/g, '$1,');
     };
+
     const aCount = addCount;
     const eCount = errorCount;
     const rCount = repeatCount;
@@ -132,14 +147,47 @@ class ErrorDialog extends Component {
           }}
           disabled={true}
         />
-        {this.renderErroContent(temp.excelLogs)}
+        {this.renderErrorContent(temp.excelLogs)}
       </div>
     );
   };
 
-  renderErroContent = (data = []) => {
-    const { fileKey, isBatch } = this.props;
-    const { currentSheetInfo } = this.state;
+  renderErrorContent = (errorLogs = []) => {
+    const { fileKey, isBatch, isAttachment } = this.props;
+    const { currentSheetInfo, data } = this.state;
+    const { createRowCount, updateRowCount, failAttachment, logs = [] } = data;
+
+    if (isAttachment) {
+      const onDownload = () => {
+        worksheetApi.downImportByAttachmentsLog({ randomKey: fileKey }).then(res => {
+          res && window.open(res);
+        });
+      };
+
+      return (
+        <Fragment>
+          <div className="flexRow justifyContentBetween">
+            <div>
+              {_l('新增%0行记录，更新%1行记录，其中%2个附件导入失败', createRowCount, updateRowCount, failAttachment)}
+            </div>
+            <div className="ThemeColor3 ThemeHoverColor2 pointer" onClick={onDownload}>
+              {_l('下载错误报告')}
+            </div>
+          </div>
+          <ScrollView className="importErrorBox flex mTop15">
+            {logs.map((item, index) => {
+              return (
+                <div key={index} className="mBottom10 pLeft12 pRight12">
+                  <span className="Bold mRight8 textPrimary">{item.fileName}</span>
+                  <span>{item.errorMessage}</span>
+                </div>
+              );
+            })}
+          </ScrollView>
+        </Fragment>
+      );
+    }
+
     return (
       <Fragment>
         <div className={cx('flexRow', { pTop15: isBatch })}>
@@ -164,7 +212,7 @@ class ErrorDialog extends Component {
           </a>
         </div>
         <ScrollView className="importErrorBox flex mTop15">
-          {data.map((item, index) => {
+          {errorLogs.map((item, index) => {
             return (
               <div key={index} className="mBottom10 pLeft12 pRight12">
                 <span className={cx('mRight5', item.logLvl !== 1 ? 'Red' : 'textTertiary')}>
@@ -211,14 +259,14 @@ class ErrorDialog extends Component {
         noFooter={true}
         anim={false}
       >
-        <div className="flexColumn h100">{this.renderErroContent(data.excelLogs)}</div>
+        <div className="flexColumn h100">{this.renderErrorContent(data.excelLogs)}</div>
       </Dialog.confirm>
     );
   }
 }
 
-export default ({ fileKey, isBatch }) => {
+export default ({ fileKey, isBatch, isAttachment }) => {
   const root = createRoot(document.createElement('div'));
 
-  root.render(<ErrorDialog fileKey={fileKey} isBatch={isBatch} />);
+  root.render(<ErrorDialog fileKey={fileKey} isBatch={isBatch} isAttachment={isAttachment} />);
 };

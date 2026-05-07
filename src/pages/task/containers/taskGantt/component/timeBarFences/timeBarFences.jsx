@@ -13,6 +13,7 @@ export default class TimeBarFences extends Component {
 
   componentDidMount() {
     const scrollLeft = this.getTimePosition();
+
     // 今天如何在视图上 视图进入默认今天靠左
     if (scrollLeft <= $('.timeBarContainer .timeBarBox').width()) {
       $('.timeBarContainer').scrollLeft(scrollLeft - 200);

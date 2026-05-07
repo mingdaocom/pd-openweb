@@ -17,6 +17,7 @@ export default class TextareaBox extends Component {
   }
   componentWillReceiveProps(newProps) {
     const { value } = this.state;
+
     // 表情 & @ 的更新
     if (newProps.value !== value) {
       this.setState({
@@ -38,6 +39,7 @@ export default class TextareaBox extends Component {
         } else {
           value.trim() && this.props.onSendMsg(value);
         }
+
         event.preventDefault();
       } else {
         const pos = getCaretPosition(event.target);
@@ -53,6 +55,7 @@ export default class TextareaBox extends Component {
           event.preventDefault();
         }
       }
+
       return false;
     }
   }
@@ -68,6 +71,7 @@ export default class TextareaBox extends Component {
       this.lastHeight = height;
       utils.scrollEnd(session.id);
     }
+
     this.props.onChange(value || $(this.textareaWrapper).find('textarea').val());
   }
   handleKeyUp(event) {

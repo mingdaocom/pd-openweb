@@ -40,12 +40,15 @@ export default function QuickArrange({ widgets, setWidgets, status }) {
     if (activeColumn !== columnNumber) {
       setActive(columnNumber);
     }
+
     const flattenWidgets = flatten(widgets);
+
     // 1列排列
     if (columnNumber === 1) {
       setWidgets(flattenWidgets.map(item => [{ ...item, size: WHOLE_SIZE }]));
       return;
     }
+
     // 多列排列
     const nextWidgets = flattenWidgets.reduce((widgetList, widget) => {
       const lastRow = last(widgetList);
@@ -58,6 +61,7 @@ export default function QuickArrange({ widgets, setWidgets, status }) {
       if (isEmpty(lastRow) || isFullLineControl(widget) || isFullLineControl(head(lastRow))) {
         return update(widgetList, { $push: [[widget]] });
       }
+
       // 如果最后一行还有空位则添加控件 否则另起一行
       if (lastRow.length < columnNumber) {
         return update(widgetList, {
@@ -69,6 +73,7 @@ export default function QuickArrange({ widgets, setWidgets, status }) {
           },
         });
       }
+
       return update(widgetList, { $push: [[widget]] });
     }, []);
 
@@ -79,6 +84,7 @@ export default function QuickArrange({ widgets, setWidgets, status }) {
           if (isHaveGap(row, item)) {
             return { ...item, size: WHOLE_SIZE / columnNumber };
           }
+
           return item;
         }),
       );

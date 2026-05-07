@@ -32,6 +32,7 @@ const SideBarIcon = styled(IconBtn)`
 `;
 
 let favCom = null;
+
 export default function InfoHeader(props) {
   const {
     isCharge,
@@ -116,6 +117,7 @@ export default function InfoHeader(props) {
     if (!isFunction(setModalRightComp)) {
       return;
     }
+
     if (aiActionActive) {
       import('src/components/Mingo/modules/AiActionChatBot').then(res => {
         setModalRightComp(
@@ -143,11 +145,14 @@ export default function InfoHeader(props) {
     if (sideVisible || !discussVisible || portalNotHasDiscuss) {
       return;
     }
+
     let entityType = 0;
+
     //外部用户且未开启讨论 不能内部讨论
     if (md.global.Account.isPortal && props.allowExAccountDiscuss && props.exAccountDiscussEnum === 1) {
       entityType = 2;
     }
+
     discussionAjax
       .getDiscussionsCount({
         pageIndex: 1,
@@ -161,6 +166,7 @@ export default function InfoHeader(props) {
         updateDiscussCount(data.data);
       });
   }
+
   useEffect(() => {
     rowId.current = recordId;
     if (!isOpenNewAddedRecord) {
@@ -183,6 +189,7 @@ export default function InfoHeader(props) {
           setWorksheetInfo(data);
         });
     }
+
     return () => {
       emitter.removeListener('RELOAD_RECORD_INFO_DISCUSS', loadDiscussionsCount);
     };
@@ -240,12 +247,15 @@ export default function InfoHeader(props) {
       alert(_l('预览模式下，不能操作'), 3);
       return;
     }
+
     if (loading || _.get(props, 'recordinfo.isFavorite') === undefined) {
       return;
     }
+
     if (favCom) {
       favCom.abort();
     }
+
     if (!isFavorite) {
       favCom = favoriteApi.addFavorite({
         worksheetId,
@@ -260,6 +270,7 @@ export default function InfoHeader(props) {
         viewId,
       });
     }
+
     favCom.then(res => {
       setIsFavorite(!isFavorite);
       favCom = null;

@@ -17,7 +17,7 @@ export const Wrap = styled.div`
     bottom: 0;
     width: 400px;
     background: var(--color-background-primary);
-    box-shadow: 0px 8px 36px 0px rgba(0, 0, 0, 0.24);
+    box-shadow: var(--shadow-md);
     right: 0;
     z-index: 12;
     .ant-radio-checked::after {

@@ -40,6 +40,7 @@ export const getRealData = (control, controls, allControls, isAdd) => {
     //新增
     if (isAdd) {
       let parent = controls.find(o => o.controlId === control.sectionId);
+
       //已存在父级
       if (parent) {
         return controls.concat([control]);
@@ -49,6 +50,7 @@ export const getRealData = (control, controls, allControls, isAdd) => {
     } else {
       //删减
       let childs = controls.filter(o => o.sectionId === control.sectionId);
+
       //只剩唯一子集，则包括父级一起删除
       if (childs.length <= 1) {
         return controls.filter(o => o.controlId !== control.controlId && o.controlId !== control.sectionId);
@@ -59,6 +61,7 @@ export const getRealData = (control, controls, allControls, isAdd) => {
   } else {
     //不是子集
     let childs = allControls.filter(o => (o.sectionId ? o.sectionId === control.controlId : false));
+
     if (isAdd) {
       return controls.concat([control, ...childs]);
     } else {

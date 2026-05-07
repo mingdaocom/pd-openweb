@@ -49,7 +49,7 @@ const DisplayItemWrap = styled.div`
     box-shadow: 0 0 0 2px rgba(33, 150, 243, 1);
   }
   &.isBatchActive {
-    box-shadow: 0 0 0 2px var(--color-white) !important;
+    box-shadow: 0 0 0 2px var(--batch-active-border) !important;
   }
   &.isDragging {
     opacity: 0.4;
@@ -170,6 +170,7 @@ export default function DisplayItem(props) {
           });
         // 先移除需要批量拖拽到元素
         const filterOldWidgets = batchRemoveItems(widgets, filterBatchWidgets);
+
         // 批量拖拽走批量新增逻辑，定位新的activeWidget进行批量操作
         // activePath[0]小于0，拖拽到头部
         if (_.get(activePath, '0') < 0) {
@@ -191,11 +192,13 @@ export default function DisplayItem(props) {
             },
           );
         }
+
         setBatchDrag(false);
         return;
       }
 
       const newData = { ...data, sectionId };
+
       // 插入新行
       if (mode === DRAG_MODE.INSERT_NEW_LINE) {
         // 标签页表格拖拽到普通控件中，更改showtype
@@ -231,6 +234,7 @@ export default function DisplayItem(props) {
       if (data.sectionId && (_.includes(['SECTION'], item.enumType) || notInsetSectionTab(item.data))) {
         return false;
       }
+
       // 批量拖拽，当前拖拽物在批量选中区域内
       if (batchDrag && _.find(batchActive, i => i.controlId === controlId)) return false;
       return true;
@@ -269,13 +273,16 @@ export default function DisplayItem(props) {
             if (location !== nextLocation) {
               setLocation(nextLocation);
             }
+
             return;
           }
+
           if (clientY - top < height / 2) nextLocation = 'top';
           if (clientY - top > height / 2) nextLocation = 'bottom';
           if (location !== nextLocation) {
             setLocation(nextLocation);
           }
+
           return;
         }
 
@@ -285,6 +292,7 @@ export default function DisplayItem(props) {
           if (clientX - left < width / 2) nextLocation = 'left';
           if (clientX - left > width / 2) nextLocation = 'right';
         }
+
         if (clientY - top < DRAG_DISTANCE.VERTICAL) nextLocation = 'top';
         if (clientY - bottom > DRAG_DISTANCE.VERTICAL) nextLocation = 'bottom';
         if (location !== nextLocation) {
@@ -360,8 +368,10 @@ export default function DisplayItem(props) {
   const handleOperate = (mode, option = {}) => {
     const deleteWidgetById = ({ widgets, controlId, path }) => {
       const [row, col] = path;
+
       if (activeWidget.controlId === controlId) {
         let nextActiveWidget = {};
+
         // 如果删除的是最后一个控件
         if (row === widgets.length - 1 && col === widgets[row].length - 1) {
           nextActiveWidget = col > 0 ? get(widgets, [row, col - 1]) : last(widgets[row - 1]);
@@ -375,6 +385,7 @@ export default function DisplayItem(props) {
                 : ''
               : get(widgets, [row, col + 1]);
         }
+
         settingPanelFixed && setActiveWidget(nextActiveWidget);
       }
 
@@ -382,6 +393,7 @@ export default function DisplayItem(props) {
       if (_.get(widgets[row], 'length') < 2) {
         return update(widgets, { $splice: [[row, 1]] });
       }
+
       // 删掉当前控件 并重新设置其他控件size
       return update(widgets, {
         [row]: {
@@ -400,6 +412,7 @@ export default function DisplayItem(props) {
       batchCopyWidgets(props, [data]);
       return;
     }
+
     if (mode === 'setAsTitle') {
       // 将其他标题控件清空
       const newWidgets = resetWidgets(widgets, { attribute: 0 });
@@ -408,6 +421,7 @@ export default function DisplayItem(props) {
       if (!_.includes(SUPPORT_RELATE_SEARCH, data.type) && titlestorage !== '0') {
         setStyleInfo({ info: { ...styleInfo.info, titlestorage: '0' } });
       }
+
       return;
     }
 
@@ -415,15 +429,18 @@ export default function DisplayItem(props) {
       if (!settingPanelFixed && settingPanelVisible && controlId === activeWidget.controlId) {
         setPanelVisible({ settingVisible: false });
       }
+
       // 如果是关联本表 则要删除对应的控件
       if (type === 29 && dataSource === globalSheetId) {
         const nextWidgets = deleteWidgetById({ widgets, controlId, path });
         const currentRelatePath = getPathById(nextWidgets, sourceControlId);
+
         // 如果父子关联控件找不到 则直接删除当前控件
         if (!Array.isArray(currentRelatePath) || currentRelatePath.length < 1) {
           setWidgets(nextWidgets);
           return;
         }
+
         setWidgets(
           deleteWidgetById({
             widgets: nextWidgets,
@@ -438,12 +455,15 @@ export default function DisplayItem(props) {
         deleteSection({ widgets, data }, props);
         return;
       }
+
       setWidgets(deleteWidgetById({ widgets, controlId, path }));
       return;
     }
+
     if (mode === 'hide') {
       handleHide(controlId);
     }
+
     if (mode === 'batch') {
       // 批量操作连选暂不支持选标签页本身
       if (data.type === 52) return;
@@ -462,6 +482,7 @@ export default function DisplayItem(props) {
         setActiveWidget({});
         setBatchActive([data]);
       }
+
       setStyleInfo({ activeStatus: false });
     }
 
@@ -489,12 +510,14 @@ export default function DisplayItem(props) {
         e.stopPropagation();
 
         const { shiftKey } = e;
+
         if (batchActive.length > 0) {
           // 区域连选
           if (shiftKey) {
             batchShiftWidgets(props);
             return;
           }
+
           handleOperate('batch');
           return;
         }

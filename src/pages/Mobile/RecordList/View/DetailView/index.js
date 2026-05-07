@@ -51,12 +51,15 @@ class DetailView extends Component {
     if (needClickToSearch && _.isEmpty(quickFilter)) {
       return <WithoutRows text={_l('执行查询后显示结果')} />;
     }
+
     if (filters.keyWords) {
       return <WithoutRows text={_l('没有搜索结果')} />;
     }
+
     if (quickFilter.length || !_.isEmpty(activeSavedFilter)) {
       return <WithoutRows text={_l('没有符合条件的记录')} />;
     }
+
     return (
       <Fragment>
         <WithoutRows text={_l('此视图下暂无记录')} onRefresh={handlePullToRefresh} />

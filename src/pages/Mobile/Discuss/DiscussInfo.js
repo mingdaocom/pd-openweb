@@ -25,16 +25,20 @@ const tabs = md.global.Account.isPortal
 
 const getGroupId = (appSectionDetail, worksheetId) => {
   let groupId = null;
+
   for (let i = 0; i < appSectionDetail.length; i++) {
     let section = appSectionDetail[i];
+
     for (let j = 0; j < section.workSheetInfo.length; j++) {
       if (section.workSheetInfo[j].workSheetId === worksheetId) {
         groupId = section.appSectionId;
         break;
       }
     }
+
     if (groupId) break;
   }
+
   return groupId;
 };
 
@@ -56,9 +60,11 @@ class Discuss extends Component {
   }
   componentDidMount() {
     const { params } = this.props.match;
+
     if (_.isEmpty(params.rowId)) {
       this.getGroupInfo();
     }
+
     this.getPortalConfigSet();
     worksheetAjax
       .getSwitchPermit({
@@ -130,8 +136,10 @@ class Discuss extends Component {
         formData = formData.filter(o => (o.advancedSetting || {}).usertype !== '2');
       }
     }
+
     formData.map(o => {
       let d;
+
       try {
         d = JSON.parse(o.value).map(item => {
           return Object.assign({}, item, { job: o.controlName });
@@ -140,6 +148,7 @@ class Discuss extends Component {
         console.log(err);
         d = [];
       }
+
       data = data.concat(d);
     });
     let accountsInMessage = [];
@@ -175,6 +184,7 @@ class Discuss extends Component {
         hash[current.accountId] = true; // 标记已存在
         result.push(current); // 添加到结果数组
       }
+
       return result;
     }, []);
 
@@ -245,9 +255,11 @@ class Discuss extends Component {
     const recordLogSwitch = isOpenPermit(permitList.recordLogSwitch, switchPermit, params.viewId);
     // 外部用户且未开启讨论 不能内部讨论
     const entityType = md.global.Account.isPortal && allowExAccountDiscuss && exAccountDiscussEnum === 1 ? 2 : 0;
+
     if ((md.global.Account.isPortal && loading) || _.isEmpty(switchPermit)) {
       return <LoadDiv />;
     }
+
     const newTabs = tabs.filter(item => {
       if (item.type === 1) return recordDiscussSwitch;
       if (item.type === 3) return recordLogSwitch;
@@ -325,6 +337,7 @@ class Discuss extends Component {
                 alert(_l('预览模式下，不能操作'), 3);
                 return;
               }
+
               this.setState({ replyVisible: true, discussionInfo: firstTemporaryDiscuss });
             }}
           >
@@ -362,6 +375,7 @@ class Discuss extends Component {
           <Back
             onClick={() => {
               const { groupId } = this.state;
+
               if (rowId) {
                 window.mobileNavigateTo(
                   `/mobile/record/${params.appId}/${params.worksheetId}/${params.viewId}/${rowId}`,

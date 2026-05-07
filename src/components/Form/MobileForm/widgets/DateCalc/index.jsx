@@ -25,6 +25,7 @@ const DateCalc = props => {
       const suffix = prefix ? '' : advancedSetting.suffix || UNIT_TO_TEXT[unit] || '';
       const hideUnit = !!prefix || !!suffix;
       let formatValue = toFixed(value, dot);
+
       if (advancedSetting.dotformat === '1') {
         formatValue = formatStrZero(formatValue);
       }
@@ -32,6 +33,7 @@ const DateCalc = props => {
       content = hideUnit ? [prefix, formatValue, suffix].filter(Boolean).join(' ') : formatValue;
     } else {
       const showFormat = getShowFormat({ advancedSetting: { ...advancedSetting, showtype: unit || '1' } });
+
       if (includes(showFormat, ':')) {
         content = moment(value).year()
           ? moment(dateConvertToUserZone(moment(moment(value), showFormat))).format(showFormat)

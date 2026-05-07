@@ -31,6 +31,7 @@
 }
 
 .workflowSettings {
+  font-size: 13px;
   .workflowDetail {
     width: 800px;
     background: var(--color-background-card);
@@ -133,7 +134,7 @@
         }
         &:focus {
           background: var(--color-white) !important;
-          color: var(--color-text-primary);
+          color: var(--color-black);
           + .icon-delete {
             display: none;
           }
@@ -176,7 +177,7 @@
             color: var(--color-warning);
           }
           &.gray {
-            color: var(--color-primary);
+            color: #4c7d9e;
           }
           &.green {
             color: var(--color-task);
@@ -309,7 +310,7 @@
             border-radius: 3px;
             height: 24px;
             padding: 6px 5px 6px 10px;
-            background-color: var(--color-background-secondary);
+            background-color: var(--color-background-tertiary);
             border: 1px solid var(--color-border-primary);
             &.error {
               background-color: var(--color-error-bg);
@@ -413,12 +414,12 @@
           border-style: solid;
           border-radius: 4px;
           padding: 0 20px;
-          background: var(--color-background-secondary);
+          background: var(--color-background-primary);
           cursor: pointer;
           margin-right: 10px;
           box-sizing: border-box;
           &:not(:hover) {
-            border-color: var(--color-border-primary) !important;
+            border-color: var(--color-border-secondary) !important;
           }
         }
       }
@@ -455,13 +456,13 @@
         border-color: var(--color-border-primary) !important;
       }
       &.actionDisabled {
-        background: var(--color-background-secondary);
+        background: var(--color-background-disabled);
         border-color: var(--color-border-primary) !important;
       }
       &.actionCustomBox {
         position: relative;
         padding: 0 30px 0 10px;
-        background: var(--color-background-secondary);
+        background: var(--color-background-disabled);
       }
       &.actionCustomBoxError {
         background: var(--color-warning-bg);
@@ -533,7 +534,7 @@
           border-radius: 26px;
           height: 28px;
           padding: 6px 12px 6px 10px;
-          background-color: var(--color-background-secondary);
+          background-color: var(--color-background-tertiary);
           border: 1px solid var(--color-border-primary);
           .tag {
             margin-right: 12px;
@@ -571,7 +572,7 @@
     }
     .workflowDetailDesc {
       padding: 21px 16px;
-      background: var(--color-background-secondary);
+      background: var(--color-background-tertiary);
       border-radius: 3px;
       word-break: break-all;
       &.subProcessDesc {
@@ -883,7 +884,6 @@
   .flowTplBox {
     box-sizing: border-box;
     border: 1px solid var(--color-border-primary);
-    overflow: hidden;
     border-radius: 4px;
     .flowTplHeader {
       height: 40px;
@@ -969,7 +969,7 @@
     padding: 0 21px;
     border-radius: 3px;
     border: 1px solid var(--color-border-primary);
-    background: var(--color-background-disabled);
+    background: var(--color-background-tertiary);
     color: var(--color-text-secondary);
     &.disabled {
       color: var(--color-text-disabled);
@@ -1077,7 +1077,7 @@
     background: var(--color-error-bg) !important;
   }
   .flowDropdownOnlyIcon {
-    background: var(--color-background-primary);
+    background: var(--color-background-input);
     position: absolute;
     top: 1px;
     right: 37px;

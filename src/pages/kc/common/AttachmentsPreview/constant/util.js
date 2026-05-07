@@ -17,12 +17,15 @@ function canEditFileName(attachment, options) {
 
 function showSaveToKnowlege(attachment, options) {
   const { hideFunctions } = options;
+
   if (hideFunctions && hideFunctions.indexOf('saveToKnowlege') > -1) {
     return false;
   }
+
   if (attachment.previewAttachmentType === 'KC' && !attachment.sourceNode.isNew) {
     return false;
   }
+
   return true;
 }
 
@@ -32,6 +35,7 @@ function canSaveToKnowlege(attachment) {
 
 function canDownload(attachment) {
   let result;
+
   if (attachment.previewAttachmentType === 'KC') {
     result = attachment.sourceNode.canDownload;
   } else if (attachment.previewAttachmentType === 'QINIU') {
@@ -43,62 +47,78 @@ function canDownload(attachment) {
       previewType === PREVIEW_TYPE.PICTURE ||
       sourceNode.accountId === md.global.Account.accountId;
   }
+
   return result;
 }
 
 function showKcVersionPanel(attachment, options) {
   const { hideFunctions } = options;
+
   if (_.get(window, 'shareState.shareId')) {
     return false;
   }
+
   if (hideFunctions && hideFunctions.indexOf('showKcVersionPanel') > -1) {
     return false;
   }
+
   if (!md.global.Account || !md.global.Account.accountId) {
     return false;
   }
+
   if (attachment.previewAttachmentType === 'KC' && attachment.sourceNode.viewType !== NODE_VIEW_TYPE.LINK) {
     return true;
   }
+
   return false;
 }
 
 function showDownload(attachment, options) {
   const { hideFunctions } = options;
+
   if (hideFunctions && hideFunctions.indexOf('download') > -1) {
     return false;
   }
+
   return true;
 }
 
 function canOfficeEdit(attachment, options) {
   const { hideFunctions } = options;
+
   if (!isOffice(`.${attachment.ext}`)) {
     return;
   }
+
   if (hideFunctions && hideFunctions.indexOf('officeEdit') > -1) {
     return false;
   }
+
   if (attachment.previewAttachmentType === 'KC') {
     return attachment.sourceNode.canEdit;
   } else if (attachment.previewAttachmentType === 'COMMON') {
     return attachment.sourceNode.accountId === md.global.Account.accountId;
   }
+
   return false;
 }
 
 function showShare(attachment, options) {
   const { hideFunctions } = options;
+
   if (hideFunctions && hideFunctions.indexOf('share') > -1) {
     return false;
   }
+
   if (!md.global.Account || !md.global.Account.accountId) {
     return false;
   }
+
   // 本地附件链接文件
   if (attachment.previewAttachmentType === 'COMMON' && attachment.sourceNode.viewType === 5) {
     return false;
   }
+
   return true;
 }
 
@@ -119,6 +139,7 @@ export function getPermission(...args) {
 export function getDownloadUrl(attachment, extra) {
   let result;
   const logExtend = extra && extra.logExtend ? '&' + qs.stringify(extra.logExtend) : '';
+
   if (attachment.previewAttachmentType === 'KC') {
     if (extra && extra.shareFolderId) {
       result = attachment.sourceNode.downloadUrl + '&shareFolderId=' + extra.shareFolderId;
@@ -129,9 +150,11 @@ export function getDownloadUrl(attachment, extra) {
     const link = document.createElement('a');
     link.href = attachment.sourceNode.path;
     let attachmentsName = attachment.name + (attachment.ext ? '.' + attachment.ext : '');
+
     if (navigator.appName === 'Microsoft Internet Explorer') {
       attachmentsName = escape(attachmentsName);
     }
+
     result =
       md.global.Config.AjaxApiUrl +
       'file/downChatFile?domain=' +
@@ -152,6 +175,7 @@ export function getDownloadUrl(attachment, extra) {
       return attachment.sourceNode.downloadUrl ? downloadFile(attachment.sourceNode.downloadUrl + logExtend) : '';
     }
   }
+
   return result ? downloadFile(result + logExtend) : '';
 }
 
@@ -165,17 +189,20 @@ export function getDownloadUrl(attachment, extra) {
  */
 export function splitFileName(fullname) {
   let name;
+
   if (fullname[0] === '.') {
     name = '.' + fullname.slice(1).match(/.*(?=\.)|.*/)[0];
   } else {
     name = fullname.match(/.*(?=\.)|.*/)[0];
   }
+
   const ext = fullname.replace(name, '').slice(1);
   return {
     name,
     ext,
   };
 }
+
 /**
  * 去掉url search和hash参数
  * @param  string url
@@ -185,9 +212,11 @@ export function getUrlNoSearch(url) {
   if (url.indexOf('?') > -1) {
     url = url.slice(0, url.indexOf('?'));
   }
+
   if (url.indexOf('#') > -1) {
     url = url.slice(0, url.indexOf('#'));
   }
+
   return url;
 }
 

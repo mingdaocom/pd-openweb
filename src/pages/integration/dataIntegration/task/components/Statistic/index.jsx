@@ -15,7 +15,7 @@ const StatisticContent = styled.div`
       align-items: center;
       height: 88px;
       padding: 0 24px;
-      background: var(--color-background-secondary);
+      background: var(--color-background-tertiary);
       border-radius: 4px;
 
       .titleText {
@@ -50,6 +50,7 @@ const StatisticContent = styled.div`
 `;
 
 let ajaxPromise;
+
 export default ({ projectId, flag }) => {
   const [statisticData, setStatisticData] = useState({});
 

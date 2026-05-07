@@ -45,9 +45,11 @@ export default function Score({ data, onChange }) {
         colors: currentColors,
       }),
     };
+
     if (maxVal) {
       tempData.max = maxVal;
     }
+
     setColors(currentColors);
     onChange(handleAdvancedSettingChange(data, tempData));
   };

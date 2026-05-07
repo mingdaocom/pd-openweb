@@ -93,9 +93,11 @@ const InputWrap = styled.div`
 const isVisible = control => {
   let { fieldPermission = '111' } = control;
   const [visible] = fieldPermission.split('');
+
   if (visible === '0') {
     return false;
   }
+
   return true;
 };
 
@@ -125,6 +127,7 @@ export default function HierarchyRelateMultiSheet({ worksheetInfo, viewControls,
     if (addRelateRef.current) {
       const rect = addRelateRef.current.getBoundingClientRect();
       const distanceToBottom = window.innerHeight - rect.bottom;
+
       if (distanceToBottom < 300) {
         return 'topLeft';
       } else {
@@ -149,6 +152,7 @@ export default function HierarchyRelateMultiSheet({ worksheetInfo, viewControls,
         if (_.get(data, 'template.controls')) {
           data.template.controls = replaceControlsTranslateInfo(data.appId, worksheetId, data.template.controls);
         }
+
         setControls({
           availableControls: getSelectableControls(data),
         });
@@ -157,6 +161,7 @@ export default function HierarchyRelateMultiSheet({ worksheetInfo, viewControls,
         setControls({ controlLoading: false });
       });
   };
+
   const addViewControl = item => {
     worksheetAjax.getWorksheetInfo({ worksheetId: item.dataSource, getTemplate: true }).then(data => {
       const controls = data.template.controls;
@@ -230,6 +235,7 @@ export default function HierarchyRelateMultiSheet({ worksheetInfo, viewControls,
       </Menu>
     );
   };
+
   return (
     <ControlsWrap>
       <ul>
@@ -273,6 +279,7 @@ export default function HierarchyRelateMultiSheet({ worksheetInfo, viewControls,
                     } else {
                       updateViewControls(viewControls.slice(0, index));
                     }
+
                     setIndex(-1);
                   }}
                 >

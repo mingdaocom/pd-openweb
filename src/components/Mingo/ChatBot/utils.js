@@ -1,5 +1,5 @@
 import localforage from 'localforage';
-import { find, get } from 'lodash';
+import { find, get, isArray } from 'lodash';
 import mingoAjax from 'src/api/mingo';
 import { getMimeTypeByExt } from 'src/utils/common';
 import { FAST_GPT_CONFIG } from 'src/utils/enum';
@@ -8,14 +8,17 @@ export async function insertChatHistory(chatId, title) {
   if (!chatId || !title) {
     return;
   }
+
   const newHistory = { chatId, title, updateTime: new Date().getTime() };
   const notLogin = !md?.global?.Account?.accountId;
+
   if (notLogin) {
     const histories = await localforage.getItem('mingo-chat-histories');
     const newHistories = [...(histories || []), newHistory];
     await localforage.setItem('mingo-chat-histories', newHistories);
     return newHistories;
   }
+
   newHistory.updateTime = new Date(newHistory.updateTime).toISOString();
   return mingoAjax.saveRecord(newHistory);
 }
@@ -24,13 +27,16 @@ export async function updateChatTitle(chatId, title) {
   if (!chatId || !title) {
     return;
   }
+
   const notLogin = !md?.global?.Account?.accountId;
+
   if (notLogin) {
     const histories = await localforage.getItem('mingo-chat-histories');
     const newHistories = (histories || []).map(item => (item.chatId === chatId ? { ...item, title } : item));
     await localforage.setItem('mingo-chat-histories', newHistories);
     return newHistories;
   }
+
   return mingoAjax.saveRecord({
     chatId,
     title,
@@ -41,13 +47,16 @@ export async function deleteChat(chatId) {
   if (!chatId) {
     return;
   }
+
   const notLogin = !md?.global?.Account?.accountId;
+
   if (notLogin) {
     const histories = await localforage.getItem('mingo-chat-histories');
     const newHistories = (histories || []).filter(item => item.chatId !== chatId);
     await localforage.setItem('mingo-chat-histories', newHistories);
     return newHistories;
   }
+
   return mingoAjax.deleteRecord({
     chatId,
   });
@@ -57,24 +66,29 @@ export async function updateChatHistory(chatId, { title, updateTime } = {}) {
   if (!chatId) {
     return;
   }
+
   const newHistory = { chatId, title, updateTime: new Date(updateTime).getTime() };
   const notLogin = !md?.global?.Account?.accountId;
+
   if (notLogin) {
     const histories = await localforage.getItem('mingo-chat-histories');
     const newHistories = (histories || []).map(item => (item.chatId === chatId ? newHistory : item));
     await localforage.setItem('mingo-chat-histories', newHistories);
     return newHistories;
   }
+
   newHistory.updateTime = new Date(newHistory.updateTime).toISOString();
   return mingoAjax.saveRecord(newHistory);
 }
 
 export async function getChatHistories() {
   const notLogin = !md?.global?.Account?.accountId;
+
   if (notLogin) {
     const histories = await localforage.getItem('mingo-chat-histories');
     return (histories || []).sort((a, b) => b.updateTime - a.updateTime);
   }
+
   return mingoAjax.getHistoryRecord({
     pageIndex: 1,
     pageSize: 500,
@@ -175,6 +189,7 @@ export function convertFastGptMessageToOpenAI(message = '') {
   if (typeof message === 'string') {
     return message;
   }
+
   const result = [];
   message.forEach(item => {
     if (item.type === 'text') {
@@ -193,6 +208,7 @@ export function getContentFromMessage(message = '') {
   if (typeof message === 'string') {
     return message;
   }
+
   let result = '';
   message.forEach(item => {
     if (item.type === 'text') {
@@ -273,6 +289,7 @@ function formatMediaToFiles(media) {
         type: getMimeTypeByExt(item.fileExt),
       }));
   }
+
   return media
     .filter(item => !!item)
     .map(item => ({
@@ -295,12 +312,23 @@ function formatImageUrlToFiles(imageUrl) {
 
 export function convertModelMessageToUIMessage(message) {
   const result = { ...message };
+
   if (message.media) {
     result.files = formatMediaToFiles(message.media);
   }
+
   if (find(message.content, item => item.type === 'image_url')) {
-    result.files = formatImageUrlToFiles(message.content.filter(item => item.type === 'image_url'));
+    result.files = [
+      ...(result.files || []),
+      ...formatImageUrlToFiles(message.content.filter(item => item.type === 'image_url')),
+    ];
     result.content = message.content.filter(item => item.type !== 'image_url');
   }
+
+  // 过滤掉 content 中的 file 类型（仅用于请求，不用于显示）
+  if (isArray(result.content)) {
+    result.content = result.content.filter(item => item.type !== 'file');
+  }
+
   return result;
 }

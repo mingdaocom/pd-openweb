@@ -32,6 +32,7 @@ export default class RecordInfo extends Component {
   }
   render() {
     const { row, isCharge, base, worksheetInfo, sheetSwitchPermit, hideRecord, onClose } = this.props;
+
     if (isMobile) {
       return (
         <RecordInfoModal

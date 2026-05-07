@@ -22,13 +22,16 @@ const TimeFormatConfigWrap = styled.div`
     margin-top: 32px;
   }
 `;
+
 export default function TimeFormatConfig({ rule, onOk, onClose }) {
   const [data, setData] = useState(rule.format || 'YYYY-MM-DD hh:mm:ss');
+
   const handleChange = e => {
     const { value } = e.target;
     if (value.trim().length > 32) return;
     setData(value);
   };
+
   return (
     <Dialog style={{ width: '480px' }} visible title={_l('自定义日期格式')} footer={null} onCancel={onClose}>
       <TimeFormatConfigWrap>

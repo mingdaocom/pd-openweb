@@ -24,13 +24,16 @@ export default function (props) {
     onChangeClickData,
     random,
   } = props;
+
   if (!canNew) {
     return '';
   }
+
   const [{ popupVisible }, setState] = useSetState({
     popupVisible: false,
   });
   let date = moment(item.date).format('YYYY-MM-DD');
+
   const addRecordInfo = defaultFormData => {
     const { worksheetId } = base;
     addRecord({
@@ -48,11 +51,13 @@ export default function (props) {
       },
     });
   };
+
   const useViewInfoUpdate = (o, item) => {
     //他表 公式 汇总 作为开始时间，不支持编辑
     if ([30, 31, 38, 53, 37].includes(o.startData.type) || !controlState(o.startData).editable) {
       return alert(_l('当前日期字段不可编辑'), 3);
     }
+
     if (changeData && changeData.rowid) {
       changeEventFn({
         ...item,
@@ -84,6 +89,7 @@ export default function (props) {
       onChangeState({ selectTimeInfo: {} });
     }
   };
+
   const renderPopup = item => {
     const { calendarData = {} } = calendarview;
     const { calendarInfo = [] } = calendarData;
@@ -105,6 +111,7 @@ export default function (props) {
       </WrapChoose>
     );
   };
+
   return (
     <Trigger
       popupVisible={popupVisible === `${date}`}

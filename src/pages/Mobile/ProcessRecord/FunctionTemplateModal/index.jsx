@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { Button, Popup } from 'antd-mobile';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
+import instanceAJAX from 'src/pages/workflow/apiV2/instance';
 
 const Wrap = styled.div`
   .searchWrap {
@@ -26,8 +27,9 @@ const Wrap = styled.div`
     overflow-y: auto;
     padding: 0 10px;
     .opinionItem {
-      padding: 10px 0;
-      border-bottom: 1px solid var(--color-background-secondary);
+      font-size: 17px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--color-border-secondary);
     }
   }
 `;
@@ -37,6 +39,7 @@ class ModalWrap extends Component {
     super(props);
     this.state = {
       searchValue: '',
+      opinionList: props.opinionList || [],
     };
   }
   renderInput() {
@@ -68,9 +71,25 @@ class ModalWrap extends Component {
       </div>
     );
   }
+
+  deleteOpinion = opinion => {
+    const { instanceId, updateOpinionList } = this.props;
+    const { opinionList } = this.state;
+
+    instanceAJAX.removeOperation({ id: instanceId, opinion }).then(res => {
+      if (res) {
+        const list = opinionList.filter(item => item.opinion !== opinion);
+
+        this.setState({ opinionList: list });
+        updateOpinionList(list);
+        alert(_l('删除成功'));
+      }
+    });
+  };
+
   render() {
-    const { visible, onSelect, onClose, onCustom, opinions = [], inputType, opinionList = [] } = this.props;
-    const { searchValue } = this.state;
+    const { visible, onSelect, onClose, onCustom, opinions = [], inputType } = this.props;
+    const { searchValue, opinionList } = this.state;
 
     return (
       <Popup visible={visible} onClose={onClose} className="mobileModal full">
@@ -112,13 +131,20 @@ class ModalWrap extends Component {
                 <Fragment key={index}>
                   {index === 0 && <div className="opinionItem bold Font14">{_l('上次输入')}</div>}
                   <div
-                    className="opinionItem textPrimary"
+                    className="opinionItem textPrimary flexRow alignItemsCenter justifyContentBetween"
                     onClick={() => {
                       onSelect(data.opinion);
                       onClose();
                     }}
                   >
-                    {data.opinion}
+                    <div>{data.opinion}</div>
+                    <i
+                      className="Font20 icon-delete2 textSecondary"
+                      onClick={e => {
+                        e.stopPropagation();
+                        this.deleteOpinion(data.opinion);
+                      }}
+                    />
                   </div>
                 </Fragment>
               ))}

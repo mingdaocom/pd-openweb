@@ -175,18 +175,22 @@ const TitleStyle = props => {
                   },
                   pivotTable,
                 };
+
                 if (!e.target.checked) {
                   const { lines = [] } = pivotTable;
                   const newLines = lines.map((n, index) => {
                     return index ? { ...n, subTotal: false } : n;
                   });
+
                   if (!newLines.filter(n => n.subTotal).length) {
                     param.yaxisList = yaxisList.map(n => {
                       return { ...n, showPercent: 0 };
                     });
                   }
+
                   param.pivotTable.lines = newLines;
                 }
+
                 changeCurrentReport(param, true);
               }}
             >
@@ -205,14 +209,17 @@ const TitleStyle = props => {
               value={textColor}
               onChange={value => {
                 const data = {};
+
                 if (type === 'line') {
                   data.lineTextColor = value;
                 } else {
                   data.columnTextColor = value;
                 }
+
                 if (pivoTableColor) {
                   data.pivoTableColorIndex = pivoTableColorIndex + 1;
                 }
+
                 handleChangePivotTableStyle(data);
               }}
             >
@@ -230,14 +237,17 @@ const TitleStyle = props => {
               value={bgColor}
               onChange={value => {
                 const data = {};
+
                 if (type === 'line') {
                   data.lineBgColor = value;
                 } else {
                   data.columnBgColor = value;
                 }
+
                 if (pivoTableColor) {
                   data.pivoTableColorIndex = pivoTableColorIndex + 1;
                 }
+
                 handleChangePivotTableStyle(data);
               }}
             >

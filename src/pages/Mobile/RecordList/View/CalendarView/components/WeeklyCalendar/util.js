@@ -10,9 +10,11 @@ export const getCurrentWeekDates = (date, weekBegin = 1) => {
   if (diff < 0) diff += 7;
   const startOfWeek = date.clone().subtract(diff, 'days').startOf('day');
   const dates = [];
+
   for (let i = 0; i < 7; i++) {
     dates.push(startOfWeek.clone().add(i, 'days'));
   }
+
   return dates;
 };
 

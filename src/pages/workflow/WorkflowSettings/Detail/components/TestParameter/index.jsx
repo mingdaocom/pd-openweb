@@ -36,12 +36,14 @@ export default ({
   const [isUploadingIndex, setUploadingIndex] = useState('');
   const [auth2Id, setAuth2Id] = useState(authId);
   let pollingTimer = null;
+
   const parseId = key => {
     return key
       .replace(/\$/g, '')
       .split(/([a-zA-Z0-9#]{24,32})-/)
       .filter(item => item);
   };
+
   const getFilterTestMap = useMemo(() => {
     const accountMap = {};
     const source = testArray.filter(key => {
@@ -59,6 +61,7 @@ export default ({
     setTestMap(Object.assign({}, cacheTestMap, accountMap));
     return source;
   }, []);
+
   const renderList = (source, isFile) => {
     return source.map((key, index) => {
       const [nodeId, controlId] = parseId(key);
@@ -104,6 +107,7 @@ export default ({
       );
     });
   };
+
   const renderFile = (key, index) => {
     key = key + '14';
 
@@ -158,6 +162,7 @@ export default ({
       </div>
     );
   };
+
   const getPreviewContent = content => {
     testArray.forEach(key => {
       const [nodeId, controlId] = parseId(key);
@@ -174,6 +179,7 @@ export default ({
       whiteList: Object.assign({}, whiteList, { span: ['style'] }),
     });
   };
+
   const getOpenUrl = callback => {
     Oauth2Ajax.authorize({ id: connectId, debugger: true }, { isIntegration: true }).then(res => {
       window.open(res.oauth2Url, '_blank', 'width=800,height=600');
@@ -181,6 +187,7 @@ export default ({
       pollingCodeFunc(res.state, callback);
     });
   };
+
   const pollingCodeFunc = (state, callback) => {
     let pollingCount = 0;
 

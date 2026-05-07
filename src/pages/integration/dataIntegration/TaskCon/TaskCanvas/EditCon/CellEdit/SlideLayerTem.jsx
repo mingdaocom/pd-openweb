@@ -107,6 +107,7 @@ const WrapCon = styled.div`
     }
   }
 `;
+
 export default function SlideLayerTem(props) {
   const onChangeNodeConfig = options => {
     const { onChangeInfo } = props;
@@ -122,6 +123,7 @@ export default function SlideLayerTem(props) {
       node: nodeData,
     });
   };
+
   const renderTemplate = (fields = [], isAppWorksheet, cb, hideIsNull) => {
     const canCheckFields = fields.filter(o => ![22].includes(o.mdType));
     const hasUnsupportedFields = canCheckFields.length < fields.length; // 是否存在不可选字段
@@ -145,6 +147,7 @@ export default function SlideLayerTem(props) {
                     if ([22].includes(o.mdType)) {
                       return o;
                     }
+
                     return { ...o, isCheck: !isAll };
                   }),
                 });
@@ -340,6 +343,7 @@ export default function SlideLayerTem(props) {
                                 },
                               };
                             }
+
                             return it;
                           }
                         }),
@@ -367,6 +371,7 @@ export default function SlideLayerTem(props) {
     const { node = {}, fieldsBysource = [] } = state;
     const { nodeType = '' } = node;
     const { flowNodes } = flowData;
+
     switch (nodeType) {
       case 'SOURCE_TABLE':
         const isKafka = _.get(node, 'nodeConfig.config.dsType') === 'KAFKA';
@@ -469,6 +474,7 @@ export default function SlideLayerTem(props) {
           });
           return [...field, ...others];
         };
+
         return (
           <WrapCon className={cx('flexColumn')}>
             <div className="name pBottom12 Font16 flexRow alignItemsCenter">
@@ -523,5 +529,6 @@ export default function SlideLayerTem(props) {
         );
     }
   };
+
   return <React.Fragment>{renderCon()}</React.Fragment>;
 }

@@ -45,6 +45,7 @@ const genQrDataurl = function (options) {
       ctx.fillRect(Math.round(col * tileW) + options.gap, Math.round(row * tileH) + options.gap, w, h);
     }
   }
+
   // return just built canvas
   return canvas.toDataURL();
 };

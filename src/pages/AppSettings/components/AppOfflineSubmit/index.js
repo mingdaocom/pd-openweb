@@ -44,6 +44,7 @@ export default function AppOfflineSubmit(props) {
     if (_.includes(offlineItemIds, worksheetId)) {
       return;
     }
+
     appManagementAjax.addOfflineItem({ appId, worksheetId }).then(res => {
       if (res) {
         getOfflineItems();
@@ -62,12 +63,14 @@ export default function AppOfflineSubmit(props) {
       .then(res => {
         if (res) {
           let cloneItems = _.clone(offlineItems);
+
           if (status === 2) {
             cloneItems = cloneItems.filter(v => v.worksheetId !== worksheetId);
           } else {
             const index = _.findIndex(offlineItems, v => v.worksheetId === worksheetId);
             cloneItems[index] = { ...cloneItems[index], status: status === 1 ? 0 : 1 };
           }
+
           setOfflineItems(cloneItems);
         } else {
           alert(_l('操作失败', 2));

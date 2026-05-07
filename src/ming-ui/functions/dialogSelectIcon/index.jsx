@@ -86,6 +86,7 @@ class SelectIcon extends Component {
     const { current } = this.$nameRef;
     const { value = '' } = current || {};
     const { icon, iconColor, navColor } = this.state;
+
     if (value) {
       const lightColor = generate(iconColor)[0];
       this.props.onChange({ icon, iconColor, navColor, lightColor, name: value.trim().slice(0, NAME_MAX_LENGTH) });
@@ -210,10 +211,8 @@ class SelectIcon extends Component {
         width={hideColor || !colorList.length ? 570 : 960}
         title={dialogTitle}
         onCancel={onCancel}
-        okText={_l('关闭')}
         buttonType="ghost"
-        showCancel={false}
-        onOk={onCancel}
+        footer={null}
       >
         <div className={cx('selectIconWrap', className)}>
           {!hideInput && (

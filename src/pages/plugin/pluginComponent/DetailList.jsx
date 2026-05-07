@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import ClipboardButton from 'react-clipboard.js';
+import copy from 'copy-to-clipboard';
 import moment from 'moment';
 import styled from 'styled-components';
 import { Dialog, Icon } from 'ming-ui';
@@ -194,16 +194,17 @@ function SecretKeyDialog(props) {
         <div className="labelText">{_l('密码')}</div>
         <div className="flex flexRow alignItemsCenter">
           <div className="passwordBox">{password}</div>
-          <ClipboardButton
+          <span
             className="pointer textTertiary ThemeHoverColor3 mLeft16"
-            component="span"
-            data-clipboard-text={password}
-            onSuccess={() => alert(_l('复制成功'))}
+            onClick={() => {
+              copy(password);
+              alert(_l('复制成功'));
+            }}
           >
             <Tooltip title={_l('复制')} placement="bottom">
               <Icon icon="content-copy" />
             </Tooltip>
-          </ClipboardButton>
+          </span>
         </div>
       </SecretDetailItem>
 

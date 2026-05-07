@@ -78,12 +78,15 @@ class Detail extends React.Component {
 
   componentDidUpdate(prevProps) {
     let newState;
+
     if (!shallowEqual(this.props.data, prevProps.data)) {
       newState = { isAttribute: true, detailLog: null };
     }
+
     if (this.props.data && this.props.data.position !== prevProps.data.position) {
       _.assign(newState, { readablePosition: '' });
     }
+
     if (newState) {
       this.setState(newState);
       if (_.has(newState, 'readablePosition')) {
@@ -99,6 +102,7 @@ class Detail extends React.Component {
           });
       }
     }
+
     if (prevProps.data.id !== this.props.data.id) {
       this.getShareUrl();
     }
@@ -124,6 +128,7 @@ class Detail extends React.Component {
     if (nextProps.selectAllSize) {
       const { totalFolderCount, totalFileSize } = this.state;
       let { folderCount, fileSize } = this.state;
+
       // 全选状态下  有不选中的项处理
       if (typeof totalFileSize === 'number' && nextProps.selectAllUnchecked) {
         folderCount =
@@ -138,6 +143,7 @@ class Detail extends React.Component {
         this.setState({ folderCount, fileSize });
         return;
       }
+
       service
         .getNodesTotalFolderCountAndFileSize({
           rootType: this.props.rootType,
@@ -174,6 +180,7 @@ class Detail extends React.Component {
   editDownloadable = evt => {
     const isDownloadable = evt.target.checked;
     let item = this.props.data;
+
     if (isDownloadable !== item.isDownloadable && !this.editDownloadablePromise) {
       this.editDownloadablePromise = service
         .updateNode({ id: item.id, isDownloadable })
@@ -181,6 +188,7 @@ class Detail extends React.Component {
           if (!result) {
             throw new Error();
           }
+
           alert(_l('修改成功'));
           item = _.assign({}, item, { isDownloadable });
           this.props.performUpdateItem(item);
@@ -199,6 +207,7 @@ class Detail extends React.Component {
   editEditable = evt => {
     const isEditable = evt.target.checked;
     let item = this.props.data;
+
     if (isEditable !== item.isEditable && !this.editEditablePromise) {
       this.editEditablePromise = service
         .updateNode({ id: item.id, isEditable })
@@ -206,6 +215,7 @@ class Detail extends React.Component {
           if (!result) {
             throw new Error();
           }
+
           alert(_l('修改成功'));
           item = _.assign({}, item, { isEditable });
           this.props.performUpdateItem(item);
@@ -221,9 +231,11 @@ class Detail extends React.Component {
   editNodeAttribute = attrubuteObj => {
     // attrubuteObj = $.extend({}, { isDownloadable , isEditable , visibleType });
     let item = this.props.data;
+
     if (!_.some(attrubuteObj, key => attrubuteObj[key] === item[key])) {
       return;
     }
+
     if (!this.editNodePrimise) {
       this.editNodePrimise = service
         .updateNode(_.assign({ id: item.id }, attrubuteObj))
@@ -231,6 +243,7 @@ class Detail extends React.Component {
           if (!result) {
             throw new Error();
           }
+
           alert(_l('修改成功'));
           item = _.extend({}, item, attrubuteObj);
           this.props.performUpdateItem(item);
@@ -280,6 +293,7 @@ class Detail extends React.Component {
               </li>
             ))
           : undefined;
+
       if (this._isMounted) {
         this.setState({ detailLog });
       }
@@ -292,6 +306,7 @@ class Detail extends React.Component {
    */
   editVisibleType = visibleType => {
     let item = this.props.data;
+
     if (visibleType !== item.visibleType) {
       service
         .updateNode({ id: item.id, visibleType })
@@ -299,6 +314,7 @@ class Detail extends React.Component {
           if (!result) {
             throw new Error();
           }
+
           alert(_l('修改成功'));
           item = _.assign({}, item, { visibleType });
           this.props.performUpdateItem(item);
@@ -370,12 +386,14 @@ class Detail extends React.Component {
         } else {
           return _l('修改了%0的下载设置为：不可下载', typeName + nodeName);
         }
+
       case LOG_TYPE.EDIT:
         if (log.content.isEditable) {
           return _l('修改了%0的编辑设置为：可编辑', typeName + nodeName);
         } else {
           return _l('修改了%0的编辑设置为：不可编辑', typeName + nodeName);
         }
+
       case LOG_TYPE.CHILDADD:
         return _l('添加了%0', childType + childName);
       case LOG_TYPE.CHILDMOVE:
@@ -384,6 +402,7 @@ class Detail extends React.Component {
         } else {
           return _l('移动%0到其他位置', childType + childName);
         }
+
       case LOG_TYPE.CHILDRECYCLED:
         return _l('将%0放入回收站', childType + childName);
       case LOG_TYPE.CHILDDELETED:
@@ -407,10 +426,12 @@ class Detail extends React.Component {
 
   genPreviewLink = (name, versionId, nodeId) => {
     let isOldest;
+
     if (versionId === 'oldest') {
       isOldest = true;
       versionId = undefined;
     }
+
     return (
       <a
         className="ThemeColor3"

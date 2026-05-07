@@ -24,6 +24,7 @@ const b64toBlob = (b64Data, contentType = '', sliceSize = 512) => {
     const slice = byteCharacters.slice(offset, offset + sliceSize);
 
     const byteNumbers = new Array(slice.length);
+
     for (let i = 0; i < slice.length; i++) {
       byteNumbers[i] = slice.charCodeAt(i);
     }
@@ -76,15 +77,18 @@ class ThumbnailGuide extends React.Component {
     const safeLeft = marginLeft + itemWidth;
     const safeRight = marginLeft + safeWidth + 5;
     const itemLeft = this.props.index * itemWidth;
+
     if (listBoxWidth < guideWidth || itemLeft < itemWidth || itemLeft >= listWidth - itemWidth) {
       return;
     }
+
     if (!_.inRange(itemLeft, safeLeft, safeRight)) {
       if (itemLeft < safeLeft) {
         marginLeft = -1 * (itemLeft - itemWidth);
       } else {
         marginLeft = -1 * (itemLeft - (listBoxWidth - itemWidth * 2));
       }
+
       this.setState({
         marginLeft,
       });
@@ -123,6 +127,7 @@ class ThumbnailGuide extends React.Component {
     const { viewUrl = '' } = currentAttachment;
     const fititClass = 'Hand ' + (this.state.fitited ? 'icon-Narrow' : 'icon-enlarge');
     let originalImageUrl;
+
     if (/^data:/.test(viewUrl)) {
       originalImageUrl = URL.createObjectURL(b64toBlob(viewUrl.slice(22), 'image/png'));
     } else {
@@ -131,6 +136,7 @@ class ThumbnailGuide extends React.Component {
           ? viewUrl.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/0')
           : viewUrl;
     }
+
     return (
       <div className={cx('thumbnailGuide', this.props.className)} ref={guide => (this.thumbnailGuide = guide)}>
         <div className="statusBar fle" onClick={this.foldThumbnail}>

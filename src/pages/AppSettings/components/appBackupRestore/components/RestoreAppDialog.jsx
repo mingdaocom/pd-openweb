@@ -95,6 +95,7 @@ export const RestoreContent = props => {
               alert('备份文件已达上限，升级旗舰版可以无限备份', 3);
               return;
             }
+
             setData({ backupCurrentVersion: !checked });
           }}
         />

@@ -62,6 +62,7 @@ const RenderAddressBook = props => {
         case 107:
           // 键盘快捷键
           let ele = $('.keyboardShortcutsDialog');
+
           if (!ele.length) {
             dialogKeyboardShortcuts();
           }
@@ -82,6 +83,7 @@ const RenderAddressBook = props => {
 
   const handleAddressBook = data => {
     const { accountId, groupId, type } = data;
+
     if (accountId) {
       props.addUserSession(accountId, {
         msg: { con: '' },
@@ -89,10 +91,12 @@ const RenderAddressBook = props => {
       });
       return;
     }
+
     if (groupId) {
       props.addGroupSession(groupId);
       return;
     }
+
     if (type === 'file-transfer') {
       const { name } = Constant.FILE_TRANSFER;
       const message = {
@@ -107,6 +111,7 @@ const RenderAddressBook = props => {
         type,
         dtype: type,
       };
+
       switch (type) {
         case 'post':
           message.type = Constant.SESSIONTYPE_POST;
@@ -135,6 +140,7 @@ const RenderAddressBook = props => {
         default:
           break;
       }
+
       socket.Contact.recordAction({
         id: message,
         type: 3,

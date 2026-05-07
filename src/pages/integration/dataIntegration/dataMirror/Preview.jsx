@@ -35,6 +35,7 @@ const Wrap = styled.div`
 `;
 
 let ajaxPromise = null;
+
 export default function Preview(props) {
   const { match = {} } = props;
   let { params } = match;
@@ -55,15 +56,18 @@ export default function Preview(props) {
     if (ajaxPromise) {
       ajaxPromise.abort();
     }
+
     setState({
       loading: true,
     });
     ajaxPromise = dataMirrorAjax.preview({ id });
     ajaxPromise.then(res => {
       const { errorMsgList } = res;
+
       if (errorMsgList) {
         return alert(errorMsgList ? errorMsgList[0] : _l('预览失败，请稍后再试'), 2);
       }
+
       const data = safeParse(res.data, 'array');
       const isNull = data.length <= 1 && Object.keys(data[0] || {}).filter(o => !!_.get(data, `[0][${o}]`)).length <= 0;
       setState({

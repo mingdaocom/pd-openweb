@@ -41,9 +41,11 @@ export default function MdModal(props) {
   const showConfirm = props.onOk || props.okText || props.cancelText;
   const [left, setLeft] = useState(0);
   const [isLarge, setIsLarge] = useState(localStorage.getItem('NEW_RECORD_IS_LARGE') === 'true');
+
   if (allowScale && isLarge) {
     width = window.innerWidth > 1600 ? 1600 : window.innerWidth - 32 * 2;
   }
+
   const defaultProps = {
     footer: null,
   };
@@ -84,12 +86,15 @@ export default function MdModal(props) {
     if (window.dislocateCount > 0 && !document.querySelectorAll('.mdModal').length) {
       window.dislocateCount = 0;
     }
+
     if (dislocate && visible) {
       let newLeft = window.dislocateCount * 10;
       const maxLeft = width < 1600 ? 32 : (window.innerWidth - width) / 2;
+
       if (newLeft > maxLeft) {
         newLeft = maxLeft;
       }
+
       setLeft(newLeft);
       window.dislocateCount = window.dislocateCount + 1;
     }
@@ -102,7 +107,9 @@ export default function MdModal(props) {
         console.log(err);
       }
     }
+
     const id = Math.random() * Math.random();
+
     if (window.closeFns) {
       window.closeindex = (window.closeindex || 0) + 1;
       window.closeFns[id] = {
@@ -112,10 +119,12 @@ export default function MdModal(props) {
         fn: modalProps.onCancel,
       };
     }
+
     return () => {
       if (dislocate) {
         window.dislocateCount = window.dislocateCount - 1;
       }
+
       if (window.closeFns) {
         delete window.closeFns[id];
       }
@@ -130,10 +139,12 @@ export default function MdModal(props) {
         modalProps.style.height = window.innerHeight - 32;
       }
     }
+
     if (allowScale && isLarge) {
       modalProps.style.height = window.innerHeight - 32;
     }
   }
+
   if (showConfirm && !modalProps.footer) {
     modalProps.footer = (
       <ConfirmCon>
@@ -146,6 +157,7 @@ export default function MdModal(props) {
       </ConfirmCon>
     );
   }
+
   if (fullScreen) {
     modalProps.className = modalProps.className + ' fullScreen';
     modalProps.style.height = '100%';
@@ -154,6 +166,7 @@ export default function MdModal(props) {
     modalProps.style.verticalAlign = 'middle';
     modalProps.width = '100%';
   }
+
   return (
     <Modal
       {...modalProps}

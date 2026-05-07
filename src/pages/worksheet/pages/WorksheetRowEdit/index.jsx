@@ -86,9 +86,11 @@ class WorksheetRowEdit extends Component {
               projectId,
               appId,
             });
+
             if (lang) {
               data.appName = getTranslateInfo(appId, null, appId).name || data.appName;
             }
+
             getGlobalMeta();
             this.setState({ loading: false, data, isError: false });
             resolve(data);

@@ -114,6 +114,7 @@ const Error = styled.div`
 
 function getControlDescription(type) {
   let result;
+
   switch (type) {
     case WIDGETS_TO_API_TYPE_ENUM.SWITCH:
       result = _l('为检查项字段赋值时请使用true/false，true为选中，false为不选中');
@@ -124,6 +125,7 @@ function getControlDescription(type) {
       );
       break;
   }
+
   return result;
 }
 
@@ -151,10 +153,12 @@ function CodeEdit(props, ref) {
   } = props;
   const cache = useRef({});
   const [error, updateError] = useState();
+
   const setError = error => {
     updateError(error);
     cache.current.error = error;
   };
+
   // const [error, setError] = useState(undefined);
   const readOnly = mode === 'read';
   const editorDomRef = useRef();
@@ -164,12 +168,14 @@ function CodeEdit(props, ref) {
     const handleChange = (...args) => {
       onChange(...args);
       let available = validateFnExpression(editorRef.current.editor.getValue(), type);
+
       if (!cache.current.error && !available) {
         setError({ text: _l('语法错误'), type: 'run' });
       } else if (available && cache.current.error && cache.current.error.type === 'run') {
         setError(undefined);
       }
     };
+
     if (editorDomRef.current) {
       const functionEditor = new FunctionEditor(editorDomRef.current, {
         value,
@@ -188,6 +194,12 @@ function CodeEdit(props, ref) {
       editorRef.current = window.functionEditor = functionEditor;
       handleChange();
     }
+
+    return () => {
+      editorRef.current?.destroy?.();
+      editorRef.current = undefined;
+      window.functionEditor = undefined;
+    };
   }, []);
   useEffect(() => {
     if (readOnly && editorRef.current) {

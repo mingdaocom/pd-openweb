@@ -43,6 +43,7 @@ const renderQr = function (options) {
   qrcode.make();
   const tileW = (options.width - options.gap * 2) / qrcode.getModuleCount();
   const tileH = (options.height - options.gap * 2) / qrcode.getModuleCount();
+
   for (let row = 0; row < qrcode.getModuleCount(); row++) {
     for (let col = 0; col < qrcode.getModuleCount(); col++) {
       // const w = Math.ceil((col + 1) * tileW) - Math.floor(col * tileW);
@@ -83,6 +84,7 @@ function getHeightOfText(text, { fontSize = 12, width = 100, lineHeight = 1.5 } 
   document.body.removeChild(div);
   return result;
 }
+
 function getWidthOfText(text, fontSize = 12) {
   let result;
   const div = document.createElement('div');
@@ -100,23 +102,28 @@ function getWidthOfText(text, fontSize = 12) {
   document.body.removeChild(div);
   return result;
 }
+
 function getLineNumOfText(text = '', { fontSize = 12, width = 100 } = {}) {
   const height = getHeightOfText(text, { fontSize, width });
   const lineHeight = getHeightOfText(text.trim()[0] || 'o', { fontSize, width });
   if (lineHeight === 0) return fontSize;
   return Math.round(height / lineHeight);
 }
+
 function cutTextByWidth(text, fontSize, maxWidth) {
   let result = [];
   let tempText = '';
+
   for (let i = 0; i < text.length; i++) {
     tempText += text[i];
     const width = getWidthOfText(tempText, fontSize);
+
     if (width > maxWidth) {
       result.push(tempText.slice(0, -1));
       tempText = tempText.slice(-1);
     }
   }
+
   result.push(tempText);
   return result;
 }
@@ -157,9 +164,11 @@ export default class Label {
   }
   setLayout() {
     const { labelSize, width, height } = this.options;
+
     if (labelSize === QR_LABEL_SIZE.CUSTOM) {
       this.options.layout = width > height ? QR_LAYOUT.LANDSCAPE : QR_LAYOUT.PORTRAIT;
     }
+
     const { layout } = this.options;
     this.size = (layout === QR_LAYOUT.PORTRAIT ? PORTRAIT_QR_CODE_SIZE : LANDSCAPE_QR_CODE_SIZE).shorts[
       Number(this.options.codeSize)
@@ -182,6 +191,7 @@ export default class Label {
         h: 24,
       }[this.size];
     }
+
     this.topTextNum = {
       s: 2,
       m: 1,
@@ -205,8 +215,10 @@ export default class Label {
   async loadFont() {
     const { onProgress = () => {} } = this.options;
     const { doc } = this;
+
     async function load(fontKey, fontName, fontUrl) {
       const savedFont = await localForage.getItem(fontKey);
+
       if (savedFont) {
         doc.registerFont(fontName, savedFont);
       } else {
@@ -217,6 +229,7 @@ export default class Label {
         doc.registerFont(fontName, fontArrayBuffer);
       }
     }
+
     await load('regular_font', 'alibaba', '/staticfiles/fonts/regular.ttf');
     await load('bold_font', 'alibabaBold', '/staticfiles/fonts/bold.ttf');
     onProgress(undefined);
@@ -234,22 +247,27 @@ export default class Label {
     await this.init();
     let isFirstPage = true;
     const printDataForPrint = [...printData];
+
     while (printDataForPrint.length) {
       const labelData = printDataForPrint.shift();
+
       if (!isFirstPage) {
         this.doc.addPage();
       }
+
       if (printType === PRINT_TYPE.QR) {
         this.renderQrLabel(labelData);
       } else if (printType === PRINT_TYPE.BAR) {
         this.renderBarLabel(labelData);
       }
+
       isFirstPage = false;
     }
   }
   renderQrLabel(labelData) {
     if (!labelData) return;
     const { width, position, layout, firstIsBold } = this.options;
+
     if (layout === QR_LAYOUT.PORTRAIT) {
       this.renderTexts(
         labelData.texts.map((item, i) => ({
@@ -302,6 +320,7 @@ export default class Label {
         },
       );
     }
+
     this.renderQrCode(labelData.value);
   }
   renderBarCode(barValue) {
@@ -310,23 +329,27 @@ export default class Label {
     let barFontSize = 1.8 * this.unitSize;
     let barTextHeight = 1.5 * barFontSize;
     let barHeight = this.barHeight * this.unitSize;
+
     function parseToCode128(value) {
       const parsed = JsBarcode({}, value, {
         format: 'CODE128',
       });
       return _.get(parsed, '_encodings.0.0');
     }
+
     if (barValue && barValue.trim()) {
       const code128 = parseToCode128(barValue);
       const barWidth = width - this.paddingX * this.unitSize * 2;
       let realBarWidth = barWidth;
       let leftOffset = 0;
       let barColumnWidth = barWidth / code128.data.length;
+
       if (barColumnWidth > 0.5 * this.unitSize) {
         barColumnWidth = 0.5 * this.unitSize;
         realBarWidth = barColumnWidth * code128.data.length;
         leftOffset = (barWidth - realBarWidth) / 2;
       }
+
       code128.data.split('').forEach((char, i) => {
         const fillColor = char === '1' ? '#151515' : '#ffffff';
         this.doc
@@ -403,6 +426,7 @@ export default class Label {
     const { doc } = this;
     doc.fillColor(color);
     let textTop = top;
+
     function render(textsForRender) {
       textsForRender.forEach(text => {
         const { value, align = 'left', forceInLine, isBold } = text;
@@ -413,12 +437,15 @@ export default class Label {
               width,
             }) || 1
           : 1;
+
         if (forceInLine) {
           const newFontSize = getCompressedFontSize(value, width) * (window.isMacOs ? 1 : 0.95);
+
           if (newFontSize < textFontSize) {
             textFontSize = newFontSize;
           }
         }
+
         const normalTextHeight = mmToPt((_this.fontSize * _this.unitSize) / (get(_this, 'options.fontSize') || 1));
         const textHeight = textFontSize * 1.5 * linesNum;
         _this.drawRect(left, textTop, width, normalTextHeight);
@@ -434,6 +461,7 @@ export default class Label {
         textTop += normalTextHeight;
       });
     }
+
     texts.forEach(text => {
       const cutTexts = text.forceInLine
         ? [text]
@@ -452,6 +480,7 @@ export default class Label {
   getQrCodePosition() {
     const { layout, position, width, height } = this.options;
     let left, top;
+
     if (layout === QR_LAYOUT.PORTRAIT) {
       left = (width - this.codeSize * this.unitSize) / 2;
       top =
@@ -468,6 +497,7 @@ export default class Label {
           ? (height - this.codeSize * this.unitSize) / 2
           : (this.paddingY + 5 * this.topTextNum + 2) * this.unitSize;
     }
+
     return {
       left,
       top,
@@ -518,6 +548,7 @@ export default class Label {
 
 export async function generateLabelPdf(config = {}) {
   let width, height;
+
   if (config.labelSize === QR_LABEL_SIZE.CUSTOM) {
     width = config.labelCustomWidth;
     height = config.labelCustomHeight;
@@ -527,6 +558,7 @@ export async function generateLabelPdf(config = {}) {
     width = config.layout === QR_LAYOUT.LANDSCAPE ? configWidth : configHeight;
     height = config.layout === QR_LAYOUT.LANDSCAPE ? configHeight : configWidth;
   }
+
   const label = new Label({
     ...config,
     width,

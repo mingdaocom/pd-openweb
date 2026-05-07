@@ -110,6 +110,7 @@ class DatePicker extends Component {
   getFormat = () => {
     const props = this.props;
     let { format } = props;
+
     if (!format) {
       if (props.timePicker) {
         format = props.locale.lang.dateTimeFormat;
@@ -117,14 +118,17 @@ class DatePicker extends Component {
         format = props.locale.lang.dateFormat;
       }
     }
+
     return format;
   };
 
   getDateString = (value, format) => {
     const props = this.props;
+
     if (value) {
       return value && value.format(format);
     }
+
     return props.placeholder;
   };
 
@@ -133,6 +137,7 @@ class DatePicker extends Component {
     const { offsetTop, offsetLeft, panelCls, className, popupParentNode, children, defaultVisible, ...other } = props;
     const formatVal = this.getFormat();
     let mode = this.props.timePicker ? 'datetime' : 'date';
+
     if (this.props.mode) {
       mode = this.props.mode;
     }
@@ -156,6 +161,7 @@ class DatePicker extends Component {
           if (children) {
             return <span className="Calendar-picker-input">{React.cloneElement(children)}</span>;
           }
+
           return <span className="Calendar-picker-input">{this.getDateString(value, formatVal)}</span>;
         }}
       </Picker>

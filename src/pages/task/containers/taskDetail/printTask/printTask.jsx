@@ -52,6 +52,7 @@ export default class PrintTask extends Component {
     });
 
     let printWindow = '';
+
     if (!window.isMDClient) {
       printWindow = window.open();
     }
@@ -101,6 +102,7 @@ export default class PrintTask extends Component {
                 </li>
               );
             }
+
             return <li key={i} />;
           })}
         </ul>

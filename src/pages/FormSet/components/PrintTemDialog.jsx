@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { func } from 'prop-types';
 import { FullScreenCurtain } from 'ming-ui';
-import PrintForm from 'src/pages/OldPrint/index.jsx';
+import PrintForm from 'src/pages/Print';
 
 export default class PrintTemDialog extends Component {
   static propTypes = {

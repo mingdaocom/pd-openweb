@@ -33,6 +33,7 @@ const initRegisterShape = G2 => {
           },
         });
       }
+
       // 绘制指针
       if (pointer) {
         const { startAngle, endAngle } = Util.getAngle(cfg, this.coordinate);
@@ -100,10 +101,12 @@ export const replaceColor = (gaugeColor, themeColor) => {
   if (gaugeColor === 'DARK_COLOR') {
     return themeColor;
   }
+
   if (gaugeColor === 'LIGHT_COLOR') {
     const lightColor = generate(themeColor)[0];
     return lightColor;
   }
+
   return gaugeColor;
 };
 
@@ -136,6 +139,7 @@ export default class extends Component {
   componentWillReceiveProps(nextProps) {
     const { displaySetup, style } = nextProps.reportData;
     const { displaySetup: oldDisplaySetup, style: oldStyle } = this.props.reportData;
+
     if (
       displaySetup.showDimension !== oldDisplaySetup.showDimension ||
       displaySetup.showNumber !== oldDisplaySetup.showNumber ||
@@ -152,6 +156,7 @@ export default class extends Component {
       const GaugeChartConfig = this.getComponentConfig(nextProps);
       this.GaugeChart && this.GaugeChart.update(GaugeChartConfig);
     }
+
     if (displaySetup.showChartType !== oldDisplaySetup.showChartType || nextProps.direction !== this.props.direction) {
       this.GaugeChart && this.GaugeChart.destroy();
       setTimeout(() => {
@@ -162,10 +167,12 @@ export default class extends Component {
   renderGaugeChart(props) {
     const GaugeChartConfig = this.getComponentConfig(props);
     const { Gauge, G2 } = this.g2plotComponent;
+
     if (!isInitRegisterShape) {
       isInitRegisterShape = true;
       initRegisterShape(G2);
     }
+
     if (this.chartEl) {
       this.GaugeChart = new Gauge(this.chartEl, GaugeChartConfig);
       this.GaugeChart.render();
@@ -207,6 +214,7 @@ export default class extends Component {
     const gaugeColorRule = _.get(colorRules[1], 'dataBarRule') || {};
     const maxValue = data.max || 1;
     const percent = data.value <= data.min ? 0 : (data.value - data.min) / (maxValue - data.min);
+
     const getFontColor = () => {
       if (isApplyGaugeColor) {
         if (gaugeColorType === 1) {
@@ -214,6 +222,7 @@ export default class extends Component {
         } else {
           const ticks = getTicks();
           const sectionColors = getSectionColors();
+
           const getIndex = () => {
             let index = null;
             ticks.forEach((n, i) => {
@@ -223,6 +232,7 @@ export default class extends Component {
             });
             return index - 1;
           };
+
           return sectionColors[getIndex()];
         }
       } else if (_.isEmpty(fontColorRule)) {
@@ -244,6 +254,7 @@ export default class extends Component {
         return color || fontColor;
       }
     };
+
     const getGaugeColor = () => {
       if (_.isEmpty(gaugeColorRule)) {
         return [gaugeColor, new TinyColor(gaugeColor).setAlpha(0.3).toString()];
@@ -265,11 +276,13 @@ export default class extends Component {
         return [value, new TinyColor(value).setAlpha(0.3).toString()];
       }
     };
+
     const getSectionColors = () => {
       const colors = SYS_CHART_COLORS[0].colors;
       const { sectionColors = [] } = sectionColorConfig;
       return sectionColors.map((data, index) => data.color || colors[index % colors.length]).reverse();
     };
+
     const getTicks = () => {
       const { sectionColors = [] } = sectionColorConfig;
       return [0].concat(
@@ -278,16 +291,20 @@ export default class extends Component {
           .map(data => data.value / 100),
       );
     };
+
     const renderNumberLabel = value => {
       if (value == 0) {
         return formatrChartValue(data.min, false, yaxisList, null, false);
       }
+
       if (value == 1) {
         return formatrChartValue(data.max, false, yaxisList, null, false);
       }
+
       const rangeValue = findNthValueInRange(data.min, data.max, value * 100);
       return formatrChartValue(rangeValue, false, yaxisList, null, false);
     };
+
     const base = {
       percent,
       appendPadding: [10, 10, showChartType == 2 ? 65 : 50, 10],
@@ -325,15 +342,19 @@ export default class extends Component {
             if (scaleType === null) {
               return undefined;
             }
+
             const { isFloor } = sectionColorConfig;
             const numberLabel = renderNumberLabel(value);
             const progressLable = `${(value * 100).toFixed(isFloor ? 0 : 2)}%`;
+
             if (isNumberScale && isProgressScale) {
               return `${numberLabel} (${progressLable})`;
             }
+
             if (isNumberScale) {
               return numberLabel;
             }
+
             if (isProgressScale) {
               return progressLable;
             }
@@ -383,22 +404,26 @@ export default class extends Component {
           : null,
       },
     };
+
     if (indicatorVisible === false) {
       base.indicator.pointer = null;
       base.indicator.pin = null;
     }
+
     if (showChartType == 2) {
       base.startAngle = Math.PI + 0.6;
       base.endAngle = 2 * Math.PI - 0.6;
       base.range.width = isThumbnail ? 44 : 64;
       base.axis.label.offset = -24;
     }
+
     if (showChartType === 3) {
       base.type = 'meter';
       base.meter = {
         stepRatio: 0.7,
       };
     }
+
     return base;
   }
   render() {

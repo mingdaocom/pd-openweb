@@ -63,6 +63,7 @@ const BoardView = props => {
     } else {
       initBoardViewData(view, hasSecondGroup);
     }
+
     cache.current.prevColorId = view.advancedSetting.colorid;
     setViewCardHeightMap({});
     updateBoardViewSortedOptionKeys([]);

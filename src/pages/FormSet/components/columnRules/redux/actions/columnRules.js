@@ -19,6 +19,7 @@ import {
  */
 export function loadColumnRules({ worksheetRuleControls, worksheetInfo }) {
   const { worksheetId, isWorksheetQuery } = worksheetInfo || {};
+
   return dispatch => {
     dispatch({
       type: 'COLUMNRULES_FETCH_START',
@@ -78,6 +79,58 @@ export function loadColumnRules({ worksheetRuleControls, worksheetInfo }) {
 }
 
 /**
+ * 表单配置中插入规则时初始化
+ */
+export function initGlobalRuleInfo(props) {
+  const { allControls = [], globalSheetInfo = {} } = props;
+  const { worksheetId, systemControls = [] } = globalSheetInfo || {};
+  const worksheetControls = allControls.concat(systemControls);
+
+  return dispatch => {
+    dispatch({
+      type: 'WORKSHEET_RULE_CONTROLS',
+      data: worksheetControls,
+    });
+    dispatch({
+      type: 'WORKSHEET_INFO',
+      data: globalSheetInfo,
+    });
+    dispatch({
+      type: 'COLUMNRULES_WORKSHEETID',
+      data: worksheetId,
+    });
+    dispatch({
+      type: 'COLUMNRULES_LOAD_SUCCESS',
+    });
+    dispatch({
+      type: 'UPDATE_ACTIVE_TAB',
+      data: TAB_TYPES.STYLE_RULE,
+    });
+  };
+}
+
+export function initWorksheetRuleList(props) {
+  const { ruleList = [] } = props;
+  let styleRuleList = [];
+
+  if (ruleList.length > 0) {
+    styleRuleList = ruleList.map(rule => {
+      return {
+        ...rule,
+        name: rule.name || getDefaultRuleName(styleRuleList, 0),
+      };
+    });
+  }
+
+  return dispatch => {
+    dispatch({
+      type: 'COLUMNRULES_LIST',
+      data: styleRuleList,
+    });
+  };
+}
+
+/**
  * 新增规则
  */
 export function addColumnRules() {
@@ -96,6 +149,7 @@ export function addColumnRules() {
       selectRulesNew.checkType = 0;
       selectRulesNew.hintType = 0;
     }
+
     selectRulesNew.name = getDefaultRuleName(columnRulesListData, activeTab);
 
     dispatch(selectColumnRules(selectRulesNew));
@@ -130,6 +184,7 @@ export function saveControlRules() {
     const stateList = getState().formSet;
     const { worksheetId = '', selectRules = {}, columnRulesListData = [], worksheetRuleControls } = stateList;
     const { filters = [], name = '', ruleItems = [] } = selectRules;
+
     // 没有配置任何东西，直接关闭弹层
     if (!ruleItems.length && !filters.length) {
       dispatch(clearColumnRules());
@@ -169,6 +224,7 @@ export function saveControlRules() {
               controls: dealCusTomEventActions(r.controls, worksheetRuleControls),
             };
           }
+
           return r;
         }),
         ruleId: selectRules.ruleId.indexOf('-') >= 0 ? '' : selectRules.ruleId,
@@ -315,6 +371,7 @@ export function updateError(attr, value, index) {
   return (dispatch, getState) => {
     const stateList = getState().formSet;
     const { ruleError = {} } = stateList;
+
     // 筛选校验
     if (attr === 'filters') {
       let filterError = [];
@@ -331,9 +388,11 @@ export function updateError(attr, value, index) {
         data: { ...ruleError, filterError },
       });
     }
+
     // 执行动作校验
     if (attr === 'action') {
       let actionError = ruleError.actionError || {};
+
       if (value) {
         actionError[index] = getActionError(value);
       } else {
@@ -345,8 +404,10 @@ export function updateError(attr, value, index) {
         data: { ...ruleError, actionError },
       });
     }
+
     if (attr === 'setValue') {
       let setValueError = ruleError.setValueError || {};
+
       if (value === 'delete' || !_.isEmpty(safeParse(value || '{}'))) {
         delete setValueError[index];
       } else {

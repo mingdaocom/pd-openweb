@@ -1,12 +1,12 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Modal } from 'ming-ui';
+import { Modal, RadioGroup } from 'ming-ui';
 import functionWrap from 'ming-ui/components/FunctionWrap';
 import { DisplayTabs, SettingItem } from '../../../../styled';
-import { getAdvanceSetting } from '../../../../util/setting';
+import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../../util/setting';
 import DropdownShowControls from './dropdownShowControls';
 import FilterConfig from './filterConfig';
 import RelateSearchConfig from './relateSearchConfig';
@@ -20,7 +20,43 @@ const SelectConfigWrap = styled.div`
   .hasData > .mTop24 {
     margin-top: 10px !important;
   }
+  .selectConfigRadioGroup {
+    .ming.Radio {
+      margin-right: 0;
+      margin-top: 10px;
+      &:last-child {
+        margin-top: 16px;
+      }
+      display: flex;
+      .Radio-text {
+        margin-top: -6px;
+      }
+    }
+  }
 `;
+
+const RECORD_DISPLAY_OPTIONS = [
+  {
+    text: (
+      <Fragment>
+        <span className="textPrimary Font14">{_l('表格')}</span>
+        <span className="textSecondary InlineBlock w100">
+          {_l('可在表格中查看更多字段数据，最大批量选中的记录数量为100条。')}
+        </span>
+      </Fragment>
+    ),
+    value: '1',
+  },
+  {
+    text: (
+      <Fragment>
+        <span className="textPrimary Font14 InlineBlock">{_l('列表')}</span>
+        <span className="textSecondary InlineBlock w100">{_l('列表仅显示标题字段，支持批量选中更多记录。')}</span>
+      </Fragment>
+    ),
+    value: '2',
+  },
+];
 
 const getTabsDisplay = isDropdown => {
   return [
@@ -40,6 +76,7 @@ function SelectConfig(props) {
     configData: data,
   });
   const isDropdown = showtype === '3';
+  const chooselisttype = _.get(configData, 'advancedSetting.chooselisttype') || '1';
   const { controls = [], views = [], sheetInfo = {} } = window.subListSheetConfig[data.controlId] || {};
 
   const renderDesc = () => {
@@ -49,9 +86,21 @@ function SelectConfig(props) {
       case 2:
         if (isDropdown) return null;
         return (
-          <SettingItem>
-            <div className="settingItemTitle">{_l('弹层显示字段')}</div>
+          <SettingItem className="mTop12">
             <span className="Gray75">{_l('设置用户在使用弹层选择记录时可以查看的字段')}</span>
+            <div className="settingItemTitle mTop12">{_l('记录显示方式')}</div>
+            <RadioGroup
+              size="middle"
+              className="selectConfigRadioGroup"
+              disableTitle={true}
+              vertical={true}
+              checkedValue={chooselisttype}
+              data={RECORD_DISPLAY_OPTIONS}
+              onChange={value => {
+                const nextData = handleAdvancedSettingChange(configData, { chooselisttype: value });
+                setData({ configData: nextData });
+              }}
+            />
           </SettingItem>
         );
       case 3:
@@ -72,6 +121,7 @@ function SelectConfig(props) {
       sheetSwitchPermit: sheetInfo.switches,
       handleChange: newData => setData({ configData: newData }),
     };
+
     if (showTab === 0) {
       return <FilterConfig {...editProps} />;
     } else if (showTab === 1) {
@@ -80,6 +130,8 @@ function SelectConfig(props) {
       if (isDropdown) {
         return <DropdownShowControls {...editProps} />;
       }
+
+      if (chooselisttype === '2') return null;
       return <ShowControls {...editProps} />;
     } else if (showTab === 3) {
       return <ReportConfig {...editProps} />;

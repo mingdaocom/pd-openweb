@@ -54,6 +54,7 @@ function useChat({
         console.error('Error canceling stream:', error);
       }
     }
+
     if (isRequesting || loading) {
       setMessages(prev => {
         const lastMessage = prev[prev.length - 1];
@@ -61,12 +62,15 @@ function useChat({
         if (lastMessage.role === 'user') {
           return [...prev.slice(0, -1), { ...lastMessage, disabled: true }];
         }
+
         if (lastMessage.role === 'assistant') {
           return [...prev.slice(0, -2), ...prev.slice(-2).map(item => ({ ...item, disabled: true }))];
         }
+
         return prev;
       });
     }
+
     setLoading(false);
     setIsRequesting(false);
   };
@@ -90,9 +94,11 @@ function useChat({
       );
       setIsRequesting(false);
       const newMessageId = targetMessageId || uuidv4();
+
       if (!noUpdateMessages && !toolMessageId) {
         setMessages(prev => [...prev, { role: 'assistant', content: '', id: newMessageId, ...messageProps }]);
       }
+
       setActiveMessageId(newMessageId);
 
       parserRef.current = createParser(event => {
@@ -109,6 +115,7 @@ function useChat({
           try {
             // const data = JSON.parse(event.data);
             let data;
+
             if (/\n/.test(event.data)) {
               data = safeParse(event.data.split('\n')[1] || '{}');
               console.error('exist \\n in event.data');
@@ -116,19 +123,24 @@ function useChat({
             } else {
               data = safeParse(event.data);
             }
+
             const messageContent = get(data, 'choices.0.delta.content') || '';
+
             if (!cache.current.isFirstMessageJSONDone) {
               cache.current.isFirstMessageJSONDone = true;
               onFirstMessageJSONDone(data);
             }
+
             const toolMap = get(data, 'choices.0.delta.tool_map');
             let toolCalls = get(data, 'choices.0.delta.tool_calls');
+
             if (isArray(toolCalls)) {
               toolCalls = toolCalls.map(toolCall => ({
                 ...toolCall,
                 toolName: toolMap && toolMap[toolCall.id],
               }));
             }
+
             const usage = get(data, 'usage', {});
             onMessagePipe(messageContent, data, newMessageId);
             if (!noUpdateMessages) {
@@ -139,12 +151,14 @@ function useChat({
                   prevMessage.id = data.instanceId;
                   prevMessage.modelMessageId = data.instanceId;
                 }
+
                 lastMessage.usage = usage;
                 lastMessage.instanceId = data.instanceId;
                 lastMessage.workId = data.workId;
                 if (data.id) {
                   lastMessage.modelMessageId = data.id;
                 }
+
                 if (toolCalls && toolCalls.length) {
                   if (typeof lastMessage.content === 'string') {
                     lastMessage.content = [
@@ -154,6 +168,7 @@ function useChat({
                       },
                     ];
                   }
+
                   lastMessage.content = [
                     ...lastMessage.content,
                     {
@@ -168,6 +183,7 @@ function useChat({
                   cache.current.messages = newMessages;
                   return newMessages;
                 }
+
                 // const lastTextContent =
                 //   typeof lastMessage.content === 'string'
                 //     ? lastMessage.content
@@ -197,6 +213,7 @@ function useChat({
                     ];
                   }
                 }
+
                 const lastTextContent =
                   typeof lastMessage.content === 'string'
                     ? lastMessage.content
@@ -222,6 +239,7 @@ function useChat({
       const reader = response.body.getReader();
       streamReaderRef.current = reader;
       const decoder = new TextDecoder();
+
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
@@ -236,6 +254,7 @@ function useChat({
           return;
         }
       }
+
       if (!noUpdateMessages) {
         setMessages(prev => {
           const finalMessages = [...prev];
@@ -269,7 +288,16 @@ function useChat({
 
   const sendMessage = async (
     content,
-    { images, media, fileIds, fromMessageId, messageOptions = {}, allowEmpty = false, originMessageForRegenerate } = {},
+    {
+      images,
+      media,
+      fileIds,
+      fromMessageId,
+      messageOptions = {},
+      allowEmpty = false,
+      originMessageForRegenerate,
+      useFileContentFormat = false,
+    } = {},
   ) => {
     if (!content.trim() && !isEmpty(images) && !allowEmpty && !isEmpty(fileIds)) return;
     if (images) {
@@ -284,6 +312,16 @@ function useChat({
         content.push({ type: 'text', text: `[用户上传的图片链接] ${images.join('、')}`, hidden: true });
       }
     }
+
+    // useFileContentFormat: 将 fileIds 放入 content 数组中
+    if (useFileContentFormat && !isEmpty(fileIds)) {
+      if (!isArray(content)) {
+        content = [{ type: 'text', text: content }].filter(item => !(item.type === 'text' && !item.text?.trim()));
+      }
+
+      content = [...content, { type: 'file', file_ids: fileIds }];
+    }
+
     await abortRequest();
     abortControllerRef.current = new AbortController();
 
@@ -292,6 +330,7 @@ function useChat({
     }
 
     const userMessage = { role: 'user', id: uuidv4(), content, ...messageProps, ...messageOptions };
+
     if (originMessageForRegenerate) {
       userMessage.media = originMessageForRegenerate.media;
       userMessage.fileIds = originMessageForRegenerate.fileIds;
@@ -299,20 +338,25 @@ function useChat({
       if (isArray(media) && !isEmpty(media)) {
         userMessage.media = JSON.stringify(media);
       }
-      if (isArray(fileIds) && !isEmpty(fileIds)) {
+
+      if (isArray(fileIds) && !isEmpty(fileIds) && !useFileContentFormat) {
         userMessage.fileIds = JSON.stringify(fileIds);
       }
     }
+
     setMessages(prev => {
       let oldMessages = [...prev];
+
       if (fromMessageId) {
         const fromMessageIndex = oldMessages.findIndex(item => item.id === fromMessageId);
+
         if (fromMessageIndex !== -1) {
           oldMessages = oldMessages.slice(0, fromMessageIndex);
           const needDeleteMessageIds = prev.filter(item => !find(oldMessages, { id: item.id })).map(item => item.id);
           batchDeleteMessage(needDeleteMessageIds);
         }
       }
+
       return [...oldMessages, userMessage];
     });
     setInput('');
@@ -323,6 +367,7 @@ function useChat({
 
   const reGenerateMessageAndNoUpdateMessages = function (messageId, content) {
     const indexOfMessageId = findIndex(messages, { id: messageId });
+
     if (indexOfMessageId !== -1) {
       handleFetch(
         [

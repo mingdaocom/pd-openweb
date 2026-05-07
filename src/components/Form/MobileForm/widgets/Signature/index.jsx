@@ -63,9 +63,8 @@ const Signature = props => {
     canvas.width = canvas.offsetWidth;
     canvas.height = canvas.offsetHeight;
     canvas.getContext('2d');
-    const penColor = getComputedStyle(document.body).getPropertyValue('--color-text-primary');
     signaturePad.current = new SignaturePad.default(canvas, {
-      penColor,
+      penColor: '#9e9e9e',
       onBegin: () => setIsEdit(true),
     });
 
@@ -195,6 +194,7 @@ const Signature = props => {
       },
       cancel: res => {
         const { errMsg } = res;
+
         if (!(errMsg.includes('cancel') || errMsg.includes('canceled'))) {
           window.nativeAlert(JSON.stringify(res));
         }

@@ -51,6 +51,7 @@ export default function TextViewer(props) {
           onError(err);
           return;
         }
+
         setLoading(false);
         setContent(value);
       });

@@ -74,9 +74,11 @@ function PreviewContent(props) {
       if (!$doc) return;
       const $header = $doc.querySelector('.WorksheetShareHeaderBox');
       const $shareBox = $doc.querySelector('.shareConBox');
+
       if ($header) {
         $header.parentElement.removeChild($header);
       }
+
       if ($shareBox) {
         $shareBox.style.marginTop = 0;
       }

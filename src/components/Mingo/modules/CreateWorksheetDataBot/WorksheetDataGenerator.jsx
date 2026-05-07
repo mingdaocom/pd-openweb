@@ -14,33 +14,6 @@ const Con = styled.div`
   border: 1px solid var(--color-border-primary);
   padding: 16px 14px 14px;
   background-color: var(--color-background-primary);
-  .add-widget-btn {
-    height: 32px;
-    line-height: 32px;
-    width: 100%;
-    text-align: center;
-    background: var(--color-mingo);
-    border-radius: 32px;
-    font-size: 14px;
-    color: var(--color-white);
-    cursor: pointer;
-    &.secondary {
-      background: transparent;
-      color: var(--color-text-title);
-      border: 1px solid var(--color-border-primary);
-      &:hover {
-        background: var(--color-background-hover);
-      }
-    }
-    &.disabled {
-      background: var(--color-background-secondary);
-      color: var(--color-text-disabled);
-      cursor: not-allowed;
-      &.secondary {
-        border-color: var(--color-background-secondary);
-      }
-    }
-  }
   &:not(.disabled) {
     .widget-item:hover {
       background: var(--color-background-hover);
@@ -125,6 +98,36 @@ const Con = styled.div`
     }
   }
 `;
+
+export const AddButton = styled.div`
+  height: 36px;
+  line-height: 34px;
+  width: 100%;
+  text-align: center;
+  background: var(--color-mingo);
+  border-radius: 36px;
+  font-size: 14px;
+  color: var(--color-white);
+  cursor: pointer;
+  font-weight: bold;
+  &.secondary {
+    background: transparent;
+    color: var(--color-text-title);
+    border: 1px solid var(--color-border-primary);
+    &:hover {
+      background: var(--color-background-hover);
+    }
+  }
+  &.disabled {
+    background: var(--color-background-secondary);
+    color: var(--color-text-disabled);
+    cursor: not-allowed;
+    &.secondary {
+      border-color: var(--color-background-secondary);
+    }
+  }
+`;
+
 export default function MingoGeneratedWidgetsSelector({
   isLoading,
   isSelected,
@@ -158,8 +161,8 @@ export default function MingoGeneratedWidgetsSelector({
       {!isLoading && count === 0 && <span>{_l('没有符合规则的数据')}</span>}
       {count > 0 && (
         <div className="add-button-con t-flex t-flex-col t-items-center t-justify-between mTop15">
-          <div
-            className={cx('add-widget-btn secondary t-flex-1', {
+          <AddButton
+            className={cx('secondary t-flex-1', {
               disabled,
             })}
             onClick={() => {
@@ -168,7 +171,7 @@ export default function MingoGeneratedWidgetsSelector({
             }}
           >
             {_l('继续生成10条')}
-          </div>
+          </AddButton>
         </div>
       )}
       {isLoading && <div className="border-animation"></div>}

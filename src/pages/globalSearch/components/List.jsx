@@ -3,6 +3,7 @@ import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Avatar, Icon } from 'ming-ui';
+import store from 'src/redux/configureStore';
 import { getClassNameByExt } from 'src/utils/common';
 import RegExpValidator from 'src/utils/expression';
 import { GLOBAL_SEARCH_LIST_SETTING } from '../enum';
@@ -123,6 +124,7 @@ export default function List(props) {
 
   const clickShowHandle = () => {
     const { viewAll } = props;
+
     if (viewAll) {
       closeDialog && closeDialog();
       return;
@@ -185,6 +187,10 @@ export default function List(props) {
   };
 
   const skipHandle = item => {
+    if (_.get(store.getState().chat, 'currentSession.id')) {
+      return;
+    }
+
     let url = encodeURI(`${LIST_URL_PRE[dataKey].pre}${item[LIST_URL_PRE[dataKey].idKey]}`);
     window.open(url);
   };

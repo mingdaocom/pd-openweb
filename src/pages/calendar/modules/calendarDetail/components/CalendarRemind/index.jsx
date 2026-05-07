@@ -8,8 +8,10 @@ import { updateRemind, updateRemindVoice } from '../../common';
 import { REMINDTYPE } from '../../constant';
 
 const typeArr = [REMINDTYPE.NONE, REMINDTYPE.MINUTE, REMINDTYPE.HOUR, REMINDTYPE.DAY];
+
 const convert = (remindType, remindTime) => {
   const index = typeArr.indexOf(remindType);
+
   if (index > -1) {
     return remindTime / (index === 3 ? 60 * 24 : Math.pow(60, index - 1));
   } else {
@@ -19,6 +21,7 @@ const convert = (remindType, remindTime) => {
 
 const convertToMinutes = (remindType, value) => {
   const index = typeArr.indexOf(remindType);
+
   if (index >= 1) {
     return value * (index === 3 ? 60 * 24 : Math.pow(60, index - 1));
   } else {
@@ -50,9 +53,11 @@ export default class CalendarRemind extends Component {
   // 修改日程提醒类型
   changeRemindType(value) {
     let setValue = 1;
+
     if (+value === REMINDTYPE.MINUTE) {
       setValue = 15;
     }
+
     const callback = () => {
       updateRemind({
         id: this.props.id,
@@ -65,6 +70,7 @@ export default class CalendarRemind extends Component {
         });
       });
     };
+
     this.setState(
       {
         value: setValue,
@@ -77,10 +83,13 @@ export default class CalendarRemind extends Component {
   changeRemindTime(event) {
     const { id, remindType, remindTime } = this.props;
     let value = parseInt(event.target.value, 10);
+
     if (isNaN(value)) {
       value = remindType === REMINDTYPE.MINUTE ? 15 : 1;
     }
+
     const minutes = convertToMinutes(remindType, value);
+
     if (minutes === remindTime) {
       this.props.change({
         remindTime: minutes,

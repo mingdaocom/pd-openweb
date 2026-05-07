@@ -4,11 +4,9 @@ import styled from 'styled-components';
 
 const BtnsWrap = styled.div`
   height: 50px;
-  background-color: var(--color-background-primary);
   padding: 0 10px;
   box-sizing: border-box;
   z-index: 2;
-  background-color: var(--color-background-primary);
 
   &.confirm {
     border: none;

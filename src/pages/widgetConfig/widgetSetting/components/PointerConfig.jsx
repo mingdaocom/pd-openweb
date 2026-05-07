@@ -72,10 +72,12 @@ export default function PointConfig({ data = {}, onChange }) {
 
   const handleChange = event => {
     const value = event.target.value;
+
     if (!value) {
       onChange({ dot: '' });
       return;
     }
+
     onChange({ dot: dealValue(value) });
   };
 

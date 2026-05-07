@@ -139,13 +139,13 @@ function getTagColor(tagType, colorControl, record = {}) {
     } catch (err) {
       console.log(err);
       return {
-        color: 'var(--color-text-title)',
-        bgColor: '#fff',
+        color: 'var(--color-text-primary)',
+        bgColor: 'var(--color-background-primary)',
       };
     }
   } else {
     return {
-      color: 'var(--color-text-title)',
+      color: '#151515',
       bgColor: '#fff',
     };
   }
@@ -173,6 +173,7 @@ export default function MarkerCard(props) {
     handleRefresh = () => {},
     getData,
     updateNavGroup,
+    buttonsCheckStatus,
   } = props;
   const { position, title, cover, record } = marker;
   const { titleId, tagType, tagcolorid, showtitle } = mapViewConfig;
@@ -212,6 +213,7 @@ export default function MarkerCard(props) {
     view.controlsSorts || [],
   );
   let coverUrl;
+
   try {
     coverUrl = safeParse(cover, 'array')[0] ? safeParse(cover, 'array')[0].previewUrl : '';
   } catch (err) {
@@ -348,6 +350,7 @@ export default function MarkerCard(props) {
                 onDelete={handleRefresh}
                 onCopySuccess={handleRefresh}
                 updateTitleData={updateTitleControlData}
+                buttonsCheckStatus={buttonsCheckStatus}
               />
             </SheetContext.Provider>
           </PinCardCon>

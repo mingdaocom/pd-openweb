@@ -8,7 +8,7 @@ import moment from 'moment';
 import { Icon, LoadDiv, ScrollView } from 'ming-ui';
 import * as Actions from 'src/pages/worksheet/redux/actions/calendarview';
 import { renderText } from 'src/utils/control';
-import { eventStr } from './util';
+import { EVENT_TAB_KEY_BY_INDEX } from './constants';
 
 @connect(
   state => ({
@@ -39,18 +39,22 @@ class External extends Component {
     const { calendarview = {}, getInitType, fetchExternal, refreshEventList, updateCalendarEventIsAdd } = nextProps;
     const { calendarEventIsAdd, calendarData = {} } = calendarview;
     const { calendarInfo } = calendarData;
+
     if (!_.isEqual(calendarInfo, _.get(this.props, ['calendarview', 'calendarData', 'calendarInfo']))) {
       this.setState({
         isSearch: false,
       });
     }
+
     const typeEvent = getInitType();
+
     if (calendarEventIsAdd) {
       refreshEventList();
       //有新增数据
       fetchExternal();
       updateCalendarEventIsAdd(false); //更改新增状态
     }
+
     if (typeEvent === 'eventScheduled' && this.state.loadUp) {
       //向上更新排期事件 不滚动
       if (this.state.loadUp) {
@@ -73,9 +77,11 @@ class External extends Component {
   renderSearchData = searchData => {
     const { getInitType } = this.props;
     const typeEvent = getInitType();
+
     if (searchData.length <= 0) {
       return <div className="noData">{_l('没有搜索结果')}</div>;
     }
+
     return (
       <div className="searchData">
         <div className="text">
@@ -91,8 +97,11 @@ class External extends Component {
     const { calenderEventList } = calendarview;
     const typeEvent = getInitType();
     const eventData =
-      (typeEvent === eventStr[1] ? calenderEventList[`${typeEvent}DtResort`] : calenderEventList[typeEvent]) || [];
-    if (typeEvent === eventStr[1]) {
+      (typeEvent === EVENT_TAB_KEY_BY_INDEX[1]
+        ? calenderEventList[`${typeEvent}DtResort`]
+        : calenderEventList[typeEvent]) || [];
+
+    if (typeEvent === EVENT_TAB_KEY_BY_INDEX[1]) {
       return (
         <React.Fragment>
           {!calenderEventList[`${typeEvent}UpIsAll`] && calenderEventList[`${typeEvent}UpIndex`] < 1 && (
@@ -121,11 +130,13 @@ class External extends Component {
           <div className="mcm">
             {eventData.map(it => {
               let timeStr;
+
               if (moment(it.date).format('ll') === moment().format('ll')) {
                 timeStr = _l('今天');
               } else {
                 timeStr = moment(it.date).format('ll');
               }
+
               return (
                 <div className="">
                   <div className={cx('timeStr', {})}>
@@ -202,6 +213,7 @@ class External extends Component {
     const { calenderEventList } = calendarview;
     const { keyWords } = calenderEventList;
     const typeEvent = getInitType();
+
     if (direction === 'down' && !calenderEventList[`${typeEvent}IsAll`]) {
       this.setState({
         scrollType: 1,
@@ -211,7 +223,7 @@ class External extends Component {
       this.props.updateEventList(pageIndx, false);
     } else if (
       direction === 'up' &&
-      typeEvent === eventStr[1] &&
+      typeEvent === EVENT_TAB_KEY_BY_INDEX[1] &&
       !calenderEventList[`${typeEvent}UpIsAll`] &&
       !keyWords
     ) {

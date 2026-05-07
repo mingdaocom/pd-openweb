@@ -99,7 +99,7 @@ export default class CustomPage extends Component {
         });
         this.$originComponents = components;
         this.$originAdjustScreen = adjustScreen;
-        this.$originConfig = syncThemeConfig(config);
+        this.$originConfig = syncThemeConfig(config || {});
       })
       .finally(() => updateLoading(false));
   };
@@ -116,6 +116,7 @@ export default class CustomPage extends Component {
       const chartComponent = components
         .filter(item => item.type === enumWidgetType.analysis)
         .filter(item => _.get(item, 'config.isEdit') === true);
+
       if (chartComponent.length) {
         const saveChartRequest = chartComponent.map(item => {
           return reportConfigApi.updateReportName({
@@ -189,6 +190,7 @@ export default class CustomPage extends Component {
       });
       return _.flatten(createRecordBtns);
     };
+
     const originBtns = getBtn(this.$originComponents);
     const newBtns = getBtn(components);
     const deleteBtns = originBtns.filter(b => !_.find(newBtns, { btnId: b.btnId }));
@@ -222,6 +224,7 @@ export default class CustomPage extends Component {
       });
       return _.flatten(filterBtns);
     };
+
     const originBtns = getBtn(this.$originComponents);
     const newBtns = getBtn(components);
     const deleteBtns = originBtns.filter(b => !_.find(newBtns, { filterId: b.filterId }));
@@ -245,6 +248,7 @@ export default class CustomPage extends Component {
   fillBtnData = components => {
     return new Promise(resolve => {
       const createRecordBtns = this.getCreateRecordBtns(components);
+
       if (createRecordBtns.length) {
         // 找到创建按钮
         const saveBtnRequest = createRecordBtns.map(item => {
@@ -290,6 +294,7 @@ export default class CustomPage extends Component {
                   buttonList: buttonList.map(btn => {
                     const { id, config } = btn;
                     const target = _.find(btnIds, { id });
+
                     if (target) {
                       const { btnId } = target;
                       return {
@@ -333,6 +338,7 @@ export default class CustomPage extends Component {
     const { ids } = this.props;
     return new Promise(resolve => {
       const filterBtns = this.getFilterBtns(components);
+
       if (filterBtns.length) {
         const filterBtnRequest = filterBtns.map(item => {
           const { value, filterId, config } = item;
@@ -364,6 +370,7 @@ export default class CustomPage extends Component {
                   buttonList: buttonList.map(btn => {
                     const { id, config } = btn;
                     const target = _.find(btnIds, { id });
+
                     if (target) {
                       const { filterId } = target;
                       return {
@@ -396,6 +403,7 @@ export default class CustomPage extends Component {
     return new Promise(resolve => {
       const { ids } = this.props;
       const filterComponent = components.filter(c => c.type === enumWidgetType.filter).filter(c => c.filter);
+
       if (filterComponent.length) {
         const saveFilterRequest = filterComponent.map(item => {
           const { filter = {} } = item;
@@ -458,9 +466,11 @@ export default class CustomPage extends Component {
   // 删除筛选组件
   removeFiltersGroup = () => {
     const { ids, components } = this.props;
+
     const getFilter = components => {
       return components.filter(c => c.type === enumWidgetType.filter && c.value);
     };
+
     const originFilters = getFilter(this.$originComponents);
     const newFilters = getFilter(components);
     const deleteFilters = originFilters.filter(f => !_.find(newFilters, { value: f.value }));
@@ -489,6 +499,7 @@ export default class CustomPage extends Component {
     return components.map(item => {
       // 清除 uuid
       const component = _.omit(item, 'uuid');
+
       // 清空按钮的临时配置
       if (component.type === enumWidgetType.button) {
         const { buttonList } = component.button;
@@ -511,6 +522,7 @@ export default class CustomPage extends Component {
           },
         };
       }
+
       // 找到透视表，保存管理员列宽的配置
       if (component.type === enumWidgetType.analysis && component.reportType === reportTypes.PivotTable) {
         const columnWidthConfig = sessionStorage.getItem(`pivotTableColumnWidthConfig-${component.value}`) || undefined;
@@ -522,6 +534,7 @@ export default class CustomPage extends Component {
           },
         };
       }
+
       return component;
     });
   };
@@ -538,6 +551,11 @@ export default class CustomPage extends Component {
       updateSaveLoading,
     } = this.props;
     const pageId = ids.worksheetId;
+
+    if (components.filter(item => _.get(item, 'componentConfig.imageUploadLoading')).length) {
+      alert(_l('图片正在上传，请稍后'), 3);
+      return;
+    }
 
     updateSaveLoading(true);
 
@@ -595,7 +613,7 @@ export default class CustomPage extends Component {
     updatePageInfo({
       components: this.$originComponents,
       adjustScreen: this.$originAdjustScreen,
-      config: syncThemeConfig(this.$originConfig),
+      config: syncThemeConfig(this.$originConfig || {}),
       activeContainerInfo: {},
     });
     this.handleBack();
@@ -609,6 +627,7 @@ export default class CustomPage extends Component {
       activeContainerInfo: {},
     });
     const orderComponent = reorderComponents(components);
+
     if (orderComponent) {
       updateComponents(orderComponent);
     }

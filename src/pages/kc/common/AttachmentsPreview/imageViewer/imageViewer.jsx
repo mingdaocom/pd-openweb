@@ -11,6 +11,7 @@ import './imageViewer.css';
 function getClientX(evt) {
   return evt.clientX || _.get(evt, 'touches[0].clientX');
 }
+
 function getClientY(evt) {
   return evt.clientY || _.get(evt, 'touches[0].clientY');
 }
@@ -50,6 +51,7 @@ class ImageViewer extends React.Component {
       if (!src) {
         return '';
       }
+
       const imageView2 = 'imageView2/0/w/' + width + '/h/' + height + '/q/90';
       return src.indexOf('?') > 0
         ? src.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, imageView2)
@@ -65,12 +67,14 @@ class ImageViewer extends React.Component {
   componentDidMount() {
     this._isMounted = true;
     let src;
+
     if (this.props.size > 512 * 1024 && this.props.getResizedSrc) {
       const { width, height } = document.body.getBoundingClientRect();
       src = this.props.getResizedSrc(this.props.src, Math.round(width * 0.9), Math.round(height * 0.9));
     } else {
       src = this.props.src;
     }
+
     this.setState({ isThumbnail: src !== this.props.src }, this.loadImage(src));
     document.addEventListener('mouseup', this.stopDrag);
     document.addEventListener('touchend', this.stopDrag);
@@ -84,14 +88,17 @@ class ImageViewer extends React.Component {
   componentDidUpdate(prevProps) {
     if (prevProps.src !== this.props.src) {
       let src;
+
       if (this.props.size > 1024 * 1024 && this.props.getResizedSrc) {
         const { width, height } = document.body.getBoundingClientRect();
         src = this.props.getResizedSrc(this.props.src, Math.round(width * 0.9), Math.round(height * 0.9));
       } else {
         src = this.props.src;
       }
+
       this.setState(assign(initialState, { isThumbnail: src !== this.props.src }), this.loadImage(src));
     }
+
     if (!this.outViewerArea() && prevProps.showThumbnail !== this.props.showThumbnail) {
       this.reSize(this.props.showThumbnail);
     }
@@ -115,6 +122,7 @@ class ImageViewer extends React.Component {
       evt.stopPropagation();
       return;
     }
+
     if (this.outViewerArea()) {
       this.move(0, evt.deltaY > 0 ? -50 : 50);
       evt.preventDefault();
@@ -125,21 +133,26 @@ class ImageViewer extends React.Component {
 
   loadImage(src, cb) {
     const img = new Image();
+
     img.onload = () => {
       if (!this._isMounted) {
         return;
       }
+
       let scale = 1;
       const { width, height } = img;
+
       if (!this.state.originSize) {
         const container = this.props.con ? this.props.con : ReactDOM.findDOMNode(this).parentNode;
         const rect = container.getBoundingClientRect();
+
         if (rect.width && rect.height) {
           scale = min([1, (rect.width * 0.95) / width, (rect.height * 0.95) / height]);
         }
       } else {
         scale = (this.state.scale * this.state.originSize.width) / width;
       }
+
       this._isMounted &&
         this.setState(
           {
@@ -151,9 +164,11 @@ class ImageViewer extends React.Component {
           cb,
         );
     };
+
     img.onerror = () => {
       this.props.onError();
     };
+
     this.setState({ loading: true }, () => {
       img.src = src;
     });
@@ -164,7 +179,9 @@ class ImageViewer extends React.Component {
       evt.preventDefault();
       return;
     }
+
     const { dragStart } = this.state;
+
     if (dragStart) {
       const deltaX = (getClientX(evt) - dragStart.x) / this.state.scale;
       const deltaY = (getClientY(evt) - dragStart.y) / this.state.scale;
@@ -188,8 +205,10 @@ class ImageViewer extends React.Component {
     if (this.state.loading || (!this.state.left && !this.state.right)) {
       return;
     }
+
     const rect = ReactDOM.findDOMNode(this).getBoundingClientRect();
     const { width, height } = this.imageEle.getBoundingClientRect();
+
     if (width < rect.width && height < rect.height) {
       this.setState({ left: 0, top: 0 });
     }
@@ -201,9 +220,11 @@ class ImageViewer extends React.Component {
    */
   updateScale(isBoost) {
     const scale = this.state.scale + (isBoost ? this.props.quotiety : -this.props.quotiety);
+
     if (scale < 0.1 || scale > 10) {
       return true;
     }
+
     this.setState({ scale }, this.positionCenter);
     if (scale > 1.2 && this.state.isThumbnail) {
       this.loadImage(this.props.src, () => this._isMounted && this.setState({ isThumbnail: false }));
@@ -214,13 +235,16 @@ class ImageViewer extends React.Component {
     if (!this.imageEle) {
       return;
     }
+
     let scale;
     const { width, height } = this.imageEle;
     const rect = document.querySelector('.attachmentsPreview').getBoundingClientRect();
     const conHeight = rect.height - 54 - (showThumbnail ? 143 : 52);
+
     if (rect.width && rect.height) {
       scale = min([1, (rect.width * 0.95) / width, (conHeight * 0.95) / height]);
     }
+
     this.setState(
       {
         scale,
@@ -237,6 +261,7 @@ class ImageViewer extends React.Component {
     if (!this.outViewerArea()) {
       return;
     }
+
     this.setState({
       dragStart: {
         x: getClientX(evt),
@@ -257,6 +282,7 @@ class ImageViewer extends React.Component {
     ) {
       this.props.toggleFullscreen();
     }
+
     this.setState({
       dragStart: null,
       mouseDownPos: null,
@@ -317,6 +343,7 @@ class ImageViewer extends React.Component {
       if (document.activeElement == $('.previewHeader .editableBlock input')[0]) {
         return;
       }
+
       this.props.onClose();
     }
   };

@@ -83,6 +83,7 @@ export default class ExportDialog extends Component {
 
   exportList() {
     const { typeList, startDate } = this.state;
+
     if (!typeList.length) {
       alert(_l('请选择要导出的列表'), 3);
     } else if (!startDate) {
@@ -92,6 +93,7 @@ export default class ExportDialog extends Component {
       if (!window.isMDClient) {
         $('#outPutFormBox').attr('target', '_blank');
       }
+
       $('#outPutFormBox').submit();
     }
   }

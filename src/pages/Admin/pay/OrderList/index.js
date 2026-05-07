@@ -78,6 +78,7 @@ export default class Merchant extends Component {
                     buriedUpgradeVersionDialog(Config.projectId, VersionProductType.PAY);
                     return;
                   }
+
                   if (this.com) {
                     this.com.handleExport();
                   }

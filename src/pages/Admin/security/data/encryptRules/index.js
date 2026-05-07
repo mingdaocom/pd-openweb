@@ -88,6 +88,7 @@ export default class EncryptRules extends Component {
               if (it.encryptRuleId === encryptRuleId) {
                 return { ...it, isDefault: true };
               }
+
               return { ...it, isDefault: false };
             }),
           });
@@ -123,6 +124,7 @@ export default class EncryptRules extends Component {
                 buriedUpgradeVersionDialog(projectId, VersionProductType.dataEnctypt);
                 return;
               }
+
               this.setState({ showAddEditDialog: true });
             }}
           >
@@ -169,7 +171,7 @@ export default class EncryptRules extends Component {
             <div className="w150">{_l('加密方式')}</div>
             <div className="w150">{_l('创建时间')}</div>
             <div className="w150">{_l('创建人')}</div>
-            <div className="w80">{_l('')}</div>
+            <div className="w80"></div>
           </div>
           <div className="flex flexColumn mTop16 mBottom16 listContent overflowHidden">
             <ScrollView className="flex">
@@ -207,6 +209,7 @@ export default class EncryptRules extends Component {
                                   if (it.encryptRuleId === item.encryptRuleId) {
                                     return { ...it, state: checked ? 0 : 1 };
                                   }
+
                                   return it;
                                 });
                                 this.setState({ dataSource: tempData });
@@ -256,6 +259,7 @@ export default class EncryptRules extends Component {
                                         if (it.encryptRuleId === item.encryptRuleId) {
                                           return { ...it, name, remark, ...rest };
                                         }
+
                                         return it;
                                       });
                                       this.setState({ dataSource: tempData });

@@ -65,36 +65,49 @@ export default class GroupItem extends Component {
       });
     });
   }
-  handleChangeSubVisible = id => {
+  handleChangeSubVisible = (id, visible) => {
     this.props.updateGroupSubVisible(id);
+    setTimeout(() => {
+      if (visible) {
+        this.props.onUpdateHeaderWidth();
+      }
+    }, 100);
   };
   handleCreateRecord = (groupId, isMilepost) => {
     const { base, grouping, controls, viewConfig, sheetSwitchPermit } = this.props;
-    const { viewControl, milepost } = viewConfig;
+    const { viewControl, milepost, navTitle } = viewConfig;
     const titleControl = _.find(controls, { attribute: 1 });
     const allowedit = isOpenPermit(permitList.quickSwitch, sheetSwitchPermit, base.viewId);
-    if (titleControl.type === 2 && allowedit) {
+
+    if (navTitle && titleControl.type === 2 && allowedit) {
       this.props.createRecord(groupId, isMilepost);
     } else {
       const defaultFormData = {};
+
       if (viewControl) {
         const groupControl = _.find(controls, { controlId: viewControl }) || {};
         let { key: value, name } = _.find(grouping, { key: groupId }) || {};
+
         if ([29].includes(groupControl.type)) {
           value = JSON.stringify([{ sid: groupId, name }]);
         }
+
         if ([9, 11].includes(groupControl.type)) {
           const { key } = _.find(groupControl.options, { key: groupId }) || {};
           value = JSON.stringify([key]);
         }
-        if (value === '-1') {
+
+        if (value === '-1' || [30].includes(groupControl.type)) {
           value = '';
         }
+
         defaultFormData[viewControl] = value;
       }
+
       if (isMilepost && milepost) {
         defaultFormData[milepost] = '1';
       }
+
       this.setState({ createRecordVisible: true, defaultFormData });
     }
   };
@@ -109,6 +122,7 @@ export default class GroupItem extends Component {
             if (!subVisible) {
               this.handleChangeSubVisible(key);
             }
+
             this.handleCreateRecord(key);
           }}
         >
@@ -122,6 +136,7 @@ export default class GroupItem extends Component {
               if (!subVisible) {
                 this.handleChangeSubVisible(key);
               }
+
               this.handleCreateRecord(key, true);
             }}
           >
@@ -149,14 +164,14 @@ export default class GroupItem extends Component {
               className="Font12 textTertiary mRight8"
               icon={group.subVisible ? 'arrow-down' : 'arrow-right-tip'}
               onClick={() => {
-                this.handleChangeSubVisible(group.key);
+                this.handleChangeSubVisible(group.key, !group.subVisible);
               }}
             />
             <div className="valignWrapper h100" style={{ width: width - 50 }}>
               <div
                 className="textSecondary h100 valignWrapper flex overflow_ellipsis"
                 onClick={() => {
-                  this.handleChangeSubVisible(group.key);
+                  this.handleChangeSubVisible(group.key, !group.subVisible);
                 }}
               >
                 <GroupContent group={group} />

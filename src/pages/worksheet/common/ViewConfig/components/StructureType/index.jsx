@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import _ from 'lodash';
 import styled from 'styled-components';
+import { Icon } from 'ming-ui';
 import { HIERARCHY_VIEW_TYPE } from 'src/pages/worksheet/common/ViewConfig/components/navGroup/util';
 import * as baseAction from 'src/pages/worksheet/redux/actions';
 import './index.less';
@@ -20,6 +21,7 @@ const HierarchyViewConfigWrap = styled.div`
     margin-bottom: 20px;
   }
 `;
+
 function StructureType(props) {
   const { base, saveView, isRelateMultiSheetHierarchyView, clearFilters = () => {} } = props;
   const { viewId } = base;
@@ -38,13 +40,14 @@ function StructureType(props) {
             return (
               <div className="Relative flex" key={'StructureTypeItem' + i}>
                 <div
-                  className={`hierachyViewCard mBottom8 Font48 Hand ${item.key} ${
+                  className={`hierachyViewCard mBottom8 Font48 Hand ${
                     (_.get(view, 'advancedSetting.hierarchyViewType') || '0') === item.value ? 'active' : ''
                   }`}
                   onClick={() => {
                     if ((_.get(view, 'advancedSetting.hierarchyViewType') || '0') === item.value) {
                       return;
                     }
+
                     clearFilters();
                     saveView(viewId, {
                       advancedSetting: {
@@ -56,7 +59,9 @@ function StructureType(props) {
                         item.value === '3' ? ['hierarchyViewType', 'topshow', 'topfilters'] : ['hierarchyViewType'],
                     });
                   }}
-                ></div>
+                >
+                  <Icon icon={item.icon} />
+                </div>
                 <div className="TxtCenter">{item.text}</div>
               </div>
             );
@@ -66,6 +71,7 @@ function StructureType(props) {
     </React.Fragment>
   );
 }
+
 export default connect(
   state => _.pick(state.sheet, ['base', 'views']),
   dispatch => bindActionCreators({ ...baseAction }, dispatch),

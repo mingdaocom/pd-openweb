@@ -25,14 +25,17 @@ function base(state = {}, action) {
       if ((state.viewId && /^[0-9a-z]{24}$/.test(state.viewId)) || state.chartId) {
         return state;
       }
+
       // 自定义页面没有视图
       if (isEmpty(action.value.views)) return state;
       if (state.worksheetId === action.value.worksheetId) {
         const showViews = action.value.views.filter(view => {
           const showhide = _.get(view, 'advancedSetting.showhide') || '';
+
           if (browserIsMobile()) {
             return !showhide.includes('spc&happ') && !showhide.includes('hide');
           }
+
           return !showhide.includes('hpc') && !showhide.includes('hide');
         });
         return {
@@ -40,6 +43,7 @@ function base(state = {}, action) {
           viewId: _.get((showViews.length ? showViews : action.value.views)[0], 'viewId'),
         };
       }
+
       return state;
     default:
       return state;

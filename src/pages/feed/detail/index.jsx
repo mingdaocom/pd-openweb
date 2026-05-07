@@ -30,6 +30,7 @@ export default class FeedDetailEntrypoint extends Component {
   handleQueryChange(props) {
     const data = qs.parse(props.location.search.slice(1));
     const { itemID, knowledgeId, knowledgeID, projectId } = data;
+
     if (!itemID) {
       navigateTo('/feed', true);
     }

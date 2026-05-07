@@ -1,7 +1,7 @@
 import React, { Component, createRef, Fragment, useEffect, useState } from 'react';
-import ClipboardButton from 'react-clipboard.js';
 import { Input } from 'antd';
 import cx from 'classnames';
+import copy from 'copy-to-clipboard';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Button, Dialog, VerifyPasswordInput } from 'ming-ui';
@@ -64,6 +64,7 @@ const IconWrap = styled.div`
 
 const checkErrorPassword = password => {
   const { passwordRegexTip } = md.global.SysSettings;
+
   if (!password) {
     alert(_l('请输入密码'), 3);
     return true;
@@ -122,6 +123,7 @@ const graphicVertify = (callback = () => {}) => {
     if (res.ret !== 0) {
       return;
     }
+
     callback();
   };
 
@@ -154,6 +156,7 @@ function LockApp(props) {
           setCanEdit(true);
           return;
         }
+
         handleRequest('addLock', { appId, password }, props);
       }}
     >
@@ -202,9 +205,14 @@ function LockApp(props) {
           </IconWrap>
           <IconWrap>
             <Tooltip title={_l('复制')} placement="bottom" align={{ offset: [5, 0] }}>
-              <ClipboardButton component="span" data-clipboard-text={password} onSuccess={() => alert(_l('复制成功'))}>
+              <span
+                onClick={() => {
+                  copy(password);
+                  alert(_l('复制成功'));
+                }}
+              >
                 <i className="icon-content-copy Font14" />
-              </ClipboardButton>
+              </span>
             </Tooltip>
           </IconWrap>
         </div>
@@ -215,6 +223,7 @@ function LockApp(props) {
     </Dialog>
   );
 }
+
 // 解锁应用
 class UnLockDialog extends Component {
   constructor(props) {
@@ -226,6 +235,7 @@ class UnLockDialog extends Component {
   handleUnlock = () => {
     const { appId, isLock } = this.props;
     const { lockPassword } = this.state;
+
     // 恢复锁定
     if (!isLock) {
       handleRequest('resetLock', { appId }, this.props);
@@ -361,6 +371,7 @@ function AppLockPasswordDialog(props) {
     </Dialog>
   );
 }
+
 // 关闭应用锁定
 function CloseLock(props) {
   const { visible, onCancel = () => {}, appId } = props;
@@ -393,6 +404,7 @@ function CloseLock(props) {
     </Dialog>
   );
 }
+
 export const closeLockFunc = props => functionWrap(CloseLock, { ...props });
 export const modifyAppLockPassword = props => functionWrap(AppLockPasswordDialog, { ...props });
 export const lockAppFunc = props => functionWrap(LockApp, { ...props });

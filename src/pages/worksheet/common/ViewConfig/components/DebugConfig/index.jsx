@@ -140,6 +140,7 @@ const OPTIONS = [
     tip: _l('该模板 mdye-cli 依赖版本 >= beta-0.0.34，Vue2 官方已经终止支持且不再维护，不建议再使用 Vue 2。'),
   },
 ];
+
 export default function DebugConfig(params) {
   const tagtextarea = useRef(null);
   const { worksheetId, view = {}, onChangeView } = params;
@@ -182,6 +183,7 @@ export default function DebugConfig(params) {
     copy(content);
     alert(_l('复制成功'));
   };
+
   const renderText = (content, renderTxt) => {
     return (
       <div className="textCopyCon flexRow alignItemsCenter mTop16 Hand" onClick={() => handleCopy(content)}>
@@ -190,12 +192,14 @@ export default function DebugConfig(params) {
       </div>
     );
   };
+
   const renderTemplateTip = () => {
     const selectedTemplate = OPTIONS.find(o => o.value === (templateType || 1));
     return (
       selectedTemplate && selectedTemplate.tip && <div className="textSecondary mTop5">{selectedTemplate.tip}</div>
     );
   };
+
   const renderHeader = (o, i) => {
     return (
       <React.Fragment>
@@ -223,6 +227,7 @@ export default function DebugConfig(params) {
       </React.Fragment>
     );
   };
+
   const renderNextStep = i => {
     return (
       <div className="nextStep mTop20">
@@ -247,8 +252,10 @@ export default function DebugConfig(params) {
       </div>
     );
   };
+
   const saveConfig = () => {
     let value = {};
+
     if (_.get(tagtextarea, 'current.props.defaultValue')) {
       try {
         value = JSON.parse(_.get(tagtextarea, 'current.props.defaultValue'));
@@ -256,10 +263,12 @@ export default function DebugConfig(params) {
         console.log(error);
         return alert(_l('请输入正确的格式'), 3);
       }
+
       if (!(_.isObject(value) && !_.isArray(value))) {
         return alert(_l('请输入正确的格式'), 3);
       }
     }
+
     onChangeView(
       {
         configuration: value,
@@ -267,8 +276,10 @@ export default function DebugConfig(params) {
       true,
     );
   };
+
   const renderContent = i => {
     let serverHost;
+
     if (window.__api_server__.main !== 'https://www.mingdao.com/api/') {
       if (window.__api_server__.main[0] === '/') {
         serverHost = location.origin + window.__api_server__.main;
@@ -276,7 +287,9 @@ export default function DebugConfig(params) {
         serverHost = window.__api_server__.main;
       }
     }
+
     const lang = getCurrentLang().toLowerCase();
+
     switch (i) {
       case 0:
         return (
@@ -315,6 +328,7 @@ export default function DebugConfig(params) {
                 if (value === templateType) {
                   return;
                 }
+
                 onChangeView(
                   {
                     templateType: value,
@@ -408,10 +422,12 @@ export default function DebugConfig(params) {
                 className={cx('btn mLeft12', { canClear: localStorageCustomViewDebugUrl })}
                 onClick={() => {
                   const debugUrl = (customViewDebugUrl || '').trim();
+
                   if (!/^https?:\/\/.*\/bundle\.js$/.test(debugUrl)) {
                     alert(_l('请输入本地命令行显示的脚本地址'), 3);
                     return;
                   }
+
                   if (!localStorageCustomViewDebugUrl) {
                     safeLocalStorageSetItem(`customViewDebugUrl_${viewId}`, debugUrl);
                     setState({
@@ -424,6 +440,7 @@ export default function DebugConfig(params) {
                       localStorageCustomViewDebugUrl: '',
                     });
                   }
+
                   emitter.emit('CUSTOM_WIDGET_VIEW_DEBUG_URL_UPDATE');
                 }}
               >
@@ -456,6 +473,7 @@ export default function DebugConfig(params) {
         );
     }
   };
+
   return (
     <Wrap className="mTop24">
       <ul>
@@ -480,6 +498,7 @@ export default function DebugConfig(params) {
                       true,
                     );
                   }
+
                   if (cur !== i) {
                     setState({
                       cur: i,

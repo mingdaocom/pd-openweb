@@ -4,7 +4,8 @@ import _ from 'lodash';
 import styled from 'styled-components';
 import { LoadDiv, ScrollView } from 'ming-ui';
 import GroupByControl from 'worksheet/components/GroupByControl';
-import { getCardWidth } from 'src/utils/worksheet';
+import useButtonStatusOfRows from 'worksheet/hooks/useButtonStatusOfRows';
+import { filterButtonBySheetSwitchPermit, getCardWidth, getSheetOperatesButtons } from 'src/utils/worksheet';
 import ViewEmpty from '../../components/ViewEmpty';
 import BoardTitle from '../components/BoardTitle';
 import CustomDragLayer from '../components/CustomDragLayer';
@@ -34,6 +35,11 @@ const GroupBoard = props => {
     controlId,
     control,
     updateBoardViewSortedOptionKeys,
+    sheetButtons,
+    printList,
+    sheetSwitchPermit,
+    viewId,
+    worksheetId,
     ...rest
   } = props;
   const scrollViewRef = useRef();
@@ -48,6 +54,24 @@ const GroupBoard = props => {
   const viewData = useMemo(() => {
     return dealBoardViewData({ view, controls, data: boardData }) || [];
   }, [view, controls.length, boardData]);
+
+  // 获取所有记录 ID
+  const allRecordIds = useMemo(() => {
+    return _.flatMap(boardData, item => item.rows.map(row => row.rowid)).filter(Boolean);
+  }, [boardData]);
+
+  // 获取操作按钮
+  const operateButtons = useMemo(() => {
+    let buttons = getSheetOperatesButtons(view, { buttons: sheetButtons, printList });
+    buttons = filterButtonBySheetSwitchPermit(buttons, sheetSwitchPermit, viewId);
+    return buttons;
+  }, [view, sheetButtons, printList, sheetSwitchPermit, viewId]);
+
+  // 获取按钮 ID
+  const btnIds = useMemo(() => operateButtons.map(b => b.btnId).filter(Boolean), [operateButtons]);
+
+  // 获取按钮状态
+  const { buttonsCheckStatus } = useButtonStatusOfRows(worksheetId, allRecordIds, btnIds);
 
   // 判断一级分组是否有未指定，且未指定数量是否大于0
   const hasNoFirstGroup = _.get(_.find(viewData, { key: '-1' }), 'totalNum', 0) > 0;
@@ -172,7 +196,16 @@ const GroupBoard = props => {
                     currentGroupKey={opt.key}
                     viewRootEl={viewport}
                     boardViewCard={boardViewCard}
-                    {..._.pick(props, ['sheetSwitchPermit', 'updateTitleData', 'sheetButtons', 'fieldShowCount'])}
+                    buttonsCheckStatus={buttonsCheckStatus}
+                    worksheetId={worksheetId}
+                    {..._.pick(props, [
+                      'sheetSwitchPermit',
+                      'updateTitleData',
+                      'sheetButtons',
+                      'fieldShowCount',
+                      'viewId',
+                      'appId',
+                    ])}
                     {...rest}
                   />
                 );

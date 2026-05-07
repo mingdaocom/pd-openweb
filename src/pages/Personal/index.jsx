@@ -22,6 +22,7 @@ export default class PersonalEntrypoint extends Component {
     if (nextProps.location.search !== this.props.location.search) {
       return true;
     }
+
     return false;
   }
 
@@ -35,7 +36,7 @@ export default class PersonalEntrypoint extends Component {
       (!window.platformENV.isOverseas && !window.platformENV.isLocal) ||
       ((window.platformENV.isOverseas || window.platformENV.isLocal) && md.global.Config.ShowLicense)
         ? routerConfigs
-        : routerConfigs.slice(0, -1);
+        : routerConfigs.filter(item => !item.typetag.includes('privatekey'));
     const type = getRequest().type || 'information';
     const currentComp = _.get(
       _.find(menus, menu => menu.typetag.includes(type)),

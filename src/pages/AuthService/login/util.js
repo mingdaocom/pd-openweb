@@ -90,6 +90,7 @@ export const loginCallback = ({ data, onChange }) => {
         projectId: data?.projectId,
         integrationAccountType: data.projectIntergrationType || IntegrationAccountType.microsoftEntra,
       };
+
       if (info?.companyName) {
         onChange(info);
       } else {
@@ -97,8 +98,10 @@ export const loginCallback = ({ data, onChange }) => {
           onChange({ ...info, companyName: res.companyName || '' }); //企业单点登录页面只呈现组织名称，其他组织不用呈现
         });
       }
+
       return;
     }
+
     //开启了两步验证
     if (data.accountResult === LoginResult.needTwofactorVerifyCode) {
       onChange({ warnList: [], state: data.state });
@@ -111,6 +114,7 @@ export const loginCallback = ({ data, onChange }) => {
 
       return;
     }
+
     if (
       [
         LoginResult.passwordOverdue, // 密码过期需要重新设置密码
@@ -147,9 +151,12 @@ export const loginCallback = ({ data, onChange }) => {
       onChange({ frequentLogin: true, loading: false });
       return;
     }
+
     const msgStyle = browserIsMobile() ? { 'margin-top': '180px' } : {};
+
     if (data.accountResult === LoginResult.isLock) {
       let t = data.state ? Math.ceil(data.state / 60) : 20;
+
       if (step === 'verifyCode') {
         onChange({ loading: false });
         return alert(
@@ -161,6 +168,7 @@ export const loginCallback = ({ data, onChange }) => {
           msgStyle,
         );
       }
+
       onChange({
         loading: false,
         warnList: [
@@ -201,6 +209,7 @@ export const loginCallback = ({ data, onChange }) => {
               msgStyle,
             );
           }
+
           onChange({
             loading: false,
             warnList: [{ tipDom: 'code', warnTxt: _l('您输入错误%0次，还可尝试%1次', t[1], t[0] - t[1]) }],
@@ -213,6 +222,7 @@ export const loginCallback = ({ data, onChange }) => {
         msg = data.accountResult === LoginResult.verifyCodeError ? _l('验证码输入错误') : _l('用户名或密码不正确');
       }
     }
+
     onChange({ loading: false });
     alert({
       msg,
@@ -236,10 +246,13 @@ export const ssoLogin = (returnUrl = '') => {
       return match && match[1];
     }
   };
+
   const isApp = window.isDingTalk || window.isWxWork || window.isWeLink || window.isFeiShu;
+
   if (isApp && returnUrl) {
     const { pathname, search } = new URL(returnUrl);
     const appId = getAppId(pathname);
+
     if (appId) {
       workWeiXinController
         .getIntergrationInfo({
@@ -248,19 +261,23 @@ export const ssoLogin = (returnUrl = '') => {
         .then(data => {
           const { item1, item2 } = data;
           const url = encodeURIComponent(pathname + search);
+
           // 钉钉
           if (item1 === 1) {
             const url = encodeURIComponent(pathname.replace(/^\//, '') + search);
             location.href = `/sso/sso?t=2&p=${item2}&ret=${url}`;
           }
+
           // 企业微信
           if (item1 === 3) {
             location.href = `/auth/workwx?p=${item2}&url=${url}`;
           }
+
           // welink
           if (item1 === 4) {
             location.href = `/auth/welink?p=${item2}&url=${url}`;
           }
+
           // 飞书
           if (item1 === 6) {
             location.href = `/auth/feishu?p=${item2}&url=${url}`;

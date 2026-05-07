@@ -36,7 +36,7 @@ const Con = styled.div`
 `;
 
 const TableBorder = styled.div`
-  border-left: 1px solid var(--color-background-disabled);
+  border-left: 1px solid var(--color-background-secondary);
   width: 0px;
   position: absolute;
   top: 0;
@@ -62,6 +62,7 @@ function setScrollY(cache, newTop) {
   if (newTop < 0) {
     newTop = 0;
   }
+
   ['main-left', 'main-center', 'main-right', 'scrollY'].forEach(name => {
     if (cache[name] && _.isFunction(cache[name].scrollTo)) {
       cache[name].scrollTo({ scrollTop: newTop });
@@ -105,9 +106,11 @@ function FixedTable(props, ref) {
   let height = props.height;
   let withFooterHeight = props.height;
   const hasFooter = tableFooter && tableFooter.height;
+
   if (hasFooter) {
     withFooterHeight += tableFooter.height;
   }
+
   const bottomFixedCount = showFoot ? 1 : 0;
   const topFixedCount = showHead ? 1 : 0;
   const conRef = useRef();
@@ -210,7 +213,7 @@ function FixedTable(props, ref) {
           Cell,
           tableData,
           setRef: ref => {
-            cache[t.id] = ref;
+            if (ref) cache[t.id] = ref;
           },
         })}
       />
@@ -289,21 +292,27 @@ function FixedTable(props, ref) {
       }
 
       let direction = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? 'x' : 'y';
+
       if (window.isWindows && e.shiftKey) {
         direction = 'x';
       }
 
-      const { $scrollX, $scrollY } = scrollElementsRef.current;
+      // 直接实时查询，避免缓存引用指向已脱离 DOM 的 viewport 节点
+      const $scrollX = conRef.current && conRef.current.querySelector('.scroll-x .scroll-viewport');
+      const $scrollY = conRef.current && conRef.current.querySelector('.scroll-y .scroll-viewport');
 
       if (direction === 'x') {
         let newLeft = cache.left + (window.isWindows && e.shiftKey ? e.deltaY : e.deltaX);
+
         if ($scrollX) {
           $scrollX.scrollLeft = newLeft;
         }
+
         e.preventDefault();
         e.stopPropagation();
       } else if (direction === 'y') {
         let newTop = cache.top + e.deltaY;
+
         if ($scrollY) {
           $scrollY.scrollTop = newTop;
         }
@@ -344,11 +353,13 @@ function FixedTable(props, ref) {
     // 然后通过节流函数处理滚动逻辑
     throttledMouseWheel(e);
   }
+
   // hammer event
   function handlePanMove(e) {
     if (window.disableTableScroll) {
       return;
     }
+
     const isScrollVer = Math.abs(e.deltaY) > Math.abs(e.deltaX);
     setHammer('leftForHammer', hammerCache.leftForHammer + hammerCache.lastPandeltaX - e.deltaX);
     setHammer('topForHammer', hammerCache.topForHammer + hammerCache.lastPandeltaY - e.deltaY);
@@ -356,6 +367,7 @@ function FixedTable(props, ref) {
     setHammer('lastPandeltaY', e.deltaY);
     const $scrollX = conRef.current.querySelector('.scroll-x .scroll-viewport');
     const $scrollY = conRef.current.querySelector('.scroll-y .scroll-viewport');
+
     if (isScrollVer) {
       if ($scrollY) {
         $scrollY.scrollTop = hammerCache.topForHammer;
@@ -379,9 +391,11 @@ function FixedTable(props, ref) {
     setScroll: (left, top) => {
       const $scrollX = conRef.current.querySelector('.scroll-x .scroll-viewport');
       const $scrollY = conRef.current.querySelector('.scroll-y .scroll-viewport');
+
       if (!_.isUndefined(left) && $scrollX) {
         $scrollX.scrollLeft = left;
       }
+
       if (!_.isUndefined(top) && $scrollY) {
         $scrollY.scrollTop = top;
       }
@@ -440,6 +454,7 @@ function FixedTable(props, ref) {
         tablehammer.current.off('panend', handlePanEnd);
         tablehammer.current.destroy();
       }
+
       // 清理节流函数
       throttledMouseWheel.cancel();
     };
@@ -515,7 +530,7 @@ function FixedTable(props, ref) {
             width: '100%',
             height: '100%',
             overflow: 'hidden',
-            backgroundColor: 'rgba(255,255,255,0.9)',
+            backgroundColor: 'var(--color-background-secondary)',
             color: 'var(--color-text-secondary)',
           }}
         >

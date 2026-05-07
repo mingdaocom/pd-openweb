@@ -26,6 +26,7 @@ function genCard(from, type = 'public', params = {}) {
       },
     };
   }
+
   return {
     cardType: 7,
     title: params.title,
@@ -64,21 +65,23 @@ export default function Share(props) {
   const privateVisible =
     from === 'report'
       ? params.privateVisible
-      : ['view', 'recordInfo', 'newRecord', 'chatbot', 'aiAction'].includes(from)
+      : ['view', 'recordInfo', 'newRecord', 'chatbot', 'aiAction', 'mingoHelp'].includes(from)
         ? privateShare
         : !_.includes(['worksheetApi', 'pay'], from);
   const isEmbed = _.includes(['customPage'], from);
   const privateTitle = isEmbed ? _l('嵌入链接') : _l('内部成员访问');
   let disabledTip;
+
   if (!isCharge) {
     if (from === 'recordInfo') {
       disabledTip = _l('记录拥有者才能操作');
-    } else if (from === 'chatbot' || from === 'aiAction') {
+    } else if (['chatbot', 'aiAction', 'mingoHelp'].includes(from)) {
       disabledTip = _l('会话拥有者才能操作');
     } else {
       disabledTip = _l('系统角色（包含管理员、运营者、开发者）才能操作');
     }
   }
+
   const handleChangePageTitle = () => {
     if (_.includes(['view'], from)) {
       getPublicShareInfo({
@@ -86,10 +89,12 @@ export default function Share(props) {
         ...shareData,
       });
     }
-    if (_.includes(['customPage', 'chatbot', 'aiAction'], from)) {
+
+    if (_.includes(['customPage', 'chatbot', 'aiAction', 'mingoHelp'], from)) {
       editEntityShare(shareData);
     }
   };
+
   async function updatePublicShare(active, defaultTitle) {
     const result = await updatePublicShareStatus({
       from,
@@ -103,6 +108,7 @@ export default function Share(props) {
     setPublicUrl(result ? `${result.shareLink}${isPayShare ? '?payshare=true' : ''}` : null);
     setUrlVisible(false);
   }
+
   async function getPublicShareInfo(data) {
     const result = await getPublicShare({
       from,
@@ -114,10 +120,11 @@ export default function Share(props) {
     const active = result && !!result.shareLink;
     setIsPublic(active);
     setPublicUrl(result ? `${result.shareLink}${isPayShare ? '?payshare=true' : ''}` : null);
-    if (!active && ['chatbot', 'aiAction'].includes(from)) {
+    if (!active && ['chatbot', 'aiAction', 'mingoHelp'].includes(from)) {
       updatePublicShare(true, props.isCustomShare ? params.title : undefined);
     }
   }
+
   async function editEntityShare(data) {
     const result = await updatePublicShareStatus({
       from,
@@ -128,6 +135,7 @@ export default function Share(props) {
     });
     setShareData(result.appEntityShare);
   }
+
   useEffect(() => {
     if (privateVisible) {
       (async () => {
@@ -200,7 +208,7 @@ export default function Share(props) {
                 <Tooltip title={disabledTip} placement="right">
                   <span>
                     <Switch
-                      disabled={from === 'chatbot' || from === 'aiAction' ? false : !isCharge}
+                      disabled={['chatbot', 'aiAction', 'mingoHelp'].includes(from) ? false : !isCharge}
                       checked={isPublic}
                       onClick={() => updatePublicShare(!isPublic)}
                     />
@@ -221,9 +229,9 @@ export default function Share(props) {
               {isFromWorksheetApi && (
                 <Fragment>
                   <Switch disabled={!isCharge} checked={isPublic} onClick={() => updatePublicShare(!isPublic)} />
-                  <div className="flex"></div>
                 </Fragment>
               )}
+              <div className="flex"></div>
               {isPublic && !urlVisible && (
                 <Fragment>
                   {isPayShare && (
@@ -241,6 +249,7 @@ export default function Share(props) {
                           if (includes(['recordInfo', 'view'], from)) {
                             await getPublicShareInfo();
                           }
+
                           setUrlVisible(true);
                         },
                       })
@@ -284,7 +293,7 @@ export default function Share(props) {
                   {_l('编辑公开表单')}
                 </a>
               )}
-              {_.includes(['view', 'customPage', 'chatbot', 'aiAction'], from) && (
+              {_.includes(['view', 'customPage', 'chatbot', 'aiAction', 'mingoHelp'], from) && (
                 <div className="flex flexRow alignItemsCenter mTop16 validityDateConfig">
                   <div className="labelName mRight8">{_l('标题')}</div>
                   <Input
@@ -305,7 +314,10 @@ export default function Share(props) {
                   />
                 </div>
               )}
-              {_.includes(['view', 'recordInfo', 'customPage', 'worksheetApi', 'chatbot', 'aiAction'], from) && (
+              {_.includes(
+                ['view', 'recordInfo', 'customPage', 'worksheetApi', 'chatbot', 'aiAction', 'mingoHelp'],
+                from,
+              ) && (
                 <Validity
                   data={shareData}
                   onChange={data => {
@@ -320,7 +332,8 @@ export default function Share(props) {
                         ...data,
                       });
                     }
-                    if (_.includes(['customPage', 'worksheetApi', 'chatbot', 'aiAction'], from)) {
+
+                    if (_.includes(['customPage', 'worksheetApi', 'chatbot', 'aiAction', 'mingoHelp'], from)) {
                       editEntityShare(data);
                     }
                   }}

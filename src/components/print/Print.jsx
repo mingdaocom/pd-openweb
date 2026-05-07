@@ -60,6 +60,7 @@ const allocationTask = result => {
     } else {
       item.value = result[item.key];
     }
+
     return item;
   });
 };
@@ -104,6 +105,7 @@ export default class Print extends Component {
   }
   componentWillMount = () => {
     const { params } = this.props.match;
+
     if (params.printType === 'worksheet') {
       this.initWorksheet();
     } else if (params.printType === 'task') {
@@ -241,6 +243,7 @@ export default class Print extends Component {
   getShowContent = function (item, sourceControlType, valueItem, relationItemKey) {
     const value = sourceControlType ? valueItem : item.value;
     const type = sourceControlType || item.type;
+
     switch (type) {
       case 1:
       case 2:
@@ -295,6 +298,7 @@ export default class Print extends Component {
         const selectItem = item.options.filter(optionItem => optionItem.key == value);
         return selectItem.length > 0 ? selectItem[0].value : '';
       }
+
       case 11: {
         if (value && item.dataSource && !item.sourceControlId) {
           try {
@@ -304,29 +308,37 @@ export default class Print extends Component {
             return JSON.parse(value).label || '';
           }
         }
+
         const selectItem = item.options.filter(optionItem => optionItem.key == value);
         return selectItem.length > 0 ? selectItem[0].value : '';
       }
+
       case 10: {
         let text = '';
+
         if (value) {
           const keys = [];
+
           for (let i = 0; i < value.length; i++) {
             if (value[i] !== '0') {
               keys.push('1' + value.slice(i + 1).replace(/1/g, 0));
             }
           }
+
           text = item.options
             .filter(option => keys.indexOf(option.key) > -1)
             .map(option => option.value)
             .join(',');
         }
+
         return text;
       }
+
       case 14:
         if (this.state.type === 'worksheet' || this.state.type === 'workflow') {
           return this.renderRecordAttachments(value, item.isRelateMultipleSheet);
         }
+
         return value
           ? JSON.parse(value)
               .map(item => item.originalFilename)
@@ -334,8 +346,10 @@ export default class Print extends Component {
           : ' ';
       case 17: {
         let showContent = '';
+
         if (value) {
           let newValue = '';
+
           if (this.state.type === 'worksheet' || this.state.type === 'workflow') {
             try {
               newValue =
@@ -351,10 +365,13 @@ export default class Print extends Component {
           } else {
             newValue = value.split(',');
           }
+
           const days = moment(new Date(Number(newValue[1]))).diff(moment(new Date(Number(newValue[0]))), 'days') + 1; // 时间差
+
           if (item.enumDefault2 === 1) {
             showContent = '    ' + _l('时长:  %0天', days);
           }
+
           return value && newValue
             ? _l(
                 '%0 至 %1',
@@ -363,12 +380,16 @@ export default class Print extends Component {
               ) + showContent
             : '';
         }
+
         return null;
       }
+
       case 18: {
         let showContent = '';
+
         if (value) {
           let newValue = '';
+
           if (this.state.type === 'worksheet' || this.state.type === 'workflow') {
             try {
               newValue =
@@ -384,10 +405,12 @@ export default class Print extends Component {
           } else {
             newValue = value.split(',');
           }
+
           const timeDifference = Number(newValue[1]) - Number(newValue[0]); // 时间差
           // const days = Math.floor(timeDifference / (24 * 3600 * 1000)); // 时间差转化成天数
           // const leave1 = timeDifference % (24 * 3600 * 1000); // 计算天数后剩余的毫秒数
           const hours = Number(timeDifference / (3600 * 1000)).toFixed(1); // 相差的小时
+
           if (item.enumDefault2 === 1) {
             showContent = `    ${_l('时长')}: ${_l('%0小时', hours)}`;
             if (this.state.type === 'worksheet' || this.state.type === 'workflow') {
@@ -408,6 +431,7 @@ export default class Print extends Component {
               } ${minutes > 0 ? _l('%0分钟', minutes) : ''} `;
             }
           }
+
           return value && newValue
             ? _l(
                 '%0 至 %1',
@@ -416,8 +440,10 @@ export default class Print extends Component {
               ) + showContent
             : '';
         }
+
         return null;
       }
+
       case 21: {
         if (value) {
           const getTypeName = type => {
@@ -436,6 +462,7 @@ export default class Print extends Component {
                 return _l('重复日程') + '：';
             }
           };
+
           const relationshipItem = (relationValueItem, index) => {
             return (
               <div className="relationshipItem" key={item.controlId + '-relationValueItem-' + index}>
@@ -445,6 +472,7 @@ export default class Print extends Component {
               </div>
             );
           };
+
           const newValue = JSON.parse(value);
           const content = (
             <div key={relationItemKey || item.controlId} className="relationshipBox">
@@ -453,8 +481,10 @@ export default class Print extends Component {
           );
           return content;
         }
+
         return '';
       }
+
       case 26:
         return value
           ? this.state.type === 'worksheet' || this.state.type === 'workflow'
@@ -476,11 +506,13 @@ export default class Print extends Component {
       case 29:
         if (item.enumDefault === 1) {
           let records = [];
+
           try {
             records = JSON.parse(value);
           } catch (err) {
             console.log(err);
           }
+
           return records
             .map(
               r =>
@@ -491,6 +523,7 @@ export default class Print extends Component {
             .join('，');
         } else {
           const { relateRecords } = this.state;
+
           if (relateRecords && relateRecords[item.controlId]) {
             return this.renderTable(relateRecords[item.controlId], item);
           } else {
@@ -501,36 +534,46 @@ export default class Print extends Component {
             );
           }
         }
+
       case 30: {
         const showContent = this.getShowContent(item, item.sourceControlType, value, item.controlId);
         return showContent || '';
       }
+
       case 40: {
         let location;
+
         try {
           location = JSON.parse(value);
         } catch (err) {
           console.log(err);
           return '';
         }
+
         return location.title + ' ' + location.address;
       }
+
       case 38: {
         const { enumDefault, unit } = item;
         let content;
+
         if (!value) {
           content = '';
         } else {
           content = enumDefault === 1 ? formatFormulaDate({ value, unit }) : value;
         }
+
         return content;
       }
+
       case 41: {
         return <div className="richText" dangerouslySetInnerHTML={{ __html: filterXss(value) }}></div>;
       }
+
       case 42: {
         return <img src={value} style={{ width: 168 }} />;
       }
+
       case 10010:
         return <div className="richText" dangerouslySetInnerHTML={{ __html: filterXss(value) }}></div>;
       default:
@@ -539,12 +582,14 @@ export default class Print extends Component {
   };
   renderRecordAttachments(value, isRelateMultipleSheet) {
     let attachments;
+
     try {
       attachments = JSON.parse(value);
     } catch (err) {
       console.log(err);
       return <span className="mBottom5 InlineBlock" dangerouslySetInnerHTML={{ __html: '&nbsp;' }}></span>;
     }
+
     const pictureAttachments = attachments.filter(attachment => RegExpValidator.fileIsPicture(attachment.ext));
     const otherAttachments = attachments.filter(attachment => !RegExpValidator.fileIsPicture(attachment.ext));
     return (
@@ -666,6 +711,7 @@ export default class Print extends Component {
       );
     });
     let result;
+
     switch (evaluateType) {
       case 2: {
         let evaluateValue = 0;
@@ -675,6 +721,7 @@ export default class Print extends Component {
         result = evaluateValue;
         break;
       }
+
       case 3: {
         let evaluateValue = 0;
         controlArray.forEach(item => {
@@ -683,14 +730,17 @@ export default class Print extends Component {
         result = accDiv(evaluateValue, controlArray.length);
         break;
       }
+
       case 4: {
         result = _.min(controlArray);
         break;
       }
+
       case 5: {
         result = _.max(controlArray);
         break;
       }
+
       case 6: {
         let evaluateValue = 1;
         controlArray.forEach(item => {
@@ -700,6 +750,7 @@ export default class Print extends Component {
         break;
       }
     }
+
     result = evaluateType !== 2 ? result.toFixed(dot).toString() : result.toString();
     const montyCn = mapControl.type === 8 && showMoney ? nzhCn.toMoney(result).substring(3) : '';
     result =
@@ -715,6 +766,7 @@ export default class Print extends Component {
   };
   showPrintDialog = function () {
     const controlOption = this.state.controlOption || [];
+
     if (controlOption.length === 0) {
       this.state.reqInfo.controls
         .filter(item => !item.printHide)
@@ -729,15 +781,18 @@ export default class Print extends Component {
         }
       });
     }
+
     this.setState({ showPrintDialog: true, printCheckAll: this.state.printCheckAll, controlOption });
   }.bind(this);
   changePrintVisible = function (processOption, printCheckAll, controlOption, options) {
     let controls = [];
+
     if (this.state.type === 'worksheet') {
       controls = this.state.rowInfo.controls;
     } else {
       controls = this.state.reqInfo.controls;
     }
+
     const formDetailEvaluate = [];
     // 单独把统计的打印放到一个数组
     controlOption
@@ -774,7 +829,9 @@ export default class Print extends Component {
         }
       });
     }
+
     const controlData = _.groupBy(controls, 'row');
+
     if (this.state.type === 'worksheet' || this.state.type === 'task' || this.state.type === 'workflow') {
       this.setState({
         showPrintDialog: false,
@@ -788,6 +845,7 @@ export default class Print extends Component {
         manageItem.workType = 2;
       });
       const newWorkList = JSON.parse(JSON.stringify(this.state.reqWorks));
+
       if (processOption === 'some') {
         newWorkList.taskList.forEach(taskItem => {
           if (taskItem.countersignType) {
@@ -825,6 +883,7 @@ export default class Print extends Component {
           );
         });
       }
+
       const workList = newWorkList.taskList.concat(newWorkList.manageList);
       this.setState({
         showPrintDialog: false,
@@ -854,13 +913,16 @@ export default class Print extends Component {
   };
   beforeControlIsDetail = function (key) {
     const { type } = this.state;
+
     if (type !== 'hr') {
       return false;
     }
+
     if (this.state.controls[Number(key) - 1]) {
       if (this.state.controls[Number(key) - 1][0].type === 0) {
         return true;
       }
+
       return false;
     } else if (Number(key) - 1 >= 0) {
       return this.beforeControlIsDetail(Number(key) - 1);
@@ -972,6 +1034,7 @@ export default class Print extends Component {
           )}
           {Object.keys(this.state.controls).map(key => {
             const controlItem = this.state.controls[key];
+
             if (controlItem.length === 1) {
               if (controlItem[0].type === 0 && !controlItem[0].printHide) {
                 if (this.state.detailsType === 2) {
@@ -1140,6 +1203,7 @@ export default class Print extends Component {
                     </tr>
                   );
                 }
+
                 return (
                   <tr
                     key={key}
@@ -1386,6 +1450,7 @@ export default class Print extends Component {
                     </tr>
                   ));
                 }
+
                 return (
                   <tr
                     key={key}
@@ -1486,6 +1551,7 @@ export default class Print extends Component {
                 return null;
               }
             }
+
             return (
               controlItem.filter(item => !item.printHide).length > 0 && (
                 <tr key={key} className="row clearfix Relative notDetails">
@@ -1553,9 +1619,11 @@ export default class Print extends Component {
     const { task, configOptions, rowInfo } = this.state;
     let { logo } = this.state;
     const code = task.filter(item => item.key === 'code')[0] || {};
+
     if (this.state.worksheetId && configOptions.showWorkflowQrCode && rowInfo && rowInfo.shortUrl) {
       logo = md.global.Config.AjaxApiUrl + 'code/CreateQrCodeImage?url=' + rowInfo.shortUrl;
     }
+
     setInterval(() => {
       if ($('.kf5-support-chat, #containerBg, #topBarContainer').length > 0) {
         $('.kf5-support-chat, #containerBg, #topBarContainer').remove();

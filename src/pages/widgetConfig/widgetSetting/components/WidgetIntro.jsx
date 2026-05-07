@@ -121,6 +121,7 @@ export default function WidgetIntro(props) {
     //子表转工作表
     if (info.type === 'SHEET') {
       const isHaveCanSetAsTitle = _.some(relationControls, canSetAsTitle);
+
       if (isHaveCanSetAsTitle) {
         Dialog.confirm({
           title: _l('将子表转为工作表'),
@@ -144,6 +145,7 @@ export default function WidgetIntro(props) {
                   if (window.subListSheetConfig[controlId]) {
                     window.subListSheetConfig[controlId].mode = 'relate';
                   }
+
                   onChange({ ...handleAdvancedSettingChange(data, { searchrange: '1' }), needUpdate: true });
                   alert(_l('转换成功'));
                 } else {
@@ -155,6 +157,7 @@ export default function WidgetIntro(props) {
       } else {
         setTitleVisible(true);
       }
+
       return;
     }
 
@@ -193,6 +196,7 @@ export default function WidgetIntro(props) {
 
     if (info.type === 'RICH_TEXT') {
       const error = checkWidgetMaxNumErr(newData, allControls);
+
       if (error) {
         alert(error, 3);
         return;
@@ -204,6 +208,7 @@ export default function WidgetIntro(props) {
       if (_.includes(['MONEY', 'NUMBER'], info.type)) {
         newData = handleAdvancedSettingChange(newData, _.pick(advancedSetting, ['prefix', 'suffix', 'dot']));
       }
+
       onChange(newData);
       return;
     }
@@ -212,6 +217,7 @@ export default function WidgetIntro(props) {
       onChange({ ...handleAdvancedSettingChange(data, { chooseothertype: '0' }), type: newData.type });
       return;
     }
+
     // 多选转单选 需要将默认选中设为一个
     if (type === 10) {
       const isMultipleDropdown = _.get(data, 'advancedSetting.checktype') === '1';
@@ -221,6 +227,7 @@ export default function WidgetIntro(props) {
       });
       return;
     }
+
     // 下拉转多选需要设置排列方式
     if (type === 11) {
       onChange({ type: 10, advancedSetting: { direction: '0', chooseothertype: '0', checktype: '1' } });

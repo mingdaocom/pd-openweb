@@ -33,6 +33,7 @@ class UserItem extends Component {
       fullDepartmentInfo: {},
       password: '',
       optListVisible: false,
+      password: '',
       isTopUp: props.user.displayOrder > 0,
     };
   }
@@ -44,6 +45,7 @@ class UserItem extends Component {
     if (_.isEmpty(departmentIds)) {
       return;
     }
+
     departmentController
       .getDepartmentFullNameByIds({
         projectId,
@@ -82,6 +84,7 @@ class UserItem extends Component {
   renderContact(user) {
     const { mobilePhone, isPrivateMobile } = user;
     let mobileTpl = null;
+
     if (mobilePhone) {
       mobileTpl = (
         <div className="ellipsis w100">
@@ -112,6 +115,7 @@ class UserItem extends Component {
   renderEmail(user) {
     let emailTpl = null;
     const { email, isPrivateEmail } = user;
+
     if (email) {
       emailTpl = <span title={email}>{email}</span>;
     } else if (isPrivateEmail) {
@@ -121,11 +125,13 @@ class UserItem extends Component {
         </span>
       );
     }
+
     return emailTpl;
   }
 
   sendNotice(type) {
     const { projectId, accountId } = this.props;
+
     return event => {
       event.stopPropagation();
 
@@ -278,9 +284,11 @@ class UserItem extends Component {
     const { global = {} } = md;
     const { SysSettings = {} } = global;
     const { passwordRegexTip } = SysSettings;
+
     if (!this.state.resetPasswordShowDialog) {
       return '';
     }
+
     return (
       <Dialog
         title={_l('重置密码')}
@@ -314,6 +322,7 @@ class UserItem extends Component {
     const { global = {} } = md;
     const { SysSettings = {} } = global;
     const { passwordRegexTip } = SysSettings;
+
     if (_.isEmpty(password)) {
       alert(_l('请输入新密码'), 3);
       return;
@@ -321,6 +330,7 @@ class UserItem extends Component {
       alert(passwordRegexTip || _l('密码过于简单，至少8~20位且含字母+数字'), 3);
       return;
     }
+
     userController
       .resetPassword({
         projectId,

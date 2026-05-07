@@ -16,12 +16,14 @@ export const byDay = (beginTime, endTime) => {
   endTime = endTime.clone();
   const durDays = moment.duration(endTime.diff(beginTime)).asDays();
   const res = {};
+
   for (let i = 0; i < durDays; i++) {
     const key = beginTime.format('YYYY.MM');
     const val = `${beginTime.date()}`;
     res[key] ? res[key].push(val) : (res[key] = [val]);
     beginTime.add(1, 'day');
   }
+
   return formatData(res);
 };
 
@@ -35,12 +37,14 @@ export const byWeek = (beginTime, endTime) => {
   endTime = endTime.clone();
   const durWeeks = Math.round(moment.duration(endTime.diff(beginTime)).asDays() / 7);
   const res = {};
+
   for (let i = 0; i < durWeeks; i++) {
     const key = beginTime.format('YYYY.MM');
     const val = `${beginTime.date()}-${beginTime.add(6, 'day').date()}日 ${beginTime.week()}周`;
     res[key] ? res[key].push(val) : (res[key] = [val]);
     beginTime.add(1, 'day');
   }
+
   return formatData(res);
 };
 
@@ -54,12 +58,14 @@ export const byMonth = (beginTime, endTime) => {
   endTime = endTime.clone();
   const durMonths = Math.round(moment.duration(endTime.diff(beginTime)).asMonths());
   const res = {};
+
   for (let i = 0; i < durMonths; i++) {
     const key = `${beginTime.year()}`;
     const val = `${beginTime.month() + 1}月`;
     res[key] ? res[key].push(val) : (res[key] = [val]);
     beginTime.add(1, 'month');
   }
+
   return formatData(res);
 };
 

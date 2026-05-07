@@ -30,6 +30,7 @@ const SecondGroupItem = props => {
     viewData,
     allowOperation,
     currentGroupKey,
+    buttonsCheckStatus,
     ...rest
   } = props;
   const [createRecordVisible, setCreateRecordVisible] = useState(false);
@@ -100,6 +101,7 @@ const SecondGroupItem = props => {
             groupControl={control}
             currentGroupKey={currentGroupKey}
             secondGroupOpt={secondGroupOpt}
+            buttonsCheckStatus={buttonsCheckStatus}
             {...rest}
           />
         ))}
@@ -113,6 +115,7 @@ const SecondGroupItem = props => {
           showFillNext
           onAdd={record => {
             let key = curList.key;
+
             // 一级分组为-1时，表示未指定，新增的数据要重新判断在哪个一级分组下
             if (key === '-1') {
               const firstGroupKeys = viewData.map(group => group.key);

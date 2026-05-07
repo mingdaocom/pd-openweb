@@ -33,16 +33,19 @@ export const getPropValue = (key, value) => {
   if (MarkerAllProps.indexOf(key) === -1) {
     return null;
   }
+
   if (key === 'position') {
     return getAMapPosition(value);
   } else if (key === 'offset') {
     return getAMapPixel(value);
   }
+
   return value;
 };
 
 export const renderMarkerComponent = (component, marker) => {
   let child = component;
+
   if (isFun(component)) {
     const extData = marker.getExtData();
     child = component(extData);

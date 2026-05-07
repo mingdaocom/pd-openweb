@@ -5,11 +5,13 @@ import './index.less';
 
 export default (callback = () => {}, onCancel = () => {}) => {
   const randstr = generateRandomPassword(16);
+
   const getImgLink = () => {
     return `${
       __api_server__.main
     }code/CreateVerifyCodeImage?width=320&height=130&fontSize=30&randstr=${randstr}&${Math.random()}`;
   };
+
   const LANG_MAPS = {
     'zh-Hans': 'zh-cn',
     'zh-Hant': 'zh-hk',

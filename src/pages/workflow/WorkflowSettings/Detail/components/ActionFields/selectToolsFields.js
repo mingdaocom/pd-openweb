@@ -17,6 +17,7 @@ const SelectToolsFields = props => {
   const [selectNodeId, setSelectNodeId] = useState('');
   const [selectControlId, setSelectControlId] = useState('');
   const [list, setList] = useState(null);
+
   const toolTitle = item => {
     return (
       <div className="flexRow alignItemsCenter">
@@ -27,6 +28,7 @@ const SelectToolsFields = props => {
       </div>
     );
   };
+
   const fieldTitle = (item, showType = true) => {
     return (
       <div className="flexRow alignItemsCenter">
@@ -35,6 +37,7 @@ const SelectToolsFields = props => {
       </div>
     );
   };
+
   const fieldList = selectNodeId && list ? list.find(o => o.nodeId === selectNodeId).controls : [];
 
   useEffect(() => {

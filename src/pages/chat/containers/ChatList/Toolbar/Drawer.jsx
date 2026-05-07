@@ -42,7 +42,7 @@ const ToolbarDrawer = props => {
   const maxDrawerWidht = bodyWidth - 250 - rightToolbarWidth;
 
   const handleResize = () => {
-    setDragLeft(document.body.clientWidth - width - rightToolbarWidth);
+    setDragLeft(_.get(document.body, 'clientWidth') - width - rightToolbarWidth);
   };
 
   useEffect(() => {

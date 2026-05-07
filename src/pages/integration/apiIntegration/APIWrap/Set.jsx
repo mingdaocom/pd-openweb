@@ -51,11 +51,12 @@ function ItemCon(props) {
 
 export default function Set(props) {
   const { flowNodeMap, startEventId } = _.get(props, ['info']) || {};
-  const canEdit = props.connectInfo.type === 1 && props.isConnectOwner;
+  const canEdit = (props.connectInfo.type === 1 || _.get(props.connectInfo, 'info.allowEdit')) && props.isConnectOwner;
   const [newPreId, setNewId] = useState('');
   const [list, setList] = useState([]);
   useEffect(() => {
     let l = [];
+
     const getList = startEventId => {
       let data = flowNodeMap[startEventId];
       l.push(data);
@@ -63,6 +64,7 @@ export default function Set(props) {
         getList(data.nextId);
       }
     };
+
     getList(startEventId);
     let list = l.filter(o => [23, 8, 21, 14].includes(o.typeId));
     const i = list.findIndex(it => it.typeId === 23);

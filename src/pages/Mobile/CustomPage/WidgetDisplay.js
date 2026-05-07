@@ -78,10 +78,12 @@ function WidgetDisplay(props) {
         />
       );
     }
+
     if (componentType === 'richText') {
       const translateInfo = getTranslateInfo(ids.appId, null, widget.id);
       return <RichText editable={false} widget={widget} value={translateInfo.description || value || ''} />;
     }
+
     if (componentType === 'button')
       return (
         <ButtonList
@@ -115,16 +117,20 @@ function WidgetDisplay(props) {
         />
       );
     }
+
     if (componentType === 'view') {
       return <ViewContent appId={ids.appId} setting={widget} />;
     }
+
     if (componentType === 'filter') {
       return <Filter ids={ids} apk={apk} widget={widget} />;
     }
+
     if (componentType === 'carousel') {
       const { config, componentConfig } = widget;
       return <CarouselPreview config={config} componentConfig={componentConfig} />;
     }
+
     if (['tabs', 'card'].includes(componentType)) {
       return (
         <TabsContent
@@ -141,10 +147,12 @@ function WidgetDisplay(props) {
         />
       );
     }
+
     if (componentType === 'image') {
       return <Image themeColor={apk.iconColor} widget={widget} editable={false} customPageConfig={pageConfig} />;
     }
   };
+
   return (
     <WidgetContent
       className={`mobile${fistLetterUpper(componentType)} ${componentType}-${['tabs', 'card'].includes(componentType) ? _.get(widget, 'config.objectId') : widget.id} flexColumn`}

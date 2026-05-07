@@ -19,6 +19,7 @@ const updateHierarchyRecord = ({ state, path, updater }) => {
       [path[0]]: { $apply: item => ({ ...item, ...updater }) },
     });
   }
+
   const temp = _.cloneDeep(state);
   const wholePath = dealPath(path);
   const prevValue = _.get(state, wholePath);
@@ -40,6 +41,7 @@ const genTree = (
   if (level < 0) return [];
   level = level - 1;
   const children = [];
+
   for (let i = 0; i < data.length; i++) {
     const rowId = _.isString(data[i]) ? data[i] : data[i].rowid;
     const node = treeData[rowId] || {};
@@ -60,6 +62,7 @@ const genTree = (
       }),
     });
   }
+
   return children;
 };
 
@@ -69,16 +72,20 @@ const updateHierarchyVisible = ({ state = [], currentItem }) => {
   //本身不展开
   const filterPathId = pathId.filter(id => id !== rowId);
   const index = _.findIndex(state, da => _.includes(filterPathId, da.rowId));
+
   if (index > -1) {
     const treeChange = tree => {
       for (const item of tree) {
         if (item.children && item.children.length > 0) {
           treeChange(item.children);
         }
+
         return _.includes(filterPathId, item.rowId) ? { ...item, visible: true } : item;
       }
+
       return tree;
     };
+
     const newData = treeChange([state[index]]);
     return update(state, { $splice: [[index, 1, newData]] });
   } else {
@@ -106,6 +113,7 @@ const addChildrenRecordState = ({ state, data, path, pathId, spliceTempRecord = 
   if (!path.length) return state;
   const getNextChildren = children => {
     const actualChildren = children.filter(item => typeof item !== 'string');
+
     if (spliceTempRecord) {
       return update(children, {
         $splice: [
@@ -122,6 +130,7 @@ const addChildrenRecordState = ({ state, data, path, pathId, spliceTempRecord = 
         ],
       });
     }
+
     return update(children, {
       $push: initState({
         data: [data],
@@ -131,11 +140,13 @@ const addChildrenRecordState = ({ state, data, path, pathId, spliceTempRecord = 
       }),
     });
   };
+
   if (path.length === 1) {
     return update(state, {
       [path[0]]: { children: { $apply: item => getNextChildren(item) } },
     });
   }
+
   const temp = _.cloneDeep(state);
   const wholePath = dealPath(path);
   const prevValue = _.get(state, wholePath);
@@ -147,6 +158,7 @@ const addChildrenRecordState = ({ state, data, path, pathId, spliceTempRecord = 
   });
   return temp;
 };
+
 function multiRelateMoveRecord({ state, src, target }) {
   const { rowId: currentRowId, path: srcPath } = src;
   const { path: targetPath } = target;
@@ -185,6 +197,7 @@ function multiRelateMoveRecord({ state, src, target }) {
   _.set(temp, targetWholePath, nextTargetRecord);
   return temp;
 }
+
 // 移动记录卡片，分别更新原纪录的path和pathId 并将其放入目标记录的children中
 const moveRecord = ({ state, target, src }) => {
   const { path: targetPath } = target;
@@ -207,6 +220,7 @@ const moveRecord = ({ state, target, src }) => {
     _.set(next, targetWholePath, nextTarget);
     return next;
   }
+
   const srcParentPath = dealPath(srcPath.slice(0, -1));
   const srcParent = _.get(temp, srcParentPath);
   const srcIndex = _.findIndex(srcParent.children, item => item.rowId === srcId);
@@ -225,16 +239,19 @@ const moveRecord = ({ state, target, src }) => {
 
 function addTextTitleRecord({ state, data }) {
   const { path } = data;
+
   // 添加顶级记录
   if (_.isEmpty(path)) {
     return update(state, {
       $push: [{ ...data, visible: true, display: true, children: [] }],
     });
   }
+
   const temp = _.cloneDeep(state);
   const node = _.get(temp, dealPath(path));
   return _.set(temp, dealPath(path), update(node, { children: { $push: [data.rowId] } }));
 }
+
 function removeHierarchyTempItem({ state, data }) {
   const { path } = data;
 
@@ -245,6 +262,7 @@ function removeHierarchyTempItem({ state, data }) {
     const index = state.findIndex(item => item.rowId === data.rowId);
     return update(state, { $splice: [[index, 1]] });
   }
+
   const temp = _.cloneDeep(state);
   const node = _.get(temp, dealPath(path));
   return _.set(
@@ -263,6 +281,7 @@ function removeHierarchyTempItem({ state, data }) {
 // 更新层级记录状态树
 export function hierarchyViewState(state = [], action) {
   const { type, data } = action;
+
   switch (type) {
     // 初始化顶级记录
     case 'INIT_HIERARCHY_VIEW_STATE':
@@ -353,6 +372,7 @@ export function hierarchyViewState(state = [], action) {
 
 export function hierarchyViewData(state = {}, action) {
   const { type, data } = action;
+
   switch (type) {
     case 'INIT_HIERARCHY_VIEW_DATA':
       return data;
@@ -375,6 +395,7 @@ export function hierarchyViewData(state = {}, action) {
       } else {
         return { ...state, [data.rowid]: data };
       }
+
     case 'ADD_TOP_LEVEL_STATE_FROM_TEMP':
       return { ...state, [data.rowid]: data };
     default:
@@ -384,6 +405,7 @@ export function hierarchyViewData(state = {}, action) {
 
 export function hierarchyDataStatus(state = { loading: false, hasMoreData: true, pageIndex: 1, pageSize: 50 }, action) {
   const { type, data } = action;
+
   switch (type) {
     case 'CHANGE_HIERARCHY_DATA_STATUS':
       return { ...state, ...data };
@@ -391,6 +413,7 @@ export function hierarchyDataStatus(state = { loading: false, hasMoreData: true,
       return state;
   }
 }
+
 export function hierarchyTopLevelDataCount(state = 0, action) {
   switch (action.type) {
     case 'CHANGE_HIERARCHY_TOP_LEVEL_DATA_COUNT':
@@ -407,9 +430,11 @@ const addRelateControls = (state, { ids, controls }) => {
   }, {});
   return { ...state, ...newControls };
 };
+
 export function hierarchyRelateSheetControls(state = {}, action) {
   const { type, payload = {} } = action;
   const { ids = [], controls = [] } = payload;
+
   switch (type) {
     case 'INIT_HIERARCHY_RELATE_SHEET_CONTROLS':
       return ids.reduce((p, c, index) => {

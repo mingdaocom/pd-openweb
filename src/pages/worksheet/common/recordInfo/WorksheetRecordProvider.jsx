@@ -24,6 +24,7 @@ export default Component =>
 
     componentDidMount() {
       const { loadWorksheetInfo, loadWorksheetRecord, worksheetId, appId, rowId, viewId } = this.props;
+
       if (loadWorksheetInfo) {
         sheetAjax.getWorksheetInfo({ worksheetId: worksheetId, getTemplate: true }).then(data => {
           this.setState({

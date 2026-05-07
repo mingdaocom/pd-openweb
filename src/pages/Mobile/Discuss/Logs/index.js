@@ -5,7 +5,6 @@ import WorksheetRocordLog from 'src/pages/worksheet/components/WorksheetRecordLo
 const LogsContent = styled.div`
   width: 100%;
   height: 100%;
-  color: rgba(0, 0, 0, 0.85);
   background-color: var(--color-background-secondary);
 `;
 

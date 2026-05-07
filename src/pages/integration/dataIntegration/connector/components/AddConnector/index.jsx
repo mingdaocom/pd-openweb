@@ -35,7 +35,7 @@ const HeaderWrapper = styled.div`
   justify-content: space-between;
   align-items: center;
   background-color: var(--color-background-primary);
-  box-shadow: 0 1px 2px rgb(0 0 0 / 0.16);
+  box-shadow: var(--shadow-sm);
 
   .headerLeft {
     display: flex;
@@ -270,6 +270,7 @@ export default function AddConnector(props) {
         if (item.scheduleConfig.readType === 1) {
           const basisField = _.get(item, 'scheduleConfig.config.basisField') || {};
           const firstValue = _.get(item, 'scheduleConfig.config.firstValue');
+
           if (!basisField.id) {
             hanaHasBaseField = false;
             return;
@@ -284,6 +285,7 @@ export default function AddConnector(props) {
             //日期格式
             const regex =
               /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])(?:\s(0\d|1\d|2[0-3]):([0-5]\d)(?::([0-5]\d))?)?$/;
+
             if (!regex.test(firstValue)) {
               validFirstValue = false;
               return;
@@ -302,22 +304,26 @@ export default function AddConnector(props) {
           isSetTitle = false;
           return;
         }
+
         item.destNode.fields.forEach(field => {
           switch (true) {
             case isSourceAppType && isDestAppType:
               if (!field.name.trim()) {
                 isComplete_new = false;
               }
+
               break;
             case !isSourceAppType && isDestAppType:
               if (!field.name.trim() || !field.alias || !field.jdbcTypeId || !field.mdType) {
                 isComplete_new = false;
               }
+
               break;
             default:
               if (!field.name.trim() || !field.alias || !field.jdbcTypeId) {
                 isComplete_new = false;
               }
+
               break;
           }
         });
@@ -341,6 +347,7 @@ export default function AddConnector(props) {
 
       const tableName = _.get(item, ['destNode', 'config', 'tableName']);
       const tableList = item.tableList || [];
+
       if (isCreateTable) {
         if (isDestAppType) {
           if (item.destNode.fields.length > 200) {
@@ -350,7 +357,9 @@ export default function AddConnector(props) {
           if (tableList.filter(item => item.value === tableName).length > 0) {
             isExistTableName = true;
           }
+
           const fieldNames = item.destNode.fields.map(item => item.name);
+
           if (fieldNames.length > _.uniq(fieldNames).length) {
             hasRepeatFields = true;
           }
@@ -361,6 +370,7 @@ export default function AddConnector(props) {
     const newTableNames = submitData
       .filter(item => !!_.get(item, ['destNode', 'config', 'createTable']) && !isDestAppType)
       .map(item => item.destNode.config.tableName);
+
     if (newTableNames.length > _.uniq(newTableNames).length) {
       hasRepeatNewTable = true;
     }

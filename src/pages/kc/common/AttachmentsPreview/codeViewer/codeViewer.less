@@ -71,9 +71,9 @@
     overflow: auto;
     display: block;
     padding: 1em;
-    background: var(--color-text-title);
-    color: var(--color-white);
-    border: 1px solid var(--color-text-placeholder);
+    background: var(--color-background-secondary);
+    color: var(--color-text-primary);
+    border: 1px solid var(--color-border-secondary);
     border-radius: 3px 3px 3px 3px;
     font-size: 13px !important;
     line-height: 1.3em !important;
@@ -738,21 +738,15 @@
   }
 }
 
-// 代码样式
+// Prism 代码高亮 — 基础样式
 .mdcode {
-  /**
-  * prism.js tomorrow night eighties for JavaScript, CoffeeScript, CSS and HTML
-  * Based on https://github.com/chriskempson/tomorrow-theme
-  * @author Rose Pritchard
-  */
   * {
     background: none !important;
     text-shadow: none !important;
   }
+
   code[class*='language-'],
   pre[class*='language-'] {
-    color: var(--color-text-placeholder);
-    background: none;
     font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
     font-size: 1em;
     text-align: left;
@@ -761,98 +755,27 @@
     word-break: normal;
     word-wrap: normal;
     line-height: 1.5;
-
-    -moz-tab-size: 4;
-    -o-tab-size: 4;
     tab-size: 4;
-
-    -webkit-hyphens: none;
-    -moz-hyphens: none;
-    -ms-hyphens: none;
     hyphens: none;
   }
 
-  /* Code blocks */
   pre[class*='language-'] {
     padding: 1em;
     margin: 0.5em 0;
     overflow: auto;
   }
 
-  :not(pre) > code[class*='language-'],
-  pre[class*='language-'] {
-    background: var(--color-background-inverse);
-  }
-
-  /* Inline code */
   :not(pre) > code[class*='language-'] {
-    padding: 0.1em;
+    padding: 0.1em 0.3em;
     border-radius: 0.3em;
     white-space: normal;
-  }
-
-  .token.comment,
-  .token.block-comment,
-  .token.prolog,
-  .token.doctype,
-  .token.cdata {
-    color: var(--color-text-tertiary);
-  }
-
-  .token.punctuation {
-    color: var(--color-text-placeholder);
-  }
-
-  .token.tag,
-  .token.attr-name,
-  .token.namespace,
-  .token.deleted {
-    color: var(--color-error);
-  }
-
-  .token.function-name {
-    color: var(--color-primary-light);
-  }
-
-  .token.boolean,
-  .token.number,
-  .token.function {
-    color: var(--color-warning);
-  }
-
-  .token.property,
-  .token.class-name,
-  .token.constant,
-  .token.symbol {
-    color: var(--color-warning-border);
-  }
-
-  .token.selector,
-  .token.important,
-  .token.atrule,
-  .token.keyword,
-  .token.builtin {
-    color: var(--color-mingo-transparent);
-  }
-
-  .token.string,
-  .token.char,
-  .token.attr-value,
-  .token.regex,
-  .token.variable {
-    color: var(--color-task);
-  }
-
-  .token.operator,
-  .token.entity,
-  .token.url {
-    color: var(--color-cyan);
   }
 
   .token.important,
   .token.bold {
     font-weight: bold;
   }
+
   .token.italic {
     font-style: italic;
   }
@@ -860,8 +783,160 @@
   .token.entity {
     cursor: help;
   }
+}
+
+// Prism Light — based on prism-one-light
+.mdcode {
+  code[class*='language-'],
+  pre[class*='language-'] {
+    color: #383a42;
+    background: none;
+  }
+
+  :not(pre) > code[class*='language-'],
+  pre[class*='language-'] {
+    background: #fafafa;
+  }
+
+  .token.comment,
+  .token.block-comment,
+  .token.prolog,
+  .token.doctype,
+  .token.cdata {
+    color: #a0a1a7;
+    font-style: italic;
+  }
+
+  .token.punctuation {
+    color: #383a42;
+  }
+
+  .token.tag,
+  .token.attr-name,
+  .token.namespace,
+  .token.deleted {
+    color: #e45649;
+  }
+
+  .token.function-name,
+  .token.function {
+    color: #4078f2;
+  }
+
+  .token.boolean,
+  .token.number {
+    color: #986801;
+  }
+
+  .token.property,
+  .token.class-name,
+  .token.constant,
+  .token.symbol {
+    color: #c18401;
+  }
+
+  .token.selector,
+  .token.important,
+  .token.atrule,
+  .token.keyword,
+  .token.builtin {
+    color: #a626a4;
+  }
+
+  .token.string,
+  .token.char,
+  .token.attr-value,
+  .token.regex,
+  .token.variable {
+    color: #50a14f;
+  }
+
+  .token.operator,
+  .token.entity,
+  .token.url {
+    color: #0184bc;
+  }
 
   .token.inserted {
-    color: green;
+    color: #50a14f;
+  }
+}
+
+// Prism Dark — based on prism-one-dark
+[data-theme='dark'] {
+  .mdcode {
+    code[class*='language-'],
+    pre[class*='language-'] {
+      color: #abb2bf;
+      background: none;
+    }
+
+    :not(pre) > code[class*='language-'],
+    pre[class*='language-'] {
+      background: #282c34;
+    }
+
+    .token.comment,
+    .token.block-comment,
+    .token.prolog,
+    .token.doctype,
+    .token.cdata {
+      color: #5c6370;
+      font-style: italic;
+    }
+
+    .token.punctuation {
+      color: #abb2bf;
+    }
+
+    .token.tag,
+    .token.attr-name,
+    .token.namespace,
+    .token.deleted {
+      color: #e06c75;
+    }
+
+    .token.function-name,
+    .token.function {
+      color: #61afef;
+    }
+
+    .token.boolean,
+    .token.number {
+      color: #d19a66;
+    }
+
+    .token.property,
+    .token.class-name,
+    .token.constant,
+    .token.symbol {
+      color: #e5c07b;
+    }
+
+    .token.selector,
+    .token.important,
+    .token.atrule,
+    .token.keyword,
+    .token.builtin {
+      color: #c678dd;
+    }
+
+    .token.string,
+    .token.char,
+    .token.attr-value,
+    .token.regex,
+    .token.variable {
+      color: #98c379;
+    }
+
+    .token.operator,
+    .token.entity,
+    .token.url {
+      color: #56b6c2;
+    }
+
+    .token.inserted {
+      color: #98c379;
+    }
   }
 }

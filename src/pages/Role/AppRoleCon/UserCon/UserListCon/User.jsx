@@ -126,23 +126,31 @@ const userChooseList = [
     text: _l('职位'),
   },
 ];
+
 const getNumTxt = user => {
   let l = [];
+
   if (user.departementCount > 0) {
     l.push(_l('%0个部门', user.departementCount));
   }
+
   if (user.organizeRoleCount > 0) {
     l.push(_l('%0组织角色', user.organizeRoleCount));
   }
+
   if (user.jobCount > 0) {
     l.push(_l('%0个职位', user.jobCount));
   }
+
   if (user.userCount > 0) {
     l.push(_l('%0名人员', user.userCount));
   }
+
   return l.join('、');
 };
+
 let Ajax = null;
+
 function User(props) {
   const {
     appRole = {},
@@ -225,15 +233,18 @@ function User(props) {
     if (!canEditUser && _.get(props, ['appRole', 'roleId']) === 'all') {
       return;
     }
+
     getUserList({ appId }, true);
   }, [props.roleId]);
   //获取部门全路径
   const getDepartmentFullName = (departmentData = []) => {
     const departmentIds = departmentData.filter(it => !fullDepartmentInfo[it]);
     const isExternal = _.isEmpty(getCurrentProject(projectId)); // 是否为外协人员
+
     if (_.isEmpty(departmentIds) || isExternal) {
       return;
     }
+
     departmentController
       .getDepartmentFullNameByIds({
         projectId,
@@ -246,6 +257,7 @@ function User(props) {
         setState({ fullDepartmentInfo });
       });
   };
+
   useEffect(() => {
     getDepartmentFullName(
       _.get(props, 'appRole.userList')
@@ -414,6 +426,7 @@ function User(props) {
             text: <span className="">{_l('移出')}</span>,
           },
         ];
+
         if (
           sysRoleType.includes(roleData.roleType) || //系统角色下
           roleId === 'all' || //tab ‘全部’
@@ -422,6 +435,7 @@ function User(props) {
           //排除角色负责人操作
           dataList = dataList.filter(o => o.value !== -1);
         }
+
         if (data.isOwner) {
           dataList = isOwner
             ? [
@@ -432,6 +446,7 @@ function User(props) {
               ]
             : [];
         }
+
         return (
           <DropOption
             dataList={dataList}
@@ -449,6 +464,7 @@ function User(props) {
                   break;
                 case -1:
                   let memberCategory = (userStatusList.find(o => data.memberType === o.value) || {}).key;
+
                   if (isHead) {
                     //取消负责人
                     changeIsRoleManager({ memberCategory, appId, roleId, memberId: data.id }, false, () => {
@@ -469,6 +485,7 @@ function User(props) {
                       },
                     });
                   }
+
                   break;
                 default:
                   if (isExternal) {
@@ -481,6 +498,7 @@ function User(props) {
                   } else {
                     changeUserRole([itemId]);
                   }
+
                   break;
               }
             }}
@@ -493,26 +511,31 @@ function User(props) {
       },
     },
   ];
+
   //取消或设置成为角色负责人
   const changeIsRoleManager = (param, isRoleCharger, cb) => {
     if (Ajax) {
       Ajax.abort();
     }
+
     if (!isRoleCharger) {
       Ajax = AppManagement.cancelRoleCharger(param);
     } else {
       Ajax = AppManagement.setRoleCharger(param);
     }
+
     Ajax.then(() => {
       //取消当前用户的负责人，刷新页面
       if (param.memberId === md.global.Account.accountId && !isRoleCharger) {
         location.reload();
         return;
       }
+
       getUserList({ appId }, true);
       cb && cb();
     });
   };
+
   const renderPopup = () => {
     return (
       <Menu style={{ position: 'static' }}>
@@ -537,6 +560,7 @@ function User(props) {
                       props.addJobToRole();
                       break;
                   }
+
                   setState({
                     popupVisible: false,
                     selectedAll: false,
@@ -551,6 +575,7 @@ function User(props) {
       </Menu>
     );
   };
+
   const builtinPlacements = {
     topLeft: {
       points: ['bl', 'tl'],
@@ -582,6 +607,7 @@ function User(props) {
       return document.body;
     },
   };
+
   const handleSearch = keyWords => {
     setState({ keyWords });
     SetAppRolePagingModel({
@@ -591,6 +617,7 @@ function User(props) {
     });
     getUserList({ appId }, true);
   };
+
   const onSearch = _.debounce(keywords => handleSearch(keywords), 500);
 
   return (
@@ -703,6 +730,7 @@ function User(props) {
           if (userList.length >= total || userList.length < pageSize * pageIndex || loading) {
             return;
           }
+
           setState({ pageIndex: pageIndex + 1 });
           SetAppRolePagingModel({
             ...appRolePagingModel,
@@ -713,11 +741,13 @@ function User(props) {
         handleChangeSortHeader={sorter => {
           const { field, order } = sorter;
           let data = appRolePagingModel.sort.filter(o => o.fieldType !== (field === 'operateTime' ? 10 : 20));
+
           if (field === 'operateTime') {
             data = [...data, { fieldType: 10, isASC: order === 'ascend' }];
           } else {
             data = [...data, { fieldType: 20, isASC: order === 'ascend' }];
           }
+
           SetAppRolePagingModel({
             ...appRolePagingModel,
             pageIndex: 1,
@@ -730,6 +760,7 @@ function User(props) {
     </Wrap>
   );
 }
+
 const mapStateToProps = state => ({
   portal: state.portal,
 });

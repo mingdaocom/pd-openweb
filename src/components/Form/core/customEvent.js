@@ -35,6 +35,7 @@ const dealDataPermission = props => {
   function setEventPermission(item) {
     // eventPermissions给默认值111，计算会覆盖字段原始只读(x用来区分是否由事件导致变更过)
     let eventPermissions = item.eventPermissions || 'xxx';
+
     switch (actionType) {
       case ACTION_VALUE_ENUM.READONLY:
         eventPermissions = replaceStr(eventPermissions, 1, '0');
@@ -49,6 +50,7 @@ const dealDataPermission = props => {
         eventPermissions = replaceStr(eventPermissions, 0, '0');
         break;
     }
+
     item.eventPermissions = eventPermissions.replace(/x/g, (a, b) => {
       return (item.fieldPermission || '111')[b];
     });
@@ -61,12 +63,14 @@ const dealDataPermission = props => {
     formData.forEach(item => {
       actionItems.map(i => {
         const { controlId, childControlIds = [] } = i || {};
+
         if (controlId === _.get(item, 'controlId')) {
           if (_.isEmpty(childControlIds)) {
             setEventPermission(item);
           } else {
             childControlIds.map(childId => {
               const childControl = _.find(_.get(item, 'relationControls') || [], re => re.controlId === childId);
+
               if (childControl) {
                 setEventPermission(childControl);
               }
@@ -83,20 +87,25 @@ const dealDataPermission = props => {
 // 获取默认值
 const getDynamicData = ({ formData, embedData, masterData }, control) => {
   const defaultType = _.get(control, 'advancedSetting.defaulttype');
+
   // 函数
   if (defaultType === '1') {
     const defaultFunc = _.get(control, 'advancedSetting.defaultfunc');
+
     if (_.isEmpty(defaultFunc)) {
       return isSheetDisplay(control) ? '[]' : '';
     }
+
     return calcDefaultValueFunction({ fnControl: control, formData, forceSyncRun: true });
   } else {
     const defSource = _.get(control, 'advancedSetting.defsource');
     const parsed = safeParse(defSource, 'array');
+
     // 没值或配置清空相当于清空
     if (_.isEmpty(parsed) || _.get(parsed, '0.cid') === 'empty') {
       return isSheetDisplay(control) || control.type === 34 ? '[]' : '';
     }
+
     return getDynamicValue(formData, control, masterData, embedData);
   }
 };
@@ -113,6 +122,7 @@ const getSearchWorksheetData = async props => {
   const currentControl = control || _.find(formData, da => da.controlId === controlId);
   const controls = _.get(templates[0] || {}, 'controls') || [];
   let queryCount = getDefaultCount(currentControl, queryConfig.queryCount);
+
   if (templates.length > 0 && controls.length > 0) {
     const filterControls = getFilter({
       control: {
@@ -138,6 +148,7 @@ const getSearchWorksheetData = async props => {
       sortControls: moreSort,
       ...(_.get(window, 'shareState.shareId') ? { relationWorksheetId: queryConfig.worksheetId } : {}),
     };
+
     if (window.isPublicWorksheet) {
       params.formId = window.publicWorksheetShareId;
     }
@@ -146,6 +157,7 @@ const getSearchWorksheetData = async props => {
 
     if (_.get(resultData, 'resultCode') === 1) {
       let result = resultData.data || [];
+
       // 查询多条时不赋值
       if (
         (canSearchMore(currentControl) && resultData.count > 1 && moreType === 1) ||
@@ -153,11 +165,13 @@ const getSearchWorksheetData = async props => {
       ) {
         result = false;
       }
+
       return { count: resultData.count, result };
     } else {
       return false;
     }
   }
+
   return false;
 };
 
@@ -171,6 +185,7 @@ const getSubListData = async props => {
 
 const getRelateSearchResult = (control, searchResult, isMix) => {
   let newValue = [];
+
   if (isMix) {
     newValue = _.isEmpty(searchResult)
       ? []
@@ -231,6 +246,7 @@ const handleUpdateSearchResult = async props => {
     handleChange(newVal, control.controlId, control, false);
     return;
   }
+
   try {
     const updates = {};
 
@@ -354,6 +370,7 @@ const getSearchWorksheetResult = async props => {
   const currentSearchConfig = _.find(searchConfig, s => s.id === id) || {};
   const { items = [], templates = [], sourceId, moreSort, resultType, controlId } = currentSearchConfig;
   const controls = _.get(templates[0] || {}, 'controls') || [];
+
   if (templates.length > 0 && controls.length > 0) {
     const filterControls = getFilter({
       control: {
@@ -379,6 +396,7 @@ const getSearchWorksheetResult = async props => {
       sortControls: moreSort,
       ...(_.get(window, 'shareState.shareId') ? { relationWorksheetId: currentSearchConfig.worksheetId } : {}),
     };
+
     if (window.isPublicWorksheet) {
       params.formId = window.publicWorksheetShareId;
     }
@@ -388,6 +406,7 @@ const getSearchWorksheetResult = async props => {
     if (_.get(resultData, 'resultCode') === 1) {
       const dataCount = resultData.count || 0;
       let searchConfigResult = false;
+
       // 一条
       if (resultType === 1) {
         searchConfigResult = dataCount === 1;
@@ -398,11 +417,13 @@ const getSearchWorksheetResult = async props => {
       } else {
         searchConfigResult = !!dataCount;
       }
+
       return searchConfigResult;
     } else {
       return false;
     }
   }
+
   return false;
 };
 
@@ -418,6 +439,7 @@ const createRecord = async props => {
 
   actionItems.map(item => {
     const control = _.find(controls, f => f.controlId === item.controlId);
+
     if (control) {
       const formatControl = formatControlToServer(
         { ...control, value: getDynamicData(props, { ...control, advancedSetting: { defsource: item.value } }) },
@@ -495,6 +517,7 @@ const handleSearchApi = async props => {
     alert(apiData.message, 3);
     return;
   }
+
   return apiData.apiQueryData || {};
 };
 
@@ -554,16 +577,20 @@ export const handleSetValueActions = async (actionItems, props) => {
     actionItems.map(async item => {
       const control = _.find(formData, f => f.controlId === item.controlId);
       const actionItemType = item.type === '0' ? '' : item.type;
+
       if (control) {
         // 已有记录关联列表不变更
         const canNotSet =
           control.type === 29 && _.includes(['2', '6'], _.get(control, 'advancedSetting.showtype')) && recordId;
+
         // 查询工作表单独更新
         if (actionItemType === '2') {
           const queryId = _.get(safeParse(item.value || '{}'), 'id');
           const queryConfig = _.find(searchConfig, q => q.id === queryId);
+
           if (!(canNotSet || props.disabled)) {
             const searchResult = await getSearchWorksheetData({ ...props, queryConfig, control });
+
             if (!(searchResult === false)) {
               handleUpdateSearchResult({ ...props, searchResult, queryConfig, control });
             }
@@ -578,10 +605,12 @@ export const handleSetValueActions = async (actionItems, props) => {
               defaulttype: actionItemType,
             },
           });
+
           if (value !== control.value && !canNotSet) {
             if (control.type === 29) {
               try {
                 const records = safeParse(value || '[]');
+
                 if (_.isEmpty(records)) {
                   value = 'deleteRowIds: all';
                 } else {
@@ -596,6 +625,7 @@ export const handleSetValueActions = async (actionItems, props) => {
                 console.log(err);
               }
             }
+
             if (control.type === 34) {
               try {
                 const records = safeParse(value || '[]');
@@ -610,6 +640,7 @@ export const handleSetValueActions = async (actionItems, props) => {
                 console.log(err);
               }
             }
+
             handleChange(value, item.controlId, control, false);
           }
         }
@@ -651,6 +682,7 @@ const triggerCustomActions = async props => {
         const errorInfos = [];
         actionItems.map((item, index) => {
           const errorControl = _.find(formData, f => f.controlId === item.controlId);
+
           if (errorControl) {
             const errorMessage = getDynamicData(props, { ...errorControl, advancedSetting: { defsource: item.value } });
             errorInfos.push({
@@ -660,6 +692,7 @@ const triggerCustomActions = async props => {
               showError: true,
             });
           }
+
           if (index === actionItems.length - 1) completeActionsCount += 1;
         });
         setErrorItems(errorInfos);
@@ -673,6 +706,7 @@ const triggerCustomActions = async props => {
           console.log(error);
           completeActionsCount += 1;
         }
+
         break;
       // 刷新字段值
       case ACTION_VALUE_ENUM.REFRESH_VALUE:
@@ -681,6 +715,7 @@ const triggerCustomActions = async props => {
             await Promise.all(
               actionItems.map(async item => {
                 const control = _.find(formData, f => f.controlId === item.controlId);
+
                 if (control) {
                   const refreshResult = await sheetAjax.refreshSummary({
                     worksheetId,
@@ -698,6 +733,7 @@ const triggerCustomActions = async props => {
           console.log(error);
           completeActionsCount += 1;
         }
+
         break;
       // 调用api、事件封装流程
       case ACTION_VALUE_ENUM.OPERATION_FLOW:
@@ -728,9 +764,11 @@ const triggerCustomActions = async props => {
           advancedSetting: { defsource: message },
         });
         const splitMessage = String(messageInfo).substr(0, 50);
+
         if (splitMessage) {
           alert(splitMessage, Number(advancedSetting.alerttype), undefined, undefined, undefined, { marginTop: 32 });
         }
+
         completeActionsCount += 1;
         break;
       // 播放声音
@@ -738,22 +776,27 @@ const triggerCustomActions = async props => {
         const { fileKey, voicefiles } = advancedSetting;
         const voiceFiles = VOICE_FILE_LIST.concat(safeParse(voicefiles, 'array'));
         const curFile = _.find(voiceFiles, v => v.fileKey === fileKey);
+
         if (fileKey && curFile) {
           let audioSrc = _.get(curFile, 'filePath');
+
           // 上传的mp3置换url
           if (!Number(fileKey)) {
             audioSrc = await fileAjax.getChatFileUrl({ serverName: curFile.filePath, key: fileKey });
           }
+
           if (!window.customEventAudioPlayer) {
             const audio = document.createElement('audio');
             window.customEventAudioPlayer = audio;
           }
+
           window.customEventAudioPlayer.src = audioSrc;
           window.customEventAudioPlayer.play();
           completeActionsCount += 1;
         } else {
           completeActionsCount += 1;
         }
+
         break;
       // 打开链接
       case ACTION_VALUE_ENUM.LINK:
@@ -761,6 +804,7 @@ const triggerCustomActions = async props => {
           type: 2,
           advancedSetting: { defsource: message },
         });
+
         if (advancedSetting.opentype === '2') {
           if (/^https?:\/\/.+$/.test(linkInfo)) {
             Dialog.confirm({
@@ -785,6 +829,7 @@ const triggerCustomActions = async props => {
         } else {
           window.open(linkInfo);
         }
+
         break;
       // 创建记录
       case ACTION_VALUE_ENUM.CREATE:
@@ -799,12 +844,14 @@ const triggerCustomActions = async props => {
         const queryId = _.get(safeParse(advancedSetting.dynamicsrc || '{}'), 'id');
         const queryConfig = _.find(searchConfig, q => q.id === queryId);
         const searchResult = await getSearchWorksheetData({ ...props, queryConfig });
+
         if (searchResult !== false) {
           await handleUpdateSearchResult({ ...props, searchResult, queryConfig, isMix: true });
           completeActionsCount += 1;
         } else {
           completeActionsCount += 1;
         }
+
         break;
     }
   }
@@ -846,6 +893,7 @@ export const dealCustomEvent = props => {
 
   customEvent.forEach(async item => {
     const { eventType, eventActions = [], eventId } = item;
+
     if (eventType === triggerType) {
       // 失焦事件才检查事件是否完成，事件开始执行
       isBlurEvent && checkEventComplete({ [eventId]: true });
@@ -854,8 +902,10 @@ export const dealCustomEvent = props => {
         const { filters = [], actions = [] } = e;
 
         const filterResult = await checkFiltersAvailable({ ...props, filters });
+
         if (_.isEmpty(filters) || filterResult) {
           const completeActionsCount = await triggerCustomActions({ ...props, actions });
+
           // 执行完成
           if (completeActionsCount === actions.length && isBlurEvent) {
             const eventTimer = setTimeout(() => {
@@ -863,9 +913,11 @@ export const dealCustomEvent = props => {
               clearTimeout(eventTimer);
             }, 0);
           }
+
           return;
         }
       }
+
       // 没有事件执行
       isBlurEvent && checkEventComplete({ [eventId]: false });
     }

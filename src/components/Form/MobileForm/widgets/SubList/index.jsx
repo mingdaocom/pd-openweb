@@ -34,6 +34,7 @@ export default function SubList(props) {
   const handleChange = ({ rows, originRows = [], lastAction = {} }, value) => {
     const onChangeData = lastAction.type === 'UPDATE_ROW' && lastAction.asyncUpdate ? debounceChange : onChange;
     const isAdd = !recordId;
+
     if (
       !_.includes(
         [
@@ -51,6 +52,7 @@ export default function SubList(props) {
           'UPDATE_TREE_TABLE_VIEW_TREE_MAP',
           'WORKSHEET_SHEETVIEW_APPEND_ROWS',
           'UPDATE_PAGINATION',
+          'UPDATE_SORT_CONFIG',
         ],
         lastAction.type,
       ) &&
@@ -70,12 +72,14 @@ export default function SubList(props) {
       } else {
         let deleted = [];
         let updated = [];
+
         try {
           deleted = value.deleted || lastAction.deleted || [];
           updated = value.updated || lastAction.updated || [];
         } catch (err) {
           console.log(err);
         }
+
         if (lastAction.type === 'DELETE_ROW') {
           deleted = _.uniqBy(deleted.concat(lastAction.rowid)).filter(id => !/^(temp|default)/.test(id));
         } else if (lastAction.type === 'ADD_ROW' || (lastAction.type === 'UPDATE_ROW' && !lastAction.noRealUpdate)) {
@@ -91,6 +95,7 @@ export default function SubList(props) {
         } else if (lastAction.type === 'ADD_ROWS') {
           updated = _.uniqBy(updated.concat(lastAction.rows.map(r => r.rowid)));
         }
+
         onChangeData({
           deleted,
           updated,

@@ -62,6 +62,7 @@ export const controlState = (data, from) => {
   if (!data) {
     return {};
   }
+
   const controlPermissions = data.controlPermissions || '111';
   const fieldPermission = data.fieldPermission || '111';
   let state = {
@@ -82,9 +83,11 @@ export const controlState = (data, from) => {
 
 export const getControlStateAndCheckSectionControl = (data, from, formData) => {
   const sectionControl = data.sectionId && _.find(formData, c => c.controlId === data.sectionId);
+
   if (!sectionControl) {
     return controlState(data, from);
   }
+
   const stateOfControl = controlState(data, from);
   const stateOfSectionControl = controlState({ ...sectionControl, controlPermissions: '111' }, from);
   return {
@@ -113,7 +116,9 @@ export function getSelectedOptions(options, value, control) {
   if (!value || value === '[]') {
     return [];
   }
+
   let selectedKeys = [];
+
   try {
     selectedKeys = JSON.parse(value);
     return (
@@ -125,6 +130,7 @@ export function getSelectedOptions(options, value, control) {
                 if (selectedKey.indexOf('other') > -1 || selectedKey.indexOf('add_') > -1) {
                   return selectedKey.indexOf(option.key) > -1;
                 }
+
                 return selectedKey === option.key;
               }) && !option.isDeleted,
           ).map(option => option.key)
@@ -135,6 +141,7 @@ export function getSelectedOptions(options, value, control) {
           if (key.indexOf('other') > -1 || key.indexOf('add_') > -1) {
             return key.indexOf(option.key) > -1;
           }
+
           return key === option.key;
         }),
       )
@@ -154,10 +161,13 @@ export function formatFormulaDate({ value, unit = '6', hideUnitStr, dot = 0 }) {
   if (isNegative) {
     value = -1 * value;
   }
+
   const unitType = _.find(UNIT_TYPE, type => type.value === unit);
+
   if (!unitType) {
     return value;
   }
+
   const unitStr = unitType.text;
   const unitTimes = {
     6: 1, // 秒
@@ -190,9 +200,11 @@ export function formatFormulaDate({ value, unit = '6', hideUnitStr, dot = 0 }) {
     .filter(item => item.value !== 0 || item.unit === unitStr)
     .map(item => item.value + item.unit)
     .join('');
+
   if (hideUnitStr) {
     result = result.slice(0, -1);
   }
+
   return result && (isNegative ? '-' : '') + result;
 }
 
@@ -211,11 +223,14 @@ export function fieldCanSort(type, control = {}) {
   const canSortTypes = [
     2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 15, 16, 26, 27, 28, 29, 30, 31, 32, 33, 34, 36, 37, 38, 42, 46, 48, 50, 53,
   ];
+
   if (control.type === 30 && control.strDefault === '10') {
     return false;
   }
+
   return _.includes(canSortTypes, type);
 }
+
 /**
  * 获取字段排序数据
  */
@@ -258,14 +273,17 @@ export function getSortData(type, control = {}) {
     ];
   } else if (type === 36) {
     let defaultText = [_l('未选中 → 选中'), _l('选中 → 未选中')];
+
     if (control.advancedSetting) {
       if (control.advancedSetting.showtype === '1') {
         defaultText = [_l('关闭 → 开启'), _l('开启 → 关闭')];
       }
+
       if (control.advancedSetting.showtype === '2') {
         defaultText = [_l('否 → 是'), _l('是 → 否')];
       }
     }
+
     return [
       {
         text: defaultText[0],
@@ -311,6 +329,7 @@ export function sortControlByIds(controls = [], sortedIds = []) {
   if (!sortedIds.length) {
     return controls;
   }
+
   sortedIds = sortedIds.filter(_.identity);
   const leftControls = controls.filter(c => !_.find(sortedIds, id => (c.controlId || c.data.controlId) === id));
   return sortedIds
@@ -324,6 +343,7 @@ export function getControlsSorts(controls = [], sortedIds = []) {
   if (!sortedIds.length) {
     return controls.map(c => c?.controlId || c?.data?.controlId).filter(() => _.identity);
   }
+
   sortedIds = sortedIds
     .filter(id => _.find(controls, control => (control?.controlId || control?.data?.controlId) === id))
     .filter(_.identity);
@@ -376,6 +396,7 @@ export function replaceByIndex(str = '111', index = 0, replacestr = '') {
 export function updateOptionsOfControl(control, value, realValue) {
   let parsedValue = safeParse(value);
   let newOption;
+
   if (parsedValue.length > 1) {
     const parsedRealValue = safeParse(realValue);
     newOption = parsedValue
@@ -396,6 +417,7 @@ export function updateOptionsOfControl(control, value, realValue) {
       value: value && (value.match(/"add_(.*)"]/) || '')[1],
     };
   }
+
   return {
     ...control,
     options: control.options.concat(newOption),
@@ -405,6 +427,7 @@ export function updateOptionsOfControl(control, value, realValue) {
 // 处理选项自定义选项
 export function updateOptionsOfControls(controls, data) {
   let newOptionControls = [];
+
   try {
     newOptionControls = _.filter(controls, item => _.includes([10, 11], item.type) && /"add_/.test(item.value)).map(c =>
       updateOptionsOfControl(c, c.value, data[c.controlId]),
@@ -473,9 +496,11 @@ export function parseAdvancedSetting(setting = {}) {
 export function completeControls(controls) {
   // 不存在系统字段的话 补充系统字段
   const sysIds = SYSTEM_CONTROLS.map(c => c.controlId);
+
   if (!_.some(controls.map(c => _.includes(sysIds, c.controlId)))) {
     controls = controls.concat(SYSTEM_CONTROLS);
   }
+
   return controls;
 }
 
@@ -512,9 +537,11 @@ export function formatControlValue(cell) {
     if (!cell) {
       return;
     }
+
     let newPos = [];
     let { type, value } = cell;
     let parsedData, selectedOptions;
+
     if (type === 37) {
       if (cell.advancedSetting && cell.advancedSetting.summaryresult === '1') {
         type = 2;
@@ -523,6 +550,7 @@ export function formatControlValue(cell) {
         type = cell.enumDefault2 || 6;
       }
     }
+
     switch (type) {
       case 6: // NUMBER 数值
       case 8: // MONEY 金额
@@ -538,12 +566,14 @@ export function formatControlValue(cell) {
         if (value === '' || value === '["",""]') {
           return;
         }
+
         return JSON.parse(value);
       case 40: // LOCATION 定位
         parsedData = JSON.parse(value) || {};
         if (!_.isObject(parsedData)) {
           return undefined;
         }
+
         if ((parsedData.coordinate || '').toLowerCase() === 'wgs84') {
           newPos = wgs84togcj02(parsedData.x, parsedData.y);
           return {
@@ -552,6 +582,7 @@ export function formatControlValue(cell) {
             y: newPos[1],
           };
         }
+
         return parsedData;
       // 组件
       case 9: // OPTIONS 单选 平铺
@@ -563,6 +594,7 @@ export function formatControlValue(cell) {
             const matchText = safeParse(cell.value || '[]').find(i => i.indexOf('other:') > -1);
             return matchText ? matchText.replace('other:', '') : option.value;
           }
+
           return option.value;
         });
       case 26: // USER_PICKER 成员
@@ -570,12 +602,14 @@ export function formatControlValue(cell) {
         if (!_.isArray(parsedData)) {
           parsedData = [parsedData];
         }
+
         return parsedData.filter(user => !!user).map(user => (typeof user === 'string' ? user : user.fullname));
       case 27: // GROUP_PICKER 部门
         return JSON.parse(cell.value).map(department => {
           if (typeof department === 'string') {
             return department;
           }
+
           return department.departmentName ? department.departmentName : _l('该部门已删除');
         });
       case 48: // ORG_ROLE 组织角色
@@ -583,6 +617,7 @@ export function formatControlValue(cell) {
           if (typeof organization === 'string') {
             return organization;
           }
+
           return organization.organizeName ? organization.organizeName : _l('该组织已删除');
         });
       case 36: // SWITCH 检查框
@@ -605,6 +640,7 @@ export function formatControlValue(cell) {
               )
               .filter(_.identity);
         }
+
         return cell.enumDefault === 1 ? parsedData.slice(0, 1) : parsedData;
       case 34: // SUBLIST 子表
         return _.isObject(value) ? _.get(value, 'rows') : [...new Array(value ? Number(value) : 0)];
@@ -619,6 +655,7 @@ export function formatControlValue(cell) {
         if (_.isEmpty(value)) {
           return '';
         }
+
         return dayjs(value, countChar(value, ':') === 2 ? 'HH:mm:ss' : 'HH:mm').format(
           cell.unit === '6' || cell.unit === '9' ? 'HH:mm:ss' : 'HH:mm',
         );
@@ -629,6 +666,7 @@ export function formatControlValue(cell) {
     if (typeof console !== 'undefined') {
       console.log(err);
     }
+
     return;
   }
 }
@@ -674,12 +712,14 @@ export const getValueStyle = data => {
   const item = Object.assign({}, data);
   let type = item.type;
   let { valuecolor = 'var(--color-text-primary)', valuesize = '0', valuestyle = '0000' } = item.advancedSetting || {};
+
   if (item.type === 30) {
     valuecolor = _.get(item, 'sourceControl.advancedSetting.valuecolor') || 'var(--color-text-primary)';
     valuesize = _.get(item, 'sourceControl.advancedSetting.valuesize') || '0';
     valuestyle = _.get(item, 'sourceControl.advancedSetting.valuestyle') || '0000';
     type = _.get(item, 'sourceControl.type');
   }
+
   return canSetWidgetStyle({ ...data, type })
     ? {
         type,
@@ -759,6 +799,7 @@ export function getRecordCardStyle(control) {
   if (!control) {
     return {};
   }
+
   const {
     cardtitlestyle, // 字段标题 direction: 1 水平 2 垂直
     cardvaluestyle, // 字段值
@@ -784,12 +825,15 @@ export function getRecordCardStyle(control) {
  */
 export function getTitleTextFromControls(controls, data, titleSourceControlType, options = {}) {
   let titleControl = _.find(controls, control => control.attribute === 1) || {};
+
   if (titleSourceControlType) {
     titleControl.sourceControlType = titleSourceControlType;
   }
+
   if (titleControl && data) {
     titleControl = Object.assign({}, titleControl, { value: data[titleControl.controlId] || data.titleValue });
   }
+
   return titleControl ? renderText(titleControl, options) || titleControl.value || _l('未命名') : _l('未命名');
 }
 
@@ -800,10 +844,13 @@ export function getTitleTextFromControls(controls, data, titleSourceControlType,
  */
 export function getTitleTextFromRelateControl(control = {}, data, options = {}) {
   let newTitleControlId = control.advancedSetting.showtitleid;
+
   if (control.type === 51 && control.enumDefault === 1 && control.showControls[0]) {
     newTitleControlId = control.showControls[0];
   }
+
   const matchedTitleControl = find(control.relationControls, { controlId: newTitleControlId });
+
   if (newTitleControlId && matchedTitleControl) {
     control = {
       ...control,
@@ -821,6 +868,7 @@ export function getTitleTextFromRelateControl(control = {}, data, options = {}) 
   if (data && data.name) {
     return data.name;
   }
+
   // relationControls返回的选项没有options，在这里赋进去
   if (_.includes([9, 10, 11], control.sourceControlType)) {
     if (!_.isEmpty(control.options)) {
@@ -831,6 +879,7 @@ export function getTitleTextFromRelateControl(control = {}, data, options = {}) 
       });
     }
   }
+
   return getTitleTextFromControls(control.relationControls, data, control.sourceControlType, options);
 }
 
@@ -839,9 +888,11 @@ export function renderText(cell, options = {}) {
     if (!cell) {
       return '';
     }
+
     if (cell.controlId === 'rowid' && /^(temp|empty|default|public-temp|deleterowids)/.test(cell.value)) {
       return '';
     }
+
     let { type, value = '', unit, advancedSetting = {} } = cell;
     let { suffix = '', prefix = '', thousandth } = advancedSetting;
     let selectedOptions = [];
@@ -857,18 +908,22 @@ export function renderText(cell, options = {}) {
       suffix = '';
       prefix = advancedSetting.showformat === '1' ? symbol : currencycode;
     }
+
     if (options.noUnit) {
       unit = '';
       suffix = '';
       prefix = '';
     }
+
     if (value === '' || value === null) {
       return '';
     }
+
     if (!checkIsTextControl(cell) && cell.value === '已删除') {
       // 处理关联已删除，非文本作为标题时卡片标题显示异常问题
       return _l('已删除');
     }
+
     if (type === 37) {
       if (cell.advancedSetting && cell.advancedSetting.summaryresult === '1') {
         type = 2;
@@ -877,12 +932,15 @@ export function renderText(cell, options = {}) {
         if (_.includes([15, 16], cell.enumDefault2) && _.includes([2, 3], cell.enumDefault)) {
           cell.advancedSetting = { ...advancedSetting, showtype: cell.unit };
         }
+
         type = cell.enumDefault2 || 6;
       }
     }
+
     if (_.includes([6, 31, 37], type) && cell.advancedSetting && cell.advancedSetting.numshow === '1' && value) {
       value = accMul(value, 100);
     }
+
     if (cell.controlId === 'wfftime') {
       return formatFormulaDate({ value: cell.value, unit: '1' }).replace(/^-/, _l('已超时'));
     }
@@ -912,6 +970,7 @@ export function renderText(cell, options = {}) {
           console.log(err);
           value = '';
         }
+
         value = parsedData.name;
         break;
       /**
@@ -932,13 +991,16 @@ export function renderText(cell, options = {}) {
             value = formatNumberThousand(value);
           }
         }
+
         // 兼容百分比进度没有百分比符号
         if ((cell.advancedSetting || {}).numshow === '1') {
           suffix = '%';
         }
+
         if (!options.noMask && _.includes([6, 8], type) && _.get(cell, 'advancedSetting.datamask') === '1') {
           value = dealMaskValue({ ...cell, value }) || value;
         }
+
         value = (prefix ? `${prefix} ` : '') + value + (unit ? ` ${unit}` : suffix ? ` ${suffix}` : '');
         break;
       case 15: // DATE_INPUT 日期
@@ -946,6 +1008,7 @@ export function renderText(cell, options = {}) {
         if (_.isEmpty(value)) {
           value = '';
         }
+
         const showFormat = _.includes(['ctime', 'utime', 'dtime'], cell.controlId)
           ? 'YYYY-MM-DD HH:mm:ss'
           : getShowFormat(cell);
@@ -969,6 +1032,7 @@ export function renderText(cell, options = {}) {
         if (_.isEmpty(value)) {
           value = '';
         }
+
         const mode = cell.unit === '6' || cell.unit === '9' ? 'HH:mm:ss' : 'HH:mm';
         const tempValue = moment(value).year() ? moment(value).format(mode) : cell.value;
         value = moment(tempValue, 'HH:mm:ss').format(mode);
@@ -977,6 +1041,7 @@ export function renderText(cell, options = {}) {
         if (_.isEmpty(value)) {
           value = '';
         }
+
         if (cell.enumDefault === 2) {
           const showFormat = getShowFormat({ advancedSetting: { ...advancedSetting, showtype: cell.unit || '1' } });
           const convertedTime = includes(showFormat, ':')
@@ -994,18 +1059,21 @@ export function renderText(cell, options = {}) {
               (prefix ? '' : suffixValue ? ` ${suffixValue}` : '');
           }
         }
+
         break;
       case 17: // DATE_TIME_RANGE 时间段
       case 18: // DATE_TIME_RANGE 时间段
         if (value === '' || value === '["",""]') {
           value = '';
         }
+
         try {
           parsedData = JSON.parse(value);
         } catch (err) {
           console.log(err);
           value = '';
         }
+
         value = parsedData
           .map(time => (time ? moment(time).format(cell.type === 17 ? 'YYYY-MM-DD' : 'YYYY-MM-DD HH:mm') : ''))
           .join(' - ');
@@ -1021,6 +1089,7 @@ export function renderText(cell, options = {}) {
           console.log(err);
           value = '';
         }
+
         value =
           _.isObject(parsedData) && (parsedData.title || parsedData.address)
             ? `${parsedData.title || ''} ${parsedData.address || ''}`
@@ -1037,6 +1106,7 @@ export function renderText(cell, options = {}) {
               const otherValue = _.find(JSON.parse(cell.value || '[]'), i => i.includes(option.key));
               return otherValue === 'other' ? option.value : _.replace(otherValue, 'other:', '') || option.value;
             }
+
             return option.value;
           })
           .join(', ');
@@ -1048,9 +1118,11 @@ export function renderText(cell, options = {}) {
           console.log(err);
           value = '';
         }
+
         if (!_.isArray(parsedData)) {
           parsedData = [parsedData];
         }
+
         value = parsedData
           .filter(user => !!user)
           .map(user => user.fullname)
@@ -1063,6 +1135,7 @@ export function renderText(cell, options = {}) {
           console.log(err);
           value = '';
         }
+
         value = parsedData
           .map(department => (department.departmentName ? department.departmentName : _l('该部门已删除')))
           .join('、');
@@ -1082,6 +1155,7 @@ export function renderText(cell, options = {}) {
           console.log(err);
           value = '';
         }
+
         value = parsedData.map(attachment => `${attachment.originalFilename + attachment.ext}`).join('、');
         break;
       case 35: // CASCADER 级联
@@ -1091,9 +1165,11 @@ export function renderText(cell, options = {}) {
           console.log(err);
           parsedData = [];
         }
+
         if (!_.isArray(parsedData)) {
           parsedData = [];
         }
+
         value = parsedData.length ? parsedData.map(item => item.name || _l('未命名')).join(',') : '';
         break;
       case 29: // RELATESHEET 关联表
@@ -1103,9 +1179,11 @@ export function renderText(cell, options = {}) {
           console.log(err);
           parsedData = [];
         }
+
         if (!_.isArray(parsedData)) {
           parsedData = [];
         }
+
         if (cell.enumDefault === 1 || _.get(cell, 'sourceControl.controlId')) {
           value = parsedData
             .map(
@@ -1118,6 +1196,7 @@ export function renderText(cell, options = {}) {
           value = cell.value;
         } else if (cell.enumDefault === 2 && cell.relationControls.length) {
           const titleControl = _.find(cell.relationControls, { controlId: cell.sourceControlId });
+
           if (titleControl) {
             value = parsedData
               .map(
@@ -1130,6 +1209,7 @@ export function renderText(cell, options = {}) {
               .join('、');
           }
         }
+
         break;
       case 30: // SHEETFIELD 他表字段
         value = renderText(
@@ -1147,12 +1227,14 @@ export function renderText(cell, options = {}) {
           console.log(err);
           value = '';
         }
+
         value = parsedData.map(relation => `[${RELATION_TYPE_NAME[relation.type]}]${relation.name}`).join('、');
         break;
       case 28: // SCORE 等级
         if (!cell.value) {
           value = '';
         }
+
         const itemNames = JSON.parse((cell.advancedSetting || {}).itemnames || '[]');
         value =
           _.get(
@@ -1172,6 +1254,7 @@ export function renderText(cell, options = {}) {
           console.log(err);
           value = '';
         }
+
         value = parsedData
           .map(organize => (organize.organizeName ? organize.organizeName : _l('该组织角色已删除')))
           .join('、');
@@ -1179,10 +1262,12 @@ export function renderText(cell, options = {}) {
       default:
         value = '';
     }
+
     // 小数点不补零
     if (_.get(cell, 'advancedSetting.dotformat') === '1') {
       value = formatStrZero(value);
     }
+
     // 走掩码 单行文本、数值、金额、手机、邮箱、证件
     if (
       !options.noMask &&
@@ -1191,6 +1276,7 @@ export function renderText(cell, options = {}) {
     ) {
       return dealMaskValue({ ...cell, value }) || value;
     }
+
     return value;
   } catch (err) {
     console.log(err);
@@ -1200,6 +1286,7 @@ export function renderText(cell, options = {}) {
 
 // 判断选项颜色是否为浅色系
 export const isLightColor = (color = '') => {
+  color = getColorValue(color);
   const SPECIAL_DARK_COLORS = ['ff9300', 'fa8c16', '808080', '4caf50', 'fa8c16', '08c9c9', 'fad714', 'faad14'];
 
   return SPECIAL_DARK_COLORS.find(l => l === new TinyColor(color).toHex()) ? false : new TinyColor(color).isLight();
@@ -1221,6 +1308,7 @@ export const formatNumberToWords = (control = {}, relateControl = {}) => {
   // 繁体前缀，主单位单复数、辅助单位单复数
   const { 0: zhTw, 1: pluralCode, 2: code, 3: subPluralCode, 4: subCode } = safeParse(currencynames || '{}') || {};
   const isSpecialArea = _.includes(['CNY', 'HKD', 'TWD', 'MOP'], currencycode);
+
   if (currencytype === 3) {
     const tempValue = nzh.hk.toMoney(parseFloat(toFixed(value, dot)), { outSymbol: false });
     return (isSpecialArea ? zhTw || '' : '') + tempValue;
@@ -1277,6 +1365,7 @@ export const formatNumberFromInput = (value, pointReturnEmpty = true) => {
   if (pointReturnEmpty && value === '.') {
     value = '';
   }
+
   return value;
 };
 
@@ -1304,26 +1393,34 @@ export function toFixed(num, dot = 0) {
     console.error(num, '不是数字');
     return '';
   }
+
   if (dot === 0) {
     return String(Math.round(num));
   }
+
   if (dot < 0 || dot > 20) {
     return String(num);
   }
+
   const strOfNum = String(num);
+
   if (!/\./.test(strOfNum)) {
     return strOfNum + '.' + _.padEnd('', dot, '0');
   }
+
   const decimal = ((strOfNum.match(/\.(\d+)/) || '')[1] || '').length;
+
   if (decimal === dot) {
     return strOfNum;
   } else if (decimal < dot) {
     return strOfNum + _.padEnd('', dot - decimal, '0');
   } else {
     const isNegative = num < 0;
+
     if (isNegative) {
       num = Math.abs(num);
     }
+
     let data = String(Math.round(num * Math.pow(10, dot)));
     data = _.padStart(data, dot, '0');
     return (isNegative ? '-' : '') + Math.floor(data / Math.pow(10, dot)) + '.' + data.slice(-1 * dot);
@@ -1378,6 +1475,7 @@ export function formatAttachmentValue(value, isRecreate = false, isRelation = fa
       .map((item, index) => {
         let fileUrl = item.fileUrl || item.fileRealPath;
         const isLinkFile = item.ext === '.url';
+
         if (!fileUrl && item.filepath && item.filename) {
           fileUrl = `${item.filepath}${item.filename}`;
         }
@@ -1429,6 +1527,7 @@ export const getSwitchItemNames = (data, { needDefault, isShow } = {}) => {
   const itemnames = getAdvanceSetting(data, 'itemnames') || [];
   const showtype = getAdvanceSetting(data, 'showtype');
   const defaultData = DEFAULT_TEXT[showtype];
+
   // 筛选按默认来
   if (isShow) {
     return (
@@ -1476,6 +1575,7 @@ export const getButtonColor = (mainColor, showAsPrimary = true) => {
   if (mainColor !== 'transparent' && mainColor.length === 9 && mainColor.slice(-2) !== 'ff') {
     mainColor = hexWithAlphaMixWhiteToHex(mainColor);
   }
+
   let borderColor = mainColor;
   let fontColor =
     !isLightColor(mainColor) ||
@@ -1509,10 +1609,12 @@ export const getButtonColor = (mainColor, showAsPrimary = true) => {
     )
       ? '#fff'
       : 'var(--color-text-primary)';
+
   if (mainColor === 'transparent') {
     fontColor = 'var(--color-text-primary)';
     borderColor = browserIsMobile() ? 'var(--color-border-secondary)' : 'var(--color-border-primary)';
   }
+
   return showAsPrimary
     ? {
         backgroundColor: mainColor || '#1677ff',
@@ -1528,6 +1630,7 @@ export const getButtonColor = (mainColor, showAsPrimary = true) => {
 
 export function getCopyControlText(control) {
   let content;
+
   try {
     if (_.includes([WIDGETS_TO_API_TYPE_ENUM.SIGNATURE, WIDGETS_TO_API_TYPE_ENUM.SUB_LIST], control.type)) {
       content = control.value;
@@ -1595,6 +1698,7 @@ export function checkTypeSupportForFunction(control) {
       WIDGETS_TO_API_TYPE_ENUM.AREA_COUNTY, // 24
       WIDGETS_TO_API_TYPE_ENUM.SWITCH, // 检查框 36
       WIDGETS_TO_API_TYPE_ENUM.FORMULA_NUMBER, // 31 公式数值
+      WIDGETS_TO_API_TYPE_ENUM.CONCATENATE, // 文本组合 32
       WIDGETS_TO_API_TYPE_ENUM.FORMULA_DATE, // 38 公式日期
       WIDGETS_TO_API_TYPE_ENUM.SUB_LIST, // 子表 34
       WIDGETS_TO_API_TYPE_ENUM.LOCATION, // 定位 40
@@ -1711,6 +1815,7 @@ export function convertAiRecommendControlToControlData(recommendControl, { works
   if (!control.advancedSetting) {
     control.advancedSetting = {};
   }
+
   if (includes(['related', 'multiRelated', 'relatedTable'], type)) {
     control.dataSource = relatedWorksheet === 'self' ? worksheetId : relatedWorksheet?.id;
     control.showControls = displayField.map(item => item.fieldID);
@@ -1724,6 +1829,7 @@ export function convertAiRecommendControlToControlData(recommendControl, { works
       control.advancedSetting.showtype = String(RELATE_RECORD_SHOW_TYPE.TAB_TABLE);
     }
   }
+
   if (control.type === WIDGETS_TO_API_TYPE_ENUM.FORMULA_NUMBER && formulaExpression) {
     let expression = formulaExpression;
     allWidgets.forEach(widget => {
@@ -1733,16 +1839,19 @@ export function convertAiRecommendControlToControlData(recommendControl, { works
     });
     control.dataSource = expression;
   }
+
   if (control.type === WIDGETS_TO_API_TYPE_ENUM.SUB_LIST) {
     const relationControls = (recommendControl.subFields || []).map(convertAiRecommendControlToControlData);
     control.dataSource = uuidv4();
     control.relationControls = relationControls;
     control.showControls = relationControls.map(item => item.controlId);
   }
+
   // 处理人员、部门字段多选属性
   if (control.type === WIDGETS_TO_API_TYPE_ENUM.USER_PICKER || control.type === WIDGETS_TO_API_TYPE_ENUM.DEPARTMENT) {
     control.enumDefault = isMultiple ? 1 : 0;
   }
+
   // 选项
   if (
     _.includes(
@@ -1760,7 +1869,9 @@ export function convertAiRecommendControlToControlData(recommendControl, { works
         color: item.color || OPTION_COLORS_LIST[(index + 1) % OPTION_COLORS_LIST.length],
       }));
     }
+
     const defaultOption = find(control.options, { checked: true });
+
     if (defaultOption) {
       control.advancedSetting.defsource = JSON.stringify([
         {
@@ -1770,10 +1881,12 @@ export function convertAiRecommendControlToControlData(recommendControl, { works
         },
       ]);
     }
+
     if (optionColor) {
       control.enumDefault2 = 1;
     }
   }
+
   return control;
 }
 
@@ -1829,6 +1942,7 @@ export function convertControlTypeToAiRecommendControlType(type) {
   } else if (type === WIDGETS_TO_API_TYPE_ENUM.TAB) {
     return 'tab';
   }
+
   return null;
 }
 
@@ -1889,6 +2003,7 @@ export function formatAiGenControlValue(control, value = '') {
   try {
     const { type } = control;
     let result = value;
+
     if (type === WIDGETS_TO_API_TYPE_ENUM.ATTACHMENT) {
       result = isArray(value)
         ? {
@@ -1956,6 +2071,7 @@ export function formatAiGenControlValue(control, value = '') {
         const newRow = {};
         Object.keys(row).forEach(controlId => {
           const matchedControl = get(control, 'relationControls', []).find(c => c.controlId === controlId);
+
           if (matchedControl) {
             newRow[controlId] = formatAiGenControlValue(matchedControl, row[controlId]);
           }
@@ -1963,9 +2079,11 @@ export function formatAiGenControlValue(control, value = '') {
         return newRow;
       });
     }
+
     if (type === WIDGETS_TO_API_TYPE_ENUM.SWITCH) {
       return result ? '1' : '0';
     }
+
     return typeof result === 'string' ? result : JSON.stringify(result);
   } catch (err) {
     console.error(err);
@@ -2005,13 +2123,26 @@ export const getDefaultCount = (data = {}, value = 0) => {
       value = 500;
     }
   }
+
   return value;
 };
 
 export const isTimeStyle = (data = {}) => {
   let type = data.type;
+
   if (type === 30) {
     type = data.sourceControlType;
   }
+
   return type === 16 || (type === 38 && data.enumDefault === 2 && data.unit !== '3');
+};
+
+// 将颜色变量转换为颜色值
+export const getColorValue = (color = '') => {
+  if (_.isString(color) && color.includes('-')) {
+    const match = color.match(/var\((--[^)]+)\)/);
+    return getComputedStyle(document.body).getPropertyValue(match[1]);
+  }
+
+  return color;
 };

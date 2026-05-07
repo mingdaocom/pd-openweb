@@ -1,4 +1,4 @@
-﻿import React, { memo, useContext, useState } from 'react';
+import React, { memo, useContext, useState } from 'react';
 import _ from 'lodash';
 import styled from 'styled-components';
 import MobileSheetContext from 'mobile/RecordList/MobileSheetContext';
@@ -11,7 +11,7 @@ import {
 } from 'src/utils/worksheet';
 import CustomButtons from '../CustomButtons';
 import MoreButtonPopup from '../MoreButtonPopup';
-import { filterButtonByNotSupport, getRowDetail, getVisibleButtons, setAttrToButtons } from './util';
+import { filterPrintButton, getRowDetail, getVisibleButtons, setAttrToButtons } from './util';
 
 const OperateButtonsWrapper = styled.div`
   display: flex;
@@ -26,8 +26,18 @@ const OperateButtonsWrapper = styled.div`
 
 const OperateButtons = props => {
   const { row = {}, onDeleteSuccess, updateRow } = props;
-  const context = useContext(MobileSheetContext) || {};
-  const { base, view = {}, sheetButtons, printList, sheetSwitchPermit, controls, worksheetInfo } = context;
+  const context = useContext(MobileSheetContext);
+  const {
+    base,
+    view = {},
+    sheetButtons,
+    printList,
+    sheetSwitchPermit,
+    controls,
+    worksheetInfo,
+    buttonsCheckStatus = {},
+  } = context || {};
+
   const { viewId, viewType, advancedSetting = {}, coverCid } = view;
   const { coverFillType, coverPosition } = getCoverStyle(view);
   const isGroupView = viewType === 1 || advancedSetting.groupsetting;
@@ -40,12 +50,21 @@ const OperateButtons = props => {
     printList,
   });
   buttons = filterButtonBySheetSwitchPermit(buttons, sheetSwitchPermit, viewId, row);
-  buttons = filterButtonByNotSupport(buttons);
+  if (_.isObject(buttonsCheckStatus)) {
+    buttons = buttons.map(button => ({
+      ...button,
+      disabled: button.type === 'custom_button' && !buttonsCheckStatus[`${row.rowid}-${button.btnId}`],
+    }));
+  }
+
+  buttons = filterPrintButton(buttons);
   const operatesButtonsStyle = getSheetOperatesButtonsStyle(view);
   const { visibleNum, style } = operatesButtonsStyle;
-  const disableCustomButton = btnId => {
-    setBtnDisable(old => ({ ...old, [btnId]: true }));
+
+  const disableCustomButton = (btnId, status = true) => {
+    setBtnDisable(old => ({ ...old, [btnId]: status }));
   };
+
   buttons = setAttrToButtons({
     buttons,
     row,

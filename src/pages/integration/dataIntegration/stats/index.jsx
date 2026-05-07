@@ -16,6 +16,7 @@ import { Wrap } from './style';
 
 let lineChart = null;
 let ajaxFetch = null;
+
 export default function (props) {
   const chantRef = useRef();
   const g2plotComponent = useRef({});
@@ -142,6 +143,7 @@ export default function (props) {
     if (listLoading && ajaxFetch) {
       ajaxFetch.abort();
     }
+
     setState({ listLoading: true });
     ajaxFetch = StatsAjax.details({
       projectId,
@@ -164,6 +166,8 @@ export default function (props) {
     });
   };
 
+  const isDark = window.themeMode === 'dark';
+
   const renderChart = (initChartData = []) => {
     const { Line } = g2plotComponent.current.value;
     lineChart && lineChart.destroy();
@@ -176,11 +180,11 @@ export default function (props) {
       color: ['#61DDAA', '#1677ff'],
       xAxis: {
         label: {
-          style: { fill: '#2C3542', opacity: 0.45 },
+          style: { fill: isDark ? '#ffffffb0' : '#2C3542', opacity: 0.45 },
           formatter: date => moment(date).format(3 === dimension ? 'MM-DD' : 4 === dimension ? 'YYYY-MM' : 'HH:mm'),
         },
-        line: { style: { stroke: '#416180', opacity: 0.45, lineWidth: 0.5 } },
-        tickLine: { style: { fill: '#BDBDBD', opacity: 1 } },
+        line: { style: { stroke: isDark ? '#484848' : '#416180', opacity: 0.45, lineWidth: 0.5 } },
+        tickLine: { style: { fill: isDark ? '#484848' : '#BDBDBD', opacity: 1 } },
       },
       yAxis: {
         label: {
@@ -188,7 +192,7 @@ export default function (props) {
           offsetY: -3,
           // 数值格式化为千分位
           formatter: v => `${v}`.replace(/\d{1,3}(?=(\d{3})+$)/g, s => `${s},`),
-          style: { fill: '#2C3542', opacity: 0.45 },
+          style: { fill: isDark ? '#ffffffb0' : '#2C3542', opacity: 0.45 },
           grid: { line: { style: { stroke: 'rgba(65, 97, 128, 0.15)', lineWidth: 0.5 } } },
         },
       },
@@ -216,7 +220,7 @@ export default function (props) {
         formatter: date =>
           moment(date).format(3 === dimension ? 'MM-DD' : 4 === dimension ? 'YYYY-MM' : 'YYYY-MM-DD HH:mm'),
         foregroundStyle: {
-          fill: '#1677ff',
+          fill: isDark ? '#ffffffb0' : '#1677ff',
           opacity: 0.11,
         },
         TrendCfg: {

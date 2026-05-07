@@ -119,6 +119,7 @@ const Wrap = styled.div`
   }
 `;
 const list = [_l('导入Excel数据'), _l('从工作表获取数据')];
+
 export default function ReviewFree(props) {
   const { appId, projectId, onCancel, show, data, onChangePortalVersion, canChooseOtherApp } = props;
   const [cellConfigs, setCellConfigs] = useState([]); //免审名单
@@ -143,6 +144,7 @@ export default function ReviewFree(props) {
         setControls(res);
       });
   };
+
   //当前免审名单相关信息
   const getInfo = () => {
     let res = data;
@@ -154,6 +156,7 @@ export default function ReviewFree(props) {
     setStatus(res.status);
     setQuery(res.query);
   };
+
   //上传的文件的列信息
   const getPreviewCell = () => {
     if (fileUrl) {
@@ -162,6 +165,7 @@ export default function ReviewFree(props) {
       });
     }
   };
+
   useEffect(() => {
     getInfo();
     getPreviewCell();
@@ -176,9 +180,11 @@ export default function ReviewFree(props) {
     if (cellConfigs.length <= 0 && status === 0 && type === 0) {
       return alert(_l('还未设置免审'), 3);
     }
+
     if (status === 0 && type === 1 && (_.get(query, ['configs']) || []).length <= 0) {
       return alert(_l('还未设置免审'), 3);
     }
+
     let param =
       status === 1
         ? {
@@ -218,6 +224,7 @@ export default function ReviewFree(props) {
       }
     });
   };
+
   const uploadParam = {
     options: {
       filters: {

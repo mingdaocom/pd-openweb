@@ -20,6 +20,7 @@ export default function displayNotice({ noticeId, displayType, desc }) {
       },
     );
   };
+
   if (desc) {
     if (displayType === 2) {
       const modal = Modal.info({

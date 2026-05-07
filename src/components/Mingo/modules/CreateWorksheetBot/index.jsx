@@ -8,7 +8,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { flatten, get, isArray, isEmpty, trim } from 'lodash';
+import { flatten, get, isArray, isEmpty, omit, trim } from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
@@ -44,7 +44,7 @@ const MingoContentWrap = styled.div`
     font-weight: bold;
     margin: 26px 0 6px;
     font-size: 15px;
-    color: var(--color-text-title);
+    color: var(--color-text-primary);
   }
   .sendCon {
     position: relative;
@@ -126,9 +126,11 @@ function MingoContent(props, ref) {
   const storageKey = `MINGO_CACHE_CREATE_WORKSHEET_BOT_${get(md, 'global.Account.accountId')}`;
   const defaultData = useMemo(() => {
     let result = {};
+
     if (localStorage.getItem(storageKey)) {
       result = JSON.parse(localStorage.getItem(storageKey));
     }
+
     return result;
   }, [storageKey]);
   const {
@@ -178,6 +180,7 @@ function MingoContent(props, ref) {
     },
     aiCompletionApi: async (messages, { abortController }) => {
       const taskStatus = cache.current.taskStatus;
+
       if (taskStatus === MINGO_TASK_STATUS.CREATE_WORKSHEET_ASSIGNMENT_CREATE_WORKSHEET_WIDGETS) {
         return generateWorksheetWidgetsSSE({
           appId,
@@ -205,7 +208,14 @@ function MingoContent(props, ref) {
           abortController,
         });
       }
-      return createWorksheetSuggestionSSE({ appId, taskType, messages, abortController, currentAppData });
+
+      return createWorksheetSuggestionSSE({
+        appId,
+        taskType,
+        messages: messages.map(m => omit(m, ['media'])),
+        abortController,
+        currentAppData,
+      });
     },
     onMessagePipe: messageContent => {
       if (cache.current.autoPlay) {
@@ -216,6 +226,7 @@ function MingoContent(props, ref) {
       if (cache.current.taskStatus === MINGO_TASK_STATUS.CREATE_WORKSHEET_ASSIGNMENT_CREATE_WORKSHEET_WIDGETS) {
         emitter.emit('UPDATE_GLOBAL_STORE', 'mingoIsCreatingWorksheetStatus', 2);
       }
+
       if (cache.current.taskStatus === MINGO_TASK_STATUS.CREATE_WORKSHEET_ASSIGNMENT_CREATE_WORKSHEET_WIDGETS) {
         localStorage.setItem(
           storageKey,
@@ -228,6 +239,7 @@ function MingoContent(props, ref) {
           }),
         );
       }
+
       console.log('onMessageDone', messages);
     },
     onError: (error, eventData) => {
@@ -245,13 +257,16 @@ function MingoContent(props, ref) {
       }, timeout);
     }
   }, []);
-  const handleSend = (newMessage, { fromMessageId, images } = {}) => {
+
+  const handleSend = (newMessage, { fromMessageId, images, fileIds, media, useFileContentFormat } = {}) => {
     if (taskStatus === MINGO_TASK_STATUS.CREATE_WORKSHEET_ASSIGNMENT_CREATE_WORKSHEET_WIDGETS) {
       emitter.emit('UPDATE_GLOBAL_STORE', 'mingoIsCreatingWorksheetStatus', 1);
     }
+
     if (!isEmpty(unsavedControlIds)) {
       emitter.emit('WIDGET_CONFIG_DELETE_WIDGETS', { needDeleteWidgets: unsavedControlIds });
     }
+
     setIsChatting(true);
     if (taskStatus === MINGO_TASK_STATUS.CREATE_WORKSHEET_ASSIGNMENT_CREATE_WORKSHEET_WIDGETS) {
       const userMessageContent = buildGenerateWorksheetWidgetsUserMessage(
@@ -271,12 +286,14 @@ function MingoContent(props, ref) {
         messageOptions: { messageTaskStatus: cache.current.taskStatus },
       });
     } else {
-      sendMessage(newMessage, { fromMessageId, images });
+      sendMessage(newMessage, { fromMessageId, images, fileIds, media, useFileContentFormat });
     }
+
     setTimeout(() => {
       handleScrollToBottom();
     }, 100);
   };
+
   const handleStartCreateWorksheet = useCallback(createWorksheetParams => {
     const { worksheetName, worksheetDescription } = createWorksheetParams;
     handleSend([worksheetName, worksheetDescription].filter(trim).join('、'));
@@ -289,6 +306,7 @@ function MingoContent(props, ref) {
       if (cache.current.loadAbortController) {
         cache.current.loadAbortController.abort();
       }
+
       setIsChatting(false);
       cache.current = {};
     },
@@ -324,6 +342,7 @@ function MingoContent(props, ref) {
       handleSend([worksheetName, worksheetDescription].filter(trim).join('、'));
       window.createWorksheetParams = undefined;
     }
+
     emitter.on('WIDGET_CONFIG_UNMOUNT', onClose);
     emitter.on('MINGO_START_CRETE_WORKSHEET', handleStartCreateWorksheet);
     delete window.mingoPendingCreateWorksheetTaskStatus;
@@ -453,6 +472,7 @@ function MingoContent(props, ref) {
               />
             );
           }
+
           if (type === 'mingo_edit_worksheet_info') {
             const { workSheetName, worksheetId, icon, icons } = safeParse(content);
             return (
@@ -467,6 +487,7 @@ function MingoContent(props, ref) {
               />
             );
           }
+
           if (type === 'mingo_generate_worksheet_widgets_jsonl') {
             return (
               <MingoGeneratedWidgetsSelector
@@ -499,6 +520,7 @@ function MingoContent(props, ref) {
               />
             );
           }
+
           if (type === 'mingo_new_created_worksheets') {
             const { relateControls } = safeParse(content);
             return (
@@ -527,6 +549,7 @@ function MingoContent(props, ref) {
               />
             );
           }
+
           return <code>{content}</code>;
         }}
         onSend={handleSend}
@@ -535,6 +558,15 @@ function MingoContent(props, ref) {
         <div className="sendCon" style={{ maxWidth: maxWidth + 16 * 2 }}>
           <Send
             disabled={sendDisabled}
+            needOcr
+            mingoOcr
+            allowMimeTypes={[
+              { title: 'image', extensions: 'jpg,jpeg,png,heic' },
+              { title: 'office', extensions: 'pdf,doc,docx,xls,xlsx,txt' },
+            ]}
+            uploadFileToolTip={_l(
+              '文件数量：最多5个\n文件大小：单个文件不超过10M\n总字数：所有文档的总字数最多50k，超出自动忽略\n文件格式：PDF / TXT / Word / Excel / 图片',
+            )}
             allowUpload={taskStatus === MINGO_TASK_STATUS.CREATE_WORKSHEET_ASSIGNMENT_PREPARING_WORKSHEET_DESCRIPTION}
             isChatting={isChatting}
             loading={loading}
@@ -545,6 +577,7 @@ function MingoContent(props, ref) {
                 emitter.emit('UPDATE_GLOBAL_STORE', 'mingoIsCreatingWorksheetStatus', false);
                 onClose();
               }
+
               emitter.emit(
                 'UPDATE_GLOBAL_STORE',
                 'mingoIsCreatingWorksheetStatus',
@@ -555,11 +588,13 @@ function MingoContent(props, ref) {
               cache.current.autoPlay = value;
             }}
             onSend={(value, { files }) => {
+              const imageFiles = files.filter(f => f.type.startsWith('image/'));
+              const ocrFiles = files.filter(f => !f.type.startsWith('image/') && f.ocrId);
               handleSend(value, {
-                images: files
-                  .filter(f => f.type.startsWith('image/'))
-                  .map(f => f.file?.url)
-                  .filter(Boolean),
+                images: imageFiles.map(f => f.url).filter(Boolean),
+                fileIds: ocrFiles.map(f => f.ocrId).filter(Boolean),
+                media: ocrFiles.map(f => f.commonAttachment),
+                useFileContentFormat: true,
               });
             }}
           />
@@ -592,5 +627,6 @@ export function openMingoCreateWorksheet(params) {
     window.createWorksheetParams = params;
     emitter.emit('MINGO_START_CRETE_WORKSHEET', params);
   }
+
   emitter.emit('SET_MINGO_VISIBLE');
 }

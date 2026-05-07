@@ -205,11 +205,13 @@ export default function Timegrid(props) {
     if ($('.ant-modal-mask').length > 0 || $('.todayLine').length <= 0) {
       return;
     }
+
     let lineLeft = $('.todayLine').offset().left;
     let w = $('.conForCanvasTime').width();
     let offsetLeft = $('.conForCanvasTime').offset().left;
     let left = offsetLeft;
     let right = offsetLeft + w;
+
     if (lineLeft < left || lineLeft > right) {
       setState({
         todayVisible: true,
@@ -220,12 +222,15 @@ export default function Timegrid(props) {
       });
     }
   };
+
   const goTodayLine = () => {
     let lineLeft = $('.todayLine').attr('leftData');
     $('.conForCanvasTime').scrollLeft(lineLeft - 100);
   };
+
   const scrollDiv = useRef(null);
   const isM = browserIsMobile();
+
   const renderContent = () => {
     const { resourceview, updateCurrnetTime, view } = props;
     const { timeList, currentTime, resourceDataByKey, gridTimes } = resourceview;
@@ -240,6 +245,7 @@ export default function Timegrid(props) {
           : timeGridCount * timeWidth
         : timeGridCount * timeWidthHalf;
     const allW = widthCon; // widthCon >= mx ? widthCon : mx;
+
     const onScroll = () => {
       const { viewId } = props;
       const scrollTop = scrollDiv.current && scrollDiv.current.scrollTop;
@@ -254,6 +260,7 @@ export default function Timegrid(props) {
         });
       }
     };
+
     const isNotToday =
       !!currentTime &&
       !(
@@ -470,6 +477,7 @@ export default function Timegrid(props) {
       </div>
     );
   };
+
   const renderMonth = () => {
     const { resourceview } = props;
     const { timeList } = resourceview;
@@ -489,6 +497,7 @@ export default function Timegrid(props) {
       </div>
     );
   };
+
   const renderDay = () => {
     const { resourceview } = props;
     const { timeList } = resourceview;
@@ -568,6 +577,7 @@ export default function Timegrid(props) {
       </div>
     );
   };
+
   return (
     <Wrap className={props.className}>
       {_.get(props, 'resourceview.loading') && props.renderLoading ? props.renderLoading() : renderContent()}

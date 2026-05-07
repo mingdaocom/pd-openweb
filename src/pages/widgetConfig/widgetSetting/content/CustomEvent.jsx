@@ -79,6 +79,7 @@ export default function CustomEvent(props) {
           },
         });
       }
+
       return i;
     });
     onChange(handleAdvancedSettingChange(data, { custom_event: JSON.stringify(newCustomEvent) }));
@@ -100,6 +101,7 @@ export default function CustomEvent(props) {
           },
         });
       }
+
       return i;
     });
     onChange(handleAdvancedSettingChange(data, { custom_event: JSON.stringify(newCustomEvent) }));
@@ -155,6 +157,7 @@ export default function CustomEvent(props) {
       const dynamicValue = safeParse(value, 'array');
 
       let currentControl = { type: 2 };
+
       if (controlId) {
         currentControl = _.find(allControls, a => a.controlId === controlId);
       }
@@ -193,9 +196,11 @@ export default function CustomEvent(props) {
           <Fragment>
             {actionItems.map(i => {
               const controlInfo = _.head(getTextById(allControls, [i], 1)) || {};
+
               if (controlInfo.isDel) {
                 return <div className="textCon LineHeight30 Red">{_l('字段已删除')}</div>;
               }
+
               return (
                 <div className="textCon LineHeight30">
                   <span className="title">{_l('将')}</span>
@@ -290,6 +295,7 @@ export default function CustomEvent(props) {
   const renderFilterContent = (filterData = {}) => {
     const { customQueryConfig = [] } = props;
     const { valueType, filterItems = [], advancedSetting = {}, dataSource } = filterData;
+
     switch (valueType) {
       case FILTER_VALUE_ENUM.CONTROL_VALUE:
         return (
@@ -334,6 +340,7 @@ export default function CustomEvent(props) {
         if (loadingItems[dataSource]) {
           return <LoadDiv />;
         }
+
         return (
           <Fragment>
             <div className="textCon">
@@ -400,6 +407,7 @@ export default function CustomEvent(props) {
                     if (focusKey === eventActionKey) return;
                     const $dom = $(`#${eventActionKey}`);
                     let newCloseKeys = [];
+
                     if (isClose) {
                       $($dom).slideDown(200);
                       newCloseKeys = closeKeys.filter(i => i !== eventActionKey);
@@ -407,6 +415,7 @@ export default function CustomEvent(props) {
                       $($dom).slideUp(200);
                       newCloseKeys = closeKeys.concat([eventActionKey]);
                     }
+
                     setCloseKeys(newCloseKeys);
                   }}
                 >

@@ -74,10 +74,12 @@ class ExportAttachment extends Component {
       searchArgs: { filterControls, keyWords, searchType },
     } = this.props;
     const { selectControlIds, hyphenValue, generateFolder, nameMethodValues } = this.state;
+
     if (!selectControlIds.length) {
       alert(_l('至少选择一个附件字段'), 3);
       return;
     }
+
     const params = {
       appId,
       viewId,
@@ -169,6 +171,7 @@ class ExportAttachment extends Component {
                       if (nameMethodValues.length <= 1 && checked) {
                         return alert(_l('至少选择一种命名方式'), 3);
                       }
+
                       let copyNameMethodValues = [...nameMethodValues];
                       copyNameMethodValues = checked
                         ? copyNameMethodValues.filter(v => v !== it.value)

@@ -37,6 +37,7 @@ class PostBody extends React.Component {
   setTriangleStyle = el => {
     const $el = $(el);
     let button;
+
     if (this.state.selectedOperation === postEnum.OPERATE_TYPE.comment) {
       button = ReactDom.findDOMNode(this.commentButton);
       if (!button) {
@@ -65,6 +66,7 @@ class PostBody extends React.Component {
 
   toggleLike = () => {
     const { dispatch } = this.props;
+
     if (this.props.postItem.liked) {
       dispatch(removeLike({ postId: this.props.postItem.postID }));
     } else {
@@ -79,6 +81,7 @@ class PostBody extends React.Component {
       });
       return;
     }
+
     this.setState({
       selectedOperation: postEnum.OPERATE_TYPE.comment,
       focusCommentBox: true,
@@ -118,6 +121,7 @@ class PostBody extends React.Component {
 
   render() {
     const postItem = this.props.postItem;
+
     if (!postItem) {
       return false;
     }
@@ -125,6 +129,7 @@ class PostBody extends React.Component {
     const { commentCount } = postItem;
 
     let viewDetail;
+
     if (this.props.isSummary) {
       viewDetail = (
         <a href={'/feeddetail?itemID=' + postItem.postID} className="topPostViewDetailLink">
@@ -165,6 +170,7 @@ class PostBody extends React.Component {
                 );
               } else if (postItem.rPostItem) {
                 let rPostItem = postItem.rPostItem;
+
                 if (parseInt(rPostItem.postType, 10) === 8) {
                   // 音视频的详情被写在主动态里了
                   rPostItem = _.assign({}, rPostItem, {
@@ -174,6 +180,7 @@ class PostBody extends React.Component {
                     allowDown: postItem.allowDown,
                   });
                 }
+
                 return (
                   <div className="rPostItem">
                     <div className="rPostItemTriangle" />

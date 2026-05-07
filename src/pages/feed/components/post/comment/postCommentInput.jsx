@@ -60,8 +60,10 @@ class PostCommentInput extends React.Component {
   componentDidUpdate(prevProps, prevState) {
     const postItem = this.props.postItem;
     const isToComment = !!postItem.commentID;
+
     if (prevState.isEditing !== this.state.isEditing) {
       const textarea = this.textarea;
+
       if (this.state.isEditing) {
         $(textarea).autoTextarea({
           maxHeight: TEXT_AREA_MAX_HEIGHT,
@@ -70,10 +72,12 @@ class PostCommentInput extends React.Component {
       } else if (!this.state.hasAttachment) {
         textarea.style.height = '';
       }
+
       if (!this.state.isEditing && !$(textarea).val()) {
         $(textarea).val(isToComment ? '' : LET_ME_REPLY);
       }
     }
+
     if (prevProps.postItem.postID !== postItem.postID) {
       this.initTextarea();
     }
@@ -132,6 +136,7 @@ class PostCommentInput extends React.Component {
               const kcAttachments = comp.state.kcAttachments;
               const commentUpload = comp.state.uploadAttachmentObj;
               const isUploadComplete = comp.state.isUploadComplete;
+
               if (!isUploadComplete) {
                 alert(_l('文件上传中，请稍等'), 3);
                 return false;
@@ -139,6 +144,7 @@ class PostCommentInput extends React.Component {
 
               if (attachments.length > 0) {
                 const editingAttachments = _.filter(attachments, att => att.inEdit);
+
                 if (editingAttachments.length > 0) {
                   alert(_l('请先保存文件名'), 3);
                   return false;
@@ -163,6 +169,7 @@ class PostCommentInput extends React.Component {
                     if (commentUpload) {
                       commentUpload.clearAttachment();
                     }
+
                     comp.resetSelectGroup();
                     _.remove(comp.state.attachments);
                     _.remove(comp.state.kcAttachments);
@@ -180,6 +187,7 @@ class PostCommentInput extends React.Component {
                     if (comp.props.onPublished) {
                       comp.props.onPublished();
                     }
+
                     comp.setState({
                       isEditing: false,
                       hasAttachment: false,
@@ -269,9 +277,11 @@ class PostCommentInput extends React.Component {
     const postItem = this.props.postItem;
     const dropElementID = 'cm_' + postItem.postID + '_' + postItem.commentID + 'C';
     const $Attachment_updater = $(`#${dropElementID}`).parent();
+
     if (!$Attachment_updater.hasClass('ThemeColor3')) {
       $Attachment_updater.click();
     }
+
     this.setState({
       attachments: result,
       hasAttachment: !!result.length,

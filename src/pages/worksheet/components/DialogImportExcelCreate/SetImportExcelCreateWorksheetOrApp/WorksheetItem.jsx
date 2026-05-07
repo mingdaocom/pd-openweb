@@ -83,6 +83,7 @@ export default class WorksheetItem extends Component {
   computeDirectionVisible() {
     if (!this.scrollWraperEl) return;
     const viewsScrollEl = this.scrollWraperEl.querySelector('.viewsScroll');
+
     if (viewsScrollEl) {
       const { offsetWidth, scrollWidth } = viewsScrollEl;
       this.flag = true;
@@ -96,18 +97,21 @@ export default class WorksheetItem extends Component {
     const viewsScrollEl = this.scrollWraperEl.querySelector('.viewsScroll');
     const { scrollWidth, scrollLeft, offsetWidth } = viewsScrollEl;
     const width = scrollLeft + offsetWidth;
+
     if (!scrollLeft && hideDirection !== 'left') {
       this.setState({
         hideDirection: 'left',
       });
       return;
     }
+
     if (width === scrollWidth && hideDirection !== 'right') {
       this.setState({
         hideDirection: 'right',
       });
       return;
     }
+
     if (scrollLeft && width < scrollWidth && hideDirection !== null) {
       this.setState({
         hideDirection: null,
@@ -183,6 +187,7 @@ export default class WorksheetItem extends Component {
                           onClick={checked => {
                             let copySelectedSheetIds = [...selectedImportSheetIds];
                             let copySheetList = [];
+
                             if (!checked) {
                               copySelectedSheetIds.push(item.sheetId);
                               if (
@@ -193,6 +198,7 @@ export default class WorksheetItem extends Component {
                                   if (!_.includes(copySelectedSheetIds, m.sheetId)) {
                                     return { ...m, disabled: true };
                                   }
+
                                   return m;
                                 });
                               }
@@ -200,6 +206,7 @@ export default class WorksheetItem extends Component {
                               if (copySelectedSheetIds.length === 1 && sheetList.some(t => !t.disabled)) {
                                 return alert(_l('至少导入1张Sheet'), 3);
                               }
+
                               copySelectedSheetIds = selectedImportSheetIds.filter(it => it !== item.sheetId);
                               if (
                                 versionLimitSheetCount !== 0 &&
@@ -217,10 +224,12 @@ export default class WorksheetItem extends Component {
                                   ) {
                                     return { ...m, disabled: false };
                                   }
+
                                   return m;
                                 });
                               }
                             }
+
                             if (
                               copySelectedSheetIds.length &&
                               !_.includes(copySelectedSheetIds, currentSheetInfo.sheetId)
@@ -228,6 +237,7 @@ export default class WorksheetItem extends Component {
                               const temp = _.find(sheetList, it => it.sheetId === copySelectedSheetIds[0]);
                               this.props.updateCurrentSheetInfo(temp);
                             }
+
                             this.props.updateSelectedImportSheetIds(copySelectedSheetIds);
                             !_.isEmpty(copySheetList) && this.props.updateExcelDetailData(copySheetList);
                             this.setState({}, () => {
@@ -300,10 +310,12 @@ export default class WorksheetItem extends Component {
                           }}
                           onBlur={e => {
                             let val = e.target.value;
+
                             if (!_.trim(val)) {
                               $(this.editInput).focus();
                               return;
                             }
+
                             this.props.updateCurrentSheetInfo({
                               ...currentSheetInfo,
                               isEditSheetName: false,
@@ -348,11 +360,14 @@ export default class WorksheetItem extends Component {
                                 if (selectedImportSheetIds.length === 1) {
                                   return alert(_l('至少导入1张Sheet'), 3);
                                 }
+
                                 let ids = selectedImportSheetIds.filter(v => v !== item.sheetId);
+
                                 if (ids.length && !_.includes(ids, currentSheetInfo.sheetId)) {
                                   const temp = _.find(sheetList, it => it.sheetId === ids[0]);
                                   this.props.updateCurrentSheetInfo(temp);
                                 }
+
                                 this.props.updateSelectedImportSheetIds(ids);
                                 this.setState({ sheetItemOperateVisible: false }, () => {
                                   this.computeDirectionVisible();

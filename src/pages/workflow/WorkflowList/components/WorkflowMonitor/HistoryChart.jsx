@@ -49,6 +49,7 @@ export default class HistoryChart extends PureComponent {
     let diffMinite = Math.floor(moment().subtract(5, 'm').format('mm') % 5);
     let currentDate = moment().minute(moment().add(5, 'm').format('mm') - diffMinite);
     const { Line } = this.g2plotComponent;
+
     for (let i = 12; i > 0; i--) {
       let date = moment(currentDate)
         .subtract(i * 5, 'm')
@@ -59,6 +60,7 @@ export default class HistoryChart extends PureComponent {
         { category: _l('消费'), value: 0, date },
       );
     }
+
     initChartData.push({ value: 50 });
     this.lineChart = new Line(this.chantRef, {
       data: initChartData,
@@ -212,6 +214,7 @@ export default class HistoryChart extends PureComponent {
       let currentGroupData = data.filter(
         item => startDate <= moment(item.lastModifiedDate) && moment(item.lastModifiedDate) < endDate,
       );
+
       if (_.isEmpty(data)) {
         emptyChartData.push(
           { category: _l('新增'), value: 0, date },
@@ -238,9 +241,11 @@ export default class HistoryChart extends PureComponent {
         );
       }
     }
+
     if (!_.isEmpty(emptyChartData)) {
       emptyChartData.push({ value: 50 });
     }
+
     this.setState({ loadingChart: false });
     if (!this.lineChart) return;
     !_.isEmpty(result) ? this.lineChart.changeData(result) : this.lineChart.changeData(emptyChartData);

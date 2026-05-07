@@ -39,6 +39,7 @@ class KcLeft extends Component {
     const storedFoldedProjectsStr = window.localStorage.getItem(
       'foldedProjects_' + md.global.Account.accountId + '_kc',
     );
+
     if (storedFoldedProjectsStr) {
       foldedProjects = Immutable.Set(storedFoldedProjectsStr.split(','));
     } else if (storedFoldedProjectsStr === '') {
@@ -46,13 +47,16 @@ class KcLeft extends Component {
     } else {
       foldedProjects = Immutable.Set(allProjects.value());
     }
+
     let loadingProjects = Immutable.Set(allProjects.reject(projectId => foldedProjects.includes(projectId)).value());
     let noneProjects = false;
+
     if (!md.global.Account.projects.length) {
       foldedProjects = Immutable.Set([]);
       loadingProjects = Immutable.Set(['']);
       noneProjects = true;
     }
+
     this.state = {
       keywords: props.keywords || '',
       projectRootKeywords: {},
@@ -93,6 +97,7 @@ class KcLeft extends Component {
       const urlSearch = decodeURIComponent(location.search);
       const queryStr = urlSearch.split('?')[1];
       const query = qs.parse(queryStr);
+
       if (query.set) {
         this.handleEditRoot(query.set);
       }
@@ -131,9 +136,11 @@ class KcLeft extends Component {
 
   checkRootIsActive = id => {
     const { path } = this.props;
+
     if (!path) {
       return false;
     }
+
     const math = path.match(/[a-z0-9]{24}/);
     const rootId = math && math[0];
     return id === rootId;
@@ -143,12 +150,16 @@ class KcLeft extends Component {
     if (!this.state.loadingProjects.includes(projectId)) {
       const loadingProjects = this.state.loadingProjects.add(projectId);
       let foldedProjects = this.state.foldedProjects;
+
       if (openProject) {
         foldedProjects = foldedProjects.delete(projectId);
       }
+
       this.setState({ loadingProjects, foldedProjects });
     }
+
     const query = { accountId: md.global.Account.accountId };
+
     if (projectId) {
       query.projectId = projectId;
     } else {
@@ -158,8 +169,10 @@ class KcLeft extends Component {
         .reject(ex => ex === projectId)
         .value();
     }
+
     return service.getRoots(query).then(roots => {
       let newRoots = this.state.roots;
+
       if (projectId) {
         newRoots = newRoots.filter(root => !root.project || root.project.projectId !== projectId).concat(roots);
       } else {
@@ -168,6 +181,7 @@ class KcLeft extends Component {
           .filter(existRoot => !_.some(roots, root => root.id === existRoot.id))
           .concat(roots);
       }
+
       this.setState(
         {
           roots: newRoots,
@@ -186,6 +200,7 @@ class KcLeft extends Component {
     if (filterType === this.state.filterType && filterType !== ROOT_FILTER_TYPE.ALL) {
       return;
     }
+
     this.setState({ loading: true }, () => {
       if (filterType === ROOT_FILTER_TYPE.ALL) {
         service
@@ -200,6 +215,7 @@ class KcLeft extends Component {
   /** 回车搜索 */
   searchNodes = evt => {
     const { baseUrl, path } = this.props;
+
     if (evt.keyCode === 13) {
       navigateTo(encodeURI(`${baseUrl}/${path}?q=${evt.target.value}`));
       evt.preventDefault();
@@ -211,6 +227,7 @@ class KcLeft extends Component {
     const { currentFolder, currentRoot } = this.props;
     const rootType = this.getType();
     let directoryName = '';
+
     switch (rootType) {
       case PICK_TYPE.MY:
         directoryName = currentFolder && !_.isEmpty(currentFolder) ? currentFolder.name : _l('我的文件');
@@ -225,6 +242,7 @@ class KcLeft extends Component {
         directoryName = currentFolder && !_.isEmpty(currentFolder) ? currentFolder.name : currentRoot.name;
         break;
     }
+
     this.setState({
       searchName: directoryName
         ? _l('在“%0”中搜索', directoryName.length < 10 ? directoryName : directoryName.substr(0, 9) + '..')
@@ -252,6 +270,7 @@ class KcLeft extends Component {
       root => {
         if (!root) {
           const roots = this.state.roots;
+
           if (this._isMounted) {
             this.setState(
               {
@@ -260,6 +279,7 @@ class KcLeft extends Component {
               this.returnAllFolder,
             );
           }
+
           navigateTo('/apps/kc/my');
           alert(_l('退出成功'));
         } else {
@@ -308,9 +328,11 @@ class KcLeft extends Component {
   handleRootSettings = (rootItem, event) => {
     let creator = false;
     const $target = $(event.target);
+
     if (rootItem) {
       for (let i = 0; i < rootItem.members.length; i++) {
         const member = rootItem.members[i];
+
         if (member.permission === 1) {
           if (member.accountId === md.global.Account.accountId) {
             creator = true;
@@ -401,6 +423,7 @@ class KcLeft extends Component {
     const project = _.find(md.global.Account.projects, p => p.projectId === projectId);
     const keywords = projectRootKeywords[projectId || 'my'];
     let projectRoots;
+
     if (projectId) {
       projectRoots = filterRoots.filter(root => ((root.project && root.project.projectId) || '') === projectId);
     } else {
@@ -409,9 +432,11 @@ class KcLeft extends Component {
         root => projectIds.indexOf((root.project && root.project.projectId) || '') === -1,
       );
     }
+
     if (keywords) {
       projectRoots = projectRoots.filter(root => root.name.toLowerCase().indexOf(keywords.toLowerCase()) > -1);
     }
+
     projectRoots = projectRoots
       .toArray()
       .filter(p => p.isStared)
@@ -602,6 +627,7 @@ class KcLeft extends Component {
 
     let filterRoots;
     let selectName;
+
     switch (this.state.filterType) {
       case ROOT_FILTER_TYPE.ALL:
         filterRoots = this.state.roots;

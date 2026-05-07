@@ -44,6 +44,7 @@ const Empty = styled.div`
     background: var(--color-background-secondary);
   }
 `;
+
 export default function DeleteOptionList({ collectionId, name, title, type, ...rest }) {
   const [loading, setLoading] = useState(true);
   const [controls, setControls] = useState(rest.controls || []);
@@ -67,6 +68,7 @@ export default function DeleteOptionList({ collectionId, name, title, type, ...r
         } else {
           alert(msg);
         }
+
         setLoading(false);
       })
       .catch(() => {
@@ -79,6 +81,7 @@ export default function DeleteOptionList({ collectionId, name, title, type, ...r
       setLoading(false);
       return;
     }
+
     getData();
   }, []);
 

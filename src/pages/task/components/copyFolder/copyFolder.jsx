@@ -105,6 +105,7 @@ export default class CopyFolder extends Component {
 
   submit() {
     const folderName = $('#copyFolderName').val().trim();
+
     if (!folderName) {
       alert('项目标题不能为空');
       return false;

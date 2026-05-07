@@ -25,6 +25,7 @@ export default ({ list, isIntegration = false, json }) => {
       );
     });
   };
+
   const renderParameters = ({ type, controlId, dataSource, jsonPath }) => {
     if (!jsonPath) return '';
 

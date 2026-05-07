@@ -71,7 +71,7 @@ const AIActionDialogWrap = styled(Dialog)`
       width: 32px;
       height: 32px;
       background: var(--color-background-primary);
-      box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.16);
+      box-shadow: var(--shadow-lg);
       text-align: center;
       border-radius: 50%;
       background: linear-gradient(to right, rgba(255, 255, 255, 0) 0%, #ffffff 34%, #ffffff 100%);

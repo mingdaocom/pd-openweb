@@ -789,6 +789,7 @@ export const getCheckListsWithItemsInTask =
       } else {
         errorMessage(result.error);
       }
+
       addPostSuccessCount();
     });
   };
@@ -843,6 +844,7 @@ export const updateCheckListName = (taskId, checkListId, name) => (dispatch, get
         if (item.checkListId === checkListId) {
           item.name = name;
         }
+
         return item;
       });
 
@@ -900,6 +902,7 @@ export const updateItemIndex =
           if (list.checkListId === targetCheckListId) {
             list.items.splice(insertIndex, 0, currentData);
           }
+
           return list;
         });
 
@@ -927,6 +930,7 @@ export const addItems = (taskId, checkListId, names) => (dispatch, getState) => 
         if (item.checkListId === checkListId) {
           item.items = item.items.concat(result.data.items);
         }
+
         return item;
       });
 
@@ -1042,6 +1046,7 @@ export const getTaskControls =
       } else {
         errorMessage(result.error);
       }
+
       addPostSuccessCount();
     });
   };
@@ -1067,6 +1072,7 @@ export const updateControlValue = (taskId, controlId, value, opts, isAttachment)
               // 添加
               item.value = item.value.concat(JSON.parse(result.data.relation));
             }
+
             item.value = JSON.stringify(item.value);
           } else if (item.type === 19 || item.type === 23 || item.type === 24) {
             // 地区

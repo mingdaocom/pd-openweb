@@ -1,6 +1,6 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import { withRouter } from 'react-router-dom';
-import ClipboardButton from 'react-clipboard.js';
+import copy from 'copy-to-clipboard';
 import moment from 'moment';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
@@ -21,8 +21,8 @@ import EXCLUSIVE_EXPLAN_HUI_IMG from '../images/exclusive_explan_hui.png';
 import '../index.less';
 
 const MoreOperateMenu = styled.ul`
-  background: var(--color-background-primary);
-  box-shadow: 0px 4px 16px 1px rgba(0, 0, 0, 0.24);
+  background: var(--color-background-card);
+  box-shadow: var(--shadow-sm);
   border-radius: 3px 3px 3px 3px;
   width: 160px;
   font-size: 13px;
@@ -142,6 +142,7 @@ function ExplanList(props) {
       alert(_l('请联系组织超级管理员购买或升级'), 2);
       return;
     }
+
     if (FEATURE_STATUS === '2') {
       setConfig({
         ...config,
@@ -149,6 +150,17 @@ function ExplanList(props) {
       });
       return;
     }
+
+    if (
+      window.platformENV.isPlatform &&
+      !window.platformENV.isLocal &&
+      !window.platformENV.isOverseas &&
+      config.effectiveCount >= 5
+    ) {
+      alert(_l('购买数量超出上限'), 3);
+      return;
+    }
+
     navigateTo(`/admin/expansionserviceComputing/${projectId}/computing`);
   };
 
@@ -222,14 +234,15 @@ function ExplanList(props) {
                     <div className="mTop9">
                       {item.resourceId}
                       <Tooltip title={_l('复制资源ID')} placement="top">
-                        <ClipboardButton
+                        <span
                           className="Hand"
-                          component="span"
-                          data-clipboard-text={item.resourceId}
-                          onSuccess={() => alert(_l('复制成功'))}
+                          onClick={() => {
+                            copy(item.resourceId);
+                            alert(_l('复制成功'));
+                          }}
                         >
                           <span className="icon-content-copy mLeft8 textDisabled hoverTextPrimaryLight Hand"></span>
-                        </ClipboardButton>
+                        </span>
                       </Tooltip>
                     </div>
                   </div>
@@ -412,7 +425,9 @@ function ExplanList(props) {
             {_l('将重要的工作流添加到专属算力中运行，可免受本组织或平台其他组织的流程堵塞影响')}
             <span className="createComputingButton Hand" onClick={goToPurchase}>
               <Icon icon="add" className="mRight3" />
-              {_l('创建')}
+              {window.platformENV.isPlatform && !window.platformENV.isLocal && !window.platformENV.isOverseas
+                ? _l('购买')
+                : _l('创建')}
             </span>
           </div>
           <ul className="exclusiveCompList">

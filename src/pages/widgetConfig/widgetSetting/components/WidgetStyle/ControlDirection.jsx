@@ -39,6 +39,7 @@ export default function ControlDirection(props) {
 
                   return;
                 }
+
                 onChange(
                   handleAdvancedSettingChange(data, {
                     direction: item.value,

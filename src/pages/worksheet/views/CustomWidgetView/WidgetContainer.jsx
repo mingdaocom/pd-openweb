@@ -56,7 +56,9 @@ export default function WidgetContainer(props) {
     navGroupFilters,
     onLoadScript = () => {},
   } = props;
-  const pluginRuntimeUrl = get(md, 'global.Config.PluginRuntimeUrl');
+  const rawPluginRuntimeUrl = get(md, 'global.Config.PluginRuntimeUrl');
+  const isLocalScript = /localhost|127\.0\.0\.1/.test(scriptUrl);
+  const pluginRuntimeUrl = isLocalScript ? '' : rawPluginRuntimeUrl;
 
   const iframeRef = useRef();
   const cache = useRef({});

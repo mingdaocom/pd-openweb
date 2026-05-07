@@ -5,6 +5,7 @@ import _ from 'lodash';
 import { Button, Checkbox, Icon, LoadDiv, MdLink, Switch } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import Ajax from 'src/api/workWeiXin';
+import { purchaseMethodFunc } from 'src/components/pay/versionUpgrade/PurchaseMethodModal';
 import CancelIntegration from '../components/CancelIntegration';
 import EnabledWebProxy from '../components/EnabledWebProxy';
 import EnableScanLogin from '../components/EnableScanLogin';
@@ -59,7 +60,10 @@ export default class Workwx extends React.Component {
       fieldRadio: null,
       isSetPassword: false,
       passwordError: false,
-      syncWXLabel: !window.platformENV.isPlatform ? 'job' : 'organize',
+      syncWXLabel:
+        (window.platformENV.isLocal || window.platformENV.isOverseas) && !window.platformENV.isPlatform
+          ? 'job'
+          : 'organize',
       qwQuickAprData: {},
       currentTab: 'base',
       isProxy: false, // 是否开启网络代理
@@ -76,9 +80,11 @@ export default class Workwx extends React.Component {
           corpId: '',
           agentId: '',
           secret: '',
-          status: !window.platformENV.isPlatform ? 1 : '',
+          status:
+            (window.platformENV.isLocal || window.platformENV.isOverseas) && !window.platformENV.isPlatform ? 1 : '',
         };
       }
+
       if (res) {
         this.setState({
           ...res,
@@ -124,6 +130,7 @@ export default class Workwx extends React.Component {
       alert('请输入相关信息', 3);
       return;
     }
+
     Ajax.editWXProjectSetting({
       projectId: this.props.projectId,
       agentId: this.state.AgentId,
@@ -153,6 +160,7 @@ export default class Workwx extends React.Component {
   handleSaveJobnumberMappingField = () => {
     const { fieldRadio, jobnumberMappingField } = this.state;
     const fieldName = jobnumberMappingField.trim();
+
     if (fieldName) {
       Ajax.editWXProjectJobnumberMappingField({
         projectId: this.props.projectId,
@@ -184,17 +192,21 @@ export default class Workwx extends React.Component {
   formatStr = str => {
     if (!str) return;
     let newStr;
+
     if (str.length === 4) {
       newStr = str.substr(0, 3) + '*';
     } else if (str.length > 4) {
       let char = '';
+
       for (let i = 0, len = str.length - 4; i < len; i++) {
         char += '*';
       }
+
       newStr = str.substr(0, 3) + char + str.substr(-3, 3);
     } else {
       newStr = str;
     }
+
     return newStr;
   };
 
@@ -323,7 +335,14 @@ export default class Workwx extends React.Component {
           )}
           {((isHasInfo && show2) || intergrationType === 2) && (
             <span className="Font13 textSecondary Right closeDing">
-              <Tooltip title={_l('关闭企业微信集成后，无法再从企业微信处进入应用')} placement="bottomLeft">
+              <Tooltip
+                title={
+                  !window.platformENV.isOverseas && !window.platformENV.isLocal
+                    ? _l('关闭企业微信集成后，无法再从企业微信处进入明道云应用')
+                    : _l('关闭企业微信集成后，无法再从企业微信处进入应用')
+                }
+                placement="bottomLeft"
+              >
                 <span className="mLeft10 switchBtn">
                   <Switch
                     checked={!isCloseDing}
@@ -513,7 +532,7 @@ export default class Workwx extends React.Component {
                 projectId={projectId}
                 scanEnabled={integrationScanEnabled}
                 disabled={(canEditInfo && !isHasInfo) || isCloseDing}
-                customDoc={intergrationType === 2}
+                customDoc={(window.platformENV.isOverseas || window.platformENV.isLocal) && intergrationType === 2}
                 href={
                   intergrationType !== 2
                     ? `/wxappSyncCourse/${projectId}#scanWorkwx`
@@ -645,6 +664,7 @@ export default class Workwx extends React.Component {
     if (this.state.pageLoading) {
       return <LoadDiv className="mTop80" />;
     }
+
     return (
       <div className="orgManagementWrap workwxMainContent platformIntegrationContent">
         {!this.state.isPassApply && !(!this.state.CorpId && window.platformENV.isPlatform) && intergrationType !== 2 ? (
@@ -668,7 +688,9 @@ export default class Workwx extends React.Component {
               <div className="TxtCenter mTop50">
                 <h2 className="Font26 textPrimary">{_l('申请企业微信集成')}</h2>
                 <p className="mTop24 mBottom32 Font16 textSecondary">
-                  {_l('申请通过后，可将该系统应用安装到企业微信工作台！')}
+                  {!window.platformENV.isOverseas && !window.platformENV.isLocal
+                    ? _l('申请通过后，可将明道云应用安装到企业微信工作台！')
+                    : _l('申请通过后，可将该系统应用安装到企业微信工作台！')}
                 </p>
                 <Button
                   type="primary"
@@ -691,6 +713,19 @@ export default class Workwx extends React.Component {
                   <React.Fragment>
                     <h2 className="Font18 textPrimary">{_l('试用已过期，请付费后继续使用')}</h2>
                     <p className="mTop15 Font13 textSecondary">{_l('如有疑问，请联系您的专属顾问')}</p>
+
+                    {!window.platformENV.isOverseas && !window.platformENV.isLocal ? (
+                      <Button
+                        type="primary"
+                        className="applyBtn mBottom10 mTop25"
+                        onClick={() => {
+                          // 前往付费
+                          purchaseMethodFunc({ projectId });
+                        }}
+                      >
+                        {_l('前往付费')}
+                      </Button>
+                    ) : null}
                   </React.Fragment>
                 ) : (
                   <React.Fragment>

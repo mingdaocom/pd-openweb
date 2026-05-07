@@ -29,6 +29,7 @@ const fetchJobUsers = (projectId, jobId, pageIndex) => {
     },
   };
 };
+
 //根据职位获取成员
 export const loadJobUsers = (projectId, jobId, pageIndex) => dispatch => {
   return dispatch(fetchJobUsers(projectId, jobId, pageIndex || 1));

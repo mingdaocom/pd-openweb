@@ -134,6 +134,7 @@ export default function CreateDialog(props) {
         };
       });
     }
+
     return tableOptionList;
   };
 
@@ -171,6 +172,7 @@ export default function CreateDialog(props) {
       })
       .then(res => {
         const { errorMsgList } = res;
+
         if (errorMsgList) {
           return alert(errorMsgList ? errorMsgList[0] : _l('创建失败'), 2);
         } else {
@@ -288,6 +290,7 @@ export default function CreateDialog(props) {
       </React.Fragment>
     );
   };
+
   return (
     <Dialog
       dialogClasses={className}
@@ -328,6 +331,7 @@ export default function CreateDialog(props) {
           if (isCreating) {
             return;
           }
+
           emitter.emit('CHECK_TABLE_EXISTS');
         } else {
           setState({
@@ -348,6 +352,7 @@ export default function CreateDialog(props) {
                 setState({ isCreating: isChecking });
                 return;
               }
+
               setState({ doubleWriteTables, isCreating: nextCreate ? nextCreate : false });
               nextCreate && onCreate(doubleWriteTables);
             }}

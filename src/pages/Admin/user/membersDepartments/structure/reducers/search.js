@@ -9,6 +9,7 @@ const initialState = {
 
 export default (state = initialState, action) => {
   const { type, isSearching, result } = action;
+
   switch (type) {
     case 'PROJECT_ID_CHANGED':
       return initialState;

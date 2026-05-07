@@ -1,5 +1,5 @@
 import React, { Fragment, useState } from 'react';
-import ClipboardButton from 'react-clipboard.js';
+import copy from 'copy-to-clipboard';
 import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
@@ -124,16 +124,15 @@ export default function MoreOption(props) {
             <MenuItem onClick={() => sortOptions(false)}>{_l('按拼音Z-A排序')}</MenuItem>
             <Tooltip title={_l('将当前字段的所有选项复制为文本,用于为其他选项字段批量添加相同选项')} placement="left">
               <MenuItem>
-                <ClipboardButton
-                  component="span"
-                  data-clipboard-text={getCopyValue()}
-                  onSuccess={() => {
+                <span
+                  onClick={() => {
+                    copy(getCopyValue());
                     alert(_l('复制成功，请去批量添加选项'));
                     setVisible({ moreVisible: false });
                   }}
                 >
                   {_l('复制所有选项')}
-                </ClipboardButton>
+                </span>
               </MenuItem>
             </Tooltip>
 

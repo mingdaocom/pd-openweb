@@ -73,6 +73,7 @@ export const groupInit = function () {
   IM.socket.on('group admin added', data => {
     const { gid, addAid } = data;
     const { accountId } = md.global.Account;
+
     if (accountId === addAid) {
       this.props.dispatch(actions.updateAdmin(gid, true));
     }
@@ -82,6 +83,7 @@ export const groupInit = function () {
   IM.socket.on('group admin removed', data => {
     const { gid, removedAid } = data;
     const { accountId } = md.global.Account;
+
     if (accountId === removedAid) {
       this.props.dispatch(actions.updateAdmin(gid, false));
     }
@@ -142,11 +144,13 @@ export const stateInit = function () {
     IM.socket.off('reconnect', reconnectFn);
     IM.socket.off('reconnect_failed', reconnectFailedFn);
   };
+
   const reconnectFailedFn = () => {
     this.props.dispatch(actions.setSocketState(2));
     IM.socket.off('reconnect', reconnectFn);
     IM.socket.off('reconnect_failed', reconnectFailedFn);
   };
+
   const notificationInit = () => {
     this.props.dispatch(actions.setSocketState(1));
     IM.socket.on('reconnect', reconnectFn);
@@ -155,10 +159,17 @@ export const stateInit = function () {
 
   let reconnectTime = null;
 
+  window.addEventListener('online', () => {
+    if (!IM.socket.connected) {
+      IM.socket.connect();
+    }
+  });
+
   IM.socket.on('error', error => {
     if (error && error.code === 'parser error') {
       return;
     }
+
     if (isOpen) {
       isOpen = false;
       notificationInit();
@@ -172,6 +183,7 @@ export const stateInit = function () {
         isOpen = false;
         notificationInit();
       }
+
       removeFlashTitle('', []);
     }, reconnectDelayTime);
   });
@@ -180,6 +192,8 @@ export const stateInit = function () {
     if (reconnectCount <= 1) {
       reconnectCount++;
     }
+
+    this.props.dispatch(actions.setSocketState(navigator.onLine ? 1 : 2));
 
     if (window.localStorage.getItem('websocket') == 'polling') {
       IM.socket.io.opts.transports = ['polling'];
@@ -190,10 +204,12 @@ export const stateInit = function () {
     if (Date.now() - disconnectTime < reconnectDelayTime) {
       clearTimeout(reconnectTime);
     }
+
     if (reconnectCount > 1) {
       isOpen = true;
       this.props.dispatch(actions.refresh());
     }
+
     this.props.dispatch(actions.setSocketState(0));
   });
 };

@@ -48,6 +48,7 @@ const InputWrap = styled(Input)`
     color: var(--color-text-disabled);
   }
 `;
+
 export default function Areas(props) {
   const { values = [], control = {}, isMultiple, onChange = () => {}, projectId } = props;
   const [active, setActive] = useState();
@@ -85,6 +86,7 @@ export default function Areas(props) {
             id: last.id,
           };
         }
+
         clearSearch();
       }}
       handleClose={() => {
@@ -93,6 +95,7 @@ export default function Areas(props) {
         if (tempArea.current) {
           onChange({ values: isMultiple ? _.uniqBy([...values, tempArea.current], 'id') : [tempArea.current] });
         }
+
         clearSearch();
       }}
     >

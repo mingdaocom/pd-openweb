@@ -7,11 +7,11 @@ import { Dialog, Dropdown, Signature, Textarea, VerifyPasswordInput } from 'ming
 import { Tooltip } from 'ming-ui/antd-components';
 import { quickSelectUser } from 'ming-ui/functions';
 import delegationAJAX from '../../../../api/delegation';
-import instanceAJAX from '../../../../api/instance';
 import codeAuth from 'src/api/codeAuth';
 import Attachment from 'src/components/Form/DesktopForm/widgets/Attachment';
 import verifyPassword from 'src/components/verifyPassword';
 import { getTranslateInfo } from 'src/utils/app';
+import instanceAJAX from '../../../../apiV2/instance';
 import { ACTION_TO_TEXT } from '../../config';
 import './index.less';
 
@@ -74,10 +74,16 @@ const TemplateList = styled.div`
     background: var(--color-background-secondary);
     border-radius: 3px;
     color: var(--color-text-secondary);
+    position: relative;
     &:hover,
     &.active {
       color: var(--color-primary);
       background-color: var(--color-primary-transparent);
+    }
+    .icon-delete {
+      position: absolute;
+      top: 6px;
+      right: 10px;
     }
   }
 `;
@@ -159,6 +165,7 @@ export default class OtherAction extends Component {
       countersignType: 1,
       opinionList: [],
       nextUserRange: {},
+      hideOpinion: localStorage.getItem('hideWorkflowOpinion') === 'true',
     };
   }
 
@@ -230,12 +237,14 @@ export default class OtherAction extends Component {
     const overruleContent = _.includes(['overrule', 'return'], action) && _.includes(auth.overruleTypeList, 100);
     const overruleSignature = _.includes(['overrule', 'return'], action) && _.includes(auth.overruleTypeList, 1);
     const attachments = files ? JSON.stringify(JSON.parse(files).attachments) : '';
+
     const submitFun = () => {
       const userId = selectedUsers
         .map(user => {
           if (entrustList[user.accountId]) {
             return entrustList[user.accountId].trustee.accountId;
           }
+
           return user.accountId;
         })
         .join(',');
@@ -300,6 +309,7 @@ export default class OtherAction extends Component {
         alert(_l('请输入密码'), 3);
         return;
       }
+
       verifyPassword({
         projectId,
         password: this.password,
@@ -554,7 +564,7 @@ export default class OtherAction extends Component {
    */
   renderTemplateList() {
     const { action, data } = this.props;
-    const { content, opinionList } = this.state;
+    const { content, opinionList, hideOpinion } = this.state;
     const { opinions = [] } = data.opinionTemplate || {};
     let list = (_.includes(['pass', 'after'], action) ? opinions[4] : opinions[5]) || [];
 
@@ -583,18 +593,38 @@ export default class OtherAction extends Component {
 
         {!!opinionList.length && (
           <Fragment>
-            <div className="textSecondary mTop15 mBottom6">{_l('上次输入')}</div>
-            <TemplateList>
-              {opinionList.map((item, index) => (
-                <span
-                  className={cx('ellipsis', { active: content.trim() === item.opinion.trim() })}
-                  key={index}
-                  onClick={() => this.setState({ content: item.opinion })}
-                >
-                  {item.opinion}
-                </span>
-              ))}
-            </TemplateList>
+            <div className="mTop15 mBottom6 flexRow alignItemsCenter">
+              <span
+                className="textSecondary pointer hoverColorPrimary"
+                onClick={() => {
+                  this.setState({ hideOpinion: !hideOpinion });
+                  localStorage.setItem('hideOpinion', hideOpinion ? 'true' : 'false');
+                }}
+              >
+                <span>{_l('上次输入')}</span>
+                <i className={cx('Font14 mLeft3', hideOpinion ? 'icon-arrow-down-border' : 'icon-arrow-up-border')} />
+              </span>
+            </div>
+            {!hideOpinion && (
+              <TemplateList>
+                {opinionList.map((item, index) => (
+                  <span
+                    className={cx('ellipsis pRight30', { active: content.trim() === item.opinion.trim() })}
+                    key={index}
+                    onClick={() => this.setState({ content: item.opinion })}
+                  >
+                    {item.opinion}
+                    <i
+                      className="icon-delete Font16 hoverTextError pointer"
+                      onClick={e => {
+                        e.stopPropagation();
+                        this.deleteOpinion(item.opinion);
+                      }}
+                    />
+                  </span>
+                ))}
+              </TemplateList>
+            )}
           </Fragment>
         )}
       </Fragment>
@@ -619,6 +649,20 @@ export default class OtherAction extends Component {
         {this.renderMember()}
       </Fragment>
     );
+  }
+
+  /**
+   * 删除上一次的输入
+   */
+  deleteOpinion(opinion) {
+    const { instanceId } = this.props;
+
+    instanceAJAX.removeOperation({ id: instanceId, opinion }).then(res => {
+      if (res) {
+        alert(_l('删除成功'));
+        this.setState({ opinionList: this.state.opinionList.filter(item => item.opinion !== opinion) });
+      }
+    });
   }
 
   render() {

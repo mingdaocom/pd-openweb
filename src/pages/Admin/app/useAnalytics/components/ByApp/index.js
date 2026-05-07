@@ -223,6 +223,7 @@ export default class ByApp extends Component {
         className: 'flex overflowHidden pRight16 minWidth120 pLeft10',
         render: item => {
           const { app = {} } = item;
+
           if (app.name) {
             return (
               <div className="flexRow overflowHidden">
@@ -388,6 +389,7 @@ export default class ByApp extends Component {
       endTime,
     } = this.state;
     const { sortFiled, order } = sorterInfo;
+
     if (currentTab === 1) {
       return {
         projectId,
@@ -422,6 +424,7 @@ export default class ByApp extends Component {
     if (this.ajaxRequst) {
       this.ajaxRequst.abort();
     }
+
     const params = this.getParams();
     this.ajaxRequst = appManagementAjax.appUsageOverviewStatistics(params);
     this.ajaxRequst
@@ -446,6 +449,7 @@ export default class ByApp extends Component {
     if (this.useageRequest) {
       this.useageRequest.abort();
     }
+
     const params = this.getParams();
     this.useageRequest = appManagementAjax.usageStatisticsForDimension(params);
     this.useageRequest
@@ -469,6 +473,7 @@ export default class ByApp extends Component {
 
   dealSorter = sorterInfo => {
     const { currentTab } = this.state;
+
     if (currentTab === 1) {
       this.setState({ sorterInfo, pageIndex: 1 }, () => {
         this.getList();

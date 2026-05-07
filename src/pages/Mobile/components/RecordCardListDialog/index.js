@@ -16,6 +16,7 @@ import { getCoverUrl } from 'src/components/Form/MobileForm/tools/utils';
 import RestrictAccessStatus from 'src/components/restrictAccessStatus';
 import MobileNewRecord from 'src/pages/worksheet/common/newRecord/MobileNewRecord';
 import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
+import { getTranslateInfo } from 'src/utils/app';
 import { fieldCanSort } from 'src/utils/control';
 import RegExpValidator from 'src/utils/expression';
 import { compatibleMDJS, handlePushState, handleReplaceState } from 'src/utils/project';
@@ -84,6 +85,7 @@ export default class RecordCardListDialog extends Component {
       this.setState({ list: staticRecords, loading: false });
       return;
     }
+
     if (control) {
       (window.isPublicWorksheet && !_.get(window, 'shareState.isPublicWorkflowRecord')
         ? publicWorksheetAjax
@@ -95,12 +97,23 @@ export default class RecordCardListDialog extends Component {
           relationWorksheetId: parentWorksheetId,
         })
         .then(data => {
+          if (_.get(data, 'template.controls')) {
+            data.template.controls = replaceControlsTranslateInfo(
+              data.appId,
+              control.dataSource,
+              data.template.controls,
+            );
+          }
+
+          data.entityName = getTranslateInfo(data.appId, null, control.dataSource).recordName || data.entityName;
+
           window.worksheetControlsCache = {};
           (_.get(data, 'template.controls') || []).forEach(c => {
             if (c.type === 29) {
               window.worksheetControlsCache[c.dataSource] = c.relationControls;
             }
           });
+
           this.setState(
             {
               allowAdd: data.allowAdd,
@@ -122,6 +135,7 @@ export default class RecordCardListDialog extends Component {
         this.loadRecorcd();
       }
     }
+
     if (this.inputRef && keyWords) this.inputRef.value = keyWords;
     window.addEventListener('popstate', this.onQueryChange, false);
   }
@@ -178,12 +192,15 @@ export default class RecordCardListDialog extends Component {
     const { pageIndex, keyWords, list, sortControls, worksheetInfo, isScanSearch, ignoreAllFilters } = this.state;
     let getFilterRowsPromise, args;
     let filterControls;
+
     if (control && _.get(control, 'advancedSetting.filters')) {
       if (worksheetInfo) {
         control.relationControls = worksheetInfo.template.controls;
       }
+
       filterControls = getFilter({ control, formData, appId: this.props.appId });
     }
+
     // 存在不符合条件值的条件
     if (filterControls === false && !ignoreAllFilters) {
       this.setState({ loading: false });
@@ -270,6 +287,7 @@ export default class RecordCardListDialog extends Component {
         fastFilters,
       };
     }
+
     if (fastSearchControlArgs) {
       delete args['keyWords'];
       if (String(keyWords || '').trim()) {
@@ -292,6 +310,7 @@ export default class RecordCardListDialog extends Component {
         ];
       }
     }
+
     if (parentWorksheetId && controlId) {
       args.relationWorksheetId = parentWorksheetId;
       args.rowId = recordId;
@@ -314,6 +333,12 @@ export default class RecordCardListDialog extends Component {
             'rowid',
           );
 
+          if (res?.worksheet?.worksheetId) {
+            res.worksheet.entityName =
+              getTranslateInfo(res.worksheet.appId, null, res.worksheet.worksheetId).recordName ||
+              res.worksheet.entityName;
+          }
+
           this.setState(
             {
               list: getDataType
@@ -332,12 +357,14 @@ export default class RecordCardListDialog extends Component {
                   selectedRecords: [res.data[0]],
                 });
               }
+
               if (!this.state.loadouted && filteredList.length < 8) {
                 this.loadNext();
               }
 
               if (window.isMingDaoApp && (isScan || isScanSearch) && multiple) {
                 const firstRow = res.data && res.data.length ? res.data[0] : {};
+
                 if (filteredList.length > 1) {
                   // 终止扫码，用户手动选
                   compatibleMDJS('stopScanWithControls', { cid: controlId, cancel: () => {} });
@@ -390,6 +417,7 @@ export default class RecordCardListDialog extends Component {
     if (enumDefault !== 2) {
       return;
     }
+
     compatibleMDJS('scanRelationLoaded', {
       cid: controlId,
       cname: controlName,
@@ -445,6 +473,7 @@ export default class RecordCardListDialog extends Component {
           this.setState({ loading: false });
           return;
         }
+
         this.loadRecorcd();
       },
     );
@@ -470,6 +499,7 @@ export default class RecordCardListDialog extends Component {
       if (selectedCount + selectedRecords.length >= maxCount) {
         return alert(_l('最多关联%0条', maxCount), 3);
       }
+
       this.setState({
         selectedRecords: selected
           ? _.uniqBy(selectedRecords.concat(record))
@@ -492,6 +522,7 @@ export default class RecordCardListDialog extends Component {
 
   handleSort = (control, isAsc) => {
     let newIsAsc;
+
     if (_.isUndefined(isAsc)) {
       newIsAsc = true;
     } else if (isAsc === false) {
@@ -499,6 +530,7 @@ export default class RecordCardListDialog extends Component {
     } else {
       newIsAsc = false;
     }
+
     this.setState(
       {
         sortControls: _.isUndefined(newIsAsc)
@@ -542,6 +574,7 @@ export default class RecordCardListDialog extends Component {
     let cardControls = new Array(showControls.length);
     allControls.forEach(control => {
       const indexOfShowControls = showControls.indexOf(control.controlId);
+
       if (indexOfShowControls > -1 && control.attribute !== 1) {
         cardControls[indexOfShowControls] = control;
       }
@@ -556,6 +589,7 @@ export default class RecordCardListDialog extends Component {
     const { worksheet, worksheetInfo } = this.state;
     const title = worksheet.entityName || _.get(worksheetInfo, 'entityName') || _l('记录');
     const { searchcontrol } = control.advancedSetting || {};
+
     if (searchcontrol) {
       const searchControl = _.find(control.relationControls, { controlId: searchcontrol }) || {};
       return searchControl.controlName || title;
@@ -586,6 +620,7 @@ export default class RecordCardListDialog extends Component {
       _.get(control, 'advancedSetting.fastfiltersview');
     const fastFiltersView = fastFiltersViewId && _.find(worksheetInfo.views, { viewId: fastFiltersViewId });
     let fastFilters = (fastFiltersView && _.get(fastFiltersView, 'fastFilters')) || [];
+
     if (enableFastFilters && !_.isEmpty(fastFilters) && worksheetInfo) {
       fastFilters = fastFilters.map(item => ({
         ...item,
@@ -612,6 +647,7 @@ export default class RecordCardListDialog extends Component {
                 if (e.type === 'compositionend') {
                   this.isOnComposition = false;
                 }
+
                 this.handleSearch(e.target.value);
               }}
             />
@@ -624,6 +660,7 @@ export default class RecordCardListDialog extends Component {
                 if (this.inputRef) {
                   this.inputRef.value = '';
                 }
+
                 this.handleSearch('');
               }}
             />
@@ -650,6 +687,7 @@ export default class RecordCardListDialog extends Component {
                       this.setState({ pageIndex: 1, list: [] });
                       return;
                     }
+
                     this.handleSearch(keyWords, true);
                   }, 200);
                 }}

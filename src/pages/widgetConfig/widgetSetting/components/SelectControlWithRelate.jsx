@@ -87,9 +87,11 @@ export default function SelectControlWithRelate({
         {sheetList.map(({ id: recordId, name, type: relationControlType }) => {
           const fieldList = filteredFieldList[recordId];
           let relationName = name;
+
           if (relationControlType) {
             relationName = relationControlType.type === 35 ? _l('级联选择 “%0”', name) : _l('关联记录 “%0”', name);
           }
+
           return fieldList.length > 0 ? (
             <ul className="relateSheetList">
               <li>

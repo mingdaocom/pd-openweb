@@ -82,7 +82,7 @@ export default class Con extends React.Component {
   }
 
   loadWorksheetShortUrl = props => {
-    let { appId, worksheetId, viewId, rowId, printId, type, printType, isDefault, projectId } = this.props.params;
+    let { appId, worksheetId, viewId, rowId, printId } = this.props.params;
     const { printData } = props || this.props;
     const { shareType = 0, rowIdForQr } = printData;
 
@@ -170,6 +170,7 @@ export default class Con extends React.Component {
       <React.Fragment>
         {tableList.map((tableData, tableIndex) => {
           let isRelationControls = tableData.length === 1 && isRelation(tableData[0][0]);
+
           //关联表多行列表/子表打印
           if (isRelationControls) {
             const item = tableData[0];
@@ -178,11 +179,13 @@ export default class Con extends React.Component {
               if ([29, 34, 51].includes(item[0].type)) {
                 //关联表,子表，是否空值隐藏
                 let records = [];
+
                 try {
                   records = JSON.parse(item[0].value);
                 } catch (err) {
                   console.log(err);
                 }
+
                 // 子表records不是数组
                 if (records.length <= 0) {
                   return null;
@@ -203,7 +206,9 @@ export default class Con extends React.Component {
 
             return this.renderRelations(item[0], dataInfo);
           }
+
           let hideNum = 0;
+
           if ([22, 52].includes(tableData[0][0].type)) {
             let type = tableData[0][0].type;
             let hideTitle = _.get(tableData[0][0], 'advancedSetting.hidetitle') === '1';
@@ -224,6 +229,7 @@ export default class Con extends React.Component {
               </p>
             ) : null;
           }
+
           return (
             <table
               style={{
@@ -250,29 +256,35 @@ export default class Con extends React.Component {
                 })}
               {Object.keys(tableData).map((key, itemIndex) => {
                 const item = tableData[key];
+
                 //一行一个控件的显示
                 if (item.length === 1) {
                   const hideTitle = _.get(item[0], 'advancedSetting.hidetitle') === '1';
+
                   if (isHideNull) {
                     if ([41, 10010, 14, 42].includes(item[0].type) && !item[0].value && !item[0].dataSource) {
                       //富文本、备注、附件、签名，是否空值隐藏0
                       hideNum++;
                       return '';
                     }
+
                     if ([29, 34].includes(item[0].type)) {
                       //关联表,子表，是否空值隐藏
                       let records = [];
+
                       try {
                         records = JSON.parse(item[0].value);
                       } catch (err) {
                         console.log(err);
                       }
+
                       if (records.length <= 0) {
                         hideNum++;
                         return '';
                       }
                     }
                   }
+
                   if (
                     (!this.isShow(
                       getPrintContent({ ...item[0], showData: isHideNull, noUnit: true, ...dataInfo }),
@@ -284,6 +296,7 @@ export default class Con extends React.Component {
                     hideNum++;
                     return '';
                   }
+
                   let expStyle = {
                     borderBottom: '0.1px solid #ddd',
                     borderTop: itemIndex === hideNum ? '0.1px solid #ddd' : 'none',
@@ -471,8 +484,10 @@ export default class Con extends React.Component {
     if (isHideNull && list.length <= 0) {
       return '';
     }
+
     let controls = [];
     let allControlsOfRelation = [];
+
     if (tableList.showControls && tableList.showControls.length > 0) {
       //数据根据ShowControls处理
       controls = sortByShowControls(tableList);
@@ -480,6 +495,7 @@ export default class Con extends React.Component {
       //只展示checked
       controls = controls.filter(it => {
         let data = relationControls.find(o => o.controlId === it.controlId) || [];
+
         if (data.checked && !UN_PRINT_CONTROL.includes(it.type)) {
           return it;
         }
@@ -488,6 +504,7 @@ export default class Con extends React.Component {
       controls = controls.map(it => {
         let { template = [] } = relationsList;
         let { controls = [] } = template;
+
         if (controls.length > 0) {
           let data = controls.find(o => o.controlId === it.controlId) || [];
           return {
@@ -500,14 +517,17 @@ export default class Con extends React.Component {
         }
       });
     }
+
     //关联表富文本不不显示 分割线 嵌入不显示 扫码47暂不支持关联表显示(表单配置处隐藏了)
     controls = controls.filter(
       it => ![41, 22, 45].includes(it.type) && !(it.type === 30 && it.sourceControlType === 41),
     );
     let relationStyleNum = relationStyle.find(it => it.controlId === tableList.controlId) || [];
+
     let setStyle = type => {
       let data = [];
       let isData = relationStyle.map(it => it.controlId).includes(tableList.controlId);
+
       if (isData) {
         relationStyle.map(it => {
           if (it.controlId === tableList.controlId) {
@@ -526,6 +546,7 @@ export default class Con extends React.Component {
           type: type,
         });
       }
+
       handChange({
         relationStyle: data,
       });
@@ -736,6 +757,7 @@ export default class Con extends React.Component {
               onLoad={e => {
                 let width = e.target.width;
                 let height = e.target.height;
+
                 if (width > height) {
                   $(e.target).attr({
                     width: width,
@@ -1038,6 +1060,7 @@ export default class Con extends React.Component {
     let updateSign =
       this.isShow(printData.updateAccount, printData.updateAccountChecked) &&
       this.isShow(printData.updateTime, printData.updateTimeChecked);
+
     if (createSign && updateSign) {
       return false;
     } else if (createSign && this.isShow(printData.ownerAccount, printData.ownerAccountChecked)) {
@@ -1045,6 +1068,7 @@ export default class Con extends React.Component {
     } else if (updateSign && this.getNumSys() % 2 === 1) {
       return true;
     }
+
     return false;
   };
 

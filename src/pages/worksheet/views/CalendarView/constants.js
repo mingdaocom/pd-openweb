@@ -28,3 +28,16 @@ export const CALENDAR_VIEW_FORMATS = {
     titleFormat: { year: 'numeric', month: '2-digit', day: '2-digit' },
   },
 };
+
+export const DEFAULT_COLOR = 'var(--color-primary-transparent)';
+export const DEFAULT_BORDER_COLOR_DARK = 'rgba(255, 255, 255, 0.12)';
+export const DEFAULT_BORDER_COLOR_LIGHT = 'rgba(0, 0, 0, 0.12)';
+export const DEFAULT_TEXT_COLOR = 'var(--color-text-primary)';
+
+export const EVENT_TAB_KEY_BY_INDEX = {
+  0: 'eventAll', //全部
+  1: 'eventScheduled', //已排期
+  2: 'eventNoScheduled', //未排期
+};
+
+export const CARD_WIDTH = 300; // 卡片宽度

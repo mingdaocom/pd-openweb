@@ -66,6 +66,7 @@ const TxtCenter = styled.div`
   padding-top: 30px;
 `;
 let Ajax = null;
+
 export default function (props) {
   const trigger = useRef(null);
   const inputRef = useRef(null);
@@ -120,9 +121,11 @@ export default function (props) {
         getType: 7,
         filterControls: [],
       };
+
       if (Ajax) {
         Ajax.abort();
       }
+
       Ajax = sheetAjax.getFilterRows(args);
       Ajax.then(res => {
         setState({
@@ -140,9 +143,11 @@ export default function (props) {
     if (isSameType([9, 10, 11], controlInfo)) {
       return <Option controlInfo={props.controlInfo} item={record.key} />;
     }
+
     if (isSameType([28], controlInfo)) {
       return <span className="flex">{_l('%0 级', parseInt(record, 10))}</span>;
     }
+
     if (29 === controlInfo.type) {
       const control = controls.find(o => o.attribute === 1);
       return renderCellText({ ...control, value: record[control.controlId] }) || _l('未命名');

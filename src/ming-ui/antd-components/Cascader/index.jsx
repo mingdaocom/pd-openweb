@@ -110,6 +110,7 @@ const Cascader = React.forwardRef(
       if (!_.isEqual(value, selectedKeys)) {
         setSelectedKeys(value);
       }
+
       if (isFocused) {
         searchInputRef.current?.focus();
       }
@@ -144,6 +145,7 @@ const Cascader = React.forwardRef(
       if (loadingNode) {
         const flatData = flattenTreeData(options);
         const node = flatData.find(item => item.value === loadingNode);
+
         if (node && !_.isEmpty(node.children)) {
           setLoadingNode('');
         }
@@ -172,6 +174,7 @@ const Cascader = React.forwardRef(
             // 如果有子节点，递归过滤
             if (nodeChildren && nodeChildren.length > 0) {
               const filteredChildren = filterNode(nodeChildren);
+
               if (filteredChildren.length > 0 || isMatch) {
                 node.children = filteredChildren;
                 return true;
@@ -195,6 +198,7 @@ const Cascader = React.forwardRef(
           setExpandedKeys(newExpandedKeys);
           return;
         }
+
         // 正在加载子节点数据
         if (loadData && loadingNode === node.value) return;
 
@@ -221,12 +225,14 @@ const Cascader = React.forwardRef(
           if (node.isLeaf) {
             handlePopupVisibleChange(false);
           }
+
           return;
         }
 
         // 多选模式
         const isSelected = selectedKeys.some(item => item.value === node.value);
         let newSelectedKeys;
+
         if (isSelected) {
           newSelectedKeys = selectedKeys.filter(item => item.value !== node.value);
         } else {
@@ -252,6 +258,7 @@ const Cascader = React.forwardRef(
             searchInputRef.current?.focus();
           }, 0);
         }
+
         onDropdownVisibleChange?.(visible);
         if (!visible) {
           setLoadingNode('');
@@ -530,7 +537,10 @@ const Cascader = React.forwardRef(
             />
           )}
           {!multiple && !isFocused && (
-            <Icon icon="arrow-down-border Font14" className={cx('cascader-arrow', { expanded: popupVisible })} />
+            <Icon
+              icon="arrow-down-border Font14 textPrimary"
+              className={cx('cascader-arrow', { expanded: popupVisible })}
+            />
           )}
         </div>
       );
@@ -584,7 +594,13 @@ const Cascader = React.forwardRef(
                   className="cascader-search-input"
                   value={searchValue}
                   autoFocus={false}
-                  style={multiple ? { flexBasis: `${inputWidth}px`, minWidth: `${inputWidth}px` } : undefined}
+                  style={
+                    multiple
+                      ? { flexBasis: `${inputWidth}px`, minWidth: `${inputWidth}px` }
+                      : !isFocused && !searchValue
+                        ? { pointerEvents: 'none' }
+                        : undefined
+                  }
                   onChange={e => {
                     const textValue = e.target.value;
                     setSearchValue(textValue);

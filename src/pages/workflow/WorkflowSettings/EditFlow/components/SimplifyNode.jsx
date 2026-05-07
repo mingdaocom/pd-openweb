@@ -94,6 +94,7 @@ export default props => {
       className: 'flowNodeDel',
     },
   ];
+
   // 节点名称编辑
   const nodeNameEdit = () => {
     setEditName(true);
@@ -101,6 +102,7 @@ export default props => {
       nodeNameRef && nodeNameRef.current.focus();
     }, 100);
   };
+
   // 修改节点名称
   const updateName = evt => {
     const name = evt.currentTarget.value.trim();

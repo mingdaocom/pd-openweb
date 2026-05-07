@@ -23,12 +23,15 @@ export default class FnList extends Component {
     const formulaKeys = this.getFormulaKeysWithHr().filter(
       key => key.match(new RegExp('.*' + fnmatch + '.*')) || key === 'HR-HR',
     );
+
     if (_.head(formulaKeys) === 'HR-HR') {
       formulaKeys.shift();
     }
+
     if (_.last(formulaKeys) === 'HR-HR') {
       formulaKeys.pop();
     }
+
     return (
       <Menu className={className} onClickAwayExceptions={onClickAwayExceptions} onClickAway={onClickAway}>
         {!formulaKeys.filter(key => key !== 'HR-HR').length && (

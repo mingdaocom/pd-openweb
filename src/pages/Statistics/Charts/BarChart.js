@@ -43,11 +43,13 @@ export const formatDataCount = (data, isVertical, newYaxisList) => {
         textAlign: 'center',
       },
     };
+
     if (isVertical) {
       data.offsetY = -15;
     } else {
       data.offsetX = 15;
     }
+
     return data;
   });
 };
@@ -60,18 +62,27 @@ export const formatChartData = (data, yaxisList, splitControlId, xaxesControlId)
     const name = item.x;
     data.forEach(element => {
       const target = element.value.filter(n => n.originalX === item.originalX);
+
       if (target.length) {
         const { rename, emptyShowType } = element.c_id
           ? _.find(yaxisList, { controlId: element.c_id }) || {}
           : yaxisList[0];
         const hideEmptyValue = !emptyShowType && !target[0].v;
+        const onlyYaxisList = yaxisList.length && !xaxesControlId && !splitControlId;
+
         if (!hideEmptyValue && element.originalKey) {
           result.push({
             controlId: element.c_id,
             groupName: `${splitControlId ? element.key : rename || element.key}-md-${reportTypes.BarChart}-chart-${element.c_id || element.originalKey}`,
             groupKey: element.originalKey,
             value: target[0].v || (emptyShowType ? 0 : null),
-            name: name || (!splitControlId && !xaxesControlId ? element.originalKey : undefined),
+            name:
+              name ||
+              (!splitControlId && !xaxesControlId
+                ? onlyYaxisList
+                  ? rename || element.originalKey
+                  : element.originalKey
+                : undefined),
             originalId: item.originalX || (xaxesControlId ? '' : name || element.originalKey),
           });
         }
@@ -100,6 +111,7 @@ export const formatChartData = (data, yaxisList, splitControlId, xaxesControlId)
       });
     }
   }
+
   return result;
 };
 
@@ -128,6 +140,7 @@ export default class extends Component {
   componentWillReceiveProps(nextProps) {
     const { displaySetup, style } = nextProps.reportData;
     const { displaySetup: oldDisplaySetup, style: oldStyle } = this.props.reportData;
+
     // 显示设置
     if (
       displaySetup.fontStyle !== oldDisplaySetup.fontStyle ||
@@ -161,6 +174,7 @@ export default class extends Component {
       const { BarChartConfig } = this.getComponentConfig(nextProps);
       this.BarChart && this.BarChart.update(BarChartConfig);
     }
+
     // 切换图表类型 & 堆叠 & 百分比
     if (
       displaySetup.showChartType !== oldDisplaySetup.showChartType ||
@@ -176,6 +190,7 @@ export default class extends Component {
     const { reportData } = props;
     const { displaySetup, style, xaxes, split } = reportData;
     const { BarChartComponent, BarChartConfig } = this.getComponentConfig(props);
+
     if (this.chartEl) {
       this.BarChart = new BarChartComponent(this.chartEl, BarChartConfig);
       this.isViewOriginalData = displaySetup.showRowList && props.isViewOriginalData;
@@ -186,11 +201,13 @@ export default class extends Component {
       if (this.isViewOriginalData || this.isLinkageData) {
         this.BarChart.on('element:click', this.handleClick);
       }
+
       this.BarChart && this.BarChart.render();
     }
   }
   handleClick = data => {
-    const { xaxes, split, appId, reportId, name, reportType, style } = this.props.reportData;
+    const { reportData, isMobile } = this.props;
+    const { xaxes, split, appId, reportId, name, reportType, style } = reportData;
     const event = data.gEvent;
     const currentData = data.data;
     const param = {};
@@ -201,6 +218,7 @@ export default class extends Component {
       reportType,
       filters: [],
     };
+
     if (xaxes.cid) {
       const isNumber = isFormatNumber(xaxes.controlType);
       const value = currentData.data.name ? currentData.data.originalId : '';
@@ -215,6 +233,7 @@ export default class extends Component {
         control: xaxes,
       });
     }
+
     if (split.controlId) {
       const isNumber = isFormatNumber(split.controlType);
       const value = currentData.data.groupKey;
@@ -222,6 +241,7 @@ export default class extends Component {
       if (!xaxes.cid) {
         linkageMatch.value = currentData.data.originalId;
       }
+
       linkageMatch.filters.push({
         controlId: split.controlId,
         values: [param[split.cid]],
@@ -231,15 +251,17 @@ export default class extends Component {
         control: split,
       });
     }
+
     if (_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length) {
       linkageMatch.onlyChartIds = style.autoLinkageChartObjectIds;
     }
+
     const isAll = this.isViewOriginalData && this.isLinkageData;
     this.setState(
       {
         dropdownVisible: isAll,
         offset: {
-          x: event.x + 20,
+          x: event.x + (isMobile ? -100 : 20),
           y: event.y,
         },
         match: param,
@@ -249,6 +271,7 @@ export default class extends Component {
         if (!isAll && this.isViewOriginalData) {
           this.handleRequestOriginalData();
         }
+
         if (!isAll && this.isLinkageData) {
           this.handleAutoLinkage();
         }
@@ -328,6 +351,9 @@ export default class extends Component {
     });
     const rule = _.get(colorRules[0], 'dataBarRule') || {};
     const isRuleColor = yaxisList.length === 1 && _.isEmpty(split.controlId) && !_.isEmpty(rule);
+    const isSplitColor = split.controlId && style.colorType === 0 && _.get(split, 'options.length');
+    const isFunColor =
+      isRuleColor || split.controlId || isOptionsColor || isCustomColor || isSplitColor || !_.isEmpty(linkageMatch);
     const controlMinAndMax = isRuleColor ? getControlMinAndMax(yaxisList, data) : {};
 
     const getRuleColor = value => {
@@ -338,6 +364,50 @@ export default class extends Component {
         controlId: yaxisList[0].controlId,
       });
       return color || colors[0];
+    };
+
+    const getFunColor = data => {
+      const controlId = formatControlInfo(data.groupName).id;
+      const controlIndex = _.findIndex(yaxisList, { controlId });
+      let color = colors[controlIndex % colors.length];
+
+      if (isRuleColor) {
+        const item = _.find(baseConfig.data, { originalId: data.originalId });
+        color = getRuleColor(item.value);
+      }
+
+      if (split.controlId) {
+        const splitIndex = _.findIndex(map, { originalKey: controlId });
+        color = colors[splitIndex % colors.length] || colors[0];
+      }
+
+      if (isOptionsColor) {
+        color = getAlienationColor(xaxes, data);
+      }
+
+      if (isCustomColor) {
+        const index = _.findIndex(baseConfig.data, { originalId: data.originalId });
+        color = colors[index % colors.length];
+      }
+
+      if (isSplitColor) {
+        const optionsColors = split.options.map(c => c.color).filter(c => c);
+
+        if (optionsColors.length) {
+          const option = _.find(split.options, { key: controlId }) || {};
+          color = option.color;
+        }
+      }
+
+      if (!_.isEmpty(linkageMatch)) {
+        if (linkageMatch.value === data.originalId) {
+          return color;
+        } else {
+          return new TinyColor(color).setAlpha(0.3).toRgbString();
+        }
+      }
+
+      return color;
     };
 
     const baseConfig = {
@@ -377,41 +447,7 @@ export default class extends Component {
       theme: {
         background: isDark || widgetBgColor === 'transparent' ? widgetBgColor : '#ffffffcc',
       },
-      color: data => {
-        const controlId = formatControlInfo(data.groupName).id;
-        const controlIndex = _.findIndex(yaxisList, { controlId });
-        let color = colors[controlIndex % colors.length];
-        if (isRuleColor) {
-          const item = _.find(baseConfig.data, { originalId: data.originalId });
-          color = getRuleColor(item.value);
-        }
-        if (split.controlId) {
-          const splitIndex = _.findIndex(map, { originalKey: controlId });
-          color = colors[splitIndex % colors.length] || colors[0];
-        }
-        if (isOptionsColor) {
-          color = getAlienationColor(xaxes, data);
-        }
-        if (isCustomColor) {
-          const index = _.findIndex(baseConfig.data, { originalId: data.originalId });
-          color = colors[index % colors.length];
-        }
-        if (split.controlId && style.colorType === 0 && _.get(split, 'options.length')) {
-          const optionsColors = split.options.map(c => c.color).filter(c => c);
-          if (optionsColors.length) {
-            const option = _.find(split.options, { key: controlId }) || {};
-            color = option.color;
-          }
-        }
-        if (!_.isEmpty(linkageMatch)) {
-          if (linkageMatch.value === data.originalId) {
-            return color;
-          } else {
-            return new TinyColor(color).setAlpha(0.3).toRgbString();
-          }
-        }
-        return color;
-      },
+      color: isFunColor ? getFunColor : colors,
       legend:
         showLegend && (yaxisList.length > 1 || split.controlId)
           ? {
@@ -433,8 +469,10 @@ export default class extends Component {
         formatter: item => {
           const { value, groupName } = item;
           const { name, id } = formatControlInfo(groupName);
+
           const getLabelPercent = value => {
             const { originalId } = item;
+
             if (showPercent) {
               if (yaxisList.length > 1) {
                 const result = _.filter(data, { originalId });
@@ -442,6 +480,7 @@ export default class extends Component {
                 const percentValue = value && count ? formatNumberValue((value / count) * 100, percent) : undefined;
                 return percentValue && count ? `(${percentValue}%)` : '';
               }
+
               if (displaySetup.showTotal) {
                 const controlId = split.controlId ? newYaxisList[0].controlId : id;
                 const count = summary.all
@@ -450,10 +489,13 @@ export default class extends Component {
                 const percentValue = formatNumberValue((value / count) * 100, percent);
                 return percentValue && count ? `(${percentValue}%)` : '';
               }
+
               return '';
             }
+
             return '';
           };
+
           if (isOptionsColor || isCustomColor) {
             const { value } = item;
             const name = yaxisList[0].controlName;
@@ -462,7 +504,9 @@ export default class extends Component {
               value: _.isNumber(value) ? `${value} ${getLabelPercent(value)}` : '--',
             };
           }
+
           const labelValue = `${formatrChartValue(value, isPerPile, newYaxisList, value ? undefined : id)} ${getLabelPercent(value)}`;
+
           if (isPerPile) {
             return {
               name,
@@ -514,31 +558,39 @@ export default class extends Component {
                   newYaxisList,
                   controlId === 'record_count' && value ? undefined : id,
                 );
+
                 if (showPercent && !isPerPile) {
                   if (yaxisList.length > 1) {
                     const result = _.filter(data, { originalId });
                     const count = _.reduce(result, (total, item) => total + item.value, 0);
                     const percentValue = value && count ? formatNumberValue((value / count) * 100, percent) : undefined;
+
                     if (showNumber && showPercent && count) {
                       return `${labelValue} ${percentValue ? `(${percentValue}%)` : ''}`;
                     }
+
                     if (showPercent && percentValue && count) {
                       return `${percentValue}%`;
                     }
+
                     return labelValue;
                   }
+
                   if (displaySetup.showTotal) {
                     const count = summary.all
                       ? summary.sum
                       : _.get(summary.controlList ? _.find(summary.controlList, { controlId: id }) : summary, 'sum');
                     const percentValue = formatNumberValue((value / count) * 100, percent);
+
                     if (showNumber && showPercent && count) {
                       return `${labelValue} ${percentValue ? `(${percentValue}%)` : ''}`;
                     }
+
                     if (showPercent && percentValue && count) {
                       return `${percentValue}%`;
                     }
                   }
+
                   return labelValue;
                 } else {
                   return labelValue;
@@ -675,6 +727,7 @@ export default class extends Component {
   renderCount() {
     const { newYaxisList } = this.state;
     const { summary, yaxisList } = this.props.reportData;
+
     const get = value => {
       const count = formatrChartValue(value, false, newYaxisList);
       const originalCount = value.toLocaleString() == count ? 0 : value.toLocaleString();
@@ -683,6 +736,7 @@ export default class extends Component {
         originalCount,
       };
     };
+
     const renderItem = data => {
       const { count, originalCount } = get(data.sum);
       return (

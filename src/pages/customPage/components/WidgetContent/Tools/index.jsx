@@ -50,7 +50,7 @@ const ToolsWrap = styled.ul`
   padding: 6px 0;
   background-color: var(--color-background-primary);
   border-radius: 0 0 6px 6px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.24);
+  box-shadow: var(--shadow-sm);
   &.tabs,
   &.card,
   &.image,
@@ -114,11 +114,13 @@ const getTools = ({ widget, widgetType, layoutType, reportType, containerCompone
       filter: () => BASE_TOOL.concat('filter'),
       '*': () => BASE_TOOL,
     };
+
     function getAllowedTypes(widgetType, ctx) {
       const rule = TOOL_WHITELIST[widgetType] || TOOL_WHITELIST['*'];
       const list = typeof rule === 'function' ? rule(ctx) : rule;
       return new Set(list);
     }
+
     function getMobileTools(widget, widgetType, reportType) {
       const ctx = { widget, widgetType, reportType };
       const allowedTypes = getAllowedTypes(widgetType, ctx);
@@ -128,27 +130,34 @@ const getTools = ({ widget, widgetType, layoutType, reportType, containerCompone
         return true;
       });
     }
+
     return getMobileTools(widget, widgetType, reportType);
   } else {
     let pcTools = TOOLS_BY_LAYOUT_TYPE[layoutType].filter(item =>
       widget.sectionId ? item.type !== 'insertTitle' : true,
     );
+
     if (!['view', 'analysis'].includes(widgetType)) {
       pcTools = pcTools.filter(item => !['cardSetting'].includes(item.type));
     }
+
     if (['view', 'filter'].includes(widgetType)) {
       const res = containerComponents.length ? ['copy'] : ['move', 'copy'];
       pcTools = pcTools.filter(item => !res.includes(item.type));
     }
+
     if (['tabs', 'card'].includes(widgetType)) {
       pcTools = pcTools.filter(item => !['move', 'copy', 'insertTitle'].includes(item.type));
     }
+
     if (['image'].includes(widgetType)) {
       pcTools = pcTools.filter(item => !['copy', 'insertTitle'].includes(item.type));
     }
+
     if (widgetType !== 'analysis' && !containerComponents.length) {
       pcTools = pcTools.filter(item => item.type !== 'move');
     }
+
     return pcTools;
   }
 };
@@ -168,6 +177,7 @@ export default function Tools(props) {
     if (type === 'insertTitle' && titleVisible) return true;
     return false;
   };
+
   const isSwitchButton = type => {
     return (
       (widgetType === 'button' ||
@@ -175,6 +185,7 @@ export default function Tools(props) {
       type === 'switchButtonDisplay'
     );
   };
+
   const containerComponents = allComponents.filter(c => [9, 10, 'tabs', 'card'].includes(c.type));
   const TOOLS = getTools({ widget, widgetType, layoutType, reportType, containerComponents });
 
@@ -188,6 +199,7 @@ export default function Tools(props) {
         widget.sectionId || widget.tabId ? 'parentNode.parentNode.parentNode' : 'parentNode.parentNode',
       );
       const moreIcon = card.querySelector('.widgetContentTools .icon-more_horiz');
+
       if (container && moreIcon) {
         const elementRect = moreIcon.getBoundingClientRect();
         const containerRect = container.getBoundingClientRect();
@@ -204,6 +216,7 @@ export default function Tools(props) {
       const value =
         widgetType === 'button' ? _.get(widget, ['button', 'mobileCount']) : _.get(widget, ['config', 'mobileCount']);
       const { btnType, direction } = _.get(widget, ['button', 'config']) || {};
+
       if (widgetType === 'analysis') {
         if (value === 1) return _l('一行两个');
         if (value === 2) return _l('一行三个');
@@ -221,6 +234,7 @@ export default function Tools(props) {
         if (value === 2) return _l('一行一个');
       }
     }
+
     return tip;
   };
 
@@ -228,8 +242,10 @@ export default function Tools(props) {
     if (isSwitchButton(type)) {
       const value =
         widgetType === 'button' ? _.get(widget, ['button', 'mobileCount']) : _.get(widget, ['config', 'mobileCount']);
+
       if (next) {
         const { btnType, direction } = _.get(widget, ['button', 'config']) || {};
+
         if (widgetType === 'analysis') {
           if (value === 1) return 'looks_two';
           if (value === 2) return 'looks_three';
@@ -262,11 +278,13 @@ export default function Tools(props) {
         }
       }
     }
+
     return icon;
   };
 
   const renderItem = (toolItem, onClick) => {
     const { icon, type, tip, renderType } = toolItem;
+
     if (renderType == 'li') {
       return (
         <Tooltip title={getTip(type, tip)} placement="bottom">
@@ -319,31 +337,40 @@ export default function Tools(props) {
       renderItem: ({ onClick } = {}) => renderItem(toolItem, onClick),
       handleUpdateDropdownVisible,
     };
+
     if (type === 'del') {
       return <Delete {...itemProps} />;
     }
+
     if (type === 'changeFontSize') {
       return <ChangeFontSize toolsWrapRef={ref} {...itemProps} />;
     }
+
     if (type === 'setting' && ['image'].includes(widgetType)) {
       return <ImageTool {...itemProps} />;
     }
+
     if (type === 'setting' && ['richText'].includes(widgetType)) {
       return <RichTextTool {...itemProps} />;
     }
+
     if (type === 'setting' && ['tabs', 'card'].includes(widgetType)) {
       return <ContainerSetting {...itemProps} />;
     }
+
     if (type === 'filter' && ['filter'].includes(widgetType)) {
       return <MobileFilter {...itemProps} />;
     }
+
     if (type === 'cardSetting') {
       const { getChartData, setChartData } = props;
       return <CardSetting {...itemProps} getChartData={getChartData} setChartData={setChartData} />;
     }
+
     if (type === 'move') {
       return <Move {..._.pick(props, ['appId', 'pageId', 'updatePageInfo'])} {...itemProps} />;
     }
+
     return itemProps.renderItem();
   };
 

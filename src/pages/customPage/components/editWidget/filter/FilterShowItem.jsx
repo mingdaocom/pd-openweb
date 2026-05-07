@@ -20,6 +20,7 @@ const SHOW_ITEMS = [
 const filterShowItem = control => {
   return SHOW_ITEMS.filter(o => {
     const type = control.type === 30 ? control.sourceControlType : control.type;
+
     if ([9, 10, 11, 26].includes(type)) {
       return o.value !== '3';
     } else {
@@ -120,6 +121,7 @@ function FilterShowItem(props) {
                 let values = [];
                 let showNavfilters = [];
                 const type = control.type === 30 ? control.sourceControlType : control.type;
+
                 switch (type) {
                   case 29:
                   case 26:
@@ -133,6 +135,7 @@ function FilterShowItem(props) {
                     values = infos;
                     break;
                 }
+
                 if (type === 29) {
                   showNavfilters = infos.map(data => {
                     const name = getTitleTextFromRelateControl(control, data);
@@ -152,6 +155,7 @@ function FilterShowItem(props) {
                 } else {
                   showNavfilters = infos.map(item => (_.isObject(item) ? JSON.stringify(item) : item));
                 }
+
                 onChangeAdvancedSetting({
                   navfilters: JSON.stringify(values),
                   showNavfilters: JSON.stringify(showNavfilters),

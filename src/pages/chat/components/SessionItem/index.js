@@ -26,12 +26,14 @@ export default class SessionItem extends Component {
     if (_.isEqual(next, current)) {
       return false;
     }
+
     return true;
   }
   renderImportantInfo() {
     const { item, isActive } = this.props;
     const isPush = 'isPush' in item ? item.isPush : true;
     const showBadge = 'showBadge' in item ? item.showBadge : 0;
+
     if (
       (item.refer && item.refer.user && item.refer.user.account_id === md.global.Account.accountId) ||
       (item.reflist && item.reflist.length) ||
@@ -72,6 +74,7 @@ export default class SessionItem extends Component {
   }
   renderAvatar(item) {
     const { logo, isPost } = item;
+
     if (logo) {
       return <img src={logo} className={cx({ radius: isPost !== false })} draggable={false} />;
     } else {

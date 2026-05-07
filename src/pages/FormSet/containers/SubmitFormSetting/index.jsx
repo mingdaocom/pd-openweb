@@ -8,6 +8,7 @@ import { Con } from './style';
 import SubmitButtonSettings from './SubmitButtonSettings';
 
 let ajaxPromise = null;
+
 function SubmitFormSetting(props) {
   const { worksheetId } = props;
   const { appId } = _.get(props, 'worksheetInfo') || {};
@@ -20,9 +21,11 @@ function SubmitFormSetting(props) {
     if (!appId || !worksheetId) {
       return;
     }
+
     if (ajaxPromise) {
       ajaxPromise.abort();
     }
+
     ajaxPromise = sheetAjax.getFormSubmissionSettings({ workSheetId: worksheetId, appId: appId });
     ajaxPromise.then(res => {
       const { advancedSetting = {} } = res;
@@ -77,4 +80,5 @@ function SubmitFormSetting(props) {
     </ScrollView>
   );
 }
+
 export default SubmitFormSetting;

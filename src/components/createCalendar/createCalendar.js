@@ -69,6 +69,7 @@ var CreateCalendar = function (opts) {
   if (datetime && datetime !== 'Invalid Date') {
     settings.Start = datetime;
   }
+
   if (!start && !end) {
     settings.Start = moment().minute() < 30 ? moment().set('minute', 30).toDate() : moment().set('minute', 60).toDate();
     settings.End = moment(settings.Start).add(1, 'hour').toDate();
@@ -93,6 +94,7 @@ $.extend(CreateCalendar.prototype, {
     if ($('.' + settings.frameid).length > 0) {
       return;
     }
+
     // 创建弹出层
     Dialog.confirm({
       dialogClasses: `${settings.frameid} createCalendar_container`,
@@ -142,6 +144,7 @@ $.extend(CreateCalendar.prototype, {
         const root = createRoot(document.getElementById('selectTimezone'));
         root.render(<SelectTimezone data={timezone} selectTimezone={timezone => (settings.timezone = timezone)} />);
       }
+
       $(this).hide();
     });
 
@@ -228,6 +231,7 @@ $.extend(CreateCalendar.prototype, {
       if ($(this).attr('disabled')) {
         return false;
       }
+
       $(this).attr('disabled', 'disabled');
       CreateCalendar.methods.send();
     });
@@ -366,6 +370,7 @@ $.extend(CreateCalendar.prototype, {
             } else {
               $remindText.val('1');
             }
+
             $remindText.show().focus();
             $remindBox.show();
             $telRemid.removeClass('Hidden').addClass('InlineBlock');
@@ -481,6 +486,7 @@ $.extend(CreateCalendar.prototype, {
           if (!$(this).val().trim()) {
             return;
           }
+
           $(this).attr('value', $(this).attr('defaultValue'));
           return false;
         }
@@ -491,19 +497,23 @@ $.extend(CreateCalendar.prototype, {
           $(this).attr('value', value.substring(0, 2));
           return;
         }
+
         if (parseInt(value, 10) > 30) {
           $(this).attr('value', 30);
           return;
         }
+
         $(this).attr({ defaultValue: value, value: value });
       })
       .blur(function () {
         if (!_.isNumber(parseInt($(this).val())) || _.isNaN($(this).val())) {
           $(this).attr('value', $(this).attr('defaultValue'));
         }
+
         if (parseInt($(this).val(), 10) === 0) {
           $(this).attr('value', 1);
         }
+
         CreateCalendar.methods.repeatResult();
       });
 
@@ -567,19 +577,23 @@ $.extend(CreateCalendar.prototype, {
           $(this).attr('value', value.substring(0, 2));
           return;
         }
+
         if (parseInt(value, 10) > 30) {
           $(this).attr('value', 30);
           return;
         }
+
         $(this).attr({ defaultValue: value, value: value });
       })
       .blur(function () {
         if (!_.isNumber(parseInt($(this).val(), 10)) || _.isNaN(parseInt($(this).val(), 10))) {
           $(this).attr('value', $(this).attr('defaultValue'));
         }
+
         if (parseInt($(this).val(), 10) === 0) {
           $(this).attr('value', 1);
         }
+
         CreateCalendar.methods.repeatResult();
       });
 
@@ -603,6 +617,7 @@ $.extend(CreateCalendar.prototype, {
         if ($el) {
           $el.remove();
         }
+
         $('.repeatDialogConfirm .customSelect').remove();
         $('#repeatDialog.Hidden').html('');
         $('#repeatDialog.Hidden').html($('.repeatDialogConfirm .dialogContent').html());
@@ -664,6 +679,7 @@ $.extend(CreateCalendar.prototype, {
             alert(_l('不能添加自己'));
             return;
           }
+
           CreateCalendar.methods.insertMembers(users);
         };
 
@@ -796,6 +812,7 @@ CreateCalendar.methods = {
         }" data-name="${htmlEncodeReg(users[i].fullname) || ''}"></span>`;
       }
     }
+
     var $memberList = $(memberList);
     $memberList.each(function (index, elem) {
       CreateCalendar.methods.checkUserBusyState($(elem));
@@ -847,9 +864,11 @@ CreateCalendar.methods = {
       if (!regDate.lastIndex) {
         break;
       }
+
       if (date !== null) {
         continue;
       }
+
       if (resultDate[1]) {
         // 今天
         date = CreateCalendar.methods.addDay(0);
@@ -894,9 +913,11 @@ CreateCalendar.methods = {
       if (!regTime.lastIndex) {
         break;
       }
+
       if (time !== null) {
         continue;
       }
+
       if (timeResult[3]) {
         // 上午10点30分
         if (timeResult[2] == '上') {
@@ -919,14 +940,17 @@ CreateCalendar.methods = {
     if (time === null) {
       time = '00:00';
     }
+
     var dateTime = null;
 
     if (date) {
       dateTime = new Date(date + ' ' + time);
     }
+
     if (dateTime) {
       return dateTime;
     }
+
     return null;
   },
 
@@ -1004,6 +1028,7 @@ CreateCalendar.methods = {
           } else {
             messages += '、';
           }
+
           messages += weekDayArray[weekDay[index]] || '';
         });
       }
@@ -1047,6 +1072,7 @@ CreateCalendar.methods = {
               htmlEncodeReg(categorys[i].catName) +
               '</span></li>';
           }
+
           $('#calendarColorMain').html(listHtml).show();
         }
       })
@@ -1070,6 +1096,7 @@ CreateCalendar.methods = {
     if (!md.global.Account.projects.length) {
       return;
     }
+
     var selectedDate = CreateCalendar.methods.getDialogTime();
     var start = selectedDate.start;
     var end = selectedDate.end;
@@ -1264,10 +1291,12 @@ CreateCalendar.methods = {
         for (var i = 0; i < $weekThis.length; i++) {
           weekCount += parseInt($weekThis.eq(i).attr('week'), 10);
         }
+
         // 如果全部未选默认今天
         if (weekCount == 0) {
           weekCount += parseInt($('#repeatTypeGroup .today').attr('week'), 10);
         }
+
         weekDay = weekCount;
 
         const bjDay = moment(start).utcOffset(8).format('YYYY-MM-DD');
@@ -1275,6 +1304,7 @@ CreateCalendar.methods = {
           .utcOffset((timezone / 60) * -1)
           .format('YYYY-MM-DD');
         const diffDay = (moment(bjDay) - moment(currentDay)) / 24 / 60 / 60 / 1000;
+
         if (diffDay !== 0) {
           const weekDayArr = weekDay.toString(2).split('');
           let square;

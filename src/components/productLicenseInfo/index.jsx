@@ -61,6 +61,7 @@ export default function ProductLicenseInfo(props) {
       alert(_l('密钥不能为空'), 3);
       return;
     }
+
     marketplaceApi.setSecretKeyForApp({ key: socket, appId: id }).then(data => {
       const alertMessage = {
         1: _l('更新成功'),

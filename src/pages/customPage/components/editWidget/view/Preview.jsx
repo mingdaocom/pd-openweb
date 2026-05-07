@@ -14,7 +14,7 @@ const Wrap = styled.div`
   align-items: center;
   justify-content: center;
   flex: 1;
-  background-color: var(--color-border-secondary);
+  background-color: var(--color-background-tertiary);
   padding: 24px;
   min-width: 0;
 
@@ -22,7 +22,7 @@ const Wrap = styled.div`
     border-radius: 4px;
     box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.1);
     overflow: hidden;
-    background-color: var(--color-background-primary);
+    background-color: var(--color-background-card);
   }
 `;
 
@@ -41,7 +41,8 @@ const ViewWrap = styled.div`
     padding: 10px 16px;
     align-items: center;
     border-bottom: 1px solid var(--color-border-secondary);
-    .searchInputComp {
+    .searchInputComp,
+    .sheetHeader {
       background-color: transparent;
     }
     &.mobile {
@@ -85,6 +86,7 @@ const ViewWrap = styled.div`
   &.hideAddRecord .sheetViewTable .control-rowHead .hoverShow:last-child,
   &.hideAddRecord .groupBoardWrap .groupByControl .hoverShow:last-child,
   &.hideAddRecord .groupBoardContent .secondGroupItemWrap .addBoardRecord,
+  &.hideAddRecord .mapViewWrap .addMapRecord,
   &.hideAddRecord .galleryViewContentWrap .groupByControlForGallery .hoverShow:last-child,
   &.hideAddRecord .sheetViewTable .addChildBtn.hoverShow,
   &.hideSearchRecord .icon-search,
@@ -98,6 +100,8 @@ const ViewWrap = styled.div`
   &.disableSingleView {
     &.mobile,
     .SingleViewHeader,
+    .SingleViewBody .columnHead .dropIcon,
+    .SingleViewBody .Checkbox,
     .SingleViewBody .searchWrapper,
     .worksheetSheet .quickFilterWrap,
     .worksheetSheet .groupFilterWrap,
@@ -114,6 +118,9 @@ const ViewWrap = styled.div`
     .calendarCon .worksheetFullCalendar,
     .SingleViewWrap .addRecord {
       pointer-events: none;
+    }
+    .mapViewWrap .addMapRecord {
+      display: none !important;
     }
   }
   .mobileBoxCalendar {
@@ -132,6 +139,7 @@ const navigateToView = (workSheetId, viewId) => {
     })
     .then(data => {
       const { appId, appSectionId } = data;
+
       if (window.isMingDaoApp) {
         window.location.href = `/mobile/recordList/${appId}/${appSectionId}/${workSheetId}/${viewId}`;
       } else if (isMobile) {

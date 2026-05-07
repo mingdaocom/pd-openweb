@@ -183,8 +183,10 @@ export default class NewRecordLand extends Component {
                     onAdd(row);
                     onClose();
                   }
+
                   return;
                 }
+
                 if (!continueAdd) {
                   this.setState({ status: STATUS.SUCCESS });
                 }

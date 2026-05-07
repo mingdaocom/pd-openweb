@@ -63,9 +63,11 @@ export const getViewActionInfo = ({
         console.log(error);
         calendarcids = [];
       }
+
       if (calendarcids.length <= 0) {
         calendarcids = [{ begin: begindate, end: enddate }]; //兼容老数据
       }
+
       const isDelete =
         calendarcids[0].begin &&
         calendarInfo.length > 0 &&
@@ -137,17 +139,20 @@ export const getViewActionInfo = ({
 export const getDefaultValueInCreate = (mobileNavGroupFilters = []) => {
   if (_.isEmpty(mobileNavGroupFilters)) return;
   let data = mobileNavGroupFilters[0];
+
   if ([9, 10, 11, 28].includes(data.dataType)) {
     return { [data.controlId]: JSON.stringify([data.values[0]]) };
   } else if ([26, 27, 48].includes(data.dataType)) {
     let value = '';
     const id = _.get(data, 'values[0]');
     const name = _.get(data, 'navNames[0]');
+
     if (id && name) {
       value = JSON.stringify([safeParse(name)]);
     } else {
       value = '[]';
     }
+
     return { [data.controlId]: value };
   } else if ([29, 35].includes(data.dataType)) {
     return {

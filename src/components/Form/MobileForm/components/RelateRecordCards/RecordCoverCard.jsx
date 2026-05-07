@@ -19,6 +19,7 @@ const Con = styled.div`
       if (canSelect) {
         return selected ? 'var(--color-primary)' : 'var(--color-border-primary)';
       }
+
       return borderColor || 'var(--color-border-primary)';
     }};
 

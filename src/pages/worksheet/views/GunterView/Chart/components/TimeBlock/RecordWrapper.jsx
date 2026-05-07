@@ -40,6 +40,7 @@ export default class RecordWrapper extends Component {
     if (window.isDrag) {
       return;
     }
+
     const { row, base, worksheetInfo, viewConfig } = this.props;
     const { appId, worksheetId } = worksheetInfo;
     handleRecordClick(
@@ -55,6 +56,7 @@ export default class RecordWrapper extends Component {
             recordInfoVisible: true,
           });
         }
+
         handlePushState('page', 'recordDetail');
         addBehaviorLog('worksheetRecord', worksheetId, { rowId: row.rowid }); // 埋点
       },
@@ -62,10 +64,17 @@ export default class RecordWrapper extends Component {
   };
   render() {
     const { recordInfoVisible, RecordInfoComponent } = this.state;
-    const { row, style, groupKey } = this.props;
+    const { row, style, groupKey, buttonsCheckStatus } = this.props;
     return (
       <Fragment>
-        <RecordBlock disable={!row.allowedit} row={row} style={style} groupKey={groupKey} onClick={this.handleClick} />
+        <RecordBlock
+          disable={!row.allowedit}
+          row={row}
+          style={style}
+          groupKey={groupKey}
+          onClick={this.handleClick}
+          buttonsCheckStatus={buttonsCheckStatus}
+        />
         {recordInfoVisible && (
           <RecordInfoComponent
             row={row}

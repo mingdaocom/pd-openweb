@@ -60,10 +60,12 @@ export default class TwofactorContainer extends React.Component {
         };
         // 默认顺序：TOTP > 短信 > 邮箱
         let order = [TwofactorType.totp, TwofactorType.mobilePhone, TwofactorType.email];
+
         // 如果配置了类型，则排在第一位
         if (priorityType) {
           order = [priorityType, ..._.without(order, priorityType)];
         }
+
         // 只保留已开启的验证方式
         const enabledTypes = order.filter(type => typeMap[type]);
 
@@ -127,6 +129,7 @@ export default class TwofactorContainer extends React.Component {
         const { actionResult } = data;
         const { failed, success, failInvalidVerifyCode, userInvalid, sendFrequent, noEmail, noTel } =
           TwofactorVerifyCodeActionResult;
+
         //图形验证码错误 //需要图形验证
         if (actionResult === failInvalidVerifyCode) {
           callbacks?.onError?.();
@@ -143,12 +146,15 @@ export default class TwofactorContainer extends React.Component {
           // 接口返回失败，重置发送状态，允许重新发送
           this.twofactorRef.current?.resetOtpSending?.();
           let msg = _l('验证码发送失败!');
+
           if (actionResult === sendFrequent) {
             msg = _l('验证码发送过于频繁，请切换验证方式!');
           }
+
           if ([noEmail, noTel].includes(actionResult)) {
             //未绑定手机号 除第一次外，提示未绑定
             const switchToType = type !== TwofactorType.mobilePhone ? TwofactorType.mobilePhone : TwofactorType.email;
+
             if (hasSendTel) {
               msg =
                 actionResult === noTel ? _l('手机未绑定，请使用邮箱验证！') : _l('邮箱未绑定，请使用手机短信验证！');
@@ -163,6 +169,7 @@ export default class TwofactorContainer extends React.Component {
               return;
             }
           }
+
           alert(msg, 3);
           return;
         } else if (actionResult === userInvalid) {
@@ -204,6 +211,7 @@ export default class TwofactorContainer extends React.Component {
     const { needTicket, type } = this.state;
     // TOTP方式验证不需要图形验证码
     const shouldUseCaptcha = needTicket && type !== TwofactorType.totp;
+
     let callback = (res = {}) => {
       if (shouldUseCaptcha && res.ret !== 0) {
         callbacks?.onError?.();
@@ -211,6 +219,7 @@ export default class TwofactorContainer extends React.Component {
         this.twofactorRef.current?.resetOtpSending?.();
         return;
       }
+
       this.sendTwofactorVerifyCode(
         {
           ...res,
@@ -222,10 +231,12 @@ export default class TwofactorContainer extends React.Component {
         },
       );
     };
+
     const onCancel = () => {
       callbacks?.onCancel?.();
       callbacks?.onError?.();
     };
+
     if (shouldUseCaptcha) {
       new captcha(callback, onCancel);
     } else {
@@ -236,6 +247,7 @@ export default class TwofactorContainer extends React.Component {
   handleSwitchType = newType => {
     // 切换到TOTP方式验证时，不需要图形验证码，也不需要调用发送验证码接口
     const isTotp = newType === TwofactorType.totp;
+
     if (isTotp) {
       this.setState({ type: newType, hasSend: true }); // TOTP 不需要发送接口，直接设置为 true
       return;
@@ -246,9 +258,11 @@ export default class TwofactorContainer extends React.Component {
 
     // 检查该验证方式是否已有发送记录且在30秒内
     const sendTime = this.state.timeMap[newType];
+
     if (sendTime) {
       const now = new Date();
       const elapsedSeconds = parseInt((now - sendTime) / 1000);
+
       // 如果还在30秒内，保留计时器，不重新发送（之前已经发送成功，保持 hasSend 为 true）
       if (elapsedSeconds < 30 && elapsedSeconds >= 0) {
         this.setState({ type: newType, hasSend: true }); // 之前已经发送成功，保持为 true

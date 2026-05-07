@@ -32,6 +32,7 @@ function MedalContent(props) {
     </div>
   );
 }
+
 MedalContent.propTypes = {
   medal: PropTypes.shape({
     MedalName: PropTypes.string,

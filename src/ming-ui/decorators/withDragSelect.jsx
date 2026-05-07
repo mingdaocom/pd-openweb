@@ -102,12 +102,15 @@ function withDragSelect(Component) {
     }
     getContainer = () => {
       let container;
+
       if (this.props.containerSelector) {
         container = $(this.props.containerSelector)[0];
       }
+
       if (!container) {
         container = ReactDom.findDOMNode(this);
       }
+
       return container;
     };
     handleMouseMove = evt => {
@@ -118,6 +121,7 @@ function withDragSelect(Component) {
           y: evt.clientY - rect.top,
         };
         const clickOnlyDistance = this.props.clickOnlyDistance || 0;
+
         if (
           !this.dragging &&
           Math.abs(this.startPos.x - this.endPos.x) <= clickOnlyDistance &&
@@ -131,6 +135,7 @@ function withDragSelect(Component) {
             this.selectionEl = document.createElement('div');
             ReactDom.findDOMNode(this).appendChild(this.selectionEl);
           }
+
           const style = assign(
             { display: 'block' },
             this.calcRect(this.startPos, this.endPos),
@@ -150,7 +155,9 @@ function withDragSelect(Component) {
             if (!React.isValidElement(child)) {
               return;
             }
+
             const childEl = ReactDom.findDOMNode(this['dragSelectItem$' + i]);
+
             if (childEl && objectsCollide(childEl, this.selectionEl, this.props.tolerance)) {
               coveredChildren.push(child);
             }
@@ -169,32 +176,38 @@ function withDragSelect(Component) {
         $(this.selectionEl).remove();
         this.selectionEl = null;
       }
+
       execFunc(this.props.onDragSelectEnd);
     };
     cancelDragSelect = evt => {
       if (evt.which !== 27 /* Esc*/) {
         return;
       }
+
       this.clear();
     };
     finishDragSelect = evt => {
       if (evt.button !== 0) {
         return;
       }
+
       if (this.started && !this.dragging) {
         React.Children.forEach(this.props.children, (child, i) => {
           if (!React.isValidElement(child)) {
             return;
           }
+
           const childEl = ReactDom.findDOMNode(this['dragSelectItem$' + i]);
           const rect = childEl.getBoundingClientRect();
           const x = evt.clientX;
           const y = evt.clientY;
+
           if (x > rect.left && x < rect.right && y > rect.top && y < rect.bottom) {
             execFunc(this.props.onClickOnly, child, evt);
           }
         });
       }
+
       this.clear();
     };
     startDragSelect = evt => {
@@ -202,6 +215,7 @@ function withDragSelect(Component) {
       if (evt.button !== 0) {
         return;
       }
+
       const rect = ReactDom.findDOMNode(this).getBoundingClientRect();
       const pos = {
         x: evt.clientX - rect.left,

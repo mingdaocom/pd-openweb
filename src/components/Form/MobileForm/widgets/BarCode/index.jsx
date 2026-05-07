@@ -62,6 +62,7 @@ const BarCodeWidget = props => {
       control: { enumDefault, enumDefault2, dataSource: parseDataSource(dataSource) },
       codeInfo: { recordId, appId, worksheetId, viewId: viewId || viewIdForPermit },
     });
+
     if (newVal !== value) {
       if (isView) {
         setValue(newVal);

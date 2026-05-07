@@ -105,6 +105,7 @@ const Item = ({ name, type, controlId, onEdit, onDelete, isErr, showOtherField, 
           if (isErr || showOtherField || !onEdit) {
             return;
           }
+
           onEdit(controlId);
         }}
       >
@@ -131,6 +132,7 @@ const Item = ({ name, type, controlId, onEdit, onDelete, isErr, showOtherField, 
               if (!onDelete) {
                 return;
               }
+
               onDelete(controlId);
             }}
           />

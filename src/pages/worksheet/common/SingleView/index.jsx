@@ -46,6 +46,7 @@ function SingleView(props, ref) {
   return (
     <Provider store={store}>
       <ViewComp
+        appId={appId}
         config={{
           ...config,
           allowOpenRecord,

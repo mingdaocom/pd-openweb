@@ -33,10 +33,10 @@ const Bar = styled.div`
   height: 6px;
   margin: 7px 0;
   border-radius: 3px;
-  background: var(--color-background-disabled);
+  background: var(--color-border-secondary);
   cursor: ${({ disabled }) => (disabled ? 'default' : 'pointer')};
   &:hover {
-    ${({ disabled }) => (disabled ? '' : 'background: var(--color-background-hover)')}
+    ${({ disabled }) => (disabled ? '' : 'background: var(--color-border-hover)')}
   }
 `;
 
@@ -48,7 +48,7 @@ const Content = styled.div`
 const Drag = styled.span`
   cursor: pointer;
   position: absolute;
-  background: var(--color-background-primary);
+  background: var(--color-text-inverse);
   top: -4px;
   display: inline-block;
   width: 14px;
@@ -198,12 +198,15 @@ function formatByStep(num, step, min = 0) {
   if (_.isUndefined(num)) {
     return;
   }
+
   num = num - min;
   if (num % step > step / 2) {
     num = Math.ceil(num / step) * step;
   }
+
   return (Math.floor(num / step) * step + min).toFixed(((String(step).match(/\.(\d+)/) || '')[1] || '').length);
 }
+
 function fixedByStep(num, step) {
   return num.toFixed(((String(step).match(/\.(\d+)/) || '')[1] || '').length);
 }
@@ -212,22 +215,28 @@ function formatByMinMax(value, min, max) {
   if (value < min) {
     value = min;
   }
+
   if (value > max) {
     value = max;
   }
+
   return value;
 }
 
 function getNumberMaxWidth(max, step = 1, isPercent) {
   let count = String(max).length;
+
   if (/\./.test(String(step))) {
     count += ((String(step).match(/\.(.*)/) || '')[1] || '').length;
   }
+
   if (isPercent) {
     count += 1;
   }
+
   return 9 * count + 5;
 }
+
 export default function Slider(props) {
   const {
     className,
@@ -260,6 +269,7 @@ export default function Slider(props) {
     max = max * 100;
     step = step * 100;
   }
+
   const numberWidth = getNumberMaxWidth(max, step, showAsPercent);
   const disabled = props.disabled || readonly;
   const cache = useRef({});
@@ -294,12 +304,15 @@ export default function Slider(props) {
   data = hasMin ? data : [{ text: '' }].concat(data);
 
   let valuePercent = Math.ceil(((_.isUndefined(value) ? 0 : value - min) / (max - min)) * 100);
+
   if (valuePercent > 100) {
     valuePercent = 100;
   }
+
   if (valuePercent < 0) {
     valuePercent = 0;
   }
+
   function updateValue(v, update, updateInput) {
     v = formatByMinMax(v, min, max);
 
@@ -307,23 +320,29 @@ export default function Slider(props) {
     if (update) {
       onChange(showAsPercent ? v / 100 : v);
     }
+
     setTempValue(showAsPercent ? v / 100 : v);
     if (updateInput) {
       setValueForInput(v);
     }
   }
+
   const handleMouseMove = useCallback(e => {
     if (!cache.current.active) {
       return;
     }
+
     let newPercent =
       cache.current.valuePercent + ((getClientX(e) - cache.current.clientX) / cache.current.conWidth) * 100;
+
     if (newPercent > 100) {
       newPercent = 100;
     }
+
     if (newPercent < 0) {
       newPercent = 0;
     }
+
     cache.current.lastClientX = getClientX(e);
     cache.current.newPercent = newPercent;
     let newValue = min + ((max - min) * newPercent) / 100;
@@ -333,11 +352,14 @@ export default function Slider(props) {
     if (!cache.current.active) {
       return;
     }
+
     cache.current.active = false;
     let newValue = min + ((max - min) * cache.current.newPercent) / 100;
+
     if (_.isNumber(newValue) && !_.isNaN(newValue)) {
       updateValue(formatByStep(newValue, step, min), true, true);
     }
+
     setTimeout(() => {
       setIsDragging(false);
     }, 300);
@@ -346,6 +368,7 @@ export default function Slider(props) {
     window.removeEventListener(mouseMoveEventName, handleMouseMove);
     window.removeEventListener(mouseUpEventName, handleMouseUp);
   }, []);
+
   const inputChange = (e, update) => {
     const changedValue = formatNumberFromInput(e.target.value, false);
     setValueForInput(changedValue);
@@ -354,11 +377,13 @@ export default function Slider(props) {
       update && onChange('');
     } else {
       const newValue = Number(changedValue);
+
       if (_.isNumber(newValue) && !_.isNaN(newValue)) {
         updateValue(newValue, update);
       }
     }
   };
+
   useEffect(() => {
     cache.current.conWidth = barRef.current.clientWidth;
   }, [disabled]);

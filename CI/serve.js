@@ -79,6 +79,12 @@ const proxyConfigs = [
     replace: '/workflowplugin/',
     server: publishConfig.apiServer,
   },
+  {
+    name: 'knowledge_api',
+    path: '/knowledge_api/',
+    replace: '',
+    server: publishConfig.apiServer,
+  },
 ];
 
 const proxyMiddlewares = proxyConfigs.reduce((acc, config) => {

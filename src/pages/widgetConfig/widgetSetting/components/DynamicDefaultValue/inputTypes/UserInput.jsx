@@ -20,6 +20,7 @@ export default class DateInput extends Component {
   componentDidMount() {
     const { data, clearOldDefault } = this.props;
     const { defaultMen } = data;
+
     if (Array.isArray(defaultMen) && defaultMen.length > 0) {
       clearOldDefault({ defaultMen: '' });
     }
@@ -27,14 +28,17 @@ export default class DateInput extends Component {
   // 成员多选数据处理
   removeItem = accountId => {
     const { dynamicValue } = this.props;
+
     const getUserId = item => {
       const { staticValue } = item;
       if (!staticValue) return '';
       return _.get(_.isString(staticValue) ? JSON.parse(staticValue) : staticValue, 'accountId');
     };
+
     const index = _.findIndex(dynamicValue, item => {
       return getUserId(item) === accountId;
     });
+
     if (index > -1) {
       this.props.onDynamicValueChange(update(dynamicValue, { $splice: [[index, 1]] }));
     }
@@ -68,8 +72,10 @@ export default class DateInput extends Component {
         return existUser.includes(getId(curr)) ? prev : prev.concat(curr);
       }, dynamicValue);
     };
+
     if (tabType === 2 || from === DYNAMIC_FROM_MODE.FAST_FILTER) {
       let param = {};
+
       if (from === DYNAMIC_FROM_MODE.FAST_FILTER && _.get(data, 'advancedSetting.shownullitem') === '1') {
         param.staticAccounts = [
           {

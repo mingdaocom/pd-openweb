@@ -31,17 +31,20 @@ export default class WorkSheetComment extends React.Component {
   }
   componentDidMount() {
     const { appId, worksheetId, appSectionId, disableScroll } = this.props;
+
     if (this.scrollView && disableScroll) {
       this.$scrollCon = $(this.scrollView).closest('.rightContentScroll')[0];
       if (this.$scrollCon) {
         this.$scrollCon.addEventListener('scroll', this.handleRecordRightContentScroll);
       }
     }
+
     if (worksheetId && (!appId || !appSectionId)) {
       homeAppAjax.getAppSimpleInfo({ worksheetId }).then(data => {
         this.setState({ worksheetInfo: data });
       });
     }
+
     this.getAtData();
   }
   componentWillReceiveProps(nextProps) {
@@ -74,8 +77,10 @@ export default class WorkSheetComment extends React.Component {
         formdata = formdata.filter(o => (o.advancedSetting || {}).usertype !== '2');
       }
     }
+
     formdata.map(o => {
       let d;
+
       try {
         d = safeParse(o.value, 'array').map(item => {
           return Object.assign({}, item, { job: o.controlName });
@@ -84,6 +89,7 @@ export default class WorkSheetComment extends React.Component {
         console.log(err);
         d = [];
       }
+
       data = data.concat(d);
     });
     let accountsInMessage = [];
@@ -119,6 +125,7 @@ export default class WorkSheetComment extends React.Component {
         hash[current.accountId] = true; // 标记已存在
         result.push(current); // 添加到结果数组
       }
+
       return result;
     }, []);
 

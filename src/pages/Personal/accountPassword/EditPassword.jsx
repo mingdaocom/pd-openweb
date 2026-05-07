@@ -29,29 +29,34 @@ export default class EditPassword extends Component {
   handleSubmit() {
     const { isNullCredential } = this.props;
     const { originPassword, newPassword, confirmPassword } = this.state;
+
     if (!newPassword) {
       alert(_l('请设置新密码'), 3);
       $('#newInput').focus();
       return;
     }
+
     if (!this.isPasswordRule(newPassword)) {
       let msg = this.state.passwordRegexTip || _l('密码,8-20位，必须字母+数字');
       alert(msg, 3);
       $('#newInput').focus().select();
       return;
     }
+
     if (isNullCredential) {
       if (!confirmPassword) {
         alert(_l('请确认密码'), 3);
         $('#confirmPassword').focus();
         return;
       }
+
       if (!this.isPasswordRule(confirmPassword)) {
         let msg = this.state.passwordRegexTip || _l('密码,8-20位，必须字母+数字');
         alert(msg, 3);
         $('#confirmPassword').focus().select();
         return;
       }
+
       if (!_.isEqual(newPassword, confirmPassword)) {
         alert(_l('两次输入密码不一致'), 3);
         return;

@@ -35,6 +35,7 @@ function memberLinkHtml(member, logContent) {
  */
 function logDesc(log) {
   const childType = log.content.childType === 2 ? '文件 ' : '文件夹 ';
+
   switch (log.type) {
     case ROOT_LOG_TYPE.CREATE:
       return '创建了' + htmlEncodeReg(log.content.name);
@@ -134,6 +135,7 @@ function logDesc(log) {
         </Fragment>
       );
     }
+
     case ROOT_LOG_TYPE.RENAME:
       return '重命名了共享文件夹 ' + htmlEncodeReg(log.content.oldName) + ' 为 ' + htmlEncodeReg(log.content.newName);
     case ROOT_LOG_TYPE.EXITMEMBER:
@@ -173,6 +175,7 @@ export function getRootLog(rootName, rootId) {
             <Fragment>
               {result.logContent.map(item => {
                 let logTypeName;
+
                 if (item.type === ROOT_LOG_TYPE.CREATE || item.type === ROOT_LOG_TYPE.CHILDADD) {
                   logTypeName = 'icon-plus';
                 } else if (
@@ -185,6 +188,7 @@ export function getRootLog(rootName, rootId) {
                 } else {
                   logTypeName = 'icon-edit';
                 }
+
                 return (
                   <li>
                     <i className={`rootLogType ${logTypeName}`}></i>

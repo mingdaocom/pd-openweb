@@ -12,6 +12,7 @@ const Wrap = styled.div`
     opacity: 0.08;
   }
 `;
+
 export default function Con(props) {
   const { onCancel, onChangePortalSet } = props;
   const { portalSetModel = {} } = props.portalSet;

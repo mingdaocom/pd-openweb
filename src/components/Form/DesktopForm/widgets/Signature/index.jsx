@@ -24,7 +24,7 @@ const SignatureBox = styled.div`
   cursor: pointer;
   height: ${props => props.autoHeight && 'auto !important'};
   .addSignature {
-    color: var(--color-text-secondary);
+    color: var(--color-text-primary);
     line-height: 36px;
     &:hover {
       color: var(--color-primary);
@@ -35,9 +35,10 @@ const SignatureBox = styled.div`
 const SignaturePopup = styled.div`
   width: 480px;
   min-width: 200px;
-  background-color: var(--color-background-primary);
+  background-color: var(--color-background-card);
   border-radius: 4px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--shadow-xl);
+  touch-action: none;
   .header {
     display: flex;
     justify-content: space-between;
@@ -183,6 +184,13 @@ const Signature = props => {
   }, [value]);
 
   useEffect(() => {
+    return () => {
+      signaturePadRef.current?.off();
+      signaturePadRef.current = null;
+    };
+  }, []);
+
+  useEffect(() => {
     if (!value) {
       setIsEdit(false);
       setLastInfo('');
@@ -199,6 +207,7 @@ const Signature = props => {
     formItemId,
     useCallback(data => {
       const { triggerType } = data;
+
       switch (triggerType) {
         case 'Enter':
           if (valueRef.current) return;
@@ -221,6 +230,7 @@ const Signature = props => {
     if (!$newRecordWrap) return;
     const { bottom, top } = current.getBoundingClientRect();
     const { bottom: wrapBottom, top: wrapTop } = $newRecordWrap.getBoundingClientRect();
+
     if (wrapBottom - bottom < 360 && top - wrapTop > 360) {
       setPopupDirection('top');
     } else {
@@ -256,14 +266,20 @@ const Signature = props => {
 
     if (!canvas) return;
 
+    if (signaturePadRef.current) {
+      signaturePadRef.current.off();
+      signaturePadRef.current = null;
+    }
+
     canvas.width = canvas.offsetWidth;
     canvas.height = canvas.offsetHeight;
     canvas.getContext('2d');
-    const penColor = getComputedStyle(document.body).getPropertyValue('--color-text-primary');
     signaturePadRef.current = new SignaturePad.default(canvas, {
-      penColor,
+      penColor: '#9e9e9e',
+      throttle: 8,
+      minDistance: 3,
       onBegin: () => {
-        setIsEdit(true);
+        requestAnimationFrame(() => setIsEdit(true));
       },
     });
   }, []);
@@ -328,12 +344,9 @@ const Signature = props => {
   };
 
   const clear = () => {
-    signaturePadRef.current.clear();
+    signaturePadRef.current?.clear();
     setIsEdit(false);
     setLastInfo('');
-    setTimeout(() => {
-      initCanvas();
-    }, 100);
   };
 
   const removeSignature = e => {
@@ -351,6 +364,7 @@ const Signature = props => {
         overflow: { adjustX: true, adjustY: true },
       };
     }
+
     return {
       points: ['bl', 'tl'],
       offset: [-12, -3],
@@ -437,7 +451,7 @@ const Signature = props => {
         destroyPopupOnHide={destroyPopupOnHide}
         popup={
           <ClickAwayable onClickAway={clickEvent}>
-            <SignaturePopup onClick={e => e.nativeEvent.stopImmediatePropagation()}>
+            <SignaturePopup onClick={e => e.nativeEvent.stopImmediatePropagation()} className="noSelect">
               <div className="header">
                 <span className="textPrimary">{_l('请在下方空白区域横向书写签名')}</span>
                 <i onClick={closePopup} className="Font18 icon-close"></i>
@@ -465,7 +479,7 @@ const Signature = props => {
               }}
             >
               <i className="icon-e-signature Font17 textTertiary"></i>
-              <span className="mLeft5">{_l('添加签名')}</span>
+              <span className="mLeft5 text">{_l('添加签名')}</span>
             </GrayButton>
             {allowappupload && (
               <GenScanUploadQr

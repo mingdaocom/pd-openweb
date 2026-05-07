@@ -27,6 +27,7 @@ function WorksheetRecordLogThumbnail(props) {
   const isMobile = browserIsMobile();
   const [open, setOpen] = useState(false);
   let count = oldList.length + newList.length + defaultList.length;
+
   if (window.platformENV.isOverseas || window.platformENV.isLocal) {
     return (
       <React.Fragment>
@@ -83,6 +84,7 @@ function WorksheetRecordLogThumbnail(props) {
         </span>
       ));
     }
+
     return list.map(item => (
       <Trigger
         action={['hover']}

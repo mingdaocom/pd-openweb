@@ -208,6 +208,7 @@ class SearchWorksheetActionDialog extends Component {
         if (i.isGroup) {
           return { ...i, groupFilters: (i.groupFilters || []).map(g => ({ ...g, emptyRule })) };
         }
+
         return { ...i, emptyRule };
       }),
       configs,
@@ -249,12 +250,14 @@ class SearchWorksheetActionDialog extends Component {
           return { text, value };
         });
     }
+
     let filterControls = getControls({
       data: control,
       controls,
       isCurrent: true,
       from: DYNAMIC_FROM_MODE.SEARCH_WORKSHEET,
     });
+
     // 有记录id选项(同查询表的关联记录或者文本类控件)
     if (
       hasRowId &&
@@ -263,6 +266,7 @@ class SearchWorksheetActionDialog extends Component {
     ) {
       filterControls = ROW_ID_CONTROL.concat(filterControls);
     }
+
     return filterControls.map(({ controlId: value, controlName: text }) => {
       return { text, value };
     });
@@ -291,14 +295,17 @@ class SearchWorksheetActionDialog extends Component {
 
     // 本表字段
     let cidControls = [].concat(allControls);
+
     if (pid) {
       const parentControl = _.find(allControls, a => a.controlId === pid) || {};
       cidControls = (parentControl.relationControls || []).filter(
         r => r.type !== 34 && _.includes(parentControl.showControls || [], r.controlId),
       );
     }
+
     const cidControl = _.find(cidControls, c => c.controlId === cid);
     const curIsSubList = _.get(cidControl, 'type') === 34;
+
     if (curIsSubList) {
       const { relationControls = [], showControls = [] } = cidControl;
       cidControls = relationControls.filter(r => _.includes(showControls, r.controlId));
@@ -309,6 +316,7 @@ class SearchWorksheetActionDialog extends Component {
     // 查询表字段
     let subCidControl = _.find(controls, c => c.controlId === subCid);
     let subCidControls = [].concat(controls);
+
     if (pid) {
       const pidMapId = _.get(
         _.find(configs, c => c.cid === pid),
@@ -320,6 +328,7 @@ class SearchWorksheetActionDialog extends Component {
       );
       subCidControl = _.find(subCidControls, s => s.controlId === subCid);
     }
+
     const isSubCidDelete = subCid && !subCidControl && subCid !== 'rowid';
 
     return (
@@ -351,9 +360,11 @@ class SearchWorksheetActionDialog extends Component {
             data={this.getDropData(subCidControls, cidControl, pid)}
             onChange={controlId => {
               let newConfigs = configs.map((i, idx) => (idx === index ? { ...i, subCid: controlId } : i));
+
               if (curIsSubList) {
                 newConfigs = newConfigs.map(i => (i.pid === cid ? { ...i, subCid: '' } : i));
               }
+
               this.setState({
                 configs: newConfigs,
               });
@@ -363,9 +374,11 @@ class SearchWorksheetActionDialog extends Component {
             className="mLeft15"
             onClick={() => {
               let filterConfigs = configs.filter(c => c.cid !== cid);
+
               if (curIsSubList) {
                 filterConfigs = filterConfigs.filter(c => !(c.pid === cid));
               }
+
               this.setState({
                 configs: filterConfigs,
               });
@@ -584,6 +597,7 @@ class SearchWorksheetActionDialog extends Component {
                 canEdit
                 feOnly
                 supportGroup
+                disableAddCondition={!sheetId}
                 version={sheetId}
                 projectId={globalSheetInfo.projectId}
                 appId={globalSheetInfo.appId}
@@ -623,6 +637,7 @@ class SearchWorksheetActionDialog extends Component {
                 if (!sheetId) {
                   return;
                 }
+
                 this.setState({ controlVisible });
               }}
               popupStyle={{ width: 280 }}
@@ -631,6 +646,7 @@ class SearchWorksheetActionDialog extends Component {
                   list={this.filterSelectControls()}
                   onClick={item => {
                     let childConfigs = [];
+
                     if (item.type === 34) {
                       const relateControls = (item.relationControls || []).filter(
                         r => r.type !== 34 && _.includes(item.showControls || [], r.controlId),
@@ -641,6 +657,7 @@ class SearchWorksheetActionDialog extends Component {
                         subCid: '',
                       }));
                     }
+
                     this.setState({
                       configs: this.state.configs.concat([{ cid: item.controlId, subCid: '' }, ...childConfigs]),
                     });

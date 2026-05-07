@@ -140,6 +140,7 @@ function WorksheetRecordLogSubTable(props) {
                       </React.Fragment>
                     );
                   }
+
                   let cell = {
                     ..._cont,
                     value: value,
@@ -163,10 +164,12 @@ function WorksheetRecordLogSubTable(props) {
         let _prop = {
           ...prop,
         };
+
         if (_.startsWith(prop.newValue, '{')) {
           _prop.newValue = JSON.stringify(_dataNew.map(l => l.recordId));
           _prop.oldValue = JSON.stringify(_dataOld.map(l => l.recordId));
         }
+
         setLog(_prop);
         getData({ pageIndex: 1, log: _prop });
       });
@@ -179,9 +182,11 @@ function WorksheetRecordLogSubTable(props) {
       if (!value2) return null;
       if (value2.length === 0) return null;
       let _value = value2;
+
       if (typeof value2 === 'string' && _.startsWith(value2, '[')) {
         _value = safeParse(value2);
       }
+
       if (type === 42) {
         _value = _.has(_value, 'server')
           ? [_value]
@@ -201,6 +206,7 @@ function WorksheetRecordLogSubTable(props) {
           />
         );
       }
+
       if (type === 14) {
         return (
           <WorksheetRecordLogThumbnail
@@ -213,6 +219,7 @@ function WorksheetRecordLogSubTable(props) {
           />
         );
       }
+
       if (type === 29 && _.startsWith(value, '{')) {
         const info = safeParse(value);
         let _rows = safeParse(info.rows, 'array');
@@ -342,4 +349,5 @@ function WorksheetRecordLogSubTable(props) {
     </ScrollView>
   );
 }
+
 export default WorksheetRecordLogSubTable;

@@ -80,9 +80,11 @@ function getIcon(status, worksheetId) {
   if (!worksheetId) {
     return { icon: 'icon-cancel', color: 'var(--color-error)' };
   }
+
   if (status === FILL_STATUS.COMPLETED) {
     return { icon: 'icon-check_circle', color: 'var(--color-success)' };
   }
+
   return { icon: 'icon-error1', color: 'var(--color-warning)' };
 }
 
@@ -147,6 +149,16 @@ export default function NotFillStatus(props) {
             l.originalFilename = l.originalFileName;
           });
         control.value = JSON.stringify(fileValue);
+      }
+
+      //公式控件有默认值(单数值)时回执中显示
+      if (
+        control.type === 31 &&
+        _.isUndefined(control.value) &&
+        control.dataSource &&
+        /^[\d.]+$/.test(control.dataSource)
+      ) {
+        control.value = control.dataSource;
       }
 
       return control ? renderText(control) : '';

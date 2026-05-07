@@ -7,12 +7,14 @@ import PersonalStatus from 'src/pages/chat/components/MyStatus/PersonalStatus';
 
 const isChecked = (id, ids) => {
   let result = false;
+
   for (let i = 0; i < ids.length; i++) {
     if (ids[i] === id) {
       result = true;
       break;
     }
   }
+
   return result;
 };
 

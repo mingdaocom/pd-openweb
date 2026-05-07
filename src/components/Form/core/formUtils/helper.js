@@ -27,6 +27,7 @@ export const getEmbedValue = (embedData = {}, id) => {
 export const compareWithTime = (start, end, type) => {
   const startTime = parseInt(start.split(':')[0]) * 60 + parseInt(start.split(':')[1]);
   const endTime = parseInt(end.split(':')[0]) * 60 + parseInt(end.split(':')[1]);
+
   switch (type) {
     case 'isBefore':
       return startTime < endTime;
@@ -81,6 +82,7 @@ export const validateIdCardCheckCode = idCard => {
 
   // 计算加权和
   let sum = 0;
+
   for (let i = 0; i < 17; i++) {
     sum += parseInt(first17[i], 10) * weights[i];
   }
@@ -103,6 +105,7 @@ export const validateIdCardBirthDate = idCard => {
 
   // 验证年份范围（1900-当前年份）
   const currentYear = new Date().getFullYear();
+
   if (year < 1900 || year > currentYear) {
     return false;
   }
@@ -116,6 +119,7 @@ export const validateIdCardBirthDate = idCard => {
   const daysInMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
   // 判断是否为闰年
   const isLeapYear = (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
+
   if (isLeapYear) {
     daysInMonth[1] = 29; // 闰年2月有29天
   }
@@ -151,9 +155,11 @@ export const getOtherWorksheetFieldValue = ({ data, dataSource, sourceControlId 
     const parentControl = _.find(data, c => c.controlId === dataSource.slice(1, -1));
     const record = safeParse(parentControl.value)[0];
     const sourceControl = parentControl && _.find(parentControl.relationControls, c => c.controlId === sourceControlId);
+
     if (sourceControl && _.includes([29, 35], sourceControl.type)) {
       const sourceControlValue = safeParse(record.sourcevalue)[sourceControlId];
       const sourceControlValueRecord = safeParse(sourceControlValue)[0];
+
       if (sourceControlValueRecord) {
         return sourceControlValueRecord.name;
       }
@@ -175,9 +181,11 @@ export function handleDotAndRound(currentItem, value, ignoreAddZero = true) {
   const roundType = currentItem.advancedSetting.roundtype || (_.includes([6, 8, 31, 37], currentItem.type) ? '2' : '0');
   // 取整方式 空或者0 向下取整 1 向上取整 2 代表四舍五入
   let dot = Number(currentItem.dot);
+
   if (!dot || _.isNaN(dot)) {
     dot = 0;
   }
+
   if (roundType === '2') {
     value = String((Math.round(value * Math.pow(10, dot)) / Math.pow(10, dot)) * (isNegative ? -1 : 1));
   } else if (roundType === '1') {
@@ -185,13 +193,16 @@ export function handleDotAndRound(currentItem, value, ignoreAddZero = true) {
   } else {
     value = String(toFixed(Math.floor(value * Math.pow(10, dot)) / Math.pow(10, dot), dot) * (isNegative ? -1 : 1));
   }
+
   const ignoreZero = currentItem.advancedSetting.dotformat === '1';
+
   if (!ignoreZero && dot !== 0 && ignoreAddZero) {
     value = (value + (value.indexOf('.') > -1 ? '' : '.') + '0000000000000').replace(
       new RegExp(`(\\d+\\.\\d{${dot}})(0+)$`),
       '$1',
     );
   }
+
   return value;
 }
 
@@ -245,6 +256,7 @@ export const getControlValue = (data, currentItem, controlId, objValue) => {
 export const checkChildTableIsEmpty = (control = {}) => {
   const store = control.store;
   const state = store && store.getState();
+
   if (state && state.rows && !state.baseLoading) {
     return filterEmptyChildTableRows(state.rows).length <= 0;
   } else {
@@ -298,11 +310,16 @@ export const getAvailableFilters = (rules = [], formatData = [], recordId) => {
     }
   });
 
-  return { defaultRules: filterRules.filter(i => i.type === 0), errorRules: filterRules.filter(i => i.type === 1) };
+  return {
+    defaultRules: filterRules.filter(i => i.type === 0), // 交互规则
+    errorOrStyleRules: filterRules.filter(i => _.includes([1, 3], i.type)), // 验证+样式规则
+    errorRules: filterRules.filter(i => i.type === 1), // 验证规则
+  };
 };
 
 export const getAttachmentData = (control = {}) => {
   let fileData;
+
   if (control.value && _.isArray(JSON.parse(control.value))) {
     fileData = JSON.parse(control.value);
   } else {
@@ -310,6 +327,7 @@ export const getAttachmentData = (control = {}) => {
     const { attachments = [], attachmentData = [], knowledgeAtts = [] } = data;
     fileData = [...attachmentData, ...attachments, ...knowledgeAtts];
   }
+
   return fileData;
 };
 
@@ -329,6 +347,7 @@ export const mergeFormDataWidthSystem = (data = [], systemControlData = []) => {
   const mergedData = [...data];
   (systemControlData || []).forEach(systemItem => {
     const existingIndex = mergedData.findIndex(d => d.controlId === systemItem.controlId);
+
     if (existingIndex !== -1) {
       mergedData[existingIndex] = { ...mergedData[existingIndex], ...systemItem };
     } else {

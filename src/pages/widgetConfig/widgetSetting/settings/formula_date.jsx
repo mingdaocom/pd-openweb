@@ -73,9 +73,11 @@ export default function FormulaDate(props) {
                 onChange(value);
               } else {
                 let newVal = value || {};
+
                 if (!Number(value.dot)) {
                   newVal.dotformat = '0';
                 }
+
                 onChange({ ...handleAdvancedSettingChange(data, newVal), ...value });
               }
             }}
@@ -90,6 +92,7 @@ export default function FormulaDate(props) {
         </Fragment>
       );
     }
+
     if (enumDefault === 2) {
       const isDateFn = val => _.includes(['1', '3'], val);
       const saveData = isSaved
@@ -144,6 +147,7 @@ export default function FormulaDate(props) {
                 if (err) {
                   return;
                 }
+
                 onChange({ dataSource: value });
               }}
               onFocus={() => {
@@ -170,6 +174,7 @@ export default function FormulaDate(props) {
         </Fragment>
       );
     }
+
     if (enumDefault === 3) {
       return <ToTodaySetting {...props} />;
     }
@@ -190,6 +195,7 @@ export default function FormulaDate(props) {
                 onChange({ enumDefault: value, dataSource: '', sourceControlId: '', unit: '3' });
                 return;
               }
+
               onChange({
                 enumDefault: value,
                 dataSource: '',

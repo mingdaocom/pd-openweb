@@ -50,6 +50,7 @@ function PublicWorksheetConfig(props) {
     const needHidedControlIds = hidedControlIds.concat(disabledControlIds);
     const curControl = originalControls.filter(item => item.controlId === controlId)[0] || {};
     let sectionList = [];
+
     if (curControl.type === 52) {
       sectionList = originalControls.filter(
         item => item.sectionId === controlId && !_.find(needHidedControlIds, h => h.controlId === item.controlId),
@@ -63,10 +64,12 @@ function PublicWorksheetConfig(props) {
           item => item.sectionId === tabControl.controlId && !_.find(needHidedControlIds, id => id === item.controlId),
         );
         let needHideIds = [controlId];
+
         if (showTabSectionList.length === 1 && showTabSectionList[0].controlId === controlId) {
           //取消勾选标签页内最后一个字段，则取消勾选标签页
           needHideIds = [controlId, tabControl.controlId];
         }
+
         hideControl(needHideIds);
       } else {
         hideControl(controlId);
@@ -78,6 +81,7 @@ function PublicWorksheetConfig(props) {
     if (/detail/.test(location.hash)) {
       location.hash = '';
     }
+
     loadPublicWorksheet({ worksheetId });
     return () => {
       clear();
@@ -98,6 +102,7 @@ function PublicWorksheetConfig(props) {
       </div>
     );
   }
+
   if (formVisible) {
     return (
       <div className="publicWorksheetConfigCon flexRow">
@@ -112,6 +117,7 @@ function PublicWorksheetConfig(props) {
       </div>
     );
   }
+
   return (
     <div class="publicWorksheetEnablePanel">
       <div className="flexRow alignCenter">

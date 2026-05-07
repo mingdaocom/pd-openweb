@@ -72,6 +72,7 @@ const Wrap = styled.div`
     }
   }
 `;
+
 export default function RecordBlock(props) {
   const $ref = useRef(null);
   const {
@@ -120,10 +121,12 @@ export default function RecordBlock(props) {
     handleReplaceState('page', 'recordDetail', () => setState({ recordInfoVisible: false }));
     refresh();
   };
+
   const handleMouseDown = event => {
     if (!window.isCanvasTime) {
       return;
     }
+
     event.stopPropagation();
     const allList = getTops(resourceDataByKey);
     const { left, before, after, top } = props.row;
@@ -132,6 +135,7 @@ export default function RecordBlock(props) {
     let changValue = null;
     let changValueY = null;
     let newKey = null;
+
     document.onmousemove = event => {
       let move = Math.round((event.clientX - x) / oneWidth) * oneWidth;
       let moveY = event.clientY - y;
@@ -148,6 +152,7 @@ export default function RecordBlock(props) {
           ? (allList.find(o => (o.top < newTop || o.top === newTop) && newTop < o.bottom) || {}).key
           : null;
     };
+
     document.onmouseup = () => {
       $ref.current.style.transform = 'none';
       $ref.current.style.zIndex = 0;
@@ -158,6 +163,7 @@ export default function RecordBlock(props) {
             window.location.href = `/mobile/record/${appId}/${worksheetId}/${viewId}/${props.row.rowid}`;
             return;
           }
+
           setState({ recordInfoVisible: true });
           addBehaviorLog('worksheetRecord', worksheetId, { rowId: props.row.rowid }); // 埋点
         });
@@ -180,18 +186,22 @@ export default function RecordBlock(props) {
           }
         }
       }
+
       document.onmousemove = null;
       document.onmouseup = null;
     };
   };
+
   const handleMouseDownStart = event => {
     if (!window.isCanvasTime) {
       return;
     }
+
     event.stopPropagation();
     const { left, width } = props.row;
     const x = event.clientX;
     let changValue = null;
+
     document.onmousemove = event => {
       const newLeft = Math.round((event.clientX - (x - left)) / oneWidth) * oneWidth;
       let move = Math.round((event.clientX - x) / oneWidth) * oneWidth;
@@ -200,6 +210,7 @@ export default function RecordBlock(props) {
       $ref.current.style.zIndex = 1;
       changValue = newLeft;
     };
+
     document.onmouseup = () => {
       $ref.current.style.zIndex = 0;
       const value = Math.floor(changValue / oneWidth);
@@ -208,31 +219,38 @@ export default function RecordBlock(props) {
       document.onmouseup = null;
     };
   };
+
   const handleChangeStart = start => {
     const { endTime } = row;
     updateRecordTime(row, start, endTime, keyForGroup);
   };
+
   const handleChangeEnd = end => {
     const { startTime } = row;
     updateRecordTime(row, startTime, end, keyForGroup);
   };
+
   const handleUpdateRecordTime = (start, end, newKey) => {
     updateRecordTime(row, start, end, keyForGroup, newKey);
   };
+
   const handleMouseDownEnd = event => {
     if (!window.isCanvasTime) {
       return;
     }
+
     event.stopPropagation();
     const { left, width } = props.row;
     const x = event.clientX;
     let changValue = null;
+
     document.onmousemove = event => {
       let move = Math.round((event.clientX - x) / oneWidth) * oneWidth;
       $ref.current.style.width = `${width + move}px`;
       changValue = (width + move + left) / oneWidth;
       $ref.current.style.zIndex = 1;
     };
+
     document.onmouseup = () => {
       $ref.current.style.zIndex = 0;
       const date = gridTimes[(changValue > gridTimes.length ? gridTimes.length : changValue) - 1].date;
@@ -282,6 +300,7 @@ export default function RecordBlock(props) {
                     window.location.href = `/mobile/record/${appId}/${worksheetId}/${viewId}/${props.row.rowid}`;
                     return;
                   }
+
                   handlePushState('page', 'recordDetail');
                   setState({ recordInfoVisible: true });
                   addBehaviorLog('worksheetRecord', worksheetId, { rowId: props.row.rowid }); // 埋点

@@ -1,5 +1,6 @@
 export const renderValue = (formulaValue = '', node = {}) => {
   const arr = formulaValue.match(/\$[^ \r\n]+?\$/g);
+
   if (arr) {
     arr.forEach(obj => {
       const data = obj
@@ -13,5 +14,6 @@ export const renderValue = (formulaValue = '', node = {}) => {
       );
     });
   }
+
   return formulaValue;
 };

@@ -54,6 +54,7 @@ export default function BatchAdd({ data, options, onOk, ...rest }) {
 
         filterAddOptions.forEach(a => {
           const deleteIndex = _.findIndex(newOptions, o => o.value === a && o.isDeleted);
+
           if (deleteIndex > -1) {
             newOptions[deleteIndex].isDeleted = false;
           } else {

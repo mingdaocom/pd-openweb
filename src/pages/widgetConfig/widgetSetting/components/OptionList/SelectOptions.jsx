@@ -178,6 +178,7 @@ export default function SelectOptions(props) {
       if (dataSource) {
         return { name: strDefault, options: options, colorful: enumDefault2 === 1, enableScore: enumDefault };
       }
+
       return { options: [] };
     }, []),
   );
@@ -227,10 +228,12 @@ export default function SelectOptions(props) {
   // 转自定义
   const handleToCustom = () => {
     const newData = { dataSource: '', options: options.map(i => ({ ...i, hide: false })) };
+
     if (isNewControl) {
       onChange(newData);
       return;
     }
+
     Dialog.confirm({
       title: <span className="Bold">{_l('转为自定义选项')}</span>,
       width: 480,
@@ -259,6 +262,7 @@ export default function SelectOptions(props) {
             if (value === 2) {
               setVisible({ selectVisible: true });
             }
+
             if (value === 1) {
               onChange({
                 // 非选项集清空动态默认值
@@ -278,9 +282,11 @@ export default function SelectOptions(props) {
                 onClick={e => {
                   e.stopPropagation();
                   let newData = { enumDefault2: +!enumDefault2 };
+
                   if (_.find(options, i => !i.color)) {
                     newData.options = options.map(i => ({ ...i, color: i.color || '#1677ff' }));
                   }
+
                   onChange(newData);
                 }}
               ></i>

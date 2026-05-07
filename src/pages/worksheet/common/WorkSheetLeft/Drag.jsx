@@ -15,9 +15,11 @@ const dndAccept = 'navigationListGroup';
 const removeTarget = (groups, data) => {
   return groups.filter(item => {
     const { items = [] } = item;
+
     if (item.workSheetId === data.workSheetId) {
       return false;
     }
+
     item.items = removeTarget(items, data);
     return true;
   });
@@ -25,6 +27,7 @@ const removeTarget = (groups, data) => {
 
 const spliceTarget = (groups, target, data) => {
   const index = _.findIndex(groups, { workSheetId: target.workSheetId });
+
   if (index == -1) {
     return groups.map(item => {
       const { items = [] } = item;
@@ -37,6 +40,7 @@ const spliceTarget = (groups, target, data) => {
     if (!target.parentId) {
       data.parentId = undefined;
     }
+
     groups.splice(data.first ? index : index + 1, 0, data);
     return groups;
   }
@@ -45,6 +49,7 @@ const spliceTarget = (groups, target, data) => {
 const pushTarget = (groups, target, data) => {
   return groups.map(item => {
     const { items = [] } = item;
+
     if (item.workSheetId === target.workSheetId) {
       data.parentId = undefined;
       data.parentGroupId = item.workSheetId;
@@ -74,13 +79,16 @@ const Drag = props => {
     drop(item) {
       const current = item.appItem;
       const target = appItem;
+
       if (current.workSheetId === target.workSheetId) {
         return undefined;
       }
+
       if (active || activeGroup) {
         current.first = activeFirst;
         onMoveGroup(current, target, activeGroup);
       }
+
       return undefined;
     },
     hover(item, monitor) {
@@ -104,12 +112,14 @@ const Drag = props => {
       if (collectProps.isOver) {
         const clientOffset = monitor.getClientOffset();
         const hoverBoundingRect = ref.current.getBoundingClientRect();
+
         // 判断能否移动到组内
         const getIsPushGroup = () => {
           const hoverMiddleY = (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2;
           const hoverClientY = clientOffset.y - hoverBoundingRect.top;
           return hoverClientY <= hoverMiddleY && hoverClientY >= 10;
         };
+
         // 判断是否是第一个项
         if (target.index === 0) {
           const hoverClientX = clientOffset.x - hoverBoundingRect.left;
@@ -118,28 +128,33 @@ const Drag = props => {
         } else {
           setActiveFirst(false);
         }
+
         // 一级分组
         if (current.layerIndex === 0 && target.layerIndex === 0) {
           setActive(true);
         }
+
         // 二级分组
         if (current.layerIndex && !current.isAppItem) {
           if (!target.isAppItem && [0].includes(target.layerIndex)) {
             const isPushGroup = getIsPushGroup();
             setActiveGroup(isPushGroup);
           }
+
           if ([0, 1].includes(target.layerIndex)) {
             setActive(true);
             const hoverClientY = clientOffset.y - hoverBoundingRect.top;
             setActiveFirst(hoverClientY <= 10);
           }
         }
+
         // 二级应用
         if (current.layerIndex && current.isAppItem) {
           if (!target.isAppItem) {
             const isPushGroup = getIsPushGroup();
             setActiveGroup(isPushGroup);
           }
+
           if (target.layerIndex) {
             setActive(true);
             const hoverClientY = clientOffset.y - hoverBoundingRect.top;
@@ -179,6 +194,7 @@ const Drag = props => {
         })
       : props.sheetList;
     const groups = removeTarget(_.cloneDeep(sheetList), dragData);
+
     if (pushGroup) {
       appManagementApi
         .removeWorkSheetAscription({
@@ -204,6 +220,7 @@ const Drag = props => {
           }
         });
       const res = pushTarget(groups, targetData, dragData);
+
       if ([1, 3].includes(currentPcNaviStyle)) {
         configureStore.dispatch(sheetListActions.updateALLSheetList(res));
       } else {
@@ -213,11 +230,13 @@ const Drag = props => {
       const dragDataParentId = dragData.parentId;
       const targetDataParentId = targetData.parentId;
       const res = spliceTarget(groups, targetData, dragData);
+
       if ([1, 3].includes(currentPcNaviStyle)) {
         configureStore.dispatch(sheetListActions.updateALLSheetList(res));
       } else {
         props.updateSheetList(res);
       }
+
       // 移动
       if (dragDataParentId !== targetDataParentId) {
         appManagementApi
@@ -246,6 +265,7 @@ const Drag = props => {
                   appSectionIds: res.map(data => data.workSheetId),
                 });
               }
+
               if (targetData.layerIndex === 1) {
                 const workSheetIds = res.map(data => data.workSheetId);
                 homeAppApi.updateSectionChildSort({
@@ -254,6 +274,7 @@ const Drag = props => {
                   workSheetIds,
                 });
               }
+
               if (targetData.layerIndex === 2) {
                 const data = _.find(res, { workSheetId: targetDataParentId }) || { items: [] };
                 const workSheetIds = data.items.map(data => data.workSheetId);
@@ -269,6 +290,7 @@ const Drag = props => {
           });
         return;
       }
+
       // 一级分组排序
       if (dragData.layerIndex === 0 && dragData.parentId === targetData.parentId) {
         homeAppApi
@@ -282,15 +304,18 @@ const Drag = props => {
             }
           });
       }
+
       // 二级分组排序
       if (dragData.layerIndex === 1 && dragData.parentId === targetData.parentId) {
         let workSheetIds = [];
+
         if ([1, 3].includes(currentPcNaviStyle)) {
           const { items } = _.find(res, { workSheetId: dragData.parentId }) || {};
           workSheetIds = items.map(data => data.workSheetId);
         } else {
           workSheetIds = res.map(data => data.workSheetId);
         }
+
         homeAppApi
           .updateSectionChildSort({
             appId: appPkg.id,
@@ -303,9 +328,11 @@ const Drag = props => {
             }
           });
       }
+
       // 三级排序
       if (dragData.layerIndex === 2 && dragData.parentId === targetData.parentId) {
         let workSheetIds = [];
+
         if ([1, 3].includes(currentPcNaviStyle)) {
           const childrenRes = res.filter(data => _.find(data.items, { workSheetId: dragData.parentId }))[0];
           workSheetIds = _.find(childrenRes.items, { workSheetId: dragData.parentId }).items.map(
@@ -314,6 +341,7 @@ const Drag = props => {
         } else {
           workSheetIds = _.find(res, { workSheetId: dragData.parentId }).items.map(data => data.workSheetId);
         }
+
         homeAppApi
           .updateSectionChildSort({
             appId: appPkg.id,
@@ -336,6 +364,7 @@ const Drag = props => {
       className={className}
       onMouseDown={e => {
         const { parentElement } = e.target;
+
         if (
           props.onlyIconDrag &&
           (parentElement.classList.contains('groupHeader') ||

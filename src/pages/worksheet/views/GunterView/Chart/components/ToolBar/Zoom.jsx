@@ -34,13 +34,16 @@ export default class Zoom extends Component {
     if (!window.isZoom) {
       return;
     }
+
     window.isZoom = false;
     const { periodType } = this.props;
     PERIODS.forEach((item, index) => {
       if (item.value === periodType) {
         const next = PERIODS[index + 1];
+
         if (next || item.minDayWidth > item.defaultMinDayWidth) {
           const value = item.minDayWidth - 4;
+
           if (next && value <= next.minDayWidth) {
             this.props.updataPeriodType(next.value);
             item.minDayWidth = item.defaultMinDayWidth;
@@ -56,13 +59,16 @@ export default class Zoom extends Component {
     if (!window.isZoom) {
       return;
     }
+
     window.isZoom = false;
     const { periodType } = this.props;
     PERIODS.forEach((item, index) => {
       if (item.value === periodType) {
         const next = PERIODS[index - 1];
+
         if (next || item.minDayWidth < item.defaultMinDayWidth) {
           const value = item.minDayWidth + 4;
+
           if (next && value >= next.minDayWidth) {
             this.props.updataPeriodType(next.value);
             item.minDayWidth = item.defaultMinDayWidth;

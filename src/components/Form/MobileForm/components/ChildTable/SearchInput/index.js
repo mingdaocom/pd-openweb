@@ -33,6 +33,7 @@ export default class SearchInput extends Component {
         isFocus: nextProps.active,
       });
     }
+
     if (this.props.viewId !== nextProps.viewId) {
       this.setState({ value: '', isFocus: false });
     }
@@ -110,6 +111,7 @@ export default class SearchInput extends Component {
                 this.setState({ isFocus: false });
                 onBlur();
               }
+
               if (triggerWhenBlurWithEmpty && e.target.value === '' && keyWords) {
                 onOk('');
               }

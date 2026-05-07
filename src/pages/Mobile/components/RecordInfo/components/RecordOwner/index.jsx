@@ -95,6 +95,7 @@ const RecordOwner = props => {
         alert(_l('%0已锁定，修改失败', entityName), 3);
         return;
       }
+
       console.log(err);
       alert(_l('修改失败'), 2);
     }
@@ -106,11 +107,13 @@ const RecordOwner = props => {
       changeOwner();
       return;
     }
+
     // 有权限且记录为锁定，需要弹出选择层选择操作
     if (ownerEditable && !isRecordLock) {
       switchOwnerOptionPopup(true);
       return;
     }
+
     // 无修改权限，只能查看拥有者信息
     switchPersonalInfoPopup(true);
   };
@@ -127,6 +130,7 @@ const RecordOwner = props => {
           if (_.isEmpty(res.results)) {
             return;
           }
+
           handleUpdateOwner(res.results);
         },
         cancel: function () {

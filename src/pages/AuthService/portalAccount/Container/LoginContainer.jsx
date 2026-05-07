@@ -36,6 +36,7 @@ function useInterval(callback, delay) {
     if (!delay && delay !== 0) {
       return;
     }
+
     const id = setInterval(() => savedCallback.current(), delay);
     return () => clearInterval(id);
   }, [delay]);
@@ -164,6 +165,7 @@ export default function (props) {
         }
       });
   };
+
   const refreshUrl = () => {
     if (!stateWX || !appId) return;
     type === 'weChat' &&
@@ -175,6 +177,7 @@ export default function (props) {
         .then(res => {
           setAutoLoginKey({ ...res, appId });
           const { accountResult, state, accountId } = res;
+
           //31过期， 30未扫码，可继续轮询
           if (accountResult === 31) {
             setState({ scan: false });
@@ -196,6 +199,7 @@ export default function (props) {
               if (props.customLink && !_.get(props, 'registerMode.email') && !_.get(props, 'registerMode.phone')) {
                 return setStatus(40);
               }
+
               setParamForPcWx({
                 mdAppId: appId || '',
                 wxState: state || '',
@@ -206,6 +210,7 @@ export default function (props) {
           }
         });
   };
+
   useInterval(
     () => {
       refreshUrl();
@@ -229,12 +234,14 @@ export default function (props) {
       if (res.ret !== 0) {
         return;
       }
+
       if (type === 'phone') {
         onLogin(Object.assign({}, res, { captchaType: md.global.getCaptchaType() }));
       } else {
         doPwdLogin(Object.assign({}, res, { captchaType: md.global.getCaptchaType() }));
       }
     };
+
     new captcha(callback);
   };
 
@@ -242,6 +249,7 @@ export default function (props) {
     if (sending) {
       return;
     }
+
     const { ticket, randstr } = resRet;
     externalPortalAjax
       .login(
@@ -296,6 +304,7 @@ export default function (props) {
     if (sending) {
       return;
     }
+
     const { ticket, randstr } = resRet;
 
     externalPortalAjax
@@ -315,6 +324,7 @@ export default function (props) {
       .then(res => {
         setAutoLoginKey({ ...res, appId });
         const { accountResult, state } = res;
+
         switch (accountResult) {
           case -1:
             if (allowUserType === 9) {
@@ -330,6 +340,7 @@ export default function (props) {
               });
               alert(_l('请输入验证码'), 3);
             }
+
             break;
           case -3:
             // -3代表密码不符合格式规范，后端会强行校验；
@@ -356,6 +367,7 @@ export default function (props) {
               alert(_l('未设置密码，请登录后完成密码设置!'), 2);
               setState({ sending: false });
             }
+
             break;
           case -6:
             //两步验证
@@ -478,6 +490,7 @@ export default function (props) {
                     if (!loginMode[o.key]) {
                       return '';
                     }
+
                     return (
                       <li
                         className={cx('Hand')}

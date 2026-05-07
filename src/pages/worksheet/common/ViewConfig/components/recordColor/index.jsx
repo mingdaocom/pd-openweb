@@ -236,9 +236,11 @@ function RecordColor(params) {
   const { worksheetControls = [], view = {}, onChange } = params;
   const { advancedSetting = {} } = view;
   const { colorid, coloritems, colortype } = advancedSetting;
+
   const updateAdvancedSetting = data => {
     onChange(data);
   };
+
   const filteredControls = worksheetControls.filter(c => typesInclude([9, 11], c));
   const selectedControl = _.find(filteredControls, { controlId: colorid });
   return (
@@ -360,6 +362,7 @@ export default function (props) {
   const { updateCurrentView, view, appId } = props;
   const [openList, setState] = useState(['record', 'control']);
   const tabName = _l('颜色');
+
   const renderHead = key => {
     return (
       <div
@@ -373,6 +376,7 @@ export default function (props) {
       </div>
     );
   };
+
   const onChangeControlByKey = key => {
     updateCurrentView({
       ...view,
@@ -384,6 +388,7 @@ export default function (props) {
       editAttrs: ['advancedSetting'],
     });
   };
+
   return (
     <Wrap>
       <div className="viewSetTitle">{tabName}</div>

@@ -19,9 +19,11 @@ const highlightMessageText = (keyword, message) => {
   message = htmlDecodeReg(message);
   const ellipsisIndex = 25;
   const firstIndex = message.indexOf(keyword);
+
   if (firstIndex > ellipsisIndex) {
     message = '...' + message.slice(firstIndex - ellipsisIndex);
   }
+
   const reg = new RegExp(_.escapeRegExp(keyword), 'g');
   message = htmlEncodeReg(message.replace(reg, '*#span1#*' + keyword + '*#span2#*'));
   message = message.replace(/\*#span1#\*/g, '<span class="ThemeColor3">').replace(/\*#span2#\*/g, '</span>');
@@ -59,9 +61,11 @@ export default class Messages extends Component {
     const { session } = this.props;
     const type = session.isGroup ? Constant.SESSIONTYPE_GROUP : Constant.SESSIONTYPE_USER;
     const { loading, pageIndex, messages } = this.state;
+
     if (loading || !pageIndex) {
       return;
     }
+
     this.setState({
       loading: true,
     });

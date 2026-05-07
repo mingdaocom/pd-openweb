@@ -54,6 +54,7 @@ var SelectSendTo = function (options, callback) {
       placeholderStr: _l('搜索聊天'),
     };
   }
+
   this.init();
 };
 
@@ -80,6 +81,7 @@ SelectSendTo.prototype = {
       if (!$(e.target).closest('.searchListCon').length) {
         ST.hideList();
       }
+
       e.stopPropagation();
     });
     // 按键up触发搜索
@@ -122,6 +124,7 @@ SelectSendTo.prototype = {
         ) {
           return;
         }
+
         ST.keywordsCache = keywords;
         ST.fetchList();
       }, 300),
@@ -151,6 +154,7 @@ SelectSendTo.prototype = {
       var scrollHeight = target.scrollHeight;
       const isTop = e.deltaY < 0 && scrollTop === 0;
       const isBottom = e.deltaY > 0 && clientHeight + scrollTop >= scrollHeight;
+
       if (isTop || isBottom) {
         e.preventDefault();
       }
@@ -186,6 +190,7 @@ SelectSendTo.prototype = {
         if (isFirst) {
           ST.defaultListData = listData;
         }
+
         ST.listData = listData;
         ST.listTplData = ST.formatDataTplData(listData);
         ST.renderList();
@@ -225,11 +230,13 @@ SelectSendTo.prototype = {
     if (ST.callback) {
       ST.callback(ST.selectedData);
     }
+
     if (selectedItem.headUrl) {
       html = '<img src="' + selectedItem.headUrl + '">' + selectedItem.value;
     } else {
       html = selectedItem.value;
     }
+
     ST.elements.$selected.html(html);
     ST.hideList();
   },
@@ -241,9 +248,11 @@ SelectSendTo.prototype = {
       if (formatTpl.value) {
         result.value = item[formatTpl.value];
       }
+
       if (formatTpl.headUrl) {
         result.headUrl = item[formatTpl.headUrl];
       }
+
       return result;
     });
   },
@@ -317,12 +326,15 @@ ShareAttachment.prototype = {
       } else {
         SA.dialogEle.$fileName.val(SA.file.name);
       }
+
       if (options.attachmentType === ATTACHMENT_TYPE.WORKSHEET) {
         SA.$dialog.find('.shareAttachmentDialogContainer').addClass('isWorksheet');
       }
+
       if (options.attachmentType === ATTACHMENT_TYPE.WORKSHEETROW) {
         SA.$dialog.find('.shareAttachmentDialogContainer').addClass('isWorksheetRow');
       }
+
       SA.bindEvent();
       SA.previewFile();
       if (options.attachmentType === ATTACHMENT_TYPE.KC && options.node) {
@@ -355,6 +367,7 @@ ShareAttachment.prototype = {
     var SA = this;
     var options = SA.options;
     const visibleType = type || options.node.visibleType;
+
     if (options.attachmentType === ATTACHMENT_TYPE.KC) {
       return visibleType === NODE_VISIBLE_TYPE.CLOSE;
     } else if (
@@ -363,6 +376,7 @@ ShareAttachment.prototype = {
     ) {
       return visibleType === WORKSHEET_VISIBLE_TYPE.CLOSE;
     }
+
     return true;
   },
   initModules: function () {
@@ -389,10 +403,12 @@ ShareAttachment.prototype = {
       viewId: SA.options.viewId,
       objectType: 1,
     };
+
     if (type === 2) {
       args.objectType = 2;
       args.rowId = SA.options.rowId;
     }
+
     WorksheetController.getWorksheetShareUrl(args).then(shareUrl => {
       SA.options.node = Object.assign({}, SA.options.node, {
         shareUrl,
@@ -425,6 +441,7 @@ ShareAttachment.prototype = {
             alert(_l('您权限不足，无法分享，请联系管理员或文件上传者'), 3);
             return;
           }
+
           SA.options.node = data;
           if (callback && typeof callback === 'function') {
             callback(data);
@@ -459,6 +476,7 @@ ShareAttachment.prototype = {
         } else {
           SA.updateWorkshhetShareUrl(1, callback);
         }
+
         break;
       case ATTACHMENT_TYPE.WORKSHEETROW:
         SA.options.node = Object.assign({}, SA.options.node, {
@@ -474,6 +492,7 @@ ShareAttachment.prototype = {
         } else {
           SA.updateWorkshhetShareUrl(2, callback);
         }
+
         break;
       default:
         break;
@@ -549,6 +568,7 @@ ShareAttachment.prototype = {
     if (listConWidth < listBoxWidth) {
       $listBox[0].style.justifyContent = 'center';
     }
+
     showControlBtn();
     $targetBtnList.on('click', '.prev, .next', function () {
       left += listBoxWidth * ($(this).hasClass('prev') ? 1 : -1);
@@ -569,6 +589,7 @@ ShareAttachment.prototype = {
       if (left < 0) {
         $targetBtnList.find('.prev').show();
       }
+
       if (-1 * left + listBoxWidth <= $listCon[0].clientWidth) {
         $targetBtnList.find('.next').show();
       }
@@ -589,11 +610,13 @@ ShareAttachment.prototype = {
     } else {
       $closedTip.removeClass('hide');
     }
+
     if (rootInfo.project) {
       shareVisibleArea = _l('%0 成员可预览', rootInfo.project.companyDisplayName);
     } else if (rootInfo.owner) {
       shareVisibleArea = _l('%0 的联系人可预览', rootInfo.owner.fullname);
     }
+
     if (SA.options.attachmentType === ATTACHMENT_TYPE.KC) {
       permissionList =
         SA.options.node.type === 1
@@ -669,13 +692,16 @@ ShareAttachment.prototype = {
               } else {
                 $selectTargetCon.removeClass('hide');
               }
+
               if ($copyLinkCon.hasClass('inited')) {
                 $copyLinkCon.removeClass('hide');
               } else {
                 SA.initCopyLinkBtn();
               }
+
               $closedTip.addClass('hide');
             }
+
             if (SA.checkClose(visibleType)) {
               if (sendToOtherInited) {
                 $sendToOther.addClass('hide');
@@ -683,6 +709,7 @@ ShareAttachment.prototype = {
               } else {
                 $selectTargetCon.addClass('hide');
               }
+
               SA.$dialog.find('.copyLinkCon').addClass('hide');
               $closedTip.removeClass('hide');
             } else {
@@ -710,6 +737,7 @@ ShareAttachment.prototype = {
   updateShareType: function (value, cb) {
     var SA = this;
     let updateFunc;
+
     switch (SA.options.attachmentType) {
       case ATTACHMENT_TYPE.KC:
         updateFunc = SA.updateVisibleType.bind(SA);
@@ -723,6 +751,7 @@ ShareAttachment.prototype = {
       default:
         updateFunc = () => {};
     }
+
     updateFunc(value, cb);
   },
   initCopyLinkBtn: function () {
@@ -757,15 +786,18 @@ ShareAttachment.prototype = {
     if (SA.$dialog.find('#shareDesc').is(':visible')) {
       shareDesc = SA.$dialog.find('#shareDesc').val().trim();
     }
+
     // 删除消息和任务已选择的数据
     delete SA.selectedChat;
     delete SA.selectedTask;
     if ([SEND_TO_TYPE.FEED, SEND_TO_TYPE.CALENDAR].indexOf(type) < 0) {
       SA.initSendToTarget();
     }
+
     if (SA.options.attachmentType !== ATTACHMENT_TYPE.KC && SA.dialogEle.$canDownloadSwitch.length) {
       SA.options.node.allowDown = SA.dialogEle.$canDownloadSwitch.prop('checked');
     }
+
     // 将允许下载switch设为可更改
     SA.dialogEle.$canDownloadSwitch.attr('disabled', false);
     switch (type) {
@@ -775,6 +807,7 @@ ShareAttachment.prototype = {
           alert(_l('分享到消息文件不可设为不允许下载，已更改为允许下载'), 4);
           SA.dialogEle.$canDownloadSwitch.prop('checked', true);
         }
+
         SA.showFooter();
         $sendToOther.addClass('inited').removeClass('hide');
         $sendToContent.empty().append($('<input type="hidden" id="selectSendTo">'));
@@ -785,6 +818,7 @@ ShareAttachment.prototype = {
         });
         break;
       }
+
       case SEND_TO_TYPE.FEED: {
         $sendToContent.empty();
         var sObj = {
@@ -798,6 +832,7 @@ ShareAttachment.prototype = {
           if (SA.newFileName) {
             SA.options.node.originalFileName = SA.newFileName;
           }
+
           sObj.defaultAttachmentData = [SA.options.node];
         } else if (SA.options.attachmentType === ATTACHMENT_TYPE.KC) {
           sObj.defaultKcAttachmentData = [SA.options.node];
@@ -807,14 +842,18 @@ ShareAttachment.prototype = {
           if (SA.newFileName) {
             SA.options.node.originalFileName = SA.newFileName;
           }
+
           sObj.defaultAttachmentData = [SA.options.node];
         }
+
         if (shareDesc) {
           sObj.postMsg = shareDesc;
         }
+
         createFeed(sObj);
         break;
       }
+
       case SEND_TO_TYPE.TASK: {
         SA.showFooter();
         $sendToOther.addClass('inited').removeClass('hide');
@@ -827,11 +866,13 @@ ShareAttachment.prototype = {
         console.log('TASK');
         break;
       }
+
       case SEND_TO_TYPE.QR: {
         SA.sendToMobile(type);
         console.log('QR');
         break;
       }
+
       case SEND_TO_TYPE.CALENDAR: {
         $sendToContent.empty();
         var cObj = {
@@ -845,6 +886,7 @@ ShareAttachment.prototype = {
           if (SA.newFileName) {
             SA.options.node.originalFileName = SA.newFileName;
           }
+
           cObj.defaultAttachmentData = [SA.options.node];
         } else if (SA.options.attachmentType === ATTACHMENT_TYPE.KC) {
           cObj.defaultKcAttachmentData = [SA.options.node];
@@ -854,19 +896,24 @@ ShareAttachment.prototype = {
           if (SA.newFileName) {
             SA.options.node.originalFileName = SA.newFileName;
           }
+
           cObj.defaultAttachmentData = [SA.options.node];
         }
+
         if (shareDesc) {
           cObj.Message = shareDesc;
         }
+
         createCalendar(cObj);
         break;
       }
+
       case SEND_TO_TYPE.KC: {
         if (SA.options.attachmentType === ATTACHMENT_TYPE.KC && !SA.options.node.canDownload) {
           alert(_l('您权限不足，无法下载或保存，请联系管理员或文件上传者'), 3);
           return;
         }
+
         SA.showFooter();
         $sendToOther.addClass('inited').removeClass('hide');
         $sendToContent.empty();
@@ -881,6 +928,7 @@ ShareAttachment.prototype = {
         $sendToContent.find('.kcPath').trigger('click');
         break;
       }
+
       default: {
         break;
       }
@@ -922,6 +970,7 @@ ShareAttachment.prototype = {
             }
           });
         }
+
         path = path
           .split('/')
           .map(function (str) {
@@ -963,6 +1012,7 @@ ShareAttachment.prototype = {
             }
           });
         }
+
         break;
       case ATTACHMENT_TYPE.QINIU:
         file.qiniuPath = options.qiniuPath;
@@ -981,6 +1031,7 @@ ShareAttachment.prototype = {
       default:
         break;
     }
+
     SA.sendToMobileDialog = toMobileDailog({
       attachmentType: attachmentType,
       sendToType: sendToType,
@@ -999,12 +1050,14 @@ ShareAttachment.prototype = {
       allowDown = SA.dialogEle.$canDownloadSwitch.prop('checked');
       node.allowDown = SA.dialogEle.$canDownloadSwitch.prop('checked');
     }
+
     switch (SA.sendToTargetType) {
       case SEND_TO_TYPE.CHAT: {
         if (!SA.selectedChat) {
           alert(_l('请选择要发送到的聊天'), 3);
           return;
         }
+
         var CHAT_TYPE = {
           PERSON: 1,
           GROUP: 2,
@@ -1015,6 +1068,7 @@ ShareAttachment.prototype = {
           if (SA.newFileName) {
             node.originalFileName = SA.newFileName;
           }
+
           var key = node.filePath + node.fileName + node.fileExt;
           files = [
             {
@@ -1055,6 +1109,7 @@ ShareAttachment.prototype = {
           if (SA.newFileName) {
             originalFileName = SA.newFileName;
           }
+
           files = [
             {
               fileName: originalFileName + node.fileExt,
@@ -1106,6 +1161,7 @@ ShareAttachment.prototype = {
           params[selectedChatType === CHAT_TYPE.PERSON ? 'toAccountId' : 'toGroupId'] = (SA.selectedChat || {}).value;
           sendPromise = ChatController.sendCardToChat(params);
         }
+
         sendPromise
           .then(function () {
             alert(_l('发送成功'));
@@ -1118,14 +1174,17 @@ ShareAttachment.prototype = {
           });
         break;
       }
+
       case SEND_TO_TYPE.FEED: {
         SA.activeSendToOther(SEND_TO_TYPE.FEED);
         break;
       }
+
       case SEND_TO_TYPE.TASK: {
         if (!SA.selectedTask) {
           alert(_l('请选择要发送到的任务'), 3);
         }
+
         params = {
           sourceId: SA.selectedTask.taskID,
           appId: md.global.APPInfo.taskAppID,
@@ -1137,6 +1196,7 @@ ShareAttachment.prototype = {
           if (SA.newFileName) {
             node.originalFileName = SA.newFileName;
           }
+
           params.attachments = JSON.stringify([node]);
         } else if (attachmentType === ATTACHMENT_TYPE.KC) {
           params.knowledgeAtts = JSON.stringify([
@@ -1155,14 +1215,17 @@ ShareAttachment.prototype = {
           if (SA.newFileName) {
             node.originalFileName = SA.newFileName;
           }
+
           params.attachments = JSON.stringify([node]);
         }
+
         DiscussionController.addDiscussion(params)
           .then(function (data) {
             if (data.error) {
               alert(_l('分享失败'), 2);
               return;
             }
+
             alert(_l('分享成功'));
             if ($('.shareAttachmentDialog')[0]) {
               $('.shareAttachmentDialog').parent().remove();
@@ -1173,15 +1236,18 @@ ShareAttachment.prototype = {
           });
         break;
       }
+
       case SEND_TO_TYPE.CALENDAR: {
         SA.activeSendToOther(SEND_TO_TYPE.CALENDAR);
         break;
       }
+
       case SEND_TO_TYPE.KC: {
         if (!SA.kcPath) {
           alert(_l('请先选择文件夹'), 3);
           return;
         }
+
         var sourceData = {};
         sourceData.des = shareDesc;
         sourceData.allowDown = allowDown;
@@ -1199,6 +1265,7 @@ ShareAttachment.prototype = {
             sourceData.name = SA.newFileName;
           }
         }
+
         saveToKnowledge(attachmentType, sourceData)
           .save(SA.kcPath)
           .then(function () {
@@ -1211,6 +1278,7 @@ ShareAttachment.prototype = {
           });
         break;
       }
+
       default: {
         break;
       }
@@ -1267,6 +1335,7 @@ ShareAttachment.prototype = {
     } else if (SA.options.attachmentType === ATTACHMENT_TYPE.WORKSHEETROW) {
       fileIconClass = 'worksheetRecordIcon';
     }
+
     SA.dialogEle.$fileIcon.removeClass().addClass('fileIcon ' + fileIconClass);
     SA.dialogEle.$fileSize.text(formatFileSize(SA.file.size).replace(/ /g, ''));
   },
@@ -1296,6 +1365,7 @@ ShareAttachment.prototype = {
       alert(_l('名称不能包含以下字符：') + '\\ / : * ? " < > |', 3);
       return false;
     }
+
     return true;
   },
   updateVisibleType(visibleType, callback) {
@@ -1311,10 +1381,12 @@ ShareAttachment.prototype = {
           SA.options.node.isOpenShare = visibleType === NODE_VISIBLE_TYPE.PUBLIC;
           SA.loadDocIcon();
         }
+
         alert(_l('修改成功'));
         if (callback) {
           callback(parseInt(visibleType, 10));
         }
+
         if (SA.callbacks.performUpdateItem) {
           SA.callbacks.performUpdateItem(parseInt(visibleType, 10));
         }
@@ -1368,6 +1440,7 @@ ShareAttachment.prototype = {
     if (str.length > length) {
       str = str.substr(0, length) + (suffix || '...');
     }
+
     return str;
   },
   getExt: function (ext) {

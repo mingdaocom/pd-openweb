@@ -23,6 +23,7 @@ class DialogCreateAndEditPosition extends React.Component {
         this.setState({ submitLoading: false });
         return alert(_l('输入内容包含敏感词，请重新填写'), 3);
       }
+
       if (filed === 'edit') {
         jobAjax
           .editJobName({ jobName: jobName, projectId, jobId: currentPosition.jobId })
@@ -35,12 +36,14 @@ class DialogCreateAndEditPosition extends React.Component {
                 if (it.jobId === currentPosition.jobId) {
                   return { ...it, jobName };
                 }
+
                 return it;
               });
               this.props.updatePositionList(list);
             } else {
               alert(_l('修改失败'), 2);
             }
+
             this.props.onCancel();
             this.setState({ submitLoading: false });
           })
@@ -59,6 +62,7 @@ class DialogCreateAndEditPosition extends React.Component {
             } else {
               alert(_l('创建失败'), 2);
             }
+
             this.props.onCancel();
             this.setState({ submitLoading: false });
           })

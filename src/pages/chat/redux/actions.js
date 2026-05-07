@@ -48,6 +48,7 @@ export const updateSessionList = result => (dispatch, getState) => {
           adjust.push(item);
         }
       }
+
       // 计数
       if ('count' in result) {
         item.count = 'weak' in result ? item.count : (item.count || 0) + result.count;
@@ -67,6 +68,7 @@ export const updateSessionList = result => (dispatch, getState) => {
           }
         }
       }
+
       // 清除计数
       if ('clearCount' in result) {
         item.count = 0;
@@ -75,11 +77,13 @@ export const updateSessionList = result => (dispatch, getState) => {
           item.weak_count = 0;
         }
       }
+
       // 清除未读消息计数
       if ('messageCount' in result) {
         item.messageCount = 0;
         item.messageAtlist = [];
       }
+
       // 添加会话
       if ('addMsg' in result) {
         item.time = utils.formatMsgDate(dateConvertToUserZone(result.time || utils.getCurrentTime()));
@@ -93,8 +97,10 @@ export const updateSessionList = result => (dispatch, getState) => {
             n.isTop = false;
             delete n.isSession;
           }
+
           return n;
         });
+
         if (isSetTop) {
           dispatch({
             type: 'UPDATE_CURRENT_SESSION',
@@ -102,6 +108,7 @@ export const updateSessionList = result => (dispatch, getState) => {
           });
         }
       }
+
       // 设置 @ 消息
       if ('atlist' in result) {
         item.atlist = result.atlist;
@@ -111,17 +118,21 @@ export const updateSessionList = result => (dispatch, getState) => {
           // 如果是撤回的，必须得清空
           item.messageAtlist = [];
         }
+
         if (result.at_msg) {
           item.at_msg = result.at_msg;
         }
       }
+
       // 回复我
       if ('refer' in result) {
         item.refer = result.refer;
       }
+
       if ('reflist' in result) {
         item.reflist = result.reflist;
       }
+
       // 置顶
       if ('isTop' in result) {
         item.top_info = {
@@ -130,10 +141,12 @@ export const updateSessionList = result => (dispatch, getState) => {
         };
         adjust.push(item);
       }
+
       // 标记非好友，不能聊天
       if ('isContact' in result) {
         item.isContact = result.isContact;
       }
+
       // 系统消息
       if ('showBadge' in result) {
         item.showBadge = result.showBadge;
@@ -185,6 +198,7 @@ export const addSession = (result, id) => (dispatch, getState) => {
       msg: `${name}: ${result.msg.con}`,
       isPush: result.isPush,
     };
+
     if (session) {
       dispatch(updateSessionList(msg));
       return;
@@ -195,6 +209,7 @@ export const addSession = (result, id) => (dispatch, getState) => {
   if (!result.id) {
     result.isSession = false;
   }
+
   dispatch({
     type: 'ADD_SESSION',
     result: [result],
@@ -214,6 +229,7 @@ export const addGroupSession =
     //   return;
     // }
     const session = sessionList.filter(item => item.value == groupId)[0];
+
     if (session) {
       isOpen && dispatch(setCurrentSessionId(groupId));
     } else {
@@ -280,8 +296,21 @@ export const addUserSession =
     // if (utils.chatWindow.is(id)) {
     //   return;
     // }
-    const session = sessionList.filter(item => item.value == id)[0];
+    const session = sessionList.filter(item => item.value === id)[0];
+
     if (session) {
+      if (!_.get(session, 'top_info.isTop')) {
+        const list = sessionList.filter(item => item.value !== id);
+        const topIndex = _.findLastIndex(list, item => _.get(item, 'top_info.isTop') === true) + 1;
+
+        list.splice(topIndex, 0, session);
+
+        dispatch({
+          type: 'UPDATE_SESSION_LIST',
+          result: list,
+        });
+      }
+
       isOpen && dispatch(setCurrentSessionId(id));
       cb && cb();
     } else {
@@ -303,6 +332,7 @@ export const addUserSession =
             type: 1,
           });
         }
+
         cb && cb();
       } else {
         ajax
@@ -332,6 +362,7 @@ export const addUserSession =
                 type: 1,
               });
             }
+
             cb && cb();
           });
       }
@@ -348,6 +379,7 @@ export const addSysSession =
   (dispatch, getState) => {
     const { sessionList } = getState().chat;
     const session = sessionList.filter(item => item.value == id)[0];
+
     if (session) {
       dispatch(setCurrentSessionId(id));
     } else {
@@ -364,9 +396,11 @@ export const operate = status => (dispatch, getState) => {
   const { sessionList } = getState().chat;
   const { contact, isclose, isopen } = status;
   const session = sessionList.filter(item => item.value === contact.id)[0];
+
   if ('showBadge' in contact) {
     session.showBadge = contact.showBadge;
   }
+
   if (isclose) {
     // 关闭窗口
     dispatch(setNewCurrentSession({}));
@@ -422,12 +456,14 @@ export const setTop = message => (dispatch, getState) => {
   const session = sessionList.filter(item => item.value === message.value)[0];
   const isTop = message.top_info ? message.top_info.isTop : false;
   const time = message.top_info ? message.top_info.time : '';
+
   if (session) {
     const newCurrentSessionList = currentSessionList.map(item => {
       if (item.id === message.value) {
         item.isTop = isTop;
         delete item.isSession;
       }
+
       return item;
     });
     dispatch({
@@ -472,6 +508,7 @@ export const sessionRemoved = message => (dispatch, getState) => {
   if (value === currentSession.value) {
     dispatch(setNewCurrentSession({}));
   }
+
   utils.removeFlashTitle(value, sessionList);
 };
 
@@ -498,15 +535,19 @@ export const clearAllUnread = () => (dispatch, getState) => {
     if (item.count) {
       item.count = 0;
     }
+
     if (item.atlist && item.atlist.length) {
       item.atlist = [];
     }
+
     if (item.reflist && item.reflist.length) {
       item.reflist = [];
     }
+
     if (item.refer) {
       item.refer = null;
     }
+
     return item;
   });
   utils.removeFlashTitle('', newSessionList);
@@ -530,6 +571,7 @@ export const clearNotification = message => (dispatch, getState) => {
       result: Object.assign(currentSession, { count: 0 }),
     });
   }
+
   utils.removeFlashTitle(type, sessionList);
 };
 
@@ -540,9 +582,11 @@ export const clearNotification = message => (dispatch, getState) => {
 export const removedFromGroup = data => (dispatch, getState) => {
   const { currentSession } = getState().chat;
   const { id } = data;
+
   if (currentSession.value === id) {
     dispatch(setNewCurrentSession({}));
   }
+
   dispatch(removeCurrentSession(id));
   dispatch(removeSession(id));
   dispatch(removeMessages(id));
@@ -553,6 +597,7 @@ export const removedFromGroup = data => (dispatch, getState) => {
  */
 export const closeSessionPanel = () => (dispatch, getState) => {
   const { currentSession } = getState().chat;
+
   if (currentSession.value) {
     dispatch(setNewCurrentSession({}));
     socket.Contact.recordAction({ id: '' });
@@ -607,12 +652,14 @@ export const addCurrentSession = result => (dispatch, getState) => {
     dispatch(removeCurrentSession(id));
     dispatch(removeMessages(id));
   }
+
   const session = _.filter(sessionList, { value: result.id })[0];
   const isTop = session.top_info ? session.top_info.isTop : false;
   result.isTop = isTop;
   if ('isSession' in session) {
     result.isSession = session.isSession;
   }
+
   dispatch({
     type: 'ADD_CURRENT_SESSION',
     result,
@@ -625,10 +672,12 @@ export const addCurrentSession = result => (dispatch, getState) => {
  */
 export const addCurrentInbox = result => (dispatch, getState) => {
   const { currentInboxList = [] } = getState().chat;
+
   if (currentInboxList.length >= 3) {
     const { id } = currentInboxList[0];
     dispatch(removeCurrentInbox(id));
   }
+
   result.requestNow = Date.now();
   dispatch({
     type: 'ADD_INBOX_SESSION',
@@ -683,12 +732,14 @@ export const resetGroupName = (groupId, name) => (dispatch, getState) => {
     if (item.id === groupId) {
       item.name = name;
     }
+
     return item;
   });
   const newSessionList = sessionList.map(item => {
     if (item.value === groupId) {
       item.name = name;
     }
+
     return item;
   });
   dispatch({
@@ -713,6 +764,7 @@ export const resetGroupIsPost = (groupId, projectId) => (dispatch, getState) => 
       item.isPost = true;
       item.project = projectId ? _.find(md.global.Account.projects, { projectId }) : undefined;
     }
+
     return item;
   });
   const newSessionList = sessionList.map(item => {
@@ -720,6 +772,7 @@ export const resetGroupIsPost = (groupId, projectId) => (dispatch, getState) => 
       item.isPost = true;
       item.project = projectId ? _.find(md.global.Account.projects, { projectId }) : undefined;
     }
+
     return item;
   });
   dispatch({
@@ -743,6 +796,7 @@ export const updateGroupAvatar = (groupId, avatar) => (dispatch, getState) => {
     if (item.value === groupId) {
       item.logo = avatar;
     }
+
     return item;
   });
   dispatch({
@@ -762,6 +816,7 @@ export const updateGroupAbout = (groupId, about) => (dispatch, getState) => {
     if (item.id === groupId) {
       item.about = about;
     }
+
     return item;
   });
   dispatch({
@@ -781,12 +836,14 @@ export const updateGroupPushNotice = (groupId, isPushNotice) => (dispatch, getSt
     if (item.id === groupId) {
       item.isPushNotice = isPushNotice;
     }
+
     return item;
   });
   const newSessionList = sessionList.map(item => {
     if (item.value === groupId) {
       item.isPush = isPushNotice;
     }
+
     return item;
   });
 
@@ -811,6 +868,7 @@ export const updateForbIdInvite = (groupId, isForbidInvite) => (dispatch, getSta
     if (item.id === groupId) {
       item.isForbidInvite = isForbidInvite;
     }
+
     return item;
   });
   dispatch({
@@ -830,6 +888,7 @@ export const updateVerify = (groupId, isVerified) => (dispatch, getState) => {
     if (item.id === groupId) {
       item.isVerified = isVerified;
     }
+
     return item;
   });
   dispatch({
@@ -849,6 +908,7 @@ export const updateAdmin = (groupId, isAdmin) => (dispatch, getState) => {
     if (item.id === groupId) {
       item.isAdmin = isAdmin;
     }
+
     return item;
   });
   dispatch({
@@ -869,8 +929,10 @@ export const updateMember = (groupId, count) => (dispatch, getState) => {
     if (item.id === groupId) {
       item.groupMemberCount = item.groupMemberCount + count;
     }
+
     return item;
   });
+
   if (iconType) {
     currentSession.isRender = false;
     dispatch({
@@ -878,6 +940,7 @@ export const updateMember = (groupId, count) => (dispatch, getState) => {
       result: currentSession,
     });
   }
+
   dispatch({
     type: 'UPDATE_CURRENT_SESSION',
     result: newCurrentSessionList,
@@ -1055,6 +1118,7 @@ export const updateMessage = message => (dispatch, getState) => {
         if (socket && socket.time) {
           item.timestamp = utils.formatMsgDate(dateConvertToUserZone(socket.time));
         }
+
         // 引用消息
         if (item.refer) {
           const { referMessage } = message;
@@ -1073,17 +1137,20 @@ export const updateMessage = message => (dispatch, getState) => {
           };
           // item.refer = message.refer;
         }
+
         // 转成系统消息
         if ('isContact' in message) {
           item.sysType = Constant.MSGTYPE_SYSTEM_ERROR;
           item.msg = { con: '' };
           item.isContact = false;
         }
+
         // 图片消息，替换 url
         if (socket && socket.msg.files) {
           item.msg.files.url = socket.msg.files.url;
         }
       }
+
       return item;
     });
   dispatch({
@@ -1105,6 +1172,7 @@ export const updateFileMessage = (newMessage, to) => (dispatch, getState) => {
     if (item.id === id) {
       return newMessage;
     }
+
     return item;
   });
   dispatch({
@@ -1135,11 +1203,13 @@ export const updateWithdrawMessage = (id, newMessage) => (dispatch, getState) =>
       if (item.from === md.global.Account.accountId && !item.msg.oldCon) {
         item.msg.oldCon = item.msg.con;
       }
+
       item.msg.con = msg.con;
       if (nextMessage) {
         nextMessage.isDuplicated = false;
       }
     }
+
     // 引用的消息被撤回了
     if (item.refer && item.refer.msgid == messageId) {
       item.refer.iswd = true;
@@ -1155,6 +1225,7 @@ export const updateWithdrawMessage = (id, newMessage) => (dispatch, getState) =>
         nextMessage.isDuplicated = false;
       }
     }
+
     // 引用的消息被撤回了
     if (item.refer && item.refer.msgid == messageId) {
       item.refer.iswd = true;
@@ -1185,6 +1256,7 @@ export const receiveMessage = (id, message) => (dispatch, getState) => {
   const { messages } = getState().chat;
   const currentMessage = messages[id];
   const unnecessary = _.findIndex(currentMessage, { id: message.id }) === -1 ? false : true;
+
   if (currentMessage && !unnecessary) {
     const prevMessage = currentMessage[currentMessage.length - 1];
     message = utils.formatNewMessage(message, prevMessage);
@@ -1196,10 +1268,12 @@ export const receiveMessage = (id, message) => (dispatch, getState) => {
     ) {
       return;
     }
+
     const isGroup = 'groupname' in message;
     const sessionId = isGroup ? message.to : message.isMine ? message.to : message.from;
     const bottom = $(`#ChatPanel-${sessionId}`).data('isBottom');
     const isBottom = bottom == undefined ? true : bottom;
+
     if (!message.isMine && !isBottom) {
       dispatch(addBottomUnreadMessage(sessionId, message));
       return;
@@ -1208,6 +1282,7 @@ export const receiveMessage = (id, message) => (dispatch, getState) => {
         utils.scrollEnd(message.to, true);
       }, 100);
     }
+
     dispatch({
       type: 'ADD_MESSAGE',
       id,
@@ -1223,6 +1298,7 @@ export const receiveMessage = (id, message) => (dispatch, getState) => {
 export const newNotifyMessage = message => (dispatch, getState) => {
   const { currentSession, sessionList } = getState().chat;
   const showBadge = [0, 1].includes(message.type) ? message.type + 1 : 0;
+
   switch (message.dtype) {
     case 0:
       message.id = 'post';
@@ -1302,9 +1378,11 @@ export const newUserMessage = message => (dispatch, getState) => {
   const isSelf = md.global.Account.accountId === message.from;
   const result = sessionList.filter(item => item.value === id);
   const isWindowSession = utils.chatWindow.is(id);
+
   if (isWindow && !result.length) {
     return;
   }
+
   if (result.length) {
     const name = isSelf ? _l('我') : message.uname;
     const count = isWindowSession ? 0 : currentSession.value === id || isSelf ? 0 : 1;
@@ -1360,6 +1438,7 @@ export const newUserMessage = message => (dispatch, getState) => {
 export const userShake = message => (dispatch, getState) => {
   const addShakeMessage = () => {
     const { currentSession, messages } = getState().chat;
+
     if (currentSession.value === message.aid) {
       const currentMessages = messages[message.aid] || [];
       const sendMsg = {
@@ -1384,6 +1463,7 @@ export const userShake = message => (dispatch, getState) => {
     addUserSession(message.aid, {}, true, () => {
       const { currentSessionList } = getState().chat;
       const session = currentSessionList.filter(item => item.id == message.aid)[0];
+
       if (session) {
         addShakeMessage();
       } else {
@@ -1401,7 +1481,7 @@ export const newGroup = message => dispatch => {
   const { admins } = message;
   const index = _.findIndex(admins, { aid: md.global.Account.accountId });
   const isSelf = index === -1 ? false : true;
-  const s = $('#easyDialogBoxMDUpdater_container').size() ? true : false;
+  const s = !!$('#easyDialogBoxMDUpdater_container').length;
   // message.uCount 1 -> 群组
   // message.uCount 2 -> 聊天
   dispatch(
@@ -1477,6 +1557,7 @@ export const groupShake = message => (dispatch, getState) => {
   const session = sessionList.filter(item => item.value === message.gid)[0];
   const isWindowSession = utils.chatWindow.is(message.gid);
   const { msg } = message;
+
   if (currentSession.value === message.gid) {
     utils.shake(message.gid);
   } else {
@@ -1562,6 +1643,7 @@ export const setReferMessage = (id, message) => {
 export const addBottomUnreadMessage = (id, message) => (dispatch, getState) => {
   const { bottomUnreadMessage } = getState().chat;
   const currentMessage = bottomUnreadMessage[id];
+
   if (currentMessage) {
     dispatch({
       type: 'ADD_BOTTOM_UNREAD_MESSAGE',
@@ -1666,9 +1748,11 @@ export const refresh = () => (dispatch, getState) => {
           }
         });
         const newCurrentSessionList = currentSessionList.filter(item => item.id === id)[0];
+
         if (!newCurrentSessionList) {
           return;
         }
+
         const { isGroup } = newCurrentSessionList;
         ajax
           .getMessage({
@@ -1732,6 +1816,7 @@ export const setSlience = message => (dispatch, getState) => {
       item.isSilent = isSilent;
       item.showBadge = showBadge;
     }
+
     return item;
   });
   const newSessionList = sessionList.map(item => {
@@ -1739,6 +1824,7 @@ export const setSlience = message => (dispatch, getState) => {
       item.isSilent = isSilent;
       item.showBadge = showBadge;
     }
+
     return item;
   });
   dispatch({

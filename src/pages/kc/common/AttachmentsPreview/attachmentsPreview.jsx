@@ -60,6 +60,7 @@ class AttachmentsPreview extends React.Component {
         fn: this.props.onClose,
       };
     }
+
     setTimeout(
       () =>
         this.setState({
@@ -104,20 +105,24 @@ class AttachmentsPreview extends React.Component {
         return;
       }
     }
+
     if (evt.keyCode === 27 && this.props.fullscreen) {
       // 全屏处理
       this.props.actions.toggleFullScreen();
     }
+
     if (evt.keyCode === 37) {
       if (this.btnPrev) {
         this.btnPrev.click();
       }
     }
+
     if (evt.keyCode === 39) {
       if (this.btnNext) {
         this.btnNext.click();
       }
     }
+
     if (evt.keyCode === 38 || evt.keyCode === 40) {
       evt.preventDefault();
     }
@@ -149,6 +154,7 @@ class AttachmentsPreview extends React.Component {
     if (!this.props.attachments.length) {
       return <LoadDiv />;
     }
+
     const {
       isShare,
       attachments,
@@ -352,6 +358,7 @@ class AttachmentsPreview extends React.Component {
                     </div>
                   );
                 }
+
                 switch (previewType) {
                   case PREVIEW_TYPE.PICTURE: {
                     return (
@@ -377,6 +384,7 @@ class AttachmentsPreview extends React.Component {
                       />
                     );
                   }
+
                   case PREVIEW_TYPE.IFRAME:
                     {
                       /*if ((ext || '').toLocaleLowerCase() === 'pdf' && !window.isDingTalk && previewService !== 'wps') {

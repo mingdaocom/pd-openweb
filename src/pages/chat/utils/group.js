@@ -29,8 +29,10 @@ export const addGroupMembers = session => {
   const callback = userlist => {
     const accountIds = [];
     const users = [];
+
     for (let i = 0; i < userlist.length; i++) {
       const accountId = userlist[i].accountId;
+
       // 过滤自己和当前用户
       if (accountId !== current.accountId || accountId !== id) {
         // id数组，ajax请求的参数
@@ -99,9 +101,11 @@ export const addGroupMembers = session => {
 export const createDiscussion = (accountid, cb) => {
   const current = md.global.Account;
   const filterList = [current.accountId];
+
   if (accountid) {
     filterList.push(accountid);
   }
+
   showInviteBox({
     sourceId: current.accountId,
     fromType: 0,
@@ -111,6 +115,7 @@ export const createDiscussion = (accountid, cb) => {
         cb && cb(accounts, false);
         return false;
       }
+
       const accountIds = [];
       accounts.map(account => {
         if (account.accountId !== md.global.Account.accountId || account.accountId !== accountid) {

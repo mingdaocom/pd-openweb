@@ -270,6 +270,7 @@ export default function AppAccess(props) {
       alert(_l('最多创建10个策略'), 2);
       return;
     }
+
     setState({ showAddEditDialog: true, actionType: 'add' });
   };
 

@@ -22,6 +22,7 @@ export default class CalendarEntrypoint extends Component {
 
     let promise;
     const lang = getCookie('i18n_langtag') || md.global.Config.DefaultLang;
+
     if (lang === 'zh-Hant') {
       promise = import('./modules/calendarControl/lang/zh-tw');
     } else if (lang === 'ja') {
@@ -31,6 +32,7 @@ export default class CalendarEntrypoint extends Component {
     } else {
       promise = Promise.resolve();
     }
+
     if (promise) {
       promise.then(() => toolBar.init());
     }

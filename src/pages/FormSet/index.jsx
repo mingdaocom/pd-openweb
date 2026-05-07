@@ -101,6 +101,7 @@ class FormSet extends React.Component {
         });
       },
     };
+
     switch (type) {
       case 'alias':
         return <Alias {...param} />;
@@ -131,9 +132,11 @@ class FormSet extends React.Component {
     const { match = { params: {} } } = this.props;
     const { worksheetId, type = '' } = match.params;
     const { loading, noRight = false, worksheetName, worksheetInfo } = this.state;
+
     if (loading) {
       return <LoadDiv />;
     }
+
     return (
       <div className="columnRulesWrap">
         <Header
@@ -146,6 +149,7 @@ class FormSet extends React.Component {
               redirectfn();
               return;
             }
+
             navigateToApp(worksheetId);
           }}
           onClose={() => navigateToApp(worksheetId)}

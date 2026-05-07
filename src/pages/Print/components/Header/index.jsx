@@ -3,6 +3,7 @@ import cx from 'classnames';
 import { saveAs } from 'file-saver';
 import html2canvas from 'html2canvas';
 import { Icon, LoadDiv } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { addBehaviorLog } from 'src/utils/project';
 import { fromType, typeForCon } from '../../core/config';
 import './index.less';
@@ -83,6 +84,7 @@ class Header extends React.Component {
               isTainted = true;
             }
           }
+
           let imgEle = document.createElement('img');
           imgEle.src = dataUrl;
           imgEle.width = 400;
@@ -100,6 +102,7 @@ class Header extends React.Component {
         if (isTainted) {
           alert(_l('检测到跨域附件，已跳过导出，可在记录中直接下载'), 3);
         }
+
         let content = (contentNode.innerHTML || '')
           // 导出word只支持旧属性，浏览器自动将旧属性转成新属性，需要手动转回来
           .replace(/break-before:\s*page/gi, 'page-break-before: always')
@@ -147,9 +150,9 @@ class Header extends React.Component {
 
   handlePrint = () => {
     const { params } = this.props;
-    const { printId, worksheetId, rowId } = params;
+    const { printId, worksheetId, rowIds } = params;
 
-    addBehaviorLog('printRecord', worksheetId, { printId, rowId }); // 埋点
+    addBehaviorLog('printRecord', worksheetId, { printId, rowId: rowIds?.join(',') }); // 埋点
 
     if (window.isSafari) {
       const printContentHtml = document.querySelector('.printItemsBox').outerHTML;
@@ -168,6 +171,7 @@ class Header extends React.Component {
             document.body.removeChild(printFrame);
           }
         };
+
         const mediaQueryList = window.frames[printFrame.name].matchMedia('print');
         mediaQueryList.addListener(mediaQueryCallback);
         window.frames[printFrame.name].focus();
@@ -183,6 +187,10 @@ class Header extends React.Component {
     window.print();
   };
 
+  changeToOldPrint = () => {
+    window.location.href = window.location.href.replace('printForm', 'printFormOld');
+  };
+
   render() {
     const {
       params,
@@ -195,10 +203,12 @@ class Header extends React.Component {
       isHaveCharge,
       pagesInfo,
       showPrintAndSaveButtons,
+      rowIds,
     } = this.props;
     const { type, from, isDefault, fileTypeNum } = params;
     const { isEdit, exportLoading } = this.state;
     const allowDown = isHaveCharge || !printData.allowDownloadPermission;
+    const hasPrintFormBatch = window.location.pathname.includes('printForm');
 
     return (
       <div className={cx('headerBox textPrimary', { flexCenter: type === typeForCon.PREVIEW })}>
@@ -269,6 +279,7 @@ class Header extends React.Component {
                           alert(_l('请输入模板名称'), 3);
                           return;
                         }
+
                         saveFn();
                       }}
                     >
@@ -293,17 +304,34 @@ class Header extends React.Component {
               )}
               {showPrintAndSaveButtons && (
                 <div className="Right">
+                  {rowIds.length === 1 && hasPrintFormBatch && (
+                    <div className="InlineBlock textSecondary">
+                      <span className="Hand" onClick={this.changeToOldPrint}>
+                        {_l('切换旧版')}
+                      </span>
+                      <Tooltip
+                        title={
+                          <div>
+                            <div>{_l('本次更新优化了打印模板的数据获取方式。')}</div>
+                            <div>{_l('如遇异常，可切换到旧版继续使用。')}</div>
+                          </div>
+                        }
+                      >
+                        <Icon icon="help" className="Font15 mLeft5 textTertiary ThemeHoverColor3" />
+                      </Tooltip>
+                    </div>
+                  )}
                   {type === typeForCon.PREVIEW &&
                     isDefault &&
                     allowDown &&
                     (exportLoading ? (
-                      <div className="InlineBlock textSecondary">
+                      <div className="InlineBlock textSecondary mLeft10">
                         <LoadDiv size="small" className="mRight5 InlineBlock" />
                         {_l('正在导出')}
                       </div>
                     ) : (
                       <div
-                        className="exportForWord InlineBlock textSecondary Hand"
+                        className="exportForWord InlineBlock textSecondary Hand mLeft10"
                         onClick={() => this.setState({ exportLoading: true }, this.exportWord)}
                       >
                         <i className="icon-download textTertiary mRight3 TxtMiddle Font15"></i>

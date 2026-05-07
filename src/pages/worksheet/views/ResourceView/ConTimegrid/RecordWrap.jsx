@@ -57,6 +57,7 @@ export default function RecordWrap(props) {
       });
     }
   };
+
   const renderContent = () => {
     const { view, viewId, fetchRowsByGroupId, controls } = props;
     const dateStart = controls.find(o => o.controlId === _.get(view, 'advancedSetting.begindate'));

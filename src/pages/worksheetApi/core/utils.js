@@ -28,6 +28,7 @@ const getSpecialValue = filterItem => {
   const { dataType, filterType, values = [] } = filterItem;
   let isSpecialValue = false;
   let specialValues = null;
+
   switch (dataType) {
     case 6: // 数字
     case 8: // 金额
@@ -73,6 +74,7 @@ export const formatFilters = filters => {
         const childGroup = formatFilters(filterItem.groupFilters);
         data.children.push(childGroup);
       }
+
       return;
     }
 

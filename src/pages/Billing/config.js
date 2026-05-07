@@ -1,4 +1,10 @@
-// 开发商类型常量 0, 1, 2, 3, 100
+// AI 模型模式：1-语言模型(对话)，2-嵌入模型
+export const AI_MODEL_MODE = {
+  CHAT: 1,
+  EMBEDDING: 2,
+};
+
+// 开发商类型常量
 export const DEVELOPER_TYPE = {
   OPENAI: 1,
   QWEN: 2,

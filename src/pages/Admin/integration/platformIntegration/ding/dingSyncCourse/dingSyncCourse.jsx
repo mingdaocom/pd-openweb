@@ -66,9 +66,11 @@ export default class DingSyncCourse extends React.Component {
   componentDidMount() {
     $('html').addClass('dingSyncBox');
     let match = this.props.match;
+
     if (!match.params.projectId) {
       return;
     }
+
     this.setState(
       {
         addApp: match.url.indexOf('dingAppCourse') >= 0,
@@ -361,7 +363,13 @@ export default class DingSyncCourse extends React.Component {
             </p>
             <img src={imgPng4_2} alt={_l('完善接口信息')} />
             <img src={imgPng4_3} alt={_l('完善接口信息')} />
-            <p className="Font14 textSecondary mTop24 LineHeight22">{_l('首页可以找到CorpId，填入对应输入框内')}</p>
+
+            <p className="Font14 textSecondary mTop24 LineHeight22">
+              {!window.platformENV.isOverseas && !window.platformENV.isLocal
+                ? _l('首页可以找到CorpId，填入明道云对应输入框内')
+                : _l('首页可以找到CorpId，填入对应输入框内')}
+            </p>
+
             <img src={imgPng4_4} alt={_l('完善接口信息')} />
             <h3 className="Font18 textPrimary mTop40">{_l('4.申请开通企业通讯录权限')}</h3>
             <p className="Font14 textSecondary mTop24 LineHeight22">
@@ -465,6 +473,7 @@ export default class DingSyncCourse extends React.Component {
         </div>
       );
     }
+
     if (this.state.isWX && !window.platformENV.isOverseas && !window.platformENV.isLocal) {
       return (
         <div className="wechartWork card TxtCenter">
@@ -490,6 +499,7 @@ export default class DingSyncCourse extends React.Component {
         </div>
       );
     }
+
     return (
       <div className="dingSyncCourseWrap">
         <div className="courseBox card">

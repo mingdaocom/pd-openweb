@@ -68,6 +68,7 @@ class CircleProgress extends Component {
     setTimeout(() => {
       const { diameter, percent } = this.props;
       const len = Math.PI * diameter;
+
       if (this._circlePath && this._circlePath.style) {
         this._circlePath.style.strokeDashoffset = `${len - (percent / 100) * len}px`;
       }

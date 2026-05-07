@@ -108,6 +108,7 @@ const SearchRecord = props => {
       onClose();
       setSearchRecord(null);
     }
+
     setOpen(true);
   };
 

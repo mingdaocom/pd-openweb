@@ -48,6 +48,7 @@ export default class Back extends Component {
   }
   render() {
     const { pc_slide = '' } = getRequest();
+
     // 钉钉、企微、飞书客户端内在侧边栏打开记录详情时，显示返回按钮
     if (
       (window.isDingTalk || window.isWxWork || window.isFeiShu) &&
@@ -55,6 +56,7 @@ export default class Back extends Component {
     ) {
       return this.renderContent();
     }
+
     return null;
   }
 }

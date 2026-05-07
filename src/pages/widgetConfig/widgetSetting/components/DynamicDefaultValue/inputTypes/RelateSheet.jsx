@@ -18,22 +18,30 @@ export default class RelateSheet extends Component {
   handleClick = () => {
     const { data, onDynamicValueChange, dynamicValue = [] } = this.props;
     const titleControl = _.find(data.relationControls || [], re => re.attribute === 1);
+
     if (!data.dataSource) {
       alert(_l('请先配置关联表'), 3);
       return;
     }
+
     const multiple = data.enumDefault === 2;
     const filterRowIds = dynamicValue.reduce((total, item) => {
       if (!item.cid) {
         total = total.concat(this.getRowId(item.staticValue));
       }
+
       return total;
     }, []);
     selectRecords({
+      control: {
+        ...data,
+      },
       visible: true,
       allowNewRecord: false,
       multiple,
       filterRowIds,
+      controlId: data.controlId,
+      parentWorksheetId: _.get(this.props, 'globalSheetInfo.worksheetId'),
       worksheetId: data.dataSource,
       projectId: _.get(this.props, 'globalSheetInfo.projectId'),
       onClose: () => this.setState({ recordListVisible: false }),
@@ -46,6 +54,7 @@ export default class RelateSheet extends Component {
             relateSheetName: getCurrentValue(titleControl, item[titleControl.controlId], { type: 2 }) || '未命名',
           };
         });
+
         if (multiple) {
           const filterDynamicValue = (dynamicValue || []).filter(i => i.staticValue);
           onDynamicValueChange(filterDynamicValue.concat(newValue));

@@ -94,6 +94,8 @@ export default {
    * @param {string} args.worksheetId WorksheetId
    * @param {array} args.messageList 消息列表
    * @param {} args.langType
+   * @param {boolean} args.includeUsers 是否包含用户
+   * @param {boolean} args.includeFiles 是否包含附件
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -115,6 +117,19 @@ export default {
    **/
   generateRecordByAI: function (args, options = {}) {
     return mdyAPI('sse/Mingo', 'GenerateRecordByAI', args, options);
+  },
+  /**
+   * AI优化应用信息
+   * @param {Object} args 请求参数
+   * @param {string} args.appId Appid
+   * @param {integer} args.optimizeType 0全部 1优化应用名称项 2优化应用项图标
+   * @param {array} args.messageList 消息列表
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  optimizeAppInfo: function (args, options = {}) {
+    return mdyAPI('sse/Mingo', 'OptimizeAppInfo', args, options);
   },
   /**
    * AI生成智能体提示词

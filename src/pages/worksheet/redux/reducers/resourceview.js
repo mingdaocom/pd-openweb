@@ -51,6 +51,7 @@ export function timeList(state = [], action) {
       return state;
   }
 }
+
 export function gridTimes(state = [], action) {
   switch (action.type) {
     case 'CHANGE_RESOURCE_TIME_LIST_A':

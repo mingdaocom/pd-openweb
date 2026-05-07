@@ -81,6 +81,7 @@ export default function EditProtect(props) {
               buriedUpgradeVersionDialog(projectId, VersionProductType.editProtect);
               return;
             }
+
             onEditSetting(
               lock.isopen === '1'
                 ? { isopen: '0' }

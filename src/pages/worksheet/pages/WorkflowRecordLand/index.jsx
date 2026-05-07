@@ -26,7 +26,11 @@ export default function WorkflowRecordLand(props) {
         isLand
         id={id}
         workId={workId}
-        onClose={() => {
+        onClose={isError => {
+          if (isError) {
+            return;
+          }
+
           setTimeout(() => {
             location.reload();
           }, 1000);

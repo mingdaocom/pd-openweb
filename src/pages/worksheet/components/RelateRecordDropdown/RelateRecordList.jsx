@@ -50,6 +50,7 @@ export default class RelateRecordList extends React.PureComponent {
 
   componentDidMount() {
     const { control, parentWorksheetId } = this.props;
+
     if (control) {
       (window.isPublicWorksheet && !_.get(window, 'shareState.isPublicWorkflowRecord')
         ? publicWorksheetAjax
@@ -93,6 +94,7 @@ export default class RelateRecordList extends React.PureComponent {
   handleEnter = () => {
     const { allowNewRecord, onItemClick, onNewRecord } = this.props;
     const { error, activeId, records, allowAdd } = this.state;
+
     if (
       records.length === 0 &&
       allowNewRecord &&
@@ -103,7 +105,9 @@ export default class RelateRecordList extends React.PureComponent {
       onNewRecord();
       return;
     }
+
     const newActiveRecord = _.find(records, { rowid: activeId });
+
     if (newActiveRecord) {
       onItemClick(newActiveRecord);
     }
@@ -111,14 +115,17 @@ export default class RelateRecordList extends React.PureComponent {
 
   handleUpdateScroll(newIndex) {
     let itemHeight = 34;
+
     try {
       itemHeight = this.con.current.querySelector(`.RelateRecordListItem:nth-child(${newIndex})`).offsetHeight;
     } catch (err) {
       console.log(err);
     }
+
     const scrollInfo = this.scrollViewRef.getScrollInfo() || {};
     const height = scrollInfo.clientHeight;
     const scrollTop = scrollInfo.scrollTop;
+
     if (itemHeight * newIndex - scrollTop > height - 20) {
       this.scrollViewRef.scrollTo({ top: itemHeight * newIndex - height + itemHeight });
     } else if (itemHeight * newIndex < scrollTop) {
@@ -129,19 +136,23 @@ export default class RelateRecordList extends React.PureComponent {
   updateActiveId = offset => {
     const { activeId, records } = this.state;
     let currentIndex;
+
     if (!activeId) {
       currentIndex = -1;
     } else {
       currentIndex = _.findIndex(records, { rowid: activeId });
     }
+
     if (_.isUndefined(currentIndex)) {
       currentIndex = -1;
     }
+
     const newActiveRecord = records[currentIndex + offset];
     this.handleUpdateScroll(currentIndex + offset);
     if (!newActiveRecord) {
       return;
     }
+
     const newActiveId = newActiveRecord.rowid;
     this.setState({
       activeId: newActiveId,
@@ -168,26 +179,34 @@ export default class RelateRecordList extends React.PureComponent {
       ignoreRowIds = [],
     } = this.props;
     const _this = this;
+
     if (!_.isEmpty(staticRecords)) {
       return;
     }
+
     const { pageIndex, keyWords, records, worksheetInfo, ignoreAllFilters } = this.state;
+
     if (_.get(control, 'advancedSetting.clicksearch') === '1' && !keyWords) {
       this.setState({ loading: false, records: [] });
       return;
     }
+
     let filterControls;
+
     if (!_.isEmpty(_.get(worksheetInfo, 'template.controls'))) {
       control.relationControls = worksheetInfo.template.controls;
     }
+
     if (control && control.advancedSetting.filters) {
       filterControls = getFilter({ control, formData, appId });
     }
+
     // 存在不符合条件值的条件
     if (filterControls === false && !isQuickFilter && !ignoreAllFilters) {
       this.setState({ error: 'notCorrectCondition', loading: false });
       return;
     }
+
     this.setState({
       loading: true,
     });
@@ -205,11 +224,13 @@ export default class RelateRecordList extends React.PureComponent {
       filterControls: ignoreAllFilters ? [] : filterControls || [],
       rowId: !isSubList ? get(control, 'recordId') : undefined,
     };
+
     if (!isEmpty(ignoreRowIds)) {
       args.requestParams = {
         _system_excluderowids: JSON.stringify(ignoreRowIds),
       };
     }
+
     if (fastSearchControlArgs) {
       delete args['keyWords'];
       if (String(keyWords || '').trim()) {
@@ -232,38 +253,46 @@ export default class RelateRecordList extends React.PureComponent {
         ];
       }
     }
+
     if (parentWorksheetId && controlId && _.get(parentWorksheetId, 'length') === 24) {
       args.relationWorksheetId = parentWorksheetId;
       args.controlId = controlId;
     }
+
     if (this.searchAjax && _.isFunction(this.searchAjax.abort)) {
       this.searchAjax.abort();
     }
+
     if (!window.isPublicWorksheet) {
       getFilterRowsPromise = sheetAjax.chooseRelationRows;
     } else {
       args.shareId = window.publicWorksheetShareId;
       getFilterRowsPromise = publicWorksheetAjax.getRelationRows;
     }
+
     this.searchAjax = getFilterRowsPromise(args);
     this.searchAjax
       .then(res => {
         if (res.resultCode === 1) {
           let ignoreRowIdsForChildTable = [];
+
           if (_.get(res, 'template.controls')) {
             const appId = _.get(window, 'appInfo.id');
             res.template.controls = replaceControlsTranslateInfo(appId, res.worksheetId, res.template.controls);
           }
+
           if (control.unique || control.uniqueInRecord) {
             ignoreRowIdsForChildTable = (_.get(_this, 'context.rows') || [])
               .map(r => _.get(safeParse(r[control.controlId], 'array'), '0.sid'))
               .filter(_.identity);
           }
+
           let newRecords = records.concat(
             res.data.filter(row => row.rowid !== recordId && !_.includes(ignoreRowIdsForChildTable, row.rowid)),
           );
           const needSort =
             keyWords && pageIndex === 1 && _.get(control, 'advancedSetting.searchcontrol') && searchControl;
+
           if (
             needSort &&
             _.get(control, 'advancedSetting.searchtype') !== '1' &&
@@ -274,12 +303,15 @@ export default class RelateRecordList extends React.PureComponent {
               if (a[searchControl.controlId] === keyWords) {
                 return -1;
               }
+
               if (b[searchControl.controlId] === keyWords) {
                 return 1;
               }
+
               return 0;
             });
           }
+
           this.setState({
             error: undefined,
             records: newRecords,
@@ -306,12 +338,14 @@ export default class RelateRecordList extends React.PureComponent {
 
   handleSearch = value => {
     const { staticRecords } = this.props;
+
     if (!_.isEmpty(staticRecords)) {
       this.setState({
         keyWords: value.trim(),
       });
       return;
     }
+
     this.setState(
       {
         keyWords: value.trim(),
@@ -363,16 +397,19 @@ export default class RelateRecordList extends React.PureComponent {
       allowAdd &&
       !(_.get(window, 'shareState.isPublicFormPreview') || _.get(window, 'shareState.isPublicForm'));
     let records = (loading ? [] : prefixRecords).concat(this.state.records);
+
     if (!_.isEmpty(staticRecords) && keyWords) {
       records = _.filter(staticRecords, row => new RegExp(keyWords, 'i').test(row.name));
     }
-    if (_.get(control, 'advancedSetting.clicksearch') === '1' && !keyWords) {
-      return null;
-    }
+
+    // if (_.get(control, 'advancedSetting.clicksearch') === '1' && !keyWords) {
+    //   return null;
+    // }
     const createRecordName =
       getTranslateInfo(appId, null, control.dataSource).createBtnName || _.get(worksheet, 'advancedSetting.btnname');
     const recordItemHeight = showCoverAndControls && showControls.length ? 56 : 36;
     let recordListHeight = records.length * recordItemHeight + 12;
+
     if (maxHeight) {
       recordListHeight = maxHeight - 48 - 10;
     }

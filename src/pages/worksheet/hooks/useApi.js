@@ -10,6 +10,7 @@ export default function useApi(fetchFn, args, fakeData) {
       setLoading(false);
       return;
     }
+
     fetchFn(args)
       .then(resData => {
         setData(resData);

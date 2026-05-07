@@ -3,12 +3,15 @@ import { withRouter } from 'react-router-dom';
 import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
-import { Icon, LoadDiv, Switch } from 'ming-ui';
+import { Dialog, Icon, LoadDiv, Switch } from 'ming-ui';
 import merchantInvoiceApi from 'src/api/merchantInvoice';
 import orderController from 'src/api/order';
 import paymentAjax from 'src/api/payment';
 import projectAjax from 'src/api/project';
 import projectSetting from 'src/api/projectSetting';
+import { VERSION_CARD_LIST } from 'src/components/pay/versionUpgrade/config';
+import { versionUpgradeModal } from 'src/components/pay/versionUpgrade/VersionUpgradeModal';
+import { navigateTo } from 'src/router/navigateTo';
 import { VersionProductType } from 'src/utils/enum';
 import { getCurrentProject } from 'src/utils/project';
 import Config from '../../../config';
@@ -28,10 +31,11 @@ const EXPAND_TYPE = {
   AGGREGATIONTABLE: 'aggregationtable',
   MERCHANT: 'merchant',
   INVOICE: 'invoice',
+  CHUNKS: 'chunks',
 };
 
 const PAGE_TITLE = {
-  user: _l('用户自助购买用户包'),
+  user: window.platformENV.isOverseas ? _l('调整座席数') : _l('用户自助购买用户包'),
   workflow: _l('用户自助购买工作流'),
   storage: _l('用户自助购买应用附件上传量'),
   portalexpand: _l('用户自助购买外部门户用户包'),
@@ -46,7 +50,7 @@ const PAGE_TITLE = {
 
 //主操作标题名称
 const HeaderTitle = {
-  user: _l('扩充成员数量'),
+  user: window.platformENV.isOverseas ? _l('调整您的座席订阅方案') : _l('扩充成员数量'),
   workflow: _l('购买工作流执行数升级包'),
   storage: _l('购买应用附件上传量扩充包'),
   portalexpand: _l('购买外部用户人数'),
@@ -57,11 +61,12 @@ const HeaderTitle = {
   aggregationtable: _l('扩充聚合表数量'),
   merchant: { trial: _l('开通商户号收款试用'), normal: _l('开通商户号收款') },
   invoice: { normal: _l('开票税号付费开通'), renew: _l('开票税号续费') },
+  chunks: _l('购买向量知识库分块数'),
 };
 
 //第一步标题名称
 const HeaderSubTitle = {
-  user: _l('扩充成员数量'),
+  user: window.platformENV.isOverseas ? _l('调整座席数') : _l('扩充成员数量'),
   workflow: _l('选择升级包'),
   storage: _l('选择类型'),
   portalexpand: _l('选择增补人数'),
@@ -72,6 +77,7 @@ const HeaderSubTitle = {
   aggregationtable: _l('扩充聚合表数量'),
   merchant: _l('开通商户号收款'),
   invoice: { normal: _l('开票税号付费开通'), renew: _l('开票税号续费') },
+  chunks: _l('扩充向量知识库分块数'),
 };
 
 //总计接口
@@ -90,6 +96,7 @@ const GET_ORDER_PRICE = {
   aggregationtable: orderController.getAggregationTableOrderPrice,
   merchant: orderController.getMerchantPaymentOrderPrice,
   invoice: orderController.getMerchantInvoiceOrderPrice,
+  chunks: orderController.getVectorKnowledgeChunkOrderPrice,
 };
 
 //下单接口
@@ -109,6 +116,7 @@ const ADD_ORDER_PRICE = {
   computingPermanent: orderController.addPermanentComputingInstanceOrder,
   merchant: orderController.addMerchantPaymentOrder,
   invoice: orderController.addMerchantInvoiceOrder,
+  chunks: orderController.addVectorKnowledgeChunkOrder,
 };
 
 const WORKFLOW_TYPE_LIST = [
@@ -132,6 +140,7 @@ const MERCHANT_TYPE_LIST = [
 
 const getFormatCount = count => {
   let formatCount = count % 100 || 100;
+
   if (formatCount > 0) {
     if (count < 1000) {
       formatCount = (parseInt(count / 100) + 1) * 100;
@@ -141,6 +150,7 @@ const getFormatCount = count => {
       formatCount = (parseInt(count / 1000) + 1) * 1000;
     }
   }
+
   return formatCount;
 };
 
@@ -170,6 +180,7 @@ export default class ExpansionService extends Component {
       autoPurchaseWorkflowExtPack: false,
       effectiveExternalUserCount: 0,
       licenseInfo: {},
+      currentVersion: { versionId: '', name: '', period: 'monthly', price: 0 },
       payType: this.expandType,
       loading: true,
       specsList: [],
@@ -188,6 +199,7 @@ export default class ExpansionService extends Component {
         memory: '',
         currentLicense: {},
       },
+      updateLicenseLoading: false,
       merchantType: 0,
       invoiceInfo: {},
     };
@@ -232,20 +244,45 @@ export default class ExpansionService extends Component {
         });
       });
     } else if (expandType === EXPAND_TYPE.USER) {
-      Config.AdminController.expansionInfos({
-        projectId: Config.projectId,
-      }).then(data => {
-        const limitNumber =
-          parseInt(
-            expandType === EXPAND_TYPE.USER
-              ? data.userLimitNumber
-              : expandType === EXPAND_TYPE.APP
-                ? data.apkLimitNumber
-                : data.workflowLimitNumber * 1000,
-            10,
-          ) || 0;
-        this.updataAndCompute({ addUserCount: 5, addUserStep: 5, maxUserCount: 500, limitNumber, loading: false });
-      });
+      if (!window.platformENV.isOverseas) {
+        Config.AdminController.expansionInfos({
+          projectId: Config.projectId,
+        }).then(data => {
+          const limitNumber =
+            parseInt(
+              expandType === EXPAND_TYPE.USER
+                ? data.userLimitNumber
+                : expandType === EXPAND_TYPE.APP
+                  ? data.apkLimitNumber
+                  : data.workflowLimitNumber * 1000,
+              10,
+            ) || 0;
+          this.updataAndCompute({ addUserCount: 5, addUserStep: 5, maxUserCount: 500, limitNumber, loading: false });
+        });
+      } else {
+        projectAjax.getCurrentLicense({ projectId: Config.projectId }).then(res => {
+          if (res) {
+            const { id = '', value = 0 } = res;
+            const licenseKeys = id.split('_');
+            const versionId = licenseKeys[0] || 'free';
+            const period = licenseKeys[1] || 'monthly';
+
+            this.updataAndCompute({
+              addUserCount: value,
+              addUserStep: 1,
+              maxUserCount: 100000,
+              limitNumber: value,
+              currentVersion: {
+                versionId,
+                period,
+                name: _.get(VERSION_CARD_LIST.filter(v => v.type === versionId)[0], 'name'),
+                price: _.get(VERSION_CARD_LIST.filter(v => v.type === versionId)[0], `price.${period}`) || 0,
+              },
+              loading: false,
+            });
+          }
+        });
+      }
     } else if (expandType === EXPAND_TYPE.COMPUTING) {
       Promise.all([
         projectAjax.getProjectLicenseSupportInfo({ projectId: Config.projectId, onlyNormal: true }),
@@ -299,15 +336,19 @@ export default class ExpansionService extends Component {
     } else if (expandType === EXPAND_TYPE.AGGREGATIONTABLE) {
       this.updataAndCompute({ addUserCount: 5, addUserStep: 5, maxUserCount: 1000000, loading: false });
     } else if (this.isPortalUser) {
-      projectAjax.getProjectLicenseSupportInfo({ projectId: Config.projectId }).then(res => {
-        this.updataAndCompute({
-          addUserCount: expandType === 'portalupgrade' ? getFormatCount(res.effectiveExternalUserCount) : 100,
-          maxUserCount: 100000,
-          effectiveExternalUserCount: res.effectiveExternalUserCount,
-          licenseInfo: res,
-          loading: false,
+      if (!window.platformENV.isOverseas) {
+        projectAjax.getProjectLicenseSupportInfo({ projectId: Config.projectId }).then(res => {
+          this.updataAndCompute({
+            addUserCount: expandType === 'portalupgrade' ? getFormatCount(res.effectiveExternalUserCount) : 100,
+            maxUserCount: 100000,
+            effectiveExternalUserCount: res.effectiveExternalUserCount,
+            licenseInfo: res,
+            loading: false,
+          });
         });
-      });
+      } else {
+        this.updataAndCompute({ addUserCount: 100, maxUserCount: 100000, loading: false });
+      }
     } else if (expandType === EXPAND_TYPE.MERCHANT) {
       Promise.all([
         projectAjax.getProjectLicenseSupportInfo({ projectId: Config.projectId }),
@@ -327,6 +368,8 @@ export default class ExpansionService extends Component {
         .catch(() => {
           this.updataAndCompute({ addUserCount: 1, addUserStep: 1, loading: false });
         });
+    } else if (expandType === EXPAND_TYPE.CHUNKS) {
+      this.updataAndCompute({ addUserCount: 10000, addUserStep: 10000, maxUserCount: 5000000, loading: false });
     } else {
       this.updataAndCompute({ addUserCount: 1, addUserStep: 1, maxUserCount: 1000000, loading: false });
     }
@@ -349,11 +392,24 @@ export default class ExpansionService extends Component {
     if (
       !GET_ORDER_PRICE[actionType] ||
       ([EXPAND_TYPE.COMPUTING, EXPAND_TYPE.RENEWCOMPUTING].includes(expandType) && !window.platformENV.isPlatform)
-    )
+    ) {
       return;
+    }
+
+    if (window.platformENV.isOverseas && expandType === EXPAND_TYPE.USER) {
+      this.setState({
+        totalPrince: this.state.currentVersion.price * this.state.addUserCount,
+        totalNum: this.state.addUserCount,
+      });
+      return;
+    }
+
+    if (window.platformENV.isOverseas && expandType === EXPAND_TYPE.PORTALUSER) return;
+
     if (this.ajax) {
       this.ajax.abort();
     }
+
     let param = {};
 
     if (expandType === EXPAND_TYPE.COMPUTING) {
@@ -381,18 +437,23 @@ export default class ExpansionService extends Component {
   //获取操作类型
   getCurrentType() {
     let actionType = this.expandType;
+
     if (actionType === 'workflow') {
       actionType = this.state.workflowType === 1 ? 'workflow' : 'workflowMonthly';
     }
+
     if (actionType === 'dataSync') {
       actionType = this.state.dataSyncType === 1 ? 'dataSync' : 'dataSyncMonthly';
     }
+
     if (actionType === 'computing') {
       actionType = this.state.exclusiveInfo.type === 1 ? 'computing' : 'computingMonthly';
     }
+
     if (this.isPortalUser) {
       actionType = this.state.payType;
     }
+
     return actionType;
   }
 
@@ -468,9 +529,9 @@ export default class ExpansionService extends Component {
 
   //减
   handleMinus() {
-    const { addUserCount, addUserStep } = this.state;
+    const { addUserCount, addUserStep, limitNumber } = this.state;
 
-    if (addUserCount <= addUserStep) {
+    if (addUserCount <= addUserStep || addUserCount <= limitNumber) {
       return;
     }
 
@@ -491,19 +552,23 @@ export default class ExpansionService extends Component {
   //输入
   handleInputChange(e) {
     const keycode = e.which;
+
     if (keycode == 37 || keycode == 38 || keycode == 39 || keycode == 40) {
       return false;
     }
+
     let num = parseInt(e.target.value.replace(/\D/g, ''), 10) || 0;
     this.setState({ addUserCount: num });
   }
 
   // 输入框失焦
   handleInputBlur() {
-    let num = Math.max(Math.min(this.state.maxUserCount, this.state.addUserCount), 5);
+    let num = Math.max(Math.min(this.state.maxUserCount, this.state.addUserCount), this.state.limitNumber);
+
     if (num % this.state.addUserStep !== 0) {
       num += this.state.addUserStep - (num % this.state.addUserStep);
     }
+
     this.updataAndCompute({ addUserCount: num });
   }
 
@@ -517,6 +582,7 @@ export default class ExpansionService extends Component {
     const isNotPlatformLocal =
       [EXPAND_TYPE.COMPUTING, EXPAND_TYPE.RENEWCOMPUTING].includes(expandType) && !window.platformENV.isPlatform;
     let param = {};
+
     if (expandType === EXPAND_TYPE.COMPUTING) {
       param.productId = exclusiveInfo.specs;
     } else if (expandType === EXPAND_TYPE.RENEWCOMPUTING) {
@@ -560,14 +626,22 @@ export default class ExpansionService extends Component {
   }
 
   // input加减框
-  renderPlusInput({ hasUnit = false, disabled = false, desc = '', addDisabled = false, disableBlur = false } = {}) {
-    const { addUserCount, addUserStep, maxUserCount } = this.state;
+  renderPlusInput({
+    hasUnit = false,
+    disabled = false,
+    desc = '',
+    addDisabled = false,
+    disableBlur = false,
+    title = '',
+  } = {}) {
+    const { addUserCount, addUserStep, maxUserCount, limitNumber } = this.state;
     const value = addUserCount.toString().replace(/(\d)(?=(\d{3})+$)/g, '$1,');
     return (
       <div className="mTop40 mBottom40">
+        {title && <div className="textSecondary mBottom8">{title}</div>}
         <div className={cx('addUserBox', { disabled: disabled })}>
           <span
-            className={cx('minus', { unClick: addUserCount <= addUserStep })}
+            className={cx('minus', { unClick: addUserCount <= addUserStep || addUserCount <= limitNumber })}
             onClick={() => {
               if (disabled) return;
               this.handleMinus();
@@ -715,14 +789,26 @@ export default class ExpansionService extends Component {
 
   //step1说明文案
   renderSubTitleSummary() {
-    const { maxUserCount } = this.state;
+    const { maxUserCount, currentVersion } = this.state;
     const expandType = this.expandType;
+
     switch (expandType) {
       case EXPAND_TYPE.USER:
-        return (
+        return !window.platformENV.isOverseas ? (
           <span>
             {_l('单个增量用户包5人起购，最多只能扩充 %0 人，如有特别需求，请联系我们 400-665-6655', maxUserCount)}
           </span>
+        ) : (
+          <React.Fragment>
+            <div className="pTop10 textSecondary">{_l('当前版本')}</div>
+            <div className="mTop16 textPrimary Font14">
+              <span className="bold mRight8">{currentVersion.name}</span>
+              <span>$</span>
+              <span>
+                {currentVersion.price + `/${_l('成员')}/` + (currentVersion.period === 'monthly' ? _l('月') : _l('年'))}
+              </span>
+            </div>
+          </React.Fragment>
         );
       case EXPAND_TYPE.WORKFLOW:
         return _l('每月执行数免费额度不足时可购买使用，即时生效。');
@@ -730,6 +816,8 @@ export default class ExpansionService extends Component {
         return _l('每月同步任务数的算力不足时，可购买使用，立即生效。');
       case EXPAND_TYPE.AGGREGATIONTABLE:
         return _l('聚合表扩充5个起购');
+      case EXPAND_TYPE.CHUNKS:
+        return _l('10000块起购');
       case EXPAND_TYPE.STORAGE:
       case EXPAND_TYPE.PORTALUSER:
       case EXPAND_TYPE.PORTALUPGRADE:
@@ -763,7 +851,9 @@ export default class ExpansionService extends Component {
         </div>
         <div className="mTop13 textTertiary Font13">{_l('并发数是指同一个时间点可同时运行的实例数')}</div>
         <div className="mTop40 Font13">
-          <div className="textSecondary mRight24 mBottom16">{_l('有效时长')}</div>
+          <div className="textSecondary mRight24 mBottom16">
+            {!window.platformENV.isPlatform ? _l('有效时长') : _l('购买时长')}
+          </div>
           <div className="flexRow">
             {EXCLUSIVE_TYPE_LIST.map(item => (
               <div
@@ -783,9 +873,11 @@ export default class ExpansionService extends Component {
         <div className="addWorkFlowBox">
           <div className="addUserLabl">{!window.platformENV.isPlatform ? _l('创建数量') : _l('购买数量')}</div>
           {this.renderPlusInput({ hasUnit: false, disabled: true })}
-          <div className="mLeft16">{_l('个实例数')}</div>
+          <div className="mLeft16">
+            {!window.platformENV.isLocal || !window.platformENV.isOverseas ? _l('台') : _l('个实例数')}
+          </div>
         </div>
-        {exclusiveInfo.currentLicense.endDate && !!window.platformENV.isPlatform && (
+        {exclusiveInfo.currentLicense.endDate && !window.platformENV.isPlatform && (
           <div className="Font13 mBottom40">
             <span className="textSecondary mRight24">{_l('到期时间')}</span>
             <span className="textPrimary">
@@ -922,11 +1014,23 @@ export default class ExpansionService extends Component {
     );
   }
 
+  // 购买向量知识库分块数
+  renderChunksContent() {
+    return (
+      <div className="flexRow alignItemsCenter">
+        <div className="mBottom25 mRight15 textSecondary">{_l('购买数量')}</div>
+        {this.renderPlusInput({ hasUnit: false, desc: _l('100 元/1万块/年（版本剩余时间）') })}
+      </div>
+    );
+  }
+
   //类型选择操作
   renderOptionStyle() {
     switch (this.expandType) {
       case EXPAND_TYPE.USER:
-        return this.renderPlusInput({ desc: _l('300 元/人/年（版本剩余时间）') });
+        return this.renderPlusInput(
+          !window.platformENV.isOverseas ? { desc: _l('300 元/人/年（版本剩余时间）') } : { title: _l('座席数') },
+        );
       case EXPAND_TYPE.WORKFLOW:
         return this.renderWorkFlowContent();
       case EXPAND_TYPE.DATASYNC:
@@ -941,7 +1045,7 @@ export default class ExpansionService extends Component {
         } = this.state;
         return (
           <PortalProgress
-            {..._.pick(this.state, ['payType', 'addUserCount', 'effectiveExternalUserCount'])}
+            {..._.pick(this.state, ['payType', 'addUserCount', 'effectiveExternalUserCount', 'externalType'])}
             licenseInfo={payType === 'portalupgrade' ? nextLicense : currentLicense}
             handleChange={(key, value) => {
               this.updataAndCompute({ [key]: value });
@@ -958,6 +1062,8 @@ export default class ExpansionService extends Component {
         return this.renderMerchantContent();
       case EXPAND_TYPE.INVOICE:
         return this.renderInvoiceContent();
+      case EXPAND_TYPE.CHUNKS:
+        return this.renderChunksContent();
     }
   }
 
@@ -966,6 +1072,7 @@ export default class ExpansionService extends Component {
     const { addUserCount, totalNum, workflowType, dataSyncType, exclusiveInfo, specsList, renewexclusiveInfo } =
       this.state;
     const expandType = this.expandType;
+
     switch (expandType) {
       case EXPAND_TYPE.USER:
         return (
@@ -1111,6 +1218,7 @@ export default class ExpansionService extends Component {
                   });
                 return;
               }
+
               projectSetting
                 .setAutoPurchaseDataPipelineExtPack({
                   projectId: Config.projectId,
@@ -1145,6 +1253,7 @@ export default class ExpansionService extends Component {
 
   renderSelectText() {
     const { dataSyncType, workflowType, exclusiveInfo, merchantType } = this.state;
+
     switch (this.expandType) {
       case EXPAND_TYPE.DATASYNC:
         return dataSyncType === 1 ? _l('每月额度升级包') : _l('本月额度升级包');
@@ -1160,7 +1269,19 @@ export default class ExpansionService extends Component {
   }
 
   render() {
-    const { step, totalPrince, isPay, showWorkflowExtPack, showDataSyncExtPack, loading } = this.state;
+    const {
+      step,
+      totalPrince,
+      needSalesAssistance,
+      isPay,
+      showWorkflowExtPack,
+      showDataSyncExtPack,
+      loading,
+      addUserCount,
+      externalType = 'monthly',
+      updateLicenseLoading,
+      limitNumber,
+    } = this.state;
 
     const expandType = this.expandType;
 
@@ -1187,62 +1308,88 @@ export default class ExpansionService extends Component {
         </div>
         <div style={{ flex: 1, overflow: 'scroll' }}>
           <div className="warpOneStep">
-            <div className={cx('stepTitle', { color_bd: step !== 1 })}>
-              {!(expandType === 'computing' && !window.platformENV.isPlatform) && (
-                <div className="stepNum">
-                  <span className="Bold Font12">1</span>
+            {(!window.platformENV.isOverseas || expandType !== EXPAND_TYPE.PORTALUSER) && (
+              <React.Fragment>
+                <div className={cx('stepTitle', { color_bd: step !== 1 })}>
+                  {!window.platformENV.isOverseas &&
+                    !(expandType === 'computing' && !window.platformENV.isPlatform) && (
+                      <div className="stepNum">
+                        <span className="Bold Font12">1</span>
+                      </div>
+                    )}
+                  <span>
+                    {_.get(
+                      HeaderSubTitle,
+                      expandType === 'invoice' ? `${expandType}.${Config.params[5] || 'normal'}` : expandType,
+                    )}
+                  </span>
                 </div>
-              )}
-              <span>
-                {_.get(
-                  HeaderSubTitle,
-                  expandType === 'invoice' ? `${expandType}.${Config.params[5] || 'normal'}` : expandType,
-                )}
-              </span>
-            </div>
-            <div className={cx('textTertiary Font13 Normal mTop10', { Hidden: step !== 1 })}>
-              {this.renderSubTitleSummary()}
-            </div>
+                <div className={cx('textTertiary Font13 Normal mTop10', { Hidden: step !== 1 })}>
+                  {this.renderSubTitleSummary()}
+                </div>
+              </React.Fragment>
+            )}
+
             <div className="stepContent">
               {step === 1 ? (
                 <div className="infoEdit">
                   {this.renderOptionStyle()}
-                  {!(expandType === 'computing' && !window.platformENV.isPlatform) && (
-                    <div>
-                      <div className="oneStepLeft">{_l('总计')}</div>
-                      <span className="Font20 color_b">￥</span>
-                      <span className="Font20 color_b Bold">{totalPrince}</span>
-                      {![EXPAND_TYPE.COMPUTING, EXPAND_TYPE.RENEWCOMPUTING].includes(expandType) &&
-                        (this.isPortalUser ? (
-                          <a
-                            target="blank"
-                            className="mLeft20"
-                            href="https://help.mingdao.com/purchase/external-user-billing"
-                          >
-                            {_l('计费方式')}
-                          </a>
-                        ) : (
-                          <a target="blank" className="mLeft20" href="/price">
-                            {_l('了解更多')}
-                          </a>
-                        ))}
-                    </div>
-                  )}
+                  {!(expandType === 'computing' && !window.platformENV.isPlatform) &&
+                    !(expandType === EXPAND_TYPE.PORTALUSER && window.platformENV.isOverseas) && (
+                      <div>
+                        <div className="oneStepLeft">{_l('总计')}</div>
+                        <span className="Font20 color_b">{window.platformENV.isOverseas ? '$' : '￥'}</span>
+                        <span className="Font20 color_b Bold">{totalPrince}</span>
+                        {!window.platformENV.isOverseas &&
+                          ![EXPAND_TYPE.COMPUTING, EXPAND_TYPE.RENEWCOMPUTING].includes(expandType) &&
+                          (this.isPortalUser ? (
+                            <a
+                              target="blank"
+                              className="mLeft20"
+                              href="https://help.mingdao.com/purchase/external-user-billing"
+                            >
+                              {_l('计费方式')}
+                            </a>
+                          ) : (
+                            <a target="blank" className="mLeft20" href="/price">
+                              {_l('了解更多')}
+                            </a>
+                          ))}
+                      </div>
+                    )}
                   {(showWorkflowExtPack || showDataSyncExtPack) && this.renderAutoOrder()}
                   <div className="pTop30">
                     <button
                       type="button"
                       className="ming Button Button--primary nextBtn"
                       onClick={() => {
-                        if (!(expandType === 'computing' && !window.platformENV.isPlatform)) {
-                          this.setStep(2);
-                          return;
+                        if (!window.platformENV.isOverseas) {
+                          expandType === 'computing' && !window.platformENV.isPlatform
+                            ? this.handlePay()
+                            : this.setStep(2);
+                        } else {
+                          expandType === EXPAND_TYPE.USER && this.setState({ updateLicenseLoading: true });
+                          versionUpgradeModal({
+                            projectId: Config.projectId,
+                            type: expandType,
+                            userExpandCount: addUserCount,
+                            externalType,
+                            onUpdateLicenseCallback: isSuccess => {
+                              this.setState({ updateLicenseLoading: false });
+                              isSuccess && navigateTo(`/admin/home/${Config.projectId}`, true);
+                            },
+                          });
                         }
-                        this.handlePay();
                       }}
-                      disabled={isPay}
+                      disabled={isPay || limitNumber === addUserCount}
                     >
-                      {expandType === 'computing' && !window.platformENV.isPlatform ? _l('确认') : _l('下一步')}
+                      {!window.platformENV.isOverseas
+                        ? expandType === 'computing' && !window.platformENV.isPlatform
+                          ? _l('确认')
+                          : _l('下一步')
+                        : expandType === EXPAND_TYPE.USER
+                          ? _l('更新订阅')
+                          : _l('下一步')}
                     </button>
                   </div>
                 </div>
@@ -1276,8 +1423,7 @@ export default class ExpansionService extends Component {
               )}
             </div>
           </div>
-          {(window.platformENV.isPlatform ||
-            (expandType !== 'computing' && (window.platformENV.isLocal || window.platformENV.isOverseas))) && (
+          {!(expandType === 'computing' && !window.platformENV.isPlatform) && (
             <Fragment>
               <div className="stepDiviceLine"></div>
               <div className="warpTowStep">
@@ -1292,15 +1438,48 @@ export default class ExpansionService extends Component {
                     expandType,
                   ) ? (
                     <div className="mBottom10">
-                      <span className="mRight8 Gray_9">{_l('已选择')}</span>
+                      <span className="mRight8 textTertiary">{_l('已选择')}</span>
                       <span className="color_b">{this.renderSelectText()}</span>
                     </div>
                   ) : null}
+                  <div>
+                    <span className="Font13 mRight8 textTertiary">{_l('总计：')}</span>
+                    <span className="Font24 Bold color_b">￥{totalPrince}</span>
+                  </div>
+                  <div className="pTop40">
+                    <button
+                      type="button"
+                      disabled={isPay}
+                      className="ming Button Button--primary nextBtn"
+                      onClick={() => this.handlePay()}
+                    >
+                      {_l('确认下单')}
+                    </button>
+                  </div>
+                  <div className="warpNeedHelp">
+                    <Checkbox onChange={this.handleCheckBox.bind(this)} checked={needSalesAssistance}>
+                      {_l('我希望得到销售代表的协助')}
+                    </Checkbox>
+                  </div>
                 </div>
               </div>
             </Fragment>
           )}
         </div>
+
+        <Dialog
+          dialogClasses="updateLicenseLoadingDialog"
+          visible={updateLicenseLoading}
+          width={220}
+          title={null}
+          footer={null}
+          closable={false}
+        >
+          <div className="flexRow alignItemsCenter">
+            <LoadDiv size="small" />
+            <div className="bold mLeft4">{_l('更新中，请不要刷新页面')}</div>
+          </div>
+        </Dialog>
       </div>
     );
   }

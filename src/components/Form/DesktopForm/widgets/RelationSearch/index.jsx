@@ -20,6 +20,7 @@ import { controlState, getTitleTextFromRelateControl, getValueStyle } from 'src/
 import RegExpValidator from 'src/utils/expression';
 import { addBehaviorLog } from 'src/utils/project';
 import { replaceControlsTranslateInfo } from 'src/utils/translate';
+import { useWidgetEvent } from 'src/components/Form/core/useFormEventManager';
 
 const PAGE_SIZE = 50;
 
@@ -91,9 +92,11 @@ const EmptyTag = styled.span`
 
 function getCoverUrl(coverId, record, controls) {
   const coverControl = _.find(controls, c => c.controlId && c.controlId === coverId);
+
   if (!coverControl) {
     return;
   }
+
   try {
     const coverFile = _.find(JSON.parse(record[coverId]), file => RegExpValidator.fileIsPicture(file.ext));
     const { previewUrl = '' } = coverFile;
@@ -103,6 +106,7 @@ function getCoverUrl(coverId, record, controls) {
   } catch (err) {
     console.log(err);
   }
+
   return;
 }
 
@@ -130,9 +134,11 @@ function Cards(props) {
     appId,
   } = props;
   let { records } = props;
+
   if (control.type === 51 && control.enumDefault === 1) {
     records = records.slice(0, 1);
   }
+
   const hideTitle = control.type === 51 && control.enumDefault === 1;
   return (
     <Fragment>
@@ -168,6 +174,7 @@ function Cards(props) {
                 if (!allowOpenRecord) {
                   return;
                 }
+
                 onOpen(record.rowid);
               }}
             />
@@ -203,11 +210,13 @@ function Cards(props) {
     </Fragment>
   );
 }
+
 function Texts(props) {
   const { control, entityName, allowOpenRecord, allowNewRecord, records = [], onAdd, onOpen } = props;
 
   let valueStyle = {};
   let style = {};
+
   if (control.type === 51) {
     valueStyle = getValueStyle({ ...control, type: 2, value: '_' });
     style = {
@@ -229,6 +238,7 @@ function Texts(props) {
               if (!allowOpenRecord) {
                 return;
               }
+
               onOpen(record.rowid);
             }}
           >
@@ -298,6 +308,7 @@ function RelationSearch(props) {
     enumDefault2 !== 1 &&
     enumDefault2 !== 11 &&
     !window.isPublicWorksheet;
+
   const loadRecords = async (pageIndex = 1) => {
     let relationControls = [...controls];
     setState(oldState => ({ ...oldState, isLoadingMore: true, loading: pageIndex === 1 }));
@@ -314,6 +325,7 @@ function RelationSearch(props) {
         });
       setState(oldState => ({ ...oldState, controls: relationControls }));
     }
+
     const filterControls = getFilter({
       control: { ...control, relationControls, recordId },
       formData: control.formData,
@@ -325,6 +337,7 @@ function RelationSearch(props) {
       setState(oldState => ({ ...oldState, isLoadingMore: false, loading: false }));
       return;
     }
+
     const args = {
       worksheetId,
       viewId,
@@ -349,6 +362,7 @@ function RelationSearch(props) {
           _.get(res, 'worksheet.template.controls'),
         );
       }
+
       setState(oldState => {
         const newRecords = _.uniqBy([...(oldState.records || []), ...(res.data || [])], 'rowid');
         return {
@@ -365,6 +379,7 @@ function RelationSearch(props) {
       });
     });
   };
+
   const debounceClearAndLoad = useCallback(
     _.debounce(() => {
       setState(oldState => ({ ...oldState, records: [] }));
@@ -412,6 +427,7 @@ function RelationSearch(props) {
       filterKey: 'resultfilters',
       appId,
     });
+
     if (!_.isUndefined(cache.current.filter) && newFilter && !_.isEqual(cache.current.filter, newFilter)) {
       cache.current.filter = newFilter;
       debounceClearAndLoad();
@@ -424,6 +440,7 @@ function RelationSearch(props) {
   if ((control.type === 51 && control.enumDefault === 1 && control.showControls.length === 0) || !records.length) {
     return <EmptyTag />;
   }
+
   return (
     <Con ref={ref}>
       {loading && (
@@ -565,12 +582,25 @@ export function RelationSearchDialog(props) {
     </Modal>
   );
 }
+
 export const openRelationSearchDialog = props => functionWrap(RelationSearchDialog, props);
 
 export default function (props) {
-  const { isCharge, appId, worksheetId, recordId, disabled, formData, updateWorksheetControls } = props;
+  const { isCharge, appId, worksheetId, recordId, disabled, formData, formItemId, updateWorksheetControls } = props;
+  const showtype = _.get(props, 'advancedSetting.showtype');
 
-  if (props.advancedSetting.showtype === String(RELATION_SEARCH_SHOW_TYPE.EMBED_LIST)) {
+  useWidgetEvent(formItemId, ({ triggerType }) => {
+    if (triggerType === 'Enter' && formItemId) {
+      const root = document.querySelector(`[data-instance-id="${formItemId}"]`);
+      if (!root) return;
+      if (showtype === String(RELATION_SEARCH_SHOW_TYPE.EMBED_LIST)) {
+        const btn = root.querySelector('.relateRecordMainBtn');
+        if (btn) btn.click();
+      }
+    }
+  });
+
+  if (showtype === String(RELATION_SEARCH_SHOW_TYPE.EMBED_LIST)) {
     return (
       <RelateRecordTable
         appId={appId}
@@ -580,6 +610,7 @@ export default function (props) {
         recordId={recordId}
         worksheetId={worksheetId}
         formData={formData}
+        formItemId={formItemId}
         isCharge={isCharge}
         updateWorksheetControls={updateWorksheetControls}
       />

@@ -55,6 +55,7 @@ export default function StructureSet(props) {
   });
   const viewTypeText = VIEW_DISPLAY_TYPE[view.viewType];
   const isRelateMultiSheetHierarchyView = viewTypeText === 'structure' && String(view.childType) === '2';
+
   const topFiltersToDefsource = () => {
     const topFilters = getAdvanceSetting(view, 'topfilters') || [];
     const tempDefSourcce = topFilters.map(def => {
@@ -80,6 +81,7 @@ export default function StructureSet(props) {
       defaulttype: '',
     });
   };
+
   const renderFilter = key => {
     const visibleKey = `${key}Visible`;
     const filterData = getAdvanceSetting(view, key) || [];
@@ -106,6 +108,7 @@ export default function StructureSet(props) {
             allControls={columns}
             onChange={({ filters }) => {
               let filtersValue = [];
+
               if (filters.some(item => item.groupFilters)) {
                 filtersValue = filters.map(f => {
                   return {
@@ -116,6 +119,7 @@ export default function StructureSet(props) {
               } else {
                 filtersValue = filters.map(handleCondition);
               }
+
               updateCurrentView({
                 ...view,
                 appId,
@@ -178,6 +182,7 @@ export default function StructureSet(props) {
               if ((_.get(view, 'advancedSetting.hierarchyViewConnectLine') || '0') === value) {
                 return;
               }
+
               updateCurrentView({
                 ...view,
                 appId,
@@ -207,6 +212,7 @@ export default function StructureSet(props) {
               ) {
                 return;
               }
+
               updateCurrentView({
                 ...view,
                 appId,
@@ -235,6 +241,7 @@ export default function StructureSet(props) {
                 if (value === '3') {
                   setVisibleInfo({ topfiltersVisible: true });
                 }
+
                 if (value === (_.get(view, 'advancedSetting.topshow') || '0')) return;
                 updateCurrentView({
                   ...view,
@@ -293,6 +300,7 @@ export default function StructureSet(props) {
               if ((_.get(view, 'advancedSetting.treestyle') || '1') === value) {
                 return;
               }
+
               updateCurrentView({
                 ...view,
                 appId,
@@ -325,6 +333,7 @@ export default function StructureSet(props) {
                 })}
                 onClick={() => {
                   const { value } = item;
+
                   if (defaultlayer !== value) {
                     const { viewId } = view;
                     const config = safeParse(localStorage.getItem(`hierarchyConfig-${viewId}`));

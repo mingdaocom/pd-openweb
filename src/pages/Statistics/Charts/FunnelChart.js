@@ -31,6 +31,7 @@ const mergeDataTime = (data, contrastData) => {
       : contrastData
   ).map((item, index) => {
     let groupName = _l('上一期');
+
     if (item) {
       item.groupName = groupName;
       item.originalName = item.name;
@@ -60,6 +61,7 @@ const formatEmptyDataPosition = (data, isAccumulate, xaxisEmpty) => {
       if (isAccumulate && last.x == '空') {
         last.x = _l('全部');
       }
+
       value.unshift(last);
     });
   }
@@ -91,6 +93,7 @@ const formatChartData = (data, { isAccumulate, showOptionIds = [] }, { controlId
   const result = [];
   const cloneData = formatEmptyDataPosition(controlId ? data : fillMapValue(data), isAccumulate, xaxisEmpty);
   const { value } = cloneData[0] || { value: [] };
+
   if (isAccumulate) {
     cloneData.map(item => {
       item.value.reverse().map((n, index) => {
@@ -110,6 +113,7 @@ const formatChartData = (data, { isAccumulate, showOptionIds = [] }, { controlId
       const target = element.value.filter(n => n.x === item.x);
       const { emptyShowType } = _.find(yaxisList, { controlId: element.c_id }) || yaxisList[0];
       const hideEmptyValue = !emptyShowType && !target[0].v;
+
       if (target.length && !hideEmptyValue) {
         result.push({
           id: target[0].originalX,
@@ -134,9 +138,11 @@ const getControlMinAndMax = (yaxisList, data) => {
 
   const get = () => {
     let values = [];
+
     for (let i = 0; i < data.length; i++) {
       values.push(data[i].value);
     }
+
     const min = _.min(values) || 0;
     const max = _.max(values);
     return {
@@ -179,6 +185,7 @@ export default class extends Component {
   componentWillReceiveProps(nextProps) {
     const { displaySetup, style } = nextProps.reportData;
     const { displaySetup: oldDisplaySetup, style: oldStyle } = this.props.reportData;
+
     // 显示设置
     if (
       displaySetup.showLegend !== oldDisplaySetup.showLegend ||
@@ -200,6 +207,7 @@ export default class extends Component {
       const config = this.getComponentConfig(nextProps);
       this.FunnelChart && this.FunnelChart.update(config);
     }
+
     // 切换图表类型 & 累计
     if (
       displaySetup.showChartType !== oldDisplaySetup.showChartType ||
@@ -214,6 +222,7 @@ export default class extends Component {
     const { reportData } = props;
     const { displaySetup, style, xaxes } = reportData;
     const config = this.getComponentConfig(props);
+
     if (this.chartEl) {
       this.FunnelChart = new this.FunnelComponent(this.chartEl, config);
       this.isViewOriginalData = displaySetup.showRowList && props.isViewOriginalData;
@@ -224,11 +233,13 @@ export default class extends Component {
       if (this.isViewOriginalData || this.isLinkageData) {
         this.FunnelChart.on('element:click', this.handleClick);
       }
+
       this.FunnelChart.render();
     }
   }
   handleClick = ({ data, gEvent }) => {
-    const { xaxes, displaySetup, appId, reportId, name, reportType, style } = this.props.reportData;
+    const { reportData, isMobile } = this.props;
+    const { xaxes, displaySetup, appId, reportId, name, reportType, style } = reportData;
     const { contrastType } = displaySetup;
     const currentData = data.data;
     const param = {};
@@ -239,6 +250,7 @@ export default class extends Component {
       reportType,
       filters: [],
     };
+
     if (xaxes.cid) {
       const isNumber = isFormatNumber(xaxes.controlType);
       const value = currentData.id;
@@ -253,15 +265,17 @@ export default class extends Component {
         control: xaxes,
       });
     }
+
     if (_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length) {
       linkageMatch.onlyChartIds = style.autoLinkageChartObjectIds;
     }
+
     const isAll = this.isViewOriginalData && this.isLinkageData;
     this.setState(
       {
         dropdownVisible: isAll,
         offset: {
-          x: gEvent.x + 20,
+          x: gEvent.x + (isMobile ? -100 : 20),
           y: gEvent.y,
         },
         contrastType: currentData.isContrast ? contrastType : undefined,
@@ -272,6 +286,7 @@ export default class extends Component {
         if (!isAll && this.isViewOriginalData) {
           this.handleRequestOriginalData();
         }
+
         if (!isAll && this.isLinkageData) {
           this.handleAutoLinkage();
         }
@@ -287,6 +302,7 @@ export default class extends Component {
       match,
       contrastType,
     };
+
     if (isThumbnail) {
       this.props.onOpenChartDialog(data);
     } else {
@@ -323,6 +339,7 @@ export default class extends Component {
     const rule = _.get(displaySetup.colorRules[0], 'dataBarRule') || {};
     const isRuleColor = !_.isEmpty(rule);
     const controlMinAndMax = isRuleColor ? getControlMinAndMax(yaxisList, data) : {};
+
     const getRuleColor = value => {
       const color = getStyleColor({
         value,
@@ -349,6 +366,7 @@ export default class extends Component {
           if (style.funnelCurvature == 1) {
             item.value = _.find(data, { index: item.index }).value;
           }
+
           const { name, value } = item;
           const { dot } = yaxisList[0] || {};
           const labelValue = formatrChartValue(value, false, newYaxisList);
@@ -383,9 +401,11 @@ export default class extends Component {
         const index = _.findIndex(data, { name });
         const { id, value } = _.find(data, { name }) || {};
         let color = colors[index % colors.length];
+
         if (isRuleColor) {
           color = getRuleColor(value);
         }
+
         if (!_.isEmpty(linkageMatch)) {
           if (linkageMatch.value === id) {
             return color;
@@ -393,6 +413,7 @@ export default class extends Component {
             return new TinyColor(color).setAlpha(0.3).toRgbString();
           }
         }
+
         return color;
       },
       legend: displaySetup.showLegend
@@ -413,6 +434,7 @@ export default class extends Component {
             formatter: (data, list) => {
               const { CONVERSATION_FIELD } = this.FunnelComponent;
               let percentage = 0;
+
               if (displaySetup.isAccumulate) {
                 const currentValue = data.value;
                 const lastValue = list[0].value;
@@ -429,6 +451,7 @@ export default class extends Component {
                   // percentage = (data[CONVERSATION_FIELD][1] / data[CONVERSATION_FIELD][0]) * 100;
                 }
               }
+
               const conversionText = style.funnelConversionText || _l('转化率');
               return conversionText + `${toFixed(percentage, 2)}%`;
             },
@@ -442,6 +465,7 @@ export default class extends Component {
           if (style.funnelCurvature == 1) {
             yField = _.find(data, { index: yField }).value;
           }
+
           return {
             content: `${xField} ${formatrChartValue(yField, false, newYaxisList)}`,
           };

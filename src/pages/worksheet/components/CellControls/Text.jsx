@@ -73,6 +73,7 @@ function getPopupContainer(popupContainer, rows) {
     return () =>
       _.get(rows, 'length') && _.get(rows, 'length') <= 5 && popupContainer().closest('.customFieldsContainer');
   }
+
   return popupContainer;
 }
 
@@ -100,6 +101,7 @@ export default class Text extends React.Component {
       forceShowFullValue: _.get(props.cell, 'advancedSetting.datamask') !== '1',
     };
     const _handleKeydown = this.handleKeydown.bind(this);
+
     this.handleKeydown = (...args) => {
       flushSync(() => {
         _handleKeydown(...args);
@@ -117,12 +119,15 @@ export default class Text extends React.Component {
     if (valueChanged || rowChanged) {
       nextState.value = nextProps.cell.value;
     }
+
     if ((valueChanged && !nextProps.isediting) || rowChanged) {
       nextState.oldValue = nextProps.cell.value;
     }
+
     if (!_.isEmpty(nextState)) {
       this.setState(nextState);
     }
+
     // 数值类小数点自动配置，聚焦时去零
     if (
       nextProps.isediting !== this.props.isediting &&
@@ -134,10 +139,11 @@ export default class Text extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { value, oldValue } = this.state;
+    const { value } = this.state;
+
     if (!prevProps.isediting && this.props.isediting) {
       if (this.isNumberPercent && value) {
-        this.setState({ value: accMul(value, 100), oldValue: oldValue ? accMul(oldValue, 100) : oldValue }, this.focus);
+        this.setState({ value: accMul(value, 100) }, this.focus);
       } else {
         this.focus();
       }
@@ -146,6 +152,7 @@ export default class Text extends React.Component {
 
   componentWillUnmount() {
     const { isSubList, isediting } = this.props;
+
     if (isSubList && isediting && !this.hadBlur) {
       this.handleBlur();
     }
@@ -210,14 +217,15 @@ export default class Text extends React.Component {
 
   handleBlur = () => {
     this.hadBlur = true;
-    const { isSubList, cell, error, ignoreErrorMessage, updateCell, updateEditingStatus } = this.props;
+    const { isSubList, cell, error, ignoreErrorMessage, updateCell, updateEditingStatus, onValidate } = this.props;
     this.tempKey = [];
     let { oldValue = '' } = this.state;
     let { value = '' } = this.state;
+
     if (this.isNumberPercent && value) {
       value = toFixed(accMul(parseFloat(value), 1 / 100), this.isNumberPercent ? cell.dot + 2 : cell.dot);
-      oldValue = toFixed(accMul(parseFloat(oldValue), 1 / 100), this.isNumberPercent ? cell.dot + 2 : cell.dot);
     }
+
     if ((cell.type === 6 || cell.type === 8) && value === '-') {
       value = '';
       this.setState({ value });
@@ -232,18 +240,26 @@ export default class Text extends React.Component {
       if (this.isNumberPercent && value) {
         this.setState({ oldValue, value });
       }
+
       updateEditingStatus(false);
       return;
     } else if ((cell.enumDefault === 0 || cell.enumDefault === 2) && typeof value === 'string') {
       value = value.replace(/\r\n|\n/g, ' ').trim();
     }
-    if (error && !ignoreErrorMessage) {
+
+    const blurValidateResult = onValidate(this.state.value);
+    const blurError =
+      error || (blurValidateResult && (blurValidateResult.errorText || blurValidateResult.errorMessage));
+    const blurIgnoreError = (blurValidateResult && blurValidateResult.ignoreErrorMessage) || ignoreErrorMessage;
+
+    if (blurError && !blurIgnoreError) {
       updateEditingStatus(false);
       this.setState({
         value: oldValue,
       });
       return;
     }
+
     updateCell({
       value: value,
     });
@@ -261,9 +277,11 @@ export default class Text extends React.Component {
 
   handleChange = value => {
     const { cell, onValidate } = this.props;
+
     if (cell.type === 6 || cell.type === 8) {
       value = formatNumberFromInput(String(value), false);
     }
+
     flushSync(() => {
       onValidate(value);
       this.setState({
@@ -274,10 +292,12 @@ export default class Text extends React.Component {
 
   handleTableKeyDown = e => {
     const { cell, updateEditingStatus } = this.props;
+
     const setKeyboardValue = value => {
       updateEditingStatus(true, () => {
         setTimeout(() => {
           const inputDom = this.input.current;
+
           if (inputDom) {
             inputDom.value = value;
             this.handleChange(value);
@@ -285,9 +305,11 @@ export default class Text extends React.Component {
         }, 10);
       });
     };
+
     function handleCopyFromWindow() {
       if (window.tempCopyForSheetView) {
         const data = safeParse(window.tempCopyForSheetView);
+
         if (data.type === 'text') {
           setKeyboardValue(data.value);
         } else {
@@ -295,6 +317,7 @@ export default class Text extends React.Component {
         }
       }
     }
+
     if (e.key.toLowerCase() === 'v' && (e.ctrlKey || e.metaKey)) {
       if (_.isFunction(_.get(navigator, 'clipboard.readText'))) {
         navigator.clipboard
@@ -310,28 +333,36 @@ export default class Text extends React.Component {
       } else {
         handleCopyFromWindow();
       }
+
       return;
     }
+
     switch (e.key) {
       default:
         (() => {
           let value = e.key;
+
           if (isKeyBoardInputChar(e.key)) {
             this.tempKey.push(e.key);
           }
+
           if (!e.isInputValue && (!value || !isKeyBoardInputChar(e.key))) {
             return;
           }
+
           if (cell.type === 6 || cell.type === 8) {
             value = formatNumberFromInput(e.key, false);
           }
+
           updateEditingStatus(true, () => {
             setTimeout(() => {
               if (e.keyCode === 229) {
                 this.handleChange('');
                 return;
               }
+
               const inputDom = this.input.current;
+
               if (inputDom) {
                 inputDom.value = e.isInputValue ? value : this.tempKey.join('');
                 this.handleChange(e.isInputValue ? value : this.tempKey.join(''));
@@ -349,12 +380,14 @@ export default class Text extends React.Component {
             e.preventDefault();
           });
         })();
+
         break;
     }
   };
 
   handleKeydown(e) {
     const { tableId, cell, updateEditingStatus } = this.props;
+
     if (e.keyCode === 27) {
       this.tempKey = [];
       updateEditingStatus(false);
@@ -366,6 +399,7 @@ export default class Text extends React.Component {
       if (this.isMultipleLine && !(e.ctrlKey || e.metaKey)) {
         return;
       }
+
       e.preventDefault();
       this.handleBlur();
       if (!window.handFocusCell) {
@@ -382,9 +416,11 @@ export default class Text extends React.Component {
       }
     } else if (_.includes(['ArrowUp', 'ArrowDown'], e.key) && _.includes([6, 8], cell.type)) {
       const num = Number(this.state.value);
+
       if (_.isNumber(num) && !_.isNaN(num)) {
         this.handleChange(num + (e.key === 'ArrowUp' ? 1 * this.step : -1 * this.step));
       }
+
       e.preventDefault();
     } else if (e.keyCode === 9) {
       this.handleBlur();
@@ -395,6 +431,7 @@ export default class Text extends React.Component {
     if (!this.masked || window.shareState.shareId) {
       return;
     }
+
     e.stopPropagation();
     addBehaviorLog('worksheetDecode', this.props.worksheetId, {
       rowId: this.props.recordId,
@@ -403,6 +440,7 @@ export default class Text extends React.Component {
     if (!this.state.forceShowFullValue) {
       e.preventDefault();
     }
+
     this.setState({ forceShowFullValue: true });
   };
   render() {
@@ -437,12 +475,15 @@ export default class Text extends React.Component {
       cell.type === 4;
     canedit = !disabledInput && canedit;
     const isediting = canedit && this.props.isediting;
+
     if (cell.type === 7) {
       value = (value || '').toUpperCase();
     }
+
     if (cell.controlId === 'rowid' && (value || '').startsWith('empty-')) {
       value = '';
     }
+
     const isCard = from === FROM.CARD;
     const editProps = {
       ref: this.input,
@@ -454,17 +495,22 @@ export default class Text extends React.Component {
       onClick: e => e.stopPropagation(),
       onKeyDown: this.handleKeydown,
     };
+
     if (cell.type === 6 || cell.type === 8) {
       editProps.maxLength = 16;
     }
+
     if (cell.type === 38 && cell.enumDefault === 3 && cell.advancedSetting.hideneg === '1' && parseInt(value, 10) < 0) {
       value = '';
     }
+
     const isMacWxWork = window.isWxWork && /applewebkit/.test(navigator.userAgent.toLowerCase());
     let text = renderText({ ...cell, value }, { noMask: forceShowFullValue, appId });
+
     if (text.length > 3000) {
       text = text.slice(0, 3000);
     }
+
     const editcontent = (
       <ClickAwayable
         onClickAwayExceptions={[this.editIcon && this.editIcon.current]}
@@ -580,8 +626,8 @@ export default class Text extends React.Component {
                             ellipsis: isMobile,
                           })
                         : cx({
-                            'ellipsis InlineBlock': isCard,
-                            w100: isCard && !this.masked,
+                            ellipsis: isCard,
+                            'w100 InlineBlock': isCard && !this.masked,
                             abstractContent: isCard && isMobile,
                           })
                     }

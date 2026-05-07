@@ -18,11 +18,13 @@ const SHARE_SOURCE_TYPE = {
   report: 31,
   chatbot: 71,
   aiAction: 72,
+  mingoHelp: 73,
 };
 
 export async function getUrl(args) {
   const { from } = args;
   let url;
+
   switch (from) {
     case 'recordInfo':
       url = await getRecordLandUrl({
@@ -45,15 +47,18 @@ export async function getUrl(args) {
       url = `${location.origin}/embed/chart/${args.appId}/${args.sourceId}?pageId=${args.pageId || ''}`;
       break;
   }
+
   return url;
 }
 
 export async function getPublicShare(args) {
   const { from, validTime, password, pageTitle, isEdit } = args;
   let res;
+
   if (args.isPublic === false) {
     return;
   }
+
   switch (from) {
     case 'recordInfo':
       res = await worksheetAjax.getWorksheetShareUrl({
@@ -84,6 +89,7 @@ export async function getPublicShare(args) {
     case 'report':
     case 'chatbot':
     case 'aiAction':
+    case 'mingoHelp':
       res = await appManagementAjax.getEntityShare({
         appId: args.appId,
         sourceId: args.sourceId,
@@ -92,12 +98,18 @@ export async function getPublicShare(args) {
       res.shareLink = res.url;
       break;
   }
+
+  if (from === 'mingoHelp') {
+    res.shareLink = res.shareLink ? `${res.shareLink}&help=true` : undefined;
+  }
+
   return res;
 }
 
 export async function updatePublicShareStatus(args) {
   const { from, isPublic, onUpdate, validTime, password, pageTitle } = args;
   let res;
+
   switch (from) {
     case 'recordInfo':
       res = await worksheetAjax.updateWorksheetRowShareRange({
@@ -120,6 +132,7 @@ export async function updatePublicShareStatus(args) {
       if (isPublic) {
         res.shareLink = res.url;
       }
+
       onUpdate({ visibleType: isPublic ? 2 : 1 });
       break;
     case 'view':
@@ -140,6 +153,7 @@ export async function updatePublicShareStatus(args) {
     case 'report':
     case 'chatbot':
     case 'aiAction':
+    case 'mingoHelp':
       res = await appManagementAjax.editEntityShareStatus({
         appId: args.appId,
         sourceId: args.sourceId,
@@ -152,8 +166,10 @@ export async function updatePublicShareStatus(args) {
       if (isPublic) {
         res.shareLink = res.appEntityShare.url;
       }
+
       break;
   }
+
   return res;
 }
 

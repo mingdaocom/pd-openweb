@@ -103,12 +103,15 @@ class PortalCon extends React.Component {
   componentWillReceiveProps(nextProps) {
     const { canEditApp, canEditUser } = nextProps;
     const tab = canEditUser ? 'user' : canEditApp ? 'roleSet' : '';
+
     if (!_.isEqual(this.props.portal.quickTag, nextProps.portal.quickTag) && !!nextProps.portal.quickTag.tab) {
       this.setState({
         tab: nextProps.portal.quickTag.tab || tab,
       });
     }
+
     const listType = _.get(nextProps, ['match', 'params', 'listType']);
+
     if (listType === 'pending' && !_.isEqual(listType, _.get(this.props, ['match', 'params', 'listType']))) {
       this.setState({
         tab: tab,
@@ -137,6 +140,7 @@ class PortalCon extends React.Component {
   };
   renderCon = () => {
     const { tab, baseSetResult, version } = this.state;
+
     switch (tab) {
       case 'roleSet':
         return <RoleCon {...this.props} />;
@@ -161,12 +165,15 @@ class PortalCon extends React.Component {
     const { appDetail, appId, closePortal, canEditApp, canEditUser, portal, setQuickTag } = this.props;
     const { baseSetResult = {}, showEditUrl, portalSet, showPortalSetting, tab, showCustomUrlSet } = this.state;
     let tablist = conList;
+
     if (!canEditApp) {
       tablist = tablist.filter(o => !['roleSet'].includes(o.key));
     }
+
     if (!canEditUser) {
       tablist = tablist.filter(o => !['user', 'statistics'].includes(o.key));
     }
+
     const divStyle = {
       marginLeft: 6,
       height: '32px',

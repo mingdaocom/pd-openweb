@@ -91,6 +91,7 @@ const Cascader = props => {
           if (result) return result;
         }
       }
+
       return null;
     };
 
@@ -105,6 +106,7 @@ const Cascader = props => {
       const { currentLayer = 0 } = getLayer(rowId) || {};
       return limitLayer - currentLayer === 1;
     }
+
     return false;
   };
 
@@ -125,6 +127,7 @@ const Cascader = props => {
       list = data;
       cacheTreePath(data);
     }
+
     setOptions(list);
   };
 
@@ -139,6 +142,7 @@ const Cascader = props => {
     // 数据源筛选
     const filterControls = getFilter({ control: props, formData, appId }) || [];
     let navGroupFilters = [];
+
     // 开始筛选范围处理
     if (topshow === '3' && !rowId) {
       navGroupFilters = getFilter({ control: props, formData, filterKey: 'topfilters', appId }) || [];
@@ -213,6 +217,7 @@ const Cascader = props => {
     if (anylevel === '1') {
       return currentItem.isLeaf;
     }
+
     // 设置指定层级
     if (minLayer) {
       return (currentItem.isLeaf && currentLayer < minLayer) || currentLayer >= minLayer;
@@ -236,6 +241,7 @@ const Cascader = props => {
       let path;
       let name;
       const node = cacheData.current.find(i => i.rowid === id);
+
       if (keywords) {
         if (node) {
           path = JSON.parse(node.path);
@@ -264,6 +270,7 @@ const Cascader = props => {
   const getOptions = () => {
     const lastId = operatePath[operatePath.length - 1] || '';
     let sourceData = [];
+
     const findData = (data, id) => {
       data.forEach(item => {
         if (item.value === id) {
@@ -298,6 +305,7 @@ const Cascader = props => {
       alert(_l('不在可选范围内'), 3);
       return;
     }
+
     // 叶子节点直接保存并关闭弹窗
     if (item.isLeaf) {
       handleClose();
@@ -339,10 +347,12 @@ const Cascader = props => {
 
     setSelectItems(prev => {
       const exists = prev.some(i => i.id === item.value);
+
       // 已选中移除
       if (exists) {
         return prev.filter(i => i.id !== item.value);
       }
+
       // 未选中添加
       return [...prev, { id: item.value, label: item.label }];
     });
@@ -428,11 +438,14 @@ const Cascader = props => {
 
     const keywords = getKeywords();
     const hasKeywordOrAnyLevel = keywords || +anylevel;
+
     if (keywords) {
       _options = sortPathsBySearchKeyword(_options, keywords);
     }
+
     let itemRenderer;
     let clickHandler = null;
+
     if (hasKeywordOrAnyLevel) {
       // 模式 1：关键词搜索 或 必须选择最后一级
       itemRenderer = item => renderSimpleContent(item, keywords);
@@ -462,6 +475,7 @@ const Cascader = props => {
     if (keywords?.length) return null;
 
     let displayList = [];
+
     // 有层级名称：取前 breadcrumbLength 项
     if (layersName?.length) {
       displayList = layersName.slice(0, operatePath.length + 1);

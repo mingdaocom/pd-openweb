@@ -9,7 +9,7 @@ import flowNode from '../../../../api/flowNode';
 import { ACTION_ID, NODE_TYPE } from '../../../enum';
 
 const Footer = styled.div`
-  background: var(--color-background-disabled);
+  background: var(--color-background-secondary);
   padding: 0 24px;
   align-items: center;
   height: 60px;
@@ -56,6 +56,7 @@ export default function DetailFooter({
 }) {
   const [source, setSource] = useState(null);
   const [showDialog, setShowDialog] = useState(false);
+
   const getSource = () => {
     setShowDialog(true);
 

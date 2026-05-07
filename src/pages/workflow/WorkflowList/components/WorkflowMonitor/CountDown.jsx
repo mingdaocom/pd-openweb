@@ -33,6 +33,7 @@ export default class CountDown extends Component {
     const { endDate = new Date() } = this.state;
     let startDate = new Date();
     let diffValue = this.getMillsecond(endDate) - this.getMillsecond(startDate);
+
     if (diffValue < 0) {
       clearInterval(intervall);
     }

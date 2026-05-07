@@ -33,6 +33,7 @@ import { getPathById, isHaveGap } from './widgets';
 // 获取动态默认值
 export const getDynamicDefaultValue = data => {
   const value = _.get(data, ['advancedSetting', 'defsource']);
+
   try {
     const parsedValue = value && JSON.parse(value);
     return parsedValue;
@@ -46,7 +47,9 @@ export const getMsgByCode = ({ code, data, controls }) => {
     alert(_l('保存成功'));
     return '';
   }
+
   let errorText = _l('操作失败，请稍后重试');
+
   switch (code) {
     case 2:
       errorText = data === 20 ? _l('公式验证失败') : _l('输入验证信息失败');
@@ -67,23 +70,23 @@ export const getMsgByCode = ({ code, data, controls }) => {
     default:
       break;
   }
+
   if (code === 16) {
-    alert({
-      msg: (
-        <span>
-          {errorText}
-          <Support
-            type={3}
-            href="https://help.mingdao.com/worksheet/field-property/#syestem-field-alias"
-            text={<span className="Font14 Bold">{_l('查看')}</span>}
-          />
-        </span>
-      ),
-      type: 2,
-    });
+    alert(
+      <span>
+        {errorText}
+        <Support
+          type={3}
+          href="https://help.mingdao.com/worksheet/field-property/#syestem-field-alias"
+          text={<span className="Font14 Bold">{_l('查看')}</span>}
+        />
+      </span>,
+      2,
+    );
   } else {
     alert(errorText, 2);
   }
+
   return errorText;
 };
 
@@ -93,6 +96,7 @@ export function handleExtremeValue(data) {
   const transferValue = value => (value ? value.toString() : '').replace(/,/g, '');
   const formateMin = parseFloat(transferValue(min));
   const formateMax = parseFloat(transferValue(max));
+
   // 如果最大最小值都没配 则取消勾选
   if (min === '' && max === '' && checkrange === '1') {
     return update(data, {
@@ -101,6 +105,7 @@ export function handleExtremeValue(data) {
       },
     });
   }
+
   if (isNaN(formateMin) && isNaN(formateMax)) {
     return update(data, {
       advancedSetting: { $set: { ...advancedSetting, min: '', max: '' } },
@@ -112,8 +117,10 @@ export function handleExtremeValue(data) {
       advancedSetting: { $set: { ...advancedSetting, min: '', max: '' } },
     });
   }
+
   return data;
 }
+
 export function dealRelateSheetDefaultValue(data) {
   const dynamicValue = getDynamicDefaultValue(data);
   if (!dynamicValue) return data;
@@ -155,6 +162,7 @@ const use_ids = {
 export function dealUserId(data, key = 'defsource') {
   const value = _.get(data, ['advancedSetting', key]) || '[]';
   let dataType = use_ids[data.type];
+
   try {
     const settings = value && JSON.parse(value);
     if (_.isEmpty(settings)) return data;
@@ -162,14 +170,17 @@ export function dealUserId(data, key = 'defsource') {
       update(setting, {
         $apply: item => {
           const { staticValue } = item;
+
           if (item.type && key === 'chooserange') {
             const chooseId = item.type === 1 ? 26 : item.type === 2 ? 27 : 48;
             dataType = use_ids[chooseId];
           }
+
           if (staticValue && typeof staticValue === 'string') {
             const accountId = safeParse(staticValue || '{}')[dataType];
             return { ...item, staticValue: accountId || staticValue };
           }
+
           if (_.get(staticValue, [dataType])) return { ...item, staticValue: staticValue[dataType] };
           return item;
         },
@@ -183,11 +194,13 @@ export function dealUserId(data, key = 'defsource') {
   } catch (error) {
     console.log(error);
   }
+
   return data;
 }
 
 export function dealCascaderId(data) {
   const value = _.get(data, ['advancedSetting', 'topfilters']) || '[]';
+
   try {
     const settings = value && JSON.parse(value);
     if (_.isEmpty(settings)) return data;
@@ -206,6 +219,7 @@ export function dealCascaderId(data) {
   } catch (error) {
     console.log(error);
   }
+
   return data;
 }
 
@@ -217,12 +231,14 @@ export function handleCondition(condition, isRelate) {
   if (_.isBoolean(isRelate) && isRelate && !isEmpty(condition.dynamicSource)) {
     condition.dynamicSource.forEach(item => (item.rcid = ''));
   }
+
   if (_.includes([19, 23, 24, 26, 27, 29, 35, 48], condition.dataType) && condition.values) {
     return {
       ...condition,
       values: condition.values.map(value => {
         try {
           const da = JSON.parse(value);
+
           if (typeof da === 'object') {
             return da.id;
           } else {
@@ -238,14 +254,17 @@ export function handleCondition(condition, isRelate) {
     return condition;
   }
 }
+
 /**
  * 处理关联表叠加筛选条件里的 成员 部门 地区 他表字段 级联 这几个类型的字段 values 处理成 [id, id]
  */
 export function handleFilters(data, isRelate = false, filterKey) {
   const keyName = filterKey ? filterKey : 'filters';
   const filters = getAdvanceSetting(data, [keyName]);
+
   try {
     let filtersValue = [];
+
     if (filters.some(item => item.groupFilters)) {
       filtersValue = filters.map(f => {
         return {
@@ -282,10 +301,12 @@ export const getConcatenateControls = (controls, data) => {
       const sourceControlType = get(item, ['sourceControl', 'type']);
       if (sourceControlType) type = sourceControlType;
     }
+
     // 关联记录和他表字段的sourceControl仍然是关联记录和他表字段的不能选
     return !includes([29, 30].concat(CAN_NOT_AS_TEXT_GROUP), type);
   });
 };
+
 // 获取数值公式可用控件
 export const getFormulaControls = (controls, data) => {
   controls = canSelectedControls(controls, data);
@@ -293,6 +314,7 @@ export const getFormulaControls = (controls, data) => {
     let type = item.type;
     let enumDefault2 = item.enumDefault2;
     let enumDefault = item.enumDefault;
+
     if (type === 30 || isSingleRelateSheet(item)) {
       const sourceControl = get(item, 'sourceControl') || {};
 
@@ -304,6 +326,7 @@ export const getFormulaControls = (controls, data) => {
         enumDefault2 = sourceControl.enumDefault2;
       }
     }
+
     return (
       includes([6, 8, 28, 31, 46], type) ||
       // 赋分值选项
@@ -323,13 +346,16 @@ export const getMoneyCnControls = (controls, data) => {
   return controls.filter(item => {
     let type = item.type;
     let enumDefault2 = item.enumDefault2;
+
     if (type === 30 || isSingleRelateSheet(item)) {
       const sourceControl = get(item, 'sourceControl') || {};
+
       if (sourceControl.type) {
         type = sourceControl.type;
         enumDefault2 = sourceControl.enumDefault2;
       }
     }
+
     return (
       includes([8, 31], type) ||
       // 非日期汇总
@@ -356,14 +382,17 @@ export function getControlValue(id, allControls, worksheetData) {
 // 通过id 获取控件的文本值
 export function getControlTextValue(id, allControls, worksheetData, numberOnly) {
   const control = getControlByControlId(allControls, id);
+
   if (!control || _.isEmpty(worksheetData)) {
     return '';
   }
 
   const { type, controlId } = control;
+
   if (_.includes([6, 8], type)) {
     return worksheetData[controlId];
   }
+
   if (controlId) {
     return (
       formatColumnToText(
@@ -396,9 +425,11 @@ export function createWorksheetColumnTag(id, options) {
       errorCallback(1);
     }
   }
+
   if (mode === 3 && !isLast) {
     node.classList.add('onlytag');
   }
+
   node.innerHTML = !isEmpty(control)
     ? `
     <div class="columnName">${control.controlName}</div>
@@ -444,21 +475,6 @@ export const navigateToView = (worksheetId, viewId) => {
   });
 };
 
-export const navigateToAppItem = worksheetId => {
-  homeAppApi.getAppSimpleInfo({ worksheetId }).then(data => {
-    const { appId, appSectionId } = data;
-    const storage = JSON.parse(localStorage.getItem(`mdAppCache_${md.global.Account.accountId}_${appId}`)) || {};
-    const cacheViewId = (
-      (storage.worksheets || []).filter(w => w.groupId === appSectionId && w.worksheetId === worksheetId)[0] || {}
-    ).viewId;
-    if (cacheViewId) {
-      navigateTo(`/app/${appId}/${appSectionId}/${worksheetId}/${cacheViewId}`);
-    } else {
-      navigateTo(`/app/${appId}/${appSectionId}/${worksheetId}`);
-    }
-  });
-};
-
 export const dealControlPos = controls => {
   const sortableControls = controls.reduce((p, c) => {
     return update(p, { $push: [[c]] });
@@ -472,6 +488,7 @@ export const dealCusTomEventActions = (actionItems = [], controls = []) => {
     // 函数、查询不处理，动态值处理
     if (_.includes(['1', '2'], item.type)) return item;
     const currentControl = _.find(controls, c => c.controlId === item.controlId);
+
     // 默认值处理，成员、部门等取id
     if (currentControl && item.value) {
       // 用户id替换
@@ -499,9 +516,11 @@ export const dealCusTomEventActions = (actionItems = [], controls = []) => {
 export const checkWidgetErrorBeforeSave = (controls = [], originControls = []) => {
   let errorMsg = '';
   let errorNum = 3;
+
   for (const data of controls) {
     // 自定义事件校验
     const customEvent = getAdvanceSetting(data, 'custom_event') || [];
+
     if (customEvent.length > 0) {
       const customActionItems = customEvent.map(({ eventActions = [] } = {}) => {
         return _.reduce(
@@ -536,6 +555,7 @@ export const checkWidgetErrorBeforeSave = (controls = [], originControls = []) =
         (data.options || []).map(d => d.value),
         originOptions.map(o => o.value),
       );
+
       if (noDelOptions.length !== uniqOptions.length && hasChanged) {
         errorMsg = _l('选项字段存在重复选项');
         break;
@@ -544,11 +564,13 @@ export const checkWidgetErrorBeforeSave = (controls = [], originControls = []) =
 
     // 自定义字段--引用配置校验
     const reference = getAdvanceSetting(data, 'reference') || [];
+
     if (!_.isEmpty(reference)) {
       if (reference.some(r => !r.name)) {
         errorMsg = _l('变量名不允许为空');
         break;
       }
+
       if (_.uniqBy(reference, 'name').length !== reference.length) {
         errorMsg = _l('变量名不允许重复');
         break;
@@ -560,6 +582,7 @@ export const checkWidgetErrorBeforeSave = (controls = [], originControls = []) =
     alert(errorMsg, errorNum);
     return true;
   }
+
   return false;
 };
 
@@ -592,6 +615,7 @@ const checkAutoIdReset = (data = {}, originControls = [], globalInfo = {}) => {
   const originIncrease = getAdvanceSetting(originAutoId, 'increase') || [];
   const startValueChange =
     _.get(_.find(increase, { type: 1 }), 'start') !== _.get(_.find(originIncrease, { type: 1 }), 'start');
+
   if (startValueChange && window.auto_id_reset[data.controlId]) {
     sheetAjax.resetControlIncrease({
       ..._.pick(globalInfo, ['appId', 'worksheetId']),
@@ -622,12 +646,14 @@ export const formatControlsData = (controls = [], fromSub = false) => {
     }
 
     const chooseRange = getAdvanceSetting(data, 'chooserange') || [];
+
     if (chooseRange.length) {
       data = dealUserId(data, 'chooserange');
     }
 
     // 限定输入格式
     const filterRegex = getAdvanceSetting(data, 'filterregex') || [];
+
     if (filterRegex.length) {
       const newFilterRegex = filterRegex.map(f => {
         if (f.filters) {
@@ -635,6 +661,7 @@ export const formatControlsData = (controls = [], fromSub = false) => {
           const newFilters = _.get(dealFilters, 'advancedSetting.filters');
           return { ...f, filters: _.isEmpty(newFilters) ? '' : JSON.parse(newFilters) };
         }
+
         return f;
       });
       data = handleAdvancedSettingChange(data, { filterregex: JSON.stringify(newFilterRegex) });
@@ -642,6 +669,7 @@ export const formatControlsData = (controls = [], fromSub = false) => {
 
     // 自定义事件筛选处理
     const customEvent = getAdvanceSetting(data, 'custom_event') || [];
+
     if (!isEmpty(customEvent)) {
       const newCustomEvent = customEvent.map(c => {
         return {
@@ -673,6 +701,7 @@ export const formatControlsData = (controls = [], fromSub = false) => {
     // 子表控件递归处理其中的字段
     if (type === 34) {
       let uniqueControls = getAdvanceSetting(data, 'uniquecontrols') || [];
+
       // 检查一遍本记录不重复字段是否都符合要求，不符合清空
       if (!fromSub && uniqueControls.length > 0) {
         const globalUniqueControls = (data.relationControls || []).filter(i => i.unique).map(i => i.controlId);
@@ -740,15 +769,19 @@ export const formatControlsData = (controls = [], fromSub = false) => {
       if (!isEmpty(getAdvanceSetting(data, 'filters'))) {
         data = handleFilters(data, isRelate);
       }
+
       if (!isEmpty(getAdvanceSetting(data, 'resultfilters'))) {
         data = handleFilters(data, true, 'resultfilters');
       }
+
       if (getAdvanceSetting(data, 'topshow') === 3 && !isEmpty(getAdvanceSetting(data, 'topfilters'))) {
         data = handleFilters(data, isRelate, 'topfilters');
       }
+
       if (getAdvanceSetting(data, 'topshow') === 2 && !isEmpty(getAdvanceSetting(data, 'topfilters'))) {
         data = dealCascaderId(data);
       }
+
       // 查询聚合表指定字段处理showtype
       if (type === 51 && (data.enumDefault === 1 || getAdvanceSetting(data, 'querytype') === 1)) {
         data = {
@@ -760,22 +793,26 @@ export const formatControlsData = (controls = [], fromSub = false) => {
           enumDefault2: 1,
         };
       }
+
       // 关联表sid处理
       return fromSub
         ? omit(dealRelateSheetDefaultValue(data), 'relationControls', 'controls', 'sourceControl')
         : omit(dealRelateSheetDefaultValue(data), 'relationControls', 'controls');
     }
+
     // 汇总 筛选values 处理成 [id, id]
     if (type === 37) {
       if (!isEmpty(getAdvanceSetting(data, 'filters'))) {
         data = handleFilters(data);
       }
+
       return data;
     }
 
     // 处理公式大写金额他表字段数据
     if (_.includes([20, 31, 32], type)) {
       let dataSource = data.dataSource || '';
+
       if (type === 20 || type === 31) {
         dataSource = dataSource
           .replace(/c*SUM/gi, 'cSUM')
@@ -790,12 +827,15 @@ export const formatControlsData = (controls = [], fromSub = false) => {
           .replace(/c*ROUNDDOWN/gi, 'cROUNDDOWN')
           .replace(/c*ROUND\(/gi, 'cROUND(');
       }
+
       if (type === 20) {
         dataSource = dataSource.replace(/c*AVG/gi, 'cAVG');
       }
+
       if (type === 31) {
         dataSource = dataSource.replace(/c*AVERAGE/gi, 'cAVG');
       }
+
       return update(data, { dataSource: { $set: dataSource } });
     }
 
@@ -817,6 +857,7 @@ export const formatControlsData = (controls = [], fromSub = false) => {
       const nextIncrease = update(increase, { [index]: { $apply: item => ({ ...item, start: 1 }) } });
       return handleAdvancedSettingChange(data, { increase: JSON.stringify(nextIncrease) });
     }
+
     return data;
   });
 };
@@ -835,9 +876,11 @@ export const dealRequestControls = (controls, needChild) => {
     })
     .map(item => {
       const childControl = _.find(controls, o => o.dataSource === item.controlId);
+
       if (item.type === 10000007 && childControl) {
         return { ...item, originType: childControl.type };
       }
+
       return item;
     });
 
@@ -845,6 +888,7 @@ export const dealRequestControls = (controls, needChild) => {
     filterControls.forEach(item => {
       if (item.dataSource) {
         const parentIndex = findIndex(newControls, i => i.controlId === item.dataSource);
+
         if (parentIndex > -1) {
           const parentControl = newControls[parentIndex];
           newControls[parentIndex] = { ...parentControl, child: (parentControl.child || []).concat(item) };
@@ -891,9 +935,11 @@ export const scrollToVisibleRange = (data, widgetProps) => {
   const $activeWidget = document.getElementById(`widget-${(activeWidget || {}).controlId}`);
   if (!$contentWrap || !$activeWidget) return;
   const rect = $activeWidget.getBoundingClientRect();
+
   // 如果在可视区外
   if (rect.top < 0 || rect.top > $contentWrap.offsetHeight) {
     const $scrollWrap = $contentWrap.querySelector('.scroll-viewport');
+
     if ($scrollWrap) {
       setTimeout(() => {
         const $widget = document.getElementById(`widget-${data.controlId}`);
@@ -917,8 +963,10 @@ export const clearAndSetWidgets = (data, para, widgetProps, callback) => {
 
   // 检查特性版本限制
   const tempData = head(data);
+
   if (tempData) {
     const featureType = getFeatureStatus(globalSheetInfo.projectId, tempData.featureId);
+
     if (_.includes([49, 50], tempData.type) && featureType === '2') {
       buriedUpgradeVersionDialog(globalSheetInfo.projectId, tempData.featureId);
       return;
@@ -958,9 +1006,11 @@ export const handleUpdateWidgetsAttribute = ({ needUpdateWidgets } = {}, widgetP
       arr.map(inner => {
         return inner.map(w => {
           const matched = needUpdateWidgets.find(d => d.alias === w.alias);
+
           if (matched) {
             return { ...w, ...matched };
           }
+
           return w;
         });
       }),
@@ -985,6 +1035,7 @@ export function batchUpdateWidgetsLayout(layoutOfAllWidgets = {}, widgetProps, c
   // 2. 更新每个控件的 row, col, size 属性
   const updatedWidgets = flattenWidgets.map(widget => {
     const layout = layoutOfAllWidgets[widget.controlId];
+
     if (layout) {
       return {
         ...widget,
@@ -993,6 +1044,7 @@ export function batchUpdateWidgetsLayout(layoutOfAllWidgets = {}, widgetProps, c
         size: layout.size,
       };
     }
+
     return widget;
   });
 
@@ -1019,6 +1071,7 @@ export const handleAddWidgets = (data, para = {}, widgetProps, callback) => {
   const { mode, path, location, displayItemType, rowIndex, activePath, isMingo } = para;
   const tempData = head(data);
   const featureType = getFeatureStatus(globalSheetInfo.projectId, tempData.featureId);
+
   if (_.includes([49, 50], tempData.type) && featureType === '2') {
     buriedUpgradeVersionDialog(globalSheetInfo.projectId, tempData.featureId);
     return;
@@ -1035,6 +1088,7 @@ export const handleAddWidgets = (data, para = {}, widgetProps, callback) => {
     if (isTabSheetList(data) && displayItemType === 'common') {
       data = handleAdvancedSettingChange(data, { showtype: '5' });
     }
+
     // 拖到单独的行
     if (mode === DRAG_MODE.INSERT_NEW_LINE) {
       setWidgets(update(widgets, { $splice: [[rowIndex, 0, data]] }));
@@ -1044,8 +1098,10 @@ export const handleAddWidgets = (data, para = {}, widgetProps, callback) => {
       if (_.isFunction(callback)) {
         callback();
       }
+
       return;
     }
+
     // 拖到行的末尾
     if (mode === DRAG_MODE.INSERT_TO_ROW_END) {
       setWidgets(
@@ -1100,6 +1156,7 @@ export const handleAddWidgets = (data, para = {}, widgetProps, callback) => {
           if (!fixedBottomWidgets(activeWidget) && fixedBottomWidgets(item)) {
             currentRowIndex = newWidgets.length - 1;
           }
+
           // 当前激活控件特殊控件，但是添加控件是非特殊控件，直接添加在分界线
           if (fixedBottomWidgets(activeWidget) && !fixedBottomWidgets(item)) {
             currentRowIndex = getBoundRowByTab(widgets) - 1;
@@ -1186,6 +1243,7 @@ export const dealCopyWidgetId = (data = {}) => {
   };
 
   let ids = {};
+
   if (
     data.type === 34 &&
     (_.get(data, 'advancedSetting.detailworksheettype') === '2' ||
@@ -1214,11 +1272,13 @@ export const dealCopyWidgetId = (data = {}) => {
     };
     return newWidget;
   }
+
   if (data.type === 34 && window.subListSheetConfig[data.controlId]) {
     window.subListSheetConfig[newData.controlId] = {
       ...window.subListSheetConfig[data.controlId],
     };
   }
+
   return newData;
 };
 
@@ -1234,6 +1294,7 @@ export const batchCopyWidgets = (props, selectWidgets = []) => {
 
   for (var i = 0; i < selectWidgets.length; i++) {
     const err = checkWidgetMaxNumErr(selectWidgets[i], [...allControls, ...selectWidgets.slice(0, i)]);
+
     if (err) {
       alert(err, 3);
       return;
@@ -1259,6 +1320,7 @@ export const batchCopyWidgets = (props, selectWidgets = []) => {
     const currentRow = head(getPathById(newWidgets, get(last(row), 'controlId')));
     const dealRow = row.map(data => {
       let dealItem = dealCopyWidgetId(data);
+
       // 替换分段内字段sectionId
       if (sectionIds[dealItem.sectionId]) {
         dealItem.sectionId = sectionIds[dealItem.sectionId];
@@ -1266,8 +1328,10 @@ export const batchCopyWidgets = (props, selectWidgets = []) => {
         // 没有sectionId,清空childCount,防止插入位置不对
         childCount = 0;
       }
+
       // 工作表查询配置复制
       const currentQuery = find(queryConfigs, queryItem => queryItem.controlId === data.controlId);
+
       if (currentQuery) {
         dealItem = handleAdvancedSettingChange(dealItem, { dynamicsrc: '', defaulttype: '' });
       }
@@ -1319,6 +1383,7 @@ export const deleteSection = ({ widgets = [], data }, props) => {
       let batchDeleteWidgets = batchRemoveItems(widgets, deleteWidgets);
       const addWidgets = (data.relationControls || []).map(i => ({ ...i, sectionId: '' }));
       const activeWidget = last(addWidgets);
+
       // 将内部字段移到外部，拼到普通字段后
       if (addWidgets.length) {
         const boundRow = getBoundRowByTab(batchDeleteWidgets);
@@ -1328,6 +1393,7 @@ export const deleteSection = ({ widgets = [], data }, props) => {
           ...putControlByOrder(addWidgets),
         );
       }
+
       setWidgets(batchDeleteWidgets);
       if (activeWidget) {
         setActiveWidget(activeWidget);
@@ -1337,6 +1403,7 @@ export const deleteSection = ({ widgets = [], data }, props) => {
       } else {
         setActiveWidget({});
       }
+
       return;
     },
   });
@@ -1346,12 +1413,15 @@ export const deleteSection = ({ widgets = [], data }, props) => {
 export const batchShiftWidgets = props => {
   const { batchActive = [], data, widgets = [], setBatchActive } = props;
   const startWidget = last(batchActive);
+
   if (startWidget && data) {
     const [startRow, startCol] = getPathById(widgets, startWidget.controlId);
     const [endRow, endCol] = getPathById(widgets, data.controlId);
     const newBatchWidgets = [];
+
     for (var i = 0; i < widgets.length; i++) {
       const row = widgets[i];
+
       for (var j = 0; j < row.length; j++) {
         if (
           (i === Math.min(startRow, endRow) && j >= (startRow > endRow ? endCol : startCol)) ||

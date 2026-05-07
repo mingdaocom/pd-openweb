@@ -52,6 +52,7 @@ const TelPhone = props => {
     formItemId,
     useCallback(data => {
       const { triggerType } = data;
+
       switch (triggerType) {
         case 'trigger_tab_enter':
           setIsEditing(true);
@@ -96,6 +97,7 @@ const TelPhone = props => {
     if (event.target.value.trim() !== originValue) {
       onChange(event.target.value.trim());
     }
+
     onBlur(originValue);
   };
 

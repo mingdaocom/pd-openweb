@@ -19,6 +19,7 @@ export default class Widgets extends Component {
     if (enumDefault !== 2) {
       return;
     }
+
     compatibleMDJS('scanRelationLoaded', {
       cid: controlId,
       cname: controlName,
@@ -65,12 +66,15 @@ export default class Widgets extends Component {
       controlId: window.isPublicWorksheet ? control.controlId : undefined,
     }).then(result => {
       const row = _.find(result.data, { rowid: rowId });
+
       if (row) {
         const titleControl = _.find(_.get(control, 'relationControls'), i => i.attribute === 1) || {};
         const nameValue = titleControl ? row[titleControl.controlId] : undefined;
+
         if (!_.includes(relateRecordIds, row.rowid)) {
           this.props.onChange(row);
         }
+
         this.handleScanRelationLoaded({
           controlId,
           controlName,
@@ -92,6 +96,7 @@ export default class Widgets extends Component {
           });
           return;
         }
+
         alert(_l('无法关联，此记录不在可关联的范围内'), 3);
       }
     });
@@ -99,6 +104,7 @@ export default class Widgets extends Component {
   handleRelateRow = content => {
     const currentWorksheetId = this.props.worksheetId;
     const { controlId, controlName, enumDefault } = _.get(this.props, 'control') || {};
+
     if (content.includes('worksheetshare') || content.includes('public/record')) {
       const shareId = (content.match(/\/worksheetshare\/(.*)/) || content.match(/\/public\/record\/(.*)/))[1];
       sheetAjax
@@ -122,19 +128,23 @@ export default class Widgets extends Component {
               });
               return;
             }
+
             alert(_l('无法关联，此记录不在可关联的范围内'), 3);
           }
         });
       return;
     } else {
       const result = content.match(/app\/(.*)\/(.*)\/(.*)\/row\/(.*)/);
+
       if (result) {
         const [, appId, worksheetId, viewId, rowId] = result;
         const { scanlink } = _.get(this.props, 'control.advancedSetting') || {};
+
         if (appId && worksheetId && viewId && rowId) {
           if (scanlink !== '1') {
             return;
           }
+
           if (currentWorksheetId === worksheetId) {
             this.getRowById({
               appId,
@@ -155,6 +165,7 @@ export default class Widgets extends Component {
               });
               return;
             }
+
             alert(_l('无法关联，此记录不在可关联的范围内'), 3);
           }
         } else {
@@ -172,6 +183,7 @@ export default class Widgets extends Component {
         className={className}
         projectId={projectId}
         control={control}
+        disablePhoto={control.strDefault.split('')[1] === '1'}
         onScanQRCodeResult={this.handleRelateRow}
       >
         {children}

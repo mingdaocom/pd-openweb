@@ -33,7 +33,7 @@ const indexConfig = [
 export default class Orgothers extends Component {
   constructor(props) {
     super(props);
-    Config.setPageTitle(_l('其他'));
+    Config.setPageTitle(_l('组织 - 其他'));
     this.state = {
       level: 'index',
       exportVisible: false,
@@ -45,6 +45,7 @@ export default class Orgothers extends Component {
       AdminCommon.freeUpdateDialog();
       return;
     }
+
     this.setState({ level });
   };
 
@@ -53,6 +54,7 @@ export default class Orgothers extends Component {
       AdminCommon.freeUpdateDialog();
       return;
     }
+
     this.setState({
       [key]: value,
     });

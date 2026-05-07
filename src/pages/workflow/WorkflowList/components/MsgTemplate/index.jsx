@@ -34,6 +34,7 @@ export default class MsgTemplate extends Component {
     const { companyId, api } = this.props;
     let { data, pageIndex, pageSize, haveMoreData, isAsc, sortId } = this.state;
     const para = { companyId, pageIndex, pageSize, isAsc, sortId };
+
     if (haveMoreData && !this.pending) {
       api(para).then(res => {
         this.pending = false;
@@ -55,6 +56,7 @@ export default class MsgTemplate extends Component {
    */
   handleScroll = () => {
     const { haveMoreData } = this.state;
+
     if (haveMoreData) {
       this.getData();
       this.pending = true;
@@ -167,11 +169,13 @@ export default class MsgTemplate extends Component {
                         checked={_.includes(messageTemplateIds, template.id)}
                         onClick={checked => {
                           let copyCheckedIds = [...messageTemplateIds];
+
                           if (!checked) {
                             copyCheckedIds.push(template.id);
                           } else {
                             copyCheckedIds = copyCheckedIds.filter(item => item !== template.id);
                           }
+
                           this.setState({ messageTemplateIds: copyCheckedIds });
                         }}
                       />

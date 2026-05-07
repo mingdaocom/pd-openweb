@@ -5,6 +5,7 @@ import { MobileSearch, PopupWrapper, ScrollView } from 'ming-ui';
 import RecordCard from 'mobile/RecordList/RecordCard';
 import { getFormateView } from '../../util';
 import EmptyStatus from '../EmptyStatus';
+import './index.less';
 
 const DailySchedule = forwardRef((props, ref) => {
   const {
@@ -38,6 +39,7 @@ const DailySchedule = forwardRef((props, ref) => {
       setState({ filterData: data, keywords });
       return;
     }
+
     let filterData = data.filter(({ extendedProps }) => extendedProps[titleControlId]?.includes(keywords));
     setState({ filterData, keywords });
   };

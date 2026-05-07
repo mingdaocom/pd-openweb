@@ -1,0 +1,152 @@
+.knowledgeListContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  height: 100%;
+  .header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    .headerLeft {
+      .headerLeftTitle {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--color-text-primary);
+      }
+      .description {
+        margin-top: 8px;
+        font-size: 13px;
+        color: var(--color-text-secondary);
+      }
+    }
+  }
+  .content {
+    flex: 1;
+    min-height: 0;
+    margin: 0 -40px;
+    .knowledgeList {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      padding: 0 40px;
+      .knowledgeItem {
+        padding: 20px;
+        border-radius: 4px;
+        border: 1px solid var(--color-border-primary);
+        background-color: var(--color-background-primary);
+        &:hover {
+          cursor: pointer;
+        }
+        .knowledgeItemHeader {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          gap: 10px;
+          .left {
+            flex: 1;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            .title {
+              font-size: 15px;
+              font-weight: 700;
+              color: var(--color-text-primary);
+            }
+            .modelInfo {
+              font-size: 16px;
+              color: var(--color-text-secondary);
+            }
+          }
+          .right {
+            display: flex;
+            align-items: center;
+            color: var(--color-text-secondary);
+            .moreIconWrap {
+              padding: 4px;
+              margin-left: 8px;
+              cursor: pointer;
+              .moreIcon {
+                font-size: 16px;
+              }
+            }
+          }
+        }
+        .knowledgeInfo {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-end;
+          margin-top: 16px;
+          .knowledgeWorksheet {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            .worksheetItem {
+              display: flex;
+              align-items: center;
+              gap: 8px;
+              padding: 0 10px;
+              max-width: 200px;
+              height: 30px;
+              border-radius: 30px;
+              background-color: var(--color-background-tertiary);
+              .icon {
+                font-size: 16px;
+                color: var(--color-text-secondary);
+              }
+              .title {
+                flex: 1;
+                min-width: 0;
+                font-size: 13px;
+                color: var(--color-text-primary);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+.knowledgeMoreActions {
+  .delete {
+    color: var(--color-error);
+  }
+}
+
+.confirmVectorizeInfo {
+  .description {
+    margin-bottom: 24px;
+    font-size: 13px;
+    color: var(--color-text-secondary);
+  }
+  .baseInfo,
+  .totalInfo {
+    font-size: 13px;
+    color: var(--color-text-primary);
+  }
+  .totalInfo {
+    margin: 20px 0;
+  }
+}
+
+.updateKnowledgeForm {
+  margin-bottom: 60px;
+  .formLabel {
+    margin-bottom: 12px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--color-text-primary);
+  }
+  input {
+    margin-bottom: 20px;
+    width: 100%;
+  }
+}
+
+.deleteKnowledge {
+  margin-bottom: 20px;
+  color: var(--color-text-primary);
+}

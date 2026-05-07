@@ -9,6 +9,7 @@ export default class HeaderDisplaySetup extends Component {
   setDefaultValue = reportType => {
     const { displaySetup } = this.props;
     let newData = null;
+
     if (reportType === reportTypes.BarChart) {
       newData = {
         ...displaySetup,
@@ -16,6 +17,7 @@ export default class HeaderDisplaySetup extends Component {
         isPerPile: false,
       };
     }
+
     if (reportType === reportTypes.LineChart) {
       newData = {
         ...displaySetup,
@@ -25,16 +27,19 @@ export default class HeaderDisplaySetup extends Component {
         isPerPile: false,
       };
     }
+
     if (reportType === reportTypes.FunnelChart) {
       newData = {
         ...displaySetup,
         isAccumulate: false,
       };
     }
+
     this.props.onUpdateDisplaySetup(newData, 'default');
   };
   getDefaultValue(reportType) {
     const { displaySetup } = this.props;
+
     if (reportType === reportTypes.BarChart) {
       if (displaySetup.isPile || displaySetup.isPerPile) {
         return false;
@@ -42,6 +47,7 @@ export default class HeaderDisplaySetup extends Component {
         return true;
       }
     }
+
     if (reportType === reportTypes.LineChart) {
       if (
         displaySetup.isPile ||
@@ -54,6 +60,7 @@ export default class HeaderDisplaySetup extends Component {
         return true;
       }
     }
+
     if (reportType === reportTypes.FunnelChart) {
       if (displaySetup.isAccumulate) {
         return false;
@@ -65,6 +72,7 @@ export default class HeaderDisplaySetup extends Component {
   handleCheck(name, checked) {
     const { displaySetup } = this.props;
     let newData = null;
+
     if (name === 'isPile' || name === 'isPerPile') {
       newData = {
         ...displaySetup,
@@ -83,6 +91,7 @@ export default class HeaderDisplaySetup extends Component {
         [name]: !checked,
       };
     }
+
     this.props.onUpdateDisplaySetup(newData, name);
   }
   render() {

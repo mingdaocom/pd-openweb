@@ -121,6 +121,7 @@ export const getFilterDataByRuleAction = (
             );
 
             const ids = dataFormat.getUpdateControlIds();
+
             if (ids.length) {
               onChangeEnhance(dataFormat.getDataSource(), ids, { controlId: cid });
               updateChangeStatus(true);
@@ -135,10 +136,12 @@ export const getFilterDataByRuleAction = (
     // 标签页显示，但标签页内没有显示字段，标签页隐藏
     if (item.type === 52 && controlState(item, from).visible && !item.hidden) {
       const childWidgets = tempRenderData.filter(i => i.sectionId === item.controlId);
+
       if (_.every(childWidgets, c => !(controlState(c, from).visible && !c.hidden))) {
         item.fieldPermission = replaceStr(item.fieldPermission || '111', 0, '0');
       }
     }
+
     // 标签页字读，所有子集只读
     if (
       item.sectionId &&
@@ -164,6 +167,7 @@ export const getConfigAction = async (dispatch, { props, getRules, getSearchConf
   const { appId, worksheetId, onRulesLoad = () => {} } = props;
   let rules;
   let config;
+
   // 获取字段显示规则
   if (getRules) {
     rules = await sheetAjax.getControlRules({ worksheetId, type: 1 });
@@ -174,6 +178,7 @@ export const getConfigAction = async (dispatch, { props, getRules, getSearchConf
       payload: rules,
     });
   }
+
   // 获取查询配置
   if (getSearchConfig) {
     config = await sheetAjax.getQueryBySheetId({ worksheetId });
@@ -194,6 +199,7 @@ export const getConfigAction = async (dispatch, { props, getRules, getSearchConf
  */
 export const updateErrorStateAction = (dispatch, { getState, isShow, controlId }) => {
   const { errorItems, uniqueErrorItems } = getState();
+
   if (controlId) {
     updateErrorItemsAction(
       dispatch,
@@ -222,6 +228,7 @@ export const updateErrorStateAction = (dispatch, { getState, isShow, controlId }
  */
 export const errorDialog = errors => {
   const isMobile = browserIsMobile();
+
   if (isMobile) {
     MobileDialog.alert({
       content: (
@@ -286,6 +293,7 @@ export const getSubmitDataAction = (
         .filter(item => {
           // 标签页隐藏、只读，内部字段报错校验过滤
           const parentControls = _.find(list, t => t.controlId === item.sectionId);
+
           if (
             parentControls &&
             (!controlState(parentControls, from).visible ||
@@ -294,6 +302,7 @@ export const getSubmitDataAction = (
           ) {
             return false;
           }
+
           return controlState(item, from).visible && controlState(item, from).editable && item.type !== 52;
         })
         .map(it => it.controlId);
@@ -326,6 +335,7 @@ export const getSubmitDataAction = (
         const controlRefs = getControlRefs();
         const { handleExpand } = controlRefs[d.controlId] || {};
         const visibleErrors = totalErrors.filter(i => _.includes(expandWidgetIds, i.controlId));
+
         if (visibleErrors.length > 0 && _.isFunction(handleExpand)) {
           handleExpand(true);
         }
@@ -337,6 +347,7 @@ export const getSubmitDataAction = (
     const firstErrorItem = _.head(
       totalErrors.map(t => _.find(data, d => d.controlId === t.controlId)).sort((a, b) => a.row - b.row),
     );
+
     if (firstErrorItem && !firstErrorItem.isSubList) {
       const ele = document.getElementById(`formItem-${worksheetId}-${firstErrorItem.controlId}`);
       ele && ele.scrollIntoView({ block: 'center' });
@@ -348,6 +359,7 @@ export const getSubmitDataAction = (
       .map(t => _.find(data, d => d.controlId === t.sectionId))
       .filter(_.identity)
       .sort((a, b) => a.row - b.row);
+
     if (!!tabErrorControls.length && !_.find(tabErrorControls, t => t.controlId === activeTabControlId)) {
       const tempId = _.get(tabErrorControls, '0.controlId');
       updateActiveTabControlIdAction(dispatch, tempId);
@@ -383,6 +395,8 @@ export const submitFormDataAction = (
   dispatch,
   { props, getState, options, dataFormat, updateSubmitBegin, getSubmitBegin, getControlRefs, newErrorDialog },
 ) => {
+  if (!dataFormat) return;
+
   const { loadingItems, rules } = getState();
   updateSubmitBegin(true);
   const { onSave, from, entityName = _l('记录') } = props;
@@ -403,6 +417,7 @@ export const submitFormDataAction = (
   onSave(error, {
     data,
     updateControlIds,
+    isQuickUpdateCheck: options?.isQuickUpdateCheck,
     alertLockError: () => {
       const { ruleItems = [] } = _.find(rules, r => r.type === 2) || {};
       const message = _.get(ruleItems, '0.message');
@@ -412,6 +427,7 @@ export const submitFormDataAction = (
       badData.forEach(itemBadData => {
         const [rowId, ruleId, controlId] = (itemBadData || '').split(':').reverse();
         const control = _.find(data, d => d.controlId === controlId);
+
         if (control && control.type === 34) {
           const state = control.store && control.store.getState();
           const ruleError = getRuleErrorInfo(_.get(state, 'base.worksheetInfo.rules'), [[ruleId, rowId].join(':')]);
@@ -423,6 +439,7 @@ export const submitFormDataAction = (
                   'errorInfo.0.errorMessage',
                 ),
               };
+
               if (!isEmpty(error)) {
                 dataFormat.callStore(
                   { fnName: 'dispatch', controlId: controlId },
@@ -453,6 +470,7 @@ export const submitFormDataAction = (
       if (hideControlErrors.length > 0) {
         newErrorDialog(hideControlErrors, options);
       }
+
       // 过滤掉子表报错、ids：不需校验的字段合集
       totalRuleError = totalRuleError.filter(it => _.includes(ids, it.controlId));
       updateErrorItemsAction(dispatch, totalRuleError);
@@ -460,10 +478,12 @@ export const submitFormDataAction = (
     // 接口报错
     handleServiceError: badData => {
       const { serviceError, hideControlErrors } = getServiceError(badData, data, from);
+
       // 后端校验隐藏字段报错
       if (hideControlErrors.length > 0) {
         errorDialog(hideControlErrors);
       }
+
       updateErrorItemsAction(dispatch, serviceError);
       alert(_l('记录提交失败：有必填字段未填写'), 2);
     },
@@ -510,6 +530,7 @@ export const handleChangeAction = (
     if (_.get(value, 'isFormTable')) {
       value = value.value;
     }
+
     dataFormat.updateDataSource({
       controlId: cid,
       value,
@@ -531,6 +552,7 @@ export const handleChangeAction = (
     );
 
     const ids = dataFormat.getUpdateControlIds();
+
     if (ids.length) {
       onChangeEnhance(dataFormat.getDataSource(), ids, { controlId: cid });
       updateChangeStatus(true);
@@ -571,6 +593,7 @@ export const triggerCustomEventAction = (
     },
     handleActiveTab: id => {
       const curControl = _.find(renderData, r => r.controlId === id);
+
       if (
         curControl &&
         controlState(curControl, from).visible &&
@@ -603,6 +626,7 @@ export const checkControlUniqueAction = (dispatch, { props, getState, controlId,
         showError: true,
       });
     }
+
     updateUniqueErrorItemsAction(dispatch, uniqueErrorItems);
     return;
   }
@@ -618,6 +642,7 @@ export const checkControlUniqueAction = (dispatch, { props, getState, controlId,
     })
     .then(res => {
       const isError = !res.isSuccess && res.data && res.data.rowId !== recordId;
+
       if (isError) {
         uniqueErrorItems.push({
           controlId,

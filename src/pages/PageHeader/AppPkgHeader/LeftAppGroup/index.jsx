@@ -52,6 +52,7 @@ const AppSectionItem = props => {
   const { iconColor, currentPcNaviStyle, themeType, expandType } = appPkg;
   const [edit, setEdit] = useState(item.edit || false);
   const isCurrentChildren = !!findSheet(ids.worksheetId, item.items);
+
   const hideAppSection = () => {
     if (currentPcNaviStyle === 3) {
       return item.index === 0 && (appPkg.hideFirstSection || _.isEmpty(item.workSheetName)) && !item.edit;
@@ -59,20 +60,25 @@ const AppSectionItem = props => {
       return appSectionDetail.length === 1 && _.isEmpty(item.workSheetName) && !item.edit;
     }
   };
+
   const childrenHideKey = `${item.workSheetId}-hide`;
+
   const getDefaultVisible = () => {
     if (currentPcNaviStyle === 3) {
       if ((appPkg.hideFirstSection || _.isEmpty(item.workSheetName)) && item.index === 0) {
         return true;
       }
+
       if (expandType === 1) {
         return isCurrentChildren;
       }
+
       return localStorage.getItem(childrenHideKey) ? false : expandType === 0;
     } else {
       return localStorage.getItem(childrenHideKey) ? false : true;
     }
   };
+
   const [childrenVisible, setChildrenVisible] = useState(getDefaultVisible());
   const [popupVisible, setPopupVisible] = useState(false);
   const [delAppItemVisible, setDelAppItemVisible] = useState(false);
@@ -97,6 +103,7 @@ const AppSectionItem = props => {
 
   useEffect(() => {
     const hideFirstSection = item.index === 0 && appPkg.hideFirstSection && !item.edit;
+
     if (
       unfoldAppSectionId &&
       currentPcNaviStyle === 3 &&
@@ -213,6 +220,7 @@ const AppSectionItem = props => {
             } else {
               setDelAppItemVisible(true);
             }
+
             setPopupVisible(false);
           }}
         >
@@ -248,6 +256,7 @@ const AppSectionItem = props => {
             }}
             onClick={e => {
               const { classList } = e.target;
+
               if (classList.contains('appGroup') || classList.contains('nameWrap') || classList.contains('arrowIcon')) {
                 props.setUnfoldAppSectionId(!childrenVisible ? item.workSheetId : null);
                 const elWrap = document.querySelector(`.appGroupWrap-${item.workSheetId} .workSheetLeft>.flex`);
@@ -276,6 +285,7 @@ const AppSectionItem = props => {
             }}
             onMouseMove={() => {
               const now = Date.now();
+
               if (window.dragNow && now - window.dragNow > 50) {
                 setIsDrag(true);
                 setChildrenVisible(false);
@@ -435,9 +445,11 @@ const LeftAppGroup = props => {
 
   const getData = () => {
     let { appId } = ids;
+
     if (md.global.Account.isPortal) {
       appId = md.global.Account.appId;
     }
+
     if (!appId) return;
     setLoading(true);
     getAllAppSectionDetail(appId, () => {
@@ -480,6 +492,7 @@ const LeftAppGroup = props => {
         items: getAppSectionData(n.appSectionId),
       };
     });
+
     if (sectionRes.length === 1) {
       updateALLSheetList(sectionRes.map(data => Object.assign({}, data, { workSheetName: '' })));
       homeAppApi.updateAppSectionName({
@@ -490,6 +503,7 @@ const LeftAppGroup = props => {
 
       return;
     }
+
     const { items = [] } = _.find(sectionRes, { workSheetId });
     const res = sectionRes
       .filter(data => data.workSheetId !== workSheetId)

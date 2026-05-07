@@ -8,11 +8,14 @@ export const formatQueryParam = queryParam => {
     startDate: _.get(queryParam.date, 'startDate'),
     endDate: _.get(queryParam.date, 'endDate'),
     status: _.get(queryParam, 'status'),
+    companyId: _.get(queryParam, 'companyId'),
   };
+
   if (queryParam.operationType && typeof queryParam.operationType === 'string') {
     let [oType, type] = queryParam.operationType.split('-');
     data.operationType = Number(oType);
     data.type = Number(type);
   }
+
   return data;
 };

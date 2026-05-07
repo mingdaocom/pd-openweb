@@ -79,7 +79,7 @@ const ColumnPopupCon = styled.div`
     color: var(--color-text-tertiary);
     font-size: 18px;
     &:hover {
-      background-color: rgba(0, 0, 0, 0.03);
+      background-color: var(--color-background-secondary);
       color: var(--color-primary);
     }
   }
@@ -94,9 +94,10 @@ const OpenRecordBtn = styled(FlexCenter)`
   color: var(--color-primary);
   border-radius: 4px;
   &:hover {
-    background: rgba(0, 0, 0, 0.05);
+    background: var(--color-background-hover);
   }
 `;
+
 export default function RowHead(props) {
   const [confirmVisible, setConfirmVisible] = useState();
   const [moreOperateVisible, setMoreOperateVisible] = useState(false);
@@ -179,6 +180,7 @@ export default function RowHead(props) {
           if (isColumnPopup && !visible) {
             emitter.emit('TRIGGER_CELL_POPUP_OPERATE_VISIBLE_' + tableId, { visible: false });
           }
+
           setMoreOperateVisible(visible);
         }}
         onRemoveRelation={({ confirm = true } = {}) => {
@@ -228,9 +230,11 @@ export default function RowHead(props) {
         </div>
       )
     ));
+
   if (isColumnPopup && !operateContent) {
     return null;
   }
+
   return isColumnPopup ? (
     <ColumnPopupCon className="box">{operateContent}</ColumnPopupCon>
   ) : (

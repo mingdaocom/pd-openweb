@@ -10,10 +10,12 @@ export const canSetGroup = (control = {}, worksheetId = '', view = {}) => {
       (([26, 27, 48].includes(dataType) && control?.enumDefault === 1) || //多选类型
         (dataType === 29 && control?.enumDefault === 2) || //关联多条
         dataType === 10); //多选字段
+
     if (isMulti) {
       return false;
     }
   }
+
   if (
     VIEWCONTROL_CONDITION_TYPE.includes(control.type) ||
     (control.type === 30 && //支持他表字段 仅存储

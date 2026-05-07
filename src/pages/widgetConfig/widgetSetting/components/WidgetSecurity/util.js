@@ -45,6 +45,7 @@ const formatWords = words => {
 const getValueByMaskSetting = ({ maskmid = '', maskwords = '', masklen = '', value = '', maskValue = '' }) => {
   // 中间显示
   const maskMidArr = formatWords(maskmid);
+
   if (maskMidArr.length) {
     maskMidArr.forEach(mid => {
       let isGet = false;
@@ -60,6 +61,7 @@ const getValueByMaskSetting = ({ maskmid = '', maskwords = '', masklen = '', val
 
   // 始终掩码
   const maskWordsArr = formatWords(maskwords);
+
   if (maskWordsArr.length) {
     maskWordsArr.forEach(word => {
       const reg = formatReg(word);
@@ -71,9 +73,11 @@ const getValueByMaskSetting = ({ maskmid = '', maskwords = '', masklen = '', val
       });
     });
   }
+
   if (masklen && parseInt(masklen)) {
     maskValue = formatPad(masklen, maskValue);
   }
+
   return maskValue;
 };
 
@@ -87,6 +91,7 @@ const dealValueByCharNum = ({ charNum, value, maskValue, isBegin }) => {
       return maskValue.slice(0, parseInt(index)) + value.slice(parseInt(index));
     }
   }
+
   return maskValue;
 };
 
@@ -99,8 +104,10 @@ const findChar = (char, value, isBegin) => {
 const dealValueByChar = ({ char, value, maskValue, isBegin, isIncluded }) => {
   if (char) {
     const meIndex = findChar(char, value, isBegin);
+
     if (meIndex > -1) {
       const index = (isIncluded && isBegin) || (!isBegin && !isIncluded) ? meIndex + 1 : meIndex;
+
       // 字符前
       if (isBegin) {
         return value.slice(0, index) + maskValue.slice(index);
@@ -109,6 +116,7 @@ const dealValueByChar = ({ char, value, maskValue, isBegin, isIncluded }) => {
       }
     }
   }
+
   return maskValue;
 };
 
@@ -123,10 +131,36 @@ export const dealMaskValue = (data = {}) => {
     maskmid = '',
     masklen = '',
     maskwords = '',
+    defaultmask = '1',
   } = getAdvanceSetting(data);
   const value = data.value || '';
   if (datamask !== '1') return value;
+
+  if (defaultmask === '2') {
+    const maskWordsArr = formatWords(maskwords);
+
+    if (maskWordsArr.length) {
+      let maskValue = value;
+      maskWordsArr.forEach(word => {
+        const reg = formatReg(word);
+        value.replace(reg, (a, b) => {
+          if (b > -1) {
+            maskValue = maskValue.slice(0, b) + '*'.repeat(a.length) + maskValue.slice(a.length + b);
+          }
+        });
+      });
+      if (masklen) {
+        maskValue = formatPad(masklen, maskValue);
+      }
+
+      return maskValue;
+    }
+
+    return data.value || '';
+  }
+
   let maskValue = '*'.repeat(value.length);
+
   switch (masktype) {
     case 'all':
       maskbegin = '0';
@@ -201,6 +235,7 @@ export const dealMaskValue = (data = {}) => {
           maskValue = dealValueByChar({ char: mechar, value, maskValue, isBegin: false, isIncluded: true });
           break;
       }
+
       break;
 
     // 开头显示指定字数
@@ -225,12 +260,14 @@ export const dealMaskValue = (data = {}) => {
           maskValue = dealValueByChar({ char: mechar, value, maskValue, isBegin: false, isIncluded: true });
           break;
       }
+
       break;
 
     // 指定字符之前的字
     case BEGIN_ENUM.BEFORE_APPOINT_CHAR:
       maskValue = dealValueByChar({ char: mdchar, value, maskValue, isBegin: true });
       const mdIndex = findChar(mdchar, value, true);
+
       switch (maskend) {
         //指定字数
         case END_ENUM.APPOINT_NUM:
@@ -248,12 +285,14 @@ export const dealMaskValue = (data = {}) => {
           maskValue = dealValueByChar({ char: mechar, value, maskValue, isBegin: false, isIncluded: true });
           break;
       }
+
       break;
 
     // 指定字符和之前的字
     case BEGIN_ENUM.BEFORE_AND_INCLUDE_APPOINT_CHAR:
       maskValue = dealValueByChar({ char: mdchar, value, maskValue, isBegin: true, isIncluded: true });
       const mdIndex1 = findChar(mdchar, value, true) + 1;
+
       switch (maskend) {
         //指定字数
         case END_ENUM.APPOINT_NUM:
@@ -272,6 +311,7 @@ export const dealMaskValue = (data = {}) => {
           maskValue = dealValueByChar({ char: mechar, value, maskValue, isBegin: false, isIncluded: true });
           break;
       }
+
       break;
   }
 

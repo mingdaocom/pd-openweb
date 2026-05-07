@@ -41,9 +41,16 @@ class SetOrgNameMultipleLanguages extends Component {
         this.setState({
           settingLanguageData: !_.isEmpty(res)
             ? res.map(({ langType, data }) => {
-                if (type === 30 && !!currentLangName && langType === getCurrentLangCode(md.global.Config.DefaultLang)) {
+                if (
+                  (window.platformENV.isLocal || window.platformENV.isOverseas) &&
+                  type === 30 &&
+                  !!currentLangName &&
+                  langType === getCurrentLangCode(md.global.Config.DefaultLang)
+                ) {
+                  // 更新提示说明对默认语言
                   return { langType, data: [{ key: 'name', value: currentLangName }] };
                 }
+
                 return { langType, data };
               })
             : settingLanguageData,
@@ -56,7 +63,9 @@ class SetOrgNameMultipleLanguages extends Component {
     const { projectId, type, correlationId, onCancel = () => {}, updateName = () => {} } = this.props;
     const { settingLanguageData = [] } = this.state;
     let AjaxFetch = null;
-    if (type === 30) {
+
+    if ((window.platformENV.isLocal || window.platformENV.isOverseas) && type === 30) {
+      // 密码提示支持多语言
       AjaxFetch = appManagementAjax.editPasswordRegexTipLangs({
         data: settingLanguageData,
       });
@@ -109,11 +118,13 @@ class SetOrgNameMultipleLanguages extends Component {
                   langType: code,
                   data: [{ key: 'name', value }],
                 };
+
                 if (index === -1) {
                   newData.push(temp);
                 } else {
                   newData[index] = temp;
                 }
+
                 this.setState({ settingLanguageData: newData });
               },
             };

@@ -33,11 +33,13 @@ function getTodayTime(value) {
 
 function getNowByCurrentStateValue(value) {
   let ret;
+
   if (value) {
     ret = getTodayTime(value);
   } else {
     ret = getNow();
   }
+
   return ret;
 }
 
@@ -97,11 +99,13 @@ class Calendar extends Component {
 
     const value = props.value || props.defaultValue || getNow();
     let view = 'date';
+
     if (this.props.mode === 'month') {
       view = 'month';
     } else if (this.props.mode === 'year') {
       view = 'year';
     }
+
     this.state = {
       value,
       selectedValue: props.selectedValue || value,
@@ -123,12 +127,14 @@ class Calendar extends Component {
   componentWillReceiveProps(nextProps) {
     let { value } = nextProps;
     const { selectedValue } = nextProps;
+
     if ('value' in nextProps) {
       value = value || nextProps.defaultValue || getNowByCurrentStateValue(this.state.value);
       this.setState({
         value,
       });
     }
+
     if ('selectedValue' in nextProps) {
       this.setState({
         selectedValue,
@@ -140,6 +146,7 @@ class Calendar extends Component {
     if (value) {
       this.setValue(value);
     }
+
     this.setSelectedValue(value, cause);
   };
 
@@ -179,11 +186,13 @@ class Calendar extends Component {
 
   setValue = value => {
     const originalValue = this.state.value;
+
     if (!('value' in this.props)) {
       this.setState({
         value,
       });
     }
+
     if (originalValue !== value) {
       this.props.onChange(value);
     }
@@ -195,6 +204,7 @@ class Calendar extends Component {
         selectedValue,
       });
     }
+
     this.props.onSelect(selectedValue, cause);
   };
 
@@ -269,6 +279,7 @@ class Calendar extends Component {
 
   yearChanged = (event, value) => {
     let view = 'year';
+
     if (this.props.mode === 'month') {
       view = 'month';
     } else if (this.props.mode === 'date' || this.props.mode === 'datetime') {
@@ -285,6 +296,7 @@ class Calendar extends Component {
 
   monthChanged = (event, value) => {
     let view = 'month';
+
     if (this.props.mode === 'date' || this.props.mode === 'datetime') {
       view = 'date';
     }
@@ -304,6 +316,7 @@ class Calendar extends Component {
     const { value, selectedValue } = state;
 
     let table = null;
+
     if (this.state.view === 'date') {
       table = (
         <DateTable

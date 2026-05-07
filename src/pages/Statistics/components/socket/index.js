@@ -7,6 +7,7 @@ export default () => {
     let description = '';
     let action = '';
     let duration = null;
+
     if (status === 1) {
       action = 'info';
       message = _l('正在导出数据 “%0”', reportName);

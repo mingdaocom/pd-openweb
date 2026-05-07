@@ -1,5 +1,7 @@
-﻿import React, { memo, useEffect, useRef, useState } from 'react';
-import { typeForCon } from '../../core/config';
+import React, { memo, useEffect, useRef, useState } from 'react';
+import { updateRulesData } from 'src/components/Form/core/formUtils/updateRulesData';
+import { fromType, typeForCon } from '../../core/config';
+import { getControlsForPrint, isRelationControl } from '../../core/util';
 import Content from '../Content';
 import { getApproval, getApprovalDetail, getAttributeName } from './utils';
 
@@ -16,10 +18,50 @@ const ContentEnhancer = props => {
     showApproval,
     immediateGetApprovalDetail = {},
     receiveControls,
+    relationRowsValues,
+    view = {},
+    signature = [],
     ...rest
   } = props;
   const { rowId } = rowValue;
-  const { type } = params;
+  const { type, from, printType, printId, rowIds = [] } = params;
+  // console.log('缓存的关联记录值', relationRowsValues);
+  // console.log('规则计算之前', receiveControls);
+  // 1、执行业务规则
+  const ruleFilterReceiveControls = updateRulesData({
+    rules: [typeForCon.NEW, typeForCon.EDIT].includes(type) && from === fromType.FORM_SET ? [] : printData.rules,
+    recordId: rowId,
+    data: [...receiveControls, ...signature],
+  });
+  // console.log('规则计算之后', ruleFilterReceiveControls);
+  // 2、权限过滤
+  const needVisible = type === typeForCon.NEW && from === fromType.FORM_SET;
+  const filterAllControls = getControlsForPrint({
+    receiveControls: ruleFilterReceiveControls,
+    relationMaps: printData.relationMaps,
+    needVisible,
+    info: printData.info,
+  });
+  // console.log('权限过滤之后', filterReceiveControls);
+  // 3、视图字段配置
+  const hideControls = view?.controls || [];
+  const filterViewControls = filterAllControls.filter(control => !hideControls.includes(control.controlId));
+  // 常规字段
+  const combinedReceiveControls = filterViewControls
+    .filter(control => control.type !== 42)
+    .map(control => {
+      if (isRelationControl(control.type)) {
+        return {
+          ...control,
+          value: relationRowsValues?.get(control.controlId),
+        };
+      }
+
+      return control;
+    });
+  // 签名字段
+  const signatureControls = filterViewControls.filter(control => control.type === 42);
+
   const approvalAjaxRef = useRef({});
   const isImmediateLock = useRef(false);
 
@@ -39,23 +81,32 @@ const ContentEnhancer = props => {
     });
   };
 
-  const syncApprovalChecked = approval => {
+  const syncApprovalChecked = (approval, map) => {
+    const realMap = map || approvalCheckedMap;
     return approval.map(item => ({
       ...item,
-      checked: approvalCheckedMap[item.processId],
+      checked: realMap[item.processId],
       child: (item.child || []).map(child => ({
         ...child,
-        checked: approvalCheckedMap[item.processId],
+        checked: realMap[item.processId],
       })),
     }));
   };
 
   useEffect(() => {
     // 设置标题
-    setAttributeName(getAttributeName(printData.allControls, rowValue));
+    const currentAttributeName = getAttributeName(printData.allControls, rowValue);
+    setAttributeName(currentAttributeName);
+
+    if (from === fromType.PRINT && printType !== 'flow' && rowIds.length === 1) {
+      document.title = printId
+        ? `${printData.name}-${currentAttributeName}`
+        : `${_l('系统打印')}-${currentAttributeName}`;
+    }
 
     // 新建、编辑模版 或者 有approvalIds才执行
     const isNewOrEdit = type === typeForCon.NEW || type === typeForCon.EDIT;
+
     if (showApproval && (isNewOrEdit || (!isNewOrEdit && printData.approvalIds?.length))) {
       getApproval({
         rowId,
@@ -65,15 +116,16 @@ const ContentEnhancer = props => {
       }).then(approval => {
         if (approval.length) {
           let uniqApproval = uniqByProcessId(approval);
-          setSelfApproval(uniqApproval);
-          setApprovalList({ list: uniqApproval, rowId });
+          setApprovalList({ list: uniqApproval, rowId }, (nextApproval, map) => {
+            setSelfApproval(syncApprovalChecked(nextApproval, map));
+          });
         }
       });
     }
   }, []);
 
   useEffect(() => {
-    if (immediateGetApprovalDetail[rowId] && !isImmediateLock.current) {
+    if (immediateGetApprovalDetail[rowId] && !isImmediateLock.current && selfApproval?.length) {
       isImmediateLock.current = true;
       const filterApproval = selfApproval.filter(item => item.checked);
       filterApproval.forEach(item => {
@@ -83,11 +135,11 @@ const ContentEnhancer = props => {
           params,
           approvalCheckedMap,
         }).then(approval => {
-          setSelfApproval(approval);
+          setSelfApproval(syncApprovalChecked(approval));
         });
       });
     }
-  }, [immediateGetApprovalDetail]);
+  }, [immediateGetApprovalDetail, selfApproval]);
 
   useEffect(() => {
     // 只有收到审批的 checked 状态变化时，才需要同步
@@ -110,7 +162,7 @@ const ContentEnhancer = props => {
         params,
       }).then(approval => {
         approvalAjaxRef.current[approvalParentId].alreadyGet = true;
-        setSelfApproval(approval);
+        setSelfApproval(syncApprovalChecked(approval));
       });
     } else {
       // 更新显示隐藏
@@ -126,8 +178,9 @@ const ContentEnhancer = props => {
     <Content
       {...rest}
       params={{ ...params, rowId }}
-      printData={{ ...printData, approval: selfApproval, attributeName, receiveControls }}
-      controls={receiveControls}
+      printData={{ ...printData, approval: selfApproval, attributeName, receiveControls: combinedReceiveControls }}
+      controls={combinedReceiveControls}
+      signature={signatureControls}
     />
   );
 };

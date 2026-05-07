@@ -20,6 +20,7 @@ export function useRecords({
   const loadRecords = useCallback(async () => {
     setLoading(true);
     let filtersFromFilterId = [];
+
     if (filterId) {
       if (cache.current[filterId]) {
         filtersFromFilterId = cache.current[filterId];
@@ -29,6 +30,7 @@ export function useRecords({
         filtersFromFilterId = cache.current[filterId];
       }
     }
+
     const res = await worksheet.getFilterRows({
       appId,
       worksheetId,
@@ -37,14 +39,17 @@ export function useRecords({
       filterControls: filtersFromFilterId.concat(filterControls),
       isGetWorksheet,
     });
+
     if (res.resultCode !== 1) {
       setLoading(false);
       onError(res);
       return;
     }
+
     if (isGetWorksheet) {
       setControls(res.template.controls);
     }
+
     setRecords(res.data);
     setLoading(false);
   }, [appId, viewId, worksheetId, keyWords, filterId, rest.filterControls]);

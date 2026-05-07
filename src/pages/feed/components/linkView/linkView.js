@@ -26,10 +26,12 @@ var LinkView = function (el, param) {
     _this.clear();
     _this.getLinkViewData();
   };
+
   _this.getLinkViewData = function () {
     if (!options.viewUrl) {
       return false;
     }
+
     options.linkViewData.url = options.viewUrl.match(/:\/\//) ? options.viewUrl : 'http://' + options.viewUrl;
     postController
       .getLinkViewInfo({
@@ -64,6 +66,7 @@ var LinkView = function (el, param) {
           if (data.description) {
             options.linkViewData.desc = data.description;
           }
+
           _this.createLinkViewHtml(options.linkViewData);
         }
 
@@ -78,6 +81,7 @@ var LinkView = function (el, param) {
         }
       });
   };
+
   _this.createLinkViewHtml = function (data) {
     var linkViewHTML = `
     <div class='linkView'>
@@ -151,6 +155,7 @@ var LinkView = function (el, param) {
 
     _this.bindEvent();
   };
+
   // 绑定事件
   _this.bindEvent = function () {
     var $linkView = $(el).find('.linkView');
@@ -187,6 +192,7 @@ var LinkView = function (el, param) {
       });
     }
   };
+
   // 预览图切换
   _this.changeLinkThumb = function (type) {
     var $linkView = $(el).find('.linkView');
@@ -197,6 +203,7 @@ var LinkView = function (el, param) {
     } else {
       curNum--;
     }
+
     if (curNum == 1) {
       $linkView.find('.prevPic').addClass('Visibility');
       $linkView.find('.nextPic').removeClass('Visibility');
@@ -221,6 +228,7 @@ var LinkView = function (el, param) {
       }
     }
   };
+
   // 编辑链接
   _this.editLink = function () {
     var $linkView = $(el).find('.linkView');
@@ -251,6 +259,7 @@ var LinkView = function (el, param) {
     $linkView.find('.linkBtnSave').show();
     $linkView.find('.linkBtnCancel').show();
   };
+
   // 保存修改
   _this.saveLink = function () {
     var $linkView = $(el).find('.linkView');
@@ -261,6 +270,7 @@ var LinkView = function (el, param) {
       $linkView.find('.linkTitle').html(title);
       $linkView.find('.nullPrompt').hide();
     }
+
     var desc = $linkView.find('.txtLinkDesc').val();
     if (desc) {
       if (desc.length > 85) {
@@ -268,6 +278,7 @@ var LinkView = function (el, param) {
       } else {
         $linkView.find('.linkDesc').html(desc);
       }
+
       $linkView.find('.linkDesc').attr('alt', desc).attr('title', desc);
       $linkView.find('.nullPrompt').hide();
     }
@@ -288,6 +299,7 @@ var LinkView = function (el, param) {
       options.callback(options.linkViewData);
     }
   };
+
   // 取消修改
   _this.cancelLink = function () {
     var $linkView = $(el).find('.linkView');
@@ -300,6 +312,7 @@ var LinkView = function (el, param) {
     $linkView.find('.linkBtnSave').hide();
     $linkView.find('.linkBtnCancel').hide();
   };
+
   // 发布时是否加入预览图
   _this.withLinkImg = function () {
     var $linkView = $(el).find('.linkView');
@@ -314,6 +327,7 @@ var LinkView = function (el, param) {
       options.callback(options.linkViewData);
     }
   };
+
   // 获取XML
   _this.createXML = function (str) {
     if (document.all) {
@@ -325,10 +339,12 @@ var LinkView = function (el, param) {
       return xmlDom.parseFromString(str, 'text/xml');
     }
   };
+
   // 清理
   _this.clear = function () {
     $(el).empty();
   };
+
   _this.init();
 };
 

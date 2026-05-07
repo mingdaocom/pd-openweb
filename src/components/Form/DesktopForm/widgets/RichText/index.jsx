@@ -10,6 +10,8 @@ const RichTextWidget = props => {
   const {
     disabled,
     value,
+    onChange,
+    recordId,
     width,
     type,
     flag,
@@ -38,6 +40,7 @@ const RichTextWidget = props => {
     useCallback(data => {
       const { triggerType } = data;
       const table = _.get(richTextInstanceRef.current, 'table');
+
       switch (triggerType) {
         case 'trigger_tab_enter':
           table && table.focus();
@@ -59,11 +62,27 @@ const RichTextWidget = props => {
     _.debounce(tempValue => {
       // 防止非聚焦态被触发
       if (valueRef.current !== tempValue && changeSettingRef.current) {
-        props.onChange(tempValue);
+        onChange(tempValue);
+        valueRef.current = tempValue;
       }
+
       changeSettingRef.current = false;
     }, 500),
   ).current;
+
+  useEffect(() => {
+    // 记录切换时取消上条记录遗留的 debounce，避免内容串写到下一条
+    onChangeDebounced.cancel();
+    changeSettingRef.current = false;
+    focusRef.current = false;
+    setHasChange(false);
+  }, [recordId]);
+
+  useEffect(() => {
+    return () => {
+      onChangeDebounced.cancel();
+    };
+  }, []);
 
   const handleBlur = () => {
     if (_.isFunction(triggerCustomEvent)) {
@@ -94,7 +113,14 @@ const RichTextWidget = props => {
       })}
       disabled={disabled}
       onActualSave={onChangeDebounced}
-      onSave={() => {
+      onSave={currentData => {
+        onChangeDebounced.cancel();
+        if (valueRef.current !== currentData) {
+          onChange(currentData);
+          valueRef.current = currentData;
+        }
+
+        changeSettingRef.current = false;
         handleBlur();
       }}
       minHeight={minHeight}
@@ -129,10 +155,16 @@ RichTextWidget.propTypes = {
 const RichTextWrapper = memo(
   props => <RichTextWidget {...props} />,
   (prevProps, nextProps) => {
+    // 记录切换必须刷新，哪怕 value 一样（否则会出现“慢一步”）
+    if (prevProps.recordId !== nextProps.recordId) {
+      return false;
+    }
+
     // 同一条记录数据变更过程中不更新，防止光标跳动
     if (prevProps.recordId === nextProps.recordId && prevProps.value !== nextProps.value) {
       return nextProps.hasChange;
     }
+
     return _.isEqual(
       _.pick(prevProps, ['value', 'flag', 'width', 'disabled']),
       _.pick(nextProps, ['value', 'flag', 'width', 'disabled']),

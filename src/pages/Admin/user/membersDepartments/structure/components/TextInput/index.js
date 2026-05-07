@@ -14,9 +14,11 @@ export default function TextInput(props) {
     onFocus,
     type,
   };
+
   if (type === 'password') {
     inputProps.autoComplete = 'new-password';
   }
+
   return (
     <div className="formGroup">
       <div className="formLabel">

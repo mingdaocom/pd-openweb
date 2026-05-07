@@ -9,6 +9,7 @@ export function addNewRoot(args, cb) {
   if (typeof args === 'function') {
     cb = args;
   }
+
   let params = {
     members: [
       {
@@ -19,9 +20,11 @@ export function addNewRoot(args, cb) {
       },
     ],
   };
+
   if (typeof args === 'object') {
     params = Object.assign({}, params, args);
   }
+
   createRoot(params)
     .then(root => {
       if (typeof cb === 'function') {
@@ -55,11 +58,13 @@ export function removeRoot(item, isCreator, isPermanent, cb) {
   isPermanent = true;
   const rootId = item.id;
   let messageTitle;
+
   if (isCreator) {
     messageTitle = isPermanent ? _l('确认') : '删除';
   } else {
     messageTitle = _l('退出');
   }
+
   DeleteConfirm({
     title: isCreator ? _l('彻底删除共享文件夹"%0"', item.name) : _l('退出共享文件夹"%0"', item.name),
     description: isCreator

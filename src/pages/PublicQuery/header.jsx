@@ -120,7 +120,7 @@ class WorksheetShareHeader extends React.Component {
                 <Icon
                   style={{ float: 'right', lineHeight: '100%' }}
                   className="textTertiary ThemeHoverColor3 pointer"
-                  icon="download"
+                  icon="worksheet_export"
                 ></Icon>
               </div>
             )}

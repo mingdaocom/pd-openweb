@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
@@ -102,16 +102,23 @@ class Commenter extends React.Component {
 
     // 文本框
     const $textarea = $(textarea);
-    $textarea
-      .autoTextarea({
-        maxHeight: textareaMaxHeight,
-        minHeight: textareaMinHeight,
-      })
-      .height(textareaMinHeight);
+
+    if (typeof $textarea.autoTextarea === 'function') {
+      $textarea
+        .autoTextarea({
+          maxHeight: textareaMaxHeight,
+          minHeight: textareaMinHeight,
+        })
+        .height(textareaMinHeight);
+    } else {
+      $textarea.height(textareaMinHeight);
+    }
+
     // 缓存未发送成功的讨论
     if (this.props.storageId) {
       $textarea.on('keyup', function () {
         const text = $(this).val().trim();
+
         if (!text) {
           window.localStorage.removeItem('commenter-' + comp.props.storageId);
         } else {
@@ -167,9 +174,11 @@ class Commenter extends React.Component {
     if (nextProps.storageId && nextProps.storageId !== this.props.storageId) {
       this.textarea.value = window.localStorage.getItem('commenter-' + nextProps.storageId) || '';
     }
+
     if (!nextProps.disableMentions && nextProps.forReacordDiscussion) {
       sessionStorage.setItem('atData', JSON.stringify(nextProps.atData || []));
     }
+
     if (
       !_.isEqual(_.pick(this.props, ['entityType', 'isHide']), _.pick(nextProps, ['entityType', 'isHide'])) &&
       nextProps.autoFocus
@@ -185,9 +194,11 @@ class Commenter extends React.Component {
     const { isEditing, attachmentData, kcAttachmentData } = this.state;
     const { textareaMaxHeight, textareaMinHeight, textareaExpandHeight } = this.props;
     const hasAttachment = attachmentData.length || kcAttachmentData.length;
+
     if (isEditing !== prevState.isEditing) {
       const height = isEditing || hasAttachment ? textareaExpandHeight : textareaMinHeight;
-      if (isEditing) {
+
+      if (isEditing && typeof $textarea.autoTextarea === 'function') {
         $textarea.autoTextarea({
           maxHeight: textareaMaxHeight,
           minHeight: height,
@@ -225,6 +236,7 @@ class Commenter extends React.Component {
       if (this.props.onFocusStateChange) {
         this.props.onFocusStateChange.call(null, false);
       }
+
       if (this.props.autoShrink) {
         this.setState({ isEditing: false });
         this.textarea.blur();
@@ -239,6 +251,7 @@ class Commenter extends React.Component {
       alert(_l('文件上传中，请稍等'), 3);
       return false;
     }
+
     if (this.state.isReshare && !groups) {
       alert(_l('请选择分享范围'), 3);
       return false;
@@ -258,6 +271,7 @@ class Commenter extends React.Component {
         if (message) {
           alert(_l('发表内容过长，最多允许3000个'), 3);
         }
+
         return false;
       }
 
@@ -378,10 +392,12 @@ class Commenter extends React.Component {
       if (!this.props.shrinkAfterSubmit) {
         $textarea.focus();
       }
+
       if (this.props.onFocusStateChange) {
         const isFocus = !this.props.shrinkAfterSubmit;
         this.props.onFocusStateChange.call(null, isFocus);
       }
+
       this.props.onSubmitCallback();
     } else {
       this.setState({
@@ -420,22 +436,27 @@ class Commenter extends React.Component {
     const [worksheetId] = sourceId.split('|');
     const hasAttachment = attachmentData.length || kcAttachmentData.length;
     const style = !isEditing && !hasAttachment ? { display: 'none' } : {};
+
     const onFocus = e => {
       if (activePlaceholder) {
         e.target.placeholder = activePlaceholder;
       }
+
       if (this.state.isUploadComplete) {
         this.setState({ isEditing: true });
       }
+
       if (this.props.onFocusStateChange) {
         this.props.onFocusStateChange.call(null, true);
       }
     };
+
     function onBlur(e) {
       if (activePlaceholder) {
         e.target.placeholder = placeholder;
       }
     }
+
     return (
       <ClickAwayable
         className={cx('commentBox', {

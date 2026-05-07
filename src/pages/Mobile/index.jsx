@@ -37,15 +37,20 @@ class App extends Component {
     this.switchPath(this.props.location);
     sessionStorage.setItem('entryUrl', location.href);
     const { pc_slide = '' } = getRequest();
+
     if (pc_slide.includes('true')) {
       sessionStorage.setItem('dingtalk_pc_slide', 'true');
     }
+
+    document.body.classList.add('bgPrimary');
+
     window.mobileNavigateTo = (url, isReplace) => {
       url = (window.subPath || '') + url;
 
       if (window.isPublicApp && !new URL('http://z.z' + url).hash) {
         url = url + '#publicapp' + window.publicAppAuthorization;
       }
+
       if (isReplace) {
         this.props.history.replace(url);
       } else {
@@ -62,6 +67,7 @@ class App extends Component {
   }
   switchPath(url) {
     const { hash } = url;
+
     if (hash.includes('noredirect')) {
       sessionStorage.setItem('noredirect', true);
       return;
@@ -84,9 +90,11 @@ class App extends Component {
             const page = '/mobile/recordList/';
             const record = '/mobile/record/';
             const setHash = url => navigateTo(url + decodeURIComponent(location.hash), true);
+
             if (location.pathname.includes(record)) {
               const param = location.pathname.replace(record, '').split('/');
               const [appId, worksheetId, viewId, rowId] = param;
+
               if (!viewId) {
                 return setHash(`${record}${appId}/${worksheetId}/null/${rowId}`);
               } else {

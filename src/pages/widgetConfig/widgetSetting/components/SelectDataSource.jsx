@@ -37,6 +37,7 @@ export default function SelectDataSource({ onClose, onOk, editType, appId, works
   const [ids, setIds] = useSetState(
     editType === 0 ? { appId: currentAppId, sheetId: '', viewId: '' } : { appId, sheetId: worksheetId, viewId },
   );
+
   const handleOk = () => {
     if (dataSourceMode === 0) {
       setLoading(true);
@@ -57,6 +58,7 @@ export default function SelectDataSource({ onClose, onOk, editType, appId, works
       onOk(ids);
     }
   };
+
   return (
     <Dialog
       style={{ width: '560px' }}

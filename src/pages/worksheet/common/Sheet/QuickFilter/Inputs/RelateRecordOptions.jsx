@@ -14,6 +14,7 @@ const Con = styled.div`
 `;
 
 const MAX_COUNT = 20;
+
 export default function RelateRecordOptions(props) {
   const {
     selected,
@@ -28,14 +29,18 @@ export default function RelateRecordOptions(props) {
     appId,
   } = props;
   const [records, setRecords] = useState(staticRecords || []);
+
   async function load() {
     if (!_.isEmpty(staticRecords)) {
       return;
     }
+
     let filterControls;
+
     if (control && control.advancedSetting.filters) {
       filterControls = getFilter({ control, formData, appId });
     }
+
     const args = {
       worksheetId: control.dataSource,
       viewId: control.viewId,
@@ -47,13 +52,16 @@ export default function RelateRecordOptions(props) {
       isGetWorksheet: true,
       getType: 32,
     };
+
     if (parentWorksheetId && control && _.get(parentWorksheetId, 'length') === 24) {
       args.relationWorksheetId = parentWorksheetId;
       args.controlId = control.controlId;
     }
+
     const res = await worksheetAjax.getFilterRows(args);
     setRecords(res.data);
   }
+
   useEffect(() => {
     load();
   }, [JSON.stringify(formData.map(c => c.value))]);

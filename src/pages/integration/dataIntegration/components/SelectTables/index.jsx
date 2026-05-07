@@ -91,6 +91,7 @@ export default function SelectTables(props) {
     if (!dbName || isAppType) {
       return;
     }
+
     setFetchState(fetchState.tableName ? { loading: true, searchPageNo: pageNo } : { loading: true, pageNo });
     datasourceApi
       .getTablePages({
@@ -133,6 +134,7 @@ export default function SelectTables(props) {
               disabled: !isValidTable || (isMultiple ? addedTableIds.indexOf(item) !== -1 : isSameTable) || !pgSqlValid,
             };
           });
+
           if (fetchState.tableName) {
             setFetchState({ loading: false, searchNoMore: res.content.length < 50 });
             setSearchOptions(pageNo > 0 ? searchOptions.concat(tableOptionList) : tableOptionList);

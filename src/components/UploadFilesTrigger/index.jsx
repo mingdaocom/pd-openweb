@@ -93,6 +93,7 @@ export default class UploadFilesTrigger extends Component {
     if (!visible && this.props.onClose) {
       this.props.onClose();
     }
+
     visible ? this.handleDetection() : this.handleCancelDetection();
     this.setState(
       {
@@ -141,6 +142,7 @@ export default class UploadFilesTrigger extends Component {
     );
   }
   renderPanel(uploadFilesProps) {
+    const { specialFilter } = this.props;
     const id = `dropTextarea-${this.id}`;
     const { isComplete } = this.state;
     const { onUploadComplete, ...otherProps } = uploadFilesProps;
@@ -149,12 +151,14 @@ export default class UploadFilesTrigger extends Component {
     return (
       <ClickAwayable
         component="div"
+        specialFilter={specialFilter}
         onClickAwayExceptions={[
           '.folderSelectDialog',
           '.addLinkFileDialog',
           '.attachmentsPreview',
           '.UploadFilesTriggerPanel',
           '.triggerTraget',
+          '.pcUploadModal',
         ]}
         onClickAway={this.setTriggerPanelVisible.bind(this, false)}
         id={`UploadFilesTriggerPanel${this.id}`}

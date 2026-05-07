@@ -54,6 +54,7 @@ export default function OrgRole(props) {
   const onSave = data => {
     onChange({ values: isMultiple ? _.uniqBy([...values, ...data], 'organizeId') : data });
   };
+
   const deleteCurrentRoles = item => {
     onChange({ values: values.filter(v => v.organizeId !== item.organizeId) });
   };

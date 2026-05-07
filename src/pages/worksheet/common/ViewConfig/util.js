@@ -8,9 +8,11 @@ export const updateViewAdvancedSetting = (view, obj) => {
   const { navfilters } = obj;
   const { advancedSetting = {} } = view;
   const { navshow } = advancedSetting;
+
   if (!!navfilters || !['2', '3'].includes(navshow)) {
     return updateAdvancedSetting(view, obj);
   }
+
   return formatAdvancedSettingByNavfilters(view, obj);
 };
 
@@ -24,6 +26,7 @@ export const formatAdvancedSettingByNavfilters = (view, newValue = {}) => {
   const { navfilters } = newValue;
   const { advancedSetting = {} } = view;
   const { navshow } = advancedSetting;
+
   if (!!navfilters || !['2', '3'].includes(navshow)) {
     return updateAdvancedSetting(view, newValue);
   } else {
@@ -38,6 +41,7 @@ export const formatAdvancedSettingByNavfilters = (view, newValue = {}) => {
               navfiltersData.map(info => {
                 let id = info;
                 let data = null;
+
                 try {
                   data = JSON.parse(info);
                   id = data.id || data;
@@ -46,6 +50,7 @@ export const formatAdvancedSettingByNavfilters = (view, newValue = {}) => {
                   id = info;
                   console.log(error);
                 }
+
                 return id + '';
               }),
             ),
@@ -94,6 +99,7 @@ export const getCanSelectColumnsForSort = (controlId = '', columns = [], sortCon
             (optionTypes.includes(o.type === 30 ? o.sourceControlType : o.type) && o.strDefault !== 'index')) &&
           controlId !== o.controlId,
       );
+
       // 存在数组类类型 都只能选择一个排序 选项strDefault=index除外
       if (isExist) {
         const type = o.type === 30 ? o.sourceControlType : o.type;
@@ -101,6 +107,7 @@ export const getCanSelectColumnsForSort = (controlId = '', columns = [], sortCon
           ? true
           : ![...list, ...optionTypes].includes(type);
       }
+
       return true;
     })
     .map(c => ({
@@ -121,6 +128,7 @@ export const sortControls = columns => {
     if (a.row === b.row) {
       return a.col - b.col;
     }
+
     return a.row - b.row;
   });
 };

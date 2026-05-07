@@ -70,6 +70,7 @@ class Updater extends React.Component {
     ) {
       return true;
     }
+
     if (nextProps.groupId !== this.props.groupId || nextProps.projectId !== this.props.projectId) {
       this.MyUpdater = MyUpdater;
       MyUpdater.Init({
@@ -78,6 +79,7 @@ class Updater extends React.Component {
         group: { groupId: nextProps.groupId },
       });
     }
+
     return false;
   }
 
@@ -87,6 +89,7 @@ class Updater extends React.Component {
 
   post = () => {
     const { shareGroup = {} } = this.state;
+
     if (!this.state.isUploadComplete) {
       alert(_l('文件上传中，请稍等'), 3);
       return;
@@ -130,6 +133,7 @@ class Updater extends React.Component {
       relatedLeftSpace: 22,
       onSelect: () => {
         const textBox = $('#textarea_Updater')[0];
+
         if (
           textBox.value === _l('知会工作是一种美德') + '...' ||
           textBox.value === _l('上传附件') + '...' ||
@@ -147,6 +151,7 @@ class Updater extends React.Component {
     if (!this._isMounted) {
       return;
     }
+
     MyUpdater.ViewLink(this.linkBtn);
   };
 
@@ -164,6 +169,7 @@ class Updater extends React.Component {
 
   handleOpen = () => {
     const $Attachment_updater = $('[targetdiv="#Attachment_updater"]');
+
     if (!$Attachment_updater.hasClass('ThemeColor3')) {
       $Attachment_updater.click();
     }

@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { Radio } from 'ming-ui';
 import packageVersionAjax from 'src/pages/workflow/api/packageVersion';
@@ -11,6 +12,7 @@ import AuthorizeToApp from './AuthorizeToApp';
 import ConnectSet from './ConnectSet';
 
 const Wrap = styled.div``;
+
 export default function Info(props) {
   const { onChangeSate, getInfo, getDetailInfo, setDefaultFlowNode } = props;
   const [
@@ -102,6 +104,7 @@ export default function Info(props) {
         });
       });
   };
+
   //修改使用说明
   const updateIntroduce = introduce => {
     packageVersionAjax
@@ -122,6 +125,7 @@ export default function Info(props) {
         }
       });
   };
+
   const renderCon = () => {
     switch (tab) {
       case 0:
@@ -129,6 +133,7 @@ export default function Info(props) {
         if (connectData.type === 2 && controls.length <= 0 && !introduce) {
           return '';
         }
+
         return (
           <ConnectSet
             hasChange={() =>
@@ -150,6 +155,7 @@ export default function Info(props) {
             connectId={connectData.id}
             connectType={connectData.type}
             isConnectOwner={isConnectOwner}
+            allowEdit={_.get(connectData, 'info.allowEdit')}
             toAccountTab={() => onChangeSate({ tab: 3 })}
           />
         );
@@ -199,6 +205,7 @@ export default function Info(props) {
         return <AccountList {...nodeInfo} connectId={connectData.id} hasAuth={connectData.hasAuth} />;
     }
   };
+
   return (
     <Wrap className="">
       {!nodeInfo.startEventId && !loading ? ( //新创建
@@ -226,6 +233,7 @@ export default function Info(props) {
               if (!authType) {
                 return;
               }
+
               addConnet();
             }}
           >

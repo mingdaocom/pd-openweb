@@ -73,6 +73,7 @@ const DataSourceWrap = styled.div`
     }
   }
 `;
+
 export default function Cascader(props) {
   const { data, globalSheetInfo, onChange, deleteWidget } = props;
   const { appId: currentAppId, groupId } = globalSheetInfo;
@@ -105,10 +106,12 @@ export default function Cascader(props) {
       })
       .then(res => {
         const viewInfo = _.find(res.views, item => item.viewId === viewId);
+
         if (!viewInfo) {
           setInfo({ sheetInfo: res, hasError: true });
           return;
         }
+
         onChange({ relationControls: _.get(res, 'template.controls') });
         setInfo({ sheetInfo: res, viewInfo });
       })
@@ -126,6 +129,7 @@ export default function Cascader(props) {
         </div>
       );
     }
+
     if (hasError) {
       return (
         <div className="info error" onClick={() => setEdit({ editVisible: true, editType: 3 })}>
@@ -134,6 +138,7 @@ export default function Cascader(props) {
         </div>
       );
     }
+
     return (
       <div className="info view">
         <div className="viewInfo">
@@ -152,6 +157,7 @@ export default function Cascader(props) {
       </div>
     );
   };
+
   return (
     <Fragment>
       {initVisible && (

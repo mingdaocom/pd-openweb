@@ -50,6 +50,7 @@ class NetState extends Component {
 
   getProjectLicenseInfo = () => {
     const { projectId } = this.props;
+
     if (projectId) {
       projectApi.getProjectLicenseInfo({ projectId }).then(data => {
         this.setState({ projectInfo: data });
@@ -64,6 +65,7 @@ class NetState extends Component {
 
   handleClick = (type, { projectId, versionType, serviceType }) => {
     const { onClose } = this.props;
+
     // 按钮点击
     if (type === 'operationBtn') {
       // 体验版跳转
@@ -85,6 +87,7 @@ class NetState extends Component {
     if (type === 'operationTxt') {
       navigateTo(`/admin/upgradeservice/${projectId}`);
     }
+
     onClose();
   };
 
@@ -97,6 +100,7 @@ class NetState extends Component {
     let displayObj;
     // 服务类型: 工作流、应用、工作表...
     const serviceType = MODULE_NUMBER_TO_TYPE[moduleType];
+
     // 没有projectId则为个人网络
     if (projectId) {
       /**
@@ -179,6 +183,7 @@ class NetState extends Component {
   render() {
     const { visible } = this.state;
     const isMobile = browserIsMobile();
+
     if (isMobile) {
       return (
         <Popup visible={visible} onClose={this.onCancel} className="mobileModal full">

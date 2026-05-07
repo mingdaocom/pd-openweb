@@ -182,9 +182,11 @@ export default class TransactionDetails extends Component {
         render: (text, record) => {
           const { payAccountInfo = {}, sourceType } = record;
           const { accountId, fullname, avatar, isPortal } = payAccountInfo;
+
           if (sourceType === 6 || accountId === 'user-workflow') {
             return '-';
           }
+
           return (
             <div className="flexRow">
               <UserHead
@@ -308,10 +310,12 @@ export default class TransactionDetails extends Component {
                 className="colorPrimary Hand mRight24 Hover_51"
                 onClick={() => {
                   const { projectId, featureType } = props;
+
                   if (featureType === '2') {
                     buriedUpgradeVersionDialog(projectId, VersionProductType.PAY);
                     return;
                   }
+
                   this.setState({ orderInfo: record, showPaymentDetails: true }, () => props.changeShowHeader(false));
                 }}
               >
@@ -322,6 +326,7 @@ export default class TransactionDetails extends Component {
                   className="color_f4 Hand"
                   onClick={() => {
                     const { projectId, featureType } = props;
+
                     if (featureType === '2') {
                       buriedUpgradeVersionDialog(projectId, VersionProductType.PAY);
                       return;
@@ -471,14 +476,17 @@ export default class TransactionDetails extends Component {
   getAppList = () => {
     const { projectId } = this.props;
     const { appPageIndex, isMoreApp, loadingApp, keyword = '' } = this.state;
+
     // 加载更多
     if (appPageIndex > 1 && ((loadingApp && isMoreApp) || !isMoreApp)) {
       return;
     }
+
     this.setState({ loadingApp: true });
     if (this.appPromise && _.isFunction(this.appPromise)) {
       this.appPromise.abort();
     }
+
     this.appPromise = appManagementAjax.getAppsByProject({
       projectId,
       status: '',
@@ -532,9 +540,11 @@ export default class TransactionDetails extends Component {
         paymentAjax.deletePayOrder({ orderId, projectId }).then(res => {
           if (res) {
             const index = _.findIndex(copyList, v => v.orderId === orderId);
+
             if (index > -1) {
               copyList[index] = { ...copyList[index], status: 7 };
             }
+
             this.setState({ list: copyList });
             alert(_l('取消成功'));
           } else {
@@ -600,6 +610,7 @@ export default class TransactionDetails extends Component {
         onPopupScroll: e => {
           e.persist();
           const { scrollTop, offsetHeight, scrollHeight } = e.target;
+
           if (scrollTop + offsetHeight === scrollHeight) {
             if (isMoreApp) {
               this.getAppList();
@@ -716,6 +727,7 @@ export default class TransactionDetails extends Component {
     if (searchParams.appIds && !_.isEqual(searchParams.appIds, appIds)) {
       this.getWorksheetList(searchParams.appIds);
     }
+
     if (_.isEmpty(searchParams) && this.state.keyword) {
       this.setState({ appPageIndex: 1, keyword: '' }, this.getAppList);
     }
@@ -743,6 +755,7 @@ export default class TransactionDetails extends Component {
         if (this.state.searchValues.merchantNo !== merchantNo) {
           this.getPayOrderSummary();
         }
+
         this.getDataList();
       },
     );

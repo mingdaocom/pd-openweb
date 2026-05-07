@@ -85,11 +85,13 @@ const TRY_TRY_LIST = [
 function getTryTryList(oldIds = [], num = 3) {
   const newTryTryList = TRY_TRY_LIST.filter(item => !oldIds.includes(item.id));
   let result = [];
+
   while (result.length < num) {
     const randomIndex = Math.floor(Math.random() * newTryTryList.length);
     result.push(newTryTryList[randomIndex]);
     newTryTryList.splice(randomIndex, 1);
   }
+
   return result;
 }
 

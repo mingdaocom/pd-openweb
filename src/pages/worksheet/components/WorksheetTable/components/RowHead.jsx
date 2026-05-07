@@ -113,19 +113,22 @@ const OpenRecordBtn = styled(FlexCenter)`
   color: var(--color-primary);
   border-radius: 4px;
   &:hover {
-    background: rgba(0, 0, 0, 0.05);
+    background: var(--color-background-hover);
   }
 `;
 
 function getApplyToAllChecked(worksheetInfo, viewId) {
   const view = find(worksheetInfo.views, o => o.viewId === viewId);
+
   if (!view) {
     return false;
   }
+
   const viewListStyle = safeParse(get(view, 'advancedSetting.liststyle'));
   const worksheetInfoListStyle = safeParse(get(worksheetInfo, 'advancedSetting.liststyle'));
   return worksheetInfoListStyle.time > viewListStyle.time;
 }
+
 export default function RowHead(props) {
   const {
     tableType,
@@ -179,20 +182,24 @@ export default function RowHead(props) {
     canSelectAll && allWorksheetIsSelected ? !_.includes(selectedIds, row.rowid) : _.includes(selectedIds, row.rowid);
   const recordOperateVisible = showOperate && !readonly && !isTrash && !isDraftTable;
   const dataLength = data.filter(r => r.rowid !== 'groupTitle').length;
+
   function handleCheckAll(force) {
     if (canSelectAll && allWorksheetIsSelected) {
       onSelectAllWorksheet(false);
       if (force) {
         onSelect(data.map(item => item.rowid).filter(r => r !== 'groupTitle' && r !== 'loadGroupMore'));
       }
+
       return;
     }
+
     if (selectedIds.length > 0 && !force) {
       onSelect([]);
     } else {
       onSelect(data.map(item => item.rowid).filter(r => r !== 'groupTitle' && r !== 'loadGroupMore'));
     }
   }
+
   if (isEmpty(row) && rowIndex > -1) {
     return <Con className={cx(className, 'noRightBorder', { selected })} style={style} />;
   }
@@ -281,9 +288,11 @@ export default function RowHead(props) {
                 if (!newRow) {
                   newRow = rowdata;
                 }
+
                 if (_.find(updatedControls, item => _.includes([10, 11], item.type) && /color/.test(item.value))) {
                   refreshWorksheetControls();
                 }
+
                 if (rowdata.isviewdata) {
                   updateRows([newRow.rowid], _.omit(rowdata, ['allowedit', 'allowdelete']));
                 } else {
@@ -310,10 +319,12 @@ export default function RowHead(props) {
                 }).then(res => {
                   const { defaultData, defcontrols } = res;
                   const isManageView = isCharge && viewId === worksheetId;
+
                   if (isManageView) {
                     worksheetInfo.template.controls = getHighAuthControls(_.get(worksheetInfo, 'template.controls'));
                     worksheetInfo.rules = [];
                   }
+
                   addRecord({
                     worksheetId,
                     appId,

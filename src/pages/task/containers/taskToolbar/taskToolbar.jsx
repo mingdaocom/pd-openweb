@@ -47,6 +47,7 @@ class TaskToolbar extends Component {
 
   componentWillMount() {
     const { folderId } = this.props.taskConfig;
+
     if (folderId === 1) {
       this.setState({ folderName: _l('未关联项目') });
     } else if (folderId) {
@@ -130,6 +131,7 @@ class TaskToolbar extends Component {
     const isAdmin = auth === config.auth.FolderAdmin;
 
     let filterCount = 0;
+
     const compareFilter = () => {
       if (searchKeyWords !== '') filterCount++;
       if (filterSettings.tags.length) filterCount++;
@@ -345,6 +347,7 @@ class TaskToolbar extends Component {
       } else {
         this.setState({ showFilter: !showFilter });
       }
+
       $('#tasks').toggleClass('showTaskFilter', !showFilter);
     }
   };
@@ -402,6 +405,7 @@ class TaskToolbar extends Component {
   renderTaskToolbar() {
     const { searchTaskCount } = this.props;
     const { folderId, taskFilter, keyWords, searchKeyWords, filterUserId } = this.props.taskConfig;
+
     const getTypeName = () => {
       let typeName;
 

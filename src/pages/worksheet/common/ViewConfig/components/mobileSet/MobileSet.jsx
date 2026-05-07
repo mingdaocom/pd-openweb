@@ -2,7 +2,7 @@ import React from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dropdown, RadioGroup } from 'ming-ui';
+import { Dropdown, Icon, RadioGroup } from 'ming-ui';
 import { formatValuesOfOriginConditions } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
 import { getAdvanceSetting } from 'src/utils/control';
@@ -32,6 +32,7 @@ export default class MobileSet extends React.Component {
   }
   componentWillReceiveProps(nextProps) {
     const { appshowtype = '0', checkradioid = '' } = getAdvanceSetting(nextProps.view);
+
     if (!_.isEqual(this.state.appshowtype, appshowtype) || !_.isEqual(this.state.checkradioid, checkradioid)) {
       this.setState({
         appshowtype,
@@ -246,6 +247,11 @@ export default class MobileSet extends React.Component {
 
   renderCon = () => {
     const { appshowtype } = this.state;
+    const iconMaps = {
+      1: 'App_Card1',
+      2: 'App_Card2',
+      0: 'App_Card3',
+    };
     return (
       <React.Fragment>
         <div className="viewSetTitle">{_l('移动端显示')}</div>
@@ -268,7 +274,11 @@ export default class MobileSet extends React.Component {
                   onClick={() => {
                     this.changeShowType(it + '');
                   }}
-                ></li>
+                >
+                  <div className="flexRow alignItemsCenter justifyContentCenter overflowHidden h100">
+                    <Icon icon={iconMaps[it]} style={{ fontSize: 46, transform: 'scale(6)' }} />
+                  </div>
+                </li>
               );
             })}
           </ul>
@@ -281,9 +291,11 @@ export default class MobileSet extends React.Component {
   render() {
     const { view } = this.props;
     const isGallery = VIEW_DISPLAY_TYPE[view.viewType] === 'gallery';
+
     if (isGallery) {
       return this.renderGallerySet();
     }
+
     return this.renderCon();
   }
 }

@@ -32,6 +32,7 @@ const TimeSelect = ({
       <span className="flex WordBreak overflow_ellipsis">{errorMessage}</span>
     </div>
   );
+
   const getSelectValue = () => {
     if (isError) {
       return {
@@ -39,6 +40,7 @@ const TimeSelect = ({
         label: renderErrorValue(),
       };
     }
+
     return value && value.controlId
       ? {
           value: value.controlId,
@@ -66,6 +68,7 @@ const TimeSelect = ({
           onAddControl();
           return;
         }
+
         onChange(selectedValue.value);
       }}
       notFoundContent={
@@ -227,10 +230,12 @@ export default function SelectStartOrEnd(props) {
           controls={controls}
           onAdd={data => {
             let controlInfo = data;
+
             if (data.filter(o => SYS.includes(o.controlId)).length <= 0) {
               const sys = controls.filter(o => SYS.includes(o.controlId));
               controlInfo = controlInfo.concat(sys);
             }
+
             updateWorksheetControls(controlInfo);
           }}
           onChange={value => handleChange({ begindate, enddate, [addKey]: value })}

@@ -50,19 +50,24 @@ export default function SimplePagination(props) {
   const pageNumber = Math.ceil(count / pageSize);
   const prevDisabled = tempPageIndex <= 1;
   const nextDisabled = tempPageIndex >= pageNumber;
+
   function changePageIndex(newPageIndex) {
     if (isNaN(newPageIndex)) {
       return;
     }
+
     if (newPageIndex > pageNumber) {
       newPageIndex = pageNumber;
     }
+
     if (newPageIndex < 1) {
       newPageIndex = 1;
     }
+
     onChange(newPageIndex);
     setTempPageIndex(newPageIndex);
   }
+
   useEffect(() => {
     setTempPageIndex(pageIndex);
   }, [pageIndex]);

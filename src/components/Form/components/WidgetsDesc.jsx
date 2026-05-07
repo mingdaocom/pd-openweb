@@ -26,6 +26,7 @@ class WidgetsDesc extends React.Component {
     ) {
       return true;
     }
+
     return false;
   }
 

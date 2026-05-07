@@ -5,6 +5,7 @@ import { Tooltip } from 'ming-ui/antd-components';
 
 export default props => {
   const { urlParams, updatePageInfo } = props;
+
   const onAdd = () => {
     updatePageInfo({
       urlParams: urlParams.concat(''),
@@ -15,6 +16,7 @@ export default props => {
       input && input.focus();
     }, 0);
   };
+
   const onValidate = index => {
     const currentValue = urlParams[index];
 
@@ -28,6 +30,7 @@ export default props => {
       return;
     }
   };
+
   return (
     <Fragment>
       <div className="textPrimary Font14 bold mTop20 mBottom10">{_l('链接参数')}</div>

@@ -48,7 +48,7 @@ export default class GeneralSettings extends Component {
       customColor: type === 'customcolor',
       projectId: _.get(props, 'match.params.projectId'),
     };
-    Config.setPageTitle(_l('通用设置'));
+    Config.setPageTitle(_l('应用管理 - 通用设置'));
   }
 
   componentDidMount() {

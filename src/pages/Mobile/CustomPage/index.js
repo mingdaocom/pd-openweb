@@ -109,11 +109,13 @@ export default class CustomPage extends Component {
     if (!window.isMingDaoApp) {
       workflowPushSoket();
     }
+
     loadSDK();
   }
   componentWillReceiveProps(nextProps) {
     const { params: newParams } = nextProps.match;
     const { params } = this.props.match;
+
     if (newParams.worksheetId !== params.worksheetId) {
       this.getPage(nextProps);
       this.getPageInfo(nextProps);
@@ -133,6 +135,7 @@ export default class CustomPage extends Component {
       currentNavWorksheetId &&
       localStorage.getItem(`currentNavWorksheetInfo-${currentNavWorksheetId}`) &&
       JSON.parse(localStorage.getItem(`currentNavWorksheetInfo-${currentNavWorksheetId}`));
+
     if (appNaviStyle === 2 && currentNavWorksheetInfo) {
       const components = (currentNavWorksheetInfo || {}).components || [];
       const pageComponents = reorderComponents(components);
@@ -168,6 +171,7 @@ export default class CustomPage extends Component {
               }
             });
           }
+
           const components = result.components;
           const pageComponents = reorderComponents(components);
           const newPageComponents = (pageComponents ? pageComponents : components).filter(item => item.mobile.visible);
@@ -181,6 +185,7 @@ export default class CustomPage extends Component {
           store.dispatch(updateFilterComponents(newPageComponents.filter(item => item.value && item.type === 6)));
         });
     }
+
     $(window).bind('orientationchange', () => {
       location.reload();
     });
@@ -361,6 +366,7 @@ export default class CustomPage extends Component {
                     window.mobileNavigateTo('/mobile/dashboard');
                     return;
                   }
+
                   const { params } = this.props.match;
                   window.mobileNavigateTo(`/mobile/app/${params.appId}`);
                 }}

@@ -121,9 +121,9 @@ const ShareCardSet = forwardRef((props, ref) => {
           <UploadBtn
             className={isUploading ? 'disabled' : ''}
             height="44"
-            bg="#fff"
+            bg="var(--color-background-card)"
             color="var(--color-text-title)"
-            hoverBg="var(--color-background-secondary)"
+            hoverBg="var(--color-background-hover)"
             borderRadius="6"
           >
             <Icon
@@ -153,6 +153,7 @@ const ShareCardSet = forwardRef((props, ref) => {
     if (!value || !(value || '').startsWith('[')) {
       return value;
     }
+
     return getDynamicValue(controls, {
       type: 2,
       advancedSetting: {

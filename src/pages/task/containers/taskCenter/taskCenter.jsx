@@ -84,6 +84,7 @@ class TaskCenter extends Component {
           } else {
             alert(_l('您无权操作'), 3);
           }
+
           event.stopPropagation();
         },
       },
@@ -157,6 +158,7 @@ class TaskCenter extends Component {
           if ($target.closest('.addNewTask').length > 0) {
             return;
           }
+
           // 选择成员?
           if (
             $target.closest('#dialogBoxSelectUser_container').length > 0 ||
@@ -164,22 +166,27 @@ class TaskCenter extends Component {
           ) {
             return;
           }
+
           // 头像?
           if ($target.closest('.messageDiv').length > 0) {
             return;
           }
+
           // 日历?
           if ($target.closest('.PositionContainer-wrapper').length > 0) {
             return;
           }
+
           // 提示?
           if ($target.closest('#alertDialog').length > 0) {
             return;
           }
+
           // 选中成员遮罩?
           if ($target.is('#dialogBoxSelectUseroverlay')) {
             return;
           }
+
           if ($target.closest('.Calendar-range').length > 0 || $target.closest('.TimePicker').length > 0) {
             return;
           }
@@ -205,6 +212,7 @@ class TaskCenter extends Component {
     if (pathname !== this.props.pathname && folderIndex > 0) {
       const paramSize = pathname.indexOf('folder_') > -1 ? 7 : 16;
       const folderId = pathname.substring(folderIndex + paramSize);
+
       // 不同项目更新数据
       if (folderId !== this.props.taskConfig.folderId) {
         this.init(folderId);
@@ -251,6 +259,7 @@ class TaskCenter extends Component {
         { taskFilter: storage.Active },
         storage.Active ? getTaskState(storage.Active) : getFolderState(),
       );
+
       // 设置项目options
       if (
         taskConfig.folderId &&

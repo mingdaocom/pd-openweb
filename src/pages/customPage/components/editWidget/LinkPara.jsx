@@ -75,6 +75,7 @@ const LinkParaWrap = styled.div`
     position: absolute;
   }
 `;
+
 function ParaItem({ deleteItem, item, updateItem }) {
   const { key, value } = item;
   const { type, data } = value;
@@ -145,6 +146,7 @@ function ParaItem({ deleteItem, item, updateItem }) {
     </div>
   );
 }
+
 export default function LinkPara(props) {
   const { paras = [], setParas, config = {}, setConfig = () => {}, showActionBar } = props;
   let { reload = false, newTab = false } = config;

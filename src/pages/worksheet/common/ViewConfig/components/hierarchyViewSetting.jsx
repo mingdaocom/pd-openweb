@@ -178,14 +178,18 @@ const HierarchyViewSettingWrap = styled.div(
   }
 `,
 );
+
 const isVisible = control => {
   let { fieldPermission = '111' } = control;
   const [visible] = fieldPermission.split('');
+
   if (visible === '0') {
     return false;
   }
+
   return true;
 };
+
 export default function HierarchyViewSetting(props) {
   const { view, currentSheetInfo, updateCurrentView, appId, filteredColumns, forCarSet } = props;
   const { viewControls = [], advancedSetting, layersName } = view;
@@ -207,10 +211,12 @@ export default function HierarchyViewSetting(props) {
         !_.includes(existSheet, item.dataSource),
     );
   };
+
   const [{ availableControls, controlLoading }, setControls] = useSetState({
     availableControls: getSelectableControls(currentSheetInfo),
     controlLoading: false,
   });
+
   const switchActive = index => {
     if (index === activeIndex) {
       setSetting({ activeIndex: -1 });
@@ -218,9 +224,11 @@ export default function HierarchyViewSetting(props) {
       setSetting({ activeIndex: index });
     }
   };
+
   const handleChange = (obj, isUpdate = true) => {
     updateCurrentView({ appId, ...view, ...obj }, isUpdate);
   };
+
   const getAvailableControls = () => {
     const { worksheetId = '' } = _.last(viewControls) || {};
     const prevViewControl = _.last(viewControls.slice(0, -1));
@@ -241,6 +249,7 @@ export default function HierarchyViewSetting(props) {
         setControls({ controlLoading: false });
       });
   };
+
   const addViewControl = item => {
     worksheetAjax.getWorksheetInfo({ worksheetId: item.dataSource, getTemplate: true }).then(data => {
       const controls = data.template.controls;

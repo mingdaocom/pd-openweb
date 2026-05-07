@@ -123,6 +123,7 @@ export default props => {
       />
     </Box>
   );
+
   const changeShrink = () => {
     const workflowHideNodes = hideNodes.slice();
 
@@ -136,6 +137,7 @@ export default props => {
     safeLocalStorageSetItem('workflowHideNodes', JSON.stringify(workflowHideNodes));
     updateRefreshThumbnail();
   };
+
   // 处理折叠按钮tips位置问题
   const handleFoldBtnTipsPosition = () => {
     showFoldBtn(false);

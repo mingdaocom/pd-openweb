@@ -8,8 +8,13 @@ import { checkTypeSupportForFunction } from 'src/utils/control';
 
 const Con = styled.div`
   padding: 10px 0;
+  .ant-collapse,
+  .ant-collapse-borderless {
+    background-color: transparent !important;
+  }
   .fnTitle {
     font-weight: bold;
+    color: var(--color-text-primary);
   }
   .ant-collapse-header {
     padding: 12px 14px !important;

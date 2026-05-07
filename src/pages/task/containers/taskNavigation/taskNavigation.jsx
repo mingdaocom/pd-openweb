@@ -123,6 +123,7 @@ function SearchFolder(props) {
       setVisible(false);
       return;
     }
+
     setLoading(true);
     ajaxRequest
       .searchFolderList({
@@ -153,11 +154,13 @@ function SearchFolder(props) {
         } else {
           onSelect(highlight.data);
         }
+
         setVisible(false);
         return;
       case 38: //up
       case 40: //down
         let item = {};
+
         if (highlight.id === 0) {
           if (e.keyCode === 38 || (!data.folders[0] && !data.labels[0])) return;
           item = data.folders.concat(data.labels)[0];
@@ -166,6 +169,7 @@ function SearchFolder(props) {
           if (e.keyCode === 40 && [last.folderID, last.categoryID].includes(highlight.id)) return;
           let list = data.folders.concat(data.labels);
           let index = _.findIndex(list, l => (l.folderID || l.categoryID) === highlight.id);
+
           if (index === 0 && e.keyCode === 38) {
             setHighlight({
               id: 0,
@@ -173,8 +177,10 @@ function SearchFolder(props) {
             });
             return;
           }
+
           item = list[e.keyCode === 38 ? index - 1 : index + 1];
         }
+
         setHighlight({
           id: item.folderID || item.categoryID,
           data: {
@@ -414,6 +420,7 @@ class TaskNavigation extends Component {
           .find('.clipLoader')
           .removeClass('Hidden');
       }
+
       this.getNetworkData(projectId, folders);
     });
   }
@@ -589,9 +596,11 @@ class TaskNavigation extends Component {
           if (folderId == 2 || folderId == 3 || folderId == 4) {
             const $childList = _this.find('.commFolderUl');
             const isOpen = $childList.is(':visible');
+
             if ($childList.is(':animated') || _this.find('.txtProjectNameEdit').is(':visible')) {
               return;
             }
+
             if (folderId == 3) {
               _this.find('.downShow').toggleClass('filp', !isOpen);
               _this.find('.moreOp').toggleClass('InlineBlock', !isOpen);
@@ -606,6 +615,7 @@ class TaskNavigation extends Component {
             } else {
               _this.find('.Right').toggleClass('filp', !isOpen);
             }
+
             if (isOpen) {
               $childList.slideUp(() => {
                 that.setFolderState();
@@ -618,6 +628,7 @@ class TaskNavigation extends Component {
                 // 归档
                 that.getArchiveFolderList(projectId);
               }
+
               if (_this.find('li').length === 0) {
                 $childList.show();
                 that.setFolderState();
@@ -639,6 +650,7 @@ class TaskNavigation extends Component {
             { taskFilter: '', folderId, projectId },
             config.clearFilterSettings,
           );
+
           if (folderId === 1) {
             taskConfig.viewType = config.folderViewType.treeView;
           } else if (folderId && $('.folderTabList .subMissionMode').hasClass('itemActive')) {
@@ -721,6 +733,7 @@ class TaskNavigation extends Component {
           }
 
           const $importantProject = $folderSettingBox.find('.importantProject').show();
+
           // 置顶
           if ($li.data('istop')) {
             $importantProject.data('istop', 1).find('span').text(_l('取消置顶'));
@@ -765,6 +778,7 @@ class TaskNavigation extends Component {
           } else {
             $folderSettingBox.find('.exitFile').addClass('Hidden');
           }
+
           // 归档不可以分文件��折叠
           if ($li.parent().is('.pigeonholeFolderList')) {
             $folderSettingBox.find('.addFileBox').addClass('Hidden');
@@ -790,6 +804,7 @@ class TaskNavigation extends Component {
           } else {
             top += 24;
           }
+
           $folderSettingBox
             .css({
               top: top - 50,
@@ -799,6 +814,7 @@ class TaskNavigation extends Component {
 
           // 分割线
           const $dividerLine = $folderSettingBox.find('.dividerLine');
+
           if (
             _.toArray($dividerLine.nextAll())
               .map(el => {
@@ -834,12 +850,15 @@ class TaskNavigation extends Component {
           const ishidden = $li.data('ishidden');
           const folderName = $li.find('.folderName').text();
           const chargeUser = $li.data('charge');
+
           const callback = () => {
             if (that.props.taskConfig.folderId === folderId) {
               that.props.dispatch(updateFolderTopState(!istop));
             }
+
             that.renderFolderAvatar();
           };
+
           const archivedCallback = () => {
             if (that.props.taskConfig.folderId === folderId) {
               that.props.dispatch(updateFolderArchivedState(!ispigeonhole));
@@ -887,6 +906,7 @@ class TaskNavigation extends Component {
           const $this = $(this);
           const $ul = $this.find('.fileFolders');
           let projectId = $('.folderSettingsList').data('projectid');
+
           if (!checkIsProject(projectId)) {
             projectId = '';
           }
@@ -906,6 +926,7 @@ class TaskNavigation extends Component {
               if ((fileId && $item.data('fileid') == fileId) || !$item.find('.txtProjectNameEdit').val().trim()) {
                 return true;
               }
+
               fileName = $('<span/>').text($item.find('.txtProjectNameEdit').val()).html();
               sb =
                 sb +
@@ -935,11 +956,13 @@ class TaskNavigation extends Component {
             if ($boxOffset.top + boxHeight > pageHeight) {
               const newHeight = pageHeight * 0.8 < 300 ? 300 : pageHeight * 0.8;
               let newTop = 0;
+
               if (newHeight > boxHeight) {
                 newTop = pageHeight - boxHeight - $boxOffset.top;
               } else {
                 newTop = pageHeight - newHeight - $boxOffset.top - 10;
               }
+
               $fileFoldersBox.css({
                 top: newTop - 16 + 'px',
               });
@@ -965,6 +988,7 @@ class TaskNavigation extends Component {
       {
         mousedown(event) {
           const $this = $(this);
+
           // 项目文件夹 置顶 全部项目 归档 未关联系 已归档的不能拖动
           if (
             $this.hasClass('projectFolder') ||
@@ -1003,6 +1027,7 @@ class TaskNavigation extends Component {
       let projectId = $('.folderSettingsList').data('projectid');
       const folderId = $('.folderSettingsList').data('folderid');
       const fileId = $(this).data('id');
+
       if (!checkIsProject(projectId)) {
         projectId = '';
       }
@@ -1027,10 +1052,12 @@ class TaskNavigation extends Component {
           that.updateFolderIntoFile(projectId, folderId, '');
           return;
         }
+
         // 点击移动title
         if (!fileId) {
           return false;
         }
+
         // 移动文件夹
         that.updateFolderIntoFile(projectId, folderId, fileId);
       }
@@ -1101,6 +1128,7 @@ class TaskNavigation extends Component {
           $this.removeClass('ThemeBGColor8 ThemeColor10');
 
           const text = $this.val().trim();
+
           if (text.length <= 0) {
             alert(_l('请输入文件夹名称'), 3);
             $(this).focus();
@@ -1110,9 +1138,11 @@ class TaskNavigation extends Component {
           if (taskNavigationSettings.isBlur) {
             return;
           }
+
           taskNavigationSettings.isBlur = true;
 
           const fileId = $this.closest('.projectFolder').data('fileid');
+
           if (fileId != 0) {
             that.updateUserFolderFileName(fileId, $this);
           } else {
@@ -1140,6 +1170,7 @@ class TaskNavigation extends Component {
 
     $(document).on('click', event => {
       const $target = $(event.target);
+
       // 项目设置
       if (!$target.is('.folderList li .sinSettings') && !$target.closest('.folderList li .sinSettings').length) {
         $('.folderSettingsList').hide();
@@ -1216,6 +1247,7 @@ class TaskNavigation extends Component {
       if (source.status) {
         $.map(source.data, network => {
           const { projectID, noticeCount } = network;
+
           if (noticeCount && projectID) {
             $('.networkFolderList[data-projectid=' + projectID + ']')
               .attr('data-count', noticeCount)
@@ -1327,6 +1359,7 @@ class TaskNavigation extends Component {
 
     // 判断当前网络下是否有可点项
     let isExistList = false;
+
     // 存在项目
     if (data.folderList || data.folderFileList || data.hasHiddenFile || data.hasArchivedFile || data.hasNoFIDFile) {
       isExistList = true;
@@ -1355,6 +1388,7 @@ class TaskNavigation extends Component {
         const $el = $(
           '.networkFolderList[data-projectid=' + projectId + '] .folderList li.ThemeBGColor8[data-id=' + folderId + ']',
         );
+
         if ($el.length) {
           $('.navContent').scrollTop($el.offset().top - 300);
         }
@@ -1367,6 +1401,7 @@ class TaskNavigation extends Component {
    */
   builFileFolder(data, projectFolderTpl, projectId) {
     const { folderId } = this.props.taskConfig;
+
     // 存在
     if (data.folderFileList && data.folderFileList.length > 0) {
       data.folderFileList.folderId = folderId;
@@ -1490,10 +1525,12 @@ class TaskNavigation extends Component {
       if (!$this.hasClass('folderJoin') && !$this.closest('.projectFolder').hasClass('folderJoin')) {
         // 当前拖拽的元素加个标�
         const $parentFolder = $this.closest('.projectFolder');
+
         if ($parentFolder.length > 0) {
           $parentFolder.addClass('folderJoin');
         } else {
           const $pigeonholeFolder = $this.closest('.pigeonholeFolder');
+
           if ($pigeonholeFolder.length > 0) {
             $pigeonholeFolder.addClass('folderJoin');
           } else {
@@ -1583,6 +1620,7 @@ class TaskNavigation extends Component {
           // 创建新文件夹
           that.createNewFile($this, $selLi);
         }
+
         $selLi.removeClass('folderJoinBorder');
       }
     });
@@ -1647,9 +1685,11 @@ class TaskNavigation extends Component {
    */
   createNewFile($this, $selLi) {
     let projectId = $selLi.attr('data-projectid');
+
     if (!checkIsProject(projectId)) {
       projectId = '';
     }
+
     const $networkFolderList = $('.networkFolderList[data-projectid=' + projectId + ']');
     const $li = $(doT.template(projectFolder)([{ fFileName: _l('新建文件夹'), fFileID: 0 }]));
     // 如果有项目文件夹放最后，没有放置顶下面，没有放最上面
@@ -1707,6 +1747,7 @@ class TaskNavigation extends Component {
           if (!checkIsProject(projectId)) {
             projectId = '';
           }
+
           const $networkFolderList = $('.networkFolderList[data-projectid=' + projectId + ']');
           const $li = $networkFolderList.find("li[data-id='" + folderId + "']:last").hide();
           const $parent = $li.parent();
@@ -1723,6 +1764,7 @@ class TaskNavigation extends Component {
             const $projectFolderUl = $networkFolderList.find(
               '.projectFolder[data-fileid=' + fileId + '] .projectFolderUl',
             );
+
             if ($projectFolderUl.find('li').length > 0) {
               $projectFolderUl.prepend($li.slideDown());
             }
@@ -1799,6 +1841,7 @@ class TaskNavigation extends Component {
 
           // 文件夹
           const $projectFolder = $networkFolderList.find('.projectFolder').last();
+
           if ($projectFolder.length > 0) {
             $projectFolder.after($lis.slideDown());
           } else {
@@ -1819,6 +1862,7 @@ class TaskNavigation extends Component {
   updateUserFolderFileName(fileId, $this) {
     const newFileName = $this.val().trim();
     const old = $this.attr('title');
+
     const updateFileNameFun = function () {
       $this
         .attr('title', newFileName)
@@ -1827,6 +1871,7 @@ class TaskNavigation extends Component {
         .text(newFileName)
         .removeClass('Hidden');
     };
+
     // 相同不修改
     if (newFileName == old) {
       updateFileNameFun();
@@ -1934,6 +1979,7 @@ class TaskNavigation extends Component {
           if (!checkIsProject(projectId)) {
             projectId = '';
           }
+
           const $networkFolderList = $('.networkFolderList[data-projectid=' + projectId + ']');
           const $li = $networkFolderList.find("li[data-id='" + folderId + "']:last").hide();
           const $parent = $li.parent();

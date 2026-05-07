@@ -76,11 +76,10 @@ export const PortalBarWrap = styled.div`
   }
 `;
 export const Popup = styled.div`
-  background: var(--color-background-primary);
+  background: var(--color-background-card);
   width: 240px;
   padding: 5px 0;
   border-radius: 4px;
-  background-color: var(--color-background-primary);
   box-shadow: 0px 6px 16px rgba(0, 0, 0, 0.16);
   .searchWrapper {
     border-bottom: 1px solid var(--color-border-secondary);
@@ -112,7 +111,7 @@ export const Popup = styled.div`
     .widgetList {
       padding: 8px 16px;
       &:hover {
-        background: var(--color-background-secondary);
+        background: var(--color-background-hover);
         border-radius: 4px;
       }
       .ant-switch-small {

@@ -97,12 +97,14 @@ const Entry = () => {
             appId,
             projectId,
           });
+
           if (info) {
             window.appInfo = { id: appId };
             data.appName = getTranslateInfo(appId, null, appId).name || data.appName;
             data.customerPageName = getTranslateInfo(appId, null, data.sourceId).name || data.customerPageName;
           }
         }
+
         resolve(result);
       } catch (err) {
         reject(err);
@@ -148,6 +150,7 @@ const Entry = () => {
         />
       );
     }
+
     return <ShareState code={share.resultCode} />;
   };
 

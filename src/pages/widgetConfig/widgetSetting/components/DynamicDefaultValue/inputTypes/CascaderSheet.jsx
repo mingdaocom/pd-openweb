@@ -28,6 +28,7 @@ export default class CascaderSheet extends Component {
   }
   handleClick = () => {
     const { data } = this.props;
+
     if (!data.dataSource) {
       alert(_l('请先配置数据源'), 3);
       return;
@@ -69,6 +70,7 @@ export default class CascaderSheet extends Component {
                   name: JSON.parse(staticValueInfo.path || '[]').join(' / ') || _l('未命名'),
                 };
               }
+
               return { sid: JSON.parse(i.staticValue)[0], name: i.relateSheetName };
             })
             .filter(i => i.sid);

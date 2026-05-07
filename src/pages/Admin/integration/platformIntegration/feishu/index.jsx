@@ -121,17 +121,21 @@ export default class FeiShu extends React.Component {
   formatStr = str => {
     if (!str) return;
     let newStr;
+
     if (str.length === 4) {
       newStr = str.substr(0, 3) + '*';
     } else if (str.length > 4) {
       let char = '';
+
       for (let i = 0, len = str.length - 4; i < len; i++) {
         char += '*';
       }
+
       newStr = str.substr(0, 3) + char + str.substr(-3, 3);
     } else {
       newStr = str;
     }
+
     return newStr;
   };
 
@@ -149,6 +153,7 @@ export default class FeiShu extends React.Component {
           this.props.onClose();
           alert(_l('取消成功'));
         }
+
         if (!_.isUndefined(isProxy)) {
           alert(_l('设置成功'));
         }
@@ -270,7 +275,13 @@ export default class FeiShu extends React.Component {
             <span className="Font13 textSecondary Right closeDing">
               <Tooltip
                 title={
-                  isLark ? _l('关闭Lark集成后，无法再从Lark处进入应用') : _l('关闭飞书集成后，无法再从飞书处进入应用')
+                  !window.platformENV.isOverseas && !window.platformENV.isLocal
+                    ? isLark
+                      ? _l('关闭Lark集成后，无法再从Lark处进入明道云应用')
+                      : _l('关闭飞书集成后，无法再从飞书处进入明道云应用')
+                    : isLark
+                      ? _l('关闭Lark集成后，无法再从Lark处进入应用')
+                      : _l('关闭飞书集成后，无法再从飞书处进入应用')
                 }
                 placement="bottomLeft"
               >

@@ -17,7 +17,7 @@ const EditableCardWrap = styled.div`
     width: 24px;
     height: 24px;
     border-radius: 50%;
-    background-color: rgba(255, 255, 255, 0.9);
+    background-color: var(--color-background-secondary);
     right: 20px;
     top: 12px;
     visibility: hidden;
@@ -44,11 +44,14 @@ const EditableCard = forwardRef((props, ref) => {
       updateTitleData({ ...controlItem, value });
       return;
     }
+
     let worksheetId = currentView.worksheetId;
+
     if (String(childType) === '2') {
       const currentIndex = stateData.path.length - 1;
       worksheetId = _.get(viewControls[currentIndex], 'worksheetId');
     }
+
     worksheetAjax.updateWorksheetRow({ rowId, worksheetId, newOldControl: [{ ...controlItem, value }] }).then(res => {
       if (res.data && res.resultCode === 1) {
         const nextControl = { [controlItem.controlId]: value };

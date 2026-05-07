@@ -22,7 +22,7 @@ export default ({
   return (
     <Fragment>
       <div className="mTop20 bold">{_l('筛选条件')}</div>
-      {filterText && <div className="textSecondary mTop5 flexRow alignItemsCenter">{filterText}</div>}
+      {filterText && <div className="Font13 textSecondary mTop5 flexRow alignItemsCenter">{filterText}</div>}
 
       {!!data.conditions.length || !!data.filters.length ? (
         <TriggerCondition
@@ -80,7 +80,7 @@ export default ({
               />
             )}
           </div>
-          {sortText && <div className="textSecondary mTop5">{sortText}</div>}
+          {sortText && <div className="Font13 textSecondary mTop5">{sortText}</div>}
 
           <Sort sorts={data.sorts} controls={data.controls} updateSource={updateSource} />
         </Fragment>

@@ -41,6 +41,7 @@ Comm.inviteCalendar = {
       alert(_l('操作失败'), 3);
       return;
     }
+
     // 确认参加
     Comm.confirmOrUnconfirmInviteMe(calendarId, 1, '', recurTime, catID);
   },

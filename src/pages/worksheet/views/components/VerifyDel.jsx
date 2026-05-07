@@ -44,6 +44,7 @@ const DelVerify = styled.div`
     }
   }
 `;
+
 export default function VerifyDel({
   title,
   visible,

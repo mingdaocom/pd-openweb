@@ -90,6 +90,7 @@ const currentInboxList = (state = [], action) => {
             ...action.data,
           };
         }
+
         return item;
       });
     default:

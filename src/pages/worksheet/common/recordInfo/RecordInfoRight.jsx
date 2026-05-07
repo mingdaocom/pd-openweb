@@ -32,24 +32,30 @@ export default function RecordInfoRight(props) {
   const noApproved =
     !isOpenPermit(permitList.approveDetailsSwitch, sheetSwitchPermit, viewId) ||
     (md.global.Account.isPortal && !props.approved);
+
   if (!payConfig.rowDetailIsShowOrder) {
     hiddenTabs.push('pay');
   }
+
   if (isSubList) {
     hiddenTabs.push('discuss', 'files');
   }
+
   // 查看讨论和文件权限 默认true
   if (!isOpenPermit(permitList.recordDiscussSwitch, sheetSwitchPermit, viewId)) {
     hiddenTabs.push('discuss', 'files');
   }
+
   // 查看日志权限
   if (!isOpenPermit(permitList.recordLogSwitch, sheetSwitchPermit, viewId)) {
     hiddenTabs.push('logs');
   }
+
   // 审批权限 || 流程详情不需要显示表审批
   if (noApproved || workflow) {
     hiddenTabs.push('approval');
   }
+
   if (!workflow) {
     hiddenTabs.push('workflow');
   }
@@ -61,6 +67,7 @@ export default function RecordInfoRight(props) {
       hiddenTabs.push('discuss');
     }
   }
+
   if ([...new Set(hiddenTabs)].length >= 6) {
     return '';
   }

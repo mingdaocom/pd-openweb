@@ -97,10 +97,12 @@ const ListItem = styled.div`
 const OptionItem = props => {
   const { appId, collectionId, name, colorful, handleClick, pos, status, onClick = () => {} } = props;
   const options = getOptions({ options: props.options });
+
   const getPos = () => {
     if (!pos) return {};
     return { transform: `translate(${pos.left}px,${pos.top}px)` };
   };
+
   const translateInfo = getTranslateInfo(appId, null, collectionId);
   return (
     <ListItem style={{ ...getPos() }} status={status} onClick={onClick}>
@@ -184,6 +186,7 @@ export default function AllOptionList(props) {
 
     setPos(pos);
   };
+
   useEffect(() => {
     getOptionList({ status: 1 });
   }, []);
@@ -205,10 +208,12 @@ export default function AllOptionList(props) {
 
   const handleCreateOption = item => {
     const nextList = items.concat(item);
+
     if (currentTab === 9) {
       setVisible({ createVisible: false });
       return;
     }
+
     setOriginalItems(nextList);
     setItems(nextList);
     waterfallList(nextList);

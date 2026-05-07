@@ -42,6 +42,7 @@ function getControlCompareValue(c, value) {
 
 export function getSubListError({ rows, rules }, controls = [], showControls = [], from = 3, masterData) {
   const result = {};
+
   try {
     filterEmptyChildTableRows(rows).forEach(async row => {
       const rulesResult = checkRulesErrorOfRow({
@@ -63,9 +64,11 @@ export function getSubListError({ rows, rules }, controls = [], showControls = [
         rulesResult.formData.filter(c => _.find(showControls, id => id === c.controlId) && controlState(c).visible),
         row.rowid,
       );
+
       if (isLock) {
         return;
       }
+
       const formdata = new DataFormat({
         ignoreHiddenRequired: true,
         data: controldata.map(c => ({ ...c, isSubList: true })),
@@ -100,12 +103,14 @@ export function getSubListError({ rows, rules }, controls = [], showControls = [
           !checkCellIsEmpty(row[c.controlId]),
       );
       const uniqueValueRows = _.uniqBy(hadValueRows, row => getControlCompareValue(c, row[c.controlId]));
+
       if (hadValueRows.length !== uniqueValueRows.length) {
         const duplicateValueRows = hadValueRows.filter(vr => !_.find(uniqueValueRows, r => r.rowid === vr.rowid));
         duplicateValueRows.forEach(row => {
           const sameValueRows = hadValueRows.filter(
             r => getControlCompareValue(c, r[c.controlId]) === getControlCompareValue(c, row[c.controlId]),
           );
+
           if (sameValueRows.length > 1) {
             sameValueRows.forEach(r => {
               result[r.rowid + '-' + c.controlId] = FORM_ERROR_TYPE_TEXT.UNIQUE(c, true);
@@ -136,6 +141,7 @@ export function getSubListErrorOfStore(store) {
     recordId ? 3 : 2,
     base.masterData,
   );
+
   if (!isEmpty(error)) {
     store.dispatch({
       type: 'UPDATE_CELL_ERRORS',
@@ -144,5 +150,6 @@ export function getSubListErrorOfStore(store) {
   } else if (browserIsMobile()) {
     store.clearSubListErrors();
   }
+
   return error;
 }

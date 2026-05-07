@@ -58,6 +58,7 @@ export default class Formula extends React.Component {
     const { data } = nextProps;
     const { dataSource, controlId } = data;
     const nextCalType = FORMULA.CUSTOM.type;
+
     if (controlId !== this.props.data.controlId) {
       const newFormulaStr = this.getFormulaFromDataSource(nextCalType, dataSource);
       this.setState({
@@ -108,10 +109,12 @@ export default class Formula extends React.Component {
     expression = expression.replace(/\/0/g, '/1'); // 除数为0 时按照除数为1计算
 
     const result = parser.parse(expression);
+
     if (/.*undefined.*/.test(expression)) {
       alert(_l('字段存在空值，无法计算'), 3);
       return;
     }
+
     if (result.error) {
       alert(_l('计算发生错误'), 3);
       return;
@@ -134,6 +137,7 @@ export default class Formula extends React.Component {
     const { data } = this.props;
     const { calType } = this.state;
     const dataSource = data.dataSource || '';
+
     if (this.tagtextarea) {
       let value = this.getFormulaFromDataSource(calType, dataSource);
       this.tagtextarea.setValue(value);
@@ -147,20 +151,24 @@ export default class Formula extends React.Component {
     const { onSave } = this.props;
     const { calType, hasDeletedWidget } = this.state;
     let { formulaStr } = this.state;
+
     if (hasDeletedWidget) {
       alert(_l('存在已删除的字段'), 3);
       return;
     }
+
     if (!formulaStr) {
       alert(calType === FORMULA.CUSTOM.type ? _l('请输入计算公式') : _l('请选择参与计算的字段'), 3);
       return;
     }
+
     // 去掉函数括号内最后一个字段跟着的逗号
     if (formulaStr.match(/,\)/)) {
       formulaStr = formulaStr.replace(/,\)/g, ')');
       this.setState({ formulaStr });
       this.tagtextarea.setValue(formulaStr);
     }
+
     if (this.checkFormula(formulaStr)) {
       this.testFormula(this.genFormula(formulaStr));
       onSave({
@@ -189,17 +197,21 @@ export default class Formula extends React.Component {
       this.handleError(err);
       return;
     }
+
     const { onChange } = this.props;
     const { fnmatch, calType } = this.state;
     let newFnmatch = '';
+
     if (obj.origin === '+input') {
       if (!/[0-9|+|\-|*|/|(|),]/.test(obj.text[0])) {
         newFnmatch = fnmatch + obj.text[0];
       }
     }
+
     if (obj.origin === '+delete' && fnmatch && obj.removed[0]) {
       newFnmatch = /^[A-Z0-9]+$/.test(obj.removed[0]) ? fnmatch.replace(new RegExp(`${obj.removed[0]}$`), '') : '';
     }
+
     this.setState({
       formulaStr: value,
       fnmatch: newFnmatch,
@@ -216,6 +228,7 @@ export default class Formula extends React.Component {
 
   handleFnClick = key => {
     const { showInSideFormulaSelect, shoOutSideFormulaSelect, fnmatchPos, fnmatch } = this.state;
+
     if (showInSideFormulaSelect) {
       this.tagtextarea.cmObj.replaceRange(
         `${key}()`,
@@ -231,6 +244,7 @@ export default class Formula extends React.Component {
       this.tagtextarea.cmObj.setCursor({ line: cursor.line, ch: cursor.ch + key.length + 1 });
       this.tagtextarea.cmObj.focus();
     }
+
     this.setState({
       showInSideFormulaSelect: false,
       shoOutSideFormulaSelect: false,
@@ -353,9 +367,11 @@ export default class Formula extends React.Component {
               onChange(value);
             } else {
               let newVal = value || {};
+
               if (!Number(value.dot)) {
                 newVal.dotformat = '0';
               }
+
               onChange({ ...handleAdvancedSettingChange(data, newVal), ...value });
             }
           }}

@@ -75,13 +75,17 @@ export async function getWorksheetNameAndIcon(appId, createPrompt, abortControll
     const reader = response.body.getReader();
     let result = '';
     const decoder = new TextDecoder();
+
     while (true) {
       const { done, value } = await reader.read();
+
       if (done) {
         break;
       }
+
       result += decoder.decode(value);
     }
+
     try {
       const responseDataStr = result
         .split('\n')

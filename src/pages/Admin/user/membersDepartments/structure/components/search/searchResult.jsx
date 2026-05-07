@@ -60,9 +60,11 @@ class Result extends React.Component {
   };
   render() {
     const { keywords, data = {}, isSearching, showResult } = this.props;
+
     if (!showResult) {
       return null;
     }
+
     if (isSearching) {
       return (
         <div className="searchResult pTop20">
@@ -70,7 +72,9 @@ class Result extends React.Component {
         </div>
       );
     }
+
     const { departments = [], users = [] } = data;
+
     if (departments.length > 0 || users.length > 0) {
       return (
         <div className="searchResult">

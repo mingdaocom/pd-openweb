@@ -51,6 +51,7 @@ export default class KcListHeader extends Component {
 
   handleAddNodeBtn = () => {
     const { currentRoot } = this.props;
+
     if (typeof currentRoot === 'object' && currentRoot.project) {
       expireDialogAsync(currentRoot.project.projectId)
         .then(() => {
@@ -112,6 +113,7 @@ export default class KcListHeader extends Component {
                 if (i == 0 || i == 1 || !part) {
                   return undefined;
                 }
+
                 if (i > currentFolder.position.split('/').length - (keywords && !isGlobalSearch ? 2 : 4)) {
                   const href = this.getUrlByPosition(
                     currentFolder.position
@@ -139,6 +141,7 @@ export default class KcListHeader extends Component {
                 } else if (i === 2) {
                   return <span className="positionSpan">&nbsp;> ...</span>;
                 }
+
                 return '';
               })}
             {keywords && !isGlobalSearch && (

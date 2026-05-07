@@ -17,6 +17,7 @@ function getWidth(value) {
   if (!value || !_.isString(value)) {
     return 4;
   }
+
   let width = 4;
   const span = document.createElement('span');
   span.setAttribute('style', 'position: absolute; font-size: 12px; left: -10000px; top: -10000px');

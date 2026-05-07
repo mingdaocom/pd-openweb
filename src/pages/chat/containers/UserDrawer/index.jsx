@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import { Popover } from 'antd';
 import cx from 'classnames';
 import localForage from 'localforage';
@@ -87,6 +87,7 @@ const logout = () => {
 
 export default props => {
   const { onClose, onChangeSettingDrawerVisible } = props;
+
   const { Account } = md.global;
   const projectLength = Account.projects.length;
   const { ss } = getAppFeaturesVisible();
@@ -184,10 +185,7 @@ export default props => {
         {window.themeModeVisible && (
           <div className="flexRow alignItemsCenter pointer itemWrap notHover Relative">
             <Icon className="textTertiary Font22" icon="dark-mode" />
-            <div className="flex mLeft15">
-              {_l('主题')}
-              <Icon icon="beta1" className="mLeft5" style={{ color: 'var(--color-success)' }} />
-            </div>
+            <div className="flex mLeft15">{_l('主题')}</div>
             <ThemeMode />
           </div>
         )}

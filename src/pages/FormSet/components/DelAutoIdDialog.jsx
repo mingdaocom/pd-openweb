@@ -6,15 +6,18 @@ import worksheetAjax from 'src/api/worksheet';
 import processAjax from 'src/pages/workflow/api/process';
 
 const Wrap = styled.div``;
+
 export default function DelDialog(props) {
   const { show, onClose, worksheetId, companyId, delCallback } = props;
   const [loading, setLoading] = useState(false);
   const [hasCheck, setHasCheck] = useState(false);
   const [list, setList] = useState([]);
+
   const checkAutoID = () => {
     if (loading) {
       true;
     }
+
     setLoading(true);
     processAjax
       .getProcessByControlId({
@@ -28,6 +31,7 @@ export default function DelDialog(props) {
         setHasCheck(true);
       });
   };
+
   const delAutoID = () => {
     worksheetAjax.deleteWorksheetAutoID({ worksheetId }).then((res = {}) => {
       if (res.data) {
@@ -36,9 +40,11 @@ export default function DelDialog(props) {
       } else {
         alert(_l('删除失败，请稍后再试！'), 2);
       }
+
       onClose();
     });
   };
+
   return (
     <Dialog
       title={_l('删除系统编号字段')}

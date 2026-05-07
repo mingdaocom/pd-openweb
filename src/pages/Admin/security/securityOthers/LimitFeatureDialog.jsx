@@ -34,6 +34,7 @@ function LimitFeatureDialog(props) {
           setData({ ...data });
           updateData({ ...data });
         }
+
         setLoading(false);
       })
       .catch(() => {

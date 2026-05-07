@@ -24,6 +24,7 @@ export default class GraphBg extends Component {
                   const days = moment(`${item.pub}${sub}`, 'YYYYM月').daysInMonth();
                   subWidth = width * days;
                 }
+
                 return (
                   <div
                     key={`graphSub-${index}`}

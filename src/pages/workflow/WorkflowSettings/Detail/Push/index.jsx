@@ -329,11 +329,7 @@ export default class Push extends Component {
    */
   renderContent() {
     const { flowInfo } = this.props;
-    const { data, currentAppList, isCustomAccount, showSelectUserDialog } = this.state;
-    const PUSH_ACCOUNTS = [
-      { text: _l('触发者'), value: false },
-      { text: _l('自定义'), value: true },
-    ];
+    const { data, currentAppList } = this.state;
 
     return (
       <Fragment>
@@ -353,57 +349,7 @@ export default class Push extends Component {
         <div className="Font13 bold mTop20">{_l('推送内容')}</div>
         {this.renderEventList(data.pushType)}
 
-        {_.includes([PUSH_TYPE.NOTIFICATION], data.pushType) && (
-          <Fragment>
-            <div className="Font13 bold mTop20">{_l('推送人')}</div>
-            <div className="flexRow mTop10">
-              {PUSH_ACCOUNTS.map((item, index) => {
-                return (
-                  <Radio
-                    key={index}
-                    className="mRight60"
-                    checked={item.value === isCustomAccount}
-                    text={item.text}
-                    onClick={() => {
-                      this.setState({ isCustomAccount: item.value });
-                      this.updateSource({ accounts: [] });
-                    }}
-                  />
-                );
-              })}
-            </div>
-
-            {isCustomAccount && (
-              <Fragment>
-                <Member
-                  companyId={this.props.companyId}
-                  appId={this.props.relationType === RELATION_TYPE.APP ? this.props.relationId : ''}
-                  accounts={data.accounts}
-                  updateSource={this.updateSource}
-                />
-                <div
-                  className="flexRow mTop15 ThemeColor3 workflowDetailAddBtn"
-                  onClick={() => this.setState({ showSelectUserDialog: true })}
-                >
-                  <i className="Font28 icon-task-add-member-circle mRight10" />
-                  {_l('添加推送人')}
-                  <SelectUserDropDown
-                    appId={this.props.relationType === RELATION_TYPE.APP ? this.props.relationId : ''}
-                    visible={showSelectUserDialog}
-                    companyId={this.props.companyId}
-                    processId={this.props.processId}
-                    nodeId={this.props.selectNodeId}
-                    unique={false}
-                    accounts={data.accounts}
-                    isIncludeSubDepartment={true}
-                    updateSource={this.updateSource}
-                    onClose={() => this.setState({ showSelectUserDialog: false })}
-                  />
-                </div>
-              </Fragment>
-            )}
-          </Fragment>
-        )}
+        {data.pushType === PUSH_TYPE.NOTIFICATION && this.renderPushUser()}
 
         {data.pushType === PUSH_TYPE.ALERT && (
           <Fragment>
@@ -550,6 +496,69 @@ export default class Push extends Component {
                   </div>
                 );
               })}
+          </Fragment>
+        )}
+      </Fragment>
+    );
+  }
+
+  /**
+   * 渲染推送人
+   */
+  renderPushUser() {
+    const { data, isCustomAccount, showSelectUserDialog } = this.state;
+    const PUSH_ACCOUNTS = [
+      { text: _l('触发者'), value: false },
+      { text: _l('自定义'), value: true },
+    ];
+
+    return (
+      <Fragment>
+        <div className={cx('Font13 bold', { mTop20: data.pushType === PUSH_TYPE.NOTIFICATION })}>{_l('推送人')}</div>
+        <div className="flexRow mTop10">
+          {PUSH_ACCOUNTS.map((item, index) => {
+            return (
+              <Radio
+                key={index}
+                className="mRight60"
+                checked={item.value === isCustomAccount}
+                text={item.text}
+                onClick={() => {
+                  this.setState({ isCustomAccount: item.value });
+                  this.updateSource({ accounts: [] });
+                }}
+              />
+            );
+          })}
+        </div>
+
+        {isCustomAccount && (
+          <Fragment>
+            <Member
+              companyId={this.props.companyId}
+              appId={this.props.relationType === RELATION_TYPE.APP ? this.props.relationId : ''}
+              accounts={data.accounts}
+              updateSource={this.updateSource}
+            />
+            <div
+              className="flexRow mTop15 ThemeColor3 workflowDetailAddBtn"
+              onClick={() => this.setState({ showSelectUserDialog: true })}
+            >
+              <i className="Font28 icon-task-add-member-circle mRight10" />
+              {_l('添加推送人')}
+              <SelectUserDropDown
+                appId={this.props.relationType === RELATION_TYPE.APP ? this.props.relationId : ''}
+                visible={showSelectUserDialog}
+                companyId={this.props.companyId}
+                processId={this.props.processId}
+                nodeId={this.props.selectNodeId}
+                unique={false}
+                accounts={data.accounts}
+                isIncludeSubDepartment={true}
+                updateSource={this.updateSource}
+                onClose={() => this.setState({ showSelectUserDialog: false })}
+              />
+            </div>
           </Fragment>
         )}
       </Fragment>
@@ -744,12 +753,17 @@ export default class Push extends Component {
           <ScrollView>
             <div className="workflowDetailBox">
               {data.pushType === PUSH_TYPE.AUDIO ? (
-                <PromptSound
-                  {...this.props}
-                  promptSound={data.promptSound}
-                  formulaMap={data.formulaMap}
-                  updateSource={this.updateSource}
-                />
+                <Fragment>
+                  {this.renderPushUser()}
+
+                  <div className="mTop20" />
+                  <PromptSound
+                    {...this.props}
+                    promptSound={data.promptSound}
+                    formulaMap={data.formulaMap}
+                    updateSource={this.updateSource}
+                  />
+                </Fragment>
               ) : data.pushType ? (
                 this.renderContent()
               ) : (

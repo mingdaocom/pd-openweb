@@ -100,7 +100,9 @@ function Func(props, ref) {
   } = props;
   const [type, setType] = useState(value.type || 'mdfunction');
   const [codeEditorLoading, setCodeEditorLoading] = useState(false);
+  const [pendingEditorValue, setPendingEditorValue] = useState(null);
   let { controls = [] } = props;
+
   if (_.isArray(controlGroups)) {
     controls = _.flatten(controlGroups.map(group => group.controls.map(c => ({ ...c, workflowGroupId: group.id }))));
     if (isWorksheetFlow) {
@@ -122,7 +124,10 @@ function Func(props, ref) {
       });
     }
   }
+
   const codeEditor = useRef();
+  const loadingTimerRef = useRef(null);
+
   const editorFunctions = key => {
     return (...args) => {
       if (codeEditor.current) {
@@ -132,12 +137,14 @@ function Func(props, ref) {
       }
     };
   };
+
   function handleSave() {
     if (codeEditor.current) {
       const expression = codeEditor.current.getValue();
 
       let available = validateFnExpression(expression, type);
       const controlIds = (expression.match(/\$(.+?)\$/g) || []).map(id => id.slice(1, -1));
+
       if (
         controlIds.filter(
           id =>
@@ -149,6 +156,7 @@ function Func(props, ref) {
         // 存在已删除字段
         available = false;
       }
+
       console.log({ available });
       onSave({
         type,
@@ -158,6 +166,7 @@ function Func(props, ref) {
       onClose();
     }
   }
+
   useImperativeHandle(ref, () => ({
     codeEditor: codeEditor.current,
     handleSave,
@@ -166,6 +175,21 @@ function Func(props, ref) {
     if (setRef) {
       setRef('handleSave', handleSave);
     }
+  }, []);
+
+  useEffect(() => {
+    if (!codeEditorLoading && pendingEditorValue !== null && codeEditor.current) {
+      codeEditor.current.setValue(pendingEditorValue);
+      setPendingEditorValue(null);
+    }
+  }, [codeEditorLoading, pendingEditorValue, type]);
+
+  useEffect(() => {
+    return () => {
+      if (loadingTimerRef.current) {
+        clearTimeout(loadingTimerRef.current);
+      }
+    };
   }, []);
   return (
     <Con className={cx('functionEditor', className)}>
@@ -177,15 +201,17 @@ function Func(props, ref) {
               size="small"
               checked={type === 'javascript'}
               onClick={checked => {
-                setType(checked ? 'mdfunction' : 'javascript');
                 const tempValue = codeEditor.current ? codeEditor.current.getValue() : '';
+                const nextType = checked ? 'mdfunction' : 'javascript';
+                setPendingEditorValue(tempValue);
+                setType(nextType);
                 setCodeEditorLoading(true);
-                setTimeout(() => {
+                if (loadingTimerRef.current) {
+                  clearTimeout(loadingTimerRef.current);
+                }
+                loadingTimerRef.current = setTimeout(() => {
                   setCodeEditorLoading(false);
                 }, 10);
-                setTimeout(() => {
-                  codeEditor.current.setValue(tempValue);
-                }, 20);
               }}
             />
             {_l('自定义函数')}

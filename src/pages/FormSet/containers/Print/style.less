@@ -303,8 +303,8 @@
         right: 7px;
         position: absolute;
         padding: 6px 0;
-        background: var(--color-background-primary);
-        box-shadow: 0px 4px 16px #0000003d;
+        background: var(--color-background-card);
+        box-shadow: var(--shadow-lg);
         border-radius: 2px;
         z-index: 1;
         text-align: left;
@@ -320,8 +320,7 @@
           cursor: pointer;
 
           &:hover {
-            background: var(--color-background-secondary);
-            // color: var(--color-white);
+            background: var(--color-background-hover);
           }
 
           &.red {
@@ -499,11 +498,14 @@
       background: var(--color-background-secondary);
       border-radius: 35px 35px 35px 35px;
       margin-right: 16px;
+      &.kuaimaiIconBox {
+        background-color: transparent;
+      }
     }
 
     .Icon {
       font-size: 24px;
-      color: var(--color-cyan-dark);
+      color: var(--color-text-primary);
       vertical-align: middle;
     }
 
@@ -518,14 +520,23 @@
     .Icon.icon-new_excel {
       color: var(--color-success);
     }
+
+    .kuaimaiIcon {
+      width: 36px;
+      height: 36px;
+    }
   }
 
   .printTempDrawerListItem:hover {
-    background: var(--color-background-secondary);
+    background: var(--color-background-hover);
 
     .iconbox {
       background: var(--color-background-primary);
       box-shadow: 0px 0px 4px 1px rgba(0, 0, 0, 0.0784);
+      &.kuaimaiIconBox {
+        background-color: transparent;
+        box-shadow: none;
+      }
     }
   }
 }
@@ -739,6 +750,38 @@
     .dragIcon {
       display: block;
       color: var(--color-text-tertiary);
+    }
+  }
+}
+
+.bindKuaiMaiDialogContent {
+  .description {
+    font-size: 12px;
+  }
+  .formGroup {
+    margin-top: 16px;
+    .formItem {
+      display: flex;
+      align-items: center;
+      margin-bottom: 16px;
+      .formItemLabel {
+        position: relative;
+        width: 80px;
+        color: var(--color-text-secondary);
+        &::after {
+          content: '*';
+          color: var(--color-error);
+          position: absolute;
+          left: -10px;
+          top: 2px;
+        }
+      }
+      input {
+        flex: 1;
+      }
+    }
+    .formItem + .formItem {
+      margin-top: 24px;
     }
   }
 }

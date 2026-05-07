@@ -48,12 +48,15 @@ export default class Widgets extends Component {
     if (!this.isCard) {
       return;
     }
+
     try {
       if (nextProps.value === 'deleteRowIds: all') {
         this.cardsComp.current.table.deleteAllRecord();
         return;
       }
+
       const nextData = this.parseValue(nextProps.value);
+
       if (_.get(nextData, '0.isWorksheetQueryFill')) {
         const newRecords = nextData.map(item => JSON.parse(item.sourcevalue));
         this.cardsComp.current.table.clearAndAdd(newRecords);
@@ -78,16 +81,20 @@ export default class Widgets extends Component {
     ) {
       return [];
     }
+
     let data = [];
+
     try {
       data = JSON.parse(value);
     } catch (err) {
       console.log(err);
       return [];
     }
+
     if (!_.isObject(data)) {
       return [];
     }
+
     return _.isArray(data) ? data : [data];
   }
 
@@ -95,20 +102,24 @@ export default class Widgets extends Component {
     const value = this.parseValue(this.props.value);
     this.isFromDefault = !!_.find(value, { isFromDefault: true });
     let data = [];
+
     try {
       data = value.map(r => (r.sourcevalue ? JSON.parse(r.sourcevalue) : { rowid: r.sid, titleValue: r.name }));
     } catch (err) {
       console.log(err);
     }
+
     return data;
   }
 
   handleChange = (args, type) => {
     const { relationControls, onChange } = this.props;
+
     if (type === 'array') {
       onChange(JSON.stringify(formatRecordToRelateRecord(relationControls, args)));
     } else {
       const { count, records, deletedIds, addedIds, searchByChange } = args;
+
       if (records.length) {
         onChange(
           JSON.stringify(

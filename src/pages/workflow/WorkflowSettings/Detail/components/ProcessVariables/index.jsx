@@ -20,6 +20,7 @@ const getDefaultParameters = () => {
 export default props => {
   const { updateSource, processVariables } = props;
   const list = processVariables.filter(item => item.processVariableType === 0);
+
   const addParameters = ({ type, dataSource, controlId }) => {
     let defaultParameters = getDefaultParameters();
     let index = 0;
@@ -43,6 +44,7 @@ export default props => {
 
     updateSource({ processVariables });
   };
+
   const updateControls = (action, value, { controlId, type, dataSource }, isBlur) => {
     processVariables.forEach(item => {
       if (item.controlId === controlId) {
@@ -60,7 +62,7 @@ export default props => {
             : value;
 
         if (action === 'type') {
-          item.enumDefault = _.includes([26, 27], type) ? 1 : 0;
+          item.enumDefault = _.includes([26, 27], value) ? 1 : 0;
         }
       }
     });

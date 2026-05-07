@@ -69,6 +69,7 @@ class TaskBasic extends Component {
 
   componentWillReceiveProps(nextProps) {
     const { data } = nextProps.taskDetails[nextProps.taskId];
+
     if (data.taskName !== this.state.taskName) {
       this.setState({ taskName: data.taskName });
     }
@@ -100,6 +101,7 @@ class TaskBasic extends Component {
       navigateTo('/feeddetail?itemID=' + id); // 动态
     } else if (type === 3) {
       const arr = id.split('|');
+
       // 工作表
       if (arr.length === 2) {
         // 老数据
@@ -190,9 +192,11 @@ class TaskBasic extends Component {
       if (folderId === this.props.taskConfig.folderId) {
         return;
       }
+
       if (this.props.openType !== OPEN_TYPE.slide) {
         this.props.closeCallback();
       }
+
       navigateTo('/apps/task/folder_' + folderId);
     } else {
       joinProjectPrompt(folderId); // 申请加入项目
@@ -206,6 +210,7 @@ class TaskBasic extends Component {
     const { taskId, openType } = this.props;
     const { data } = this.props.taskDetails[taskId];
     const stageName = _.find(data.stages, item => item.id === stageId).name;
+
     const callback = data => {
       if (openType === OPEN_TYPE.slide) {
         afterUpdateTaskStage(stageId, taskId, data);
@@ -271,6 +276,7 @@ class TaskBasic extends Component {
   clickChargeAvatar(evt) {
     const { taskId } = this.props;
     const { data } = this.props.taskDetails[taskId];
+
     const callback = users => {
       const user = users[0];
       this.props.dispatch(
@@ -346,6 +352,7 @@ class TaskBasic extends Component {
     const { taskId } = this.props;
     const { data } = this.props.taskDetails[taskId];
     const taskName = _.trim(this.state.taskName);
+
     const callback = () => {
       if (this.props.openType === OPEN_TYPE.slide) {
         afterUpdateTaskName(taskId, taskName);
@@ -372,6 +379,7 @@ class TaskBasic extends Component {
     const { taskId } = this.props;
     const { data } = this.props.taskDetails[taskId];
     const star = !data.star;
+
     const callback = () => {
       afterUpdateTaskStar(taskId, star);
     };
@@ -504,6 +512,7 @@ class TaskBasic extends Component {
     const { taskId } = this.props;
     const { data } = this.props.taskDetails[taskId];
     let existsIds = data.member.filter(item => item.type !== 3).map(item => item.account.accountID);
+
     // 回调
     const callback = (users, callbackInviteResult) => {
       const userIdArr = [];

@@ -26,7 +26,7 @@ export default function (props) {
   const companyNameRef = useRef();
 
   useEffect(() => {
-    fixedDataAjax.loadExtraDatas({}).then(res => {
+    fixedDataAjax.loadExtraDatas({ langType: getCurrentLangCode() }).then(res => {
       setState({
         loading: false,
         extraList: res,
@@ -44,6 +44,7 @@ export default function (props) {
       if (!res) {
         return;
       }
+
       onChange({ lineLoading: true });
       let { TPParams = {}, email = '', emailOrTel = '', company = {} } = props;
       email = emailOrTel && RegExpValidator.isEmail(emailOrTel) ? emailOrTel : email;
@@ -244,10 +245,12 @@ export default function (props) {
                     onFocus={() => setState({ focusDiv: o.id })}
                     onChange={e => {
                       let value = e.target.value;
+
                       if (o.type === 2) {
                         //数值类型
                         value = e.target.value.replace(/[^\d]/g, '');
                       }
+
                       setState({ focusDiv: '', warnList: warnList.filter(it => it.tipDom !== o.id) });
                       updateCompany({ extraDatas: { ...extraDatas, [o.id]: value } });
                     }}

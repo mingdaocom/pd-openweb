@@ -76,6 +76,7 @@ class PrivacyOrAgreen extends React.Component {
     } else {
       this.ajax = externalPortalAjax.getPrivacyTerms({ AppId: appId });
     }
+
     this.ajax.then(res => {
       const {
         appColor = 'var(--color-cyan)',
@@ -97,9 +98,11 @@ class PrivacyOrAgreen extends React.Component {
   }
   render() {
     const { summary, logoImageUrl, customizeName, appColor, appLogoUrl, loading } = this.state;
+
     if (loading) {
       return <LoadDiv />;
     }
+
     if (!summary) {
       return (
         <Wrap>
@@ -115,6 +118,7 @@ class PrivacyOrAgreen extends React.Component {
         </Wrap>
       );
     }
+
     return (
       <Wrap>
         <div className={cx('con', { isMobile: browserIsMobile() })}>

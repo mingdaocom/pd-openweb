@@ -69,6 +69,7 @@ class ContractCom extends Component {
     const $wrap = document.getElementById('printContent');
     let w = 592.28;
     let h = 841.89;
+
     try {
       let width = $wrap.offsetWidth;
       let height = $wrap.offsetHeight;
@@ -103,6 +104,7 @@ class ContractCom extends Component {
           //a4纸的尺寸[595.28,841.89]，html页面生成的canvas在pdf中图片的宽高
           let imgWidth = w;
           let imgHeight = (w / contentWidth) * contentHeight;
+
           //有两个高度需要区分，一个是html页面的实际高度，和生成pdf的页面高度(h)
           //当内容未超过pdf一页显示的范围，无需分页
           if (leftHeight < pageHeight) {

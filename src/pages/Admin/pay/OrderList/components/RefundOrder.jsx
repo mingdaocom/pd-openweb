@@ -368,14 +368,17 @@ export default class RefundOrder extends Component {
   getAppList = () => {
     const { projectId } = this.props;
     const { appPageIndex, isMoreApp, loadingApp, keyword = '' } = this.state;
+
     // 加载更多
     if (appPageIndex > 1 && ((loadingApp && isMoreApp) || !isMoreApp)) {
       return;
     }
+
     this.setState({ loadingApp: true });
     if (this.appPromise && _.isFunction(this.appPromise)) {
       this.appPromise.abort();
     }
+
     this.appPromise = appManagementAjax.getAppsByProject({
       projectId,
       status: '',
@@ -555,6 +558,7 @@ export default class RefundOrder extends Component {
         onPopupScroll: e => {
           e.persist();
           const { scrollTop, offsetHeight, scrollHeight } = e.target;
+
           if (scrollTop + offsetHeight === scrollHeight) {
             if (isMoreApp) {
               this.getAppList();

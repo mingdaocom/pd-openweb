@@ -162,14 +162,17 @@ export function RoleSelect(props) {
 
     let isShowRole =
       !md.global.Account.isPortal && (md.global.Account.projects || []).some(it => it.projectId === projectId);
+
     if (!isShowRole) {
       setLoading(false);
       return;
     }
+
     setIsMore(false);
     if (promise) {
       promise.abort();
     }
+
     promise = organizeAjax.getOrganizes({
       keywords: _.trim(keywords),
       projectId,
@@ -187,6 +190,7 @@ export function RoleSelect(props) {
           setIsMore(result.allCount > list.length);
           return;
         }
+
         if (appointedOrganizeIds.length) {
           result.list.forEach(l => {
             let index = _.findIndex(treeList, o => o.orgRoleGroupId === l.orgRoleGroupId);
@@ -204,6 +208,7 @@ export function RoleSelect(props) {
           treeList[index].hasMore = result.allCount > list.length;
           treeList[index].pageIndex = fetchPageIndex;
         }
+
         setTreeData(treeList);
       })
       .catch(() => {
@@ -405,6 +410,7 @@ export default function quickSelectRole(target, props = {}) {
   let height = 0;
   const { offset = { top: 0, left: 0 }, zIndex = 1001 } = props;
   const $con = document.createElement('div');
+
   function setPosition() {
     if (_.isFunction(_.get(target, 'getBoundingClientRect'))) {
       const rect = target.getBoundingClientRect();
@@ -416,11 +422,13 @@ export default function quickSelectRole(target, props = {}) {
       if (x + panelWidth > window.innerWidth) {
         x = targetLeft - 10 - panelWidth;
       }
+
       if (y + panelHeight > window.innerHeight) {
         y = targetTop - panelHeight - 4;
         if (y < 0) {
           y = 0;
         }
+
         if (targetTop < panelHeight) {
           x = targetLeft - 10 - panelWidth;
           if (x < panelWidth) {
@@ -428,12 +436,14 @@ export default function quickSelectRole(target, props = {}) {
           }
         }
       }
+
       $con.style.position = 'absolute';
       $con.style.left = x + 'px';
       $con.style.top = y + 'px';
       $con.style.zIndex = zIndex;
     }
   }
+
   setPosition();
   document.body.appendChild($con);
 
@@ -454,9 +464,11 @@ export default function quickSelectRole(target, props = {}) {
           setTimeout(setPosition, 100);
           return;
         }
+
         if (_.isFunction(props.onClose)) {
           props.onClose();
         }
+
         destory();
       }}
     />,

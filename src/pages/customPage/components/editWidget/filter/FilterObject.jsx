@@ -82,6 +82,7 @@ export const getFilterObject = (components, reports) => {
     .map(c => {
       const objectId = _.get(c, 'config.objectId');
       const data = { objectId };
+
       if (enumWidgetType.analysis === c.type) {
         data.type = 1;
         data.name = c.name;
@@ -90,23 +91,27 @@ export const getFilterObject = (components, reports) => {
           const report = _.find(reports, { id: c.value }) || {};
           data.worksheetId = report.appId;
         }
+
         // 刚刚复制的图表
         if (c.sourceValue) {
           const report = _.find(reports, { id: c.sourceValue }) || {};
           data.worksheetId = report.appId;
         }
       }
+
       // 刚刚创建的图表
       if ('analysis' === c.type) {
         data.type = 1;
         data.name = c.name;
         data.worksheetId = c.worksheetId;
       }
+
       if ([enumWidgetType.view, 'view'].includes(c.type)) {
         data.type = 2;
         data.name = c.config.name;
         data.worksheetId = c.value;
       }
+
       return data;
     })
     .filter(c => c.worksheetId);
@@ -137,10 +142,12 @@ export default function FilterObject(props) {
     const newObjects = objectControls.concat({ ...data, controlId: same ? same.controlId : '' });
     changeObjects(newObjects);
   };
+
   const removeFilterObject = id => {
     const newObjects = objectControls.filter(item => item.objectId !== id);
     changeObjects(newObjects);
   };
+
   const changeObjects = objectControls => {
     if (filter.global) {
       changeAllFilterObjectControls(objectControls);
@@ -174,6 +181,7 @@ export default function FilterObject(props) {
             checked={searchFilterObject.length && searchFilterObject.length === objectControls.length}
             onChange={e => {
               const { checked } = e.target;
+
               if (checked) {
                 const newObjects = searchFilterObject.map(c => {
                   const { ...data } = c;
@@ -198,6 +206,7 @@ export default function FilterObject(props) {
               checked={_.find(objectControls, { objectId: c.objectId }) ? true : false}
               onChange={e => {
                 const { checked } = e.target;
+
                 if (checked) {
                   addFilterObject(c.objectId);
                 } else {

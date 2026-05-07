@@ -103,6 +103,7 @@ export default class SortableAppItem extends Component {
       (isCharge
         ? workSheetInfo
         : workSheetInfo.filter(item => [1, 4].includes(item.status) && !item.navigateHide))[0] || {};
+
     if (firstAppItem.type === 2) {
       const { workSheetInfo = [] } = _.find(childSections, { appSectionId: firstAppItem.workSheetId }) || {};
       const childrenFirstAppItem =
@@ -118,27 +119,34 @@ export default class SortableAppItem extends Component {
   getNavigateUrl = appSectionId => {
     const { appPkg } = this.props;
     let { appId } = getIds(this.props);
+
     if (md.global.Account.isPortal) {
       appId = md.global.Account.appId;
     }
+
     const storage = JSON.parse(localStorage.getItem(`mdAppCache_${md.global.Account.accountId}_${appId}`)) || {};
     const worksheets = _.filter(storage.worksheets || [], item => item.groupId === appSectionId);
     const { worksheetId, viewId } = worksheets.length ? worksheets[worksheets.length - 1] : {};
+
     if (appPkg.pcNaviStyle === 2) {
       return `/app/${appId}/${appSectionId}?from=insite`;
     }
+
     if (appPkg.selectAppItmeType === 1) {
       const worksheetId = this.getFirstAppItemId();
       return `/app/${appId}/${appSectionId}/${worksheetId || ''}?from=insite`;
     }
+
     return `/app/${appId}/${appSectionId}/${_.filter([worksheetId, viewId], item => !!item).join('/')}?from=insite`;
   };
 
   handleKeyDown = e => {
     const { key, keyCode } = e;
+
     if (key === 'Enter' || keyCode === 13) {
       this.$nameRef.current.blur();
     }
+
     return false;
   };
 
@@ -179,6 +187,7 @@ export default class SortableAppItem extends Component {
               onKeyDown={this.handleKeyDown}
               onClick={() => {
                 const input = this.$nameRef.current;
+
                 if (window.isFirefox && input) {
                   input.setSelectionRange(input.value.length, input.value.length);
                 }
@@ -194,6 +203,7 @@ export default class SortableAppItem extends Component {
                 changeBoardViewData([]);
                 sessionStorage.setItem('addBehaviorLogInfo', JSON.stringify({ type: 'group' }));
               }
+
               if (appPkg.pcNaviStyle === 2) {
                 const key = `mdAppCache_${md.global.Account.accountId}_${appPkg.id}`;
                 const storage = JSON.parse(localStorage.getItem(key)) || {};

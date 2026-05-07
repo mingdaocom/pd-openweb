@@ -72,7 +72,7 @@
     z-index: 2;
     width: 300px;
     box-shadow: 0px 4px 8px #00000029;
-    background-color: var(--color-background-primary);
+    background-color: var(--color-background-card);
 
     .publishSwitch {
       margin-left: 12px;
@@ -124,7 +124,7 @@
       padding: 0 2px;
 
       .formContentHeader {
-        background: var(--color-background-primary);
+        background: var(--color-background-card);
         padding: 0 20px;
       }
 
@@ -243,8 +243,12 @@
   }
 
   .promptText {
+    --prompt-text-bg-color: rgba(254, 249, 233, 1);
+    [data-theme='dark'] & {
+      --prompt-text-bg-color: rgba(254, 249, 233, 0.1);
+    }
     padding: 12px 10px;
-    background: rgba(254, 249, 233, 1);
+    background: var(--prompt-text-bg-color);
     color: var(--color-text-secondary);
     line-height: 22px;
     font-weight: 700;
@@ -253,7 +257,7 @@
 
 .publicWorksheetForm.customWidgetForWorksheetWrap {
   position: relative;
-  background: var(--color-background-primary);
+  background: var(--color-background-card);
   padding: 0 35px;
 
   #dragPreview {
@@ -263,6 +267,7 @@
   .rowsWrap {
     box-shadow: none !important;
     border-radius: 0 0 3px 3px;
+    background: var(--color-background-card);
   }
   .tabItemWrap {
     box-shadow: none !important;
@@ -320,7 +325,6 @@
     height: 100%;
     padding: 0;
     .headerTab {
-      background: var(--color-background-secondary);
       > div {
         padding: 0 24px !important;
       }
@@ -487,7 +491,7 @@
     display: inline-block;
     height: 36px;
     line-height: 36px;
-    background: var(--color-background-disabled);
+    background: var(--color-background-tertiary);
     padding: 0 12px;
     font-weight: 500;
     border-radius: 4px;

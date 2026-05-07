@@ -1,4 +1,4 @@
-@import '../../../common/mdcss/Themes/themeVariables.less';
+﻿@import '../../../common/mdcss/Themes/themeVariables.less';
 .ming {
   &.Button {
     display: inline-block;
@@ -21,7 +21,8 @@
       }
     }
     &--secondary {
-      background: @grayLight;
+      color: var(--color-text-tertiary);
+      background: @grayLightest;
       &:hover {
         background: var(--color-border-secondary);
       }
@@ -149,6 +150,9 @@
     }
     &--loading {
       padding: 0;
+    }
+    &--loading--text {
+      display: flex;
     }
     // animation
     & {

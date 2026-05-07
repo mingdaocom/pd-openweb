@@ -2,7 +2,7 @@ import React, { memo } from 'react';
 import BaseColumnHead from 'worksheet/components/BaseColumnHead';
 import STYLE_PRINT from '../../core/exportWordPrintTemCssString';
 
-const TableCommon = ({ list = [], dataSource = [], id, tableProps, resizeWidth }) => {
+const TableCommon = ({ list = [], dataSource = [], id, tableProps, placeholderMode, resizeWidth }) => {
   return (
     <table className="printRelationTable" {...tableProps}>
       <tr>
@@ -27,6 +27,7 @@ const TableCommon = ({ list = [], dataSource = [], id, tableProps, resizeWidth }
               style={{ ...STYLE_PRINT.relationPrintTable_Tr_Th, ...borderLeftNone, width: item.width }}
             >
               <BaseColumnHead
+                hideMaskIcon
                 disableSort={true}
                 className={`ant-table-cell ${item.className}`}
                 style={{ width: item.width, padding: '5px' }}
@@ -53,12 +54,12 @@ const TableCommon = ({ list = [], dataSource = [], id, tableProps, resizeWidth }
                     width: column.width,
                     ...STYLE_PRINT.relationPrintTable_Tr_Td,
                     ...borderLeftNone,
-                    borderBottomColor: index + 1 === column.length ? '#000' : 'var(--color-border-primary)',
+                    borderBottomColor: index + 1 === column.length ? '#000' : '#ddd',
                   }}
                   className="WordBreak"
                   key={`print-relation-tr-${id}-${item.rowid}-${column.controlId}`}
                 >
-                  {column.render(item[column.dataIndex], item, i)}
+                  {column.render(item[column.dataIndex], item, i) || placeholderMode}
                 </td>
               );
             })}

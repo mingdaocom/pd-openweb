@@ -23,6 +23,7 @@ export default function CustomDragLayer(props) {
     currentOffset: monitor.getSourceClientOffset(),
     isDragging: monitor.isDragging(),
   }));
+
   function getItemStyles() {
     if (!currentOffset) {
       return {
@@ -39,6 +40,7 @@ export default function CustomDragLayer(props) {
       width: '280px',
     };
   }
+
   function renderItem() {
     if (itemType !== ITEM_TYPE.ITEM) return null;
     const data = dealHierarchyData(treeData[item.rowId], {
@@ -53,6 +55,7 @@ export default function CustomDragLayer(props) {
   if (!isDragging) {
     return null;
   }
+
   // 自定义页面中固定定位受父级样式影响失效，将预览层挂载到body上
   return ReactDOM.createPortal(
     <div style={layerStyles}>

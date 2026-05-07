@@ -38,6 +38,7 @@ export function error(state = false, action) {
 
 export function worksheetInfo(state = {}, action) {
   let newState;
+
   switch (action.type) {
     case 'WORKSHEET_INIT':
       return action.value;
@@ -62,6 +63,7 @@ export function worksheetInfo(state = {}, action) {
         console.error(err);
         return state;
       }
+
     default:
       return state;
   }
@@ -77,6 +79,7 @@ export function sheetSwitchPermit(state = [], action) {
       return state;
   }
 }
+
 export function sheetSearchConfig(state = [], action) {
   switch (action.type) {
     case 'WORKSHEET_SEARCH_CONFIG_INIT':
@@ -173,6 +176,7 @@ export function quickFilter(state = [], action) {
       return state;
   }
 }
+
 export function quickFilterWithDefault(state = [], action) {
   switch (action.type) {
     case 'WORKSHEET_UPDATE_QUICK_FILTER_WITH_DEFAULT':

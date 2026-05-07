@@ -65,6 +65,7 @@ export default class extends Component {
   componentWillReceiveProps(nextProps) {
     const { displaySetup, style } = nextProps.reportData;
     const { displaySetup: oldDisplaySetup, style: oldStyle } = this.props.reportData;
+
     if (
       displaySetup.showTotal !== oldDisplaySetup.showTotal ||
       displaySetup.showLegend !== oldDisplaySetup.showLegend ||
@@ -84,6 +85,7 @@ export default class extends Component {
       const pieConfig = this.getPieConfig(nextProps);
       this.PieChart && this.PieChart.update(pieConfig);
     }
+
     if (
       displaySetup.showChartType !== oldDisplaySetup.showChartType ||
       nextProps.isLinkageData !== this.props.isLinkageData
@@ -96,6 +98,7 @@ export default class extends Component {
   renderPieChart() {
     const { reportData } = this.props;
     const { map, displaySetup, style, xaxes } = reportData;
+
     if (this.chartEl) {
       this.PieChart = new this.PieComponent(this.chartEl, this.getPieConfig(this.props));
       this.isViewOriginalData = displaySetup.showRowList && this.props.isViewOriginalData && map.length;
@@ -107,11 +110,13 @@ export default class extends Component {
       if (this.isViewOriginalData || this.isLinkageData) {
         this.PieChart.on('element:click', this.handleClick);
       }
+
       this.PieChart.render();
     }
   }
   handleClick = data => {
-    const { xaxes, appId, reportId, name, reportType, style } = this.props.reportData;
+    const { reportData, isMobile } = this.props;
+    const { xaxes, appId, reportId, name, reportType, style } = reportData;
     const event = data.gEvent;
     const currentData = data.data;
     const param = {};
@@ -122,6 +127,7 @@ export default class extends Component {
       reportType,
       filters: [],
     };
+
     if (xaxes.cid) {
       const isNumber = isFormatNumber(xaxes.controlType);
       const value = currentData.data.originalId;
@@ -136,15 +142,17 @@ export default class extends Component {
         control: xaxes,
       });
     }
+
     if (_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length) {
       linkageMatch.onlyChartIds = style.autoLinkageChartObjectIds;
     }
+
     const isAll = this.isViewOriginalData && this.isLinkageData;
     this.setState(
       {
         dropdownVisible: isAll,
         offset: {
-          x: event.x + 20,
+          x: event.x + (isMobile ? -100 : 20),
           y: event.y,
         },
         match: param,
@@ -154,6 +162,7 @@ export default class extends Component {
         if (!isAll && this.isViewOriginalData) {
           this.handleRequestOriginalData();
         }
+
         if (!isAll && this.isLinkageData) {
           this.handleAutoLinkage();
         }
@@ -269,12 +278,15 @@ export default class extends Component {
       color: data => {
         const index = _.findIndex(baseConfig.data, { originalId: data.originalId });
         let color = colors[index % colors.length];
+
         if (!map.length) {
           return '#f0f0f0';
         }
+
         if (isOptionsColor) {
           color = getAlienationColor(xaxes, data);
         }
+
         if (!_.isEmpty(linkageMatch)) {
           if (linkageMatch.value === data.originalId) {
             return color;
@@ -282,6 +294,7 @@ export default class extends Component {
             return new TinyColor(color).setAlpha(0.3).toRgbString();
           }
         }
+
         return color;
       },
       legend:

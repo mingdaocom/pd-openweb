@@ -20,11 +20,13 @@ export const updateWidgets = (widgets, controlId, obj) => {
 export const getPathById = (widgets, id) => {
   for (var i = 0; i < widgets.length; i++) {
     const row = widgets[i];
+
     for (var j = 0; j < row.length; j++) {
       const item = widgets[i][j];
       if (item.controlId === id) return [i, j];
     }
   }
+
   return [];
 };
 
@@ -45,6 +47,7 @@ export const isFullLineControl = data => {
   if (type === 30) {
     return isFullLineControl(sourceControl);
   }
+
   return false;
 };
 
@@ -55,6 +58,7 @@ export const getRowById = (widgets, controlId) => {
 
 export const changeWidgetSize = (widgets, { controlId, size }) => {
   const { rowIndex, row } = getRowById(widgets, controlId);
+
   switch (row.length) {
     case 1:
       return update(widgets, { [rowIndex]: { $apply: row => row.map(item => ({ ...item, size })) } });

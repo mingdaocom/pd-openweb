@@ -178,6 +178,7 @@ export default class OutsourcingList extends Component {
     if (Number(text) <= 0) {
       return;
     }
+
     // type = Number(type);
     transferController
       .getRelationDetailByAid({
@@ -190,6 +191,7 @@ export default class OutsourcingList extends Component {
         let typeName = _l('项目');
         let url = '';
         let urlDetail = '';
+
         switch (type) {
           case 1:
             typeName = _l('项目');

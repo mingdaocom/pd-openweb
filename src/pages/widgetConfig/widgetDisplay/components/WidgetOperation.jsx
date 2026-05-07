@@ -70,7 +70,6 @@ const OperationWrap = styled.div`
     &.delWidget {
       &:hover {
         color: var(--color-error);
-        background-color: var(--color-error-bg);
       }
     }
   }
@@ -207,6 +206,7 @@ export default function WidgetOperation(props) {
         </Tooltip>
       );
     }
+
     const handleDelete = e => {
       if (e && e.stopPropagation) e.stopPropagation();
       handleOperate('delete', queryConfig);
@@ -222,6 +222,7 @@ export default function WidgetOperation(props) {
 
       handleDelete();
     };
+
     // 关联记录类型 且双向关联了其他表  删除需要异化为选择删除单个控件和删除双向控件
     if (type === 29 && (sourceControl || {}).controlId && dataSource !== globalSheetInfo.worksheetId) {
       return (
@@ -257,6 +258,7 @@ export default function WidgetOperation(props) {
         </DeleteConfirm>
       );
     }
+
     return (
       <DeleteConfirm
         visible={deleteConfirmVisible}

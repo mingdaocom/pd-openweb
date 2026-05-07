@@ -56,7 +56,7 @@ const CustomChartContentWrap = styled.div`
       }
       &.addItem {
         .item {
-          background: var(--color-background-primary);
+          background: var(--color-background-input);
           border: 1px solid var(--color-border-secondary);
           text-align: center;
           line-height: 24px;
@@ -64,7 +64,7 @@ const CustomChartContentWrap = styled.div`
       }
       &:hover,
       &.active {
-        background: var(--color-background-secondary);
+        background: var(--color-background-hover);
         .deleteIcon {
           display: inline-block;
         }
@@ -99,7 +99,7 @@ const CustomChartContentWrap = styled.div`
     .colorItem {
       width: 36px;
       height: 36px;
-      background: var(--color-background-primary);
+      background: var(--color-background-input);
       border: 1px solid var(--color-border-secondary);
       border-radius: 4px;
       padding: 5px;
@@ -150,7 +150,7 @@ const CustomChartContentWrap = styled.div`
 
 const CustomColorsWrap = styled.div`
   width: 360px;
-  background: var(--color-background-primary);
+  background: var(--color-background-card);
   box-shadow: var(--shadow-lg);
   opacity: 1;
   border-radius: 5px;

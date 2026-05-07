@@ -1,6 +1,8 @@
-﻿import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
-import { find, flatten, get, includes, isEmpty, isFunction, isObject, last, uniq } from 'lodash';
+import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
+import cx from 'classnames';
+import { find, flatten, get, includes, isEmpty, isFunction, isObject, last, omit, uniq } from 'lodash';
 import PropTypes from 'prop-types';
+import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
 import sseAjax from 'src/api/sse';
@@ -13,6 +15,7 @@ import {
   WIDGETS_TO_API_TYPE_ENUM,
   WORKFLOW_SYSTEM_CONTROL,
 } from 'src/pages/widgetConfig/config/widget';
+import IconBtn from 'src/pages/worksheet/common/recordInfo/RecordForm/IconBtn';
 import useChat from 'src/pages/worksheet/hooks/useChat';
 import { emitter } from 'src/utils/common';
 import { controlState, formatAiGenControlValue } from 'src/utils/control';
@@ -23,7 +26,49 @@ import ResponseError from '../../ChatBot/components/ResponseError';
 import Send from '../../ChatBot/components/Send';
 import CreateWorksheetDataMask from './CreateWorksheetDataMask';
 import Recommend from './Recommend';
+import { ConfigPanel } from './Recommend';
 import WorksheetDataGenerator from './WorksheetDataGenerator';
+
+const MessageListWrap = styled.div`
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+`;
+
+const ConfigIconWrap = styled.div`
+  position: absolute;
+  right: 16px;
+  bottom: 6px;
+  z-index: 1;
+  > span {
+    cursor: pointer;
+    font-size: 18px;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-text-tertiary);
+    margin: 0px;
+    &.active {
+      color: var(--color-mingo);
+    }
+  }
+`;
+
+const ConfigPanelWrap = styled.div`
+  padding: 12px 16px;
+  background: var(--color-background-primary);
+  border-radius: 4px;
+  box-shadow: var(--shadow-sm);
+  width: 200px;
+  .ming.Checkbox {
+    display: flex;
+    justify-content: space-between;
+  }
+`;
 
 const MingoContentWrap = styled.div`
   padding: 0 0 12px;
@@ -35,7 +80,7 @@ const MingoContentWrap = styled.div`
     font-weight: bold;
     margin: 26px 0 6px;
     font-size: 15px;
-    color: var(--color-text-title);
+    color: var(--color-text-primary);
   }
   .sendCon {
     position: relative;
@@ -60,7 +105,9 @@ function getDefaultValueOfMessagesOfMingoCreateWorksheetDataBot(storageKey, work
   if (!storageKey || !localStorage.getItem(storageKey)) {
     return {};
   }
+
   let data = {};
+
   try {
     const parsedData = JSON.parse(localStorage.getItem(storageKey));
     data = parsedData.worksheetId === worksheetId ? parsedData : {};
@@ -68,6 +115,7 @@ function getDefaultValueOfMessagesOfMingoCreateWorksheetDataBot(storageKey, work
     console.error(error);
     return {};
   }
+
   return data || {};
 }
 
@@ -144,6 +192,7 @@ class PromiseQueue {
           reason: `Task ${index} did not complete properly`,
         };
       }
+
       return result;
     });
 
@@ -163,6 +212,19 @@ function MingoContent(props, ref) {
     onClose = () => {},
   } = props;
   const { appId, projectId, worksheetId, worksheetInfo } = base || {};
+  const configStorageKey = `MINGO_CREATE_BOT_CONFIG_${get(md, 'global.Account.accountId')}`;
+  const [config, setConfig] = useState(() => {
+    try {
+      const cached = localStorage.getItem(configStorageKey);
+      if (cached) return JSON.parse(cached);
+    } catch (e) {}
+    return { includeSamplePeople: true, includeSampleAttachments: true };
+  });
+  useEffect(() => {
+    try {
+      localStorage.setItem(configStorageKey, JSON.stringify(config));
+    } catch (e) {}
+  }, [config]);
   const storageKey = `MINGO_CREATE_WORKSHEET_DATA_BOT_MESSAGES_${get(md, 'global.Account.accountId')}`;
   const defaultData = useMemo(
     () => getDefaultValueOfMessagesOfMingoCreateWorksheetDataBot(storageKey, worksheetId),
@@ -200,7 +262,9 @@ function MingoContent(props, ref) {
       return sseAjax.generateExampleData(
         {
           worksheetId,
-          messageList: messages,
+          messageList: messages.map(m => omit(m, ['media'])),
+          includeUsers: config.includeSamplePeople,
+          includeFiles: config.includeSampleAttachments,
         },
         {
           abortController,
@@ -234,8 +298,10 @@ function MingoContent(props, ref) {
       ) {
         cache.current.JSONLIsPiping = true;
       }
+
       cache.current.currentMessage += messageContent;
       let parsedData;
+
       if (cache.current.JSONLIsPiping) {
         cache.current.currentJSONLStr += messageContent;
         parsedData = parseStreamingJsonlData(
@@ -257,6 +323,7 @@ function MingoContent(props, ref) {
         // console.log('parsedData', parsedData);
         setPreviewTempData(parsedData);
       }
+
       if (/\n```(\n|$)/.test(cache.current.currentMessage) && cache.current.JSONLIsPiping) {
         cache.current.JSONLIsPiping = false;
         setPreviewTempData([]);
@@ -296,6 +363,7 @@ function MingoContent(props, ref) {
       if (isFunction(cache.current.handleAbortRequest)) {
         cache.current.handleAbortRequest();
       }
+
       setError({
         errorMsg: _l('模型调用失败'),
         sourceData: eventData,
@@ -310,13 +378,15 @@ function MingoContent(props, ref) {
       }, timeout);
     }
   }, []);
-  const handleSend = (newMessage, { images } = {}) => {
+
+  const handleSend = (newMessage, { images, fileIds, media, useFileContentFormat } = {}) => {
     setIsChatting(true);
-    sendMessage(newMessage, { images });
+    sendMessage(newMessage, { images, fileIds, media, useFileContentFormat });
     setTimeout(() => {
       handleScrollToBottom();
     }, 100);
   };
+
   const handleAbortRequest = () => {
     abortRequest();
     cache.current.JSONLIsPiping = false;
@@ -339,8 +409,10 @@ function MingoContent(props, ref) {
         ),
       }));
     }
+
     setPreviewTempData([]);
   };
+
   cache.current.handleAbortRequest = handleAbortRequest;
   useImperativeHandle(ref, () => ({
     destroy: () => {
@@ -350,6 +422,7 @@ function MingoContent(props, ref) {
       if (cache.current.loadAbortController) {
         cache.current.loadAbortController.abort();
       }
+
       setIsChatting(false);
       cache.current = {};
     },
@@ -376,60 +449,121 @@ function MingoContent(props, ref) {
     .concat(previewTempData);
   return (
     <MingoContentWrap className={className}>
-      <MessageList
-        activeMessageId={activeMessageId}
-        allowEdit={allowEdit}
-        maxWidth={maxWidth}
-        loading={loading}
-        isRequesting={isRequesting}
-        messages={messages.filter(item => !item.hidden)}
-        ref={messageListRef}
-        errorComp={
-          error ? <ResponseError aiFeatureType={AI_FEATURE_TYPE.SAMPLE_DATA} error={error} showFeedback /> : null
-        }
-        messageRecommendComp={<Recommend onSelect={description => handleSend(description)} />}
-        renderCustomBlock={({ type, messageId, isStreaming, isLastAssistantMessage }) => {
-          if (type === 'mingo_create_worksheet_data_jsonl') {
-            const data = createdDataMap[messageId] || [];
-            return (
-              <WorksheetDataGenerator
-                isLoading={(isLastAssistantMessage && isStreaming) || messageIdOfIsGeneratingMoreData === messageId}
-                isSelected={selectedDataMessageId.includes(messageId)}
-                count={data.length}
-                onToggle={() => {
-                  setSelectedDataMessageId(prev =>
-                    selectedDataMessageId.includes(messageId)
-                      ? prev.filter(id => id !== messageId)
-                      : [...prev, messageId],
-                  );
-                }}
-                onContinueGenerate={() => {
-                  setIsRequesting(true);
-                  setLoading(true);
-                  setMessageIdOfIsGeneratingMoreData(messageId);
-                  reGenerateMessageAndNoUpdateMessages(messageId, '继续生成10条');
-                }}
-              />
-            );
+      <MessageListWrap>
+        <MessageList
+          activeMessageId={activeMessageId}
+          allowEdit={allowEdit}
+          maxWidth={maxWidth}
+          loading={loading}
+          isRequesting={isRequesting}
+          messages={messages.filter(item => !item.hidden)}
+          ref={messageListRef}
+          errorComp={
+            error ? <ResponseError aiFeatureType={AI_FEATURE_TYPE.SAMPLE_DATA} error={error} showFeedback /> : null
           }
-          return null;
-        }}
-        onSend={handleSend}
-      />
+          messageRecommendComp={
+            <Recommend
+              config={config}
+              onSelect={description => handleSend(description)}
+              onConfigChange={changes => {
+                setConfig(prev => ({
+                  ...prev,
+                  ...changes,
+                }));
+              }}
+            />
+          }
+          renderCustomBlock={({ type, messageId, isStreaming, isLastAssistantMessage }) => {
+            if (type === 'mingo_create_worksheet_data_jsonl') {
+              const data = createdDataMap[messageId] || [];
+              return (
+                <WorksheetDataGenerator
+                  isLoading={(isLastAssistantMessage && isStreaming) || messageIdOfIsGeneratingMoreData === messageId}
+                  isSelected={selectedDataMessageId.includes(messageId)}
+                  count={data.length}
+                  onToggle={() => {
+                    setSelectedDataMessageId(prev =>
+                      selectedDataMessageId.includes(messageId)
+                        ? prev.filter(id => id !== messageId)
+                        : [...prev, messageId],
+                    );
+                  }}
+                  onContinueGenerate={() => {
+                    setIsRequesting(true);
+                    setLoading(true);
+                    setMessageIdOfIsGeneratingMoreData(messageId);
+                    reGenerateMessageAndNoUpdateMessages(messageId, '继续生成10条');
+                  }}
+                />
+              );
+            }
+
+            return null;
+          }}
+          onSend={handleSend}
+        />
+        {!!messages.length && (
+          <ConfigIconWrap>
+            <Trigger
+              action={['hover']}
+              popupAlign={{
+                points: ['br', 'tr'],
+                offset: [0, -6],
+                overflow: { adjustX: true, adjustY: true },
+              }}
+              popup={
+                <ConfigPanelWrap>
+                  <ConfigPanel
+                    checkboxTextPosition="left"
+                    config={config}
+                    onConfigChange={changes => {
+                      setConfig(prev => ({
+                        ...prev,
+                        ...changes,
+                      }));
+                    }}
+                  />
+                </ConfigPanelWrap>
+              }
+              popupClassName="mingoCreateWorksheetDataBotConfigTrigger"
+              destroyPopupOnHide
+              zIndex={1050}
+            >
+              <IconBtn
+                as="span"
+                className={cx({ active: config.includeSamplePeople || config.includeSampleAttachments })}
+              >
+                <i className="icon icon-tune" />
+              </IconBtn>
+            </Trigger>
+          </ConfigIconWrap>
+        )}
+      </MessageListWrap>
       {!disabled && (
         <div className="sendCon" style={{ maxWidth: maxWidth + 16 * 2 }}>
           <Send
             allowUpload
+            needOcr
+            mingoOcr
+            allowMimeTypes={[
+              { title: 'image', extensions: 'jpg,jpeg,png,heic' },
+              { title: 'office', extensions: 'pdf,doc,docx,xls,xlsx,txt' },
+            ]}
+            uploadFileToolTip={_l(
+              '文件数量：最多5个\n文件大小：单个文件不超过10M\n总字数：所有文档的总字数最多50k，超出自动忽略\n文件格式：PDF / TXT / Word / Excel / 图片',
+            )}
             isChatting={isChatting}
             loading={loading}
             isRequesting={isRequesting}
             abortRequest={handleAbortRequest}
             onSend={(value, { files }) => {
+              const imageFiles = files.filter(f => f.type.startsWith('image/'));
+              const ocrFiles = files.filter(f => !f.type.startsWith('image/') && f.ocrId);
               handleSend(value, {
-                images: files
-                  .filter(f => f.type.startsWith('image/'))
-                  .map(f => f.file?.url)
-                  .filter(Boolean),
+                images: imageFiles.map(f => f.url).filter(Boolean),
+                fileIds: ocrFiles.map(f => f.ocrId).filter(Boolean),
+                media: ocrFiles.map(f => f.commonAttachment),
+                useFileContentFormat: true,
               });
             }}
           />
@@ -450,7 +584,9 @@ function MingoContent(props, ref) {
                   ? JSON.stringify(row[control.controlId])
                   : row[control.controlId];
             }
+
             const doNotAllowAddControlTypes = [WIDGETS_TO_API_TYPE_ENUM.AUTO_ID];
+
             if (find(visibleControls, c => c.type === 34)) {
               const queue = new PromiseQueue(3); // 并发数3
               queue

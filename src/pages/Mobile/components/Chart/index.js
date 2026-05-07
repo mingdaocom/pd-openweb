@@ -38,6 +38,7 @@ function Chart({
   if (data.status <= 0) {
     return <Abnormal status={data.status} />;
   }
+
   charts[reportTypes.CountryLayer] = CountryLayer;
 
   const isMapEmpty = _.isEmpty(data.map);
@@ -48,6 +49,7 @@ function Chart({
   const filter = data.filter || {};
   const { filterRangeId, rangeType, rangeValue, dynamicFilter, today = false, customRangeValue } = filter;
   const { filters, filtersGroup, autoLinkage } = pageConfig;
+
   const viewOriginalSheet = params => {
     reportApi
       .getReportSingleCacheId({
@@ -67,6 +69,7 @@ function Chart({
       .then(result => {
         if (result.id) {
           const workSheetId = data.appId;
+
           if (window.isMingDaoApp) {
             const url = `/worksheet/${workSheetId}/view/${filter.viewId}?chartId=${result.id}&${getAppFeaturesPath()}`;
             window.location.href = url;
@@ -79,6 +82,7 @@ function Chart({
         }
       });
   };
+
   const isPublicShare = window.shareAuthor || _.get(window, 'shareState.shareId');
   const isViewOriginalData =
     filter.viewId && [VIEW_DISPLAY_TYPE.sheet].includes(filter.viewType.toString()) && !isPublicShare;
@@ -96,6 +100,7 @@ function Chart({
     <Charts
       reportData={data}
       isThumbnail={true}
+      isMobile={true}
       isViewOriginalData={isViewOriginalData}
       isLinkageData={autoLinkage}
       onOpenChartDialog={viewOriginalSheet}
@@ -156,14 +161,17 @@ function ChartWrapper(props) {
   const titleStyles = _.get(data, 'style.titleStyles') || { ...defaultTitleStyles, fontSize: 17 };
   const newTitleStyles = pageTitleStyles.index >= titleStyles.index ? pageTitleStyles : titleStyles;
   const { titleStyle = 0, pageBgColor } = pageConfig;
+
   const getBgColor = () => {
     const { reportType, xaxes, yaxisList } = data;
     const hideNumberChartName = [reportTypes.NumberChart].includes(reportType)
       ? (yaxisList.length === 1 && !xaxes.controlId) || !showTitle
       : !showTitle;
+
     if (loading) {
       return {};
     }
+
     if (titleStyle === 1) {
       return {
         '--title-color': hideNumberChartName ? undefined : '#fff',
@@ -171,6 +179,7 @@ function ChartWrapper(props) {
         backgroundColor: themeColor,
       };
     }
+
     if (titleStyle === 2) {
       return {
         '--title-color': hideNumberChartName ? undefined : '#fff',
@@ -178,8 +187,10 @@ function ChartWrapper(props) {
         background: `linear-gradient(to right, ${themeColor}, ${pageBgColor})`,
       };
     }
+
     return {};
   };
+
   return (
     <Fragment>
       {!loading && (

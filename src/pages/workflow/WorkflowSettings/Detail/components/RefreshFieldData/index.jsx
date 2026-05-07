@@ -12,6 +12,7 @@ export default ({ isSingle = false, controls, fields, updateSource }) => {
   );
   // 刷新选项排序和分值 字段类型 单选 || 多选 || 下拉
   const refreshSortControls = isSingle ? [] : controls.filter(c => _.includes([9, 10, 11], c.type));
+
   const getOtherTableControls = () => {
     const list = controls.filter(
       l => l.dataSource && ((l.type === 30 && _.get(l, 'strDefault.0') !== '1') || l.type === 37),
@@ -30,12 +31,14 @@ export default ({ isSingle = false, controls, fields, updateSource }) => {
 
     return data;
   };
+
   const refreshData = [
     { title: _l('刷新计算结果'), controls: refreshControls },
     { title: _l('刷新选项排序和分值'), controls: refreshSortControls },
     { title: _l('刷新字段加密值'), controls: controls.filter(c => c.encryId) },
     { title: _l('刷新他表字段和汇总结果'), controls: getOtherTableControls(), hasChildren: true },
   ];
+
   const handleAllChecked = (controls, checked) => {
     const ids = controls.map(o => o.controlId);
 
@@ -45,11 +48,13 @@ export default ({ isSingle = false, controls, fields, updateSource }) => {
         : fields.filter(o => !_.includes(ids, o.fieldId)),
     });
   };
+
   const getIsSelectAll = controls => {
     const ids = controls.map(o => o.controlId);
 
     return fields.filter(o => _.includes(ids, o.fieldId)).length === ids.length;
   };
+
   const renderCheckbox = list => {
     return list.map((c, i) => (
       <Checkbox

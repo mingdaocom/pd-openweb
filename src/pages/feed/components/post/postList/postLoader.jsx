@@ -14,6 +14,7 @@ function PostMoreLoader(props) {
     </PostCard>
   );
 }
+
 PostMoreLoader.propTypes = {
   onClick: PropTypes.func,
   className: PropTypes.string,

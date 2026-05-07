@@ -35,6 +35,7 @@ class DialogSelectJob extends Component {
     if (this.promise && this.promise.abort) {
       this.promise.abort();
     }
+
     this.promise = JobController.getJobs({ keywords, projectId, pageIndex, pageSize: 10 });
     this.promise
       .then(result => {
@@ -84,6 +85,7 @@ class DialogSelectJob extends Component {
         </div>
       );
     }
+
     return (
       <ScrollView className="h100" onScrollEnd={this.onScrollEnd}>
         {data.map((item, i) => {

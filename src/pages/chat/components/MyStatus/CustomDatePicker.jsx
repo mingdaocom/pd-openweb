@@ -50,9 +50,11 @@ const StyledRangePicker = styled(RangePicker)`
 
 const range = (start, end) => {
   const result = [];
+
   for (let i = start; i < end; i++) {
     result.push(i);
   }
+
   return result;
 };
 
@@ -130,6 +132,7 @@ export default function CustomDatePicker(props) {
                     disabledMinutes: () => (isToday ? range(0, moment().get('minute')) : []),
                   };
                 }
+
                 return { disabledHours: () => [], disabledMinutes: () => [] };
               }}
               value={[startDate, endDate]}

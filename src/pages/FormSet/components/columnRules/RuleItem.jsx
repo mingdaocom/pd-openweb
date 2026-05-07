@@ -20,6 +20,7 @@ import {
 } from './config';
 import * as actions from './redux/actions/columnRules';
 import * as columnRules from './redux/actions/columnRules';
+import { StyleDiv } from './WidgetConfigRuleItem';
 
 function renderFilterItemTexts(filters = [], disabled = false, worksheetControls = []) {
   if (_.isEmpty(filters)) return '';
@@ -29,12 +30,15 @@ function renderFilterItemTexts(filters = [], disabled = false, worksheetControls
       ...item,
       groupFilters: (item.groupFilters || []).map(it => {
         let transData = filterData(formatControls, [it], true, formatControls);
+
         if (it.dataType === 29) {
           const control = _.find(formatControls || [], con => con.controlId === it.controlId);
+
           if (isRelateMoreList(control, it)) {
             transData = [{ ...transData[0], name: _l('字段已删除') }];
           }
         }
+
         return transData[0] || {};
       }),
     };
@@ -103,9 +107,11 @@ class RuleItems extends React.Component {
   renderActionItem = (actionItem, disabled) => {
     const { worksheetControls, projectId } = this.props;
     let leftText = _.includes([7], actionItem.type) ? '' : getActionLabelByType(actionItem.type);
+
     if (this.props.activeTab === TAB_TYPES.LOCK_RULE) {
       leftText = _l('锁定记录');
     }
+
     const currentArr = getTextById(worksheetControls, actionItem.controls, actionItem.type, 'rule') || [];
 
     const renderDetailValue = () => {
@@ -113,6 +119,7 @@ class RuleItems extends React.Component {
         const dynamicValue = safeParse(value, 'array');
 
         let currentControl = { type: 2 };
+
         if (controlId) {
           currentControl = _.find(worksheetControls, a => a.controlId === controlId);
         }
@@ -126,6 +133,7 @@ class RuleItems extends React.Component {
           />
         );
       }
+
       if (actionItem.type === 9) {
         return (
           <span className={cx('detailValue mTop6', { textDisabled: disabled })}>
@@ -133,6 +141,7 @@ class RuleItems extends React.Component {
               if (cur.isDel) {
                 return <span className="detailValueCon LineHeight30 Red">{_l('字段已删除')}</span>;
               }
+
               return (
                 <div className="detailValueCon LineHeight30">
                   <span className="title">{_l('将')}</span>
@@ -152,20 +161,39 @@ class RuleItems extends React.Component {
         );
       } else {
         let text = '';
+
         if (_.includes([7], actionItem.type)) {
           text = getActionLabelByType(actionItem.type);
         } else {
           if (actionItem.type === 6) {
             text = _.isEmpty(currentArr)
               ? actionItem.message
-              : `${currentArr.map(cur => cur.name).join('、')}：${actionItem.message}`;
+              : `${currentArr.map(cur => cur.name).join(', ')}：${actionItem.message}`;
           } else {
             text = currentArr.map(cur => cur.name).join(', ');
           }
         }
+
         return <span className={cx('rightLabel WordBreak', { textDisabled: disabled })}>{text}</span>;
       }
     };
+
+    if (this.props.activeTab === TAB_TYPES.STYLE_RULE) {
+      return (
+        <Fragment>
+          <span className="ruleItemTextRow mTop10">
+            <span className="leftLabel textDisabled">{_l('字段')}</span>
+            <span className={cx('rightLabel WordBreak', { textDisabled: disabled })}>
+              {currentArr.map(cur => cur.name).join(', ')}
+            </span>
+          </span>
+          <span className="ruleItemTextRow mTop10 flexCenter">
+            <span className="leftLabel textDisabled">{_l('样式为')}</span>
+            <StyleDiv message={actionItem.message} />
+          </span>
+        </Fragment>
+      );
+    }
 
     return (
       <span className={cx('ruleItemTextRow', { mTop10: actionItem.type !== 9 })}>
@@ -229,6 +257,7 @@ class RuleItems extends React.Component {
                 if (ruleData.disabled && !checkRuleEnableLimit(columnRulesListData)) {
                   return;
                 }
+
                 updateRuleAttr('disabled', !ruleData.disabled, ruleId);
               }}
             />

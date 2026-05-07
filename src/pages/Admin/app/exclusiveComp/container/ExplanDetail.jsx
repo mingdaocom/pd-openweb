@@ -22,8 +22,8 @@ import { COMPUTING_INSTANCE_STATUS, TYPE_LIST } from '../config';
 import '../index.less';
 
 const ActionOpWrap = styled.ul`
-  background: var(--color-background-primary);
-  box-shadow: 0px 4px 16px 1px rgba(0, 0, 0, 0.24);
+  background: var(--color-background-card);
+  box-shadow: var(--shadow-sm);
   border-radius: 3px 3px 3px 3px;
   width: 160px;
   font-size: 13px;

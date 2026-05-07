@@ -7,6 +7,7 @@ import SelectFields from '../widgetSetting/components/DynamicDefaultValue/compon
 
 export default function DropdownSelectFields(props) {
   const { value, placeholder, onChange, dynamicValue = [] } = props;
+
   const renderPlaceholder = () => {
     if (isEmptyValue(value)) return <div className="placeholder">{placeholder || _l('请选择')}</div>;
     return (
@@ -15,6 +16,7 @@ export default function DropdownSelectFields(props) {
       </div>
     );
   };
+
   return (
     <Dropdown
       trigger={['click']}

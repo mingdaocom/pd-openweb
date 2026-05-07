@@ -66,6 +66,7 @@ export default function PauseTimeList(props) {
                   clickRecover(item);
                   return;
                 }
+
                 changeOperation(item, v.value);
               }}
             >

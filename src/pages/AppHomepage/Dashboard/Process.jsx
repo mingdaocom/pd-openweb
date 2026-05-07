@@ -7,8 +7,7 @@ import { Icon, LoadDiv } from 'ming-ui';
 import instanceVersionApi from 'src/pages/workflow/api/instanceVersion';
 import ExecDialog from 'src/pages/workflow/components/ExecDialog';
 import MyProcess from 'src/pages/workflow/MyProcess';
-import { getStateParam } from 'src/pages/workflow/MyProcess';
-import { TABS } from 'src/pages/workflow/MyProcess/config';
+import { getStateParam, TABS } from 'src/pages/workflow/MyProcess/config';
 import { getTodoCount } from 'src/pages/workflow/MyProcess/Entry';
 
 const Wrapper = styled.div`
@@ -291,6 +290,7 @@ export default function Process(props) {
         waitingWrite: waitingWrite - 1,
       };
     }
+
     if (item.flowNodeType === 4) {
       param = {
         waitingApproval: waitingApproval - 1,
@@ -404,6 +404,7 @@ export default function Process(props) {
               if ([TABS.WAITING_APPROVE, TABS.WAITING_FILL].includes(currentTab)) {
                 handleSave(selectProcess);
               }
+
               if (currentTab === TABS.MY_SPONSOR || currentTab === TABS.COMPLETE) {
                 const newList = todoList.filter(n => n.workId !== selectProcess.workId);
                 setTodoList(newList);
@@ -412,6 +413,7 @@ export default function Process(props) {
                   updateCountData({ ...countData, mySponsor: mySponsor - 1 });
                 }
               }
+
               setSelectProcess(null);
             }}
           />

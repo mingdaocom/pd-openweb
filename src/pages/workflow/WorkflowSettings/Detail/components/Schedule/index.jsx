@@ -23,7 +23,7 @@ const Button = styled.span`
 `;
 
 const Box = styled.div`
-  background: var(--color-background-disabled);
+  background: var(--color-background-tertiary);
   padding: 10px 12px;
   margin-top: 10px;
   border-radius: 4px;
@@ -76,6 +76,7 @@ export default ({
     { text: _l('小时'), value: DATE_TYPE.HOUR },
     { text: _l('天'), value: DATE_TYPE.DAY },
   ];
+
   const getDefaultAction = () => {
     return {
       accounts: [
@@ -104,6 +105,7 @@ export default ({
       },
     };
   };
+
   const EXECUTE_TIME_TYPE_LIST = [
     { text: _l('之前'), value: EXEC_TIME_TYPE.BEFORE },
     { text: _l('当时'), value: EXEC_TIME_TYPE.CURRENT },
@@ -115,8 +117,9 @@ export default ({
     { text: _l('流程中止'), value: 4 },
     { text: _l('什么也不做'), value: 0 },
   ];
+
   const changeAction = (id, obj) => {
-    const newActions = [].concat(data.actions);
+    const newActions = [].concat(data.actions || []);
 
     newActions.forEach(item => {
       if (item.id === id) {
@@ -128,6 +131,7 @@ export default ({
 
     changeData(Object.assign({}, data, { actions: newActions }));
   };
+
   const renderDeadlineContent = (item, autoPass) => {
     return (
       <div className="mTop10 flexRow alignItemsCenter">
@@ -188,6 +192,7 @@ export default ({
       </div>
     );
   };
+
   const getHeaderText = () => {
     return (
       (schedule.executeTime.fieldValue ||
@@ -196,6 +201,7 @@ export default ({
       (schedule.dayTime ? _l('的%0', schedule.dayTime) : '')
     );
   };
+
   const renderRemindContent = (item, index) => {
     return (
       <div className={index === 0 ? 'mTop8' : 'mTop3'} key={item.id}>
@@ -231,6 +237,7 @@ export default ({
       </div>
     );
   };
+
   const resetRepeatParameter = unit => {
     return {
       frequency:
@@ -265,8 +272,8 @@ export default ({
         <Box>
           <Icon icon="edit" className="textSecondary ThemeHoverColor3 pointer" onClick={() => showDialog(true)} />
           <div className="bold">{_l('截止：到达此节点后的%0', getHeaderText())}</div>
-          {schedule.actions.filter(o => o.type === 1).map(renderRemindContent)}
-          {schedule.actions.filter(o => _.includes([2, 3, 4], o.type)).map(renderRemindContent)}
+          {(schedule.actions || []).filter(o => o.type === 1).map(renderRemindContent)}
+          {(schedule.actions || []).filter(o => _.includes([2, 3, 4], o.type)).map(renderRemindContent)}
         </Box>
       )}
 
@@ -282,15 +289,17 @@ export default ({
             } else {
               updateSource({ schedule: Object.assign({}, schedule, { enable: false }) });
             }
+
             showDialog(false);
           }}
           onOk={() => {
             const accountNullIndex = [];
+            const actions = data.actions || [];
 
-            data.actions
+            actions
               .filter(o => o.type === 1)
               .forEach((item, index) => {
-                if (!item.accounts.length) {
+                if (!(item.accounts && item.accounts.length)) {
                   accountNullIndex.push(index + 1);
                 }
               });
@@ -333,7 +342,7 @@ export default ({
           />
 
           <div className="mTop25 bold">{_l('截止提醒')}</div>
-          {data.actions
+          {(data.actions || [])
             .filter(o => o.type === 1)
             .map((item, index) => {
               return (
@@ -344,7 +353,7 @@ export default ({
                       type="trash"
                       className="Font16 textSecondary ThemeHoverColor3 mLeft10 pointer"
                       onClick={() => {
-                        const actions = [].concat(data.actions);
+                        const actions = [].concat(data.actions || []);
 
                         _.remove(actions, o => o.id === item.id);
                         changeData(Object.assign({}, data, { actions }));
@@ -363,6 +372,7 @@ export default ({
                           const repeat = {
                             repeatType: checked ? 0 : 6,
                             ...resetRepeatParameter(item.unit),
+                            loopLimit: 10,
                           };
 
                           changeAction(item.id, { repeat });
@@ -405,7 +415,18 @@ export default ({
                               })
                             }
                           />
-                          <div className="mLeft25">{_l('最多重复10次')}</div>
+                          <div className="mLeft25 mRight10">{_l('最多重复')}</div>
+                          <div className="flexRow" style={{ width: 80 }}>
+                            <SpecificFieldsValue
+                              hasOtherField={false}
+                              type="number"
+                              min={1}
+                              max={10}
+                              data={{ fieldValue: item.loopLimit === undefined ? 10 : item.loopLimit }}
+                              updateSource={({ fieldValue }) => changeAction(item.id, { loopLimit: fieldValue })}
+                            />
+                          </div>
+                          <div className="mLeft10">{_l('次')}</div>
                         </Fragment>
                       )}
                     </RepeatBox>
@@ -434,7 +455,7 @@ export default ({
                       <Member
                         companyId={companyId}
                         appId={relationType === RELATION_TYPE.APP ? relationId : ''}
-                        accounts={item.accounts}
+                        accounts={item.accounts || []}
                         updateSource={accounts => changeAction(item.id, accounts)}
                       />
                       <div
@@ -451,7 +472,7 @@ export default ({
                           nodeId={selectNodeId}
                           unique={false}
                           schedule={true}
-                          accounts={item.accounts}
+                          accounts={item.accounts || []}
                           updateSource={accounts => changeAction(item.id, accounts)}
                           onClose={() => showUserDialog(Object.assign({}, userDialogState, { [item.id]: false }))}
                         />
@@ -468,7 +489,7 @@ export default ({
               onClick={() =>
                 changeData(
                   Object.assign({}, data, {
-                    actions: data.actions.concat([getDefaultAction()]),
+                    actions: (data.actions || []).concat([getDefaultAction()]),
                   }),
                 )
               }
@@ -485,12 +506,15 @@ export default ({
                 <Radio
                   key={index}
                   text={item.text}
-                  checked={(data.actions.find(o => _.includes([2, 3, 4], o.type)) || { type: 0 }).type === item.value}
+                  checked={
+                    ((data.actions || []).find(o => _.includes([2, 3, 4], o.type)) || { type: 0 }).type === item.value
+                  }
                   onClick={() => {
+                    const actions = data.actions || [];
                     changeData(
                       Object.assign({}, data, {
                         actions: item.value
-                          ? data.actions
+                          ? actions
                               .filter(o => o.type === 1)
                               .concat([
                                 {
@@ -500,7 +524,7 @@ export default ({
                                   type: item.value,
                                 },
                               ])
-                          : data.actions.filter(o => o.type === 1),
+                          : actions.filter(o => o.type === 1),
                       }),
                     );
                   }}
@@ -508,7 +532,9 @@ export default ({
               ),
             )}
           </div>
-          {data.actions.filter(o => _.includes([2, 3, 4], o.type)).map(item => renderDeadlineContent(item, true))}
+          {(data.actions || [])
+            .filter(o => _.includes([2, 3, 4], o.type))
+            .map(item => renderDeadlineContent(item, true))}
         </Dialog>
       )}
     </Fragment>

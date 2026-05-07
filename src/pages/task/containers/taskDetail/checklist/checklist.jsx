@@ -87,6 +87,7 @@ const checklistSource = {
   isDragging(props, monitor) {
     const preview = $('.taskDetailDragPreview:last')[0];
     const clientOffset = monitor.getClientOffset();
+
     if (preview && clientOffset) {
       preview.style.left = clientOffset.x - config.offset.x + 'px';
       preview.style.top = clientOffset.y - config.offset.y + 'px';
@@ -97,6 +98,7 @@ const checklistSource = {
         const scrollEl = $('.taskDetailScroll .scroll-viewport');
         const scroll = scrollEl.scrollTop();
         const top = clientOffset.y - config.offset.y;
+
         if (top <= 180) {
           scrollEl.scrollTop(scroll - 100);
         } else if ($(window).height() - top - config.height <= 90) {
@@ -193,6 +195,7 @@ export default class Checklist extends Component {
       }
 
       const name = evt.currentTarget.value.trim();
+
       if (name) {
         this.props.noDragIndexUpdate(-1);
         this.props.addItems(this.props.data.checkListId, name);

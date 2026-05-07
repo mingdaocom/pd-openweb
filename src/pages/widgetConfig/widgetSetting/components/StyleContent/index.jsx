@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { CaretRightOutlined } from '@ant-design/icons';
 import { Collapse } from 'antd';
 import _ from 'lodash';
-import { isSheetDisplay, supportSettingCollapse } from '../../../util';
+import WidgetConfigRuleItem from '../../../../FormSet/components/columnRules/WidgetConfigRuleItem';
+import { supportSettingCollapse } from '../../../util';
 import { getAdvanceSetting, handleAdvancedSettingChange, updateConfig } from '../../../util/setting';
 import { SettingCollapseWrap } from '../../content/styled';
 import WidgetStyle from '../WidgetStyle';
@@ -11,22 +12,36 @@ import { CardItem, WidgetItem } from './StyleContentItems';
 const { Panel } = Collapse;
 
 const getItems = props => {
-  const { data = {} } = props;
+  const { data = {}, status = {}, from } = props;
   const defaultItem = [];
 
-  if (!isSheetDisplay(data)) {
-    defaultItem.push({
-      key: 'default',
-      label: _l('字段'),
-      children: <WidgetItem {...props} />,
-    });
-  }
+  defaultItem.push({
+    key: 'default',
+    label: _l('字段'),
+    children: <WidgetItem {...props} />,
+  });
 
-  if (_.includes([29, 51], data.type) && !isSheetDisplay(data)) {
+  if (
+    _.includes([29, 51], data.type) &&
+    (data.enumDefault !== 2 || !_.includes(['5', '6'], data.advancedSetting?.showtype))
+  ) {
     defaultItem.push({
       key: 'card',
       label: _l('卡片'),
       children: <CardItem {...props} />,
+    });
+  }
+
+  if (from !== 'subList') {
+    defaultItem.push({
+      key: 'rule',
+      label: _l('样式规则'),
+      children: (
+        <WidgetConfigRuleItem
+          {..._.pick(props, ['allControls', 'globalSheetInfo', 'data', 'ruleList'])}
+          saveIndex={status.saveIndex}
+        />
+      ),
     });
   }
 
@@ -37,6 +52,7 @@ const getItems = props => {
       children: <WidgetStyle {...props} />,
     });
   }
+
   return defaultItem;
 };
 
@@ -50,6 +66,7 @@ export default function StyleCardContent(props) {
     setExpandKeys(totalKeys);
     const cardTitleStyle = getAdvanceSetting(data, 'cardtitlestyle');
     const cardValueStyle = getAdvanceSetting(data, 'cardvaluestyle');
+
     // 查询记录--聚合表默认强调值
     if (
       _.get(cardTitleStyle, 'direction') !== '2' &&

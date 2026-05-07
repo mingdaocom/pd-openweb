@@ -246,6 +246,7 @@ var utils = (function () {
         if (k === 0) {
           return 0;
         }
+
         if (k == 1) {
           return 1;
         }
@@ -296,10 +297,12 @@ var utils = (function () {
     } else if (eventPassthrough === 'horizontal') {
       touchAction = 'pan-x';
     }
+
     if (addPinch && touchAction != 'none') {
       // add pinch-zoom support if the browser supports it, but if not (eg. Chrome <55) do nothing
       touchAction += ' pinch-zoom';
     }
+
     return touchAction;
   };
 
@@ -484,6 +487,7 @@ IScroll.prototype = {
         /* All others */
         button = e.button;
       }
+
       if (button !== 0) {
         return;
       }
@@ -607,6 +611,7 @@ IScroll.prototype = {
     if (newX > 0 || newX < this.maxScrollX) {
       newX = this.options.bounce ? this.x + deltaX / 3 : newX > 0 ? 0 : this.maxScrollX;
     }
+
     if (newY > 0 || newY < this.maxScrollY) {
       newY = this.options.bounce ? this.y + deltaY / 3 : newY > 0 ? 0 : this.maxScrollY;
     }
@@ -834,6 +839,7 @@ IScroll.prototype = {
         this.wrapper.style[utils.style.touchAction] = utils.getTouchAction(this.options.eventPassthrough, false);
       }
     }
+
     this.wrapperOffset = utils.offset(this.wrapper);
 
     this._execEvent('refresh');
@@ -899,6 +905,7 @@ IScroll.prototype = {
         this._transitionTimingFunction(easing.style);
         this._transitionTime(time);
       }
+
       this._translate(x, y);
     } else {
       this._animate(x, y, time, easing.fn);
@@ -923,6 +930,7 @@ IScroll.prototype = {
     if (offsetX === true) {
       offsetX = Math.round(elRect.width / 2 - wrapperRect.width / 2);
     }
+
     if (offsetY === true) {
       offsetY = Math.round(elRect.height / 2 - wrapperRect.height / 2);
     }
@@ -945,6 +953,7 @@ IScroll.prototype = {
     if (!this.options.useTransition) {
       return;
     }
+
     time = time || 0;
     var durationProp = utils.style.transitionDuration;
     if (!durationProp) {
@@ -1205,6 +1214,7 @@ IScroll.prototype = {
       if (!that.options.snap) {
         that._execEvent('scrollEnd');
       }
+
       that.wheelTimeout = undefined;
     }, 400);
 
@@ -1236,6 +1246,7 @@ IScroll.prototype = {
       wheelDeltaX = wheelDeltaY;
       wheelDeltaY = 0;
     }
+
     if (!this.hasVerticalScroll) {
       wheelDeltaY = 0;
     }
@@ -1606,6 +1617,7 @@ IScroll.prototype = {
         } else {
           newY += snap ? 1 : this.wrapperHeight;
         }
+
         break;
       case this.options.keyBindings.pageDown:
         if (this.hasHorizontalScroll && !this.hasVerticalScroll) {
@@ -1613,6 +1625,7 @@ IScroll.prototype = {
         } else {
           newY -= snap ? 1 : this.wrapperHeight;
         }
+
         break;
       case this.options.keyBindings.end:
         newX = snap ? this.pages.length - 1 : this.maxScrollX;
@@ -1754,6 +1767,7 @@ IScroll.prototype = {
           e.preventDefault();
           e.stopPropagation();
         }
+
         break;
     }
   },
@@ -1775,12 +1789,14 @@ function createDefaultScrollbar(direction, interactive, type) {
       scrollbar.style.cssText += ';height:10px;left:2px;right:2px;bottom:0';
       indicator.style.height = '100%';
     }
+
     scrollbar.className = 'iScrollHorizontalScrollbar';
   } else {
     if (type === true) {
       scrollbar.style.cssText += ';width:7px;bottom:2px;top:2px;right:1px';
       indicator.style.width = '100%';
     }
+
     scrollbar.className = 'iScrollVerticalScrollbar';
   }
 
@@ -1828,10 +1844,12 @@ function Indicator(scroller, options) {
       utils.addEvent(this.indicator, 'touchstart', this);
       utils.addEvent(window, 'touchend', this);
     }
+
     if (!this.options.disablePointer) {
       utils.addEvent(this.indicator, utils.prefixPointerEvent('pointerdown'), this);
       utils.addEvent(window, utils.prefixPointerEvent('pointerup'), this);
     }
+
     if (!this.options.disableMouse) {
       utils.addEvent(this.indicator, 'mousedown', this);
       utils.addEvent(window, 'mouseup', this);
@@ -1844,6 +1862,7 @@ function Indicator(scroller, options) {
     if (!durationProp) {
       return;
     }
+
     this.wrapperStyle[durationProp] = utils.isBadAndroid ? '0.0001ms' : '0ms';
     // remove 0.0001ms
     var self = this;
@@ -1854,6 +1873,7 @@ function Indicator(scroller, options) {
         }
       });
     }
+
     this.wrapperStyle.opacity = '0';
   }
 }
@@ -1891,6 +1911,7 @@ Indicator.prototype = {
       clearTimeout(this.fadeTimeout);
       this.fadeTimeout = null;
     }
+
     if (this.options.interactive) {
       utils.removeEvent(this.indicator, 'touchstart', this);
       utils.removeEvent(this.indicator, utils.prefixPointerEvent('pointerdown'), this);
@@ -1928,9 +1949,11 @@ Indicator.prototype = {
     if (!this.options.disableTouch) {
       utils.addEvent(window, 'touchmove', this);
     }
+
     if (!this.options.disablePointer) {
       utils.addEvent(window, utils.prefixPointerEvent('pointermove'), this);
     }
+
     if (!this.options.disableMouse) {
       utils.addEvent(window, 'mousemove', this);
     }
@@ -2147,6 +2170,7 @@ Indicator.prototype = {
           this.width = Math.max(this.indicatorWidth + x, 8);
           this.indicatorStyle.width = this.width + 'px';
         }
+
         x = this.minBoundaryX;
       } else if (x > this.maxBoundaryX) {
         if (this.options.shrink == 'scale') {
@@ -2166,6 +2190,7 @@ Indicator.prototype = {
           this.height = Math.max(this.indicatorHeight + y * 3, 8);
           this.indicatorStyle.height = this.height + 'px';
         }
+
         y = this.minBoundaryY;
       } else if (y > this.maxBoundaryY) {
         if (this.options.shrink == 'scale') {

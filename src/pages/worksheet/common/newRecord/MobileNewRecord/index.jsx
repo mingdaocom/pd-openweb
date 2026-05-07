@@ -34,11 +34,9 @@ const ModalWrap = styled(Popup)`
 
 const BtnsWrap = styled.div`
   height: 50px;
-  background-color: var(--color-background-primary);
   padding: 0 10px;
   box-sizing: border-box;
   z-index: 2;
-  background-color: var(--color-background-primary);
 
   &.confirm {
     border: none;
@@ -142,9 +140,11 @@ function NewRecord(props) {
         setRestoreVisible && setRestoreVisible(false);
       });
     };
+
     if (!notDialog) {
       window.addEventListener('popstate', cancel, false);
     }
+
     return () => {
       if (!notDialog) {
         window.removeEventListener('popstate', cancel, false);
@@ -169,9 +169,11 @@ function NewRecord(props) {
         // return 1/2;
         setSessionId(sessionId);
         const { page } = getRequest();
+
         if (page && _.isArray(page)) {
           history.back();
         }
+
         return page && _.isArray(page) ? 2 : 1;
       },
     });
@@ -249,6 +251,7 @@ function NewRecord(props) {
                   alert(_l('附件正在上传，请稍后'), 3);
                   return;
                 }
+
                 newRecordContent.current.newRecord({
                   isContinue,
                   autoFill: isAutoFill,
@@ -305,6 +308,7 @@ function NewRecord(props) {
         doubleConfirmSubmit(isContinue, endAction, isAutoFill);
         return;
       }
+
       newRecordContent.current.newRecord({
         isContinue,
         autoFill: isAutoFill,
@@ -318,6 +322,7 @@ function NewRecord(props) {
         isRetainFunc(true);
         return;
       }
+
       showActionSheetWithOptions(isRetainFunc);
     } else if (_.get(worksheetInfo, 'advancedSetting.enableconfirm') === '1') {
       // 开启提交二次确认配置
@@ -353,6 +358,7 @@ function NewRecord(props) {
       hideNewRecord();
       removeTempRecordValueFromLocal('tempNewRecord', props.worksheetId);
     };
+
     if (cache.current.formChanged && !promptCancelAddRecord && allowDraft) {
       let actionHandler = ActionSheet.show({
         actions: [],

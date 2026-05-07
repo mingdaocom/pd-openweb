@@ -106,6 +106,7 @@ function EmailCard({ chatbotId, conversationId, functionData = {} }) {
   if (loading) {
     return <LoadDiv size="small" className="mTop20 mBottom20" />;
   }
+
   return (
     <Con>
       {!isEmpty(data.receiverList) && (

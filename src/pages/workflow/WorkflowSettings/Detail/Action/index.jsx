@@ -69,8 +69,24 @@ export default class Action extends Component {
           });
         }
 
+        if (result.appType === APP_TYPE.INVOICE) {
+          result.fields.forEach(field => {
+            const control = _.find(result.controls, o => o.controlId === field.fieldId);
+
+            if (!field.dataSource && control.dataSource) {
+              field.dataSource = control.dataSource;
+            }
+          });
+        }
+
         this.setState({ data: result, cacheKey: +new Date() }, () => {
-          if (isApproval && !result.selectNodeId) {
+          if (
+            isApproval &&
+            !result.selectNodeId &&
+            result.flowNodeList &&
+            result.flowNodeList[0]?.nodeId &&
+            result.actionId === ACTION_ID.EDIT
+          ) {
             this.SelectNodeObjectChange(result.flowNodeList[0].nodeId);
           }
         });
@@ -129,6 +145,7 @@ export default class Action extends Component {
       destroy,
       filters = [],
     } = data;
+    const controls = _.cloneDeep(data.controls);
     let hasError = false;
 
     if (actionId === ACTION_ID.ADD && !appId && appType !== APP_TYPE.CALENDAR) {
@@ -137,7 +154,7 @@ export default class Action extends Component {
     } else if (
       actionId !== ACTION_ID.ADD &&
       !selectNodeId &&
-      !_.includes([APP_TYPE.PROCESS, APP_TYPE.CALENDAR], data.appType)
+      !_.includes([APP_TYPE.PROCESS, APP_TYPE.CALENDAR, APP_TYPE.INVOICE], data.appType)
     ) {
       alert(_l('必须先选择一个对象'), 2);
       return;
@@ -150,9 +167,23 @@ export default class Action extends Component {
 
     // 新增验证必填项
     if (_.includes([ACTION_ID.ADD, ACTION_ID.CREATE_FILE], actionId)) {
-      data.controls.forEach(item => {
+      controls.forEach(item => {
+        if (
+          item.type === 10000008 &&
+          (fields.find(o => o.fieldId === item.controlId) || {}).nodeId &&
+          item.controlId !== 'invoiceDetails'
+        ) {
+          _.remove(controls, o => o.dataSource === item.controlId);
+        }
+      });
+
+      controls.forEach(item => {
         if (item.required || _.includes(['portal_role'], item.controlId)) {
           fields.forEach(o => {
+            if (o.fieldId === 'create_account_id' && o.fieldValue === '[]' && !o.fieldValueId) {
+              hasError++;
+            }
+
             if (item.controlId === o.fieldId && !o.nodeId && !o.fieldValue && !o.fieldValueId) {
               hasError++;
             }
@@ -180,10 +211,10 @@ export default class Action extends Component {
     }
 
     // 部分退款 退款金额不能为空
-    if (data.actionId === ACTION_ID.REFUND && fields.find(o => o.fieldId === 'refundType').fieldValue === '2') {
+    if (data.actionId === ACTION_ID.REFUND && fields.find(o => o.fieldId === 'refundType')?.fieldValue === '2') {
       const amountObj = fields.find(o => o.fieldId === 'amount');
 
-      if (!amountObj.nodeId && !amountObj.fieldValue && !amountObj.fieldValueId) {
+      if (amountObj && !amountObj.nodeId && !amountObj.fieldValue && !amountObj.fieldValueId) {
         alert(_l('部分退款金额不能为空'), 2);
         return;
       }
@@ -253,8 +284,8 @@ export default class Action extends Component {
       return <CreateCalendar key={cacheKey} {...this.props} data={data} updateSource={this.updateSource} />;
     }
 
-    // 新增工作表记录 || 创建任务 || 邀请外部用户 || 电子开票
-    if (data.actionId === ACTION_ID.ADD) {
+    // 新增工作表记录 || 创建任务 || 邀请外部用户 || 电子开票类目 || 电子开票明细
+    if (_.includes([ACTION_ID.ADD, ACTION_ID.CREATE_FILE], data.actionId)) {
       return (
         <CreateRecordAndTask
           key={cacheKey}
@@ -444,7 +475,7 @@ export default class Action extends Component {
               data.actionId,
             ) &&
               data.selectNodeId) ||
-            _.includes([APP_TYPE.PROCESS, APP_TYPE.CALENDAR], data.appType)
+            _.includes([APP_TYPE.PROCESS, APP_TYPE.CALENDAR, APP_TYPE.INVOICE], data.appType)
           }
           onSave={this.onSave}
         />

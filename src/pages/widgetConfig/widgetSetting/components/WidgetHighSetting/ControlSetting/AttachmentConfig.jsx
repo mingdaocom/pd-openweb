@@ -338,6 +338,7 @@ function WaterMarkDialog(props) {
                 let fields = '';
                 safeParse(defsource || '[]').forEach(item => {
                   const { cid, rcid, staticValue } = item;
+
                   if (cid) {
                     fields += rcid ? `$${cid}~${rcid}$` : `$${cid}$`;
                   } else {
@@ -500,6 +501,7 @@ export default function AttachmentVerify(props) {
                 buriedUpgradeVersionDialog(globalSheetInfo.projectId, VersionProductType.waterMark);
                 return;
               }
+
               if (checked) {
                 onChange(
                   handleAdvancedSettingChange(data, {
@@ -537,6 +539,7 @@ export default function AttachmentVerify(props) {
                     buriedUpgradeVersionDialog(globalSheetInfo.projectId, VersionProductType.waterMark);
                     return;
                   }
+
                   setMarkVisible(true);
                 }}
               ></i>
@@ -558,6 +561,7 @@ export default function AttachmentVerify(props) {
                   buriedUpgradeVersionDialog(globalSheetInfo.projectId, VersionProductType.editAttachment);
                   return;
                 }
+
                 onChange(
                   handleAdvancedSettingChange(data, { allowedit: String(+!checked), onlyeditself: String(+!checked) }),
                 );
@@ -594,6 +598,7 @@ export default function AttachmentVerify(props) {
                   buriedUpgradeVersionDialog(globalSheetInfo.projectId, VersionProductType.editAttachment);
                   return;
                 }
+
                 onChange(
                   handleAdvancedSettingChange(data, { allowedit: String(+!checked), onlyeditself: String(+!checked) }),
                 );

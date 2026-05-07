@@ -20,11 +20,11 @@ const SortableBtnListWrap = styled.ul`
 `;
 
 const renderSortableBtn = ({ item, DragHandle }) => (
-  <li className="overflow_ellipsis">
+  <li>
     <DragHandle>
       <i className="icon-drag textDisabled Font18"></i>
     </DragHandle>
-    <span className="mLeft10">{item.name || _l('未命名')}</span>
+    <span className="mLeft10 ellipsis">{item.name || _l('未命名')}</span>
   </li>
 );
 

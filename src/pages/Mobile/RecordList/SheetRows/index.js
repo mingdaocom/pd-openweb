@@ -32,6 +32,7 @@ class SheetRows extends Component {
 
     this.intervalId = setInterval(() => {
       const scrollInfo = this.scrollViewRef.current?.getScrollInfo?.();
+
       if (scrollInfo?.viewport) {
         this.setState({ scrollViewEl: scrollInfo.viewport });
         clearInterval(this.intervalId);
@@ -56,9 +57,11 @@ class SheetRows extends Component {
   updateViewCard = (rowid, height) => {
     this.setState(prevState => {
       const prevMap = prevState.viewCardUpdateMap;
+
       if (prevMap[rowid] === height) {
         return null; // 不需要更新
       }
+
       return {
         viewCardUpdateMap: {
           ...prevMap,
@@ -70,6 +73,7 @@ class SheetRows extends Component {
 
   handleEndReached = () => {
     const { sheetRowLoading, sheetView } = this.props;
+
     if (!sheetRowLoading && sheetView.isMore) {
       this.props.changePageIndex();
     }
@@ -121,9 +125,11 @@ class SheetRows extends Component {
           if (clicktype === '2') return;
           if (clicktype === '1') {
             let value = item[clickcid];
+
             if (RegExpValidator.isURL(value)) {
               window.open(value);
             }
+
             return;
           }
 
@@ -133,11 +139,13 @@ class SheetRows extends Component {
             }`;
             return;
           }
+
           if (browserIsMobile()) {
             handlePushState('page', 'recordDetail');
             this.setState({ currentGroupKey: item.groupKey });
             this.props.updatePreviewRecordId(item.rowid);
           }
+
           addBehaviorLog('worksheetRecord', base.worksheetId, { rowId: item.rowid }); // 埋点
         }}
       />

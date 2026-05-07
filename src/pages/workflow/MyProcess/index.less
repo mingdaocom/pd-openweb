@@ -5,7 +5,7 @@
   width: 100%;
   height: 100%;
   z-index: 98;
-  background-color: var(--color-background-secondary);
+  background-color: var(--color-background-tertiary);
   display: flex;
   flex-direction: column;
 
@@ -29,10 +29,11 @@
     }
   }
 
-  .header {
+  .myProcessheader {
     height: 50px;
     display: flex;
     align-items: center;
+    background-color: var(--color-background-primary);
 
     .title {
       padding-left: 20px;
@@ -84,7 +85,7 @@
       }
       &.active {
         &.item {
-          color: var(--color-text-title);
+          color: var(--color-text-primary);
         }
         &:before {
           display: block;
@@ -125,6 +126,7 @@
 
   .withoutData {
     flex: 1;
+    font-size: 17px;
     height: 100%;
     display: flex;
     flex-direction: column;
@@ -200,7 +202,7 @@
   .filterNav {
     font-size: 13px;
     border-radius: 4px;
-    background-color: var(--color-background-tertiary);
+    background-color: var(--color-background-secondary);
     padding: 3px;
     margin-right: 20px;
     .item {

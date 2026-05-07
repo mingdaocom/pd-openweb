@@ -59,6 +59,7 @@ class Con extends React.Component {
   componentWillReceiveProps(nextProps) {
     const { appRole = {} } = nextProps;
     const { roleInfos = [] } = appRole;
+
     if (!_.isEqual(this.props.appRole.roleInfos, roleInfos)) {
       this.setState({
         roleList: roleInfos,
@@ -92,6 +93,7 @@ class Con extends React.Component {
       if ([APP_ROLE_TYPE.DEVELOPERS_ROLE].includes(_.get(this.props, 'appDetail.permissionType'))) {
         return alert(_l('当前角色已有成员，请移出所有成员后再删除'), 3);
       }
+
       this.setState({ showDeleRoleByMoveUser: true, roleId: data.roleId });
     } else {
       return Dialog.confirm({
@@ -137,9 +139,11 @@ class Con extends React.Component {
   render() {
     const { showRoleSet, getRoleSummary, isOpenPortal, appId, projectId, editType } = this.props;
     const { dataList = [], copyData, roleList = [], loading, roleId, showDeleRoleByMoveUser } = this.state;
+
     if (loading) {
       return <LoadDiv />;
     }
+
     return (
       <React.Fragment>
         {!!copyData && (

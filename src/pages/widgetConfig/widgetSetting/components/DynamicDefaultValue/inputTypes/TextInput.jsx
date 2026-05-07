@@ -23,6 +23,7 @@ export default class TextInput extends Component {
   componentDidMount() {
     const { dynamicValue, data, onChange } = this.props;
     const { default: defaultValue } = data;
+
     if (defaultValue) {
       const newDynamicValue = dynamicValue.concat({ cid: '', rcid: '', staticValue: defaultValue });
       onChange({
@@ -57,6 +58,7 @@ export default class TextInput extends Component {
 
     dynamicValue.forEach(item => {
       const { cid, rcid, staticValue } = item;
+
       if (cid) {
         fields += rcid ? `$${cid}~${rcid}$` : `$${cid}$`;
       } else {
@@ -82,13 +84,16 @@ export default class TextInput extends Component {
   handleDynamicValue = (newField = []) => {
     if (this.$tagtextarea) {
       const { cid = '', rcid = '', staticValue } = newField[0];
+
       if (rcid === 'url') {
         this.props.onDynamicValueChange(newField);
         return;
       }
+
       const id = rcid ? `${cid}~${rcid}` : `${cid}`;
       this.$tagtextarea.insertColumnTag(id);
       let newValue = this.$tagtextarea.cmObj.getValue();
+
       // 文本能多选，以下情况不能同时配置
       if (_.includes(['search-keyword', 'empty'], cid) && !staticValue) {
         newValue = `$${cid}$`;

@@ -16,6 +16,7 @@ export default class WorksheetUnNormal extends Component {
   }
   renderViewEmptyState() {
     const { resultCode } = this.props;
+
     if (resultCode === 4) {
       return (
         <div className="withoutRows flexColumn alignItemsCenter justifyContentCenter">
@@ -24,6 +25,7 @@ export default class WorksheetUnNormal extends Component {
         </div>
       );
     }
+
     if (resultCode === 7) {
       return (
         <div className="withoutRows flexColumn alignItemsCenter justifyContentCenter">
@@ -32,6 +34,7 @@ export default class WorksheetUnNormal extends Component {
         </div>
       );
     }
+
     return (
       <div className="withoutRows flexColumn alignItemsCenter justifyContentCenter">
         <img className="img" src={alreadyDelete} />

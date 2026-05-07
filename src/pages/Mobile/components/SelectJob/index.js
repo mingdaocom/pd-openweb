@@ -129,6 +129,7 @@ export default class SelectJob extends Component {
     const selectJobsIds = selectJobs.map(item => item.jobId);
     let isSelected = _.includes(selectJobsIds, item.jobId);
     let copySelectJobs = [...selectJobs];
+
     if (!isSelected) {
       !unique && copySelectJobs.push(item);
       this.setState({ selectJobs: !unique ? copySelectJobs : [item] });

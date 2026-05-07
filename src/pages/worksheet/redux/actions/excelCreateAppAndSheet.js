@@ -21,6 +21,7 @@ export const updateCurrentSheetInfo = data => (dispatch, getState) => {
       if (item.sheetId === data.sheetId) {
         return data;
       }
+
       return item;
     });
     dispatch(updateExcelDetailData(newData));

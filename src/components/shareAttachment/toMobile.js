@@ -98,6 +98,7 @@ ToMobileDialog.prototype = {
       default:
         break;
     }
+
     Promise.all([urlPromise])
       .then(function ([url]) {
         var imgUrl = TMD.getQRCodeLink(url);

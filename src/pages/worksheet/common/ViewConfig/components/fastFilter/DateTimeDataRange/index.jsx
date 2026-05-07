@@ -15,6 +15,7 @@ const Wrap = styled.div`
     background: var(--color-background-hover);
   }
 `;
+
 export default function DateTimeRange(props) {
   const { daterange } = props;
   const [{ show }, setState] = useSetState({

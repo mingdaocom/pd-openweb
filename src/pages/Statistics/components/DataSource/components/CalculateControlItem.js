@@ -11,11 +11,13 @@ const SourceBox = ({ item, isActive, onOpenEdit, onDelete, onChangeCheckbox }) =
       isDragging: monitor.isDragging(),
     }),
   });
+
   const handleDelete = () => {
     if (isActive) {
       alert(_l('当前字段正在被使用，无法删除'), 3);
       return;
     }
+
     Dialog.confirm({
       title: <span className="Red">{_l('您确定要删除计算字段“%0” ?', item.controlName)}</span>,
       onOk: () => {
@@ -23,6 +25,7 @@ const SourceBox = ({ item, isActive, onOpenEdit, onDelete, onChangeCheckbox }) =
       },
     });
   };
+
   return (
     <Fragment>
       <div

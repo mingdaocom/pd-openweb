@@ -33,6 +33,7 @@ export default function (props) {
     if (sending) {
       return;
     }
+
     const { ticket, randstr } = resRet;
     const account = (isTel(emailOrTel) ? dialCode : '') + emailOrTel;
     externalPortalAjax
@@ -53,6 +54,7 @@ export default function (props) {
         loginCallback(res);
       });
   };
+
   const { email, mobilephone } = twofactorInfo; // accountId,accountResult, email,mobilephone
   const way = (email && mobilephone) || (!email && !mobilephone) ? 'emailOrTel' : mobilephone ? 'tel' : 'email';
   const param = {
@@ -97,6 +99,7 @@ export default function (props) {
                 updateWarn([{ tipDom: 'inputCode', warnTxt: _l('请输入验证码！') }]);
                 return;
               }
+
               twofactorLogin({});
             }
           }}

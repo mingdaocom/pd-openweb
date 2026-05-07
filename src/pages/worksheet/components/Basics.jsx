@@ -100,7 +100,7 @@ export const Tipbd = styled.div`
   font-size: 13px;
 `;
 export const TipBlock = styled.div(
-  ({ color = 'var(--color-text-tertiary)', bgcolor = '#f5f5f5' }) => `
+  ({ color = 'var(--color-text-tertiary)', bgcolor = 'var(--color-background-tertiary)' }) => `
   color: ${color};
   font-size: 13px;
   background-color: ${bgcolor};
@@ -112,7 +112,7 @@ export const TextBlock = styled.div`
   border-radius: 3px;
   height: 36px;
   line-height: 36px;
-  background-color: var(--color-background-disabled);
+  background-color: var(--color-background-tertiary);
   color: var(--color-text-title);
   font-size: 14px;
   padding: 0 10px;

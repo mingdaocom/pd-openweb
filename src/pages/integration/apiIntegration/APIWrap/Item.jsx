@@ -86,6 +86,7 @@ const WrapBtn = styled.div`
     }
   }
 `;
+
 export default function Item(props) {
   const { onCancel = () => {} } = props;
   const [{ info, loading, showEdit, node, showMenu, showCodeSnippetDialog }, setState] = useSetState({
@@ -117,6 +118,7 @@ export default function Item(props) {
     if (!data.id) {
       return;
     }
+
     flowNodeAjax
       .getNodeDetail(
         {
@@ -133,6 +135,7 @@ export default function Item(props) {
         });
       });
   };
+
   if (loading) {
     return <LoadDiv className="mTop24" />;
   }
@@ -213,10 +216,12 @@ export default function Item(props) {
       return <div className="con textSecondary TxtLeft">{typeInfo.txt}</div>;
     }
   };
+
   const renderTips = () => {
     if (node.code) {
       return <Icon icon="check_circle" className="Green_right tip" />;
     }
+
     return '';
   };
 

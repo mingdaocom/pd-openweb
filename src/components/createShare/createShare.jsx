@@ -41,6 +41,7 @@ function CreateShare(props) {
     } else {
       openDialog();
     }
+
     updateData();
   }, []);
 
@@ -60,18 +61,21 @@ function CreateShare(props) {
 
   const createDialog = () => {
     const btnList = [];
+
     if (isCalendar) {
       btnList.push({
         text: _l('邀请微信好友'),
         onClick: () => openDialog(),
       });
     }
+
     if (!(window.location.href.search(/\/calendar\/home/i) >= 0 && isCalendar)) {
       btnList.push({
         text: _l('前往查看'),
         onClick: () => window.open(linkURL),
       });
     }
+
     mdNotification.success({
       title: content,
       duration: 5,
@@ -113,6 +117,7 @@ function CreateShare(props) {
       .then(function (resource) {
         const keyStatus = !setting.keyStatus;
         const token = keyStatus ? resource.data : setting.token;
+
         if (resource.code === 1) {
           setSetting({
             ...setting,

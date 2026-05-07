@@ -65,6 +65,7 @@ export default class Footer extends Component {
                   alert(_l('请输入密码'), 3);
                   return;
                 }
+
                 verifyPassword({
                   password: this.password,
                   closeImageValidation: true,
@@ -111,6 +112,7 @@ export default class Footer extends Component {
       } else {
         this.request('submit');
       }
+
       return;
     }
 
@@ -141,6 +143,7 @@ export default class Footer extends Component {
     const openOperatorDialog = () => {
       if (_.includes(['pass', 'overrule', 'return'], id)) {
         const typeList = auth[id === 'pass' ? 'passTypeList' : 'overruleTypeList'];
+
         if (typeList.length === 1 && typeList[0] === 101) {
           if (!encrypt) {
             this.handleAction({ action: id });
@@ -286,6 +289,7 @@ export default class Footer extends Component {
   };
   handleOperation = id => {
     const { instance } = this.props;
+
     const run = action => {
       this.setState({
         action,
@@ -322,13 +326,16 @@ export default class Footer extends Component {
             if (index === 0) {
               run('after');
             }
+
             if (index === 1) {
               run('before');
             }
+
             this.actionOperationHandler.close();
           },
         });
       }
+
       return;
     }
 
@@ -371,10 +378,12 @@ export default class Footer extends Component {
     let newOperationTypeList = operationTypeList[1]
       .concat(operationTypeList[0].filter(n => !baseActionList.includes(n)))
       .filter(item => ![12, 13].includes(item));
+
     if (actionList.includes(5) && actionList.includes(17)) {
       actionList = actionList.filter(n => n !== 17);
       newOperationTypeList = newOperationTypeList.concat(17);
     }
+
     const buttons = newOperationTypeList.map(item => {
       return {
         ...MOBILE_OPERATION_LIST[item],
@@ -451,7 +460,7 @@ export default class Footer extends Component {
                 this.handleSelectOperation(buttons);
               }}
             >
-              <Icon icon="arrow-up-border" />
+              <Icon icon="expand_less" className="Font20" />
             </div>
           ) : (
             buttons.map((item, index) => (

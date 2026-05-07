@@ -17,6 +17,7 @@ import Back from '../components/Back';
 import Card from './Card';
 import Filter from './Filter';
 import ProcessDelegation from './ProcessDelegation';
+import Sort from './Sort';
 import { formatQueryParam } from './utils';
 import './index.less';
 
@@ -134,6 +135,8 @@ export default class ProcessMatters extends Component {
       approveCards: [],
       approveType: null,
       encryptType: null,
+      sortVisible: false,
+      sortParam: {},
       filterVisible: false,
       queryParam: {},
       batchLoadingType: '',
@@ -161,7 +164,7 @@ export default class ProcessMatters extends Component {
   };
   getTodoList() {
     const param = {};
-    const { loading, isMore, topTab, bottomTab, searchValue, queryParam } = this.state;
+    const { loading, isMore, topTab, bottomTab, searchValue, sortParam, queryParam } = this.state;
     const { appId } = getRequest();
 
     if (loading || !isMore) {
@@ -175,9 +178,11 @@ export default class ProcessMatters extends Component {
     if (this.request) {
       this.request.abort();
     }
+
     if (searchValue) {
       param.keyword = searchValue;
     }
+
     if (appId) {
       param.apkId = appId;
     }
@@ -187,6 +192,7 @@ export default class ProcessMatters extends Component {
       pageSize,
       pageIndex,
       ...(topTab ? topTab.param : bottomTab.param),
+      ...sortParam,
       ...formatQueryParam(queryParam),
       ...param,
     });
@@ -202,6 +208,7 @@ export default class ProcessMatters extends Component {
   }
   getTodoCount() {
     const { appId } = getRequest();
+
     if (appId) {
       Promise.all([
         instanceVersion.getTodoListFilter({ type: 4 }).then(),
@@ -246,7 +253,7 @@ export default class ProcessMatters extends Component {
     localStorage.setItem('currentProcessTab', JSON.stringify({ topTab, bottomTab }));
   };
   handleClearQuery = () => {
-    this.setState({ queryParam: {} });
+    this.setState({ queryParam: {}, sortParam: {} });
   };
   handleChangeCompleteTab = tab => {
     this.saveCurrentTab(tab.tabs[0], tab);
@@ -285,16 +292,20 @@ export default class ProcessMatters extends Component {
   handleApproveDone = ({ workId }) => {
     const { list, countData, appCount, topTab = {} } = this.state;
     const { appId } = getRequest();
+
     if (appId) {
       const countDataState = {
         ...appCount,
       };
+
       if (topTab.id === 'waitingApproval') {
         countDataState.approveCount = appCount.approveCount - 1;
       }
+
       if (topTab.id === 'waitingWrite') {
         countDataState.writeCount = appCount.writeCount - 1;
       }
+
       this.setState({
         list: list.filter(item => item.workId !== workId),
         appCount: countDataState,
@@ -303,12 +314,15 @@ export default class ProcessMatters extends Component {
       const countDataState = {
         ...countData,
       };
+
       if (topTab.id === 'waitingApproval') {
         countDataState.waitingApproval = countData.waitingApproval - 1;
       }
+
       if (topTab.id === 'waitingWrite') {
         countDataState.waitingWrite = countData.waitingWrite - 1;
       }
+
       this.setState({
         list: list.filter(item => item.workId !== workId),
         countData: countDataState,
@@ -350,14 +364,17 @@ export default class ProcessMatters extends Component {
     const cards = type === 5 ? rejectCards : approveCards;
     const signatureCard = cards.filter(card => (_.get(card.flowNode, batchType) || []).includes(1));
     const encryptCard = cards.filter(card => _.get(card.flowNode, 'encrypt'));
+
     if (_.isEmpty(cards)) {
       alert(_l('请先勾选需要处理的审批'), 2);
       return;
     }
+
     if (signatureCard.length || encryptCard.length) {
       if (signatureCard.length) {
         this.setState({ approveType: type });
       }
+
       if (encryptCard.length) {
         this.setState({ encryptType: type });
       }
@@ -372,6 +389,7 @@ export default class ProcessMatters extends Component {
     const cards = approveType === 5 ? rejectCards : approveCards;
     const selects = cards.map(({ id, workId, flowNode }) => {
       const data = { id, workId, opinion: '', opinionType: 3 };
+
       if ((_.get(flowNode, batchType) || []).includes(1)) {
         return {
           ...data,
@@ -391,6 +409,7 @@ export default class ProcessMatters extends Component {
       })
       .then(result => {
         const { success = [], fail = [] } = result;
+
         const callBack = () => {
           handler.close();
           this.setState(
@@ -409,6 +428,7 @@ export default class ProcessMatters extends Component {
             },
           );
         };
+
         const handler = ActionSheet.show({
           extra: (
             <div className="w100">
@@ -506,6 +526,7 @@ export default class ProcessMatters extends Component {
                   alert(_l('请填写签名'), 2);
                   return;
                 }
+
                 const submitFun = () => {
                   if (signatureApproveCards.length) {
                     this.signature.saveSignature(signature => {
@@ -517,11 +538,13 @@ export default class ProcessMatters extends Component {
                     this.setState({ approveType: null, encryptType: null });
                   }
                 };
+
                 if (encryptCard.length) {
                   if (!this.password || !this.password.trim()) {
                     alert(_l('请输入密码'), 3);
                     return;
                   }
+
                   verifyPassword({
                     password: this.password,
                     closeImageValidation: true,
@@ -650,7 +673,7 @@ export default class ProcessMatters extends Component {
     }
   }
   renderInput() {
-    const { searchValue, filterVisible, bottomTab, topTab, queryParam } = this.state;
+    const { searchValue, sortVisible, filterVisible, bottomTab, topTab, queryParam, sortParam } = this.state;
     const currentTab = topTab ? topTab.id : bottomTab.id;
     return (
       <div className="searchWrapper flexRow">
@@ -667,6 +690,7 @@ export default class ProcessMatters extends Component {
             }}
             onKeyDown={event => {
               const { bottomTab, topTab } = this.state;
+
               if (topTab) {
                 event.which === 13 && this.handleChangeTopTab(topTab);
               } else {
@@ -685,6 +709,7 @@ export default class ProcessMatters extends Component {
                   },
                   () => {
                     const { bottomTab, topTab } = this.state;
+
                     if (topTab) {
                       this.handleChangeTopTab(topTab);
                     } else {
@@ -696,12 +721,34 @@ export default class ProcessMatters extends Component {
             />
           )}
         </div>
+        <div className="sortWrap" onClick={() => this.setState({ sortVisible: true })}>
+          <Icon icon="import_export" className={cx('Font20 textTertiary', { active: _.isBoolean(sortParam.isAsc) })} />
+        </div>
         <div className="filterWrap" onClick={() => this.setState({ filterVisible: true })}>
           <Icon
             icon="filter"
             className={cx('Font20 textTertiary', { active: !_.isEmpty(_.omitBy(queryParam, _.isNil)) })}
           />
         </div>
+        <Sort
+          visible={sortVisible}
+          onClose={() => this.setState({ sortVisible: false })}
+          sort={sortParam}
+          onSort={data => {
+            this.setState(
+              {
+                loading: false,
+                pageIndex: 1,
+                isMore: true,
+                list: [],
+                sortParam: data,
+              },
+              () => {
+                this.getTodoList();
+              },
+            );
+          }}
+        />
         <Filter
           tab={currentTab}
           todoListFilterParam={topTab ? topTab.param : bottomTab.param}
@@ -937,6 +984,7 @@ export default class ProcessMatters extends Component {
                 navigateTo(`/mobile/app/${appId}`);
                 return;
               }
+
               navigateTo(`/mobile/dashboard`);
             }}
           />
@@ -966,6 +1014,7 @@ export default class ProcessMatters extends Component {
             if (data.id) {
               this.handleApproveDone(data);
             }
+
             history.back();
             this.setState({
               previewRecord: {},

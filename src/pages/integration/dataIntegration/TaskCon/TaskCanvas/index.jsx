@@ -73,6 +73,7 @@ class TaskCanvas extends Component {
         currentId: nextProps.curId,
       });
     }
+
     if (!_.isEqual(nextProps.flowData.flowNodes, this.props.flowData.flowNodes)) {
       const { flowData = {} } = nextProps;
       const { flowNodes, firstNodeId } = flowData;
@@ -131,6 +132,7 @@ class TaskCanvas extends Component {
     const { currentProjectId: projectId } = this.props;
     const { flowId = '' } = this.state;
     const { nodeId, name, nodeType, nodeConfig } = node;
+
     if (forName) {
       TaskFlow.renameNode({
         projectId,
@@ -151,6 +153,7 @@ class TaskCanvas extends Component {
       });
       return;
     }
+
     TaskFlow.updateNode({
       projectId,
       flowId,
@@ -160,13 +163,16 @@ class TaskCanvas extends Component {
       nodeConfig,
     }).then(res => {
       let { errorMsgList, isSucceeded, toAdd, toDeleteIds, toUpdate, srcIsDb } = res;
+
       if (res.failed) {
         alert(res.errorMsg, 2);
         return;
       }
+
       if (_.get(node, 'nodeConfig.config.scheduleConfig.isUpdate')) {
         node.nodeConfig.config.scheduleConfig.isUpdate = false;
       }
+
       this.onCompute(
         {
           toUpdate: toUpdate
@@ -210,6 +216,7 @@ class TaskCanvas extends Component {
     copyDom.style.height = height;
     document.querySelector('body').appendChild(copyDom);
     const name = 'scrennshot' + '.png';
+
     try {
       domtoimage.toBlob(copyDom, { bgcolor: '#f5f5f5', width: width, height: height }).then(function (blob) {
         saveAs(blob, name);
@@ -225,11 +232,13 @@ class TaskCanvas extends Component {
     if (type === 'genScreenshot') {
       this.genScreenshot();
     }
+
     if (type === 'toOrigin') {
       const $wrap = _.get(this.$wrap, 'current');
       $wrap.scrollLeft = 0;
       $wrap.scrollTop = 0;
     }
+
     if (type === 'adjustScale') {
       this.setState({ scale: obj.scale });
     }
@@ -237,6 +246,7 @@ class TaskCanvas extends Component {
 
   closeEdit = () => {
     const { currentId } = this.state;
+
     if (currentId) {
       this.setState({
         currentId: '',
@@ -323,6 +333,7 @@ class TaskCanvas extends Component {
                     currentId: node.nodeId,
                   });
                 }
+
                 this.updateNode(
                   {
                     ...node,

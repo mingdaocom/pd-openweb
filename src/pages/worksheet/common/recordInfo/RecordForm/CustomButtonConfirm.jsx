@@ -94,11 +94,14 @@ export default function CustomButtonConfirm(props) {
   const getInit = () => {
     let remark = '';
     let list = (_.get(safeParse(remarkoptions), 'template') || []).filter(item => item.selected);
+
     if (list.length) {
       remark = list[0].value;
     }
+
     return remark;
   };
+
   const [
     { noVerify, needPassWord, checkIsPending, remark, showTemplateList, removeNoneVerification, password },
     setState,
@@ -140,9 +143,11 @@ export default function CustomButtonConfirm(props) {
     let param = {
       placeholder: remarkHint,
     };
+
     if (remark) {
       param.defaultValue = remark;
     }
+
     return (
       <SelectBox
         showSearch
@@ -158,14 +163,17 @@ export default function CustomButtonConfirm(props) {
       />
     );
   };
+
   /**
    * 渲染审批意见列表
    */
   const renderTemplateList = () => {
     let list = (_.get(safeParse(remarkoptions), 'template') || []).filter(item => item.value.indexOf(remark) > -1);
+
     if (!showTemplateList || !list.length) {
       return null;
     }
+
     return (
       <MenuBox
         onClickAwayExceptions={['.customButtonConfirmDialog .Textarea']}
@@ -179,6 +187,7 @@ export default function CustomButtonConfirm(props) {
       </MenuBox>
     );
   };
+
   return (
     <Dialog
       visible
@@ -192,11 +201,13 @@ export default function CustomButtonConfirm(props) {
           alert(_l('%0不能为空', remarkName), 3);
           return;
         }
+
         if (verifyPwd && needPassWord) {
           if (!password || !password.trim()) {
             alert(_l('请输入密码'), 3);
             return;
           }
+
           verifyPassword({
             projectId,
             password,

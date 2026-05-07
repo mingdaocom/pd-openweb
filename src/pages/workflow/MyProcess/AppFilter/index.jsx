@@ -43,11 +43,13 @@ export default class AppFilter extends Component {
   getWorkFlowList() {
     const { app, processType } = this.state;
     let request = null;
+
     if (processType) {
       request = processVersionApi.list;
     } else {
       request = processVersionApi.listAll;
     }
+
     request({
       relationId: app.id,
       processListType: processType || undefined,
@@ -198,7 +200,7 @@ export default class AppFilter extends Component {
     const { apkId } = this.props;
     return (
       <div>
-        <div className="Font12 mBottom10">{_l('应用')}</div>
+        <div className="Font13 mBottom10">{_l('应用')}</div>
         <Dropdown
           overlay={this.renderProjectList()}
           trigger={['click']}

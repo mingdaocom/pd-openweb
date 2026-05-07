@@ -72,6 +72,7 @@ export class Count extends Component {
               suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
               onChange={value => {
                 const item = _.find(normTypes, { value });
+
                 if (isCollectMode) {
                   onChangeSummary({
                     type: item.value,
@@ -131,6 +132,7 @@ const getLocationTypes = locationType => {
     ];
     return lineLocationTypes;
   }
+
   if (locationType === 'column') {
     const columnLocationTypes = [
       {

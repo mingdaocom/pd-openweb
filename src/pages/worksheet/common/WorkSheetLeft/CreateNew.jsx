@@ -109,9 +109,11 @@ class CreateSheetOrPage extends Component {
       })
       .then(data => {
         const { isSuccess, content, errorMsg } = data;
+
         if (!isSuccess) {
           alert(errorMsg, 3);
         }
+
         this.setState({ loading: false, sourceAi: true, remark: content.value });
       })
       .catch(() => {
@@ -123,22 +125,28 @@ class CreateSheetOrPage extends Component {
     const { remark, customPageArgs, loading } = this.state;
     const name = this.state.value.trim().slice(0, 100);
     const { configuration = {}, urlTemplate } = customPageArgs;
+
     if (loading) {
       return;
     }
+
     if (!name) {
       alert(_l('请填写名称'), 3);
       return;
     }
+
     if (remark.length > remarkMaxLength) {
       alert(_l('描述文字超出上限'), 2);
       return;
     }
+
     const protocolReg = /^https?:\/\/.+$/;
+
     if (configuration.customPageType === '2' && !protocolReg.test(urlTemplate)) {
       alert(_l('请输入正确的url'), 3);
       return;
     }
+
     onCreate(type, {
       name,
       remark,
@@ -160,6 +168,7 @@ class CreateSheetOrPage extends Component {
   };
   renderState() {
     const { value, loading, sourceAi, remark, lastRemark } = this.state;
+
     if (loading) {
       return (
         <div className="flexRow alignItemsCenter">
@@ -168,6 +177,7 @@ class CreateSheetOrPage extends Component {
         </div>
       );
     }
+
     if (remark && sourceAi && !loading) {
       return (
         <div
@@ -407,8 +417,10 @@ class CreateChatbot extends Component {
 
 export default props => {
   const { type } = props;
+
   if (['customPage', 'worksheet'].includes(type)) {
     return <CreateSheetOrPage {...props} />;
   }
+
   return <CreateChatbot {...props} />;
 };

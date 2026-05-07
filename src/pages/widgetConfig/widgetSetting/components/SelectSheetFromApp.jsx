@@ -62,6 +62,7 @@ export default function SelectSheetFromApp(props) {
   useEffect(() => {
     appManagementAjax.getAppForManager({ projectId, type: 0 }).then(res => {
       let selectAppId = '';
+
       const getFormatApps = () => {
         const currentIndex = _.findIndex(res, item => item.appId === currentAppId);
         const currentApp = currentIndex > -1 ? res[currentIndex] : [];
@@ -74,12 +75,14 @@ export default function SelectSheetFromApp(props) {
             }
           });
         }
+
         return appList.map(({ appName, appId }) =>
           appId === currentAppId
             ? { text: _l('%0  (本应用)', appName), value: appId }
             : { text: appName, value: appId },
         );
       };
+
       setData({ app: getFormatApps() });
       if (selectAppId) {
         setIds({ appId: selectAppId });
@@ -135,6 +138,7 @@ export default function SelectSheetFromApp(props) {
             onChange({ appId: value, sheetId: '', viewId: '' });
             return;
           }
+
           setIds({
             ..._.pick(props, ['appId', 'sheetId', 'viewId']),
             [idContrast[key]]: value,

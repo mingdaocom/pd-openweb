@@ -60,6 +60,7 @@ function UserSelect(props) {
     if (formDisabled || disabled) return;
 
     const tabType = getTabTypeBySelectUser(props);
+
     if (
       tabType === 1 &&
       md.global.Account.isPortal &&
@@ -101,6 +102,7 @@ function UserSelect(props) {
       );
       return;
     }
+
     setShowSelectUser(true);
   };
 
@@ -130,6 +132,7 @@ function UserSelect(props) {
   const syncObject = obj => {
     // 同步 name / fullname / fullName
     const nameValue = obj.name ?? obj.fullname ?? obj.fullName;
+
     if (nameValue !== undefined) {
       obj.name = nameValue;
       obj.fullname = nameValue;
@@ -138,6 +141,7 @@ function UserSelect(props) {
 
     // 同步 accountId / id
     const idValue = obj.accountId ?? obj.id;
+
     if (idValue !== undefined) {
       obj.accountId = idValue;
       obj.id = idValue;
@@ -170,7 +174,7 @@ function UserSelect(props) {
 
   return (
     <div
-      className={cx('customFormControlBox controlMinHeight customFormControlCapsuleBox', {
+      className={cx('customFormControlBox bgInput controlMinHeight customFormControlCapsuleBox', {
         controlEditReadonly: !formDisabled && !_.isEmpty(selectUsers) && disabled,
         controlDisabled: formDisabled,
         customFormControlNoBorder: !isUnique,

@@ -60,9 +60,11 @@ class PostComment extends React.Component {
 
   handleToggleCommentBox = () => {
     const commentBox = this.state.commentBox;
+
     if (!commentBox.el) {
       commentBox.el = <PostCommentInput focus postItem={this.props.commentItem} onPublished={this.clearCommentBox} />;
     }
+
     commentBox.show = !commentBox.show;
     this.setState({ commentBox });
   };
@@ -88,6 +90,7 @@ class PostComment extends React.Component {
   render() {
     const { categories } = this.props;
     const commentItem = Object.assign({ categories }, this.props.commentItem);
+
     if (categories && categories.length && commentItem.message && commentItem.message.indexOf('#') !== -1) {
       categories.forEach(cat => {
         commentItem.message = commentItem.message.replace(`#${cat.catName}#`, `[cid]${cat.catID}[/cid]`);

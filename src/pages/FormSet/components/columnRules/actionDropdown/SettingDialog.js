@@ -65,9 +65,11 @@ function SettingDialog(props) {
         const newControls = values.filter(v => v.controlId !== parentItem.controlId);
         const index = _.findIndex(values, v => v.controlId === parentItem.controlId);
         const addControls = [].concat(parentConfig);
+
         if (!_.isEmpty(childConfig.childControlIds)) {
           addControls.push(childConfig);
         }
+
         newControls.splice(index + 1, 0, ...addControls);
 
         onChange('controls', newControls);

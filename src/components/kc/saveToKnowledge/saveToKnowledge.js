@@ -89,6 +89,7 @@ SaveToKnowledge.prototype = {
           parentId = path.node.id;
           rootId = path.node.rootId;
         }
+
         addNode({
           name: sourceData.name,
           filePath: filePath,
@@ -120,6 +121,7 @@ SaveToKnowledge.prototype = {
           parentId = path.node.id;
           rootId = path.node.rootId;
         }
+
         SK.ajaxAttachmentToKc(
           sourceData.fileID,
           parentId,
@@ -161,6 +163,7 @@ SaveToKnowledge.prototype = {
         delete json[key];
       }
     }
+
     return json;
   },
 };

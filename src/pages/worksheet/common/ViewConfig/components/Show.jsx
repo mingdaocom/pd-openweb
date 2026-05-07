@@ -40,6 +40,7 @@ export default class Show extends React.Component {
   }
   componentWillReceiveProps(nextProps) {
     const { view } = nextProps;
+
     if (!_.isEqual(view, this.props.view)) {
       this.initState(nextProps);
     }
@@ -67,6 +68,7 @@ export default class Show extends React.Component {
   onChange = type => {
     const { updateCurrentView, view, columns, appId } = this.props;
     const { customShowControls, showControls } = this.state;
+
     if (type === '0') {
       updateCurrentView({
         ...view,
@@ -110,6 +112,7 @@ export default class Show extends React.Component {
   onChangeColumns = ({ newShowControls, newControlSorts }) => {
     const { updateCurrentView, appId, view } = this.props;
     const { customdisplay } = this.state;
+
     if (customdisplay === '1') {
       this.setState(
         {

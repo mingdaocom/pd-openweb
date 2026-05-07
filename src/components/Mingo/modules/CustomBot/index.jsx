@@ -17,7 +17,7 @@ const MingoContentWrap = styled.div`
     font-weight: bold;
     margin: 26px 0 6px;
     font-size: 15px;
-    color: var(--color-text-title);
+    color: var(--color-text-primary);
   }
   .sendCon {
     position: relative;
@@ -86,6 +86,7 @@ function MingoContent(props, ref) {
       }, timeout);
     }
   }, []);
+
   const handleSend = (newMessage, { fromMessageId } = {}) => {
     setIsChatting(true);
     sendMessage(newMessage, { fromMessageId });
@@ -93,6 +94,7 @@ function MingoContent(props, ref) {
       handleScrollToBottom();
     }, 100);
   };
+
   useImperativeHandle(ref, () => ({
     destroy: () => {
       abortRequest();
@@ -101,6 +103,7 @@ function MingoContent(props, ref) {
       if (cache.current.loadAbortController) {
         cache.current.loadAbortController.abort();
       }
+
       setIsChatting(false);
       cache.current = {};
     },

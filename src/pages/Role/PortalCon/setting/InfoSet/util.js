@@ -10,8 +10,10 @@ export const initData = (enumType, type, controlId) => {
     controlId: controlId ? controlId : uuidv4(),
     fieldPermission: '110', //默认收集
   };
+
   if (tempDefault.advancedSetting) {
     tempDefault.advancedSetting.showselectall = '0';
   }
+
   return tempDefault;
 };

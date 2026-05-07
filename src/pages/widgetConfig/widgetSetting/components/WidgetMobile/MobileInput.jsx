@@ -58,11 +58,13 @@ export default ({ data, onChange }) => {
                     _.find(SCAN_CODE_CONFIG, o => o.value !== i.value),
                     'value',
                   );
+
                   if (checked) {
                     newScanType = scantype === '0' ? filterValue : '';
                   } else {
                     newScanType = scantype ? '0' : i.value;
                   }
+
                   onChange({
                     ...handleAdvancedSettingChange(data, { scantype: newScanType }),
                     strDefault: updateConfig({ config: strDefault, value: +!checked, index: 1 }),

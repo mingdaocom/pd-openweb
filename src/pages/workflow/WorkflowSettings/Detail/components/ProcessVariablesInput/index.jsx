@@ -8,6 +8,7 @@ import UpdateFields from '../UpdateFields';
 export default ({ companyId, processId, relationId, selectNodeId, data, selectProcessId, desc, updateSource }) => {
   const [showDialog, setShowDialog] = useState(false);
   const [processVariables, setProcessVariables] = useState([]);
+
   const saveProcessOptions = () => {
     let objArrError = 0;
 

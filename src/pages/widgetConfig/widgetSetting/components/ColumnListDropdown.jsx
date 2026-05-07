@@ -114,6 +114,7 @@ export default class ColumnListDropdown extends React.Component {
     const { visible, onClickAway, emptyText, showSearch } = this.props;
     let { list } = this.props;
     const { keywords } = this.state;
+
     if (showSearch && keywords) {
       list = list.filter(
         column =>
@@ -122,6 +123,7 @@ export default class ColumnListDropdown extends React.Component {
           ) !== -1,
       );
     }
+
     return (
       <ColumnListWrap
         className={cx('columnListDropdown', {

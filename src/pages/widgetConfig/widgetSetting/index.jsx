@@ -98,6 +98,7 @@ function WidgetSetting(props) {
   const queryId = _.get(getAdvanceSetting(data, 'dynamicsrc'), 'id');
   const queryConfig = _.find(queryConfigs, item => item.id === queryId) || {};
   const customQueryConfig = queryConfigs.filter(i => i.eventType === 1);
+
   const onChange = (obj, callback) => {
     if (isEmpty(obj)) return;
     handleDataChange(controlId, { ...data, ...obj }, callback);
@@ -136,6 +137,7 @@ function WidgetSetting(props) {
     if (!_.isEmpty(batchActive)) {
       return <WidgetBatchOption batchActive={batchActive} {...allProps} />;
     }
+
     if (styleInfo.activeStatus && !isRecycle)
       return (
         <WidgetStyleSetting {...allProps} handleChange={obj => setStyleInfo({ info: { ...styleInfo.info, ...obj } })} />
@@ -159,6 +161,7 @@ function WidgetSetting(props) {
     if (!_.isEmpty(batchActive)) return null;
 
     let content = null;
+
     if (styleInfo.activeStatus && !isRecycle) {
       content = (
         <Fragment>

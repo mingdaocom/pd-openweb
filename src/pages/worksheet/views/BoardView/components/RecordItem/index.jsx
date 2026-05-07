@@ -68,6 +68,7 @@ function SortableRecordItem(props) {
     secondGroupOpt = {},
     viewRootEl,
     updateBoardViewCard,
+    buttonsCheckStatus,
   } = props;
   const { rowId, rawRow, ...rest } = data;
   const $ref = useRef(null);
@@ -129,6 +130,7 @@ function SortableRecordItem(props) {
         // 多选更新走单独逻辑
         props.sortRecord({ ...params, ...(list.type === 10 ? { rawRow } : {}) });
       }
+
       return;
     },
     collect(monitor) {
@@ -169,6 +171,7 @@ function SortableRecordItem(props) {
 
   const getFirstGroupValue = (targetKey, list) => {
     let nextVal = list.key;
+
     if (targetKey === '-1') {
       nextVal = '';
     } else {
@@ -183,10 +186,12 @@ function SortableRecordItem(props) {
       if (includes(CAN_AS_BOARD_OPTION, list.type)) {
         nextVal = JSON.stringify([targetKey]);
       }
+
       if (_.includes([26, 27, 48], list.type)) {
         nextVal = getUserValue();
       }
     }
+
     return nextVal;
   };
 
@@ -202,6 +207,7 @@ function SortableRecordItem(props) {
       setState({ recordInfoVisible: true, ...obj });
     }
   };
+
   const getCurrentSheetRows = () => {
     try {
       return _.map(
@@ -230,6 +236,7 @@ function SortableRecordItem(props) {
         }
       });
   };
+
   const getStyle = () => {
     const $dom = $ref.current;
     if (!$dom) return {};
@@ -310,6 +317,7 @@ function SortableRecordItem(props) {
             groups={groups}
             groupControl={groupControl}
             currentGroupKey={currentGroupKey}
+            buttonsCheckStatus={buttonsCheckStatus}
           />
         ) : (
           <div className="skeletonBox" style={{ height: realCardHeight }}>
@@ -337,6 +345,7 @@ function SortableRecordItem(props) {
             groups={groups}
             groupControl={groupControl}
             currentGroupKey={currentGroupKey}
+            buttonsCheckStatus={buttonsCheckStatus}
             {...rest}
             width={width}
           />
@@ -377,23 +386,28 @@ function SortableRecordItem(props) {
                 },
                 info: { type: list.type, viewControl },
               };
+
               // 如果看板控件没改变 无需传递target参数
               if (updateControls[viewControl] !== undefined) {
                 const target = updateControls[viewControl];
                 const targetName = getTargetName(newItem[viewControl], selectControl, list);
                 return { ...para, target, targetName };
               }
+
               return para;
             };
+
             // 多选作为看板更改多选字段 更新数据
             if (list.type === 10) {
               const { value } = _.find(data.fields, item => item.controlId === viewControl) || {};
               const currentValue = updateControls[viewControl];
+
               if (currentValue !== value) {
                 updateMultiSelectBoard({ ...getPara(), prevValue: value, currentValue, selectControl });
                 return;
               }
             }
+
             // 看板关联多条列表放开，防止记录初始化多条列表count更新引起视图更新
             if (newItem && newItem.rowid) {
               updateBoardViewRecord(getPara());

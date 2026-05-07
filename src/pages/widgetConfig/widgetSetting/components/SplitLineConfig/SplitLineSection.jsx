@@ -5,7 +5,6 @@ import { Icon, SvgIcon } from 'ming-ui';
 import { getAdvanceSetting } from 'src/pages/widgetConfig/util/setting';
 import WidgetStatus from 'src/pages/widgetConfig/widgetDisplay/components/WidgetStatus.jsx';
 import { browserIsMobile } from 'src/utils/common';
-import { isLightColor } from 'src/utils/control';
 import { getExpandWidgetIds } from './config';
 import { SectionItemWrap } from './style';
 
@@ -52,6 +51,7 @@ export default function SplitLineSection(props) {
     // 不折叠不能点击
     if (enumDefault2 === 0) return;
     const currentVisible = _.isUndefined(tempVisible) ? !visible : tempVisible;
+
     if (expandWidgetIds.length > 0) {
       setVisible(currentVisible);
       const tempIds = currentVisible ? expandWidgetIds : expandWidgetIds.reverse();
@@ -65,12 +65,14 @@ export default function SplitLineSection(props) {
                     .closest('.customFieldsContainer')
                     .find(`.customFormItem#formItem-${worksheetId}-${tempIds[i]}`) || [])[0]
                 : document.getElementById(`widget-${tempIds[i]}`);
+
             if (listItem) {
               if (currentVisible) {
                 $(listItem).slideDown(80, 'swing', () => (listItem.style.overflow = 'unset'));
               } else {
                 $(listItem).slideUp(80, 'swing', () => (listItem.style.overflow = 'unset'));
               }
+
               clearTimeout(timer);
               if (listItem.nextElementSibling && listItem.nextElementSibling.className === 'customFormLine') {
                 listItem.nextElementSibling.style.display = currentVisible ? 'flex' : 'none';
@@ -117,13 +119,14 @@ export default function SplitLineSection(props) {
         />
       );
     }
+
     return null;
   };
 
   return (
     <SectionItemWrap
       theme={theme}
-      color={window.themeMode === 'dark' && !isLightColor(color) ? 'var(--color-text-title)' : color}
+      color={color}
       visible={visible}
       ref={$ref}
       sectionstyle={sectionstyle}

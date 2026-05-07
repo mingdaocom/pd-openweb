@@ -227,8 +227,10 @@ export default class GlobalSearch extends Component {
           total: _.has(SEARCH_APP_SEARCH_TYPE, searchType) ? _data.total || 0 : _data[0] ? _data[0].count || 0 : 0,
           searchAppResCode: res.resultCode,
         };
+
         if (['app', 'record'].indexOf(searchType) > -1) {
           let key = searchType === 'app' ? 'apps' : 'rows';
+
           if (pageIndex === 1) {
             _state.appData = res;
           } else if (searchType === 'app') {
@@ -239,6 +241,7 @@ export default class GlobalSearch extends Component {
             _state.appData.rows.list = appData.rows.list.concat(_data.list);
             _state.appData.rows.titleControls = appData.rows.titleControls.concat(_data.titleControls);
           }
+
           _state.loadEnd =
             searchType === 'record' ? !res.rows.nextPage : !(_state.total > _state.appData[key].list.length);
         } else {
@@ -273,12 +276,14 @@ export default class GlobalSearch extends Component {
     };
     smartSearchAjax.searchApp(param).then(res => {
       let _data = _.cloneDeep(appData);
+
       if (type === 7) {
         _data.apps = res.apps;
       } else {
         _data.rows = res.rows;
         _data.resultCode = res.resultCode;
       }
+
       this.setState({
         loading: false,
         resultCode: type === 7 ? resultCode : res.resultCode,
@@ -297,6 +302,7 @@ export default class GlobalSearch extends Component {
     const { appData, data } = this.state;
 
     let startType = '';
+
     if (appData && (appData.apps.length !== 0 || appData.rows.length !== 0)) {
       startType = appData.apps.length !== 0 ? 'app' : appData.rows.length !== 0 ? 'record' : '';
     } else if (data) {
@@ -318,6 +324,7 @@ export default class GlobalSearch extends Component {
     let _list = data.filter(l => ['user', 'group'].indexOf(l.type) < 0);
 
     let startType = '';
+
     if (type === 'app') {
       startType = appData.rows.length !== 0 ? 'record' : _list[0].type;
     } else if (type === 'record') {
@@ -326,6 +333,7 @@ export default class GlobalSearch extends Component {
       let obj = _list.find((l, index) => index !== 0 && _list[index - 1].type === type);
       startType = obj ? obj.type : '';
     }
+
     this.setState({ highlightType: startType });
   };
 
@@ -443,6 +451,7 @@ export default class GlobalSearch extends Component {
                     this.setState({ appProjectId: projectId }, () => this.updateSearchApp({ type: 7 }));
                     return;
                   }
+
                   this.setState({ projectId }, () => {
                     this.updateSearchApp({ type: 8 });
                     this.getFilterCount();
@@ -546,6 +555,7 @@ export default class GlobalSearch extends Component {
         </React.Fragment>
       );
     }
+
     return (
       <React.Fragment>
         {content}

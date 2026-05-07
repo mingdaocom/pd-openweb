@@ -225,10 +225,12 @@ export default function CustomLibrary(props) {
   // 开启关闭授权
   const updateAuthorization = ({ id, authorization = true }) => {
     const isAdded = !!list.filter(item => item.id === id).length;
+
     if (isAdded && authorization) {
       alert(_l('API已存在'), 3);
       return;
     }
+
     packageVersionAjax
       .updateAuthorization(
         {

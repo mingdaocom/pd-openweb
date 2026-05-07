@@ -107,10 +107,12 @@ export default class RelateRecordDropdown extends React.Component {
         if (this.props.selected.length > 0 && this.props.multiple) {
           return;
         }
+
         if (this.props.multiple && this.props.selected.length >= MAX_COUNT) {
           alert(_l('最多关联%0条', MAX_COUNT), 3);
           return;
         }
+
         this.setState({ newrecordVisible: true });
       }
     }
@@ -122,9 +124,11 @@ export default class RelateRecordDropdown extends React.Component {
         selected: nextProps.selected,
       });
     }
+
     if (nextProps.flag !== this.props.flag) {
       this.setState({ addedIds: [], deletedIds: [], defaultSelected: nextProps.selected || [] });
     }
+
     if (
       _.get(nextProps, 'control.advancedSetting.searchcontrol') !==
         _.get(this.props, 'control.advancedSetting.searchcontrol') ||
@@ -154,6 +158,7 @@ export default class RelateRecordDropdown extends React.Component {
 
   get popupWidth() {
     const { insheet } = this.props;
+
     if (!insheet && this.cell.current) {
       return Math.max(this.cell.current.clientWidth, 480);
     } else {
@@ -190,12 +195,15 @@ export default class RelateRecordDropdown extends React.Component {
     const { control = {} } = props;
     const { searchcontrol } = control.advancedSetting || {};
     let searchControl;
+
     if (searchcontrol) {
       searchControl = _.find(control.relationControls, { controlId: searchcontrol });
     }
+
     if (!searchControl) {
       searchControl = _.find(control.relationControls, { attribute: 1 });
     }
+
     this.searchControl = searchControl;
   }
 
@@ -214,6 +222,7 @@ export default class RelateRecordDropdown extends React.Component {
           rowid: recordId,
         }),
       };
+
       if (titleControl.type === 29) {
         try {
           const cellData = JSON.parse(titleControl.value);
@@ -223,6 +232,7 @@ export default class RelateRecordDropdown extends React.Component {
           defaultRelatedSheetValue.name = '';
         }
       }
+
       return {
         worksheetId,
         relateSheetControlId: controlId,
@@ -236,6 +246,7 @@ export default class RelateRecordDropdown extends React.Component {
 
   getXOffset() {
     const { popupWidth } = this;
+
     if (
       this.cell &&
       this.cell.current &&
@@ -243,6 +254,7 @@ export default class RelateRecordDropdown extends React.Component {
     ) {
       return window.innerWidth - popupWidth - 10 - this.cell.current.getBoundingClientRect().left;
     }
+
     return 0;
   }
 
@@ -253,6 +265,7 @@ export default class RelateRecordDropdown extends React.Component {
       });
       return;
     }
+
     const cellToTop = this.cell.current.getBoundingClientRect().top;
     let isTop = window.innerHeight - this.cell.current.clientHeight - cellToTop < 360;
     this.setState({
@@ -262,13 +275,28 @@ export default class RelateRecordDropdown extends React.Component {
     });
   };
 
+  // 提供给表单 Tab 事件调用的关闭方法
+  closePopup = () => {
+    const { onVisibleChange } = this.props;
+    this.setState(
+      {
+        listvisible: false,
+      },
+      () => {
+        onVisibleChange(false);
+      },
+    );
+  };
+
   handleAdd = (record, cb = () => {}) => {
     const { multiple } = this.props;
     const { selected } = this.state;
+
     if (multiple && selected.length >= MAX_COUNT) {
       alert(_l('最多关联%0条', MAX_COUNT), 3);
       return;
     }
+
     if (!_.find(selected, r => r.rowid === record.rowid)) {
       this.setState(
         oldState => ({
@@ -314,8 +342,10 @@ export default class RelateRecordDropdown extends React.Component {
   handleItemClick = record => {
     const { multiple, onVisibleChange } = this.props;
     const { selected } = this.state;
+
     if (multiple && record.rowid !== 'isEmpty') {
       const selectedRecord = _.find(selected, r => record.rowid === r.rowid);
+
       if (selectedRecord) {
         if (this.allowRemove || selectedRecord.isNewAdd) {
           this.handleDelete(record);
@@ -323,6 +353,7 @@ export default class RelateRecordDropdown extends React.Component {
       } else {
         this.handleAdd(_.assign({}, record, { isNewAdd: true }));
       }
+
       return;
     } else {
       this.setState({ selected: [record], listvisible: false }, () => {
@@ -347,7 +378,9 @@ export default class RelateRecordDropdown extends React.Component {
       if (_.get(this, 'inputRef.current.value') || !this.allowRemove) {
         return;
       }
+
       const needDelete = selected.slice(-1)[0];
+
       if (needDelete && control.enumDefault !== 1) {
         this.handleDelete(needDelete);
       }
@@ -357,15 +390,19 @@ export default class RelateRecordDropdown extends React.Component {
   handleChange() {
     const { multiple, doNotClearKeywordsWhenChange, onChange } = this.props;
     let { selected, addedIds, deletedIds } = this.state;
+
     if (selected.length > 1 && _.find(selected, { rowid: 'isEmpty' })) {
       selected = selected.filter(r => r.rowid !== 'isEmpty');
     }
+
     if (multiple) {
       this.focusInput();
     }
+
     if (!doNotClearKeywordsWhenChange) {
       this.setState({ keywords: '' });
     }
+
     onChange(selected, { addedIds, deletedIds });
   }
 
@@ -377,6 +414,7 @@ export default class RelateRecordDropdown extends React.Component {
 
   handleClick = () => {
     const { insheet, disabled, onClick } = this.props;
+
     if (insheet) {
       if (this.active) {
         this.focusInput();
@@ -405,6 +443,7 @@ export default class RelateRecordDropdown extends React.Component {
                 if (!allowOpenRecord || isMobileTable) {
                   return;
                 }
+
                 this.setState({ previewRecord: { recordId: selected[0]?.rowid } });
                 e.stopPropagation();
               }}
@@ -440,6 +479,7 @@ export default class RelateRecordDropdown extends React.Component {
                 alert(_l('最多关联%0条', MAX_COUNT), 3);
                 return;
               }
+
               this.setState({ newrecordVisible: true });
             }}
           >
@@ -511,6 +551,7 @@ export default class RelateRecordDropdown extends React.Component {
                       if (!allowOpenRecord || active || /^temp/.test(record.rowid) || active) {
                         return;
                       }
+
                       this.setState({ previewRecord: { recordId: record.rowid } });
                     }}
                   >
@@ -538,6 +579,7 @@ export default class RelateRecordDropdown extends React.Component {
                       if (!allowOpenRecord) {
                         return;
                       }
+
                       this.setState({ previewRecord: { recordId: record.rowid } });
                       e.stopPropagation();
                     }}
@@ -566,6 +608,7 @@ export default class RelateRecordDropdown extends React.Component {
                 alert(_l('最多关联%0条', MAX_COUNT), 3);
                 return;
               }
+
               this.setState({ newrecordVisible: true });
             }}
           >
@@ -694,6 +737,7 @@ export default class RelateRecordDropdown extends React.Component {
                 alert(_l('最多关联%0条', MAX_COUNT), 3);
                 return;
               }
+
               this.setState({ newrecordVisible: true, listvisible: false });
             }}
             focusInput={() => {
@@ -730,6 +774,7 @@ export default class RelateRecordDropdown extends React.Component {
     } = this.props;
     const { selected, keywords, listvisible, deletedIds } = this.state;
     let content;
+
     if (_.isFunction(renderSelected) && !(isQuickFilter && listvisible)) {
       content = renderSelected(selected, { handleDelete: this.handleDelete });
     } else if (multiple && !isQuickFilter) {
@@ -737,7 +782,9 @@ export default class RelateRecordDropdown extends React.Component {
     } else {
       content = _.isArray(selected) && selected.length > 1 ? this.renderMultipe() : this.renderSingle();
     }
-    const showDialogSelect = get(control, 'advancedSetting.openfastfilters') === '1';
+
+    const showDialogSelect =
+      get(control, 'advancedSetting.openfastfilters') === '1' || this.props.forceShowDialogSelect;
     const showClearIcon =
       !disabled &&
       this.allowRemove &&
@@ -880,6 +927,7 @@ export default class RelateRecordDropdown extends React.Component {
               } else {
                 this.setState({ listvisible: false });
               }
+
               onVisibleChange(visilbe);
             }}
             popupClassName={cx('relateRecordDropdownPopup filterTrigger', popupClassName, { isQuickFilter })}

@@ -66,11 +66,14 @@ export default class PrintTask extends Component {
       if (item.value && item.value !== '0') {
         return _.find(item.options, ({ key }) => key === item.value).value;
       }
+
       return '';
     }
+
     // 复选框
     if (item.type === 10) {
       const key = [];
+
       for (let i = 0; i < item.value.length; i++) {
         if (item.value.substr(i, 1) !== '0') {
           key.push('1' + item.value.slice(i + 1).replace(/1/g, 0));
@@ -83,21 +86,26 @@ export default class PrintTask extends Component {
       _.remove(item.value, option => option === '');
       return item.value.join(',');
     }
+
     // 下拉框
     if (item.type === 11) {
       if (item.value !== '0') {
         return _.find(item.options, ({ key }) => key === item.value).value;
       }
+
       return '';
     }
+
     // 附件
     if (item.type === 14) {
       return _.map(JSON.parse(item.value), att => att.originalFilename).join(',');
     }
+
     // 评分
     if (item.type === 28) {
       return item.enumDefault === 1 ? item.value + _l('星') : item.value + '/10';
     }
+
     // 关联
     if (item.type === 21) {
       const list = [];
@@ -109,6 +117,7 @@ export default class PrintTask extends Component {
 
       return list;
     }
+
     // 数字 金额
     if (item.type === 6 || item.type === 8) {
       return formatNumberThousand(item.value);

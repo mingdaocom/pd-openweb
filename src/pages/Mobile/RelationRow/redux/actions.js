@@ -125,6 +125,7 @@ export const loadRowRelationRows = (relationControl, getType) => async (dispatch
     filterKey: 'resultfilters',
     appId: base.appId,
   });
+
   if (!filterControls) {
     dispatch({
       type: 'MOBILE_RELATION_ROWS',
@@ -140,6 +141,7 @@ export const loadRowRelationRows = (relationControl, getType) => async (dispatch
     });
     return;
   }
+
   params.filterControls = filterControls || [];
 
   sheetAjax
@@ -169,6 +171,7 @@ export const loadRowRelationRows = (relationControl, getType) => async (dispatch
           },
         });
       }
+
       dispatch({
         type: 'MOBILE_RELATION_ROWS',
         data: pageIndex === 1 ? result.data : relationRows.concat(result.data),

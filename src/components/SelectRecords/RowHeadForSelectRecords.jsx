@@ -37,9 +37,11 @@ export default function RowHeadForSelectRecords({
       selectedRowIds,
       data.map(item => item.rowid),
     );
+
   if ((isEmpty(row) && rowIndex > -1) || (type === 1 && rowIndex === -1)) {
     return <Con className={className} style={style} />;
   }
+
   if (rowIndex === -1 && type === 0) {
     return (
       <Con className={className} style={style}>
@@ -60,6 +62,7 @@ export default function RowHeadForSelectRecords({
       </Con>
     );
   }
+
   return (
     <Con className={className} style={style}>
       {type === 0 ? (

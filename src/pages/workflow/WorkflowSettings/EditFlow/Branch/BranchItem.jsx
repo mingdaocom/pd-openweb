@@ -39,6 +39,12 @@ export default class BranchItem extends Component {
   /**
    * 渲染内容
    */
+  getValidConditionValues = conditionValues => {
+    return (conditionValues || []).filter(item => {
+      return item && (item.controlId || !_.isUndefined(item.value));
+    });
+  };
+
   renderContent() {
     const { item, prveId, processId, disabled, updateBranchSort } = this.props;
 
@@ -139,9 +145,11 @@ export default class BranchItem extends Component {
    * 渲染或 或者 且
    */
   renderOrAnd(item, text) {
+    const conditionValues = this.getValidConditionValues(item.conditionValues);
+
     return (
       <span>
-        {item.conditionValues.map((obj, i) => {
+        {conditionValues.map((obj, i) => {
           return (
             <Fragment key={i}>
               {obj.controlId ? (
@@ -159,7 +167,7 @@ export default class BranchItem extends Component {
               ) : (
                 obj.value
               )}
-              {i !== item.conditionValues.length - 1 && <span className="mLeft5 mRight5 textSecondary">{text}</span>}
+              {i !== conditionValues.length - 1 && <span className="mLeft5 mRight5 textSecondary">{text}</span>}
             </Fragment>
           );
         })}
@@ -171,11 +179,17 @@ export default class BranchItem extends Component {
    * 渲染在范围内  不在范围内
    */
   renderRange(item) {
+    const conditionValues = this.getValidConditionValues(item);
+    const start = conditionValues[0] || {};
+    const end = conditionValues[1] || {};
+
     return (
       <span>
-        {item[0].controlId ? `${item[0].nodeName}-${item[0].controlName}` : item[0].value}
+        {start.controlId
+          ? `${start.nodeName || _l('节点已删除')}-${start.controlName || _l('字段已删除')}`
+          : start.value || ''}
         <span className="mLeft5 mRight5">~</span>
-        {item[1].controlId ? `${item[1].nodeName}-${item[1].controlName}` : item[1].value}
+        {end.controlId ? `${end.nodeName || _l('节点已删除')}-${end.controlName || _l('字段已删除')}` : end.value || ''}
       </span>
     );
   }

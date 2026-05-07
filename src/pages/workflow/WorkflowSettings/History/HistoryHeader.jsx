@@ -8,11 +8,11 @@ import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
 import { array, bool, func, string } from 'prop-types';
-import { Icon } from 'ming-ui';
+import { Dropdown, Icon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import instanceVersionAjax from '../../api/instanceVersion';
-import Dropdown from '../../components/Dropdown';
 import Search from '../../components/Search';
+import { EXPIRE_LIST } from '../enum';
 import SerialProcessDialog from './components/SerialProcessDialog';
 import { FLOW_STATUS } from './config';
 
@@ -73,7 +73,7 @@ export default class HistoryHeader extends Component {
   };
 
   render() {
-    const { onRefresh, isSerial, processId, batchIds, archivedItem } = this.props;
+    const { onRefresh, isSerial, processId, batchIds, archivedItem, expireType } = this.props;
     const { status, isRefresh, showDialog } = this.state;
     const lang = getCookie('i18n_langtag') || md.global.Config.DefaultLang;
     const stopIdsCount = batchIds.filter(o => o.status === 1 && o.instanceType !== -1).length;
@@ -134,11 +134,14 @@ export default class HistoryHeader extends Component {
             </div>
             <div className="statusDropdown">
               <Dropdown
-                className="historyHeaderStatusDropdown"
-                onChange={status => this.handleFilter({ status })}
-                selectedValue={status}
-                data={data}
+                className="mLeft10 mRight10"
+                style={{ minWidth: 120 }}
+                menuStyle={{ width: '100%' }}
+                border
                 placeholder={_l('所有状态')}
+                value={status}
+                data={data}
+                onChange={status => this.handleFilter({ status })}
               />
             </div>
             <DatePicker.RangePicker
@@ -162,6 +165,12 @@ export default class HistoryHeader extends Component {
         )}
 
         <div className="flex" />
+
+        {!!expireType && (
+          <div className="mRight10 textSecondary">
+            {_l('（日志生成%0后自动删除）', EXPIRE_LIST.find(o => o.value === expireType).text)}
+          </div>
+        )}
 
         <Tooltip title={isRefresh ? _l('刷新中...') : _l('刷新')}>
           <span

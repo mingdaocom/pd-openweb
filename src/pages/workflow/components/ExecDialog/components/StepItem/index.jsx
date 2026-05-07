@@ -159,6 +159,7 @@ export default class StepItem extends Component {
       if (isCurrentWork && isCurrentUser) {
         return <div className="waitInfo current Font14 bold">{getWaitText(type, principal)}</div>;
       }
+
       if (workItemLog && workItemLog.action === UNNECESSARY_OPERATION_CODE) {
         return (
           <Fragment>
@@ -169,6 +170,7 @@ export default class StepItem extends Component {
           </Fragment>
         );
       }
+
       return (
         <Fragment>
           <div className="userName">
@@ -533,6 +535,7 @@ export default class StepItem extends Component {
       if (item.executeTime && item.workItemAccount.accountId === md.global.Account.accountId) {
         currentAccountNotified = true;
       }
+
       return _.includes([3, 4], item.type) && !item.operationTime;
     });
 

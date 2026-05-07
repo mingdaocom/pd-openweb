@@ -84,7 +84,9 @@ export default class CC extends Component {
       .then(result => {
         if (isApproval && !result.selectNodeId) {
           this.setState({ isNewCC: true }, () => {
-            this.getNodeDetail(props, result.flowNodeList[0].nodeId);
+            if (result.flowNodeList && result.flowNodeList[0]?.nodeId) {
+              this.getNodeDetail(props, result.flowNodeList[0].nodeId);
+            }
           });
         } else {
           this.setState({ data: result, isNewCC: !!result.viewId || !result.selectNodeId || isNewCC });
@@ -256,7 +258,7 @@ export default class CC extends Component {
               value={data.viewId}
               renderTitle={
                 !data.viewId || !views.length
-                  ? () => <span className="textSecondary">{_l('请选择')}</span>
+                  ? () => <span className="textPlaceholder">{_l('请选择')}</span>
                   : data.viewId && !selectView
                     ? () => <span className="errorColor">{_l('视图无效或已删除')}</span>
                     : () => <span>{selectView.text}</span>

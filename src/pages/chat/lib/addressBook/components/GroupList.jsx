@@ -46,6 +46,7 @@ export default class GroupList extends React.Component {
 
   renderListContent() {
     const { isLoading, list, isSearch } = this.props;
+
     if (!isSearch) {
       const keys = _.keys(list);
       if (!keys.length && isLoading) return <LoadDiv className="mTop10" />;
@@ -69,6 +70,7 @@ export default class GroupList extends React.Component {
       if (!isLoading && list && list.length === 0) {
         return <ListNull isSearch={isSearch} type={'groups'} />;
       }
+
       return (
         <React.Fragment>
           {_.map(list, item => (

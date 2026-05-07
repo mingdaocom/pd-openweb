@@ -13,6 +13,7 @@ const InputWrap = styled.span`
     border: none !important;
   }
 `;
+
 function TagCon(props) {
   const { disabled, data, renderItem, onRemove, needInput = false, search, onChangeInput = () => {} } = props;
   const inputRef = useRef(null);
@@ -34,6 +35,7 @@ function TagCon(props) {
                   if (disabled) {
                     return;
                   }
+
                   onRemove(item);
                 }}
               >

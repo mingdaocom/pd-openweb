@@ -19,6 +19,7 @@ class DropdownGroup extends Component {
           if (dropdown.props && dropdown.props.data && dropdown.props.data.length) {
             return dropdown;
           }
+
           return null;
         })}
       </div>

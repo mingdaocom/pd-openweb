@@ -18,7 +18,7 @@ import {
   values,
 } from 'lodash';
 import styled from 'styled-components';
-import { Button, Menu, MenuItem, Modal } from 'ming-ui';
+import { Button, Checkbox, Menu, MenuItem, Modal } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import addRecord from 'worksheet/common/newRecord/addRecord';
 import { openRecordInfo } from 'worksheet/common/recordInfo';
@@ -33,6 +33,7 @@ import ColumnHead from 'worksheet/components/BaseColumnHead';
 import Pagination from 'worksheet/components/Pagination';
 import WorksheetTable from 'worksheet/components/WorksheetTable';
 import RestrictAccessStatus from 'src/components/restrictAccessStatus';
+import emptyPng from 'src/pages/worksheet/assets/record.png';
 import 'src/pages/worksheet/components/WorksheetTable/components/ColumnHead/ColumnHead.less';
 import { checkIsTextControl, isRelateRecordTableControl } from 'src/utils/control';
 import { addBehaviorLog } from 'src/utils/project';
@@ -40,6 +41,7 @@ import { replaceControlsTranslateInfo } from 'src/utils/translate';
 import { getSheetStylesOfRelateRecordTable } from 'src/utils/worksheet';
 import Header from './Header';
 import RowHead from './RowHeadForSelectRecords';
+import SelectDialogList from './SelectDialogList';
 import SelectedInfo from './SelectedInfo';
 import useRecords, { ERROR_STATUS } from './useRecords';
 import {
@@ -56,6 +58,23 @@ const Con = styled.div`
   display: flex;
   flex-direction: column;
   height: 100%;
+`;
+
+const ListModeSelectStatus = styled.div`
+  margin-right: 8px;
+  font-size: 13px;
+  color: var(--color-text-primary);
+  display: flex;
+  align-items: center;
+`;
+
+const DecodeFooterButton = styled.div`
+  font-size: 13px;
+  line-height: 20px;
+  user-select: none;
+  cursor: ${props => (props.$disabled ? 'not-allowed' : 'pointer')};
+  color: ${props => (props.$disabled ? 'var(--color-text-disabled)' : 'var(--color-primary)')};
+  white-space: nowrap;
 `;
 
 const Table = styled.div`
@@ -126,6 +145,15 @@ const SearchIcon = styled.div`
   color: var(--color-text-placeholder);
   margin-bottom: 12px;
   flex-shrink: 0;
+  .iconBox {
+    width: 130px;
+    height: 130px;
+    display: inline-block;
+    border-radius: 50%;
+    background: url(${emptyPng}) no-repeat;
+    background-size: 130px 130px;
+    background-color: var(--color-background-secondary);
+  }
 `;
 
 const RefreshBtn = styled.div`
@@ -171,6 +199,7 @@ export default function SelectDialog({ ...args }) {
     onOk,
   } = args;
   const worksheetId = control.dataSource || args.worksheetId;
+  const listMode = get(control, 'advancedSetting.chooselisttype') === '2'; // '1' 表格，'2' 列表
   const {
     loading,
     recordsLoading,
@@ -188,6 +217,9 @@ export default function SelectDialog({ ...args }) {
     setIgnoreAllFilters,
     setRecords,
     refresh,
+    loadMore,
+    hasMore,
+    loadMoreLoading,
     handleUpdateKeyWords,
     handleUpdateSortControl,
     handleUpdateQuickFilters,
@@ -206,6 +238,7 @@ export default function SelectDialog({ ...args }) {
     ignoreRowIds,
     filterRowIds,
     formData,
+    listMode,
   });
   const recordsCache = useRef({});
   const tableRef = useRef();
@@ -238,18 +271,36 @@ export default function SelectDialog({ ...args }) {
     .map(controlId => find(controls, { controlId }))
     .filter(identity);
   const titleControl = getTitleControl(control, controls);
+  const titleControlId = get(titleControl, 'controlId');
+  const titleMaskData =
+    titleControlId &&
+    get(titleControl, 'advancedSetting.datamask') === '1' &&
+    get(titleControl, 'advancedSetting.isdecrypt') === '1';
+  const showDecodeButton = !!titleMaskData && !get(window, 'shareState.shareId');
+  const noMaskTitle = !!disableMaskDataControls[titleControlId];
+  const decodeDisabled = showDecodeButton && noMaskTitle;
+  const listModeSelectableCount = listMode ? records.filter(r => !needHideRowIds.includes(r.rowid)).length : 0;
+
+  const handleDecode = () => {
+    if (!showDecodeButton || decodeDisabled) return;
+    addBehaviorLog('worksheetBatchDecode', worksheetId, { controlId: titleControlId });
+    setDisableMaskDataControls(prev => ({ ...prev, [titleControlId]: true }));
+  };
+
   const { clickSearch } = searchConfig;
   const isWaitToClickSearch = clickSearch && !keyWords;
-  const showTable = !loading && !isWaitToClickSearch;
+  const showTable = !loading && !isWaitToClickSearch && !listMode;
+
   if (isEmpty(controlsForShow)) {
     controlsForShow = [titleControl].filter(identity);
     if (showMoreControls) {
       controlsForShow = controls.filter(c => c.controlId !== titleControl.controlId).slice(0, 4);
     }
   }
+
   const coverControl = get(control, 'coverCid') && find(controls, { controlId: get(control, 'coverCid') });
   const tableConfig = getTableConfig(controlsForShow, {
-    titleControl: !isRelateRecordTableControl(control) && titleControl,
+    titleControl,
     coverControl: !isRelateRecordTableControl(control) && coverControl,
   });
   const sheetStyles =
@@ -283,12 +334,15 @@ export default function SelectDialog({ ...args }) {
             unionBy(records.concat(values(recordsCache.current)), 'rowid'),
             r => r.rowid === toggleRowId,
           );
+
           if (cache.current.shiftActive && !!prev.length) {
             let startIndex = Math.min(...[selectIndex, cache.current.shiftActiveRowIndex]);
             let endIndex = Math.max(...[selectIndex, cache.current.shiftActiveRowIndex]);
+
             if (endIndex > records.length - 1) {
               endIndex = records.length - 1;
             }
+
             return union(
               unionBy(records.concat(values(recordsCache.current)), 'rowid')
                 .slice(startIndex, endIndex + 1)
@@ -296,16 +350,18 @@ export default function SelectDialog({ ...args }) {
                 .concat(prev),
             );
           }
+
           cache.current.shiftActiveRowIndex = selectIndex;
           if (prev.includes(toggleRowId)) {
             return prev.filter(id => id !== toggleRowId);
           }
+
           return [...prev, toggleRowId];
         });
       } else {
         const toggleRow = find(records.concat(values(recordsCache.current)), record => record.rowid === toggleRowId);
         setSelectedRowIds([toggleRowId]);
-        onOk([toggleRow], worksheetInfo);
+        onOk([toggleRow ? toggleRow : { rowid: toggleRowId }], worksheetInfo);
         onClose();
       }
     },
@@ -318,10 +374,12 @@ export default function SelectDialog({ ...args }) {
     const selectedRecords = selectedRowIds.map(id =>
       find(records.concat(values(recordsCache.current)), record => record.rowid === id),
     );
+
     if (!isUndefined(selectedCount) && selectedCount + selectedRecords.length > maxCount) {
       alert(_l('最多关联%0条', maxCount), 3);
       return;
     }
+
     onOk(selectedRecords);
     onClose();
   }, [selectedRowIds, records, selectedCount, maxCount]);
@@ -332,20 +390,25 @@ export default function SelectDialog({ ...args }) {
           handleConfirm();
           return;
         }
+
         if (activeRowIndex !== -1) {
           handleToggleSelect(records[activeRowIndex].rowid, activeRowIndex);
         }
       } else if (e.key === 'ArrowDown') {
         const newActiveRowIndex = activeRowIndex + 1;
+
         if (newActiveRowIndex < records.length && isNumber(newActiveRowIndex) && !isNaN(newActiveRowIndex)) {
           setActiveRowIndex(newActiveRowIndex);
         }
+
         tableRef.current.table.focusRow(newActiveRowIndex);
       } else if (e.key === 'ArrowUp') {
         const newActiveRowIndex = activeRowIndex - 1;
+
         if (newActiveRowIndex >= 0 && isNumber(newActiveRowIndex) && !isNaN(newActiveRowIndex)) {
           setActiveRowIndex(newActiveRowIndex);
         }
+
         tableRef.current.table.focusRow(newActiveRowIndex);
       }
     },
@@ -389,8 +452,10 @@ export default function SelectDialog({ ...args }) {
       if (isEmpty(fastFilters)) {
         return;
       }
+
       const newFastFilters = handleConditionsDefault(fastFilters || [], controls);
       const fastFiltersHasDefaultValue = some(newFastFilters, validate);
+
       if (fastFiltersHasDefaultValue) {
         setFastFilters(
           newFastFilters.map(condition => ({
@@ -415,8 +480,10 @@ export default function SelectDialog({ ...args }) {
           );
         }
       }
+
       cache.current.fastFiltersDidMount = true;
     }
+
     cache.current.prefFastFilters = fastFilters;
   }, [fastFilters, fastFilters]);
   useEffect(() => {
@@ -436,6 +503,7 @@ export default function SelectDialog({ ...args }) {
   const isFilter = enableFastFilters && isEmpty(fastFilters) && searchFilters && !!searchFilters.length;
   const isFastFilter = enableFastFilters && !isEmpty(fastFilters);
   let param = {};
+
   if (isFilter) {
     param = {
       projectId,
@@ -453,6 +521,7 @@ export default function SelectDialog({ ...args }) {
       filters: fastFilters,
     };
   }
+
   return (
     <Modal
       visible
@@ -497,6 +566,7 @@ export default function SelectDialog({ ...args }) {
               alert(_l('最多关联%0条', maxCount), 3);
               return;
             }
+
             addRecord({
               className: 'worksheetRelateNewRecord worksheetRelateNewRecordFromSelectRelateRecord',
               viewId,
@@ -627,6 +697,7 @@ export default function SelectDialog({ ...args }) {
                                         alert(_l('预览模式下，不能操作'), 3);
                                         return;
                                       }
+
                                       setFixedColumnCount(columnIndex);
                                       closeMenu();
                                     }}
@@ -725,6 +796,50 @@ export default function SelectDialog({ ...args }) {
                 )}
               </Fragment>
             )}
+            {listMode && !isWaitToClickSearch && (
+              <SelectDialogList
+                loading={loading}
+                records={records}
+                controls={controls}
+                control={control}
+                multiple={multiple}
+                selectedRowIds={selectedRowIds}
+                needHideRowIds={needHideRowIds}
+                noMaskTitle={noMaskTitle}
+                onToggleSelect={handleToggleSelect}
+                onOpenRecord={record =>
+                  openRecordInfo({
+                    appId,
+                    worksheetId,
+                    viewId,
+                    projectId,
+                    recordId: record.rowid,
+                  })
+                }
+                loadMore={loadMore}
+                hasMore={hasMore}
+                loadMoreLoading={loadMoreLoading}
+                recordsLoading={recordsLoading}
+                emptyIcon={
+                  <SearchIcon>
+                    <i className="iconBox" />
+                  </SearchIcon>
+                }
+                emptyText={
+                  <Fragment>
+                    {getEmptyText({ keyWords, error })}
+                    {allowShowIgnoreAllFilters && (
+                      <div
+                        className="ignoreAllFilters ThemeColor3 Font14 mTop10 Hand"
+                        onClick={() => setIgnoreAllFilters(true)}
+                      >
+                        {_l('查看全部记录')}
+                      </div>
+                    )}
+                  </Fragment>
+                }
+              />
+            )}
             {isWaitToClickSearch && (
               <AbnormalTableCon>
                 <div className="abnormalTableConTitle Font16 textTertiary">
@@ -732,58 +847,147 @@ export default function SelectDialog({ ...args }) {
                 </div>
               </AbnormalTableCon>
             )}
-            <Footer>
-              <div className="flex">
-                {multiple && selectedRowIds.length > 0 && (
-                  <SelectedInfo
-                    selectedRowIds={selectedRowIds}
-                    records={unionBy(records.concat(values(recordsCache.current)), 'rowid')}
-                    summaryControls={summaryControls}
+            {(!listMode || multiple || (listMode && !multiple && showDecodeButton && listModeSelectableCount > 0)) && (
+              <Footer>
+                <div className="flex" style={{ alignItems: 'center' }}>
+                  {listMode && !multiple && showDecodeButton && listModeSelectableCount > 0 && (
+                    <div
+                      className="flex"
+                      style={{
+                        width: 'auto',
+                        display: 'flex',
+                        justifyContent: 'flex-start',
+                        alignItems: 'center',
+                        flexWrap: 'nowrap',
+                        minWidth: 0,
+                      }}
+                    >
+                      <DecodeFooterButton
+                        $disabled={decodeDisabled}
+                        onClick={() => {
+                          if (decodeDisabled) return;
+                          handleDecode();
+                        }}
+                      >
+                        {_l('解码')}
+                      </DecodeFooterButton>
+                    </div>
+                  )}
+                  {multiple &&
+                    listMode &&
+                    (() => {
+                      const displayRecords = records.filter(r => !needHideRowIds.includes(r.rowid));
+                      const displayCount = displayRecords.length;
+                      const isAllSelected =
+                        displayCount > 0 && displayRecords.every(r => selectedRowIds.includes(r.rowid));
+
+                      const handleToggleSelectAll = () => {
+                        if (isAllSelected) {
+                          setSelectedRowIds([]);
+                        } else {
+                          setSelectedRowIds(displayRecords.map(r => r.rowid));
+                        }
+                      };
+
+                      // 没有可选数据时，不展示“全选/解码”按钮
+                      if (!displayCount) return null;
+
+                      return (
+                        <div
+                          className="flex"
+                          style={{
+                            width: 'auto',
+                            display: 'flex',
+                            justifyContent: 'flex-start',
+                            alignItems: 'center',
+                            flexWrap: 'nowrap',
+                            minWidth: 0,
+                          }}
+                        >
+                          <ListModeSelectStatus className="Hand">
+                            <Checkbox
+                              noMargin
+                              checked={isAllSelected}
+                              clearselected={!isAllSelected && displayCount > 0 && selectedRowIds.length > 0}
+                              className="mRight6"
+                              onClick={() => {
+                                if (!isAllSelected && displayCount > 0 && selectedRowIds.length > 0) {
+                                  setSelectedRowIds([]);
+                                } else {
+                                  handleToggleSelectAll();
+                                }
+                              }}
+                            />
+                            <span className="mRight6">{_l('全选')}</span>
+                            {!!displayCount && selectedRowIds.length > 0 && (
+                              <span>{_l('（已选择%0/%1条）', selectedRowIds.length, displayCount)}</span>
+                            )}
+                          </ListModeSelectStatus>
+                          {showDecodeButton && displayCount > 0 && (
+                            <DecodeFooterButton
+                              $disabled={decodeDisabled}
+                              onClick={() => {
+                                if (decodeDisabled) return;
+                                handleDecode();
+                              }}
+                            >
+                              {_l('解码')}
+                            </DecodeFooterButton>
+                          )}
+                        </div>
+                      );
+                    })()}
+                  {multiple && selectedRowIds.length > 0 && !listMode && (
+                    <SelectedInfo
+                      selectedRowIds={selectedRowIds}
+                      records={unionBy(records.concat(values(recordsCache.current)), 'rowid')}
+                      summaryControls={summaryControls}
+                    />
+                  )}
+                </div>
+                {!!total && !listMode && (
+                  <Pagination
+                    disabled={loading || recordsLoading}
+                    appendToBody
+                    pageIndex={pageIndex}
+                    pageSize={pageSize}
+                    allCount={total - filter(records, record => needHideRowIds.includes(record.rowid)).length}
+                    changePageSize={newPageSize => {
+                      localStorage.setItem('selectRecordsPageSize', newPageSize);
+                      changePageSize(newPageSize);
+                      changePageIndex(1);
+                    }}
+                    changePageIndex={changePageIndex}
+                    onPrev={() => {
+                      changePageIndex(pageIndex - 1);
+                    }}
+                    onNext={() => {
+                      changePageIndex(pageIndex + 1);
+                    }}
                   />
                 )}
-              </div>
-              {!!total && (
-                <Pagination
-                  disabled={loading || recordsLoading}
-                  appendToBody
-                  pageIndex={pageIndex}
-                  pageSize={pageSize}
-                  allCount={total - filter(records, record => needHideRowIds.includes(record.rowid)).length}
-                  changePageSize={newPageSize => {
-                    localStorage.setItem('selectRecordsPageSize', newPageSize);
-                    changePageSize(newPageSize);
-                    changePageIndex(1);
-                  }}
-                  changePageIndex={changePageIndex}
-                  onPrev={() => {
-                    changePageIndex(pageIndex - 1);
-                  }}
-                  onNext={() => {
-                    changePageIndex(pageIndex + 1);
-                  }}
-                />
-              )}
-              {multiple && (
-                <Fragment>
-                  <Button
-                    type="link"
-                    onClick={() => {
-                      setSelectedRowIds([]);
-                      onClose();
-                    }}
-                  >
-                    {_l('取消')}
-                  </Button>
-                  <Tooltip title={_l('确定')} shortcut={window.isMacOs ? '⌘↵' : 'Ctrl + ↵'}>
-                    <div>
-                      <Button type="primary" disabled={!selectedRowIds.length} onClick={handleConfirm}>
-                        {_l('确定')}
-                      </Button>
-                    </div>
-                  </Tooltip>
-                </Fragment>
-              )}
-            </Footer>
+                {multiple && (
+                  <Fragment>
+                    <Button
+                      type="link"
+                      onClick={() => {
+                        setSelectedRowIds([]);
+                        onClose();
+                      }}
+                    >
+                      {_l('取消')}
+                    </Button>
+                    <Tooltip title={_l('确定')} shortcut={window.isMacOs ? '⌘↵' : 'Ctrl + ↵'}>
+                      <div>
+                        <Button type="primary" disabled={!selectedRowIds.length} onClick={handleConfirm}>
+                          {_l('确定')}
+                        </Button>
+                      </div>
+                    </Tooltip>
+                  </Fragment>
+                )}
+              </Footer>
+            )}
           </Fragment>
         )}
       </Con>

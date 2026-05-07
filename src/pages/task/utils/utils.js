@@ -17,6 +17,7 @@ export const errorMessage = error => {
 // 获取storage
 export const getTaskStorage = key => {
   const storage = window.localStorage.getItem(md.global.Account.accountId + key);
+
   if (storage) {
     try {
       JSON.parse(storage);
@@ -24,6 +25,7 @@ export const getTaskStorage = key => {
       console.log(e);
       return storage;
     }
+
     return JSON.parse(storage);
   }
 };
@@ -37,11 +39,13 @@ export const setTaskStorage = (key, data) => {
 export const getTaskState = taskFilter => {
   const storage = getTaskStorage('TaskCenterState');
   let taskFilterKey = 'MyTask';
+
   if (taskFilter === 8) {
     taskFilterKey = 'Star';
   } else if (taskFilter === 9) {
     taskFilterKey = 'Subordinate';
   }
+
   return !storage || !storage[taskFilterKey] ? config.defaultState : storage[taskFilterKey];
 };
 
@@ -55,6 +59,7 @@ export const getFolderState = () => {
 export const setStateToStorage = (taskFilter, config) => {
   const storage = getTaskStorage('TaskCenterState') || {};
   let key = 'MyTask';
+
   if (!taskFilter) {
     key = 'Folder';
   } else if (taskFilter === 8) {
@@ -333,6 +338,7 @@ export const buildMyTaskIcon = (type, isBatch) => {
   let tip;
   const className = isBatch ? '' : 'Hidden';
   let iconName = ' icon-task-soon';
+
   switch (type) {
     // 待分配
     case 0:
@@ -352,9 +358,11 @@ export const buildMyTaskIcon = (type, isBatch) => {
     default:
       break;
   }
+
   if (isBatch) {
     return '<span class="myTaskIcon myTaskTip" title="' + tip + '"><i class="icon-task-soon"></i></span>';
   }
+
   return '<span class="myTaskIcon ' + className + iconName + ' myTaskTip" title="' + tip + '"></span>';
 };
 
@@ -385,11 +393,14 @@ export const returnCustonValue = item => {
     if (item.value && item.value !== '0') {
       return _.find(item.options, ({ key }) => key === item.value).value;
     }
+
     return '';
   }
+
   // 复选框
   if (item.type === 10) {
     const key = [];
+
     for (let i = 0; i < item.value.length; i++) {
       if (item.value.substr(i, 1) !== '0') {
         key.push('1' + item.value.slice(i + 1).replace(/1/g, 0));
@@ -402,17 +413,21 @@ export const returnCustonValue = item => {
     _.remove(item.value, option => option === '');
     return item.value.join(',');
   }
+
   // 下拉框
   if (item.type === 11) {
     if (item.value !== '0') {
       return _.find(item.options, ({ key }) => key === item.value).value;
     }
+
     return '';
   }
+
   // 附件
   if (item.type === 14) {
     return _.map(JSON.parse(item.value), att => att.originalFilename).join(', ');
   }
+
   // 日期
   if (item.type === 15) {
     return item.value.split(' ')[0];

@@ -37,6 +37,7 @@ export default function ControlPreview({
   const [value, setValue] = useState();
   useEffect(() => {
     const targetControl = formData.find(item => item.controlId === currentControlId);
+
     if (targetControl) {
       setValue(targetControl.value);
     }

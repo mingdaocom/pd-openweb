@@ -11,7 +11,6 @@ rewrite ^/choroplethData/(.*) /staticfiles/choroplethData/$1 break;
 # 纯静态页面
 rewrite (?i)^/qrcode /staticfiles/html/account-login-qrCode.html break;
 rewrite (?i)^/browserupgrade /staticfiles/html/browserupgrade.html break;
-rewrite (?i)^/appLibrary /staticfiles/html/appLibrary.html break;
 rewrite (?i)^/appShortCut /staticfiles/html/appShortCut.html break;
 rewrite (?i)^/filedownloaddenied /staticfiles/html/downloadDenied.html break;
 rewrite (?i)^/404 /staticfiles/html/404.html break;
@@ -42,6 +41,7 @@ rewrite (?i)^/public/form/ /publicworksheet.html break;
 rewrite (?i)^/public/apidoc /worksheetapi.html break;
 rewrite (?i)^/public/workflow /workflowrecordshare.html break;
 rewrite (?i)^/public/chatbot /chatbotshare.html break;
+rewrite (?i)^/public/mingo /mingo-land.html  break;
 rewrite (?i)^/embed/page /custompageembed.html break;
 rewrite (?i)^/embed/chart /chartembed.html break;
 rewrite (?i)^/embed/view /viewembed.html break;
@@ -134,6 +134,9 @@ rewrite (?i)^/approveInvoice /index.html break;
 
 # 个人身份认证
 rewrite (?i)^/identityAuth /identityAuth.html break;
+
+# OAuth 2.0 授权认证（个人身份）落地页
+rewrite (?i)^/oauth/authorize /oauth-consent.html break;
 
 # 购买入口
 rewrite (?i)^/orderpay /orderPay.html break;

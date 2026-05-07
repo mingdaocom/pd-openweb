@@ -47,11 +47,14 @@ const OperateIcon = styled.div`
 
 function levelSafeParse(value) {
   let levelValue = parseFloat(value, 10);
+
   if (!_.isNumber(levelValue) || _.isNaN(levelValue)) {
     levelValue = undefined;
   }
+
   return levelValue;
 }
+
 export default class NumberSlider extends React.Component {
   static propTypes = {
     className: PropTypes.string,
@@ -89,6 +92,7 @@ export default class NumberSlider extends React.Component {
     const { min, max, numinterval } = cell.advancedSetting || {};
     const minNumber = levelSafeParse(min);
     const maxNumber = levelSafeParse(max);
+
     if (
       isediting &&
       (e.key === 'Escape' || (e.key === 'Enter' && String(this.state.value) !== cell.value && this.state.changed))
@@ -101,9 +105,11 @@ export default class NumberSlider extends React.Component {
       const step = levelSafeParse(numinterval);
       const value = levelSafeParse(this.state.value || min);
       const newValue = value + step * (e.key === 'ArrowUp' ? 1 : -1);
+
       if (newValue < minNumber || newValue > maxNumber) {
         return;
       }
+
       if (_.isNumber(newValue) && !_.isNaN(newValue)) {
         this.setState({ value: newValue, changed: true });
       }
@@ -111,12 +117,15 @@ export default class NumberSlider extends React.Component {
       if (!editable) {
         return;
       }
+
       let inputValue = Number(e.key);
       const { prevValueId } = this;
+
       if (!_.isNaN(inputValue)) {
         if (window[prevValueId]) {
           inputValue = Number(window[prevValueId] + '' + inputValue);
         }
+
         if (
           !_.isUndefined(minNumber) &&
           !_.isUndefined(maxNumber) &&
@@ -124,6 +133,7 @@ export default class NumberSlider extends React.Component {
         ) {
           return;
         }
+
         window[prevValueId] = inputValue;
         setTimeout(() => {
           window[prevValueId] = undefined;
@@ -192,6 +202,7 @@ export default class NumberSlider extends React.Component {
         onChange={this.handleChange}
       />
     );
+
     if (isediting) {
       return (
         <Trigger
@@ -213,6 +224,7 @@ export default class NumberSlider extends React.Component {
         </Trigger>
       );
     }
+
     return (
       <Con
         isCard={from === FROM.CARD}

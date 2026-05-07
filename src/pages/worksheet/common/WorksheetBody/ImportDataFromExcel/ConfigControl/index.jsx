@@ -3,7 +3,7 @@ import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import filterXSS from 'xss';
-import { Button, Checkbox, Dialog, Dropdown, Icon, LoadDiv, Menu, ScrollView } from 'ming-ui';
+import { Button, Checkbox, Dialog, Dropdown, Icon, LoadDiv, Menu, MultipleDropdown, ScrollView } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import sheetAjax from 'src/api/worksheet';
 import { ALL_SYS } from 'src/pages/widgetConfig/config/widget';
@@ -13,7 +13,7 @@ import DropDownItem from './DropDownItem';
 import './index.less';
 
 const recordObj = {
-  text: _l('记录ID'),
+  label: _l('记录ID'),
   value: 'rowid',
 };
 
@@ -56,13 +56,13 @@ export default class ConfigControl extends Component {
       tigger: false,
       fieldsList: [],
       repeatConfig: {
-        controlId: '', // 需要去重控件id
+        controlIds: [], // 需要去重控件id
         controlName: '', // 控件名称
         handleEnum: 1, // 处理方式： 1=跳过 2=新增
       },
       relateSource: {},
       edited: true, // 不允许非管理员修改配置
-      showStar: null, // 依据字段无映射时星号
+      showStar: [], // 依据字段无映射时星号
       errorSkip: [], // 跳过错误数据
       showErrorSkip: false,
       // 用户匹配字段
@@ -148,7 +148,7 @@ export default class ConfigControl extends Component {
       const title = controls.find(item => item.attribute == 1);
 
       // 支持把记录ID作为映射
-      controls.unshift(recordObj);
+      controls.unshift({ ...recordObj, text: recordObj.label });
 
       // 把标题作为关联字段默认映射
       for (const control of worksheetControls.filter(item => item.dataSource == worksheetId)) {
@@ -162,6 +162,7 @@ export default class ConfigControl extends Component {
           const arr = (mapping.ColumnName || '').split('-');
           const suffix = arr[arr.length - 1].toLowerCase();
           const item = controls.find(item => item.text.toLowerCase() == suffix);
+
           if (item) {
             control.sourceConfig = item.value;
             mapping.sourceConfig.controlId = item.value;
@@ -225,6 +226,7 @@ export default class ConfigControl extends Component {
         like = [],
         relations = [];
       let matchId = _.includes([26, 27], type) ? 'name' : '';
+
       for (const cell of selectRow.cells) {
         const { value } = cell;
 
@@ -250,6 +252,7 @@ export default class ConfigControl extends Component {
         else if (value.trim() == controlName.trim()) exact.push(cell);
         else if (value.indexOf(controlName.trim()) > -1) like.push(cell);
       }
+
       const sameColumn = relations.length ? relations : exact.length ? exact : like;
 
       // 成员、部门默认匹配字段
@@ -298,14 +301,14 @@ export default class ConfigControl extends Component {
       )
       .map(item => {
         return {
-          text: item.controlName,
+          label: item.controlName,
           value: item.controlId,
         };
       });
 
     // 导入的表格中是否包含记录id列
-    this.hasRecordId = _.find(selectRow.cells, rowItem => rowItem.value === recordObj.text) || {};
-    fieldsList.push(recordObj);
+    this.hasRecordId = _.find(selectRow.cells, rowItem => rowItem.value === recordObj.label) || {};
+    fieldsList.unshift(recordObj);
 
     const requestData = {
       worksheetId,
@@ -330,16 +333,16 @@ export default class ConfigControl extends Component {
     if (configData.resultCode === 1) {
       let { tigger, repeatConfig, configs } = configData.data;
       repeatConfig = repeatConfig ? repeatConfig : {};
-      const currentRepeatItem = _.find(data.template.controls, item => item.controlId === repeatConfig.controlId) || {};
 
       configObjState = Object.assign({}, configObjState, {
         tigger,
-        repeatRecord: !isFromRelateRecord && repeatConfig.controlId ? true : false,
-        showStar: repeatConfig.controlId || null,
+        repeatRecord: !isFromRelateRecord && repeatConfig.controlIds?.length ? true : false,
+        showStar: repeatConfig.controlIds || [],
       });
 
       controlMapping.forEach(item => {
         const editItem = _.find(configs, configItem => configItem.controlId === item.ControlId) || {};
+
         if (editItem.controlId) {
           // 关联表字段
           item.sourceConfig = editItem.sourceConfig;
@@ -353,6 +356,7 @@ export default class ConfigControl extends Component {
           // 成员、部门字段默认匹配映射字段
           const { type, advancedSetting } = item;
           const isExternal = type === 26 && advancedSetting && advancedSetting.usertype == '2';
+
           if (_.includes([26, 27], type) && !isExternal && editItem.sourceConfig.controlId) {
             item.matchId = editItem.sourceConfig.controlId;
             if (control && _.includes([26, 27], control.type)) control.matchId = item.matchId;
@@ -361,8 +365,11 @@ export default class ConfigControl extends Component {
       });
 
       configObjState.repeatConfig = {
-        controlId: repeatConfig.controlId,
-        controlName: _.get(currentRepeatItem, 'controlName'),
+        controlIds: repeatConfig.controlIds || [],
+        controlName: data.template.controls
+          .filter(item => _.includes(repeatConfig.controlIds, item.controlId))
+          .map(item => item.controlName)
+          .join('、'),
         handleEnum: repeatConfig.handleEnum,
       };
     }
@@ -372,6 +379,7 @@ export default class ConfigControl extends Component {
       if (a.row === b.row) {
         return a.col - b.col;
       }
+
       return a.row - b.row;
     });
 
@@ -413,9 +421,11 @@ export default class ConfigControl extends Component {
     const { selectRow, importSheetInfo } = this.props;
     const selectRowNumber = selectRow.rowNumber;
     const sheetRows = importSheetInfo.rows;
+
     const getPreviewContent = (row, columnNumber) => {
       if (!row) return '';
       const previewContent = _.find(row.cells, cellItem => cellItem.columnNumber === columnNumber);
+
       if (previewContent && previewContent.value) {
         // 当前行的值
         return previewContent.value;
@@ -431,6 +441,7 @@ export default class ConfigControl extends Component {
 
     // 表格列选择下拉框的值
     const dropDownData = [{ text: _l('请选择'), value: '', previewContent: '' }];
+
     for (const item of selectRow.cells || []) {
       const nextRow = _.find(sheetRows, rowItem => rowItem.rowNumber === selectRowNumber + 1);
       dropDownData.push({
@@ -439,6 +450,7 @@ export default class ConfigControl extends Component {
         previewContent: nextRow ? getPreviewContent(nextRow, item.columnNumber) : '',
       });
     }
+
     return dropDownData;
   }
 
@@ -455,6 +467,7 @@ export default class ConfigControl extends Component {
       let repeatModeContent;
       let repeatContent;
       let requiredFiledNoSetArray = [];
+      const repeatIds = repeatConfig.controlIds.filter(o => o !== recordObj.value);
 
       worksheetControls
         .filter(o => !this.notSupportFiled(o) && o.advancedSetting.required === '1')
@@ -492,43 +505,29 @@ export default class ConfigControl extends Component {
 
       // 处理重复记录
       if (repeatRecord) {
-        if (!repeatConfig.controlId) throw _l('请选择重复记录的依据字段');
+        if (!repeatConfig.controlIds.length) throw _l('请选择重复记录的依据字段');
         // 依据字段是否删除
-        if (
-          repeatConfig.controlId !== recordObj.value &&
-          _.findIndex(worksheetControls, item => item.controlId === repeatConfig.controlId) === -1
-        ) {
+        if (repeatIds.length !== worksheetControls.filter(o => _.includes(repeatIds, o.controlId)).length) {
           throw !isCharge && edited
             ? _l('导入配置存在错误，依据字段异常，请联系管理员处理')
             : _l('请设置重复记录的依据字段');
         }
 
-        const currentRepeatItem = _.find(controlMapping, item => item.ControlId === repeatConfig.controlId) || {};
-        if (repeatConfig.controlId !== recordObj.value && !_.get(currentRepeatItem, 'ColumnNum')) {
+        const currentRepeatItems = controlMapping.filter(item => _.includes(repeatIds, item.ControlId));
+
+        if (repeatIds.length !== currentRepeatItems.filter(item => item.ColumnNum).length) {
           throw _l('请设置“%0”字段的映射关系', repeatConfig.controlName);
         }
 
         if (
-          repeatConfig.controlId !== recordObj.value &&
-          currentRepeatItem.type === 26 &&
-          currentRepeatItem.matchId !== 'userId'
+          currentRepeatItems.filter(o => o.type === 26).length !==
+          currentRepeatItems.filter(o => o.type === 26 && o.matchId === 'userId').length
         ) {
-          throw _l('依据字段“%0“的匹配字段仅限人员ID', repeatConfig.controlName);
+          throw _l('成员字段用于识别重复记录时，仅支持“人员ID”匹配，请修改匹配方式');
         }
 
-        columnContent = `<span class="textPrimary Bold">【 ${filterXSS(
-          repeatConfig.controlId === recordObj.value
-            ? recordObj.text
-            : _.get(
-                _.find(controlMappingFilter, item => item.ControlId === repeatConfig.controlId) || {},
-                'ColumnName',
-              ),
-        )} 】</span>`;
-
-        fieldContent = `<span class="textPrimary Bold">【 ${filterXSS(
-          repeatConfig.controlId === recordObj.value ? recordObj.value : repeatConfig.controlName,
-        )} 】</span>`;
-
+        columnContent = `<span class="textPrimary Bold">【 ${this.renderColumnContent(controlMappingFilter)} 】</span>`;
+        fieldContent = `<span class="textPrimary Bold">【 ${this.renderFieldContent()} 】</span>`;
         repeatModeContent = `<span class="textPrimary Bold">${handleEnumText[repeatConfig.handleEnum]}</span>`;
 
         repeatContent = `<span>${
@@ -572,6 +571,36 @@ export default class ConfigControl extends Component {
     })().catch(message => alert(message, 3));
   };
 
+  renderColumnContent(controlMappingFilter) {
+    const { repeatConfig } = this.state;
+
+    return filterXSS(
+      [_.includes(repeatConfig.controlIds, recordObj.value) ? recordObj.label : '']
+        .concat(
+          controlMappingFilter
+            .filter(item => _.includes(repeatConfig.controlIds, item.ControlId))
+            .map(item => item.ColumnName),
+        )
+        .filter(o => o)
+        .join('、'),
+    );
+  }
+
+  renderFieldContent() {
+    const { repeatConfig, worksheetControls } = this.state;
+
+    return filterXSS(
+      [_.includes(repeatConfig.controlIds, recordObj.value) ? recordObj.value : '']
+        .concat(
+          worksheetControls
+            .filter(item => _.includes(repeatConfig.controlIds, item.controlId))
+            .map(item => item.controlName),
+        )
+        .filter(o => o)
+        .join('、'),
+    );
+  }
+
   onImport = controlMapping => {
     const {
       filePath,
@@ -593,14 +622,15 @@ export default class ConfigControl extends Component {
         item.matchId = item.matchId === 'name' ? '' : item.matchId;
         item.sourceConfig.controlId = '';
       }
+
       return { ...item, ColumnNum: item.ColumnNum - 1 };
     });
 
     //记录id
-    if (repeatConfig.controlId === recordObj.value) {
+    if (_.includes(repeatConfig.controlIds, recordObj.value)) {
       cellConfigs.push({
         ColumnNum: this.hasRecordId.columnNumber,
-        ColumnName: recordObj.text,
+        ColumnName: recordObj.label,
         ControlId: recordObj.value,
       });
     }
@@ -754,7 +784,7 @@ export default class ConfigControl extends Component {
                 disabled={!isCharge && edited}
                 onClick={checked => {
                   if (fieldsList.length) {
-                    this.setState({ repeatRecord: !checked, showStar: !checked ? repeatConfig.controlId : null });
+                    this.setState({ repeatRecord: !checked, showStar: !checked ? repeatConfig.controlIds : [] });
                   } else {
                     alert(_l('不存在有效的依据字段'), 2);
                   }
@@ -775,38 +805,36 @@ export default class ConfigControl extends Component {
                   }
                 />
                 <div className="mLeft8 textPrimary">{_l('依据字段')}</div>
-                <Dropdown
+
+                <MultipleDropdown
                   className="mLeft8 repeatConfigDropdown"
-                  data={fieldsList}
+                  value={repeatConfig.controlIds}
+                  options={fieldsList}
                   disabled={!isCharge && edited}
-                  placeholder={_l('请选择')}
-                  value={repeatConfig.controlId}
-                  renderTitle={
-                    !repeatConfig.controlId
-                      ? () => <span className="textTertiary">{_l('请选择')}</span>
-                      : repeatConfig.controlId && !_.find(fieldsList, o => o.value === repeatConfig.controlId)
-                        ? () => <span className="repeatConfigError">{_l('无权限或已删除')}</span>
-                        : () => <span>{_.find(fieldsList, o => o.value === repeatConfig.controlId).text}</span>
-                  }
-                  border
-                  onChange={controlId => {
+                  multipleSelect
+                  label={this.renderRepeatField()}
+                  multipleLevel={false}
+                  multipleHideDropdownNav
+                  maxSelectNum={5}
+                  filter
+                  onChange={(e, controlIds) => {
                     this.setState({
                       repeatConfig: Object.assign({}, repeatConfig, {
-                        controlId,
-                        controlName: fieldsList.find(item => item.value === controlId).text,
+                        controlIds,
+                        controlName: fieldsList
+                          .filter(item => _.includes(controlIds, item.value))
+                          .map(o => o.label)
+                          .join('、'),
                       }),
-                      showStar: controlId,
+                      showStar: controlIds,
                     });
                   }}
                 />
+
                 <Tooltip
-                  title={
-                    <span>
-                      {_l(
-                        '选择关联表的一个字段作为映射的匹配字段，支持的字段类型包括：文本框、电话号码、邮件地址、证件、自动编号、记录ID、成员单选',
-                      )}
-                    </span>
-                  }
+                  title={_l(
+                    '支持的字段类型：文本、电话、邮箱、证件、自动编号、记录ID、成员(单选)。选择多个字段时需同时匹配("且"关系)，最多支持5个字段',
+                  )}
                 >
                   <i className="icon-help textTertiary Font16 mLeft8 LineHeight36" />
                 </Tooltip>
@@ -893,7 +921,7 @@ export default class ConfigControl extends Component {
             )}
             {!tigger && !isCharge && edited ? null : (
               <Checkbox
-                className="mLeft20"
+                className={!skipSize && !isCharge && edited ? '' : 'mLeft20'}
                 text={_l('触发工作流')}
                 disabled={!isCharge && edited}
                 checked={tigger}
@@ -950,7 +978,7 @@ export default class ConfigControl extends Component {
           <Icon className="Font16 textTertiary" icon={getIconByType(controlItem.type)} />
           <div className="mLeft10 mRight10 flex ellipsis flexRow alignItemsCenter">
             {controlItem.controlName}
-            {(showStar === controlItem.controlId || controlItem.advancedSetting.required === '1') && (
+            {(_.includes(showStar, controlItem.controlId) || controlItem.advancedSetting.required === '1') && (
               <span className="mLeft3 star">*</span>
             )}
           </div>
@@ -1005,7 +1033,7 @@ export default class ConfigControl extends Component {
           <Icon className="Font16 textTertiary" icon={getIconByType(controlItem.type)} />
           <div className="mLeft10 mRight10 flex ellipsis flexRow alignItemsCenter">
             {controlItem.controlName}
-            {(showStar === controlItem.controlId || controlItem.advancedSetting.required === '1') && (
+            {(_.includes(showStar, controlItem.controlId) || controlItem.advancedSetting.required === '1') && (
               <span className="mLeft3 star">*</span>
             )}
           </div>
@@ -1062,6 +1090,19 @@ export default class ConfigControl extends Component {
     const notSupport = !_.includes(allowConfigControlTypes, o.type) || isRealtionList;
 
     return notSupport;
+  }
+
+  /**
+   * 渲染依据字段
+   */
+  renderRepeatField() {
+    const { repeatConfig, fieldsList } = this.state;
+
+    if (!repeatConfig.controlIds?.length) return _l('请选择');
+
+    return repeatConfig.controlIds
+      .map(controlId => _.find(fieldsList, o => o.value === controlId)?.label || _l('无权限或已删除'))
+      .join('、');
   }
 
   render() {
@@ -1143,6 +1184,7 @@ export default class ConfigControl extends Component {
 
                                 // 匹配人员、部门字段
                                 const isExternal = type == 26 && advancedSetting && advancedSetting.usertype == '2';
+
                                 if (_.includes([26, 27], type) && !isExternal && !isHiddenConfig) {
                                   const userControl = userControls
                                     .concat(departmentControls)
@@ -1180,6 +1222,7 @@ export default class ConfigControl extends Component {
 
                                   control.sourceConfig.controlId = sourceControlId;
                                 }
+
                                 this.setState({ controlMapping: newControlMapping });
                               }}
                             />
@@ -1209,7 +1252,7 @@ export default class ConfigControl extends Component {
                               <Icon className="Font16 textTertiary" icon={getIconByType(controlItem.type)} />
                               <span className="mLeft10 ellipsis flex flexRow alignItemsCenter">
                                 {controlItem.controlName}
-                                {(showStar === controlItem.controlId ||
+                                {(_.includes(showStar, controlItem.controlId) ||
                                   (!notSupport && controlItem.advancedSetting.required === '1')) && (
                                   <span className="mLeft3 star">*</span>
                                 )}

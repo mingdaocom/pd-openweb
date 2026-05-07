@@ -22,8 +22,17 @@ export default class TimeBlock extends Component {
     super(props);
   }
   renderRow(row, groupKey, index) {
+    const { buttonsCheckStatus } = this.props;
     const style = { top: index * lineHeight + (lineHeight / 2 - rowBlockHeight / 2), left: row.left, width: row.width };
-    return <RecordWrapper key={row.rowid} groupKey={groupKey} row={row} style={style} />;
+    return (
+      <RecordWrapper
+        key={row.rowid}
+        groupKey={groupKey}
+        row={row}
+        style={style}
+        buttonsCheckStatus={buttonsCheckStatus}
+      />
+    );
   }
   renderGroupingItem(item) {
     const { gunterView, updateGroupSubVisible } = this.props;

@@ -61,6 +61,7 @@ const Wrap = styled.div`
 `;
 
 let ajaxFn = null;
+
 function LoginInfo(props) {
   const { appId } = props;
   const [info, setState] = useSetState({
@@ -126,10 +127,12 @@ function LoginInfo(props) {
       },
     },
   ];
+
   const getList = (dataInfo = {}) => {
     if (loading) {
       return;
     }
+
     setloading(true);
     ajaxFn && ajaxFn.abort();
     let data = { ...info, ...dataInfo };
@@ -150,6 +153,7 @@ function LoginInfo(props) {
       setState({ ...dataInfo });
     });
   };
+
   useEffect(() => {
     getList();
   }, []);

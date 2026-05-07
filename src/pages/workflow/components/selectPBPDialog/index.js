@@ -3,7 +3,7 @@ import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Dialog, FunctionWrap, LoadDiv, ScrollView } from 'ming-ui';
+import { Dialog, FunctionWrap, LoadDiv, ScrollView, SvgIcon } from 'ming-ui';
 import process from '../../api/process';
 import processVersion from '../../api/processVersion';
 import ajaxRequest from 'src/api/appManagement';
@@ -34,9 +34,10 @@ const NavBox = styled.div`
     padding: 0 12px;
     height: 36px;
     line-height: 36px;
-    display: block;
     cursor: pointer;
     font-size: 13px;
+    display: flex;
+    align-items: center;
     &:hover {
       background-color: var(--color-background-hover);
     }
@@ -56,6 +57,15 @@ const NavBox = styled.div`
     cursor: pointer;
     margin: 12px 24px 0;
     text-align: center;
+  }
+  .appIcon {
+    width: 24px;
+    height: 24px;
+    border-radius: 5px;
+    overflow: hidden;
+    display: inline-flex;
+    justify-content: center;
+    margin-right: 10px;
   }
 `;
 
@@ -83,8 +93,8 @@ const ContentBox = styled.div`
     color: var(--color-text-tertiary);
   }
   .listItem {
-    margin: 12px 13px;
-    padding: 10px 15px;
+    margin: 0 10px;
+    padding: 8px 10px;
     cursor: pointer;
     &:hover {
       background-color: var(--color-background-hover);
@@ -93,8 +103,8 @@ const ContentBox = styled.div`
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 50px;
-      height: 50px;
+      width: 36px;
+      height: 36px;
       border-radius: 4px;
       background-color: #4c7d9e;
       margin-right: 15px;
@@ -219,16 +229,22 @@ class SelectPBPDialog extends Component {
               <div className="Font14 bold mBottom15 pLeft24">{_l('选择封装业务流程')}</div>
               <ScrollView className="flex">
                 <ul>
-                  {appList.map((o, index) => (
+                  {(!(list || []).length && keyword.trim()
+                    ? appList.filter(o => o.appName.toLowerCase().includes(keyword.toLowerCase()))
+                    : appList
+                  ).map((o, index) => (
                     <li
                       key={index}
-                      className={cx('ellipsis', { active: o.appId === selectAppId })}
+                      className={cx({ active: o.appId === selectAppId })}
                       onClick={() => {
-                        this.setState({ selectAppId: o.appId, list: null });
+                        this.setState({ selectAppId: o.appId, list: null, keyword: '' });
                         this.getPBCList(o.appId);
                       }}
                     >
-                      {o.appName + (o.appId === appId ? `(${_l('本应用')})` : '')}
+                      <div className="appIcon" style={{ background: o.iconColor }}>
+                        <SvgIcon url={o.iconUrl} fill="#fff" size={16} className="mTop4" />
+                      </div>
+                      <div className="ellipsis flex">{o.appName + (o.appId === appId ? `(${_l('本应用')})` : '')}</div>
                     </li>
                   ))}
                 </ul>
@@ -255,7 +271,7 @@ class SelectPBPDialog extends Component {
               {list === null && <LoadDiv className="mTop15" />}
               {list && !list.length && <div className="emptyContent">{_l('暂无数据')}</div>}
               {list && !!list.length && (
-                <ScrollView className="flex">
+                <ScrollView className="flex pTop6 pBottom6">
                   {list.map((o, index) => (
                     <div
                       className="listItem flexRow alignItemsCenter"
@@ -271,7 +287,7 @@ class SelectPBPDialog extends Component {
                       }}
                     >
                       <div className="listItemIcon">
-                        <i className="Font28 icon-pbc" />
+                        <i className="Font24 icon-pbc" />
                       </div>
                       <div className="listItemContent flexColumn flex">
                         <div className="Font14 bold ellipsis">{o.title}</div>

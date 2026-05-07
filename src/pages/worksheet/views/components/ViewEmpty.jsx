@@ -57,6 +57,7 @@ export default function ViewEmpty({ filters = {}, viewFilter = [] }) {
   const status = getStatus();
   const { icon, text } = STATUS_INFO[status];
   const isMobile = browserIsMobile();
+
   if (isMobile) {
     return (
       <MobileViewEmpty>

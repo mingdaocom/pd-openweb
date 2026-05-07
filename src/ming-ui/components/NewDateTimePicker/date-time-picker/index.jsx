@@ -103,6 +103,7 @@ class DateTimePicker extends Component {
 
         timeData.value = timeData.min;
       }
+
       // check max
       if (
         timeData.max &&
@@ -153,6 +154,7 @@ class DateTimePicker extends Component {
   buttonOnClick = (event, action) => {
     if (this.props.onChange) {
       const value = action === 'ok' ? this.state.value : null;
+
       if (value) {
         value.setMilliseconds(0);
         if (this.props.timeType === 'minute') {
@@ -163,11 +165,13 @@ class DateTimePicker extends Component {
           }
         }
       }
+
       this.props.onChange(event, value);
 
       if (action === 'ok' && this.props.onOk) {
         this.props.onOk(moment(value));
       }
+
       if (action === 'clear' && this.props.onClear) {
         this.props.onClear();
       }
@@ -178,6 +182,7 @@ class DateTimePicker extends Component {
     const dateType = this.props.type === 'datetime' ? 'date' : this.props.type;
 
     let timePicker = null;
+
     if (this.props.type === 'datetime') {
       timePicker = (
         <Time
@@ -193,6 +198,7 @@ class DateTimePicker extends Component {
     }
 
     let clearBtn = null;
+
     if (this.props.allowClear) {
       clearBtn = (
         <Button
@@ -202,7 +208,7 @@ class DateTimePicker extends Component {
             this.buttonOnClick(event, 'clear');
           }}
         >
-          清空
+          {_l('清空')}
         </Button>
       );
     }
@@ -231,7 +237,7 @@ class DateTimePicker extends Component {
               this.buttonOnClick(event, 'ok');
             }}
           >
-            确定
+            {_l('确定')}
           </Button>
         </div>
       </div>

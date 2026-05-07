@@ -113,6 +113,7 @@ export default class extends React.PureComponent {
     const showDecrypt = fields.filter(o => o.dataMask === '1').length > 0;
     const isDecryptField = dataMask === '1';
     const ids = getSectionIds(fields);
+
     if (closeList.includes(sectionId)) {
       return '';
     }

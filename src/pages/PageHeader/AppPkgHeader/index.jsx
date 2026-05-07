@@ -23,7 +23,9 @@ export default class AppPkgHeader extends Component {
     ) {
       this.compatibleWorksheetRoute();
     }
+
     const { appId, groupId, worksheetId } = getIds(props);
+
     if (appId && !worksheetId && !groupId) {
       this.completePara({ appId, groupId });
     }
@@ -31,12 +33,15 @@ export default class AppPkgHeader extends Component {
 
   componentWillReceiveProps(nextProps) {
     const { appId, groupId, worksheetId } = getIds(nextProps);
+
     if (appId === _.get(window, 'appInfo.id') && _.get(window, 'appInfo.currentPcNaviStyle') === 2) {
       return;
     }
+
     if (appId !== getIds(this.props).appId || groupId !== getIds(this.props).groupId) {
       this.isRequest = false;
     }
+
     if (appId && !worksheetId && !groupId) {
       this.completePara({ appId, groupId });
     }

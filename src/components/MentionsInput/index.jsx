@@ -35,6 +35,7 @@ const highlightTerm = (value, term) => {
   if (!term && !term?.length) {
     return value;
   }
+
   return value.replace(new RegExp('(?![^&;]+;)(?!<[^<>]*)(' + term + ')(?![^<>]*>)(?![^&;]+;)', 'gi'), '<b>$1</b>');
 };
 
@@ -83,29 +84,35 @@ const MentionsInput = props => {
       if (!_.isFunction(callback)) {
         return;
       }
+
       var value = mentionsCollection.length ? input.messageText : input.value;
       callback(value);
     };
+
     input.setValue = (text, messageText, mentionsCollectionArg) => {
       mentionsCollection = mentionsCollectionArg;
       input.value = text;
       input.messageText = messageText;
       updateValues();
     };
+
     input.reset = () => {
       input.value = '';
       mentionsCollection = [];
       updateValues();
     };
+
     input.clearStore = () => {
       var key = 'mentionsInputCache_' + md.global.Account.accountId + '_' + (props.cacheKey || '');
       localStorage.removeItem(key);
     };
+
     input.store = () => {
       if (!input.value) {
         input.clearStore();
         return;
       }
+
       var key = 'mentionsInputCache_' + md.global.Account.accountId + '_' + (props.cacheKey || '');
       var data = {
         text: input.value,
@@ -114,6 +121,7 @@ const MentionsInput = props => {
       };
       safeLocalStorageSetItem(key, JSON.stringify(data));
     };
+
     input.restore = callback => {
       var key = 'mentionsInputCache_' + md.global.Account.accountId + '_' + (props.cacheKey || '');
       var json = localStorage.getItem(key);
@@ -124,10 +132,12 @@ const MentionsInput = props => {
         console.log(err);
         data = null;
       }
+
       if (!data || !data.text) {
         mentionsCollection = [];
         return callback(false);
       }
+
       mentionsCollection = data.mentionsCollection;
       input.value = data.text;
       input.messageText = data.messageText;
@@ -135,16 +145,20 @@ const MentionsInput = props => {
       updateValues();
       return callback(true, data);
     };
+
     input.getMentions = callback => {
       callback && callback(mentionsCollection);
     };
+
     input.addMention = user => {
       currentType = '@';
       handleAddMention(user);
     };
+
     input.destroy = () => {
       props.onClose();
     };
+
     input.updateValue = handleValueChange;
     initCallback && initCallback();
     return () => {
@@ -245,6 +259,7 @@ const MentionsInput = props => {
 
   const handleScroll = event => {
     const { scrollTop, scrollHeight, clientHeight } = event.target;
+
     if (sourceType === SOURCE_TYPE.CHAT && scrollTop + clientHeight >= scrollHeight && !loading && isMore) {
       getUsers(currentDataQuery);
     }
@@ -262,6 +277,7 @@ const MentionsInput = props => {
         // atAll 特殊处理 转化为 [all]atAll[all] 或者 user:isCommentAtAll
         textSyntax = mentionAllSyntax(mention);
       }
+
       syntaxMessage = syntaxMessage.replace('@' + mention.fullname, textSyntax);
       mentionText = mentionText.replace(textSyntax, textHighlight);
     });
@@ -280,12 +296,19 @@ const MentionsInput = props => {
       clearTimeout(timerId);
     }
 
-    if ([38, 40, 16].indexOf(e.keyCode) > -1) {
+    const target = e?.target || input;
+    const keyCode = e?.keyCode;
+
+    if (!target) {
       return;
     }
 
-    let startPos = getCaretPosition(e.target);
-    let currentMessage = e.target.value;
+    if ([38, 40, 16].indexOf(keyCode) > -1) {
+      return;
+    }
+
+    let startPos = getCaretPosition(target);
+    let currentMessage = target.value;
     let startChar = currentMessage.substring(startPos - 1, startPos);
 
     if (atLetterArr.indexOf(startChar) > -1 || (showCategory && categoryLetterArr.indexOf(startChar) > -1)) {
@@ -302,7 +325,7 @@ const MentionsInput = props => {
       var message = currentMessage.substring(atPos, startPos);
       if (
         (message.indexOf(' ') == -1 && message.indexOf('\n') == -1) ||
-        (window.isSafari && atLetterArr.includes(message))
+        (window.isSafari && atLetterArr.includes(message.charAt(message.length - 1)))
       ) {
         // 没有空格 没有换行，重新激活搜索
         isAt = true;
@@ -320,8 +343,8 @@ const MentionsInput = props => {
       return;
     }
 
-    if (isAt && atPos <= getCaretPosition(e.target)) {
-      currentDataQuery = currentMessage.substring(atPos, getCaretPosition(e.target));
+    if (isAt && atPos <= getCaretPosition(target)) {
+      currentDataQuery = currentMessage.substring(atPos, getCaretPosition(target));
       _.debounce(() => doSearch(currentDataQuery), 200)();
     } else {
       setTriggerPopupVisible(false);
@@ -338,6 +361,7 @@ const MentionsInput = props => {
         handleBlur();
         document.getElementById(props.submitBtn).click();
       }
+
       return;
     }
 
@@ -356,6 +380,7 @@ const MentionsInput = props => {
       setActiveId(id);
       setTimeout(() => adjustViewport('up'), 0);
     }
+
     if (which === 40) {
       e.stopPropagation();
       e.preventDefault();
@@ -366,6 +391,7 @@ const MentionsInput = props => {
       setActiveId(id);
       setTimeout(() => adjustViewport('down'), 0);
     }
+
     if (which === 13) {
       e.stopPropagation();
       e.preventDefault();
@@ -373,6 +399,7 @@ const MentionsInput = props => {
         handleSelectUser();
         return;
       }
+
       res[index] && handleAddMention(res[index]);
     }
   };
@@ -380,6 +407,7 @@ const MentionsInput = props => {
   const adjustViewport = direction => {
     const wrapEl = document.querySelector('.mentionsAutocompleteList');
     const activeEl = wrapEl ? wrapEl.querySelector('.mentionItem.active') : null;
+
     if (activeEl) {
       if (
         direction === 'up' &&
@@ -387,6 +415,7 @@ const MentionsInput = props => {
       ) {
         wrapEl.scrollTop = wrapEl.scrollTop - activeEl.clientHeight;
       }
+
       if (direction === 'down' && activeEl.offsetTop + activeEl.clientHeight >= wrapEl.clientHeight) {
         wrapEl.scrollTop = wrapEl.scrollTop + activeEl.clientHeight;
       }
@@ -483,6 +512,7 @@ const MentionsInput = props => {
     }
 
     let data = [];
+
     if (!query) {
       var additionalTerm = null;
       if (isAtAll) {
@@ -492,15 +522,18 @@ const MentionsInput = props => {
           fullname: AT_ALL_TEXT[sourceType],
         };
       }
+
       if (isAtAll && sourceType === SOURCE_TYPE.POST) {
         additionalTerm = {
           id: 'isCommentAtAll',
           fullname: AT_ALL_TEXT[sourceType],
         };
       }
+
       if (!isAtAll && !categorys.length && isAddressBookSelect) {
         data = [addressBookSelectConfig];
       }
+
       if (additionalTerm) {
         data = [
           {
@@ -515,6 +548,7 @@ const MentionsInput = props => {
           data = data.concat(addressBookSelectConfig);
         }
       }
+
       let responseInitData = { accounts: data };
       props.forReacordDiscussion && populateDropdown(query, responseInitData);
     }
@@ -542,6 +576,7 @@ const MentionsInput = props => {
 
     promiseObj.then(function getUsersByKeywordsCb(responseData) {
       const originAccounts = _.cloneDeep(responseData.accounts);
+
       if (!query) {
         if (recordAtdatas.length > 0 && props.forReacordDiscussion) {
           let ids = recordAtdatas.map(o => o.accountId);
@@ -571,6 +606,7 @@ const MentionsInput = props => {
           'accountId',
         );
       }
+
       let atDataIndex = null;
       let userIndex = null;
 
@@ -579,10 +615,12 @@ const MentionsInput = props => {
           atDataIndex = index;
           item.atDataIndex = index;
         }
+
         if (!item.isAtData && !item.isAll && !item.isAddressBookSelect && userIndex == null && !query) {
           userIndex = index;
           item.userIndex = index;
         }
+
         return {
           ...item,
           type: 'user',
@@ -621,12 +659,15 @@ const MentionsInput = props => {
   const getMaxHeight = () => {
     const max = defaultMaxHeight || document.body.clientHeight / 2;
     const isBody = getPopupContainer ? getPopupContainer().tagName === 'BODY' : true;
+
     if (isBody) {
       const top = rect.top;
       const bottom = document.body.clientHeight - (rect.top + rect.height);
+
       if (top < max && bottom > max) {
         return max;
       }
+
       return top > max ? max : top - 10;
     } else {
       const value = getPopupMaxHeight ? getPopupMaxHeight() : max;
@@ -740,7 +781,13 @@ const MentionsInput = props => {
             </Fragment>
           )}
           {groups.map(item => (
-            <div className="mentionItem" onClick={() => handleAddMention(item)} key={item.groupId}>
+            <div
+              className={cx('mentionItem', {
+                active: item.groupId === activeId,
+              })}
+              onClick={() => handleAddMention(item)}
+              key={item.groupId}
+            >
               <img className="avatar" src={item.avatar} />
               <div className="flex mLeft10 overflowHidden">
                 <div

@@ -33,18 +33,22 @@ export const getDepartmentById = (node, filter, matcher = defaultMatcher) => {
     if (matcher(filter, node)) {
       return (result = node);
     }
+
     return runner(null, node[childCollectionName]) || _.reduce(node, runner, result);
   };
+
   return runner(null, node);
 };
 
 export const convertDepartmentToDict = tree => {
   let data = {};
+
   const runner = node => {
     if (!node) return;
     if (_.isArray(node)) {
       _.each(node, runner);
     }
+
     // node validate
     if (node[keyName] !== undefined) {
       data = {
@@ -54,6 +58,7 @@ export const convertDepartmentToDict = tree => {
       return runner(node[childCollectionName]);
     }
   };
+
   runner(tree);
   return data;
 };
@@ -61,15 +66,18 @@ export const convertDepartmentToDict = tree => {
 export const getParentDepartments = (node, filter, matcher = defaultMatcher) => {
   const arr = [];
   const tree = filterTree(node, filter, matcher);
+
   const runner = node => {
     let lastNode = arr[arr.length - 1] || {};
     if (!node || lastNode[keyName] === filter) return;
     if (_.isArray(node)) {
       return _.each(node, runner);
     }
+
     arr.push(node);
     return runner(node[childCollectionName]);
   };
+
   runner(tree);
   return arr;
 };
@@ -84,13 +92,16 @@ export const formatSearchDeptData = (data, keywords) => {
     const nameArr = [];
     let curName = htmlEncodeReg(dept.name);
     let _curName = curName;
+
     if (parentName) {
       nameArr.push('<span title="' + parentName + '">' + parentName + '</span>');
     }
+
     if (keywords) {
       const regExp = new RegExp(htmlEncodeReg(keywords), 'g');
       curName = curName.replace(regExp, '<span class="ThemeColor3">' + keywords + '</span>');
     }
+
     nameArr.push('<span title="' + _curName + '">' + curName + '</span>');
     result.push(
       Object.assign({}, dept, {
@@ -116,6 +127,7 @@ export const formatSearchDeptData = (data, keywords) => {
  */
 export const getFlatDepartments = (departmentArr = []) => {
   let departments = {};
+
   const func = data => {
     departments = _.merge(departments, _.keyBy(data, 'departmentId'));
     data.forEach(item => {
@@ -136,6 +148,7 @@ export const getParentsId = (data, id) => {
     if (data[i].departmentId == id) {
       return [data[i].departmentId];
     }
+
     if (data[i].subDepartments) {
       var ro = getParentsId(data[i].subDepartments, id);
       if (ro !== undefined) {
@@ -155,6 +168,7 @@ export const filterDeleteTreeData = (treeData = [], departmentId) => {
   if (_.isEmpty(treeData) || !departmentId) {
     return [];
   }
+
   const clonedData = _.cloneDeep(treeData);
 
   // 递归删除函数
@@ -164,12 +178,15 @@ export const filterDeleteTreeData = (treeData = [], departmentId) => {
       .map(dept => {
         if (dept.subDepartments && _.isArray(dept.subDepartments)) {
           const filteredSubs = removeNode(dept.subDepartments);
+
           // 如果子部门为空，则移除该属性
           if (filteredSubs.length === 0) {
             return _.omit(dept, 'subDepartments');
           }
+
           return { ...dept, subDepartments: filteredSubs };
         }
+
         return dept;
       })
       .value();
@@ -177,6 +194,7 @@ export const filterDeleteTreeData = (treeData = [], departmentId) => {
 
   return removeNode(clonedData);
 };
+
 /**
  * 根据 departmentId 和 newDepartments 获取父节点
  * @param {Array} newDepartments - 部门树数据
@@ -203,11 +221,13 @@ export const getParentNode = (newDepartments, departmentId) => {
 
         // 递归查找更深层的子部门
         const result = findParent(dept.subDepartments, targetId);
+
         if (result) {
           return result;
         }
       }
     }
+
     return null;
   };
 
@@ -242,6 +262,7 @@ const disabledChildren = (departments, disabled) => {
     if (dept.subDepartments && dept.subDepartments.length) {
       return { ...dept, disabled, subDepartments: disabledChildren(dept.subDepartments, disabled) };
     }
+
     return { ...dept, disabled };
   });
 };
@@ -270,6 +291,7 @@ export const updateTreeData = ({ departments, departmentId, parentId, updateData
       }
     });
   };
+
   getPath(arr);
   // 获取当前编辑的部门path
   let currentEditPath = getCurrentPath(path[departmentId]);
@@ -305,18 +327,27 @@ export const updateTreeData = ({ departments, departmentId, parentId, updateData
 
   // 编辑 && 改变父节点
   if (type === 'edit' && parentNode.departmentId !== parentId) {
-    arr = filterDeleteTreeData(arr, departmentId);
     if (!parentId) {
+      arr = filterDeleteTreeData(arr, departmentId);
       arr = arr.concat(currentEditNode);
     } else {
-      const newParentPath = getCurrentPath(path[parentId]);
+      arr = filterDeleteTreeData(arr, departmentId);
+      path = {};
+      getPath(arr);
+
+      const newParentPathValue = path[parentId];
+
+      if (_.isUndefined(newParentPathValue)) {
+        return arr;
+      }
+
+      const newParentPath = getCurrentPath(newParentPathValue);
       _.update(arr, newParentPath, data => {
+        const subDepartments = (data && data.subDepartments) || [];
+
         return {
           ...data,
-          subDepartments:
-            data.subDepartments && data.subDepartments.length
-              ? [...data.subDepartments, { ...currentEditNode, ...updateDataInfo }]
-              : data.subDepartments,
+          subDepartments: [...subDepartments, { ...currentEditNode, ...updateDataInfo }],
         };
       });
     }

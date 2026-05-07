@@ -28,7 +28,7 @@ export default class Portal extends Component {
 
     return (
       <div className="orgManagementWrap">
-        <AdminTitle prefix={_l('外部门户')} />
+        <AdminTitle prefix={_l('用户 - 外部门户')} />
         <div className="orgManagementHeader">
           <div className="tabBox">
             {routeList.map(item => (

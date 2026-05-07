@@ -10,14 +10,17 @@ import VoteContent from './voteContent';
 function getSpecificComponent(postItem, isReshare) {
   let component;
   const postType = parseInt(postItem.postType, 10);
+
   if (isReshare && postType !== 1 && postType !== 2 && postType !== 3 && postType !== 8 && postType !== 9) {
     return false;
   }
+
   switch (postType) {
     case 0: // medal
       if (postItem.MedalPost) {
         component = <MedalContent medal={postItem.MedalPost} />;
       }
+
       break;
     case 1: // link
       component = <LinkContent linkItem={postItem} />;
@@ -35,6 +38,7 @@ function getSpecificComponent(postItem, isReshare) {
       if (postItem.VoteID) {
         component = <VoteContent voteItem={postItem} />;
       }
+
       break;
   }
 

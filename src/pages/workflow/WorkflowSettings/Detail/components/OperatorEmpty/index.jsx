@@ -27,6 +27,7 @@ export default ({
     { text: _l('流程结束'), value: 3 },
     { text: isApproval ? _l('使用发起节点中的默认设置') : _l('使用流程默认设置'), value: 0 },
   ];
+
   const selectCharge = event => {
     quickSelectUser(event.target, {
       offset: {
@@ -94,7 +95,7 @@ export default ({
       />
 
       {processId && userTaskNullType === 2 && (
-        <div className="textSecondary mTop5">
+        <div className="Font13 textSecondary mTop5">
           {_l('当前流程还没有流程拥有者')}
           {hideGoToSettings ? (
             _l('，请在 流程发起节点 中配置')

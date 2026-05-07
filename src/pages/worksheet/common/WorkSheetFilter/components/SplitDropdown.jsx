@@ -18,7 +18,7 @@ const Con = styled.div`
     top: 3px;
     left: calc(50% - 27px);
     padding: 0 12px;
-    background: var(--color-background-primary);
+    background: var(--color-background-card);
   }
   .removeGroup {
     display: none;
@@ -28,7 +28,7 @@ const Con = styled.div`
     right: 0;
     top: 0px;
     right: 24px;
-    background: var(--color-background-primary);
+    background: var(--color-background-card);
     font-size: 16px;
     color: var(--color-text-tertiary);
     cursor: pointer;
@@ -46,7 +46,7 @@ const DropdownCon = styled.div`
   position: absolute;
   left: calc(50% - 27px);
   top: 0;
-  background: var(--color-background-primary);
+  background: var(--color-background-card);
   .Dropdown--input {
     padding: 2px 6px !important;
     border-radius: 4px;
@@ -55,7 +55,7 @@ const DropdownCon = styled.div`
       vertical-align: middle;
     }
     &:hover {
-      background: var(--color-background-disabled);
+      background: var(--color-background-hover);
     }
   }
 `;

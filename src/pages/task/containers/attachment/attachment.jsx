@@ -110,6 +110,7 @@ class Attachment extends Component {
       const $target = $(event.target);
 
       const $operation = $('#attachmentOperation');
+
       if (
         $operation.length &&
         $operation.is(':visible') &&
@@ -136,6 +137,7 @@ class Attachment extends Component {
     const domHeight = $('#taskAttachmentList .taskAttachmentListBox').height();
     const elementHeight = $('#taskAttachmentList .taskAttachmentListBox ul').height();
     let mRight = 0;
+
     /* 存在滚动条*/
     if (domHeight < elementHeight) {
       mRight = window.isChrome ? 10 : 17;
@@ -153,6 +155,7 @@ class Attachment extends Component {
           const nDivHight = $this.height();
           const nScrollTop = $this.scrollTop();
           const nScrollHight = $this.children()[0].scrollHeight;
+
           if (nScrollTop + nDivHight + 30 >= nScrollHight) {
             $('#attachmentLoading').removeClass('Hidden');
             const pageIndex = that.state.pageIndex + 1;
@@ -244,6 +247,7 @@ class Attachment extends Component {
    */
   renderList() {
     const { dataSource } = this.state;
+
     const renderItem = (item, i) => {
       const extClass = getClassNameByExt(item.ext);
 
@@ -305,6 +309,7 @@ class Attachment extends Component {
    */
   renderThumbnail() {
     const { dataSource } = this.state;
+
     const renderItem = (item, i) => {
       const extClass = getClassNameByExt(item.ext);
 

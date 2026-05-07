@@ -520,6 +520,7 @@ export default class PivotTableAxis extends Component {
       if (item.controlId === currentControl.controlId && currentControl.particleSizeType === item.particleSizeType) {
         item.rename = name;
       }
+
       return item;
     });
     this.props.onUpdateList(newList);
@@ -532,6 +533,7 @@ export default class PivotTableAxis extends Component {
         item.particleSizeType = value;
         item.showFormat = '0';
       }
+
       return item;
     });
     this.props.onUpdateList(newList, id);
@@ -545,6 +547,7 @@ export default class PivotTableAxis extends Component {
           ...data,
         };
       }
+
       return item;
     });
     this.props.onUpdateList(newList);

@@ -46,6 +46,7 @@ function RelateRecordTable(props) {
     records,
     useHeight,
     isDraft,
+    formItemId,
     onUpdateCell = () => {},
   } = props;
   const { updateWorksheetControls } = props;
@@ -100,6 +101,7 @@ function RelateRecordTable(props) {
     if (isUndefined(saveSync)) {
       return;
     }
+
     updateBase({
       saveSync,
     });
@@ -179,6 +181,7 @@ function RelateRecordTable(props) {
           cache={tableCache}
           handleOpenRecordInfo={handleOpenRecordInfo}
           updateWorksheetControls={updateWorksheetControls}
+          formItemId={formItemId}
         />
       }
       <TableCon

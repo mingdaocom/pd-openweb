@@ -161,7 +161,7 @@ export const Wrap = styled.div`
 const DisplayControlOption = styled(FlexCenter)`
   .icon {
     font-size: 16px;
-    color: rgba(0, 0, 0, 0.4);
+    color: var(--color-text-secondary);
     margin-right: 4px;
   }
   span {

@@ -53,6 +53,7 @@ export default class DataSource extends Component {
   componentWillReceiveProps(nextProps) {
     const newViewId = _.get(nextProps, ['currentReport', 'filter', 'viewId']);
     const newFormulasLength = _.get(nextProps, ['currentReport', 'formulas', 'length']);
+
     if (
       !_.isEqual(nextProps.axisControls, this.props.axisControls) ||
       newViewId !== _.get(this.props, ['currentReport', 'filter', 'viewId'])
@@ -61,6 +62,7 @@ export default class DataSource extends Component {
         currentAxisControls: this.formatAxisControls(nextProps.axisControls, newViewId),
       });
     }
+
     if (newFormulasLength > _.get(this.props, ['currentReport', 'formulas', 'length'])) {
       setTimeout(() => {
         const { maxScrollTop } = this.scrollViewRef?.getScrollInfo() || {};
@@ -70,6 +72,7 @@ export default class DataSource extends Component {
   }
   formatAxisControls = (axisControls, newViewId) => {
     const { worksheetInfo, ownerId, currentReport } = this.props;
+
     if (!ownerId) {
       return axisControls;
     } else {
@@ -79,19 +82,25 @@ export default class DataSource extends Component {
       const sysControlSwitch = isOpenPermit(permitList.sysControlSwitch, switches, view.viewId);
       return axisControls.filter(item => {
         const advancedSetting = item.advancedSetting || {};
+
         if (advancedSetting.datamask === '1') {
           return false;
         }
+
         if (!sysControlSwitch && _.find(WORKFLOW_SYSTEM_CONTROL, { controlId: item.controlId })) {
           return false;
         }
+
         if (view.controls && view.controls.includes(item.controlId)) {
           return false;
         }
+
         const control = _.find(worksheetInfo.columns, { controlId: item.controlId });
+
         if (control) {
           return controlState(control, 3).visible;
         }
+
         return true;
       });
     }
@@ -99,6 +108,7 @@ export default class DataSource extends Component {
   handleSearch = () => {
     const { axisControls } = this.props;
     const { searchValue } = this.state;
+
     if (searchValue) {
       const result = axisControls.filter(item =>
         (item.controlName || '').toLocaleLowerCase().includes(searchValue.toLocaleLowerCase()),
@@ -118,6 +128,7 @@ export default class DataSource extends Component {
   };
   renderHeader() {
     const { dataIsUnfold, onChangeDataIsUnfold } = this.props;
+
     if (dataIsUnfold) {
       return (
         <div className="flexRow valignWrapper horizontalPaddingWrapper">
@@ -195,6 +206,7 @@ export default class DataSource extends Component {
               } else {
                 this.props.onChangeSheetId(worksheetId);
               }
+
               this.setState({ sheetModalVisible: false });
             }}
             onChangeDialogVisible={visible => {
@@ -209,14 +221,17 @@ export default class DataSource extends Component {
     const { currentReport, axisControls, appId, base } = this.props;
     const { filter = {}, displaySetup } = currentReport;
     const { timeModalVisible } = this.state;
+
     if (base.appType === 2) {
       const alreadySelectControlId = getAlreadySelectControlId(currentReport);
       const controls = alreadySelectControlId.map(id => _.find(axisControls, { controlId: id }));
       const timeControls = controls.filter(item => item && isTimeControl(item.type));
+
       if (!timeControls.length) {
         return null;
       }
     }
+
     return (
       <div className="mTop15 horizontalPaddingWrapper">
         <div className="Bold Font13 textPrimary mBottom10">{_l('时间')}</div>
@@ -265,6 +280,7 @@ export default class DataSource extends Component {
     const { currentReport, changeCurrentReport, permissionType } = this.props;
     const { auth = 0 } = currentReport;
     const isDeveloper = permissionType === 1;
+
     const renderOverlay = () => {
       return (
         <Menu className="chartMenu">
@@ -280,6 +296,7 @@ export default class DataSource extends Component {
         </Menu>
       );
     };
+
     return (
       <div className="mTop15 horizontalPaddingWrapper">
         <div className="Bold Font13 textPrimary mBottom10">{_l('权限')}</div>
@@ -422,6 +439,7 @@ export default class DataSource extends Component {
                   if (reportType === reportTypes.WorldMap) {
                     return true;
                   }
+
                   return c.type !== 40;
                 })
                 .map(item => (

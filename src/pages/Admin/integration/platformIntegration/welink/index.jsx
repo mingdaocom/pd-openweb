@@ -51,6 +51,7 @@ export default class Welink extends React.Component {
           status: 1,
         };
       }
+
       if (res) {
         this.setState({
           hasApply: !!res,
@@ -77,6 +78,7 @@ export default class Welink extends React.Component {
       alert('请输入相关信息', 2);
       return;
     }
+
     Ajax.editWelinkProjectSetting({
       projectId: this.props.projectId,
       clientSecret: this.state.Secret,
@@ -96,17 +98,21 @@ export default class Welink extends React.Component {
   formatStr = str => {
     if (!str) return;
     let newStr;
+
     if (str.length === 4) {
       newStr = str.substr(0, 3) + '*';
     } else if (str.length > 4) {
       let char = '';
+
       for (let i = 0, len = str.length - 4; i < len; i++) {
         char += '*';
       }
+
       newStr = str.substr(0, 3) + char + str.substr(-3, 3);
     } else {
       newStr = str;
     }
+
     return newStr;
   };
 
@@ -185,6 +191,7 @@ export default class Welink extends React.Component {
         canSyncBtn: false,
       });
     }
+
     Ajax.syncWelinkToMingByApp({
       projectId: this.props.projectId,
       check: isCheck, //是否进行预先检查，true返回数据给前端展现但不进行同步，类似企业微信，false进行同步
@@ -268,7 +275,14 @@ export default class Welink extends React.Component {
           )}
           {this.state.isHasInfo && this.state.show2 && (
             <span className="Font13 textSecondary Right closeDing">
-              <Tooltip title={_l('关闭Welink集成后，无法再从Welink集成处进入应用')} placement="bottomLeft">
+              <Tooltip
+                title={
+                  window.platformENV.isPlatform && !window.platformENV.isOverseas && !window.platformENV.isLocal
+                    ? _l('关闭Welink集成后，无法再从Welink集成处进入明道云应用')
+                    : _l('关闭Welink集成后，无法再从Welink集成处进入应用')
+                }
+                placement="bottomLeft"
+              >
                 <span className="mLeft10 switchBtn">
                   <Switch checked={!this.state.isCloseDing} onClick={checked => this.editDingStatus(checked ? 2 : 1)} />
                 </span>
@@ -320,7 +334,12 @@ export default class Welink extends React.Component {
         <div className="stepItem">
           <h3 className="stepTitle Font16 textPrimary">{_l('3.数据同步')}</h3>
           <div className="mTop20 syncBox">
-            <span className="Font14 syncTxt">{_l('从Welink通讯录同步到该系统')}</span>
+            <span className="Font14 syncTxt">
+              {window.platformENV.isPlatform && !window.platformENV.isOverseas && !window.platformENV.isLocal
+                ? _l('从Welink通讯录同步到明道云')
+                : _l('从Welink通讯录同步到该系统')}
+            </span>
+
             <Button
               type="primary"
               className={cx('syncBtn', {
@@ -369,6 +388,7 @@ export default class Welink extends React.Component {
               if (!this.state.canSyncBtn) {
                 return;
               }
+
               if (this.state.failed) {
                 this.setState({
                   showSyncDiaLog: false,
@@ -437,6 +457,7 @@ export default class Welink extends React.Component {
     if (this.state.pageLoading) {
       return <LoadDiv className="mTop80" />;
     }
+
     return (
       <div className="orgManagementWrap welinkMainContent platformIntegrationContent">
         <div className="orgManagementHeader">
@@ -478,7 +499,9 @@ export default class Welink extends React.Component {
               <div className="TxtCenter mTop50">
                 <h2 className="Font26 textPrimary">{_l('申请Welink集成')}</h2>
                 <p className="mTop24 mBottom32 Font16 textSecondary">
-                  {_l('申请通过后，可将应用安装到Welink集成工作台！')}
+                  {window.platformENV.isPlatform && !window.platformENV.isOverseas && !window.platformENV.isLocal
+                    ? _l('申请通过后，可将明道云应用安装到Welink集成工作台！')
+                    : _l('申请通过后，可将应用安装到Welink集成工作台！')}
                 </p>
                 <Button
                   type="primary"
@@ -501,6 +524,19 @@ export default class Welink extends React.Component {
                   <React.Fragment>
                     <h2 className="Font18 textPrimary">{_l('试用已过期，请付费后继续使用')}</h2>
                     <p className="mTop15 Font13 textSecondary">{_l('如有疑问，请联系您的专属顾问')}</p>
+
+                    {window.platformENV.isPlatform && !window.platformENV.isOverseas && !window.platformENV.isLocal ? (
+                      <Button
+                        type="primary"
+                        className="applyBtn mBottom10 mTop25"
+                        onClick={() => {
+                          // 前往付费
+                          purchaseMethodFunc({ projectId: this.props.projectId });
+                        }}
+                      >
+                        {_l('前往付费')}
+                      </Button>
+                    ) : null}
                   </React.Fragment>
                 ) : (
                   <React.Fragment>

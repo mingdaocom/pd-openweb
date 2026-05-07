@@ -7,12 +7,15 @@ import { getCoverStyle } from 'src/pages/worksheet/common/ViewConfig/utils';
 
 export function findSheet(id, sheetList = []) {
   let result = null;
+
   for (let i = 0; i < sheetList.length; i++) {
     const current = sheetList[i];
+
     if (current.workSheetId == id) {
       result = current;
       break;
     }
+
     if (current.type === 2) {
       result = findSheet(id, current.items);
       if (result) {
@@ -20,13 +23,16 @@ export function findSheet(id, sheetList = []) {
       }
     }
   }
+
   return result;
 }
 
 export function getSheetListFirstId(sheetList = [], isCharge = true) {
   let result = null;
+
   for (let i = 0; i < sheetList.length; i++) {
     const current = sheetList[i];
+
     if (current.type === 2) {
       result = getSheetListFirstId(current.items, isCharge);
       if (result) {
@@ -37,6 +43,7 @@ export function getSheetListFirstId(sheetList = [], isCharge = true) {
       break;
     }
   }
+
   return result;
 }
 
@@ -46,6 +53,7 @@ export const moveSheetCache = (appId, groupId) => {
     if (data.groupId === groupId) {
       data.worksheetId = '';
     }
+
     return data;
   });
   storage.worksheets = worksheets;
@@ -62,14 +70,18 @@ export const saveSelectExtensionNavType = (worksheetId, navType, navValue) => {
   const sheetConfigNavInfo = localStorage.getItem('sheetConfigNavInfo')
     ? JSON.parse(localStorage.getItem('sheetConfigNavInfo'))
     : {};
+
   if (!sheetConfigNavInfo[worksheetId]) {
     sheetConfigNavInfo[worksheetId] = {};
   }
+
   sheetConfigNavInfo[worksheetId][navType] = navValue;
   const sheetIds = Object.keys(sheetConfigNavInfo);
+
   if (sheetIds.length > 10) {
     delete sheetConfigNavInfo[sheetIds[0]];
   }
+
   localStorage.setItem('sheetConfigNavInfo', JSON.stringify(sheetConfigNavInfo));
 };
 
@@ -77,6 +89,7 @@ export function getListStyle(listStyleStrOfView, listStyleStrOfWorksheet) {
   let availableListStyle;
   let listStyleOfWorksheet;
   let listStyleOfView;
+
   if (!listStyleStrOfWorksheet && listStyleStrOfView) {
     availableListStyle = safeParse(listStyleStrOfView);
   } else if (listStyleStrOfWorksheet && !listStyleStrOfView) {
@@ -86,6 +99,7 @@ export function getListStyle(listStyleStrOfView, listStyleStrOfWorksheet) {
     listStyleOfView = safeParse(listStyleStrOfView);
     availableListStyle = sortBy([listStyleOfWorksheet, listStyleOfView], 'time').pop();
   }
+
   return availableListStyle;
 }
 
@@ -130,11 +144,13 @@ export function getSheetOperatesButtons(view, { buttons = [], printList = [] } =
   actionColumn.forEach(c => {
     if (c.type === 'btn') {
       const matchBtn = find(buttons, b => b.btnId === c.id);
+
       if (matchBtn) {
         result.push({ ...matchBtn, type: 'custom_button' });
       }
     } else if (c.type === 'print') {
       const printItem = find(printList, p => p.id === c.id);
+
       if (printItem) {
         result.push({
           name: printItem.name,
@@ -211,9 +227,11 @@ export function getOperatesButtonsWidth({ buttons, style, visibleNum, showIcon }
   const showMore = buttons.length > visibleNum;
   const moreButtonWidth = 28;
   const cellBorderWidth = 1 * 2;
+
   function getButtonWidth(button, { noMarginRight = false } = {}) {
     let buttonWidth = 0;
     let textWidth = 0;
+
     if (style === 'icon') {
       buttonWidth = 28 + (noMarginRight ? 0 : marginRight);
     } else if (style === 'text') {
@@ -221,12 +239,14 @@ export function getOperatesButtonsWidth({ buttons, style, visibleNum, showIcon }
       if (textWidth > 200) {
         textWidth = 200;
       }
+
       buttonWidth = textWidth + buttonPadding + (showIcon && button.icon ? iconWidth + iconMarginRight : 0);
     } else if (style === 'standard') {
       textWidth = getTextWidth(button.name, fontSize);
       if (textWidth > 200) {
         textWidth = 200;
       }
+
       buttonWidth =
         textWidth +
         buttonPadding +
@@ -234,8 +254,10 @@ export function getOperatesButtonsWidth({ buttons, style, visibleNum, showIcon }
         (noMarginRight ? 0 : marginRight) +
         2;
     }
+
     return buttonWidth;
   }
+
   const visibleButtons = buttons.slice(0, visibleNum);
   let sumWidth = sum(
     visibleButtons.map((buttion, i) =>
@@ -244,9 +266,11 @@ export function getOperatesButtonsWidth({ buttons, style, visibleNum, showIcon }
       }),
     ),
   );
+
   if (showMore) {
     sumWidth += moreButtonWidth;
   }
+
   return sumWidth + cellPadding + cellBorderWidth;
 }
 
@@ -273,6 +297,7 @@ export function filterButtonBySheetSwitchPermit(
     } else if (button.type === 'sysprint') {
       return isOpenPermit(permitList.recordPrintSwitch, sheetSwitchPermit, viewId);
     }
+
     return true;
   }));
 }
@@ -294,6 +319,7 @@ function getSheetStylesOfObject(object) {
 export function getSheetStylesOfRelateRecordTable({ control, viewId, worksheetInfo } = {}) {
   if (get(control, 'advancedSetting.widths')) {
     const widths = safeParse(get(control, 'advancedSetting.widths'), 'array');
+
     if (isArray(widths)) {
       let result = {};
       widths.forEach((width, i) => {
@@ -310,12 +336,15 @@ export function getSheetStylesOfRelateRecordTable({ control, viewId, worksheetIn
       }
     }
   }
+
   const worksheetSheetStyles = getSheetStylesOfObject(worksheetInfo);
   let result = {};
+
   if (!viewId) {
     result = worksheetSheetStyles;
   } else {
     const view = find(worksheetInfo.views, { viewId });
+
     if (view && view.viewType === 0) {
       result = getSheetStylesOfObject(view);
     } else {
@@ -323,10 +352,12 @@ export function getSheetStylesOfRelateRecordTable({ control, viewId, worksheetIn
         find(worksheetInfo.views, v => v.viewType === 0 && !!get(v, 'advancedSetting.liststyle')),
       );
     }
+
     if (isEmpty(result) || result.updateTime < worksheetSheetStyles.updateTime) {
       result = worksheetSheetStyles;
     }
   }
+
   return result;
 }
 
@@ -344,6 +375,7 @@ export function getFiltersForGroupedView(control, groupKey) {
       filterType: 7,
     };
   }
+
   if (
     includes(
       [
@@ -367,6 +399,7 @@ export function getFiltersForGroupedView(control, groupKey) {
       values: [groupKey],
     };
   }
+
   if (control.type === WIDGETS_TO_API_TYPE_ENUM.SCORE) {
     return {
       controlId: control.controlId,
@@ -377,5 +410,6 @@ export function getFiltersForGroupedView(control, groupKey) {
       values: [groupKey],
     };
   }
+
   return {};
 }

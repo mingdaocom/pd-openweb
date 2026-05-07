@@ -21,6 +21,7 @@ const getPictureImageUrl = data => {
 // 附件的显示 fileStyle 0 缩略图 1 名称 默认0
 const renderRecordAttachments = (value, isRelateMultipleSheet, fileStyle = '0') => {
   let attachments;
+
   try {
     attachments = JSON.parse(value);
   } catch (err) {
@@ -64,6 +65,7 @@ const renderRecordAttachments = (value, isRelateMultipleSheet, fileStyle = '0') 
                       onLoad={e => {
                         let width = e.target.width;
                         let height = e.target.height;
+
                         if (width > height) {
                           $(e.target).attr({
                             width: width,
@@ -167,6 +169,7 @@ const getPrintContent = (item, sourceControlType, valueItem) => {
   switch (type) {
     case 36:
       const { showtype } = getAdvanceSetting(item);
+
       if (_.includes(['1', '2'], showtype)) {
         const itemnames = getSwitchItemNames(item, { needDefault: true });
         return _.get(
@@ -174,6 +177,7 @@ const getPrintContent = (item, sourceControlType, valueItem) => {
           'value',
         );
       }
+
       return (
         <React.Fragment>
           <span style={{ fontSize: 10 }}>{value === '1' ? '☑ ' : '☐ '}</span>
@@ -189,14 +193,17 @@ const getPrintContent = (item, sourceControlType, valueItem) => {
       if (item.noUnit) {
         return renderCellText(dataItem, { noUnit: item.noUnit });
       }
+
       // let _value = renderCellText(dataItem, { noUnit: !item.showUnit });
       let _value = renderCellText(dataItem);
+
       //带单位
       if (item.showUnit) {
         return _value;
       } else {
         return <div style={{ textAlign: item.isRelateMultipleSheet ? 'right' : 'left' }}>{_value}</div>;
       }
+
     case 14:
       const fileStyle = item.fileStyle || {};
       const id = item.isRelateMultipleSheet ? `${item.dataSource}_${item.controlId}` : item.controlId;
@@ -214,16 +221,20 @@ const getPrintContent = (item, sourceControlType, valueItem) => {
         const showtitleid = _.get(item, 'advancedSetting.showtitleid');
 
         let records = [];
+
         try {
           records = JSON.parse(value);
         } catch (err) {
           console.log(err);
           return null;
         }
+
         let list = (dataItem.relationControls || []).find(o => o.attribute === 1) || [];
+
         if (list.type && ![29, 30, dataItem.sourceControlType].includes(list.type)) {
           dataItem = { ...dataItem, sourceControlType: list.type };
         }
+
         // 1 卡片 2 列表 3 文本
         if (item.advancedSetting && item.advancedSetting.showtype === '3') {
           //下拉 显示关联表名称
@@ -251,12 +262,14 @@ const getPrintContent = (item, sourceControlType, valueItem) => {
             </span>
           );
         }
+
         //关联表内除标题字段外的其他字段
         let showControlsList = [];
         item.showControls.map(o => {
           let data = (item.relationControls || []).find(
             it => it.controlId === o && (showtitleid ? it.controlId !== showtitleid : it.attribute !== 1),
           );
+
           if (data) {
             showControlsList.push(data);
           }
@@ -301,6 +314,7 @@ const getPrintContent = (item, sourceControlType, valueItem) => {
                         if (it.type === 41 || it.type === 22) {
                           return '';
                         }
+
                         // 若设置不显示无内容字段=>计算内容
                         if (
                           item.showData &&
@@ -318,6 +332,7 @@ const getPrintContent = (item, sourceControlType, valueItem) => {
                         ) {
                           return '';
                         }
+
                         return (
                           <div>
                             {it.controlName || _l('未命名')}
@@ -372,22 +387,26 @@ const getPrintContent = (item, sourceControlType, valueItem) => {
       } else {
         return value;
       }
+
     case 29:
       if (item.advancedSetting && !['2', '5', '6'].includes(item.advancedSetting.showtype)) {
         const showtitleid = _.get(item, 'advancedSetting.showtitleid');
 
         //非列表
         let records = [];
+
         try {
           records = JSON.parse(value);
         } catch (err) {
           console.log(err);
         }
+
         let list = (dataItem.relationControls || []).find(o => o.attribute === 1) || {};
 
         if (list.type && ![29, 30, dataItem.sourceControlType].includes(list.type)) {
           dataItem = { ...dataItem, sourceControlType: list.type };
         }
+
         // 公式
         if (list.type === 53) {
           dataItem.enumDefault2 = list.enumDefault2;
@@ -436,6 +455,7 @@ const getPrintContent = (item, sourceControlType, valueItem) => {
             ),
           });
         }
+
         //关联表内除标题字段外的其他字段
         let showControlsList = [];
         (item.advancedSetting.showtype === '3' && item.enumDefault === 1
@@ -445,6 +465,7 @@ const getPrintContent = (item, sourceControlType, valueItem) => {
           let data = (item.relationControls || []).find(
             it => it.controlId === o && (showtitleid ? it.controlId !== showtitleid : it.attribute !== 1),
           );
+
           if (data) {
             showControlsList.push(data);
           }
@@ -489,6 +510,7 @@ const getPrintContent = (item, sourceControlType, valueItem) => {
                         if (it.type === 41 || it.type === 22) {
                           return '';
                         }
+
                         // 若设置不显示无内容字段=>计算内容
                         if (
                           item.showData &&
@@ -506,6 +528,7 @@ const getPrintContent = (item, sourceControlType, valueItem) => {
                         ) {
                           return '';
                         }
+
                         return (
                           <div>
                             {it.controlName || _l('未命名')}
@@ -561,13 +584,14 @@ const getPrintContent = (item, sourceControlType, valueItem) => {
         // 关联表列表 显示表数量
         return value;
       }
+
     case 34: // 子表
       return value;
     case 42: {
       return value ? (
         <img
           src={value}
-          style={{ maxHeight: 45, maxWidth: 160 }}
+          style={{ maxHeight: 45, maxWidth: 160, width: '100%' }}
           onLoad={e => {
             $(e.target).attr({
               width: e.target.width,
@@ -579,6 +603,7 @@ const getPrintContent = (item, sourceControlType, valueItem) => {
         ''
       );
     }
+
     case 45: {
       return value && dataItem.enumDefault !== 3 ? (
         <Embed {...dataItem} formData={dataItem.controls} from="print" appId={item.appId} />
@@ -586,6 +611,7 @@ const getPrintContent = (item, sourceControlType, valueItem) => {
         ''
       );
     }
+
     case 47: {
       let barCodeData = { ...dataItem, formData: dataItem.allControls || dataItem.controls };
       const { enumDefault, enumDefault2, dataSource, recordId, appId, worksheetId, viewIdForPermit, viewId } =
@@ -600,8 +626,10 @@ const getPrintContent = (item, sourceControlType, valueItem) => {
       ) {
         return '';
       }
+
       return <BarCode {...barCodeData} />;
     }
+
     case 41:
     case 10010:
       return (type === 41 ? value : value || item.dataSource) ? (
@@ -622,17 +650,20 @@ const getPrintContent = (item, sourceControlType, valueItem) => {
 
       return showContent || '';
     }
+
     case 9: // OPTIONS 单选 平铺
     case 10: // MULTI_SELECT 多选
       if (!printOption || (type === 10 && _.get(item, ['advancedSetting', 'checktype']) === '1')) {
         return renderCellText(dataItem);
       } else {
         let selectedKeys = [];
+
         try {
           selectedKeys = JSON.parse(dataItem.value);
         } catch (err) {
           console.log(err);
         }
+
         return dataItem.options
           .filter(l => !l.isDeleted)
           .map(o => {
@@ -644,6 +675,7 @@ const getPrintContent = (item, sourceControlType, valueItem) => {
             } else {
               str = type === 10 ? <i className={cx('InlineBlock', { zoomIcon: type === 10 })}>{'☐'}</i> : '□';
             }
+
             return (
               <span className="InlineBlock pTop0 pBottom0" style={{ marginRight: 14 }}>
                 <b className="InlineBlock TxtTop TxtCenter">{str}</b>
@@ -652,6 +684,7 @@ const getPrintContent = (item, sourceControlType, valueItem) => {
             );
           });
       }
+
     case 27: // 部门层级
       const { advancedSetting = {} } = dataItem;
       const _valueParse = safeParse(dataItem.value, 'array').filter(l => !l.isDelete);
@@ -708,6 +741,7 @@ const getPrintContent = (item, sourceControlType, valueItem) => {
           </div>
         );
       }
+
       return renderCellText(dataItem);
     default:
       return renderCellText(dataItem);

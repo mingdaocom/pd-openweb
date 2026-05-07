@@ -47,16 +47,19 @@ const Wrap = styled.div`
   }
 `;
 let Ajax = null;
+
 export default function Cite(props) {
   const [{ data, loading }, setState] = useSetState({
     data: [],
     loading: true,
   });
+
   //获取引用信息
   const getCiteInfo = () => {
     if (Ajax) {
       Ajax.abort();
     }
+
     Ajax = packageVersionAjax.getApiRelationList(
       {
         id: props.processId,
@@ -71,6 +74,7 @@ export default function Cite(props) {
       });
     });
   };
+
   useEffect(() => {
     getCiteInfo();
   }, []);
@@ -84,9 +88,11 @@ export default function Cite(props) {
       </div>
     );
   };
+
   if (loading) {
     return <LoadDiv className="mTop24" />;
   }
+
   return (
     <Wrap className="w100 divCenter">
       {/* 状态 0已删除 1正常 2审核中 3已发布  只有自定义的连接并且已经「申请上架」或「已上架」的自定义连接，才需要显示在 API库 中的安装量等信息。*/}

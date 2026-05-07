@@ -5,6 +5,7 @@ import { CustomScore } from 'ming-ui';
 export default function ScoreDisplay({ data }) {
   let score = 0;
   const source = _.get(data, ['advancedSetting', 'defsource']);
+
   if (source) {
     try {
       const value = JSON.parse(source) || [];
@@ -13,6 +14,7 @@ export default function ScoreDisplay({ data }) {
       console.log(error);
     }
   }
+
   return (
     <Fragment>
       <CustomScore disabled data={data} score={+score} />

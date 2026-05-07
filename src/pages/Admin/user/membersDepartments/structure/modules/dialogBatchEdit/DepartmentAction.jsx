@@ -9,9 +9,11 @@ class DepartmentAction extends React.Component {
 
   render() {
     const { isShowAct = false, isTop = false, isPosition = false, deleteFn, setToTop } = this.props;
+
     if (!isShowAct) {
       return '';
     }
+
     return (
       <ul>
         {!isTop && !isPosition && (

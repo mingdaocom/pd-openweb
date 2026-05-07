@@ -57,9 +57,11 @@ export default function Edit(props) {
         setLoading(false);
       });
     const { socket } = window.IM || {};
+
     const checkStatus = data => {
       setTranslateStatus(data.status === 1);
     };
+
     socket.on('custom', checkStatus);
     return () => {
       delete window[`langData-${app.id}`];
@@ -70,9 +72,11 @@ export default function Edit(props) {
 
   const handleSelectNav = (selectedKeys, info) => {
     const { node } = info;
+
     if (node.selected) {
       return;
     }
+
     setSelectNode(node);
     setSelectedKeys(selectedKeys);
   };
@@ -112,6 +116,7 @@ export default function Edit(props) {
     if (machineTranslationLoading) {
       return;
     }
+
     setMachineTranslationLoading(true);
     appManagementApi
       .machineTranslation({

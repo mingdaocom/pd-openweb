@@ -91,9 +91,11 @@ function WidgetBatch(props) {
       const unReadOnly = [31, 33, 25, 32, 38, 43, 47, 45, 30, 51, 37, 22, 52, 53, 54, 10010];
       return batchActive.some(i => _.includes(unReadOnly, i.type));
     }
+
     if (mode === 'required') {
       return batchActive.some(i => _.includes(UN_REQUIRED_WIDGET, i.type) || isSheetDisplay(i));
     }
+
     return false;
   };
 
@@ -254,6 +256,7 @@ export default function WidgetBatchOption(props) {
             _.find(allControls, i => i.controlId === b.controlId),
             'attribute',
           );
+
           if (key === 'fieldPermission') {
             return {
               ...b,
@@ -261,6 +264,7 @@ export default function WidgetBatchOption(props) {
               attribute: newAttribute,
             };
           }
+
           return { ...b, ...value, attribute: newAttribute };
         });
         setBatchActive(newBatchActive);

@@ -56,6 +56,7 @@ export default class Date extends React.Component {
 
   handleTableKeyDown = e => {
     const { isediting, updateEditingStatus } = this.props;
+
     switch (e.key) {
       case 'Tab':
       case 'Escape':
@@ -65,6 +66,7 @@ export default class Date extends React.Component {
         updateEditingStatus(true);
         setTimeout(() => {
           const input = document.querySelector('.CityPicker-input-textCon');
+
           if (input) {
             input.focus();
           }
@@ -75,6 +77,7 @@ export default class Date extends React.Component {
           if (!e.isInputValue && (isediting || !e.key || !isKeyBoardInputChar(e.key))) {
             return;
           }
+
           updateEditingStatus(true);
           setTimeout(() => {
             const input = document.querySelector('.worksheetCellPureString .CityPicker-input-textCon');
@@ -82,6 +85,7 @@ export default class Date extends React.Component {
               if (input) {
                 input.focus();
               }
+
               this.onFetchData(e.key);
             });
           }, 100);
@@ -105,6 +109,7 @@ export default class Date extends React.Component {
     }
 
     const newValue = JSON.stringify({ code: last.id, name: last.path });
+
     if (!last || (last.path.split('/').length < cell.enumDefault2 && !last.last)) {
       this.setState({ tempValue: newValue });
       this.tempValue = newValue;
@@ -135,6 +140,7 @@ export default class Date extends React.Component {
         value: tempValue,
       });
     }
+
     this.setState({
       search: '',
       keywords: '',
@@ -200,6 +206,7 @@ export default class Date extends React.Component {
             updateEditingStatus(false);
             return;
           }
+
           if (last.id !== valueParse.code) {
             this.setState(
               {

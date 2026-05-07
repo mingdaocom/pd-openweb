@@ -13,8 +13,7 @@ import { InviteFromType } from 'src/pages/AuthService/config.js';
 import { registerAction } from 'src/pages/AuthService/register/util.js';
 import { getAccountTypes, hasCaptcha, isTel, validation } from 'src/pages/AuthService/util.js';
 import { navigateTo } from 'src/router/navigateTo';
-import { getRequest } from 'src/utils/common';
-import { htmlDecodeReg } from 'src/utils/common';
+import { getRequest, htmlDecodeReg } from 'src/utils/common';
 import Form from './Form.jsx';
 
 // 'privacyText'  注册 需要勾选 使用条款 与 隐私条款
@@ -134,6 +133,7 @@ export default function (props) {
     const validationData = validation({ isForSendCode: false, keys, type, info: props });
     onChange({ warnList: validationData.warnList });
     let isV = await validationData.isRight;
+
     if (isV) {
       registerAction({
         info: _.pick(props, [

@@ -10,6 +10,7 @@ export default ({ data, showAutoModel = false, showModelSettings = false, update
   const [modelDetail, setModelDetail] = useState({});
   const [modelParameterDialog, setModelParameterDialog] = useState(false);
   const [modelParameter, setModelParameter] = useState({});
+
   const renderModelInfo = info => {
     const ICONS = {
       0: { icon: 'icon-AI_Agent', color: '#2196f3' },
@@ -30,6 +31,7 @@ export default ({ data, showAutoModel = false, showModelSettings = false, update
       </div>
     );
   };
+
   const renderTitle = item => {
     return (
       <div className="flexRow alignCenter alignItemsCenter">
@@ -48,6 +50,7 @@ export default ({ data, showAutoModel = false, showModelSettings = false, update
       </div>
     );
   };
+
   const list = (showAutoModel ? [{ text: renderTitle({ name: _l('自动选择模型') }), value: '' }] : []).concat(
     data.appList.map(o => ({
       text: renderTitle(o),

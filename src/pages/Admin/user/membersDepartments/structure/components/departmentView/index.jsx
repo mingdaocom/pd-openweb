@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import { connect } from 'react-redux';
 import { Tree } from 'antd';
 import _ from 'lodash';
@@ -25,6 +25,7 @@ const loop = (data, key, callback) => {
     if (item.departmentId === key) {
       return callback(item, index, arr);
     }
+
     if (item.subDepartments) {
       return loop(item.subDepartments, key, callback);
     }
@@ -89,6 +90,7 @@ class DepartmentTree extends React.Component {
     } else {
       this.setState({ newDepartments: _.cloneDeep(nexrProps.newDepartments) });
     }
+
     if (!_.isEqual(this.props.newDepartments, nexrProps.newDepartments)) {
       clearTimeout(this.timer);
       this.timer = setTimeout(() => this.getHeight(), 200);
@@ -100,8 +102,15 @@ class DepartmentTree extends React.Component {
   }
 
   init = () => {
-    const { loadDepartments = () => {} } = this.props;
-    loadDepartments('', 1, this.getHeight);
+    const { loadDepartments = () => {}, newDepartments = [] } = this.props;
+
+    // 从导入/导出返回时组件会重新挂载；若 Redux 中已有完整部门树（含已展开的子节点），
+    // 不可再请求根级分页数据覆盖，否则会清空 subDepartments 并导致展开状态与树结构错乱。
+    if (_.isEmpty(newDepartments)) {
+      loadDepartments('', 1, this.getHeight);
+    } else {
+      this.getHeight();
+    }
   };
 
   getHeight = () => {
@@ -169,8 +178,10 @@ class DepartmentTree extends React.Component {
       } else {
         ar.splice(i + 1, 0, dragObj);
       }
+
       sortedDepartmentIds = ar.map(it => it.departmentId);
     }
+
     this.props.sortDepartmentsFn(data, dragKey, sortedDepartmentIds, moveToParentId, data =>
       this.setState({ newDepartments: data }),
     );
@@ -184,6 +195,7 @@ class DepartmentTree extends React.Component {
         resolve();
         return;
       }
+
       let moreIdData = this.state.moreIds.find(o => (o.departmentId || '') === (props.departmentId || ''));
       let pageIndex = !props.departmentId && !moreIdData ? 2 : moreIdData ? moreIdData.pageIndex + 1 : 1;
       this.setState({
@@ -225,10 +237,12 @@ class DepartmentTree extends React.Component {
               rootIsAll: !props.departmentId ? true : this.state.rootIsAll,
             });
           }
+
           const { dataRef = {} } = props;
           let { subDepartments = [] } = dataRef;
           subDepartments = isMore ? subDepartments.concat(data) : data;
           let list = [..._.cloneDeep(this.state.newDepartments)];
+
           if (!props.departmentId) {
             list = list.concat(subDepartments);
           } else {
@@ -236,6 +250,7 @@ class DepartmentTree extends React.Component {
               arr[index].subDepartments = subDepartments;
             });
           }
+
           this.props.departmentUpdate(list, subDepartments, props.departmentId);
           resolve();
         });
@@ -244,16 +259,18 @@ class DepartmentTree extends React.Component {
 
   onSelect = (selectedKeys = []) => {
     let id = selectedKeys[0];
+
     if (!id || id.indexOf('more_') >= 0) {
       return;
     }
+
     this.setState({ selectedKeys });
     this.props.updateCursor(id);
     this.props.loadUsers(id);
   };
 
   renderTreeNodes = (data, hasMore, parentData) => {
-    const { expandedKeys, showDisabledDepartment } = this.props;
+    const { expandedKeys, showDisabledDepartment, hasDepartmentAuth } = this.props;
     const { showAction } = this.state;
 
     let htmlDiv = () => {
@@ -280,13 +297,14 @@ class DepartmentTree extends React.Component {
                     action={['click']}
                     popupVisible={showAction && item.departmentId === this.props.cursor}
                     onPopupVisibleChange={visible => this.setState({ showAction: visible })}
-                    popupAlign={{ points: ['cl', 'cr'], offset: [0, 77], overflow: { adjustX: true, adjustY: true } }}
+                    popupAlign={{ points: ['tl', 'br'], overflow: { adjustX: true, adjustY: true } }}
                     popup={
                       <DiaActionTree
                         item={item}
                         parentData={parentData?.props}
                         onClickAwayExceptions={[]}
                         closeAction={() => this.setState({ showAction: false })}
+                        hasDepartmentAuth={hasDepartmentAuth}
                       />
                     }
                   >
@@ -330,6 +348,7 @@ class DepartmentTree extends React.Component {
         );
       });
     };
+
     return (
       <React.Fragment>
         {htmlDiv()}
@@ -368,24 +387,32 @@ class DepartmentTree extends React.Component {
   };
 
   render() {
+    const { hasDepartmentAuth } = this.props;
     const { newDepartments, expandedKeys, selectedKeys, autoExpandParent, height } = this.state;
+
     if (_.isEmpty(newDepartments)) {
       return (
         <div className="textTertiary Font13 mLeft24 mTop16">
-          {_l('暂无部门，可')}
-          <span
-            className="Hand mLeft3"
-            style={{ color: 'var(--color-primary)' }}
-            onClick={() => {
-              this.props.updateShowExport(true);
-              this.props.updateImportType('importDepartment');
-            }}
-          >
-            {_l('批量导入')}
-          </span>
+          {_l('暂无部门')}
+          {hasDepartmentAuth && (
+            <Fragment>
+              <span>{_l('，可')}</span>
+              <span
+                className="Hand mLeft3"
+                style={{ color: 'var(--color-primary)' }}
+                onClick={() => {
+                  this.props.updateShowExport(true);
+                  this.props.updateImportType('importDepartment');
+                }}
+              >
+                {_l('批量导入')}
+              </span>
+            </Fragment>
+          )}
         </div>
       );
     }
+
     return (
       <div className="departmentTreeBox">
         <DirectoryTree
@@ -399,7 +426,7 @@ class DepartmentTree extends React.Component {
           expandedKeys={expandedKeys} //（受控）展开指定的树节点
           loadedKeys={expandedKeys} //已经加载的节点，需要配合 loadData 使用
           autoExpandParent={autoExpandParent} //是否自动展开父节点
-          draggable={node => !node.disabledDepartment}
+          draggable={node => !node.disabledDepartment && hasDepartmentAuth}
           blockNode
           onDragEnter={this.onDragEnter}
           allowDrop={({ dropNode }) => !dropNode.disabledDepartment}
@@ -437,6 +464,7 @@ const mapStateToProps = (state, ownProps) => {
     showDisabledDepartment,
   };
 };
+
 const ConnectedNode = connect(mapStateToProps, {
   loadDepartments,
   loadUsers,

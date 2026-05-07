@@ -174,12 +174,15 @@ export default class GroupsList extends Component {
       withMapDepartment: true,
       projectId: Config.projectId,
     };
+
     if (!isNaN(this.state.status)) {
       reqData.status = this.state.status;
     }
+
     if (!isNaN(this.state.types)) {
       reqData.groupType = this.state.types;
     }
+
     groupController.getGroups(reqData).then(data => {
       this.setState({
         count: data.allCount,

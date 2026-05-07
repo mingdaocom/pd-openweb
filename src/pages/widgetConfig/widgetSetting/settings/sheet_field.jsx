@@ -116,6 +116,7 @@ export default function SheetField(props) {
     if (_.isUndefined(worksheetId) && parsedDataSource && isSaved) {
       updateDisabledInfo();
     }
+
     if (saveIndex) {
       setTimeout(updateDisabledInfo, 50);
     }

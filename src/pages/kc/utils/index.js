@@ -12,13 +12,17 @@ function smi(i32) {
 
 function hashString(string) {
   let hash = 0;
+
   for (let ii = 0; ii < string.length; ii++) {
     hash = Math.trunc(31 * hash + string.charCodeAt(ii));
   }
+
   return smi(hash);
 }
+
 export function getRootByPath(path) {
   let result = {};
+
   if (/^my([/?].*)?$/.test(path)) {
     result = {
       type: PICK_TYPE.MY,
@@ -48,13 +52,16 @@ export function getRootByPath(path) {
       type: -9999,
     };
   }
+
   if (location.search && qs.parse(location.search.slice(1)).q) {
     result.keywords = qs.parse(location.search.slice(1)).q;
     result.isSearch = true;
   }
+
   if (result.queryPath) {
     result.queryPath = unescape(result.queryPath);
   }
+
   return result;
 }
 
@@ -69,19 +76,23 @@ export function shallowEqual(objA, objB) {
   if (objA === objB) {
     return true;
   }
+
   let key;
+
   // Test for A's keys different from B.
   for (key in objA) {
     if ({}.hasOwnProperty.call(objA, key) && (!{}.hasOwnProperty.call(objB, key) || objA[key] !== objB[key])) {
       return false;
     }
   }
+
   // Test for B's keys missing from A.
   for (key in objB) {
     if ({}.hasOwnProperty.call(objB, key) && !{}.hasOwnProperty.call(objA, key)) {
       return false;
     }
   }
+
   return true;
 }
 
@@ -97,6 +108,7 @@ export function humanFileSize(size, accuracy = 0, space = ' ', units = ['B', 'KB
   if (!size) {
     return '0' + space + units[0];
   }
+
   const i = Math.floor(Math.log(size) / Math.log(1024));
   return (size / Math.pow(1024, i)).toFixed(accuracy) * 1 + space + units[i];
 }
@@ -104,9 +116,11 @@ export function humanFileSize(size, accuracy = 0, space = ' ', units = ['B', 'KB
 export function IdItem(item) {
   return assign(this, item);
 }
+
 IdItem.prototype.hashCode = function hashCode() {
   return this.id ? hashString(this.id) : 0;
 };
+
 IdItem.prototype.equals = function equals(item) {
   return this === item || (this && item && this.id === item.id);
 };
@@ -136,31 +150,41 @@ export function validateFileName(str, shouldAlert = true, out = null, options = 
     if (shouldAlert) {
       alert(_l('名称不能为空'), 3);
     }
+
     if (out) {
       out.validName = null;
     }
+
     return false;
   }
+
   const maxLength = options.extLength ? 255 - options.extLength : 255;
+
   if (str.length > maxLength) {
     if (shouldAlert) {
       alert(_l('文件名过长'), 3);
     }
+
     if (out) {
       out.validName = str.slice(0, maxLength);
     }
+
     return false;
   }
+
   const illegalChars = /[/\\:*?"<>|]/g;
   const valid = !illegalChars.test(str);
+
   if (!valid) {
     if (shouldAlert) {
       alert(_l('名称不能包含以下字符：') + '\\ / : * ? " < > |', 3);
     }
+
     if (out) {
       out.validName = str.replace(illegalChars, '') || null;
     }
   }
+
   return valid;
 }
 
@@ -174,6 +198,7 @@ export function getParentId(folder, root) {
   } else if (isObject(root)) {
     return root.id;
   }
+
   return '';
 }
 
@@ -183,6 +208,7 @@ export function getParentName(folder, root) {
   } else if (isObject(root)) {
     return root.name;
   }
+
   return '';
 }
 
@@ -190,6 +216,7 @@ export function getLocationType(folder, root) {
   if (folder && !isEmpty(folder)) {
     return PICK_TYPE.NODE;
   }
+
   return typeof root === 'object' ? PICK_TYPE.ROOT : root;
 }
 
@@ -197,6 +224,7 @@ export function getPermission(root) {
   if (typeof root !== 'object') {
     return true;
   }
+
   return root.permission === ROOT_PERMISSION_TYPE.OWNER || root.permission === ROOT_PERMISSION_TYPE.ADMIN;
 }
 
@@ -205,6 +233,7 @@ export function getDefaultSortType(sortBy) {
   if (sortBy === NODE_SORT_BY.NAME) {
     return NODE_SORT_TYPE.ASC;
   }
+
   return NODE_SORT_TYPE.DESC;
 }
 
@@ -221,12 +250,14 @@ export function getDefaultSortType(sortBy) {
 export function confirm(header, content, showClose, ckText, minorContent, yesText = undefined, noText = undefined) {
   return new Promise((resolve, reject) => {
     const container = {};
+
     if (yesText === false) {
       container.removeOkBtn = true;
     } else {
       container.onOk = checked => resolve(checked);
       container.okText = yesText;
     }
+
     if (noText === false) {
       container.removeCancelBtn = true;
     } else {
@@ -252,11 +283,13 @@ export function humanDateTime(time) {
   time = moment(time);
   const todayStart = moment().startOf('day');
   const diff = todayStart.diff(time);
+
   if (diff < 0) {
     return '今天 ' + time.format('HH:mm');
   } else if (diff < 86400000) {
     return '昨天 ' + time.format('HH:mm');
   }
+
   return time.format('YYYY-MM-DD');
 }
 
@@ -277,11 +310,14 @@ export function getFileExt(name, toLowerCase = false) {
   if (!name || name.indexOf('.') === -1) {
     return '';
   }
+
   const arr = name.split('.');
   const ext = arr[arr.length - 1];
+
   if (ext) {
     return toLowerCase ? ext.toLowerCase() : ext;
   }
+
   return '';
 }
 
@@ -294,6 +330,7 @@ export function getFileIconNameByExt(ext) {
   if (ext === false) {
     return 'folder';
   }
+
   switch (ext && ext.toLowerCase()) {
     case 'png':
     case 'jpg':
@@ -337,6 +374,7 @@ export function isOffice(fileExt) {
     fileExt = fileExt.toLowerCase();
     return fileExts.indexOf(fileExt) !== -1;
   }
+
   return false;
 }
 
@@ -377,10 +415,12 @@ export function isWpsPreview(fileExt, isEdit) {
   if (isEdit) {
     fileExts = fileExts.filter(v => !_.includes(['rtf', 'txt', 'csv'], v)).concat('pdf');
   }
+
   if (fileExt) {
     fileExt = fileExt.toLowerCase();
     return fileExts.indexOf(fileExt) !== -1;
   }
+
   return false;
 }
 

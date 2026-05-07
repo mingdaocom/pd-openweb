@@ -16,12 +16,14 @@ const confirm = Dialog.confirm;
 
 const getImageContextIndex = (id, list) => {
   let index = -1;
+
   for (let i = 0, length = list.length; i < length; i++) {
     index++;
     if (list[i].id == id) {
       break;
     }
   }
+
   return index;
 };
 
@@ -131,6 +133,7 @@ export default class MessageToolbar extends Component {
       };
     } else if (type === Constant.MSGTYPE_PIC || type === Constant.MSGTYPE_FILE || type === Constant.MSGTYPE_APP_VIDEO) {
       const { files = {} } = message.msg;
+
       if (files.isEmotion) {
         isWithdraw &&
           (toolbarConfig = {
@@ -190,6 +193,7 @@ export default class MessageToolbar extends Component {
     } else {
       alert(_l('您权限不足，无法下载或保存。请联系文件夹管理员或文件上传者'), 3);
     }
+
     this.props.onSetMessageMoreVisible(false);
   }
   handleShareNode() {
@@ -225,6 +229,7 @@ export default class MessageToolbar extends Component {
         attachmentType,
       };
       const isPicture = RegExpValidator.fileIsPicture(attachment.ext);
+
       if (attachmentType == 2) {
         params.id = attachment.id;
         params.name = attachment.name;
@@ -241,6 +246,7 @@ export default class MessageToolbar extends Component {
         params.qiniuPath = attachment.path;
         params.node = attachment;
       }
+
       share.default(params, {
         performUpdateItem: () => {},
       });
@@ -253,6 +259,7 @@ export default class MessageToolbar extends Component {
     const differenceTime = moment(getCurrentTime()).valueOf() - moment(message.time).valueOf() <= 300 * 1000;
     const isWithdraw = isMine ? differenceTime : isAdmin || differenceTime;
     const isFileTransfer = session.id === 'file-transfer';
+
     if (isFileTransfer) {
       confirm({
         title: <span className="Red">{_l('是否确认删除 ?')}</span>,
@@ -276,6 +283,7 @@ export default class MessageToolbar extends Component {
     } else {
       alert(_l('仅支持消息在发送后5分钟内进行撤回操作'), 3);
     }
+
     this.props.onSetMessageMoreVisible(false);
   }
   handleAddAtUser = () => {

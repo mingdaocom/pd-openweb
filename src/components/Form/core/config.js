@@ -43,6 +43,7 @@ export const FORM_ERROR_TYPE_TEXT = {
         return _l('请勾选此项');
       }
     }
+
     return `${_l('请填写%0', label)}`;
   },
   REQUIRED_SELECT: ({ controlName: label }) => {
@@ -64,12 +65,14 @@ export const FORM_ERROR_TYPE_TEXT = {
   },
   CHILD_TABLE_ROWS_LIMIT: ({ value, advancedSetting }) => {
     const { min, max, enablelimit } = advancedSetting;
+
     if (String(enablelimit) === '1') {
       const rowsLength = Number(
         (_.get(value, 'rows') && value.rows.filter(row => !(row.rowid || '').startsWith('empty')).length) ||
           (!_.isObject(value) ? value : 0) ||
           0,
       );
+
       if (_.isNumber(rowsLength) && !_.isNaN(rowsLength)) {
         if (_.isNumber(Number(min)) && !_.isNaN(Number(min)) && rowsLength < Number(min)) {
           return `${_l('请至少输入%0条记录', min)}`;
@@ -92,6 +95,7 @@ export const FORM_ERROR_TYPE_TEXT = {
     if (max && min) {
       if (+value > +max || +value < +min) return _l('请输入%0到%1之间的数值', showMin, showMax);
     }
+
     if (min && +value < +min) return _l('请输入大于等于%0的数', showMin);
     if (max && +value > +max) return _l('请输入小于等于%0的数', showMax);
   },
@@ -104,6 +108,7 @@ export const FORM_ERROR_TYPE_TEXT = {
       if (selectItemsCount > +max || selectItemsCount < +min) return _l('请选择%0~%1项', min, max);
       return;
     }
+
     if (min && selectItemsCount < +min) return _l('最少选择%0项', min);
     if (max && selectItemsCount > +max) return _l('最多选择%0项', max);
   },
@@ -145,6 +150,7 @@ export const FORM_ERROR_TYPE_TEXT = {
       if (stringSize > +max || stringSize < +min) return _l('请输入%0~%1个字', min, max);
       return;
     }
+
     if (min && stringSize < +min) return _l('最少输入%0个字', min);
     if (max && stringSize > +max) return _l('最多输入%0个字', max);
   },
@@ -153,12 +159,14 @@ export const FORM_ERROR_TYPE_TEXT = {
       const mode = isTime ? 'HH:mm:ss' : 'YYYY-MM-DD HH:mm:ss';
       return moment(val, mode);
     }
+
     if (max === min) return _l('请填写%0', min);
     if (max && min) {
       if (computerValue(value) > computerValue(max) || computerValue(value) < computerValue(min))
         return _l('请填写%0 ~ %1范围内的时间', min, max);
       return;
     }
+
     if (min && computerValue(value) < computerValue(min)) return _l('时间不能早于%0', min);
     if (max && computerValue(value) > computerValue(max)) return _l('时间不能晚于%0', max);
   },
@@ -215,3 +223,18 @@ export const WIDGET_VALUE_ID = {
   35: 'sid',
   48: 'organizeId',
 };
+
+// 掩码配置相关属性
+export const MASK_ADVANCEDSETTING = [
+  'datamask',
+  'isdecrypt',
+  'masktype',
+  'maskbegin',
+  'mdchar',
+  'maskend',
+  'mechar',
+  'maskmid',
+  'masklen',
+  'maskwords',
+  'defaultmask',
+];

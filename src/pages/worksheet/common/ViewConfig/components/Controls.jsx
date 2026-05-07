@@ -43,6 +43,7 @@ export default class Controls extends React.Component {
     const controls = newColumns.map(item => item.controlId);
     let data = {};
     let editAttrs = ['controls', 'displayControls', 'showControls'];
+
     if (controls.includes('ownerid')) {
       data = {
         sysids: JSON.stringify(sysids.filter(o => !controls.includes(o))),
@@ -55,6 +56,7 @@ export default class Controls extends React.Component {
       };
       editAttrs = [...editAttrs, 'advancedSetting'];
     }
+
     updateCurrentView({
       ...view,
       appId,

@@ -60,6 +60,7 @@ export default function DepartmentFullName(props) {
     if (_.isEmpty(departmentIds)) {
       return;
     }
+
     setData({ fullDepartmentLoading: true });
     departmentController.getDepartmentFullNameByIds({ projectId, departmentIds }).then(res => {
       res.forEach(it => {

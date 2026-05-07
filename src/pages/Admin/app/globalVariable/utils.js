@@ -2,6 +2,7 @@ export const formatVarList = list => {
   let resultList = [];
   list.forEach(el => {
     const nameArr = el.name.split('.');
+
     for (let i = 0; i < nameArr.length; i++) {
       const key = nameArr.slice(0, i + 1).join('.');
       const hasChild = i !== nameArr.length - 1;

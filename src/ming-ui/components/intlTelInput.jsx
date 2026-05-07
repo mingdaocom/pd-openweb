@@ -271,6 +271,7 @@ export default function MDIntlTelInput(element, options) {
   const preferredCountries = options.preferredCountries ||
     _.get(md, 'global.Config.DefaultConfig.preferredCountries') || ['cn', 'hk', 'mo', 'tw'];
   const intlTelInputInstance = intlTelInput(element, finalOptions);
+
   const sortCountryList = d => {
     const countryContainer = d.closest('.iti').querySelector('.iti__country-container');
     if (!countryContainer) return;
@@ -292,6 +293,7 @@ export default function MDIntlTelInput(element, options) {
       const countryCode = element.getAttribute('data-country-code');
       return !preferredCountries.includes(countryCode);
     });
+
     if (isChinese) {
       remainingElements.sort((a, b) => {
         const aName = a.querySelector('.iti__country-name').textContent;
@@ -299,10 +301,12 @@ export default function MDIntlTelInput(element, options) {
         return aName.localeCompare(bName, 'zh');
       });
     }
+
     remainingElements.forEach(element => {
       countryList.appendChild(element);
     });
   };
+
   // 监听下拉框展开事件
   let debounceTimer;
   $(element).on('open:countrydropdown', e => {
@@ -311,6 +315,7 @@ export default function MDIntlTelInput(element, options) {
       sortCountryList(e.target);
       // 动态绑定搜索框的输入事件，搜索后恢复排序
       const searchInput = e.target.closest('.iti').querySelector('.iti__search-input');
+
       if (searchInput) {
         searchInput.addEventListener('input', () => {
           if (searchInput.value === '') {
@@ -337,6 +342,7 @@ export const initIntlTelInput = () => {
   if (window.initIntlTelInput) {
     return window.initIntlTelInput;
   }
+
   const $con = document.createElement('div');
   const $input = document.createElement('input');
   $con.style.display = 'none';

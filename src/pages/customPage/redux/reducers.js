@@ -51,12 +51,15 @@ function updateLayout(state, payload) {
         $apply: items => {
           return items.map(item => {
             const index = _.findIndex(components, v => (v.id || v.uuid) === (item.id || item.uuid));
+
             if (index >= 0) {
               const data = layouts[index];
               const maxH = 40;
+
               if (adjustScreen && data.h >= maxH) {
                 data.h = maxH;
               }
+
               return update(item, {
                 [layoutType]: { layout: { $set: _.pick(data, ['x', 'y', 'w', 'h', 'minW', 'minH', 'maxH']) } },
               });
@@ -68,12 +71,14 @@ function updateLayout(state, payload) {
       },
     });
   }
+
   return state;
 }
 
 function getIndex(state, component) {
   return getIndexById({ component, components: state.components });
 }
+
 function updateWidgetVisible(state, payload) {
   const { widget, layoutType } = payload;
   return update(state, { components: { [getIndex(state, widget)]: { [layoutType]: { $toggle: ['visible'] } } } });
@@ -86,6 +91,7 @@ function getMaxXComponentInSingleLine(layouts, y) {
     item => item.x,
   );
 }
+
 /**
  * 组件复制
  * 布局自适应，优先放在当前行，位置不够则放在最后一行
@@ -96,23 +102,29 @@ function copyWebLayout(components, layout) {
   const { y, w } = layout;
   const layouts = components.map(item => _.get(item, ['web', 'layout'])).filter(_ => _);
   const { x: maxX, w: maxW } = getMaxXComponentInSingleLine(layouts, y);
+
   // 如果当前行放不下则从最后一行开始放
   if (maxX + maxW + w > 12) {
     const { y: maxY } = maxBy(layouts, item => item.y);
+
     // 如果最后一行就是当前行 则直接放到下一行
     if (maxY === y) {
       return { ...layout, x: 0, y: Infinity };
     }
+
     const { x, w: lastLineComponentW } = getMaxXComponentInSingleLine(layouts, maxY);
+
     // 如果最后一行放不下
     if (x + lastLineComponentW + w > 12) {
       return { ...layout, x: 0, y: Infinity };
     }
+
     return { ...layout, x: x + lastLineComponentW, y: maxY };
   }
 
   return { ...layout, x: maxX + maxW };
 }
+
 function copyWidget(state, payload) {
   const { web, button, ...rest } = payload;
   let newButton = button;
@@ -129,9 +141,11 @@ function copyWidget(state, payload) {
           filterId: null,
           id: uuidv4(),
         };
+
         if (config.isFilter) {
           btn.config = { ...config, isFilter: undefined };
         }
+
         return btn;
       }),
     };
@@ -155,8 +169,10 @@ function copyWidget(state, payload) {
     },
   });
 }
+
 export default function customPage(state = initialState, action) {
   const { type, payload } = action;
+
   switch (type) {
     case UPDATE_PAGE_INFO:
       return update(state, { $apply: item => ({ ...item, ...payload }) });
@@ -172,10 +188,13 @@ export default function customPage(state = initialState, action) {
       } else {
         sessionStorage.setItem(`customPageEditVisible-${state.pageId}`, String(payload));
       }
+
       const chat = document.querySelector('#chat');
+
       if (chat) {
         payload ? chat.classList.add('hide') : chat.classList.remove('hide');
       }
+
       return update(state, { visible: { $set: payload } });
     case UPDATE_MODIFIED:
       return update(state, { modified: { $set: payload } });
@@ -197,9 +216,11 @@ export default function customPage(state = initialState, action) {
                     if (payload.tabId) {
                       return state.components.filter(c => c.tabId === payload.tabId);
                     }
+
                     if (payload.sectionId) {
                       return state.components.filter(c => c.sectionId === payload.sectionId);
                     }
+
                     return state.components;
                   })(),
                   layoutType: 'web',
@@ -217,6 +238,7 @@ export default function customPage(state = initialState, action) {
           ],
         },
       };
+
       if (payload.type === 'filter') {
         const { loadFilterComponentCount } = state;
         const { filter } = payload;
@@ -233,6 +255,7 @@ export default function customPage(state = initialState, action) {
           ],
         };
       }
+
       return update(state, addData);
     case COPY_WIDGET:
       return copyWidget(state, payload);
@@ -243,6 +266,7 @@ export default function customPage(state = initialState, action) {
         components: { $splice: [[getIndexById({ component: payload, components: state.components }), 1]] },
         modified: { $set: true },
       });
+
       if (payload.type === enumWidgetType.filter || payload.type === 'filter') {
         const { loadFilterComponentCount } = state;
         delData.loadFilterComponentCount = loadFilterComponentCount - 1;
@@ -250,6 +274,7 @@ export default function customPage(state = initialState, action) {
           item => item.value !== (payload.value || payload.uuid),
         );
       }
+
       return delData;
     case DEL_TABS_WIDGET:
       const objectId = _.get(payload, 'config.objectId');
@@ -259,9 +284,11 @@ export default function customPage(state = initialState, action) {
           if (_.get(c, 'config.objectId') === objectId) {
             return false;
           }
+
           if (c.sectionId === objectId) {
             return false;
           }
+
           return true;
         }),
       };
@@ -273,12 +300,14 @@ export default function customPage(state = initialState, action) {
           if (c.tabId === tabId) {
             return false;
           }
+
           return true;
         }),
       };
     case UPDATE_WIDGET:
       const { widget, layoutType, ...rest } = payload;
       let result = {};
+
       // 更新对应布局里的标题或者统一的value
       if (layoutType) {
         result = update(state, {
@@ -299,6 +328,7 @@ export default function customPage(state = initialState, action) {
           modified: { $set: true },
         });
       }
+
       if (result.filterComponents.length) {
         result.filterComponents = result.filterComponents.map(item => {
           if (item.value === (widget.value || widget.uuid)) {
@@ -312,6 +342,7 @@ export default function customPage(state = initialState, action) {
           }
         });
       }
+
       return result;
     case UPDATE_LAYOUT:
       return updateLayout(state, payload);

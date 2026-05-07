@@ -57,12 +57,14 @@ export default class Today extends Component {
     const { base, gunterView } = this.props;
     const { chartScroll, periodList } = gunterView;
     const todayEl = document.querySelector(`.gunterView-${base.viewId} .gunterChart .today`);
+
     if (todayEl) {
       const parentNode = todayEl.parentNode;
       const offsetLeft = parentNode.offsetLeft + todayEl.offsetLeft;
       const scrollLeft = Math.abs(chartScroll.x);
       const isLeft = scrollLeft >= offsetLeft;
       const isRight = scrollLeft <= Math.abs(chartScroll.wrapperWidth - offsetLeft);
+
       if (isLeft || isRight) {
         this.setState({ todayVisible: true, direction: isLeft ? 'left' : 'right' });
       } else {
@@ -72,17 +74,21 @@ export default class Today extends Component {
       const today = moment().format('YYYY-MM-DD');
       const start = periodList[0];
       const end = periodList[periodList.length - 1];
+
       if (end && moment(today).isBefore(end.time)) {
         this.setState({ direction: 'left' });
       }
+
       if (start && moment(today).isAfter(start.time)) {
         this.setState({ direction: 'right' });
       }
+
       this.setState({ todayVisible: true });
     }
   };
   handleGoToday = () => {
     const { todayVisible } = this.state;
+
     if (todayVisible) {
       this.setState({ todayVisible: false });
       this.props.refreshGunterView();

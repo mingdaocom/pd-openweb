@@ -35,6 +35,7 @@ class ChatWindow extends Component {
       })
       .then(result => {
         let data = {};
+
         if (type == Constant.SESSIONTYPE_USER) {
           data = {
             isGroup: false,
@@ -57,6 +58,7 @@ class ChatWindow extends Component {
             msg: { con: '' },
           };
         }
+
         this.props.dispatch(actions.setIsWindow(true));
         this.props.dispatch(actions.addSession(data));
 

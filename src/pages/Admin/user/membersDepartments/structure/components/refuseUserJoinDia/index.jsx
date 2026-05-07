@@ -51,6 +51,7 @@ class RefuseUserJoinDia extends React.Component {
         } else {
           alert(_l('拒绝失败'), 2);
         }
+
         onCancel();
       })
       .catch(() => {

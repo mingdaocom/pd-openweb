@@ -133,6 +133,7 @@ function SortableComponent(props) {
     if (props.moveItem && _.isFunction(props.moveItem)) {
       props.moveItem();
     }
+
     setListItems(listItems => {
       const newItems = [...listItems];
       const dragItem = newItems[dragIndex]; //需要移动的元素
@@ -157,6 +158,7 @@ function SortableComponent(props) {
           if (!_.isEqual(items, listItems)) {
             onSortEnd(listItems, newIndex, oldIndex);
           }
+
           dragging = false;
           setDragging(false);
         }}

@@ -11,6 +11,7 @@ export default function AttachmentOperate(props) {
     allowdownload = '1',
     alldownload = '1',
     allowappupload = '1',
+    allowcamera,
   } = getAdvanceSetting(data);
 
   const isDownload = allowdownload === '1' || alldownload === '1';
@@ -25,6 +26,16 @@ export default function AttachmentOperate(props) {
           onClick={checked => onChange(handleAdvancedSettingChange(data, { allowupload: String(+!checked) }))}
         />
       </div>
+      {allowupload === '1' && (
+        <div className="labelWrap pLeft24">
+          <Checkbox
+            size="small"
+            text={_l('PC端拍摄照片')}
+            checked={allowcamera === '1'}
+            onClick={checked => onChange(handleAdvancedSettingChange(data, { allowcamera: String(+!checked) }))}
+          />
+        </div>
+      )}
       <div className="labelWrap">
         <Checkbox
           size="small"

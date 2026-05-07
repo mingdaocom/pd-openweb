@@ -76,6 +76,7 @@ const BulletinSkeleton = styled.div`
 export default function BulletinBoard(props) {
   const { loading, platformSetting = {}, height } = props;
   const { bulletinBoards = [] } = platformSetting;
+  const isMobile = browserIsMobile();
 
   if (loading) {
     return (
@@ -86,7 +87,7 @@ export default function BulletinBoard(props) {
   }
 
   return (
-    <CarouselWrapper autoplay={true} isMobile={browserIsMobile()}>
+    <CarouselWrapper autoplay={true} isMobile={isMobile}>
       {bulletinBoards
         .concat(!bulletinBoards.length ? [{ url: `${md.global.FileStoreConfig.pictureHost}/${coverUrls[0]}` }] : [])
         .map((item, i) => {
@@ -99,7 +100,10 @@ export default function BulletinBoard(props) {
             >
               <div
                 className={cx('image', { pointer: item.link })}
-                style={{ backgroundImage: `url(${item.url})`, height: `${height}px` }}
+                style={{
+                  backgroundImage: `url(${item.url}${isMobile ? '&imageView2/2/h/400' : ''})`,
+                  height: `${height}px`,
+                }}
               />
               {item.title && (
                 <div

@@ -60,7 +60,7 @@ function DelegationManage(props) {
   return (
     <Fragment>
       <div className="orgManagementWrap flex flexColumn deputeManageContent">
-        <AdminTitle prefix={_l('待办委托')} />
+        <AdminTitle prefix={_l('用户 - 待办委托')} />
 
         <div className="orgManagementHeader flexRow Font17 bold">{_l('待办委托')}</div>
         <div className="orgManagementContent">

@@ -31,6 +31,7 @@ export default class UserListCon extends React.Component {
       'outsourcing',
       ...roleInfos.filter(o => sysRoleType.includes(o.roleType)).map(o => o.roleId),
     ].includes(roleId);
+
     if (isSys) {
       if (!isManager) {
         location.reload();
@@ -50,24 +51,28 @@ export default class UserListCon extends React.Component {
     const { outsourcing = {}, userList = [] } = appRole;
     const { memberModels = [] } = outsourcing;
     let dataList = [...memberModels, ...userList];
+
     const getData = type => {
       return userIds
         .filter(item => {
           let data = dataList.find(o => {
             let ids = item.split('_');
             let id = ids[0];
+
             if (ids.length > 1) {
               return o.id === id && o.memberType === type && type + '' === ids[1];
             } else {
               return o.id === item && o.memberType === type;
             }
           });
+
           if (data) {
             return true;
           }
         })
         .map(o => o.split('_')[0]);
     };
+
     return {
       selectAll: isAll,
       organizationId: getData(0).length > 0 ? getData(0)[0] : '',
@@ -251,9 +256,11 @@ export default class UserListCon extends React.Component {
     const { appRole = {}, setOutsourcingList, setUserList, setUser, getRoleSummary } = this.props;
     const { outsourcing = {}, userList = [], user = {}, roleInfos = [] } = appRole;
     let { userIds = [] } = this.state;
+
     if (roleIds.length <= 0) {
       return alert(_l('请选择角色'), 3);
     }
+
     const { appId = '', setSelectedIds } = this.props;
     // batchEditMemberRole; 批量编辑用户角色
     let roleName = roleInfos.filter(o => roleIds.includes(o.roleId)).map(o => o.name);
@@ -271,6 +278,7 @@ export default class UserListCon extends React.Component {
         roleName: roleName,
         operater: md.global.Account.fullname,
       };
+
       //全部/外协 修改角色，数据更新优化
       if ('all' === roleId || isExternal) {
         setUserList(
@@ -305,6 +313,7 @@ export default class UserListCon extends React.Component {
           }),
         });
       }
+
       cb && cb();
       !isExternal && getRoleSummary(appId);
       this.setState({
@@ -340,6 +349,7 @@ export default class UserListCon extends React.Component {
     }).then(res => {
       this.formatPage(res);
       const { roleInfos = [] } = appRole;
+
       if (
         roleId === (roleInfos.find(o => sysRoleType.includes(o.roleType)) || {}).roleId &&
         Ids.includes(md.global.Account.accountId)
@@ -360,9 +370,11 @@ export default class UserListCon extends React.Component {
   renderCon = () => {
     const { roleId = 'all', loading, appRole = {}, projectId, freshNum, isExternal } = this.props;
     const { roleInfos = [] } = appRole;
+
     if (loading) {
       return <LoadDiv />;
     }
+
     switch (roleId) {
       case 'apply':
         return (
@@ -426,6 +438,7 @@ export default class UserListCon extends React.Component {
                 overlayClosable: false,
                 onSave: data => {
                   let addOrgRoleList = data;
+
                   if (!_.isEmpty(addOrgRoleList)) {
                     this.addRoleMembers(roleId, { addOrgRoleList });
                   }

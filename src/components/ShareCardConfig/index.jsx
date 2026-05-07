@@ -20,10 +20,12 @@ const loadWeiXinScript = () => {
 // 微信分享卡片配置
 const initShareConfig = async props => {
   const { title = '', desc = '', projectId, controls = [], worksheetId, type } = props;
+
   const renderTxt = value => {
     if (!value || !(value || '').startsWith('[')) {
       return value;
     }
+
     return getDynamicValue(controls, {
       type: 2,
       advancedSetting: {

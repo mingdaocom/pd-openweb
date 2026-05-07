@@ -15,6 +15,7 @@ const boolToNumber = bool => {
   if (bool) {
     return 1;
   }
+
   return 0;
 };
 
@@ -60,6 +61,7 @@ class Panel extends Component {
   handleSelect = (type, option) => {
     const { defaultOpenValue } = this.props;
     const value = moment(this.props.value || defaultOpenValue);
+
     if (type === 'hour') {
       value.hour(option);
     } else if (type === 'minute') {
@@ -69,6 +71,7 @@ class Panel extends Component {
     }
 
     const { showHour, showMinute, showSecond } = this.props;
+
     if ([showHour, showMinute, showSecond].filter(x => x).length === 1) {
       this.props.onClose();
     }
@@ -97,6 +100,7 @@ class Panel extends Component {
       this.props.optionFormatter ? this.props.optionFormatter : n => String(n).padStart(2, 0),
     );
     const disabledSelect = disabledHours ? disabledHours() : [];
+
     if (showHour) {
       return (
         <PanelSelect
@@ -108,6 +112,7 @@ class Panel extends Component {
         />
       );
     }
+
     return null;
   };
 
@@ -131,6 +136,7 @@ class Panel extends Component {
         />
       );
     }
+
     return null;
   };
 
@@ -154,6 +160,7 @@ class Panel extends Component {
         />
       );
     }
+
     return null;
   };
 

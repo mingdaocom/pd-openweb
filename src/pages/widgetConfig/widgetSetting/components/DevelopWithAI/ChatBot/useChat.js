@@ -32,6 +32,7 @@ class ChunkLoader {
       this.feedFn(chunk);
       await new Promise(resolve => setTimeout(resolve, this.interval));
     }
+
     this.isProcessing = false;
   }
 }
@@ -91,6 +92,7 @@ function useChatBot({ params = [], defaultMessages = [], currentCode, onMessageD
         },
       ];
     }
+
     await abortRequest();
     abortControllerRef.current = new AbortController();
 
@@ -113,6 +115,7 @@ function useChatBot({ params = [], defaultMessages = [], currentCode, onMessageD
           messages,
           message => message.role === 'assistant' && message.content.includes('```mdy.free_field'),
         );
+
         if (code && isContinuous && lastMessageWithCode) {
           const codeContent = lastMessageWithCode.content.split('```mdy.free_field')[0];
           lastMessageWithCode.content = `${codeContent}\`\`\`mdy.free_field\n${code}\`\`\``;
@@ -123,6 +126,7 @@ function useChatBot({ params = [], defaultMessages = [], currentCode, onMessageD
             userMessage,
           ];
         }
+
         return result;
       }
 
@@ -144,6 +148,7 @@ function useChatBot({ params = [], defaultMessages = [], currentCode, onMessageD
                       },
                     };
                   }
+
                   return item;
                 });
                 return { ...message, content };
@@ -174,6 +179,7 @@ function useChatBot({ params = [], defaultMessages = [], currentCode, onMessageD
           if (event.event === 'error') {
             onError(safeParse(event.data).message, event.data);
           }
+
           try {
             const data = JSON.parse(event.data);
             const messageContent = get(data, 'choices.0.delta.content') || '';

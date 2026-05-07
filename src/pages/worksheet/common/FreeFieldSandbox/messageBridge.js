@@ -31,6 +31,7 @@ export default class MessageBridge {
   }
   handleMessage(event) {
     const { source, payload } = event.data || {};
+
     if (source === this.options.containerEnvName) {
       this.emitter.emit('container', payload);
     }

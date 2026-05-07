@@ -32,6 +32,7 @@ export default class IntegrationApi extends React.Component {
     const { match = {} } = this.props;
     const { params = {} } = match;
     const { apiId } = params;
+
     /**
      * 删除api
      */
@@ -73,6 +74,7 @@ export default class IntegrationApi extends React.Component {
         },
       });
     };
+
     return (
       <Wrap className="Con">
         <DocumentTitle title={_l('集成')} />

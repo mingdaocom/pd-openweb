@@ -54,9 +54,11 @@ class ChatPanelSession extends Component {
   }
   shouldComponentUpdate(nextProps) {
     const { session } = this.props;
+
     if (nextProps.currentSession.value === session.id) {
       return true;
     }
+
     return false;
   }
   componentWillUnmount() {
@@ -98,9 +100,11 @@ class ChatPanelSession extends Component {
   }
   handleSetInfoVisible(visible) {
     const { isGroup } = this.props.session;
+
     if (isGroup) {
       visible ? localStorage.removeItem('chatInfoHidden') : safeLocalStorageSetItem('chatInfoHidden', true);
     }
+
     this.setState({
       infoVisible: visible,
       isOpenFile: false,
@@ -132,11 +136,13 @@ class ChatPanelSession extends Component {
       waitingid: temporaryMessage.file.id,
       isPrepare: true,
     };
+
     if (session.isGroup) {
       sendMsg.togroup = session.id;
     } else {
       sendMsg.touser = session.id;
     }
+
     this.props.dispatch(actions.addMessage(sendMsg, currentMessages[currentMessages.length - 1]));
   }
   handleSendEmotionTextMsg(emotionText) {
@@ -151,13 +157,16 @@ class ChatPanelSession extends Component {
   }
   handleBlur(value) {
     // 草稿
-    const { id } = this.props.session;
-    this.props.dispatch(
-      actions.updateSessionList({
-        id,
-        sendMsg: value,
-      }),
-    );
+    if (document.visibilityState === 'visible') {
+      const { id } = this.props.session;
+      this.props.dispatch(
+        actions.updateSessionList({
+          id,
+          sendMsg: _.trim(value) ? value : '',
+        }),
+      );
+    }
+
     this.updateValue(value);
   }
   handleChange = value => {
@@ -167,7 +176,22 @@ class ChatPanelSession extends Component {
   updateValue(value) {
     const { session, isWindow } = this.props;
     const { id } = session;
-    value ? safeLocalStorageSetItem(`textareaValue${id}`, value) : localStorage.removeItem(`textareaValue${id}`);
+    const draftValue = _.trim(value) ? value : '';
+
+    if (document.visibilityState === 'visible') {
+      if (draftValue) {
+        safeLocalStorageSetItem(`textareaValue${id}`, draftValue);
+      } else {
+        localStorage.removeItem(`textareaValue${id}`);
+        this.props.dispatch(
+          actions.updateSessionList({
+            id,
+            sendMsg: '',
+          }),
+        );
+      }
+    }
+
     this.setState({
       value,
     });
@@ -176,9 +200,10 @@ class ChatPanelSession extends Component {
       const textarea = document.querySelector(`#ChatPanel-${currentSession.value} .ChatPanel-textarea textarea`);
       textarea && textarea.reset && textarea.reset();
     }
+
     try {
       if (isWindow && window.opener && window.opener.updateChatSessionList) {
-        window.opener.updateChatSessionList(id, value);
+        window.opener.updateChatSessionList(id, draftValue);
       }
     } catch (error) {
       console.log(error);
@@ -203,9 +228,10 @@ class ChatPanelSession extends Component {
    * 文字消息
    */
   handleSendMsg(value) {
-    if (window.config.SocketPolling && !IM.socket.connected) {
+    if ((window.config.SocketPolling && !IM.socket.connected) || this.props.socketState !== 0) {
       return;
     }
+
     if (IM.socket.connected) {
       const sendMsg = {
         type: 1,
@@ -235,6 +261,10 @@ class ChatPanelSession extends Component {
    * 卡片消息
    */
   handleSendCardMsg(card) {
+    if ((window.config.SocketPolling && !IM.socket.connected) || this.props.socketState !== 0) {
+      return;
+    }
+
     const cardSender = utils.cardDisposeName(card.card);
     const value = `[${cardSender.name}] ${card.card.title}`;
     const sendMsg = {
@@ -247,6 +277,10 @@ class ChatPanelSession extends Component {
    * 表情图片消息
    */
   handleSendEmotionPicMsg(pic) {
+    if ((window.config.SocketPolling && !IM.socket.connected) || this.props.socketState !== 0) {
+      return;
+    }
+
     const sendMsg = {
       msg: pic.file.name,
       ...pic,
@@ -257,6 +291,10 @@ class ChatPanelSession extends Component {
    * 图片&附件消息
    */
   handleSendFileMsg(file, msg) {
+    if ((window.config.SocketPolling && !IM.socket.connected) || this.props.socketState !== 0) {
+      return;
+    }
+
     const { session } = this.props;
     const sendMsg = {
       waitingid: utils.getUUID(),
@@ -271,6 +309,10 @@ class ChatPanelSession extends Component {
    * 个人发送抖动消息
    */
   handleShake() {
+    if ((window.config.SocketPolling && !IM.socket.connected) || this.props.socketState !== 0) {
+      return;
+    }
+
     const { session, messages } = this.props;
     const currentMessages = messages[session.id] || [];
     socket.Message.sendShake(Constant.SESSIONTYPE_USER, {
@@ -305,12 +347,14 @@ class ChatPanelSession extends Component {
     } else {
       sendMsg.touser = session.id;
     }
+
     if (currentReferMessage && currentReferMessage.id) {
       sendMsg.referMessage = currentReferMessage;
       sendMsg.refer = {
         msgid: currentReferMessage.id,
       };
     }
+
     this.props.dispatch(actions.addMessage(sendMsg, currentMessages[currentMessages.length - 1]));
     this.props.dispatch(
       actions.updateSessionList({
@@ -338,6 +382,7 @@ class ChatPanelSession extends Component {
       },
       result => {
         const { error } = result;
+
         if (error === 'not my contract') {
           this.setState({
             isContact: false,
@@ -364,6 +409,7 @@ class ChatPanelSession extends Component {
     const textarea = $(`#ChatPanel-${id}`).find('.ChatPanel-textarea textarea');
     const textareaEl = textarea.get(0);
     let atList = [];
+
     if (textareaEl?.getMentions) {
       textareaEl.getMentions(users => {
         for (let i = 0; i < users.length; i++) {
@@ -371,10 +417,12 @@ class ChatPanelSession extends Component {
             atList = 'all';
             break;
           }
+
           atList.push(users[i].id);
         }
       });
     }
+
     if (atList.length || atList === 'all') {
       return {
         gid: id,
@@ -386,7 +434,7 @@ class ChatPanelSession extends Component {
   }
   render() {
     const { value, infoVisible, searchText, isOpenFile, isSecured } = this.state;
-    const { session, referMessage } = this.props;
+    const { session, referMessage, socketState } = this.props;
     const hideChat = md.global.SysSettings.forbidSuites.includes('6');
     const isContact = this.state.isContact && !hideChat;
     const { id, isCertificated = true } = session;
@@ -434,6 +482,7 @@ class ChatPanelSession extends Component {
                   onRemoveReferMessage={this.handleRemoveReferMessage.bind(this)}
                 />
                 <SendToolbar
+                  socketState={socketState}
                   session={session}
                   onSendEmotionTextMsg={this.handleSendEmotionTextMsg.bind(this)}
                   onSendEmotionPicMsg={this.handleSendEmotionPicMsg.bind(this)}
@@ -444,7 +493,7 @@ class ChatPanelSession extends Component {
                   onChangeValue={this.handleChange.bind(this)}
                 />
               </div>
-              <MessageSendText value={value} onSendMsg={this.handleSendMsg.bind(this)} />
+              <MessageSendText value={value} socketState={socketState} onSendMsg={this.handleSendMsg.bind(this)} />
             </div>
           </div>
           <ChatPanelSessionInfo
@@ -460,7 +509,7 @@ class ChatPanelSession extends Component {
 }
 
 const ChatPanelSessionConnect = connect(state => {
-  const { currentSession, messages, referMessage, currentSessionList, isWindow } = state.chat;
+  const { currentSession, messages, referMessage, currentSessionList, isWindow, socketState } = state.chat;
 
   return {
     currentSession,
@@ -468,6 +517,7 @@ const ChatPanelSessionConnect = connect(state => {
     referMessage,
     currentSessionList,
     isWindow,
+    socketState,
   };
 })(ChatPanelSession);
 

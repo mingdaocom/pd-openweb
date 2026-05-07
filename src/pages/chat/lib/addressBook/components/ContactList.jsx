@@ -53,10 +53,12 @@ export default class ContactList extends React.Component {
 
   renderListContent() {
     const { isLoading, list, isSearch } = this.props;
+
     if (isSearch) {
       if (!isLoading && list && list.length === 0) {
         return <ListNull isSearch={isSearch} type={'contacts'} />;
       }
+
       return (
         <React.Fragment>
           {this.renderList(list)}

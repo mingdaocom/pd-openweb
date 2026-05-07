@@ -39,10 +39,12 @@ export function renderMarkdown(src, cb = () => {}) {
             return `<div class="mdcode"><code class="language-">${highlight(str, languages.js)}</code></div>`;
           },
         });
+
         md.renderer.rules.link_open = function (tokens, idx /* , options, env */) {
           const title = tokens[idx].title ? ' title="' + escapeHtml(replaceEntities(tokens[idx].title)) + '"' : '';
           return '<a target="_blank" href="' + escapeHtml(tokens[idx].href) + '"' + title + '>';
         };
+
         cb(null, `<div class="markdown-body">${filerXss(md.render(text))}</div>`);
       } else {
         cb(null, filerXss(text));
@@ -53,6 +55,7 @@ export function renderMarkdown(src, cb = () => {}) {
 
 function decode(arrayBuffer) {
   const encodings = ['utf-8', 'gbk', 'iso-8859-1']; // 常见的编码列表
+
   for (let encoding of encodings) {
     try {
       const decoder = new TextDecoder(encoding, { fatal: true });
@@ -62,6 +65,7 @@ function decode(arrayBuffer) {
       console.log(e);
     }
   }
+
   return null;
 }
 

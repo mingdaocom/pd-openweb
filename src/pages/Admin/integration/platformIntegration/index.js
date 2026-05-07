@@ -19,12 +19,54 @@ import Workwx from './workwx';
 import './index.less';
 
 const configs = [
-  { type: 'workwx', src: workwxImg, text: _l('企业微信'), featureId: 19, projectIntergrationType: 3 },
-  { type: 'ding', src: dingIng, text: _l('钉钉'), featureId: 10, projectIntergrationType: 1 },
-  { type: 'welink', src: welinkImg, text: _l('Welink'), featureId: 18, projectIntergrationType: 4 },
-  { type: 'feishu', src: feishuImg, text: _l('飞书'), featureId: 12, projectIntergrationType: 6 },
-  { type: 'lark', src: feishuImg, text: _l('Lark'), featureId: 12, projectIntergrationType: 6 },
-  { type: 'microsoft', src: microsoftImg, text: _l('Microsoft Entra'), featureId: 53, projectIntergrationType: 7 },
+  {
+    type: 'workwx',
+    src: workwxImg,
+    text: _l('企业微信'),
+    featureId: 19,
+    projectIntergrationType: 3,
+    privatePermission: 'hideWorkWeixin',
+  },
+  {
+    type: 'ding',
+    src: dingIng,
+    text: _l('钉钉'),
+    featureId: 10,
+    projectIntergrationType: 1,
+    privatePermission: 'hideDingding',
+  },
+  {
+    type: 'welink',
+    src: welinkImg,
+    text: _l('Welink'),
+    featureId: 18,
+    projectIntergrationType: 4,
+    privatePermission: 'hideWelink',
+  },
+  {
+    type: 'feishu',
+    src: feishuImg,
+    text: _l('飞书'),
+    featureId: 12,
+    projectIntergrationType: 6,
+    privatePermission: 'hideFeishu',
+  },
+  {
+    type: 'lark',
+    src: feishuImg,
+    text: _l('Lark'),
+    featureId: 12,
+    projectIntergrationType: 6,
+    privatePermission: 'hideLark',
+  },
+  {
+    type: 'microsoft',
+    src: microsoftImg,
+    text: _l('Microsoft Entra'),
+    featureId: 53,
+    projectIntergrationType: 7,
+    privatePermission: 'hideMicrosoftEntra',
+  },
 ];
 
 export default class PlatformIntegration extends Component {
@@ -33,7 +75,7 @@ export default class PlatformIntegration extends Component {
     this.state = {
       loading: true,
     };
-    Config.setPageTitle(_l('企业身份'));
+    Config.setPageTitle(_l('集成 - 企业身份'));
   }
 
   componentDidMount() {
@@ -126,6 +168,7 @@ export default class PlatformIntegration extends Component {
         />
       );
     }
+
     return null;
   };
 
@@ -150,7 +193,14 @@ export default class PlatformIntegration extends Component {
           <div className="textTertiary Font14 mBottom40 TxtCenter">{_l('从第三方同步通讯录，只能集成一个平台')}</div>
           {configs.map(item => {
             const { src, text, featureId, privatePermission } = item;
-            if (md.global.SysSettings[privatePermission]) return;
+
+            if (
+              privatePermission &&
+              (window.platformENV.isLocal || window.platformENV.isOverseas) &&
+              md.global.SysSettings[privatePermission]
+            )
+              return;
+
             let featureType = getFeatureStatus(projectId, featureId);
             if (!featureType) return null;
 

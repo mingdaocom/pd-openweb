@@ -17,9 +17,11 @@ class TaskDetailEntrypoint extends Component {
     const { taskDetails, match } = this.props;
     const { id } = match.params;
     let title = '任务详情-任务';
+
     if (taskDetails[id] && !_.get(taskDetails, [id, 'status'])) {
       title = _l('任务已删除');
     }
+
     _.get(taskDetails, [id, 'data', 'taskName']) && (title = _.get(taskDetails, [id, 'data', 'taskName']));
     return (
       <div className="taskDetailContainer flexColumn">

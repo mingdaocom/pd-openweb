@@ -34,10 +34,13 @@ export default function AdvancedSettingHandler(Comp) {
               setError(true);
               return;
             }
+
             const translateInfo = getTranslateInfo(data.appId, null, worksheetId);
+
             if (data.advancedSetting) {
               data.advancedSetting = replaceAdvancedSettingTranslateInfo(data.appId, worksheetId, data.advancedSetting);
             }
+
             data.entityName = translateInfo.recordName || data.entityName;
             data.template.controls = replaceControlsTranslateInfo(data.appId, worksheetId, data.template.controls);
             setWorksheetInfo(data);
@@ -74,6 +77,7 @@ export default function AdvancedSettingHandler(Comp) {
           reservecontrols: advancedSettingData.reservecontrols !== 'all' ? advancedSettingData.reservecontrols : '',
         }
       : undefined;
+
     if (error) {
       return (
         <ErrorWrapper>
@@ -81,6 +85,7 @@ export default function AdvancedSettingHandler(Comp) {
         </ErrorWrapper>
       );
     }
+
     return <Comp {...props} loading={loading} worksheetInfo={worksheetInfo} advancedSetting={advancedSetting} />;
   };
 }

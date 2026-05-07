@@ -40,6 +40,7 @@ const FocusBtn = styled.div`
 `;
 
 let isOnComposition = false;
+
 export default function SearchInput(props) {
   const { clickShowInput, placeholder, value, onChange } = props;
   const inputRef = useRef();
@@ -62,6 +63,7 @@ export default function SearchInput(props) {
       </FocusBtn>
     );
   }
+
   return (
     <SearchInputCon className={props.className}>
       <i className="icon icon-search Font18 textTertiary"></i>
@@ -82,6 +84,7 @@ export default function SearchInput(props) {
           if (e.type === 'compositionend') {
             isOnComposition = false;
           }
+
           onChange(e.target.value);
         }}
       />

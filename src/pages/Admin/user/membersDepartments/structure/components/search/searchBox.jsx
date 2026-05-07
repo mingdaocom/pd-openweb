@@ -21,6 +21,7 @@ class SearchBox extends Component {
 
   handChange = debounce(value => {
     const { dispatch } = this.props;
+
     if (!value) {
       this.handleClear();
     } else {
@@ -49,6 +50,7 @@ class SearchBox extends Component {
         const afterRequest = () => {
           dispatch({ type: 'UPDATE_SEARCH_VALUYE', data: '' });
         };
+
         dispatch(loadDepartments('', 1, afterRequest));
         this.handleReset();
         this.input.value = '';
@@ -60,6 +62,7 @@ class SearchBox extends Component {
     $(this.box).addClass('ThemeBorderColor3').removeClass('ThemeBorderColor8');
     this.handleReset();
     const { result: { departments = [], users = [] } = {} } = this.props;
+
     if (departments.length || users.length) {
       this.setState({ showResult: true });
     }
@@ -67,6 +70,7 @@ class SearchBox extends Component {
 
   handleReset() {
     const { dispatch, departmentId, projectId } = this.props;
+
     if (departmentId) {
       dispatch(updateType(0)); //设置当前部门/职位tab
       dispatch(updateCursor('')); //设置当前选中部门
@@ -81,9 +85,11 @@ class SearchBox extends Component {
 
   renderResult = () => {
     const { result, keywords, isSearching = true, dispatch } = this.props;
+
     if (!this.state.showResult) {
       return '';
     }
+
     return (
       <Result
         onClickAway={() => {
@@ -150,6 +156,7 @@ class SearchBox extends Component {
               this.ajaxObj.abort();
               this.ajaxObj = null;
             }
+
             this.handChange(e.target.value);
           }}
           onFocus={this.handleFocus}

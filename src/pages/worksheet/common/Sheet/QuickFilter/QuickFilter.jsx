@@ -29,11 +29,13 @@ const Empty = styled.div`
 function isFullLine(filter) {
   return String((filter.advancedSetting || {}).direction) === '1';
 }
+
 function QuickFilter(props) {
   const {
     mode,
     isDark,
     showTextAdvanced,
+    defaultTriggerUpdate = false,
     base = {},
     from,
     noExpand,
@@ -57,6 +59,7 @@ function QuickFilter(props) {
   const filtersLength = useRef(filters.length);
   const needClickSearch = useRef(_.get(view, 'advancedSetting.clicksearch'));
   let colNum = 2;
+
   if (width > 1220) {
     colNum = 4;
   } else if (width > 1000) {
@@ -66,6 +69,7 @@ function QuickFilter(props) {
   } else {
     colNum = 1;
   }
+
   const showQueryBtn = _.get(view, 'advancedSetting.enablebtn') === '1' || props.enablebtn === '1';
   const fullLineCount = filters.filter(isFullLine).length;
   const showExpand =
@@ -74,8 +78,10 @@ function QuickFilter(props) {
   const _fullShow = fullShow || noExpand;
   let visibleFilters = _fullShow ? filters : filters.slice(0, showQueryBtn ? colNum - 1 : colNum);
   let firstIsFullLine = false;
+
   if (!_fullShow) {
     const firstFullLineIndex = _.findIndex(visibleFilters, isFullLine);
+
     if (firstFullLineIndex === 0) {
       visibleFilters = visibleFilters.slice(0, 1);
       firstIsFullLine = true;
@@ -83,9 +89,12 @@ function QuickFilter(props) {
       visibleFilters = visibleFilters.slice(0, firstFullLineIndex);
     }
   }
+
   let operateIsNewLine = false;
+
   try {
     const lastIsFullLine = isFullLine(_.last(visibleFilters));
+
     if (lastIsFullLine) {
       operateIsNewLine = true;
     } else if (fullLineCount === 0) {
@@ -98,6 +107,7 @@ function QuickFilter(props) {
   } catch (err) {
     console.log(err);
   }
+
   useEffect(() => {
     filtersLength.current = 0;
     needClickSearch.current = undefined;
@@ -106,12 +116,14 @@ function QuickFilter(props) {
     if (filtersLength.current > 0 && filters.length > filtersLength.current && !_fullShow) {
       setFullShow(true);
     }
+
     filtersLength.current = filters.length;
   }, [filters.length]);
   useEffect(() => {
     if (needClickSearch.current === '1' && _.get(view, 'advancedSetting.clicksearch') === '0') {
       refreshSheet(view);
     }
+
     needClickSearch.current = _.get(view, 'advancedSetting.clicksearch');
   }, [_.get(view, 'advancedSetting.clicksearch')]);
   if (!filters.length) {
@@ -121,11 +133,13 @@ function QuickFilter(props) {
       </Con>
     );
   }
+
   return (
     <Con isConfigMode={isConfigMode} className="quickFilterWrap">
       <Conditions
         viewRowsLoading={viewRowsLoading}
         from={from}
+        defaultTriggerUpdate={defaultTriggerUpdate}
         showTextAdvanced={showTextAdvanced}
         isDark={isDark}
         worksheetId={worksheetId}
@@ -139,11 +153,13 @@ function QuickFilter(props) {
         view={view}
         controls={controls.filter(c => {
           let tempType = c.type;
+
           if (c.type === 30) {
             tempType = c.sourceControlType;
           } else if (c.type === 53) {
             tempType = c.enumDefault2;
           }
+
           return _.includes(FASTFILTER_CONDITION_TYPE, tempType);
         })}
         hideStartIndex={visibleFilters.length}

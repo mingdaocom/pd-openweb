@@ -43,6 +43,7 @@ export default class FixedPage extends Component {
   render() {
     const { fixAccount = {}, fixRemark, isNoPublish, backVisible = true } = this.props;
     const { fullName } = fixAccount;
+
     if (isNoPublish) {
       return (
         <FixedContent>
@@ -65,6 +66,7 @@ export default class FixedPage extends Component {
         </FixedContent>
       );
     }
+
     return (
       <FixedContent>
         <div className="iconInfo mBottom25">

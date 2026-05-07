@@ -98,7 +98,7 @@ const Drag = styled.span`
 `;
 
 const ScalePoint = styled.span`
-  background: var(--color-white);
+  background: var(--color-text-inverse);
   display: inline-block;
   width: 8px;
   height: 8px;
@@ -235,6 +235,7 @@ const SelectedOption = styled.span`
   margin-left: 4px;
   ${({ disabled }) => (disabled ? 'color: rgba(0,0,0,.3);' : '')}
 `;
+
 export default function Steps(props) {
   const {
     className,
@@ -253,9 +254,11 @@ export default function Steps(props) {
   const barRef = useRef();
   const selectedOption = _.find(options, i => i.key === value);
   const filterOptions = options.filter(i => !i.isDeleted && (i.key === value || !i.hide));
+
   const getCurrent = value => {
     return _.findIndex(filterOptions, i => i.key === value);
   };
+
   const [currentValue, setCurrentValue] = useState();
   const [width, setWidth] = useState(0);
 
@@ -307,6 +310,7 @@ export default function Steps(props) {
               const { top, height } = barRef.current.getBoundingClientRect();
               const index = Math.ceil((e.clientY - top) / (height / (filterOptions.length - 1)));
               const tempVal = (filterOptions[index] || {}).key || '';
+
               if (tempVal) {
                 setCurrentValue(index);
                 onChange(tempVal);
@@ -317,7 +321,7 @@ export default function Steps(props) {
               className="portraitPointContent"
               onMouseEnter={() => {
                 if (disabled) return;
-                barRef.current && (barRef.current.style.background = 'rgba(0, 0, 0, 0.08)');
+                barRef.current && (barRef.current.style.background = 'var(--color-border-hover)');
               }}
               onMouseLeave={() => {
                 if (disabled) return;
@@ -408,6 +412,7 @@ export default function Steps(props) {
                   // 选项第一个无法选中，点击元素被覆盖
                   if (!value && !disabled) {
                     const tempVal = (filterOptions[0] || {}).key || '';
+
                     if (tempVal) {
                       setCurrentValue(0);
                       onChange(tempVal);
@@ -428,6 +433,7 @@ export default function Steps(props) {
             const { left, width } = barRef.current.getBoundingClientRect();
             const index = Math.ceil((e.clientX - left) / (width / (filterOptions.length - 1)));
             const tempVal = (filterOptions[index] || {}).key || '';
+
             if (tempVal) {
               setCurrentValue(index);
               onChange(tempVal);
@@ -438,7 +444,7 @@ export default function Steps(props) {
             className="pointContent"
             onMouseEnter={() => {
               if (disabled) return;
-              barRef.current && (barRef.current.style.background = 'rgba(0, 0, 0, 0.08)');
+              barRef.current && (barRef.current.style.background = 'var(--color-border-hover)');
             }}
             onMouseLeave={() => {
               if (disabled) return;

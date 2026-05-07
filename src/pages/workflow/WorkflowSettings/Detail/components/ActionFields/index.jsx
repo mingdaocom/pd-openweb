@@ -51,6 +51,7 @@ export default class ActionFields extends Component {
     onClose: PropTypes.func,
     onClickAwayExceptions: PropTypes.array,
     openSearch: PropTypes.bool,
+    showNodeDataSelect: PropTypes.bool,
   };
   static defaultProps = {
     onClickAwayExceptions: [],
@@ -92,6 +93,7 @@ export default class ActionFields extends Component {
       openSearch,
       title,
       handleFieldClick,
+      showNodeDataSelect,
     } = this.props;
     const { activeIndex, keywords } = this.state;
     let condition = _.cloneDeep(this.props.condition);
@@ -166,6 +168,29 @@ export default class ActionFields extends Component {
                         className="mLeft15 mRight10 textSecondary ellipsis"
                         style={{ maxWidth: 150 }}
                       >{`${item.appTypeName}“${item.appName}”`}</div>
+                    )}
+                    {showNodeDataSelect && item.appType === APP_TYPE.SHEET && (
+                      <Tooltip title={_l('使用该节点对象')}>
+                        <Icon
+                          icon="adds"
+                          className="textSecondary hoverColorPrimary pointer Font20"
+                          onClick={e => {
+                            e.stopPropagation();
+                            handleFieldClick({
+                              nodeId: item.id,
+                              fieldValueId: item.id,
+                              nodeName: item.text,
+                              fieldValueName: item.appName,
+                              nodeTypeId: item.nodeTypeId,
+                              appType: item.appType,
+                              actionId: item.actionId,
+                              isSourceApp: item.isSourceApp,
+                              nAlias: item.nAlias,
+                            });
+                            onClose();
+                          }}
+                        />
+                      </Tooltip>
                     )}
                     <Icon
                       icon={index === activeIndex || keywords ? 'arrow-up-border' : 'arrow-down-border'}

@@ -337,6 +337,7 @@ export const updateBranchSort = (processId, nodeId, flowIds) => (dispatch, getSt
 export const updateTestRunning = result => (dispatch, getState) => {
   const { workflowTestRunning } = _.cloneDeep(getState().workflow);
   const { processId, flowNodeId, preFlowNodeId, running, instanceId, exception, toolNode } = result;
+
   const getToolId = ({ name }) => {
     let toolNameReg = '';
     const TOOL_REG_MAP = {
@@ -348,6 +349,7 @@ export const updateTestRunning = result => (dispatch, getState) => {
       wf_api_: /^(.*?wf_api_)(.*?)$/,
       wf_email_: /^(.*?)(wf_email_)(.*?)$/,
       wf_send_: /^(.*?)(wf_send_)(.*?)$/,
+      wf_knowledge_search_: /^(.*?)(wf_knowledge_search_)(.*?)$/,
     };
 
     for (const [key, value] of Object.entries(TOOL_REG_MAP)) {

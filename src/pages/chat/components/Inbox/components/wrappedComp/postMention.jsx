@@ -47,6 +47,7 @@ export default class PostMention extends React.Component {
     let item = null,
       comments,
       commentsCount;
+
     if (fromPost) {
       // 动态直接提到我，从Post中取
       item = inboxItem.Post;
@@ -61,9 +62,11 @@ export default class PostMention extends React.Component {
       } = inboxItem;
       item = comment;
     }
+
     // 消息 @的人和群组 #话题
     const { message, rUserList, rGroupList, categories, attachments, postID, commentID, replyID, replyAccountId } =
       item;
+
     if (fromPost) {
       return {
         message: createLinksForMessage({

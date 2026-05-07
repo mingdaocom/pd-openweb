@@ -61,6 +61,7 @@ export default class ChartSetting extends Component {
   renderChartType() {
     const { reportType, displaySetup } = this.props.currentReport;
     const isFunnelChart = reportType == reportTypes.FunnelChart;
+
     const handleClick = item => {
       if (displaySetup.showChartType !== item.value) {
         this.props.changeCurrentReport({
@@ -72,6 +73,7 @@ export default class ChartSetting extends Component {
         });
       }
     };
+
     return (
       <div className={isFunnelChart ? 'mBottom15' : 'mBottom20'}>
         {isFunnelChart && <div className="mBottom15 Bold Font13">{_l('图形')}</div>}
@@ -352,6 +354,7 @@ export default class ChartSetting extends Component {
           </Fragment>
         );
       }
+
       if (reportTypes.WorldMap === reportType) {
         return (
           <Fragment>
@@ -412,6 +415,7 @@ export default class ChartSetting extends Component {
           </Fragment>
         );
       }
+
       return (
         <YAxis
           name={y}

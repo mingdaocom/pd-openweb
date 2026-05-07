@@ -119,6 +119,7 @@ export default class AddUser extends Component {
   checkedUser = ({ val, type, accountId } = {}) => {
     const { projectId, typeCursor, departmentId } = this.props;
     const { email, inviteType, autonomously } = this.state;
+
     if (
       (type === 'mobile' && !!checkForm['mobile'](val, this.iti)) ||
       (type === 'email' && !!checkForm['email'](val)) ||
@@ -127,6 +128,7 @@ export default class AddUser extends Component {
       this.setState({ showMask: false });
       return;
     }
+
     const userContact =
       type === 'selectUser'
         ? ''
@@ -156,6 +158,7 @@ export default class AddUser extends Component {
           this.setState({ showMask: false });
           return;
         }
+
         let user = {
           accountId: res.accountId,
           fullname: res.name,
@@ -260,6 +263,7 @@ export default class AddUser extends Component {
           jobIds: item.jobIds,
         })),
       };
+
       if (window.platformENV.isOverseas || window.platformENV.isLocal) {
         params.verifyType = _.includes(['mobile', 'email'], inviteType) ? 0 : 1;
         if (inviteType === 'autonomously') {
@@ -271,6 +275,7 @@ export default class AddUser extends Component {
           params.password = encrypt(autonomouslyPasswrod);
         }
       }
+
       this.setState({
         isUploading: true,
         departmentInfos: [],
@@ -280,6 +285,7 @@ export default class AddUser extends Component {
         .then(data => {
           const { failUsers, successUsers, existsUsers, forbidUsers, successCount } = data;
           const failReason = failUsers && failUsers.length ? _.get(failUsers, '[0].failReason') : '';
+
           if (!data || data.actionResult == RESULTS.FAILED) {
             alert(_l(failReason || '邀请失败'), 2);
           } else if (data.actionResult == RESULTS.OVERINVITELIMITCOUNT) {
@@ -298,6 +304,7 @@ export default class AddUser extends Component {
               alert(_l('账号来源类型受限'), 2);
             }
           }
+
           setTimeout(() => {
             this.itiFn();
           }, 200);
@@ -350,7 +357,7 @@ export default class AddUser extends Component {
             field={'userName'}
             value={userName}
             isRequired={true}
-            placeholder={_l('')}
+            placeholder=""
             error={errors['userName'] && !!checkForm['userName'](userName)}
             onChange={e => this.changeFormInfo(e, 'userName')}
             onFocus={() => {
@@ -382,7 +389,7 @@ export default class AddUser extends Component {
             </div>
           </div>
         )}
-        {_.isEmpty(user) && (
+        {_.isEmpty(user) && md.global.SysSettings.enableSmsCustomContent && (
           <div className="formGroup">
             <div className="formLabel">{_l('邀请方式')}</div>
             <div>
@@ -407,6 +414,7 @@ export default class AddUser extends Component {
                     this.itiAutonomously.destroy();
                     this.itiAutonomously = null;
                   }
+
                   this.clearError('mobile');
                   this.clearError('email');
                   this.clearError('autonomously');
@@ -500,12 +508,14 @@ export default class AddUser extends Component {
               onChange={e => this.changeFormInfo(e, 'autonomously')}
               onInput={e => {
                 const val = e.target.value.replace(/ +/g, '');
+
                 if ((val.length <= 3 || isNaN(Number(val))) && this.itiAutonomously) {
                   this.itiAutonomously.destroy();
                   this.itiAutonomously = null;
                   this.autonomously.focus();
                   $(this.autonomously).css({ 'padding-left': '12px' });
                 }
+
                 this.changeFormInfo(val, 'autonomously');
               }}
               placeholder={_l('请输入')}
@@ -532,11 +542,8 @@ export default class AddUser extends Component {
               <span>
                 {_l('初始密码')}
                 {passwordRegexTip ? (
-                  <Tooltip
-                    text={<span style={{ whiteSpace: 'pre-line' }}>{passwordRegexTip}</span>}
-                    popupPlacement="top"
-                  >
-                    <Icon icon="info_outline" className="Font16 mLeft5 Gray_9e" />
+                  <Tooltip title={<span style={{ whiteSpace: 'pre-line' }}>{passwordRegexTip}</span>} placement="top">
+                    <Icon icon="info_outline" className="Font16 mLeft5 textTertiary" />
                   </Tooltip>
                 ) : (
                   ''

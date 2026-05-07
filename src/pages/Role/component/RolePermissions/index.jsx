@@ -50,6 +50,7 @@ export default class Con extends React.Component {
 
   componentWillReceiveProps(nextProps) {
     const { roleList = [], roleId } = this.props;
+
     if (!_.isEqual(nextProps.roleList, roleList) || nextProps.roleId !== roleId) {
       this.setState({
         roleList: nextProps.roleList,

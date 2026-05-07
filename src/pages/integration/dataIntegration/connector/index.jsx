@@ -80,7 +80,7 @@ const FormCard = styled.div`
     line-height: 20px;
   }
   .arrowIcon {
-    color: var(--color-border-primary);
+    color: var(--color-text-placeholder);
     font-size: 24px;
     margin: 26px 16px 0 16px;
     transform: rotate(-90deg);
@@ -159,14 +159,14 @@ const ConnectorCard = styled.div`
     align-items: center;
     width: 100%;
     background: var(--color-background-primary);
-    border: 1px solid var(--color-border-secondary);
+    border: 1px solid var(--color-border-primary);
     border-radius: 16px;
     padding: 40px 55px;
     cursor: pointer;
 
     &:hover {
-      box-shadow: rgba(0, 0, 0, 0.12) 0px 2px 5px;
-      border: 1px solid var(--color-white);
+      box-shadow: var(--shadow-lg);
+      border: 1px solid var(--color-border-hover);
     }
 
     .typeIcon {
@@ -182,7 +182,7 @@ const ConnectorCard = styled.div`
       }
     }
     .arrowIcon {
-      color: var(--color-border-primary);
+      color: var(--color-text-placeholder);
       transform: rotate(-90deg);
     }
     .nameText {

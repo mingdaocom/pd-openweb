@@ -40,6 +40,7 @@ export default class PortalMg extends Component {
   }
   handleClosePanel = () => {
     const { currentSession } = this.props;
+
     if (currentSession.value) {
       this.props.dispatch(actions.setNewCurrentSession({}));
       socket.Contact.recordAction({ id: '' });

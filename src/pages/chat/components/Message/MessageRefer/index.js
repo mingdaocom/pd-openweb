@@ -12,6 +12,7 @@ export default class MessageRefer extends Component {
     event.stopPropagation();
     const { message } = this.props;
     const { iswd } = message;
+
     if (!iswd) {
       this.props.onGotoMessage(message.msgid);
     }

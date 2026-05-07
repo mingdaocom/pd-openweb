@@ -55,6 +55,7 @@ const ConfigRelation = styled.div`
     }
   }
 `;
+
 // 获取映射类型
 const getMapByType = type => {
   const { map } = TEMPLATE_TYPE.find(item => item.value === type);
@@ -65,6 +66,7 @@ function MapItem(props) {
   const { allControls, ocrMap, value, text, match, withSubList, setMap } = props;
   const [isHover, setHover] = useState(false);
   const getSubList = () => allControls.filter(item => item.type === 34);
+
   // 获取所有可选的映射字段
   const getSelectableControls = (match, withSubList = false) => {
     const allCid = ocrMap.map(item => item.cid);
@@ -94,12 +96,15 @@ function MapItem(props) {
   const getControlInfo = value => {
     const { cid, subCid } = ocrMap.find(item => parseFloat(item.type) === value) || {};
     let control = allControls.find(item => item.controlId === cid) || {};
+
     if (subCid) {
       control = (control.relationControls || []).find(item => item.controlId === subCid) || {};
       return control;
     }
+
     return control;
   };
+
   const selectableControls = getSelectableControls(match, withSubList);
   const isHaveSelectableControls = selectableControls.some(item => item.controls.length > 0);
   const info = getControlInfo(value);
@@ -108,6 +113,7 @@ function MapItem(props) {
     if (!isHaveSelectableControls) {
       return id === 'current' ? <div className="emptyText textTertiary">{_l('无可选控件')}</div> : null;
     }
+
     return controls.length > 0 ? (
       <ul key={id} className="relateSheetList">
         <li>
@@ -123,15 +129,18 @@ function MapItem(props) {
                 name: text,
                 cid: controlId,
               };
+
               if (id && id !== 'current') {
                 para = { ...para, cid: id, subCid: controlId };
               }
+
               return (
                 <li
                   key={controlId}
                   className="overflow_ellipsis"
                   onClick={() => {
                     const index = ocrMap.findIndex(item => item.type === value);
+
                     if (index > -1) {
                       setMap(update(ocrMap, { $splice: [[index, 1, para]] }));
                     } else {
@@ -149,6 +158,7 @@ function MapItem(props) {
       </ul>
     ) : null;
   };
+
   return (
     <div className="mapItem">
       <div className="item">{text}</div>
@@ -179,6 +189,7 @@ function MapItem(props) {
                   onClick={e => {
                     e.stopPropagation();
                     const index = ocrMap.findIndex(item => item.type === value);
+
                     if (index > -1) {
                       setMap(update(ocrMap, { $splice: [[index, 1]] }));
                     }
@@ -210,10 +221,12 @@ export default function OcrMap({ data, onChange, onClose, ...rest }) {
       </Fragment>
     );
   };
+
   const renderMapDetail = () => {
     const mapDetail = getMapByType(enumDefault);
     return mapDetail.map(renderItem);
   };
+
   return (
     <Dialog
       width={640}

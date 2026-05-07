@@ -56,6 +56,7 @@ function getToolCallCardConfig(functionName) {
       return TOOL_CALL_CARD_CONFIG[key];
     }
   }
+
   return null;
 }
 
@@ -170,6 +171,7 @@ function renderToolArguments({ chatbotId, conversationId, config, functionArgume
       />
     );
   }
+
   return null;
 }
 
@@ -241,9 +243,11 @@ export function renderToolCalls(
       const config = getToolCallCardConfig(get(item, 'function.name'));
       const functionArguments = safeParse(get(item, 'function.arguments'));
       const functionData = get(item, 'function');
+
       if (!config) {
         return null;
       }
+
       return {
         config,
         functionArguments,

@@ -9,10 +9,9 @@ import Footer from 'src/pages/AuthService/components/Footer.jsx';
 import 'src/pages/AuthService/components/form.less';
 import { AccountNextActions, ActionResult, InviteFromType } from 'src/pages/AuthService/config.js';
 import { getDes, getTitle } from 'src/pages/AuthService/register/util.js';
-import { getDialCode, getEmailOrTel, isTel } from 'src/pages/AuthService/util.js';
+import { getDataByFilterXSS, getDialCode, getEmailOrTel, isTel } from 'src/pages/AuthService/util.js';
 import { navigateTo } from 'src/router/navigateTo';
-import { htmlEncodeReg } from 'src/utils/common';
-import { getRequest } from 'src/utils/sso';
+import { getRequest, htmlEncodeReg } from 'src/utils/common';
 import WrapBg from '../components/Bg';
 import Header from '../components/Header';
 import { WrapCom } from '../style';
@@ -25,8 +24,8 @@ const Create = createPermissionCheckWrapper(CreateComp);
 const defaultNextAction = () => {
   const request = getRequest();
   //url 中的 tpType 参数为 7 或 8 ，则直接进去
-  return (request.ReturnUrl || '').indexOf('type=privatekey') > -1 ||
-    (request.tpType && [7, 8].includes(parseInt(request.tpType)))
+  let returnUrl = getDataByFilterXSS(request.ReturnUrl || '');
+  return returnUrl.indexOf('type=privatekey') > -1 || (request.tpType && [7, 8].includes(parseInt(request.tpType)))
     ? AccountNextActions.login
     : AccountNextActions.createProject;
 };
@@ -99,9 +98,11 @@ export default function () {
   const onInit = () => {
     // 注册来源
     const s = request.s || '';
+
     if (s) {
       safeLocalStorageSetItem('RegFrom', s);
     }
+
     //私有部署关闭注册入口，跳转到/login
     if (
       (window.platformENV.isOverseas || window.platformENV.isLocal) &&
@@ -114,6 +115,7 @@ export default function () {
       navigateTo('/login');
       return;
     }
+
     //(加入 ｜ 创建)组织
     if (location.href.match(/enterpriseRegister(\.htm)?/i)) {
       enterpriseRegister();
@@ -135,17 +137,22 @@ export default function () {
     let accountInfo = {};
     // 如果 url 带 mobile 参数
     let { mobile } = request;
+
     if (mobile) {
       let dialCode = '';
+
       if (isTel(mobile)) {
         mobile = getEmailOrTel(mobile);
         dialCode = getDialCode();
       }
+
       accountInfo = { emailOrTel: mobile, dialCode };
     }
+
     if (request.type) {
       accountInfo.step = request.type;
     }
+
     setState({ ...accountInfo, loading: false });
   };
 
@@ -154,20 +161,24 @@ export default function () {
     switch (request.type) {
       case 'create':
         const accountData = await registerApi.checkExistAccountByCurrentAccount();
+
         if (accountData.actionResult == ActionResult.success) {
           updateCompany({ email: _.get(accountData, 'user.email') });
         }
+
         break;
       case 'editInfo':
         const data = await accountApi.checkJoinProjectByTokenWithCard({
           projectId: request.projectId,
           token: request.token,
         });
+
         if (data.joinProjectResult === 1) {
           // 验证通过
           updateCompany({ companyName: _.get(data, 'userCard.user.companyName') });
           setState({ userCard: data.userCard, tokenProjectCode: data.token });
         }
+
         break;
     }
   };
@@ -192,6 +203,7 @@ export default function () {
             logo,
             tokenProjectCode: token,
           };
+
           if (inviteInfo.account) {
             param.emailOrTel = inviteInfo.account;
             param.onlyRead = true;
@@ -200,6 +212,7 @@ export default function () {
               param.dialCode = getDialCode();
             }
           }
+
           const titleDesc = getDes(inviteInfo);
           setState({
             ...param,
@@ -229,6 +242,7 @@ export default function () {
       .then(data => {
         setState({ loading: false });
         let actionResult = ActionResult;
+
         if (data && data.actionResult == actionResult.success) {
           let inviteInfo = data.inviteInfo;
           setState({
@@ -261,6 +275,7 @@ export default function () {
       onChange: state => setState({ ...state }),
       updateCompany,
     };
+
     switch (state.step) {
       case 'register':
         return <Form {...param} />;

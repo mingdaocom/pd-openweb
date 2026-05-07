@@ -157,6 +157,7 @@ export const fetchReInvite = (accountIds, callback) => (dispatch, getState) => {
       if (_.isFunction(callback)) {
         callback();
       }
+
       if (res) {
         alert(_l('重新邀请成功'));
       } else {

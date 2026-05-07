@@ -133,6 +133,7 @@ export default function ShareOperate({
   if (!isSelectAll && isEmpty(selectedMessageIds)) {
     return null;
   }
+
   return (
     <ShareOperateWrap className={cx({ isAiAction })}>
       <WidthWrap style={{ maxWidth }} className={cx({ isAiAction })}>

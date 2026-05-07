@@ -21,18 +21,22 @@ class ConfirmButton extends Component {
 
   handleClick() {
     const { action, onClose } = this.props;
+
     if (action) {
       const promise = action.apply(this);
+
       if (promise && promise.then) {
         this.setState({ loading: true });
         const stopLoading = noClose => {
           if (this.mounted) {
             this.setState({ loading: false });
           }
+
           if (!noClose) {
             onClose();
           }
         };
+
         promise.then(stopLoading, stopLoading);
       } else {
         if (promise === false) return;

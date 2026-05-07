@@ -181,6 +181,7 @@ export class FlowChart extends Component {
 
         // 包含分支最后一个经过节点id
         let lastId;
+
         if (gatewayType === 1) {
           flowIds.forEach(o => {
             if (_.includes(ids, o)) {
@@ -190,7 +191,7 @@ export class FlowChart extends Component {
         }
 
         const $nextEl = $(`.flowChartModal .workflowBox[data-id=${ids[index + 1]}]`);
-        const nextLeft = $nextEl.offset().left;
+        const nextLeft = $nextEl.offset()?.left;
         const nextWidth = $nextEl.innerWidth();
         const diffWidth = branchWidth / 2 + branchLeft - (nextWidth / 2 + nextLeft);
         let moreBranchWidth = 0;
@@ -296,7 +297,11 @@ export class FlowChart extends Component {
         renderNode: this.renderNode,
       };
 
-      if (!data[id] || !_.includes([NODE_TYPE.BRANCH, NODE_TYPE.APPROVAL], data[id].typeId)) return null;
+      if (
+        !data[id] ||
+        !_.includes([NODE_TYPE.BRANCH, NODE_TYPE.APPROVAL, NODE_TYPE.WRITE, NODE_TYPE.CC], data[id].typeId)
+      )
+        return null;
 
       const NodeComponent = nodeModules[data[id].typeId];
 

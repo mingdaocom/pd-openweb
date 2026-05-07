@@ -83,9 +83,11 @@ export default class WorkSheetCommentList extends Component {
 
   componentDidMount() {
     const { listRef } = this.props;
+
     if (listRef) {
       listRef(this);
     }
+
     emitter.addListener('RELOAD_RECORD_INFO_DISCUSS', this.reload);
 
     // 获取关注者信息
@@ -97,6 +99,7 @@ export default class WorkSheetCommentList extends Component {
     if (nextProps.entityType !== this.props.entityType) {
       this.setState({ containAttachment: false, focusType: 0, hasFilter: false });
     }
+
     if (
       !_.isEqual(
         _.pick(nextProps.worksheet, ['worksheetId', 'rowId', 'viewId']),

@@ -26,9 +26,11 @@ export default class Application extends Component {
 
   componentDidMount() {
     let { appId, worksheetId } = this.props.match.params;
+
     if (md.global.Account.isPortal) {
       appId = md.global.Account.appId;
     }
+
     if (appId) {
       this.checkApp(appId);
     }
@@ -55,6 +57,7 @@ export default class Application extends Component {
     if (md.global.Account.isPortal) {
       appId = md.global.Account.appId;
     }
+
     ajaxRequest
       .checkApp({ appId }, { silent: true })
       .then(status => {
@@ -62,6 +65,7 @@ export default class Application extends Component {
         if ([4].includes(status) && ['/role', '/workflow'].some(path => this.props.location.pathname.includes(path))) {
           navigateTo(`/app/${appId}`);
         }
+
         this.setState({ status });
         this.props.setAppStatus(status);
       })
@@ -99,9 +103,11 @@ export default class Application extends Component {
       appPkg,
     } = this.props;
     let { appId } = getIds(this.props);
+
     if (md.global.Account.isPortal) {
       appId = md.global.Account.appId;
     }
+
     const { permissionType, fixed, pcDisplay, appStatus } = appPkg;
     const isAuthorityApp = canEditApp(permissionType);
 

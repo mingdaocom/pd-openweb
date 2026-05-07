@@ -59,14 +59,17 @@ export const getCellValue = function (cellItem, type) {
       });
       return cellItem.value ? mutiValue : '';
     }
+
     case 14: {
       if (cellItem.value) {
         // 附件：isEdit 后端判断是否是是新加文件，isEdit = false 为新加文件  true为原来就有的文件。
         cellItem.value.attachments = formatTemporaryData(cellItem.value.attachments).map(attItem => {
           let isEdit = false;
+
           if (attItem.twice) {
             isEdit = true;
           }
+
           return {
             ...attItem,
             isEdit,
@@ -74,9 +77,11 @@ export const getCellValue = function (cellItem, type) {
         });
         cellItem.value.knowledgeAtts = formatKcAttachmentData(cellItem.value.knowledgeAtts).map(knowAttItem => {
           let isEdit = false;
+
           if (!knowAttItem.isUpload) {
             isEdit = true;
           }
+
           return {
             ...knowAttItem,
             isEdit,
@@ -103,8 +108,10 @@ export const getCellValue = function (cellItem, type) {
         //   };
         // });
       }
+
       return cellItem.value ? JSON.stringify(cellItem.value) : '';
     }
+
     case 15:
       return cellItem.value ? moment(cellItem.value).format('YYYY-MM-DD') : '';
     case 16:
@@ -156,6 +163,7 @@ export const getControlValue = function (controlItem) {
         attachmentData: [],
       };
       const fileData = controlItem.value ? JSON.parse(controlItem.value) : {};
+
       if (fileData && fileData.map) {
         fileData.map(_file => {
           if (_file.refType) {
@@ -163,11 +171,14 @@ export const getControlValue = function (controlItem) {
           } else {
             value.attachments.push(_file);
           }
+
           return null;
         });
       }
+
       return value;
     }
+
     case 17:
     case 18: {
       if (controlItem.value) {
@@ -186,8 +197,10 @@ export const getControlValue = function (controlItem) {
             : '';
         }
       }
+
       break;
     }
+
     // return controlItem.value && JSON.parse(controlItem.value).filter(item => item).length > 0 ? JSON.parse(controlItem.value).map((item) => { return item ? moment(item).format('x') : ''; }) : '';
     case 15:
     case 16:
@@ -208,6 +221,7 @@ export function getUserRoleDesc(permissionIds) {
   return permissionIds
     .map(pId => {
       const typeId = Math.floor(pId / 1000);
+
       switch (typeId) {
         case 301:
           return pId === 301100 ? _l('可查看全部') : _l('可查看%0', SUB_PERMISSION_NAME[pId - 301000]);
@@ -228,6 +242,7 @@ export function getUserRoleDesc(permissionIds) {
 // 从lcoalstorage读取显隐列
 export function getHidedColumnsFromStorage(id) {
   const storageStr = window.localStorage.getItem(`worksheet_hided_columns_${md.global.Account.accountId}_${id}`);
+
   if (!storageStr) {
     return [];
   } else {
@@ -271,16 +286,20 @@ export const getDefaultViewSet = data => {
   } else {
     //看板视图、表视图、层级视图封面设置项 默认左
     let childTypeObj = {};
+
     //表视图 新建默认不启用业务规则
     if (VIEW_DISPLAY_TYPE.sheet === String(viewType)) {
       advancedSetting = { ...advancedSetting, enablerules: data.viewId === data.worksheetId ? '0' : '1' };
     }
+
     if (VIEW_DISPLAY_TYPE.detail === String(viewType)) {
       childTypeObj = { childType: 2 };
     }
+
     if (VIEW_DISPLAY_TYPE.structure === String(viewType)) {
       childTypeObj = { childType: 0 };
     }
+
     return {
       ...data,
       advancedSetting: {

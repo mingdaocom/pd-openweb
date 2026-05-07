@@ -262,6 +262,7 @@ class EditFlow extends Component {
     if (id === this.state.selectNodeId) {
       this.closeDetail();
     }
+
     this.props.dispatch(deleteFlowNode(processId, id));
   };
 
@@ -392,6 +393,7 @@ class EditFlow extends Component {
   openDetail = (processId, id, type, instanceId) => {
     const { flowInfo, workflowDetail, changeFlowInfo } = this.props;
     const { isCopy } = this.state;
+
     const switchDetail = () => {
       this.setState({ nodeId: '', selectProcessId: processId, selectNodeId: id, selectNodeType: type, instanceId });
       this.change = false;

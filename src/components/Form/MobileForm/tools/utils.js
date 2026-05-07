@@ -17,21 +17,27 @@ export const getTabTypeBySelectUser = (control = {}) => {
 export const getTitleStyle = (titleStyle = '0000') => {
   const [isBold, isItalic, isUnderline, isLineThrough] = titleStyle.split('');
   let styleText = '';
+
   if (Number(isBold)) {
     styleText = styleText + 'font-weight: bold !important;';
   }
+
   if (Number(isItalic)) {
     styleText = styleText + 'font-style: italic;padding-right:3px;';
   }
+
   if (Number(isUnderline)) {
     styleText = styleText + 'text-decoration: underline;';
   }
+
   if (Number(isLineThrough)) {
     styleText = styleText + 'text-decoration: line-through;';
   }
+
   if (Number(isUnderline) && Number(isLineThrough)) {
     styleText = styleText + 'text-decoration: underline line-through;';
   }
+
   return styleText;
 };
 
@@ -41,12 +47,14 @@ export const getValueStyle = (data, isField = true) => {
   let type = item.type;
   let { valuecolor, valuesize = '0', valuestyle = '0000' } = item.advancedSetting || {};
   let SIZE_OPTIONS = isField ? FIELD_SIZE_OPTIONS : TITLE_SIZE_OPTIONS;
+
   if (item.type === 30) {
     valuecolor = _.get(item, 'sourceControl.advancedSetting.valuecolor') || 'var(--color-text-primary)';
     valuesize = _.get(item, 'sourceControl.advancedSetting.valuesize') || '0';
     valuestyle = _.get(item, 'sourceControl.advancedSetting.valuestyle') || '0000';
     type = _.get(item, 'sourceControl.type');
   }
+
   return _.includes(HAVE_VALUE_STYLE_WIDGET, type)
     ? {
         type,
@@ -98,10 +106,12 @@ export const getExpandWidgetIds = (controls = [], data = {}, from) => {
     if (a.row === b.row) {
       return a.col - b.col;
     }
+
     return a.row - b.row;
   });
 
   let searchStatus = false;
+
   for (let item of widgets) {
     if (searchStatus) {
       if (
@@ -115,8 +125,10 @@ export const getExpandWidgetIds = (controls = [], data = {}, from) => {
         expandWidgetIds.push(item.controlId);
       }
     }
+
     if (item.controlId === controlId) searchStatus = true;
   }
+
   return expandWidgetIds;
 };
 
@@ -224,26 +236,34 @@ export function toFixed(num, dot = 0) {
     console.error(num, '不是数字');
     return '';
   }
+
   if (dot === 0) {
     return String(Math.round(num));
   }
+
   if (dot < 0 || dot > 20) {
     return String(num);
   }
+
   const strOfNum = String(num);
+
   if (!/\./.test(strOfNum)) {
     return strOfNum + '.' + _.padEnd('', dot, '0');
   }
+
   const decimal = ((strOfNum.match(/\.(\d+)/) || '')[1] || '').length;
+
   if (decimal === dot) {
     return strOfNum;
   } else if (decimal < dot) {
     return strOfNum + _.padEnd('', dot - decimal, '0');
   } else {
     const isNegative = num < 0;
+
     if (isNegative) {
       num = Math.abs(num);
     }
+
     let data = String(Math.round(num * Math.pow(10, dot)));
     data = _.padStart(data, dot, '0');
     return (isNegative ? '-' : '') + Math.floor(data / Math.pow(10, dot)) + '.' + data.slice(-1 * dot);
@@ -259,9 +279,11 @@ export const getMapConfig = () => {
 export const formatSwitches = switches => {
   return allSwitchKeys.map(o => {
     const it = (switches || []).find(it => it.type === o);
+
     if (!it) {
       return { type: o, state: true, viewIds: [] };
     }
+
     return it;
   });
 };
@@ -291,9 +313,11 @@ export const isOpenPermit = (type, list = [], viewId) => {
 
 export const getCoverUrl = (coverId, record, controls) => {
   const coverControl = _.find(controls, c => c.controlId && c.controlId === coverId);
+
   if (!coverControl) {
     return;
   }
+
   try {
     const files = safeParse(record[coverId]) || [];
     const coverFile = _.find(files, file => file && RegExpValidator.fileIsPicture(file.ext));
@@ -304,6 +328,7 @@ export const getCoverUrl = (coverId, record, controls) => {
   } catch (err) {
     console.log(err);
   }
+
   return;
 };
 

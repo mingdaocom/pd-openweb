@@ -47,6 +47,7 @@ export const dealHierarchyData = (
 
   if (String(childType) === '2') {
     const { path = [] } = stateData;
+
     if (path.length > 1) {
       const viewConfig = viewControls[path.length - 1] || {};
       const { showControls = [], worksheetId: relateSheetId } = viewConfig;
@@ -64,12 +65,14 @@ export const dealHierarchyData = (
   // if (selectControl) {
   const { rowid: rowId, allowedit: allowEdit, allowdelete: allowDelete } = item;
   const items = [];
+
   if (titleControl) {
     items.push({
       ..._.pick(titleControl, RENDER_RECORD_NECESSARY_ATTR),
       value: item[titleControl.controlId],
     });
   }
+
   const displayItems = _.filter(displayControls, item => item !== (titleControl || {}).controlId)
     .filter(getControlById)
     .map(key => ({
@@ -107,6 +110,7 @@ export const hierarchyViewCanSelectFields = ({ controls, worksheetId }) => {
     const { controlName: subName } = _.find(controls, item => item.controlId === sourceControlId) || {};
     return `${controlName}-${subName}`;
   };
+
   return filterAndFormatterControls({
     controls: controls,
     filter: item => item.type === RELATION_SHEET_TYPE && item.enumDefault === 1 && item.dataSource === worksheetId,

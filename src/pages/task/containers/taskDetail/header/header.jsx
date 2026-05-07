@@ -61,6 +61,7 @@ class Header extends Component {
     const { taskId, openType } = this.props;
     const { data } = this.props.taskDetails[taskId];
     const status = data.status ? 0 : 1;
+
     const callback = (source, isAll) => {
       if (openType === OPEN_TYPE.slide) {
         afterUpdateTaskStatus(source, status, isAll);
@@ -96,10 +97,12 @@ class Header extends Component {
           ),
           onOk: () => {
             let isAllSubTask = this.taskStatusCheckboxRef.current.state.checked;
+
             if (isAllSubTask && data.auth !== config.auth.Charger) {
               isAllSubTask = false;
               alert(status ? _l('仅负责人可一键标记完成所有子任务') : _l('仅负责人可一键标记未完成所有子任务'));
             }
+
             this.props.dispatch(editTaskStatus(taskId, status, isAllSubTask, '', callback));
           },
         });
@@ -121,6 +124,7 @@ class Header extends Component {
     const { taskId } = this.props;
     const { data } = this.props.taskDetails[taskId];
     const isHidden = _.includes(this.props.taskFoldStatus[taskId] || [], 'subTask');
+
     const callback = () => {
       const fromWhereHeight = $('.taskDetail .fromWhere').height();
       const basicHeight = $('.taskDetail .taskContentBasicBox').height();
@@ -164,6 +168,7 @@ class Header extends Component {
     const { taskId, openType } = this.props;
     const { data } = this.props.taskDetails[taskId];
     const locked = !data.locked;
+
     const callback = () => {
       if (openType === OPEN_TYPE.slide) {
         afterUpdateLock(taskId, locked);

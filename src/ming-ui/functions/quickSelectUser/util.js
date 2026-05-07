@@ -47,9 +47,11 @@ export function getAccounts({
       }
     }
   }
+
   if (prefixAccounts && prefixAccounts.length) {
     prefixUsers = prefixUsers.concat(prefixAccounts || []);
   }
+
   return {
     prefixUsers,
     users,
@@ -72,10 +74,13 @@ export function getUsers(args) {
         fullname: user.name,
         phone: user.mobilePhone,
       }));
+
       if ((args.pageIndex || 1) !== 1) {
         return result;
       }
+
       const currentAccount = result.find(item => item.accountId === md.global.Account.accountId);
+
       if (!args.hidePortalCurrentUser && (args.includeSystemField || args.includeUndefinedAndMySelf)) {
         result = [
           {
@@ -87,6 +92,7 @@ export function getUsers(args) {
       } else if (!args.keywords && currentAccount) {
         result = [currentAccount].concat(result);
       }
+
       return _.uniqBy(result, 'accountId');
     });
   } else if (args.type === 'range') {

@@ -60,6 +60,7 @@ function generate() {
         apiMap.integration = '/integration_api';
         apiMap.datapipeline = '/data_pipeline_api';
         apiMap.workflowPlugin = '/workflow_plugin_api';
+        apiMap.knowledge = '/knowledge_api';
       }
 
       $('head').prepend(`

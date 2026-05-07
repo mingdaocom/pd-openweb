@@ -543,8 +543,10 @@ export default class SingleControlValue extends Component {
     if (item.type === 5 || item.type === 7) {
       let reg = /^[\w-]+(\.[\w-]+)*@[\w-]+(\.[\w-]+)*\.[\w-]+$/i;
       let placeholder = _l('填写邮箱地址');
+
       if (item.type === 7) {
         const enumDefault = _.find(controls, obj => obj.controlId === item.fieldId).enumDefault;
+
         if (enumDefault === 1) {
           reg = /(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/;
           placeholder = _l('填写身份证');
@@ -606,8 +608,8 @@ export default class SingleControlValue extends Component {
       );
     }
 
-    // 插件节点 单选项 || 检查项
-    if (selectNodeType === NODE_TYPE.PLUGIN) {
+    // 插件节点或向量知识库节点或AI Agent节点 单选项 || 检查项
+    if (_.includes([NODE_TYPE.PLUGIN, NODE_TYPE.VECTOR, NODE_TYPE.AGENT], selectNodeType)) {
       const currentControl = _.find(controls, obj => obj.controlId === item.fieldId);
       const { showtype, direction } = _.get(currentControl, 'advancedSetting') || {};
 
@@ -722,6 +724,7 @@ export default class SingleControlValue extends Component {
         if (_.includes(item.fieldValue.split(','), o.key)) {
           label.push(o.value);
         }
+
         return {
           label: o.value,
           value: o.key,
@@ -743,7 +746,7 @@ export default class SingleControlValue extends Component {
               value={item.fieldValue.split(',')}
               options={list}
               multipleSelect
-              label={label.join('、')}
+              label={label.length ? label.join('、') : item.placeholder}
               multipleLevel={false}
               multipleHideDropdownNav
               filter

@@ -102,9 +102,10 @@ export default class ExecDialog extends Component {
       if (_.includes([20001, 20018, 30001, 30002, 30003, 30004, 30006, 40007], status)) {
         if (status === 30006) {
           alert(STATUS_ERROR_MESSAGE[status], 2);
-          onClose();
+          onClose(true);
           return;
         }
+
         this.setState({ errorMsg: STATUS_ERROR_MESSAGE[status], nodeLoading: false });
       } else {
         const { app, flowNode } = rest;
@@ -114,6 +115,7 @@ export default class ExecDialog extends Component {
           const langInfo = await homeAppApi.getAppLangInfo({
             appId,
           });
+
           if (langInfo && langInfo.appLangId && langInfo.version !== window[`langVersion-${appId}`]) {
             const lang = await appManagementApi.getAppLangDetail({
               appId,
@@ -170,7 +172,7 @@ export default class ExecDialog extends Component {
       })
       .then(res => {
         if (!res.worksheetId) {
-          onClose();
+          onClose(true);
           return;
         }
 

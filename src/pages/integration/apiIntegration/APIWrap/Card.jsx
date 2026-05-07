@@ -85,11 +85,14 @@ const Wrap = styled.div`
     line-height: 51px;
   }
 `;
+
 function AddNode(props) {
   const featureType = getFeatureStatus(localStorage.getItem('currentProjectId'), VersionProductType.codeBlockNode);
+
   if (!props.canEdit || !featureType) {
     return '';
   }
+
   return (
     <React.Fragment>
       <Icon icon={'arrow'} className="Font24 TxtCenter InlineBlock" style={{ color: 'var(--color-border-primary)' }} />
@@ -100,6 +103,7 @@ function AddNode(props) {
             buriedUpgradeVersionDialog(localStorage.getItem('currentProjectId'), VersionProductType.codeBlockNode);
             return;
           }
+
           props.onAdd();
         }}
       >
@@ -112,6 +116,7 @@ function AddNode(props) {
     </React.Fragment>
   );
 }
+
 export default function Card(props) {
   const [{ info, loading, showEdit, node }, setState] = useSetState({
     info: props.info,
@@ -136,6 +141,7 @@ export default function Card(props) {
         setState({ node: { ...node, ...res }, loading: false });
       });
   };
+
   const update = node => {
     flowNodeAjax
       .saveNode(
@@ -167,16 +173,20 @@ export default function Card(props) {
         setState({ node });
       });
   };
+
   if (loading) {
     return <LoadDiv />;
   }
+
   const getList = arr => {
     let list = [];
+
     const sortList = (array, source, level) => {
       var newArr = array.filter(item => {
         if (!source) {
           return !item.dataSource;
         }
+
         return item.dataSource === source;
       });
       newArr.map(v => {
@@ -184,16 +194,20 @@ export default function Card(props) {
         sortList(array, v['controlId'], level + 1);
       });
     };
+
     sortList(arr, '', 0);
     return list;
   };
+
   const renderCon = () => {
     const { controls = [], outputs = [] } = node || {};
+
     switch (props.typeId) {
       case 23:
         if (controls.length <= 0) {
           return '';
         }
+
         return (
           <div className="con">
             <div className="flexRow paramLi bold disabled">
@@ -208,6 +222,7 @@ export default function Card(props) {
               if ([10000007].includes((controls.find(it => it.controlId === o.dataSource) || {}).type)) {
                 return null;
               }
+
               const canEdit = props.isConnectOwner || props.canEdit;
               return (
                 <Fragment key={o.controlId}>
@@ -227,6 +242,7 @@ export default function Card(props) {
                                 if (item.controlId === o.controlId) {
                                   return { ...item, attribute: item.attribute === 1 ? 0 : 1 };
                                 }
+
                                 return { ...item, attribute: 0 };
                               }),
                             });
@@ -264,6 +280,7 @@ export default function Card(props) {
         if (!node.sendContent) {
           return '';
         }
+
         return (
           <div className="con">
             <div>
@@ -275,6 +292,7 @@ export default function Card(props) {
         if (outputs.length <= 0) {
           return '';
         }
+
         return (
           <div className="con">
             <JSONAnalysis list={outputs} json={node.json} isIntegration />
@@ -282,45 +300,55 @@ export default function Card(props) {
         );
     }
   };
+
   const renderBtn = () => {
     const { controls = [], outputs = [] } = node || {};
+
     switch (props.typeId) {
       case 23:
         if (controls.length <= 0) {
           return _l('开始配置');
         }
+
         return _l('编辑');
       case 8:
         if (!node.sendContent) {
           return _l('开始配置');
         }
+
         return _l('编辑');
       case 21:
         if (outputs.length <= 0) {
           return _l('开始配置');
         }
+
         return _l('编辑');
     }
   };
+
   const renderTips = () => {
     switch (props.typeId) {
       case 21:
         if (!!node.appId && !!(node.outputs || []).length > 0) {
           return <Icon icon="check_circle" className="Green_right tip" />;
         }
+
         return '';
       case 8:
         if (!node.controls && node.appId) {
           return <Icon icon="error1" className="Red tip" />;
         }
+
         if (node.controls) {
           return <Icon icon="check_circle" className="Green_right tip" />;
         }
+
         return '';
       default:
         if (node.appId) {
           return <Icon icon="check_circle" className="Green_right tip" />;
         }
+
         return '';
     }
   };
@@ -337,7 +365,7 @@ export default function Card(props) {
             <p className="Font17 Bold">
               {!props.title ? (
                 _l('输入参数')
-              ) : [8].includes(props.typeId) && props.connectInfo.type === 2 ? (
+              ) : [8].includes(props.typeId) && props.connectInfo.type === 2 && !props.connectInfo.allowEdit ? (
                 <div className="flexRow alignItemsCenter">
                   <div className="flex">{props.title}</div>
                   <div className="flexRow alignItemsCenter">

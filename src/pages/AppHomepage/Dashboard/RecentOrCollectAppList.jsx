@@ -4,14 +4,13 @@ import _ from 'lodash';
 import collectAppEmptyPng from 'staticfiles/images/collect_app.png';
 import recentEmptyPng from 'staticfiles/images/time.png';
 import styled from 'styled-components';
-import { Icon, SortableList, SvgIcon } from 'ming-ui';
+import { Icon, MdLink, SortableList, SvgIcon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import autoSize from 'ming-ui/decorators/autoSize';
-import { navigateToAppItem } from 'src/pages/widgetConfig/util/data';
 import { navigateTo } from 'src/router/navigateTo';
 import { addBehaviorLog } from 'src/utils/project';
 import AppStatusComp from '../AppCenter/components/AppStatus';
-import { getAppNavigateUrl, transferExternalLinkUrl } from '../AppCenter/utils';
+import { getAppItemUrl, getAppNavigateUrl, transferExternalLinkUrl } from '../AppCenter/utils';
 import { getAppOrItemColor } from './utils';
 import './style.less';
 
@@ -120,6 +119,18 @@ const ListItemSkeleton = styled.div`
   }
 `;
 
+const getToUrl = ({ item, projectId }) => {
+  const { id: appId, sectionId: appSectionId, itemId: worksheetId } = item;
+
+  if (item.createType === 1) {
+    return transferExternalLinkUrl(item.urlTemplate, projectId, appId);
+  }
+
+  return item.type
+    ? getAppItemUrl(appId, appSectionId, worksheetId)
+    : getAppNavigateUrl(appId, item.pcNaviStyle, item.selectAppItmeType);
+};
+
 const RecentOrCollectAppList = forwardRef(props => {
   const {
     apps = [],
@@ -194,66 +205,68 @@ const RecentOrCollectAppList = forwardRef(props => {
       }
     };
 
-    return (
-      <AppItem
-        onClick={e => {
-          e.stopPropagation();
-          e.preventDefault();
+    const onAppItemClick = e => {
+      e.stopPropagation();
+      e.preventDefault();
 
-          onAddBehaviorLog(item); // 浏览应用/应用项埋点
-          if (item.createType === 1) {
-            //是外部链接应用
-            window.open(transferExternalLinkUrl(item.urlTemplate, projectId, item.id));
-          } else {
-            item.type
-              ? navigateToAppItem(item.itemId)
-              : navigateTo(getAppNavigateUrl(item.id, item.pcNaviStyle, item.selectAppItmeType));
-          }
-        }}
-      >
-        <div className="flexRow alignItemsCenter">
-          <div
-            className="appIcon"
-            style={{
-              backgroundColor: item.type ? getAppOrItemColor(item, true).bg : getAppOrItemColor(item).bg,
-            }}
-          >
-            <SvgIcon
-              url={item.type ? item.itemUrl : item.iconUrl}
-              fill={item.type ? getAppOrItemColor(item, true).iconColor : getAppOrItemColor(item).iconColor}
-              size={20}
-            />
-            <AppStatusComp {..._.pick(item, ['isGoodsStatus', 'isNew', 'fixed', 'appStatus'])} isRecent={true} />
-          </div>
-          <div className="textContent">
-            <div className="titleName overflow_ellipsis" title={item.type ? itemName : appName}>
-              {item.type ? itemName : appName}
+      onAddBehaviorLog(item); // 浏览应用/应用项埋点
+      if (item.createType === 1) {
+        //是外部链接应用
+        window.open(transferExternalLinkUrl(item.urlTemplate, projectId, item.id));
+      } else {
+        item.type
+          ? navigateTo(getAppItemUrl(item.id, item.sectionId, item.itemId))
+          : navigateTo(getAppNavigateUrl(item.id, item.pcNaviStyle, item.selectAppItmeType));
+      }
+    };
+
+    return (
+      <MdLink className="stopPropagation" to={getToUrl({ item, projectId })} onClick={onAppItemClick}>
+        <AppItem>
+          <div className="flexRow alignItemsCenter">
+            <div
+              className="appIcon"
+              style={{
+                backgroundColor: item.type ? getAppOrItemColor(item, true).bg : getAppOrItemColor(item).bg,
+              }}
+            >
+              <SvgIcon
+                url={item.type ? item.itemUrl : item.iconUrl}
+                fill={item.type ? getAppOrItemColor(item, true).iconColor : getAppOrItemColor(item).iconColor}
+                size={20}
+              />
+              <AppStatusComp {..._.pick(item, ['isGoodsStatus', 'isNew', 'fixed', 'appStatus'])} isRecent={true} />
             </div>
-            {!!item.type && (
-              <div className="appName overflow_ellipsis" title={appName}>
-                {appName}
+            <div className="textContent">
+              <div className="titleName overflow_ellipsis" title={item.type ? itemName : appName}>
+                {item.type ? itemName : appName}
               </div>
-            )}
+              {!!item.type && (
+                <div className="appName overflow_ellipsis" title={appName}>
+                  {appName}
+                </div>
+              )}
+            </div>
           </div>
-        </div>
-        <Tooltip title={item.isMarked ? _l('取消收藏') : _l('收藏')} placement="bottom">
-          <div
-            className="markStarIcon stopPropagation"
-            onClick={e => {
-              e.stopPropagation();
-              e.preventDefault();
-              onMarkApp({
-                projectId,
-                isMark: !item.isMarked,
-                appId: item.id,
-                ..._.pick(item, ['type', 'itemId', 'itemName', 'itemUrl']),
-              });
-            }}
-          >
-            <Icon className="Font16" icon={item.isMarked ? 'task-star' : 'star-hollow'} />
-          </div>
-        </Tooltip>
-      </AppItem>
+          <Tooltip title={item.isMarked ? _l('取消收藏') : _l('收藏')} placement="bottom">
+            <div
+              className="markStarIcon stopPropagation"
+              onClick={e => {
+                e.stopPropagation();
+                e.preventDefault();
+                onMarkApp({
+                  projectId,
+                  isMark: !item.isMarked,
+                  appId: item.id,
+                  ..._.pick(item, ['type', 'itemId', 'itemName', 'itemUrl']),
+                });
+              }}
+            >
+              <Icon className="Font16" icon={item.isMarked ? 'task-star' : 'star-hollow'} />
+            </div>
+          </Tooltip>
+        </AppItem>
+      </MdLink>
     );
   };
 

@@ -139,6 +139,7 @@ export default function PrintQrBarCode(props) {
     ].filter(_.identity),
   });
   let labelObject;
+
   if (config.printType === PRINT_TYPE.QR || config.printType === PRINT_TYPE.A4) {
     labelObject = createQrLabeObjectFromConfig(
       config,
@@ -195,7 +196,9 @@ export default function PrintQrBarCode(props) {
       },
     );
   }
+
   const maxLineNumber = (labelObject || {}).maxLineNumber || 0;
+
   function handlePrint() {
     const printTypeObj = { 1: 'printQRCode', 3: 'printBarCode' };
     addBehaviorLog(printTypeObj[config.printType], worksheetId, { msg: [allowLoadMore ? count : selectedRows.length] }); // 埋点
@@ -216,11 +219,13 @@ export default function PrintQrBarCode(props) {
       navGroupFilters,
     });
   }
+
   function handleKeyDown(e) {
     if (e.keyCode === 27) {
       onClose();
     }
   }
+
   function updatePreviewRowShareUrl(recordId) {
     if (viewId) {
       worksheetAjax
@@ -237,6 +242,7 @@ export default function PrintQrBarCode(props) {
       setPreviewRowPublicUrl('error');
     }
   }
+
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
     (async () => {
@@ -249,6 +255,7 @@ export default function PrintQrBarCode(props) {
         setBase(_.omit(data, 'config'));
         setLoading(false);
       }
+
       if (_.isEmpty(previewRow)) {
         const resData = await worksheetAjax.getFilterRows({
           worksheetId,
@@ -259,15 +266,18 @@ export default function PrintQrBarCode(props) {
           searchType: 1,
           getType: 7,
         });
+
         if (!_.isEmpty(resData.data)) {
           setPreviewRow(resData.data[0]);
           updatePreviewRowShareUrl(resData.data[0].rowid);
         }
       }
     })();
+
     if (!_.isEmpty(previewRow)) {
       updatePreviewRowShareUrl(previewRow.rowid);
     }
+
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
@@ -290,6 +300,7 @@ export default function PrintQrBarCode(props) {
                   alert(_l('名称不能为空'), 3);
                   return;
                 }
+
                 setBase({ ...base, name: value });
               }}
             />
@@ -313,15 +324,18 @@ export default function PrintQrBarCode(props) {
                   sourceControlId: config.sourceControlId || '',
                 },
               };
+
               function update(cb = () => {}) {
                 worksheetAjax.saveRecordCodePrintConfig(args).then(data => {
                   alert(_l('保存成功'));
                   if (!id) {
                     setBase({ ...base, id: data });
                   }
+
                   cb();
                 });
               }
+
               if (id) {
                 args = Object.assign(args, base);
                 update();

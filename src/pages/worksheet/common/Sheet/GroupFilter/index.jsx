@@ -107,6 +107,7 @@ function GroupFilter(props) {
       if ([29, 26, 27, 48].includes(source.type) && getAdvanceSetting(view).navshow === '1') {
         getNavGroupCount();
       }
+
       source.controlId && fetch();
     }
   }, [
@@ -131,6 +132,7 @@ function GroupFilter(props) {
 
   useEffect(() => {
     let { navshow } = getAdvanceSetting(view);
+
     if ([26, 27, 48, 29].includes(source.type) && navshow === '1') {
       fetch();
     }
@@ -142,6 +144,7 @@ function GroupFilter(props) {
     } else {
       let obj = _.omit(navGroup, ['isAsc']);
       let filterType = 2; //选项的选中
+
       if ([29, 35].includes(source.type)) {
         if (source.type === 29 && !navGroup.viewId) {
           //未选择了层级视图 按是筛选
@@ -150,13 +153,16 @@ function GroupFilter(props) {
           filterType = navGroup.filterType === 11 ? navGroup.filterType : 24; //筛选方式 24是 | 11包含 老数据是0 按照24走
         }
       }
+
       if (AREA.includes(source.type)) {
         filterType = navGroup.filterType === 24 ? 51 : navGroup.filterType;
       }
+
       if (rowIdForFilter === 'null') {
         //为空
         filterType = FILTER_CONDITION_TYPE.ISNULL;
       }
+
       updateGroupFilter(
         [
           {
@@ -187,6 +193,7 @@ function GroupFilter(props) {
       console.log(error);
       navfilters = [];
     }
+
     if (navshow === '2' && navfilters.length <= 0) {
       //设置了显示项=显示指定项 且 未指定 按空处理
       setLoading(false);
@@ -222,6 +229,7 @@ function GroupFilter(props) {
           return _.toLower(str).includes(keyStr);
         });
       }
+
       return data;
     };
 
@@ -288,6 +296,7 @@ function GroupFilter(props) {
     ) {
       getNavGroupRequest.abort();
     }
+
     // 将当前工作表添加到预处理列表
     preWorksheetIds.push(`${base.worksheetId}-${base.viewId}`);
   };
@@ -324,6 +333,7 @@ function GroupFilter(props) {
         alert(_l('您不是该组织成员，无法获取其部门列表，请联系组织管理员'), 3);
         return Promise.resolve([]);
       }
+
       // 根据是否有rowId决定请求类型
       return rowId
         ? departmentAjax.getProjectSubDepartmentByDepartmentId({
@@ -356,6 +366,7 @@ function GroupFilter(props) {
     if (result.resultCode === 4) {
       return fetchData({ worksheetId, viewId: '', rowId, cb });
     }
+
     // 处理无权限情况
     if (result.resultCode === 7) {
       return updateNavGroupData({ filterData: navGroupData, data: [], rowId, cb });
@@ -389,6 +400,7 @@ function GroupFilter(props) {
       let data = result.data || [];
       const controls = _.get(result, ['template', 'controls']) || [];
       const control = controls.find(item => item.attribute === 1);
+
       if (navlayer && Number(navlayer) > 1 && !rowId) {
         //配置了默认展开层级 接口一次性的返回对于数据 处理成相关结果
         responseData = getListByNavlayer(data, Number(navlayer), {
@@ -408,10 +420,12 @@ function GroupFilter(props) {
         );
       } else {
         let data = result.data || [];
+
         if (source.type !== 35 && filters.length > 0 && navshow === '2') {
           const ids = filters.map(value => safeParse(value).id);
           data = ids.map(id => data.find(o => o.rowid === id)).filter(Boolean);
         }
+
         responseData = data.map(item => ({
           value: item.rowid,
           txt: renderTxt(source, searchRef.current.value, item, control, viewId, navGroup), // 渲染显示文本
@@ -452,6 +466,7 @@ function GroupFilter(props) {
     } else {
       !notUpdate && setGroupFilterData(data);
     }
+
     setLoading(false);
     cb && cb();
   };
@@ -462,7 +477,7 @@ function GroupFilter(props) {
     <Con
       className={cx('groupFilterWrap h100 flexColumn', { groupFilterWrapForSingle: isSingle })}
       width={width}
-      style={{ borderRight: !isOpenGroup ? '1px solid rgba(0, 0, 0, 0.04)' : '0' }}
+      style={{ borderRight: !isOpenGroup ? '1px solid var(--color-border-secondary)' : '0' }}
     >
       <NavSearch
         {...props}

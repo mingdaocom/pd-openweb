@@ -17,7 +17,7 @@ const Wrap = styled.div`
       line-height: unset;
       margin-right: 10px;
       min-width: 0;
-      border: 1px solid var(--color-white);
+      border: 1px solid transparent;
       a {
         color: var(--color-text-title);
         display: inline-block;
@@ -35,7 +35,7 @@ const Wrap = styled.div`
       }
     }
     .ant-pagination-item-active {
-      border: 1px solid var(--color-white);
+      border: 1px solid transparent;
       color: var(--color-text-title);
       a {
         text-decoration: none;
@@ -73,9 +73,11 @@ export default class PaginationWrap extends Component {
     if (type === 'prev') {
       return <a className="page">{_l('上一页')}</a>;
     }
+
     if (type === 'next') {
       return <a className="page">{_l('下一页')}</a>;
     }
+
     return originalElement;
   }
 

@@ -16,7 +16,7 @@ import { VersionProductType } from 'src/utils/enum';
 import { getFeatureStatus } from 'src/utils/project';
 import { saveSelectExtensionNavType } from 'src/utils/worksheet';
 import { getHighAuthSheetSwitchPermit } from 'src/utils/worksheet';
-import { importDataFromExcel } from '../WorksheetBody/ImportDataFromExcel';
+import ImportMenu from './ImportMenu';
 
 const settingMenuList = [
   { type: 'submitForm', text: _l('提交表单'), navType: 'settingNav', subPath: 'formSet' },
@@ -67,8 +67,9 @@ export default function SheetMoreOperate(props) {
       ? getHighAuthSheetSwitchPermit(sheetSwitchPermit, worksheetId)
       : sheetSwitchPermit;
   const canSheetTrash = isOpenPermit(permitList.sheetTrash, lastSheetSwitchPermit);
-  const canImportSwitch = isOpenPermit(permitList.importSwitch, lastSheetSwitchPermit) && allowAdd;
   const canEdit = canEditApp(permissionType) || canEditData(permissionType);
+  const canImportSwitch = isOpenPermit(permitList.importSwitch, lastSheetSwitchPermit) && !window.isPublicApp;
+
   if (!canEdit && !canImportSwitch && !canSheetTrash && !canDelete) {
     return null;
   }
@@ -238,7 +239,7 @@ export default function SheetMoreOperate(props) {
                   alert(_l('复制成功'));
                 }}
               >
-                <span className="text">{_l('复制ID')}</span>
+                <span className="text">{_l('复制 ID')}</span>
               </MenuItem>
 
               <hr className="splitLine" />
@@ -247,25 +248,34 @@ export default function SheetMoreOperate(props) {
 
           {/* 导入数据权限 */}
           {canImportSwitch && (
-            <MenuItem
-              data-event="importExcel"
-              icon={<Icon icon="reply1" className="Font18" />}
-              onClick={() => {
-                if (window.isPublicApp) {
-                  alert(_l('预览模式下，不能操作'), 3);
-                  return;
-                }
-                importDataFromExcel({
-                  isCharge: canEditData(permissionType) || canEditApp(permissionType),
-                  appId,
-                  worksheetId: worksheetId,
-                  worksheetName: name,
-                });
-                setMenuVisible(false);
-              }}
+            <Trigger
+              getPopupContainer={() => document.querySelector('.moreOperate .importMenu .Item-content')}
+              action={['hover']}
+              popupAlign={{ points: ['tl', 'tr'], offset: [0, -5] }}
+              popup={
+                <ImportMenu
+                  className="subMenu sheetHeaderOperate_subMenu"
+                  isCharge={canEdit}
+                  allowAdd={allowAdd}
+                  controls={controls}
+                  projectId={projectId}
+                  appId={appId}
+                  worksheetId={worksheetId}
+                  viewId={viewId}
+                  worksheetName={name}
+                  onMenuClick={() => setMenuVisible(false)}
+                />
+              }
             >
-              <span className="text">{_l('从Excel导入数据%02031')}</span>
-            </MenuItem>
+              <MenuItem
+                data-event="import"
+                className="importMenu"
+                icon={<Icon icon="worksheet_import" className="Font18" />}
+              >
+                <span className="text">{_l('导入')}</span>
+                <Icon className="Font15" icon="arrow-right-tip" />
+              </MenuItem>
+            </Trigger>
           )}
 
           {canSheetTrash && (

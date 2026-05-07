@@ -69,6 +69,7 @@ export default function CreateWorksheetDataMask({
         console.error(error);
       }
     }
+
     cache.current.prevData = data;
   }, [data]);
   return createPortal(
@@ -126,6 +127,7 @@ export default function CreateWorksheetDataMask({
           }}
           renderRowHead={({ className, style, rowIndex }) => {
             const isLast = rowIndex === data.length - 1;
+
             if (isLoading && isLast && rowIndex >= 0) {
               return (
                 <div className={cx(className, 'rowHeadNumber t-flex t-items-center t-justify-center')} style={style}>
@@ -133,6 +135,7 @@ export default function CreateWorksheetDataMask({
                 </div>
               );
             }
+
             return (
               <div className={cx(className, 'rowHeadNumber')} style={style}>
                 {rowIndex >= 0 ? rowIndex + 1 : ''}

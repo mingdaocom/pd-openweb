@@ -36,6 +36,7 @@ class RelationAction extends Component {
     const { worksheet } = relationRow;
     const { selectedRecordIds } = actionParams;
     const { isSubList } = permissionInfo;
+
     if (isSubList) {
       sheetAjax
         .deleteWorksheetRows({
@@ -52,6 +53,7 @@ class RelationAction extends Component {
           } else {
             alert(_l('删除失败！'), 2);
           }
+
           this.setState({ showConfirmPopup: false });
         })
         .catch(() => {
@@ -79,6 +81,7 @@ class RelationAction extends Component {
           } else {
             alert(_l('取消关联失败！'), 2);
           }
+
           this.setState({ showConfirmPopup: false });
         })
         .catch(() => {
@@ -99,6 +102,7 @@ class RelationAction extends Component {
 
     // 关联查询  begin-->
     const { type } = _.find(rowInfo.templateControls, { controlId: base.controlId }) || {};
+
     if (type === 51) {
       this.pushRelationRows(list);
       return;
@@ -154,6 +158,7 @@ class RelationAction extends Component {
     const formData = this.props.formData || rowInfo.templateControls.filter(_.identity);
 
     let defaultRelatedSheetValue;
+
     try {
       const titleControl = formData.filter(c => c && c.attribute === 1);
       defaultRelatedSheetValue = titleControl && {
@@ -257,12 +262,14 @@ class RelationAction extends Component {
         }}
         onOpenRecordCardListDialog={keyWords => {
           const { scanlink, scancontrol } = _.get(control, 'advancedSetting') || {};
+
           if (
             (scanlink !== '1' && RegExpValidator.isURL(keyWords)) ||
             (scancontrol !== '1' && !RegExpValidator.isURL(keyWords))
           ) {
             return;
           }
+
           this.setState({ showRelevanceRecord: true, recordkeyWords: keyWords, isScan: true });
         }}
       >
@@ -370,10 +377,12 @@ class RelationAction extends Component {
                     this.setState({ showCreateRecord: true });
                     return;
                   }
+
                   if (isRelevance) {
                     this.handleSetShowRelevanceRecord(true);
                     return;
                   }
+
                   if (isCreate) {
                     this.setState({ showCreateRecord: true });
                     return;

@@ -29,6 +29,7 @@ class Menu extends Component {
   calcPos() {
     let { isAppendToBody, renderToTop } = this.props;
     const pos = {};
+
     if (this.props.isSubMenu) {
       const parentMenuItem = ReactDom.findDOMNode(this.props.parentMenuItem);
       const parentRect = parentMenuItem.getBoundingClientRect();
@@ -41,15 +42,18 @@ class Menu extends Component {
       const el = ReactDom.findDOMNode(this);
       const rect = el.getBoundingClientRect();
       let bodyRect = document.body.getBoundingClientRect();
+
       if (this.props.con) {
         bodyRect = document.querySelector(this.props.con).getBoundingClientRect();
       }
+
       if (rect.left + rect.width >= bodyRect.left + bodyRect.width) {
         pos.right = 0;
         pos.left = 'inherit';
       } else {
         pos.left = 0;
       }
+
       pos.top = '100%';
       /**
        * 当下方空间不够且上方空间足够时，在上方显示
@@ -59,13 +63,16 @@ class Menu extends Component {
         pos.top = 'inherit';
       }
     }
+
     this.setState({ pos });
   }
   render() {
     let style = this.props.style || {};
+
     if (this.state.pos) {
       style = assign({}, this.state.pos, style);
     }
+
     const { fixedHeader, isAppendToBody, ...listProps } = this.props;
 
     if (fixedHeader) {

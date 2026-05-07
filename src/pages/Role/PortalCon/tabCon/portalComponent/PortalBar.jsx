@@ -124,6 +124,7 @@ function PortalBar(props) {
                     placeholder={_l('搜索')}
                     onChange={event => {
                       const searchValue = _.trim(event.target.value);
+
                       if (!searchValue) {
                         setcolumnsKey('');
                         setColumns(getControls());
@@ -195,7 +196,7 @@ function PortalBar(props) {
         <Tooltip placement="bottom" title={_l('导出用户')}>
           <Icon
             className="mRight14 Font18 Hand InlineBlock actIcon"
-            icon="download"
+            icon="worksheet_export"
             onClick={() => {
               props.down(true);
             }}

@@ -33,6 +33,7 @@ export default ({
       </Fragment>
     );
   };
+
   const appList = data.appList.map(item => {
     return {
       text: item.name,

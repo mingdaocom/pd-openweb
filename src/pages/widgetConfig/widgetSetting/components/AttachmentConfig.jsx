@@ -29,10 +29,12 @@ const PointerConfigWrap = styled.div`
 
 export default function AttachmentConfig({ data = {}, minCount = 1, maxNum, onChange, attr }) {
   const maxcount = getAdvanceSetting(data, attr);
+
   // 数值上限
   if (!maxNum) {
     maxNum = data.type === 28 ? 10 : 20;
   }
+
   const [count, setCount] = useState();
 
   useEffect(() => {

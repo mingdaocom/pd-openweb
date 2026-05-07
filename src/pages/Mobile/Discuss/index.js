@@ -7,6 +7,7 @@ import DiscussInfo from './DiscussInfo';
 export default props => {
   const { isModal, match, appId, worksheetId, rowId, viewId, projectId, discussionCount, getDiscussionsCount } = props;
   const { className, visible, onClose, onAddCount = _.noop, originalData } = props;
+
   if (isModal) {
     if (!visible) return null;
 

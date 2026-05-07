@@ -115,10 +115,7 @@ export default class RelationFields extends Component {
               filterEncryptCondition={true}
             />
 
-            <FindResult
-              executeType={data.executeType}
-              switchExecuteType={executeType => updateSource({ executeType })}
-            />
+            <FindResult executeType={data.executeType} updateSource={updateSource} />
           </Fragment>
         )}
       </Fragment>

@@ -221,6 +221,7 @@ function FormIndexSetting(props) {
       setWorksheetRowIndexLimit(res.worksheetRowIndexLimit);
     });
   };
+
   // 重命名
   const editIndex = obj => {
     worksheetAjax
@@ -236,6 +237,7 @@ function FormIndexSetting(props) {
         } else {
           alert(_l('修改失败'), 2);
         }
+
         getIndexesInfo();
       });
   };
@@ -248,6 +250,7 @@ function FormIndexSetting(props) {
       {}
     );
   };
+
   if (isloading) {
     return <LoadDiv />;
   }
@@ -374,6 +377,7 @@ function FormIndexSetting(props) {
                                 input.current.focus();
                                 return;
                               }
+
                               if (_.trim(e.target.value) === item.customeIndexName) return;
                               let data = indexList.map(os => {
                                 if (os.indexConfigId === item.indexConfigId) {

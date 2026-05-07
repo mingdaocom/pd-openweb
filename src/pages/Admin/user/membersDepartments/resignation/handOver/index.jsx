@@ -125,6 +125,7 @@ export default class HandOver extends React.Component {
 
   renderList() {
     const { isLoading, list, ajaxMap } = this.state;
+
     if (isLoading) {
       return (
         <div>
@@ -134,6 +135,7 @@ export default class HandOver extends React.Component {
         </div>
       );
     }
+
     if (!list || !(list && list.length)) {
       const detail = {
         icon: 'icon-verify',
@@ -141,6 +143,7 @@ export default class HandOver extends React.Component {
       };
       return <Empty detail={detail} />;
     }
+
     return (
       <React.Fragment>
         {_.map(list, (item, index) => (

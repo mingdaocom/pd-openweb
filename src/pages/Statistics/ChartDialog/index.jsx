@@ -99,6 +99,7 @@ export default class ChartDialog extends Component {
   }
   componentWillReceiveProps(nextProps) {
     const { activeData } = this.state;
+
     if (!nextProps.loading && this.props.loading && !_.isEmpty(activeData)) {
       this.props.requestOriginalData(activeData);
       this.setState({ activeData: null });
@@ -183,10 +184,12 @@ export default class ChartDialog extends Component {
     const { loading, currentReport, reportData } = this.props;
     const { yaxisList, reportType } = currentReport;
     const { status } = reportData;
+
     if (!reportType) {
       alert(_l('请选择图表类型'), 2);
       return;
     }
+
     if (status !== 1 && !loading) {
       if (status === -1) {
         alert(_l('无权限'), 2);
@@ -199,14 +202,17 @@ export default class ChartDialog extends Component {
         return;
       }
     }
+
     if (reportType == reportTypes.NumberChart) {
       if (_.isEmpty(yaxisList)) {
         alert(_l('请配置维度后再保存图表'), 2);
       } else {
         this.handleSaveFilter();
       }
+
       return;
     }
+
     if (reportType == reportTypes.PivotTable) {
       this.handleSaveFilter();
       return;
@@ -216,6 +222,7 @@ export default class ChartDialog extends Component {
       } else {
         this.handleSaveFilter();
       }
+
       return;
     }
   };
@@ -370,6 +377,7 @@ export default class ChartDialog extends Component {
             if (item.type === reportTypes.CountryLayer) {
               return !geoCountryRegionCode || geoCountryRegionCode === 'CN';
             }
+
             return true;
           })
           .map((item, index) => (
@@ -385,6 +393,7 @@ export default class ChartDialog extends Component {
                         },
                       });
                     }
+
                     if (
                       item.type === reportTypes.WorldMap &&
                       getFeatureStatus(projectId, VersionProductType.worldMap) === '2'
@@ -392,6 +401,7 @@ export default class ChartDialog extends Component {
                       buriedUpgradeVersionDialog(projectId, VersionProductType.worldMap);
                       return;
                     }
+
                     this.handleUpdateReportType(item.type);
                   }}
                   className={cx('chartItem', {
@@ -458,9 +468,11 @@ export default class ChartDialog extends Component {
       if ([reportTypes.GaugeChart, reportTypes.ProgressChart].includes(reportType)) {
         return false;
       }
+
       if (reportType === reportTypes.WorldMap) {
         return xaxes.controlType !== 40;
       }
+
       return true;
     })();
 
@@ -543,6 +555,7 @@ export default class ChartDialog extends Component {
             if (settingVisible) {
               this.props.changeDirection('vertical');
             }
+
             this.handleChangeSheetVisible(!base.sheetVisible);
           }}
           onChangeDirection={() => {

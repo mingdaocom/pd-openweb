@@ -4,11 +4,11 @@ export const ROUTE_CONFIG_PORTAL = addSubPathOfRoutes(
   {
     printForm: {
       path: '/printForm/:appId/:printType/:type/:from/:key?',
-      component: () => import('src/pages/OldPrint'),
-    },
-    printFormBatch: {
-      path: '/printFormBatch/:appId/:printType/:type/:from/:key?',
       component: () => import('src/pages/Print'),
+    },
+    printFormOld: {
+      path: '/printFormOld/:appId/:printType/:type/:from/:key?',
+      component: () => import('src/pages/OldPrint'),
     },
     worksheet: {
       path: '/worksheet/:worksheetId',
@@ -56,6 +56,6 @@ const withoutHeaderPathList = [
   'worksheet/uploadTemplateSheet',
   'gunterExport',
   'printForm',
-  'printFormBatch',
+  'printFormOld',
 ];
 export const withoutHeaderUrl = `/(.*)(${withoutHeaderPathList.join('|')})`;

@@ -42,6 +42,7 @@ export default function InfoSet(props) {
     if (controls.length <= 0) {
       return;
     }
+
     let tmp = controls.slice();
     let val = tmp.shift();
     let data = [val].concat(...controlsFilter).concat(...tmp);
@@ -69,9 +70,11 @@ export default function InfoSet(props) {
       }),
     );
   };
+
   const handleSortEnd = list => {
     handleMoveApp([controls[0], ...list]);
   };
+
   const renderCon = () => {
     return (
       <React.Fragment>
@@ -121,6 +124,7 @@ export default function InfoSet(props) {
                   if (i === 0) {
                     return o;
                   }
+
                   return { ...o, required: !(controls.filter(o => o.required).length >= controls.length) };
                 }),
               );
@@ -156,6 +160,7 @@ export default function InfoSet(props) {
                       },
                     };
                   }
+
                   return o;
                 }),
               );
@@ -184,6 +189,7 @@ export default function InfoSet(props) {
                       if (o.controlId === control.controlId) {
                         return { ...o, ...control };
                       }
+
                       return o;
                     }),
                   );
@@ -252,6 +258,7 @@ export default function InfoSet(props) {
                 if (FEATURE_STATUS_DISABLED) {
                   return buriedUpgradeVersionDialog(projectId, VersionProductType.userExtensionInformation);
                 }
+
                 setHs(true);
                 onChangePortalSetModel({ extendAttr });
               }}

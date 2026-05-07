@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import cx from 'classnames';
 import { get, isEmpty } from 'lodash';
 import { match } from 'path-to-regexp';
@@ -9,6 +9,7 @@ import mingoHead from 'src/pages/chat/containers/ChatList/Mingo/images/mingo.png
 import { getUserRole } from 'src/pages/worksheet/redux/actions/util';
 import { canEditApp } from 'src/pages/worksheet/redux/actions/util';
 import { emitter } from 'src/utils/common';
+import appInfoOptimizationIcon from '../../assets/ai_app_info_optimization.svg';
 import setIconIcon from '../../assets/ai_creare_icon.svg';
 import createRecordIcon from '../../assets/ai_create_date.svg';
 import appendDataIcon from '../../assets/ai_padding_data.svg';
@@ -23,11 +24,12 @@ const MingoWelcomeWrap = styled.div`
   overflow-y: auto;
   > .content {
     height: 100%;
-    min-height: 420px;
+    min-height: 480px;
   }
   .mingoHead {
     width: 105px;
     height: 105px;
+    flex-shrink: 0;
     border-radius: 50%;
     background-size: 100% 100%;
     border: 1px solid var(--color-border-secondary);
@@ -52,7 +54,7 @@ const MingoWelcomeWrap = styled.div`
       align-items: center;
       justify-content: space-between;
       font-size: 15px;
-      color: var(--color-text-title);
+      color: var(--color-text-primary);
       padding: 0 10px;
       height: 48px;
       border-radius: 6px;
@@ -102,6 +104,11 @@ const AI_TASKS = [
     icon: createRecordIcon,
     type: MINGO_TASK_TYPE.CREATE_RECORD_ASSIGNMENT,
   },
+  {
+    name: getTitleOfTaskType(MINGO_TASK_TYPE.APP_INFO_OPTIMIZATION),
+    icon: appInfoOptimizationIcon,
+    type: MINGO_TASK_TYPE.APP_INFO_OPTIMIZATION,
+  },
 ];
 
 function getHello() {
@@ -144,8 +151,13 @@ export default function MingoWelcome({ loading, onStartTask = () => {} }) {
       !appId || !get(activeWorksheet, 'allowAdd') || !get(activeWorksheet, 'template.controls').length,
     [MINGO_TASK_TYPE.CREATE_WORKSHEET_DATA_ASSIGNMENT]:
       !appId || !get(activeWorksheet, 'allowAdd') || !isManager || !get(activeWorksheet, 'template.controls').length,
+    [MINGO_TASK_TYPE.APP_INFO_OPTIMIZATION]: !appId || !isManager,
   });
-  const visibleTasks = AI_TASKS.filter(aiTask => !hiddenTypes.includes(aiTask.type));
+  let visibleTasks = AI_TASKS.filter(aiTask => !hiddenTypes.includes(aiTask.type));
+
+  if (appInfo?.appStatus === 20) {
+    visibleTasks = [];
+  }
 
   return (
     <MingoWelcomeWrap className="t-flex-1">
@@ -172,6 +184,7 @@ export default function MingoWelcome({ loading, onStartTask = () => {} }) {
                           `MINGO_CACHE_CREATE_WORKSHEET_BOT_${get(md, 'global.Account.accountId')}`,
                         );
                       }
+
                       onStartTask(aiTask);
                       if (!window.mingoFixing) {
                         window.mingoPendingStartTask = aiTask;

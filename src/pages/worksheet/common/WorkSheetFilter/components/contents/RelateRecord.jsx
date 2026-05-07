@@ -1,6 +1,6 @@
 import React from 'react';
 import cx from 'classnames';
-import _ from 'lodash';
+import _, { omit } from 'lodash';
 import PropTypes from 'prop-types';
 import { getTitleTextFromControls } from 'src/utils/control';
 import { FILTER_CONDITION_TYPE } from '../../enum';
@@ -78,6 +78,10 @@ export default class RelateRecord extends React.Component {
           onClick={() => {
             import('src/components/SelectRecords').then(({ selectRecords }) => {
               selectRecords({
+                control: {
+                  ...control,
+                  advancedSetting: omit(control.advancedSetting, 'filters'),
+                },
                 getType: 32,
                 allowNewRecord: false,
                 multiple: !this.selectSingle,

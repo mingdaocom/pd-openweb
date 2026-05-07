@@ -6,6 +6,7 @@ import { Tooltip } from 'ming-ui/antd-components';
 import datalimitAjax from 'src/api/dataLimit';
 import workflowDataLimitAjax from 'src/pages/workflow/api/DataLimit';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
+import AdminTitle from 'src/pages/Admin/common/AdminTitle';
 import { VersionProductType } from 'src/utils/enum.js';
 import { getFeatureStatus } from 'src/utils/project';
 import { QUOTA_LIST_CONTENT } from './config.js';
@@ -38,10 +39,12 @@ export default function Quota(props) {
 
   const handleSetting = item => {
     const featureType = getFeatureStatus(projectId, VersionProductType.quota);
+
     if (VersionProductType.quota && featureType === '2') {
       buriedUpgradeVersionDialog(projectId, VersionProductType.quota);
       return;
     }
+
     const size = handleSettingData({ data, type: item.type, isKey: true });
     setData({ settingVisible: true, globalSize: size ? Number(size) : undefined, currentInfo: item });
   };
@@ -68,6 +71,7 @@ export default function Quota(props) {
 
   return (
     <div className="orgManagementWrap quotaManagement">
+      <AdminTitle prefix={_l('应用管理 - 额度管理')} />
       <div className="orgManagementHeader Font17"> {_l('额度管理')}</div>
       <div className="orgManagementContent">
         <div className="promptWrap mBottom10">

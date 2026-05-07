@@ -47,6 +47,7 @@ class TaskControl extends Component {
       // 多选
       if (item.type === 10) {
         const key = [];
+
         for (let i = 0; i < item.value.length; i++) {
           if (item.value.substr(i, 1) !== '0') {
             key.push('1' + item.value.slice(i + 1).replace(/1/g, 0));

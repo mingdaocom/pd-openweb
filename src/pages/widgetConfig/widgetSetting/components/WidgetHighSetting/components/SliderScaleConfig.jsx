@@ -36,11 +36,14 @@ export default function SliderScaleDialog(props) {
     ).map(c => ({ ...c, id: Math.random().toString(16).slice(2) })),
   );
   const [activeIndex, setActiveIndex] = useState();
+
   function updateActiveIndex(v) {
     setActiveIndex(v);
     cache.current.activeIndex = v;
   }
+
   const removeDisabled = scales.length === 1;
+
   function updateScale(i, key, value) {
     setScales(oldScales => [
       ...oldScales.slice(0, i),
@@ -52,6 +55,7 @@ export default function SliderScaleDialog(props) {
       ...oldScales.slice(i + 1),
     ]);
   }
+
   return (
     <Modal
       width={480}

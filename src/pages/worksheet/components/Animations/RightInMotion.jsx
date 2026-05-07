@@ -19,6 +19,7 @@ export default function DropMotion(props) {
     if (cache.current.timer) {
       clearInterval(cache.current.timer);
     }
+
     cache.current.timer = setInterval(
       () => {
         setChildrenVisible(props.visible);

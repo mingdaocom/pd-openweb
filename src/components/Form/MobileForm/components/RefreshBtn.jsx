@@ -19,6 +19,7 @@ export default props => {
           if (item.value !== data) {
             onChange(data, item.controlId, item);
           }
+
           alert(_l('刷新成功'));
           setRefresh(false);
         });

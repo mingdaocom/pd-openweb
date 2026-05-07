@@ -34,10 +34,12 @@ const Entry = () => {
       .then(async result => {
         const { data = {} } = result || {};
         const { appId, projectId } = data;
+
         if (!data || !data.rowId) {
           location.href = `/public/view/${shareId}`;
           return;
         }
+
         localStorage.setItem('currentProjectId', projectId);
         preall(
           { type: 'function' },
@@ -73,6 +75,7 @@ const Entry = () => {
           window.clientId = printClientId;
           !sessionStorage.getItem('clientId') && sessionStorage.setItem('clientId', printClientId);
         }
+
         if (result.resultCode === 1 && projectId && appId) {
           await shareGetAppLangDetail({
             projectId,

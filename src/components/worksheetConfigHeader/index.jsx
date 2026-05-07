@@ -60,9 +60,11 @@ class WorksheetConfigHeaderComponent extends Component {
       form: `/worksheet/form/edit/${worksheetId}${extensionNav ? '/' + extensionNav : ''}`,
       formSet: `/worksheet/formSet/edit/${worksheetId}${settingNav ? '/' + settingNav : ''}`,
     };
+
     if (modulename === this.currentModuleName) {
       return;
     }
+
     if (this.currentModuleName === 'field') {
       onBack({
         redirectfn: () => {

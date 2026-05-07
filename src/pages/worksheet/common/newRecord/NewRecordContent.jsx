@@ -168,10 +168,12 @@ function NewRecordForm(props) {
       if (options.rowStatus === 21) {
         // 存草稿
         onSubmitBegin();
-        const { data } = customwidget.current.getSubmitData({ ignoreAlert: true, silent: true });
+        const { data = [] } = customwidget.current.getSubmitData({ ignoreAlert: true, silent: true }) || {};
+
         if (requesting) {
           return false;
         }
+
         setRequesting(true);
         submitNewRecord({
           appId,
@@ -201,6 +203,7 @@ function NewRecordForm(props) {
             if (_.isFunction(_.get(cache, 'current.tempSaving.cancel'))) {
               _.get(cache, 'current.tempSaving.cancel')();
             }
+
             setRestoreVisible(false);
             if (isOverLimit) {
               if (isMobile) {
@@ -211,6 +214,7 @@ function NewRecordForm(props) {
                 });
                 return;
               }
+
               Confirm({
                 className: '',
                 title: _l('您的草稿箱已满，无法保存'),
@@ -234,6 +238,7 @@ function NewRecordForm(props) {
               });
               return;
             }
+
             updateDraftTotalInfo({
               worksheetId,
               isAdd: true,
@@ -263,6 +268,7 @@ function NewRecordForm(props) {
         });
         return;
       }
+
       onSubmitBegin();
       cache.current.newRecordOptions = options;
       customwidget.current.submitFormData();
@@ -270,14 +276,17 @@ function NewRecordForm(props) {
 
     setTimeout(handleSubmit, this.hasFocusingRelateRecordTags || window.cellTextIsBlurring ? 1000 : 0);
   }
-  async function onSave(error, { data, handleRuleError, handleServiceError, alertLockError } = {}) {
+
+  async function onSave(error, { data = [], handleRuleError, handleServiceError, alertLockError } = {}) {
     if (error) {
       onSubmitEnd();
       return;
     }
+
     let hasError;
     isSubmitting.current = true;
     const isMobile = browserIsMobile();
+
     if (hasError) {
       setErrorVisible(true);
       alert(_l('请正确填写%0', entityName || worksheetInfo.entityName || ''), 3);
@@ -287,6 +296,7 @@ function NewRecordForm(props) {
       if (requesting) {
         return false;
       }
+
       if (customButtonConfirm) {
         try {
           const remark = await customButtonConfirm();
@@ -297,6 +307,7 @@ function NewRecordForm(props) {
           return;
         }
       }
+
       setRequesting(true);
       const { autoFill, actionType, continueAdd, isContinue } = cache.current.newRecordOptions || {};
       submitNewRecord({
@@ -383,6 +394,7 @@ function NewRecordForm(props) {
             }
 
             let dataForAutoFill = [...formdata];
+
             if (advancedSetting.reservecontrols) {
               const controlIds = safeParse(advancedSetting.reservecontrols, 'array');
               dataForAutoFill = dataForAutoFill.map(c =>
@@ -410,6 +422,7 @@ function NewRecordForm(props) {
                 }
               }
             }
+
             if (newControls) {
               setFormdata(
                 (autoFill ? dataForAutoFill : originFormdata).map(c =>
@@ -429,6 +442,7 @@ function NewRecordForm(props) {
                 advancedSetting,
                 isContinue && offlineUpload !== '1' ? 'continueOpenRecordViewId' : 'submitOpenRecordViewId',
               );
+
               if (_.isFunction(openRecord)) {
                 openRecord(rowData.rowid, openViewId, { enablePayment: worksheetInfo.enablePayment });
               } else if (isMobile) {
@@ -455,10 +469,12 @@ function NewRecordForm(props) {
               }
             }
           }
+
           removeTempRecordValueFromLocal(saveKey, worksheetId);
           if (_.isFunction(_.get(cache, 'current.tempSaving.cancel'))) {
             _.get(cache, 'current.tempSaving.cancel')();
           }
+
           if (_.isFunction(onAdd)) {
             if (isDraft && _.isFunction(handleAddRelation)) {
               handleAddRelation([rowData]);
@@ -466,6 +482,7 @@ function NewRecordForm(props) {
               onAdd(rowData, { continueAdd: actionType === BUTTON_ACTION_TYPE.CONTINUE_ADD || continueAdd });
             }
           }
+
           if (window.customWidgetViewIsActive) {
             emitter.emit('POST_MESSAGE_TO_CUSTOM_WIDGET', {
               action: 'new-record',
@@ -483,9 +500,11 @@ function NewRecordForm(props) {
       });
     }
   }
+
   registerFunc({ newRecord, setRestoreVisible });
   const RecordCon = notDialog ? React.Fragment : ScrollView;
   const recordTitle = title || _l('创建%0', entityName || worksheetInfo.entityName || _l('记录'));
+
   const fillTempRecordValue = (tempNewRecord, formData) => {
     setIsSettingTempData(true);
     const savedData = safeParse(tempNewRecord);
@@ -494,9 +513,11 @@ function NewRecordForm(props) {
     const value = savedData.value || savedData;
     cache.current.tempRecordCreateTime = tempRecordCreateTime;
     const parsedData = parseRecordTempValue(value, formData, defaultRelatedSheet);
+
     if (cache.current.focusTimer) {
       clearTimeout(cache.current.focusTimer);
     }
+
     setFormdata(parsedData.formdata);
     setRelateRecordData(parsedData.relateRecordData);
     setRandom(Math.random().toString());
@@ -515,6 +536,7 @@ function NewRecordForm(props) {
         });
       } else {
         const tempData = localStorage.getItem(saveKey + '_' + worksheetId);
+
         if (tempData) {
           fillTempRecordValue(tempData, newFormdata);
         }
@@ -529,6 +551,7 @@ function NewRecordForm(props) {
       if (_.get(item, 'advancedSetting.defsource')) {
         return { ...item, value: getDynamicValue(newFormdata, item) };
       }
+
       return item;
     });
     const cloneControls = _.clone(controls);
@@ -590,6 +613,7 @@ function NewRecordForm(props) {
                     value: JSON.stringify({ attachmentData: [], attachments: it.value, knowledgeAtts: [] }),
                   };
                 }
+
                 if (it.type === 42) {
                   return {
                     ...item,
@@ -599,6 +623,7 @@ function NewRecordForm(props) {
                         : undefined,
                   };
                 }
+
                 return { ...item, value: it.value ? it.value : item.value };
               });
               setOfflineTempId(tempId);
@@ -616,10 +641,12 @@ function NewRecordForm(props) {
           cache.current.pendingFunctions.forEach(handle => handle());
           cache.current.pendingFunctions = [];
         }
+
         cache.current.focusTimer = setTimeout(() => focusInput(formcon.current), 300);
         handleRestoreTempRecord(newFormdata);
       }
     }
+
     if (!loading) {
       load();
     }
@@ -629,11 +656,14 @@ function NewRecordForm(props) {
     function handle() {
       if (action === 'fillValueByAi') {
         const { controlId } = params;
+
         if (params.worksheetId !== worksheetId) {
           return;
         }
+
         let value = params.value;
         const control = find(cache.current.originFormdata, { controlId });
+
         if (control && control.type === WIDGETS_TO_API_TYPE_ENUM.SUB_LIST && !isEmpty(value)) {
           value = safeParse(value);
           customwidget.current.dataFormat.updateDataSource({
@@ -645,9 +675,11 @@ function NewRecordForm(props) {
           });
           value = value.length;
         }
+
         if (control && control.type === WIDGETS_TO_API_TYPE_ENUM.RELATE_SHEET && typeof value === 'undefined') {
           value = '[]';
         }
+
         setFilledByAiMap(prev => ({
           ...prev,
           [controlId]: typeof value === 'undefined' ? false : true,
@@ -661,6 +693,7 @@ function NewRecordForm(props) {
         handleMingoSaveTempRecord();
       }
     }
+
     if (cache.current.formLoading) {
       cache.current.pendingFunctions.push(handle);
     } else {
@@ -680,7 +713,7 @@ function NewRecordForm(props) {
   }, []);
 
   const handleResetForm = useCallback(() => {
-    setFormdata(cache.current.originFormdata);
+    setFormdata(cache.current.originFormdata || []);
     setRandom(Math.random());
     setFilledByAiMap({});
   }, [originFormdata]);
@@ -709,6 +742,7 @@ function NewRecordForm(props) {
     if (isMobile) {
       emitter.on('MINGO_FILL_NEW_RECORD_VALUE_BY_AI_MOBILE', handleMobileFillValueByAi);
     }
+
     return () => {
       if (isMobile) {
         emitter.off('MINGO_FILL_NEW_RECORD_VALUE_BY_AI_MOBILE', handleMobileFillValueByAi);
@@ -828,13 +862,16 @@ function NewRecordForm(props) {
                     resolve(`${url} ${recordTitle}`);
                     return;
                   }
+
                   let name = '';
+
                   try {
                     const res = await publicWorksheetAjax.getPublicWorksheetInfo({ worksheetId }, { silent: true });
                     name = res.name;
                   } catch (err) {
                     console.log(err);
                   }
+
                   resolve(`${url} ${name}`);
                 })
               }
@@ -865,7 +902,7 @@ function NewRecordForm(props) {
                 mountRef={ref => (customwidget.current = ref.current)}
                 formFlag={random}
                 recordinfo={worksheetInfo}
-                formdata={formdata.filter(
+                formdata={(formdata || []).filter(
                   it =>
                     !_.includes(
                       [
@@ -896,6 +933,7 @@ function NewRecordForm(props) {
                   if (isSubmitting.current || maskLoading) {
                     return;
                   }
+
                   setFormdata([...data]);
                   if (needCache && !noSaveTemp && cache.current.formUserChanged) {
                     cache.current.tempSaving = saveTempRecordValueToLocal(
@@ -910,9 +948,10 @@ function NewRecordForm(props) {
                   onSubmitEnd();
                 }}
                 onRelateRecordsChange={(control, records) => {
-                  if (!customwidget.current) {
+                  if (!customwidget.current || !customwidget.current.dataFormat) {
                     return;
                   }
+
                   customwidget.current.dataFormat.updateDataSource({
                     controlId: control.controlId,
                     value: String((records || []).length),
@@ -938,13 +977,14 @@ function NewRecordForm(props) {
                   }
                 }}
                 updateRelateRecordTableCount={(controlId, num) => {
-                  if (customwidget.current) {
-                    customwidget.current.dataFormat.updateDataSource({
+                  if (customwidget.current && customwidget.current.dataFormat) {
+                    customwidget.current.dataFormat?.updateDataSource({
                       controlId,
                       value: String(num),
                     });
                     customwidget.current.updateRenderData();
                   }
+
                   setFormdata(prevFormData =>
                     prevFormData.map(item => (item.controlId === controlId ? { ...item, value: String(num) } : item)),
                   );

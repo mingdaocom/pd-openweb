@@ -54,13 +54,16 @@ export default props => {
 
   if (['tabs', 'card'].includes(widgetType)) {
     const { componentConfig = {} } = widget;
+
     const handleDeleteConfirm = () => {
       const relevance = allComponents.filter(c => c.sectionId === _.get(widget, 'config.objectId'));
       const name = ['tabs'].includes(widgetType) ? _l('标签') : _l('容器');
+
       if (!relevance.length) {
         handleToolClick('delTabsWidget');
         return;
       }
+
       DeleteConfirm({
         clickOmitText: true,
         title: <div className="Bold">{_l('删除 “%0”', componentConfig.name)}</div>,
@@ -78,6 +81,7 @@ export default props => {
         },
       });
     };
+
     return renderItem({ onClick: handleDeleteConfirm });
   } else {
     return (

@@ -126,6 +126,7 @@ export default class Search extends Component {
       execute,
       returnNew,
       flowNodeMap,
+      ignoreError,
     } = data;
 
     if (
@@ -195,6 +196,7 @@ export default class Search extends Component {
         execute,
         returnNew,
         flowNodeMap: clearFlowNodeMapParameter(flowNodeMap),
+        ignoreError,
       })
       .then(result => {
         this.props.updateNodeData(result);
@@ -239,9 +241,7 @@ export default class Search extends Component {
               onChange={selectNodeId => this.getNodeDetail(this.props, { selectNodeId })}
             />
             {this.renderFieldAndRule()}
-            {data.selectNodeId && (
-              <FindResult executeType={data.executeType} switchExecuteType={this.switchExecuteType} />
-            )}
+            {data.selectNodeId && <FindResult executeType={data.executeType} updateSource={this.switchExecuteType} />}
           </Fragment>
         )}
 
@@ -386,7 +386,7 @@ export default class Search extends Component {
                 onClick={checked => this.updateSource({ returnNew: !checked ? false : null })}
               />
             </div>
-            <div className="textSecondary mTop5 mLeft26">{_l('删除前保留记录数据，供之后的流程节点使用')}</div>
+            <div className="Font13 textSecondary mTop5 mLeft26">{_l('删除前保留记录数据，供之后的流程节点使用')}</div>
 
             <div className="mTop20 flexRow">
               <Checkbox
@@ -396,15 +396,18 @@ export default class Search extends Component {
                 onClick={checked => this.updateSource({ destroy: !checked })}
               />
             </div>
-            <div className="textSecondary mTop5 mLeft26">{_l('彻底删除后数据不可恢复，请谨慎操作')}</div>
+            <div className="Font13 textSecondary mTop5 mLeft26">{_l('彻底删除后数据不可恢复，请谨慎操作')}</div>
           </Fragment>
         )}
 
         {data.appId && (
           <FindResult
+            ignoreError={data.ignoreError}
             executeType={data.executeType}
-            allowAdd={_.includes([ACTION_ID.WORKSHEET_FIND, ACTION_ID.RECORD_UPDATE], data.actionId)}
-            switchExecuteType={this.switchExecuteType}
+            allowAdd={
+              _.includes([ACTION_ID.WORKSHEET_FIND, ACTION_ID.RECORD_UPDATE], data.actionId) && !isAggregationSheet
+            }
+            updateSource={this.switchExecuteType}
           />
         )}
 
@@ -543,6 +546,7 @@ export default class Search extends Component {
   updateFindFields = ({ fields, formulaMap }, callback = () => {}) => {
     if (fields) {
       const obj = fields[0];
+
       if (
         (obj.type !== 26 && obj.type !== 27 && obj.fieldValue) ||
         ((obj.type === 26 || obj.type === 27) && obj.fieldValue !== '[]') ||
@@ -562,10 +566,15 @@ export default class Search extends Component {
   /**
    * 切换后续执行方式
    */
-  switchExecuteType = executeType => {
+  switchExecuteType = ({ executeType, ignoreError }) => {
     const { data } = this.state;
     const fields = [];
     const isRecordUpdate = data.actionId === ACTION_ID.RECORD_UPDATE;
+
+    if (ignoreError !== undefined) {
+      this.updateSource({ ignoreError });
+      return;
+    }
 
     if (executeType === 1 && !isRecordUpdate) {
       data.addControls.forEach(item => {
@@ -655,7 +664,7 @@ export default class Search extends Component {
         <div className="Font13 textSecondary mTop10">{_l('预计解析出的记录归属的工作表')}</div>
         {this.selectWorksheet()}
 
-        <FindResult executeType={data.executeType} switchExecuteType={this.switchExecuteType} />
+        <FindResult executeType={data.executeType} updateSource={this.switchExecuteType} />
       </Fragment>
     );
   }

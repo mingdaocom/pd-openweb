@@ -99,6 +99,7 @@ const generateJSON = (data, updateSource) => {
         if (checkJSON(json)) {
           flowNode.jsonToControls({ json }).then(controls => {
             const newControls = _.cloneDeep(data.controls);
+
             const generationOptions = ({ item, dataSource = '' }) => {
               return {
                 controlId: uuidv4(),
@@ -166,6 +167,7 @@ let cacheItem = {};
 
 export default ({ data, updateSource, isIntegration, isPlugin }) => {
   const [selectControlId, setControlId] = useState('');
+
   const updateControls = (action, value, { controlId, type, dataSource }, isBlur) => {
     const controls = _.cloneDeep(data.controls);
 
@@ -205,6 +207,7 @@ export default ({ data, updateSource, isIntegration, isPlugin }) => {
 
     updateSource({ controls });
   };
+
   const updateOptions = (action, value, { controlId, options }, index, isBlur) => {
     if (isBlur && !!options.find((o, i) => o[action] === value && i !== index)) {
       value =
@@ -222,6 +225,7 @@ export default ({ data, updateSource, isIntegration, isPlugin }) => {
 
     updateControls('options', options, { controlId });
   };
+
   const addParameters = ({ type, dataSource, controlId }) => {
     const controls = _.cloneDeep(data.controls);
     let defaultParameters = getDefaultParameters();
@@ -248,6 +252,7 @@ export default ({ data, updateSource, isIntegration, isPlugin }) => {
     setControlId(defaultParameters.controlId);
     cacheItem = _.cloneDeep(defaultParameters);
   };
+
   const renderControlType = item => {
     return (
       <Dropdown
@@ -269,6 +274,7 @@ export default ({ data, updateSource, isIntegration, isPlugin }) => {
       />
     );
   };
+
   const renderControlName = item => {
     return (
       <input
@@ -282,6 +288,7 @@ export default ({ data, updateSource, isIntegration, isPlugin }) => {
       />
     );
   };
+
   const renderControlAlias = item => {
     return (
       <input
@@ -302,6 +309,7 @@ export default ({ data, updateSource, isIntegration, isPlugin }) => {
       />
     );
   };
+
   const renderControlDesc = item => {
     return (
       <input
@@ -314,6 +322,7 @@ export default ({ data, updateSource, isIntegration, isPlugin }) => {
       />
     );
   };
+
   const renderControlRequired = (item, showText) => {
     return (
       <Checkbox
@@ -325,6 +334,7 @@ export default ({ data, updateSource, isIntegration, isPlugin }) => {
       />
     );
   };
+
   const renderList = source => {
     return source.map(item => {
       if (item.dataSource && _.find(data.controls, o => o.controlId === item.dataSource).type === 10000007) {
@@ -390,15 +400,19 @@ export default ({ data, updateSource, isIntegration, isPlugin }) => {
       );
     });
   };
+
   const selectItem = data.controls.find(o => o.controlId === selectControlId);
   const defaultValue =
     selectItem && ((JSON.parse(_.get(selectItem, 'advancedSetting.defsource') || '[]')[0] || {}).staticValue || '');
+
   const updateControlAdvancedSetting = value => {
     updateControls('advancedSetting', Object.assign({}, _.get(selectItem, 'advancedSetting'), value), selectItem);
   };
+
   const updateControlAdvancedSettingDefaultValue = value => {
     updateControlAdvancedSetting(value ? { defsource: JSON.stringify([{ staticValue: value }]) } : { defsource: '[]' });
   };
+
   const checkSourceCorrect = () => {
     if (selectItem.type === 9 && selectItem.options.filter(o => !o.key || !o.value).length) {
       alert(_l('选项名和选项值不能为空'), 2);

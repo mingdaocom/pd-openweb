@@ -79,6 +79,7 @@ export default function ApiSearchConfig(props) {
 
   const handleDelete = id => {
     const index = searchfilters.findIndex(item => item.controlId === id);
+
     if (index > -1) {
       setState({ searchfilters: update(searchfilters, { $splice: [[index, 1]] }) });
     }

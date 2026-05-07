@@ -17,7 +17,7 @@ export default class Action extends Component {
     const { item } = this.props;
 
     if (
-      (!item.appId && !item.selectNodeId) ||
+      (!item.appId && !item.selectNodeId && item.appType !== APP_TYPE.CALENDAR) ||
       (_.includes(
         [APP_TYPE.EXTERNAL_USER, APP_TYPE.CALENDAR, APP_TYPE.INVOICE, APP_TYPE.PROCESS, APP_TYPE.GLOBAL_VARIABLE],
         item.appType,

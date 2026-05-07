@@ -21,6 +21,10 @@ export const RecordWrapper = styled.div`
   line-height: 32px;
   padding: 0 10px;
   position: relative;
+  --border-color: rgba(0, 0, 0, 0.09);
+  [data-theme='dark'] & {
+    --border-color: rgba(255, 255, 255, 0.09);
+  }
   .groupingName {
     width: 180px;
     padding-right: 10px;
@@ -52,7 +56,7 @@ export const RecordWrapper = styled.div`
   .dayCountField {
     height: 32px;
     width: 180px;
-    border-left: 1px solid #0000000a;
+    border-left: 1px solid var(--border-color);
     padding: 0 10px;
     position: relative;
   }
@@ -160,6 +164,7 @@ export default class Record extends Component {
       () => {
         const { titleDisable } = gunterView.viewConfig;
         const titleControl = _.find(controls, { attribute: 1 });
+
         if (this.clicktimer) {
           clearTimeout(this.clicktimer);
           this.clicktimer = null;
@@ -181,7 +186,7 @@ export default class Record extends Component {
   };
   handleCreate = (event, title, titleControl) => {
     const { row, addRecord, updateRecordTitle } = this.props;
-    const value = event.target.value || _l('未命名');
+    const value = event.target.value;
     const { checkrange, min, max } = getAdvanceSetting(titleControl);
     this.props.updateEditIndex(null);
     this.props.updateGroupingRow({ isEdit: false }, row.rowid);
@@ -192,6 +197,7 @@ export default class Record extends Component {
         return;
       }
     }
+
     const cell = {
       controlId: titleControl.controlId,
       controlName: titleControl.controlName,
@@ -199,6 +205,7 @@ export default class Record extends Component {
       type: titleControl.type,
       value,
     };
+
     if (value !== title) {
       if (row.rowid.includes('createrowid')) {
         addRecord(cell, row);
@@ -214,7 +221,7 @@ export default class Record extends Component {
     const startControl = _.find(controls, { controlId: startId });
     return (
       <div
-        className="field valignWrapper startTimeField Relative"
+        className="field valignWrapper startTimeField overflowHidden Relative"
         style={{ width: widthConfig[displayControls.length + 1] }}
       >
         {startTimeEdit ? (
@@ -253,7 +260,10 @@ export default class Record extends Component {
                   row.allowedit && !startDisable && this.setState({ startTimeEdit: true });
                 }}
               >
-                {renderCellText({ ...startControl, value: row.startTime }, { appId: base.appId }) || '--'}
+                {renderCellText(
+                  { ...startControl, value: row.originalStartTime || row.startTime },
+                  { appId: base.appId },
+                ) || '--'}
               </span>
             </div>
             {this.canedit && !startDisable && (
@@ -308,14 +318,15 @@ export default class Record extends Component {
           />
         ) : (
           <Fragment>
-            <div className="flex endTimeWrap">
+            <div className="flex endTimeWrap overflowHidden">
               <span
                 className="pointer overflow_ellipsis"
                 onDoubleClick={() => {
                   row.allowedit && !endDisable && this.setState({ endTimeEdit: true });
                 }}
               >
-                {renderCellText({ ...enndControl, value: row.endTime }, { appId: base.appId }) || '--'}
+                {renderCellText({ ...enndControl, value: row.originalEndTime || row.endTime }, { appId: base.appId }) ||
+                  '--'}
               </span>
             </div>
             {this.canedit && !endDisable && (
@@ -333,7 +344,8 @@ export default class Record extends Component {
   }
   renderMore() {
     const { RecordOperateComponent } = this.state;
-    const { row, base, sheetSwitchPermit, worksheetInfo, groupKey, gunterView, isCharge, permissionType } = this.props;
+    const { row, base, sheetSwitchPermit, worksheetInfo, groupKey, gunterView, isCharge, permissionType, controls } =
+      this.props;
     const { appId, worksheetId, viewId } = base;
     const isDevAndOps = canEditApp(permissionType) || canEditData(permissionType);
 
@@ -359,6 +371,7 @@ export default class Record extends Component {
         sheetSwitchPermit={sheetSwitchPermit}
         viewId={viewId}
         recordId={row.rowid}
+        formdata={controls.map(c => ({ ...c, value: row[c.controlId] }))}
         updateRecordLock={() => {
           updateRecordLockStatus(
             {
@@ -398,14 +411,16 @@ export default class Record extends Component {
   }
   renderTitle() {
     const { row, groupKey, controls, gunterView, widthConfig, base } = this.props;
-    const titleControl = _.find(controls, { attribute: 1 });
+    const { titleDisable, navTitle } = gunterView.viewConfig;
+    const titleControl = _.find(controls, { controlId: navTitle });
     const value = row[titleControl?.controlId] || row.titleValue;
-    const emptyValue = _l('未命名');
-    const title = titleControl ? renderCellText({ ...titleControl, value }, { appId: base.appId }) : emptyValue;
-    const { titleDisable, hideTitle } = gunterView.viewConfig;
-    if (hideTitle) {
+    const emptyValue = '--';
+    const title = titleControl ? renderCellText({ ...titleControl, value }, { appId: base.appId }) : '';
+
+    if (!titleControl) {
       return null;
     }
+
     return (
       <div
         className={cx('groupingName valignWrapper', { edit: row.isEdit && !row.sys_lock })}
@@ -487,6 +502,7 @@ export default class Record extends Component {
         className={cx('valignWrapper gunterRecord w100', `gunterRecord-${row.rowid}`)}
         onClick={event => {
           const { classList } = event.target;
+
           if (
             classList.contains('gunterRecord') ||
             classList.contains('field') ||

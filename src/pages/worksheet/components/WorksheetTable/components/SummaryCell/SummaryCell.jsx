@@ -96,11 +96,14 @@ export default class extends React.Component {
       allWorksheetIsSelected,
     } = this.props;
     const style = { ...(this.props.style || {}) };
+
     if (!isGroupTitle) {
       style.height = 28 + 'px';
       style.lineHeight = 28 + 'px';
     }
+
     const { menuVisible } = this.state;
+
     if (!control) {
       return (
         <div
@@ -112,10 +115,13 @@ export default class extends React.Component {
         />
       );
     }
+
     let type = control.sourceControlType || control.type;
+
     if (_.includes([10010, 33, 45, 47], type) || (control.type === 30 && control.strDefault === '10')) {
       return <div className={cx('sheetSummaryInfo withBackground disabled', className)} style={style} />;
     }
+
     if (type === 'summaryhead') {
       return (
         <div
@@ -126,10 +132,12 @@ export default class extends React.Component {
         </div>
       );
     }
+
     // 公式类型按照数值统计
     if (type === 31 || (control.type === 37 && control.enumDefault2 === 6)) {
       type = 6;
     }
+
     return (
       <ClickAwayable
         className={cx('sheetSummaryInfo ellipsis', className, {
@@ -143,6 +151,7 @@ export default class extends React.Component {
           if (disabled) {
             return;
           }
+
           this.setState({ menuVisible: true });
         }}
         onClickAway={() => this.setState({ menuVisible: false })}

@@ -98,6 +98,7 @@ const MobilePhone = props => {
     if (inputRef.current && !isEditing) {
       const currentValue = getItiInputValue(valueRef.current);
       const inputValue = inputRef.current.value;
+
       if (currentValue !== inputValue) {
         inputRef.current.value = currentValue;
       }
@@ -106,11 +107,13 @@ const MobilePhone = props => {
 
   const getItiInputValue = (inputValue = value) => {
     const showValue = inputValue || '';
+
     if (showValue && showValue.indexOf('+') > -1) {
       // 非编辑态iti被隐藏，本身的iti取不到区号
       const iti = initIntlTelInput();
       iti.setNumber(showValue);
       const dialCode = _.get(iti.getSelectedCountryData(), 'dialCode');
+
       if (dialCode) {
         const reg = new RegExp(`^\\+${dialCode}\\s?`);
         return showValue.replace(reg, '');
@@ -118,11 +121,13 @@ const MobilePhone = props => {
         return showValue;
       }
     }
+
     return showValue;
   };
 
   const getShowValue = useMemo(() => {
     const currentValue = getItiInputValue() || '';
+
     if (currentValue) {
       return showMaskValue ? dealMaskValue({ ...props, value: currentValue }) : currentValue;
     } else {
@@ -188,6 +193,7 @@ const MobilePhone = props => {
     formItemId,
     useCallback(data => {
       const { triggerType } = data;
+
       switch (triggerType) {
         case 'trigger_tab_enter':
           setIsEditing(true);
@@ -204,11 +210,13 @@ const MobilePhone = props => {
   const onFocus = () => {
     const countryData = itiRef.current.getSelectedCountryData();
     let currentValue;
+
     if (!_.keys(countryData).length) {
       currentValue = $(inputRef.current).val().replace(/ /g, '');
     } else {
       currentValue = itiRef.current.getNumber();
     }
+
     setOriginValue(currentValue);
     setIsEditing(true);
 
@@ -232,6 +240,7 @@ const MobilePhone = props => {
   const handleChange = _.debounce(() => {
     const countryData = itiRef.current.getSelectedCountryData();
     let currentValue;
+
     if (!_.keys(countryData).length) {
       currentValue = $(inputRef.current).val().replace(/ /g, '');
     } else {

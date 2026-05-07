@@ -19,6 +19,7 @@ export default ({
   const [pageIndex, setIndex] = useState(1);
   const [keywords, setKeywords] = useState('');
   const [hasMore, setMore] = useState(false);
+
   const getListFunc = (index = 1, keyword = '') => {
     packageVersion
       .getList(
@@ -39,9 +40,11 @@ export default ({
         setMore(res.length === 20);
       });
   };
+
   const onChange = _.debounce(keyword => {
     getListFunc(1, keyword);
   }, 500);
+
   const renderList = () => {
     return (
       <ScrollView

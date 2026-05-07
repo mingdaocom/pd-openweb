@@ -24,26 +24,33 @@ export default class DataFilter extends Component {
   }
   getText() {
     const { name, reportType } = this.props;
+
     if ([reportTypes.BarChart, reportTypes.LineChart, reportTypes.DualAxes].includes(reportType)) {
       return _l('X轴');
     }
+
     if (reportType === reportTypes.PieChart) {
       return _l('分区');
     }
+
     if (reportType === reportTypes.RadarChart) {
       return _l('维度');
     }
+
     if (reportType === reportTypes.FunnelChart) {
       return _l('分组');
     }
+
     if (reportType === reportTypes.PivotTable) {
       return name;
     }
+
     return _l('行数据');
   }
   handleSaveCount = () => {
     const { showXAxisCount } = this.props;
     const { count, showXAxisType } = this.state;
+
     if (showXAxisCount !== count) {
       this.props.onChange(showXAxisType ? Math.abs(count) : -Math.abs(count));
     }

@@ -94,6 +94,7 @@ export default function () {
             documentTitle: _l('登录/注册'),
           });
         }
+
         if (pcScan) {
           switch (accountResult) {
             case 1:
@@ -131,6 +132,7 @@ export default function () {
         }
       });
   };
+
   if (!loading) {
     return (
       <WrapCon
@@ -156,6 +158,7 @@ export default function () {
       </WrapCon>
     );
   }
+
   return (
     <Wrap>
       <DocumentTitle title={documentTitle} />

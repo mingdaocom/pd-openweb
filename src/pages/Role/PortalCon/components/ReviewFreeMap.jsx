@@ -82,6 +82,7 @@ export default function ReviewFreeMap(props) {
       setCells(cell.cells);
       setCellConfigs(cell.cellConfigs || []);
     }
+
     setControls(props.controls);
   };
 
@@ -116,9 +117,11 @@ export default function ReviewFreeMap(props) {
                             if ([9, 10, 11].includes(a.type) && [9, 10, 11].includes(o.type)) {
                               return a;
                             }
+
                             if ([15, 16].includes(a.type) && [15, 16].includes(o.type)) {
                               return a;
                             }
+
                             if (a.type === o.type) return a;
                           }) //必须类型相同
                           .map(item => {
@@ -155,6 +158,7 @@ export default function ReviewFreeMap(props) {
                       );
                       const controlsIds = controls.map(item => item.controlId);
                       const cellConfigsCids = (_.get(query, ['configs']) || []).map(item => item.cid);
+
                       if (hasMarry) {
                         alert(_l('该列已匹配过'), 3);
                         onChange({
@@ -163,6 +167,7 @@ export default function ReviewFreeMap(props) {
                         setQuery({ ...query, configs: _.get(query, ['configs']) });
                         return;
                       }
+
                       if (cellConfigsCids.includes(o.controlId)) {
                         let da = {
                           configs: _.get(query, ['configs'])
@@ -195,6 +200,7 @@ export default function ReviewFreeMap(props) {
                         alert(_l('该列已匹配过'), 3);
                         return;
                       }
+
                       const cellConfigsIds = cellConfigs.map(item => item.controlId);
                       let itemCell = cells
                         .filter(item => !cellConfigs.map(a => a.columnNum).includes(item.columnNum))
@@ -205,6 +211,7 @@ export default function ReviewFreeMap(props) {
                         columnNum: newValue,
                         controlName: o.controlName,
                       };
+
                       if (cellConfigsIds.includes(o.controlId)) {
                         onChange(
                           cellConfigs.map(item => {

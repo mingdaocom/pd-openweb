@@ -85,6 +85,7 @@ export default class Dectypt extends Component {
       })
       .then(res => {
         const { resultCode, password, lockPassword } = res;
+
         if (resultCode === 0) {
           alert(_l('文件无法解析，请重新上传'), 2);
         } else if (resultCode === 2) {
@@ -92,6 +93,7 @@ export default class Dectypt extends Component {
         } else if (resultCode === 3) {
           alert(_l('该文件没有任何密码，无需解密'), 2);
         }
+
         this.setState({
           importPassword: password,
           lockPassword,

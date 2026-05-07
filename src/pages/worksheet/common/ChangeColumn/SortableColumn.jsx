@@ -26,6 +26,7 @@ export default function SortableColumn(props) {
   let list = items;
   let filteredShowColumns = [];
   let filteredHideColumns = [];
+
   if (sortAutoChange && isShowColumns) {
     filteredShowColumns = items.filter(l => selected.includes(l.controlId));
     filteredHideColumns = items.filter(l => !selected.includes(l.controlId));
@@ -53,6 +54,7 @@ export default function SortableColumn(props) {
     if (forbiddenScroll && listRef.current) {
       scrollTopRef.current = listRef.current.scrollTop;
     }
+
     handleItemClick(item, !canDrag && !search);
   };
 

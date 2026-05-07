@@ -5,7 +5,7 @@ import worksheetAjax from 'src/api/worksheet';
 import { createRequestPool } from 'worksheet/api/standard';
 import { handleUpdateTreeNodeExpansion, treeDataUpdater } from 'worksheet/common/TreeTableHelper';
 import { postWithToken } from 'src/utils/common';
-import { filterEmptyChildTableRows, handleSortRows } from 'src/utils/record';
+import { filterEmptyChildTableRows } from 'src/utils/record';
 
 const PAGE_SIZE = 200;
 
@@ -73,9 +73,11 @@ export const initRows = rows => ({ type: 'INIT_ROWS', rows });
 
 export const updateTreeTableViewData = () => (dispatch, getState) => {
   const { base, rows } = getState();
+
   if (!base.isTreeTableView) {
     return;
   }
+
   const { treeMap, maxLevel } = treeDataUpdater({}, { rootRows: rows.filter(r => !r.pid), rows: rows, levelLimit: 20 });
   dispatch({
     type: 'UPDATE_TREE_TABLE_VIEW_DATA',
@@ -92,6 +94,7 @@ export const resetRows = () => {
     } else {
       dispatch({ type: 'RESET_TREE' });
     }
+
     dispatch(updateTreeTableViewData());
     return Promise.resolve();
   };
@@ -104,6 +107,7 @@ export const clearRows = () => {
     if (base.reset && !base.loaded) {
       dispatch({ type: 'RESET' });
     }
+
     return Promise.resolve();
   };
 };
@@ -119,6 +123,7 @@ function getChangesControlIds(oldRow, newRow, controls) {
   if (!oldRow || !newRow) {
     return [];
   }
+
   const ids = oldRow.updatedControlIds || [];
   controls
     .map(c => c.controlId)
@@ -140,6 +145,7 @@ export const clearAndSetRows = (
     const oldRows = getState().rows;
     let newRows = rows;
     let deleted = oldRows.map(r => r.rowid);
+
     if (isSetValueFromEvent) {
       deleted = oldRows.filter(oldRow => !find(rows, r => r.rowid === oldRow.rowid)).map(r => r.rowid);
       newRows = newRows.map(row => ({
@@ -151,6 +157,7 @@ export const clearAndSetRows = (
         ),
       }));
     }
+
     dispatch({ type: 'CLEAR_AND_SET_ROWS', isSetValueFromEvent, isSetValueFromRule, rows: newRows, deleted });
   };
 };
@@ -179,9 +186,11 @@ export const deleteRows =
       const row = find(rows, r => r.rowid === rowId);
       return row && (useUserPermission ? row.allowdelete : true);
     });
+
     if (filteredRowIds.length === 0) {
       return;
     }
+
     dispatch({ type: 'DELETE_ROWS', rowIds: filteredRowIds });
     dispatch(updateTreeTableViewData());
   };
@@ -219,17 +228,21 @@ async function batchLoadRows(args) {
   let total;
   let res;
   let noMore = false;
+
   while ((_.isUndefined(total) || rows.length < total) && !noMore) {
     res = await worksheetAjax.getRowRelationRows(args);
     rows = rows.concat(res.data || []).map((row, i) => ({ ...row, addTime: i }));
     if (!total) {
       total = res.count;
     }
+
     if (res.data.length === 0) {
       noMore = true;
     }
+
     args.pageIndex += 1;
   }
+
   return {
     res,
     rows: rows.slice(0, 1000),
@@ -281,10 +294,12 @@ export const loadRows = ({
             value: { maxLevel, treeMap },
           });
         }
+
         dispatch({ type: 'LOAD_ROWS_COMPLETE' });
         if (isWorkflow && isFunction(setLoadingInfo)) {
           setLoadingInfo('loadRows_' + controlId, false);
         }
+
         callback(res);
       })
       .catch(() => {
@@ -404,17 +419,21 @@ class RowData {
       isQueryWorksheetFill = false,
       DataFormat,
     } = this.args;
+
     if (get(row, 'updatedControlIds')) {
       this.updatedControlIds = get(row, 'updatedControlIds');
     }
+
     this.handleAsyncChange = this.handleAsyncChange.bind(this);
     this.formData = new DataFormat({
       requestPool,
       data: controls.map(c => {
         let controlValue = (row || {})[c.controlId];
+
         if (_.isUndefined(controlValue) && (isCreate || !row)) {
           controlValue = c.value;
         }
+
         return {
           ...c,
           isSubList: true,
@@ -483,6 +502,7 @@ export function setRowsFromStaticRows({
     });
     const rows = (!max ? staticRows : staticRows.slice(0, max)).map(staticRow => {
       let tempRowId;
+
       if (/^public-/.test(staticRow.rowid)) {
         tempRowId = staticRow.rowid.replace('public-', '');
       } else if (isSetValueFromEvent) {
@@ -500,6 +520,7 @@ export function setRowsFromStaticRows({
               ? staticRow.rowid
               : `default-${uuidv4()}`;
       }
+
       Object.keys(staticRow).forEach(key => {
         if (isString(staticRow[key]) && includes(staticRow[key], '"sid":"temp-')) {
           staticRow[key] = staticRow[key].replace('"sid":"temp-', `"sid":"default-`);
@@ -544,6 +565,7 @@ export function setRowsFromStaticRows({
         childrenids: (get(staticRow, 'childrenids') || '').replace(/temp-/g, 'default-'),
       });
     });
+
     if (type === 'append') {
       dispatch(addRows(rows));
       triggerSubListControlValueChange({

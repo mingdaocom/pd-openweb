@@ -30,6 +30,7 @@ const Time = props => {
 
   const handleChange = value => {
     const mode = unit === '6' ? 'HH:mm:ss' : 'HH:mm';
+
     if (value) {
       value = moment(moment(value).format('HH:mm:ss'), mode).format('HH:mm:ss');
     }
@@ -41,6 +42,7 @@ const Time = props => {
     formItemId,
     useCallback(data => {
       const { triggerType } = data;
+
       switch (triggerType) {
         case 'Enter':
           setOpen(true);
@@ -64,9 +66,11 @@ const Time = props => {
   };
 
   let value = propValue;
+
   if (/^\d+$/.test(String(value)) && String(value).length < 5) {
     value = '';
   }
+
   value = formatValueToMoment(value);
   const timeInterval = parseInt(advancedSetting.timeinterval || '1');
   let minDate;

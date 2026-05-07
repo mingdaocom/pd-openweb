@@ -30,6 +30,7 @@ const getReportObject = (components, reports) => {
     .map(c => {
       const objectId = _.get(c, 'config.objectId');
       const data = { objectId };
+
       // 已经存在的图表
       if (enumWidgetType.analysis === c.type) {
         const report = _.find(reports, { id: c.value }) || {};
@@ -37,12 +38,14 @@ const getReportObject = (components, reports) => {
         data.worksheetId = report.appId;
         data.reportId = report.id;
       }
+
       // 刚刚创建的图表
       if ('analysis' === c.type) {
         data.name = c.name;
         data.worksheetId = c.worksheetId;
         data.reportId = c.value;
       }
+
       return data;
     });
 };
@@ -81,12 +84,15 @@ export default class AutoLinkage extends Component {
   handleSave = () => {
     const { selectIds, components } = this.state;
     let value = selectIds;
+
     if (selectIds.length === 0) {
       value = [];
     }
+
     if (selectIds.length === components.length) {
       value = null;
     }
+
     this.setState({ modalVisible: false });
     this.props.onChangeStyle({
       autoLinkageChartObjectIds: value,
@@ -182,10 +188,12 @@ export default class AutoLinkage extends Component {
     if (autoLinkageChartObjectIds === null) {
       return _l('自动联动');
     }
+
     if (autoLinkageChartObjectIds) {
       const filterIds = autoLinkageChartObjectIds.filter(id => _.find(components, { objectId: id }));
       return filterIds.length ? `${_l('已设置')} (${filterIds.length}/${components.length})` : _l('未设置');
     }
+
     return config.autoLinkage ? _l('自动联动') : _l('未设置');
   }
   render() {

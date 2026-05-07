@@ -23,12 +23,14 @@ export default class EditPostDialog extends React.Component {
     document.body.appendChild(div);
 
     const root = createRoot(div);
+
     const dispose = () => {
       setTimeout(() => {
         root.unmount();
         document.body.removeChild(div);
       }, 100);
     };
+
     root.render(
       <EditPostDialog postItem={postItem} dispose={() => dispose()} editPost={(...args) => dispatch(edit(...args))} />,
     );
@@ -68,6 +70,7 @@ export default class EditPostDialog extends React.Component {
       attachment = _.assign({}, attachment.twice, attachment);
       delete attachment.twice;
     }
+
     attachment = _.assign(
       {
         isEdit: !!attachment.docVersionID,
@@ -87,6 +90,7 @@ export default class EditPostDialog extends React.Component {
     } else {
       attachment.allowDown = !!attachment.allowDown;
     }
+
     return attachment;
   }
   setContent(postItem) {
@@ -135,12 +139,14 @@ export default class EditPostDialog extends React.Component {
       alert(_l('文件上传中，请稍等'), 3);
       return;
     }
+
     const { scope } = this.state;
     const { postItem } = this.props;
     const { postID } = postItem;
     const $textarea = $(ReactDOM.findDOMNode(this.textarea)).parent().find('textarea');
     $textarea.get(0).val(data => {
       const postMsg = data;
+
       if (!postMsg || !(postMsg || '').trim()) {
         alert(_l('发表内容不能为空'), 3);
         return false;

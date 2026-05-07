@@ -32,7 +32,7 @@ const ConfirmDialogWrap = styled(Popup)`
   .ant-input-affix-wrapper:focus,
   .ant-input-affix-wrapper-focused,
   .ant-input-affix-wrapper:not(.ant-input-affix-wrapper-disabled):hover {
-    border: 1px solid var(--color-border-secondary);
+    border: 1px solid var(--color-primary);
     box-shadow: none !important;
   }
   .ant-input-password-icon,
@@ -319,11 +319,13 @@ function DoubleConfirm(props) {
               alert(_l('%0不能为空', remarkName), 3);
               return;
             }
+
             if (verifyPwd && needPassWord) {
               if (!password || !password.trim()) {
                 alert(_l('请输入密码'), 3);
                 return;
               }
+
               verifyPassword({
                 projectId,
                 password,

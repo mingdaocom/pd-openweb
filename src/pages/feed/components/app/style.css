@@ -103,7 +103,7 @@
 .commentContainer .showMore,
 .rPostItem .hideMore,
 .rPostItem .showMore {
-  background: var(--color-background-secondary) !important;
+  background: var(--color-background-tertiary) !important;
 }
 
 .postCard .postContent .showMore {

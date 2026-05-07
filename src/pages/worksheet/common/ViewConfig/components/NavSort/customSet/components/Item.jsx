@@ -20,6 +20,7 @@ export default function (props) {
 
   const { onAdd, onDelete, item, onUpdate, projectId, appId, DragHandle, maxCount } = props;
   const { num, info } = item;
+
   const addUser = (isMultiple = true, tabType, cb) => {
     quickSelectUser($ref.current, {
       showMoreInvite: false,
@@ -49,6 +50,7 @@ export default function (props) {
       },
     });
   };
+
   const onSaveAddDep = (data, isCancel = false) => {
     const lastIds = _.sortedUniq(valueRef.current.map(l => l.departmentId));
     const newIds = _.sortedUniq(data.map(l => l.departmentId));
@@ -147,6 +149,7 @@ export default function (props) {
           if (setting.length >= 50) {
             return;
           }
+
           if (isSameType([26], props.controlInfo)) {
             addUser(true, getTabTypeBySelectUser(props.controlInfo), users => {
               onUpdate(users, num);

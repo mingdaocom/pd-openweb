@@ -162,6 +162,7 @@ export default function SourceSelectModal({ projectId, isCreateConnector, onChan
                         if (currentTab === item.key) {
                           return;
                         }
+
                         setCurrentTab(item.key);
                         document.getElementById(item.key) && document.getElementById(item.key).scrollIntoView();
                       }}

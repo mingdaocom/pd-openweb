@@ -38,13 +38,16 @@ class TimeMenu extends Component {
     const list = [];
 
     let i = 0;
+
     while (i < 24) {
       let disabled = false;
+
       if ((props.min && i < props.min.hour) || (props.max && i > props.max.hour)) {
         disabled = true;
       }
 
       let label = i < 10 ? `0${i}:00` : `${i.toString()}:00`;
+
       if (props.mode !== 'hour') {
         label = i < 10 ? `0${i}` : `${i.toString()}`;
       }
@@ -66,6 +69,7 @@ class TimeMenu extends Component {
     const list = [];
 
     let i = 0;
+
     while (i < 60) {
       list.push({
         value: i,
@@ -91,6 +95,7 @@ class TimeMenu extends Component {
     const list = [];
 
     let i = 0;
+
     while (i < 60) {
       list.push({
         value: i,
@@ -125,6 +130,7 @@ class TimeMenu extends Component {
 
       // check min
       let min = false;
+
       if (this.props.min) {
         if (time.hour < this.props.min.hour) {
           min = true;
@@ -136,11 +142,14 @@ class TimeMenu extends Component {
           }
         }
       }
+
       if (min) {
         time = this.props.min;
       }
+
       // check max
       let max = false;
+
       if (this.props.max) {
         if (time.hour > this.props.max.hour) {
           max = true;
@@ -152,6 +161,7 @@ class TimeMenu extends Component {
           }
         }
       }
+
       if (max) {
         time = this.props.max;
       }
@@ -162,9 +172,11 @@ class TimeMenu extends Component {
 
   render() {
     const classList = ['mui-timemenu'];
+
     if (this.props.show) {
       classList.push('show');
     }
+
     if (this.props.mode === 'hour') {
       classList.push('col-1');
     } else if (this.props.mode === 'minute') {
@@ -172,6 +184,7 @@ class TimeMenu extends Component {
     } else if (this.props.mode === 'second') {
       classList.push('col-3');
     }
+
     const classNames = classList.join(' ');
 
     const content = [
@@ -184,6 +197,7 @@ class TimeMenu extends Component {
         />
       </div>,
     ];
+
     if (this.props.mode === 'minute' || this.props.mode === 'second') {
       content.push(
         <div key="minute-menu" className="mui-timemenu-col">
@@ -196,6 +210,7 @@ class TimeMenu extends Component {
         </div>,
       );
     }
+
     if (this.props.mode === 'second') {
       content.push(
         <div key="second-menu" className="mui-timemenu-col">

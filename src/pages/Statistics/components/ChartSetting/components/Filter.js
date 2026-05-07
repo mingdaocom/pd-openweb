@@ -21,13 +21,16 @@ export default class Filter extends Component {
   }
   saveFilter = (conditions = []) => {
     const { oldConditions } = this.state;
+
     if (_.isEqual(oldConditions, conditions)) {
       return;
     }
+
     this.setState({ oldConditions: conditions });
     conditions = conditions.map(item => {
       const isTime = isTimeControl(item.dataType);
       const isMoment = moment.isMoment(item.value);
+
       if (isTime && isMoment) {
         return {
           ...item,
@@ -92,6 +95,7 @@ export default class Filter extends Component {
             if (_.isUndefined(this.state.newConditions)) {
               return;
             }
+
             this.saveFilter(this.state.newConditions);
           }}
         >

@@ -8,7 +8,7 @@ import { controlState } from 'src/utils/control';
 import { addBehaviorLog } from 'src/utils/project.js';
 import FreeField from '../../components/FreeField';
 import WidgetsDesc from '../../components/WidgetsDesc';
-import { FROM } from '../../core/config';
+import { FROM, MASK_ADVANCEDSETTING } from '../../core/config';
 import { ADD_EVENT_ENUM } from '../../core/enum';
 import { convertControl, isUnTextWidget } from '../../core/utils';
 import widgets from '../widgets';
@@ -66,23 +66,15 @@ export default function MobileFormWidget(props) {
       newItem.disabled = true;
       newItem.advancedSetting = {
         ...((newItem.sourceControl || {}).advancedSetting || {}),
-        ..._.pick(originItem.advancedSetting, [
-          'datamask',
-          'isdecrypt',
-          'masktype',
-          'maskbegin',
-          'mdchar',
-          'maskend',
-          'mechar',
-          'maskmid',
-          'masklen',
-        ]),
+        ..._.pick(originItem.advancedSetting, MASK_ADVANCEDSETTING),
       };
       if (newItem.type === 46) {
         newItem.unit = _.includes(['6', '9'], (newItem.sourceControl || {}).unit) ? '6' : '1';
       }
+
       return newItem;
     }
+
     return originItem;
   }, [originItem]);
 
@@ -125,6 +117,7 @@ export default function MobileFormWidget(props) {
         />
       );
     }
+
     return null;
   };
 
@@ -137,6 +130,7 @@ export default function MobileFormWidget(props) {
           controlId: controlId,
         });
       }
+
       setShowMaskValue(!showMaskValue);
     }
   };
@@ -163,6 +157,7 @@ export default function MobileFormWidget(props) {
     const widgetName = convertControl(item.type);
     const isFreeField = isCustomWidget(item);
     let Widgets;
+
     if (isFreeField) {
       Widgets = FreeField;
     } else if (widgetName === 'CustomWidgets') {
@@ -263,9 +258,11 @@ export default function MobileFormWidget(props) {
         const currentItem = itemRef.current;
         // 由输入法和onCompositionStart结合引起的组件内部未更新value值的情况，主动抛出新值
         const newValue = newVal || (`${currentItem.value || ''}` ? `${currentItem.value || ''}`.trim() : '');
+
         if (currentItem.unique && newValue) {
           checkControlUnique(controlId, currentItem.type, newValue);
         }
+
         if (newValue && newValue !== originValue) {
           dataFormat.current.updateDataBySearchConfigs({
             control: { ...currentItem, value: newValue },
@@ -276,6 +273,7 @@ export default function MobileFormWidget(props) {
             triggerCustomEvent({ ...currentItem, triggerType: ADD_EVENT_ENUM.CHANGE });
           }
         }
+
         onBlur(controlId);
         triggerCustomEvent({ ...currentItem, triggerType: ADD_EVENT_ENUM.BLUR });
       },

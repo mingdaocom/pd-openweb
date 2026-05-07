@@ -4,11 +4,20 @@ import { handleTemplateRecordPrint } from 'worksheet/common/recordInfo/RecordFor
 import { handleDeleteRecord, handleShareRecord } from '../RecordOperate';
 
 const NOT_SUPPORT_BUTTON_TYPE = ['copy', 'sysprint'];
-export const filterButtonByNotSupport = buttons => {
+// 2: word模版打印, 5: excel模版打印
+const TEMPLATE_PRINT_TYPE = [2, 5];
+// 6: 云打印
+const CLOUD_PRINT_TYPE = 6;
+
+export const filterPrintButton = buttons => {
   return buttons.filter(({ type, printItem }) => {
     if (type === 'print') {
-      // 2: word模版打印, 5: excel模版打印
-      return printItem.type === 2 || printItem.type === 5;
+      const printType = printItem?.type;
+
+      const supportTemplatePrint = !window.isWxWork && TEMPLATE_PRINT_TYPE.includes(printType);
+      const supportCloudPrint = printType === CLOUD_PRINT_TYPE;
+
+      return supportTemplatePrint || supportCloudPrint;
     }
 
     return !NOT_SUPPORT_BUTTON_TYPE.includes(type);
@@ -48,15 +57,18 @@ export const setAttrToButtons = ({
     ...(button.type !== 'custom_button' && {
       onClick: () => {
         const { entityName = _l('记录') } = row;
+
         if (window.isPublicApp) {
           alert(_l('预览模式下，不能操作'), 3);
           return;
         }
+
         if (button.type === 'delete') {
           if (row.sys_lock) {
             alert(_l('%0已锁定', entityName), 3);
             return;
           }
+
           handleDeleteRecord({
             worksheetId,
             recordId,
@@ -72,9 +84,11 @@ export const setAttrToButtons = ({
           });
         } else if (button.type === 'print') {
           let customWin = null;
-          if (!window.isMingDaoApp) {
+
+          if (!window.isMingDaoApp && TEMPLATE_PRINT_TYPE.includes(button.printItem.type)) {
             customWin = window.open('about:blank');
           }
+
           worksheetAjax
             .getPrintList({
               viewId,
@@ -97,6 +111,7 @@ export const setAttrToButtons = ({
                       value: _.get(row, o.controlId),
                     })),
                   customWin,
+                  updatePrintStatus: ({ printLoading }) => disableCustomButton(button.printItem.id, printLoading),
                 });
               } else {
                 alert(_l('无法打印“%0”', button.printItem.name), 3);

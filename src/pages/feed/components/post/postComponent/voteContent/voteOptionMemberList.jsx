@@ -21,6 +21,7 @@ function VoteOptionMemberList(props) {
     </div>
   );
 }
+
 VoteOptionMemberList.propTypes = {
   members: PropTypes.arrayOf(
     PropTypes.shape({

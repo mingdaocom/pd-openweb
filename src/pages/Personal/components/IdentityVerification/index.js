@@ -38,6 +38,7 @@ export default function IdentityVerification(props) {
         verificationSuccess();
         return;
       }
+
       setVisible(res !== 1);
     });
   }, []);

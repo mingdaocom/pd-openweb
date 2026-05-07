@@ -9,11 +9,14 @@ import { AREA, TYPES } from './constants.js';
 
 export function sortDataByCustomNavs(data, view = {}, controls = []) {
   let customItems = safeParse(_.get(view, 'advancedSetting.customnavs'), 'array');
+
   if (_.get(view, 'advancedSetting.navshow') === '2') {
     customItems = safeParse(_.get(view, 'advancedSetting.navfilters'), 'array');
   }
+
   const viewControls = _.find(controls, c => c.controlId === _.get(view, 'navGroup[0].controlId')) || {};
   const controlType = viewControls.type === 30 ? viewControls.sourceControlType : viewControls.type;
+
   if (!_.isEmpty(customItems) && viewControls) {
     const sortIds = customItems.map(i => {
       if (_.includes([9, 10, 11, 28], controlType)) {
@@ -28,6 +31,7 @@ export function sortDataByCustomNavs(data, view = {}, controls = []) {
     const sortData = _.sortBy(data, o => keyByOrder.get(o.key || o.value));
     return sortData;
   }
+
   return data;
 }
 
@@ -56,6 +60,7 @@ export const renderTxt = (source, keywords, item, control, viewId, navGroup) => 
     const path = safeParse(item.path, 'array');
     return path.map((text, i) => {
       const isLast = i === path.length - 1;
+
       if (text.indexOf(keywords) > -1) {
         return (
           <React.Fragment key={i}>
@@ -64,6 +69,7 @@ export const renderTxt = (source, keywords, item, control, viewId, navGroup) => 
           </React.Fragment>
         );
       }
+
       return (
         <React.Fragment key={i}>
           {text}
@@ -72,6 +78,7 @@ export const renderTxt = (source, keywords, item, control, viewId, navGroup) => 
       );
     });
   }
+
   return control ? renderCellText(Object.assign({}, control, { value: item[control.controlId] })) : _l('未命名');
 };
 
@@ -79,11 +86,13 @@ export const getListByNavlayer = (data, level, info) => {
   const treeData = dealData(data);
   return expandedHierarchy({ treeData, data: data, level, info });
 };
+
 // 展开多级记录
 const expandedHierarchy = ({ data = [], treeData, level, info }) => {
   const parents = _.filter(data, item => !item.pid);
   return genTree({ data: parents, treeData, level, info });
 };
+
 // 按已有顺序排序
 const sortChildIds = (treeData, rowId, childrenids) => {
   const sortIds = Object.values(treeData).filter(i => i.pid === rowId);
@@ -91,6 +100,7 @@ const sortChildIds = (treeData, rowId, childrenids) => {
   // 未指定固定第一项
   return _.sortBy(dealChildren(childrenids), o => idByOrder.get(o));
 };
+
 // 展开多级 递归生成状态树
 const genTree = (
   { data = [], treeData = {}, path = [], pathId = [], level, info } = {
@@ -105,6 +115,7 @@ const genTree = (
   if (level < 0) return [];
   level = level - 1;
   const children = [];
+
   for (let i = 0; i < data.length; i++) {
     const rowId = _.isString(data[i]) ? data[i] : data[i].rowid;
     const node = treeData[rowId] || {};
@@ -132,6 +143,7 @@ const genTree = (
       text: node[control.controlId], // 原始文本
     });
   }
+
   return children;
 };
 
@@ -281,6 +293,7 @@ export const prepareRequestParams = ({ worksheetId, viewId, rowId, appId }, view
         // 使用字段自带的搜索控件
         params.controlId = _.get(source, 'controlId');
       }
+
       if (_.get(view, 'advancedSetting.navsearchcontrol')) {
         // 使用视图配置的搜索控件
         params.keyWords = undefined;

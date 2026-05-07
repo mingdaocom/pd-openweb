@@ -68,7 +68,6 @@ const HandleOption = styled.div`
 const DragItem = styled.div`
   display: flex;
   align-items: center;
-  background-color: var(--color-background-primary);
   i {
     color: var(--color-text-tertiary);
     &:hover {
@@ -169,11 +168,14 @@ function OptionItem({
       setIndex(-1);
       return false;
     }
+
     const exitsOptions = options.filter(o => o.key !== key && o.value === value && !o.isDeleted);
+
     if (exitsOptions.length) {
       alert(_l('不得与选项列表重复'), 3);
       return false;
     }
+
     return true;
   };
 
@@ -188,6 +190,7 @@ function OptionItem({
                 sysColor
                 isPopupBody
                 lightBefore
+                dynamicColor
                 value={item.color || OPTION_COLORS_LIST[index % OPTION_COLORS_LIST.length]}
                 onChange={color => updateOption(index, { color })}
                 popupAlign={{ points: ['tl', 'bl'], offset: [-260, 10] }}
@@ -210,6 +213,7 @@ function OptionItem({
                         addOption(false, index + 1);
                       }
                     }
+
                     // focus上、下
                     if (e.which === 38 || e.which === 40) {
                       if (handleBlurCheck()) {
@@ -311,6 +315,7 @@ function SelectOptions(props, ref) {
     setIndex(newIndex);
     setTimeout(() => {
       const $dom = document.getElementById(nextKey);
+
       if ($dom) {
         $dom.setSelectionRange(0, $dom.value.length);
       }
@@ -327,6 +332,7 @@ function SelectOptions(props, ref) {
     delete obj.key;
     let nextOptions = [].concat(options);
     const isNew = _.get(nextOptions[index], 'isNew');
+
     // 新增的选项删除直接删除
     if (isNew && _.isBoolean(obj.isDeleted)) {
       nextOptions.splice(index, 1);
@@ -343,6 +349,7 @@ function SelectOptions(props, ref) {
       alert(_l('最少保留一个选项'), 3);
       return;
     }
+
     onChange({ options: nextOptions.map((item, idx) => ({ ...item, index: idx + 1 })) });
   };
 
@@ -412,6 +419,7 @@ function SelectOptions(props, ref) {
               alert(_l('选项不得超过%0个', MAX_OPTIONS_COUNT), 3);
               return;
             }
+
             updateVisible('batchAdd');
           }}
         >

@@ -67,9 +67,11 @@ const flattenPeriodList = (periodList, periodType, viewConfig) => {
   if ([PERIOD_TYPE.day].includes(periodType)) {
     return periodList;
   }
+
   if ([PERIOD_TYPE.month].includes(periodType)) {
     return getWeeks(moment(start.time), moment(end.time), null, viewConfig).result;
   }
+
   if ([PERIOD_TYPE.quarter, PERIOD_TYPE.year].includes(periodType)) {
     return getMonths(moment(start.time), moment(end.time), null, viewConfig).result;
   }
@@ -81,9 +83,11 @@ const getDayPeriodList = (periodList, periodType, viewConfig) => {
   const { onlyWorkDay } = viewConfig;
   const start = periodList[0];
   const end = periodList[periodList.length - 1];
+
   if ([PERIOD_TYPE.day].includes(periodType)) {
     return periodList;
   }
+
   return onlyWorkDay
     ? getWorkDays(start.time, end.time).result
     : getDays(moment(start.time), moment(end.time), null, viewConfig).result;
@@ -98,11 +102,13 @@ const getWithoutArrangementIndexs = (grouping, milepost) => {
       item.rows.forEach((row, i) => {
         if (row.diff <= 0) {
           const index = item.groupingIndex + i + 1;
+
           if (row[milepost] === '1') {
             milepostIndexs.push(index);
           } else {
             indexs.push(index);
           }
+
           records[index] = row;
         }
       });
@@ -193,21 +199,25 @@ export default class SpeedCreateTime extends Component {
       updateRecordTime(record, start, end);
       return;
     }
+
     if (periodType === PERIOD_TYPE.day) {
       const start = moment(time).format(startFormat);
       const end = moment(time).format(endZeroFormat);
       updateRecordTime(record, start, end);
     }
+
     if (periodType === PERIOD_TYPE.week) {
       const start = moment(time).format(startFormat);
       const end = moment(time).endOf('w').format(endZeroFormat);
       updateRecordTime(record, start, end);
     }
+
     if (periodType === PERIOD_TYPE.month) {
       const start = moment(time).format(startFormat);
       const end = moment(time).add(6, 'd').format(endZeroFormat);
       updateRecordTime(record, start, end);
     }
+
     if ([PERIOD_TYPE.quarter, PERIOD_TYPE.year].includes(periodType)) {
       const start = moment(time).format(startFormat);
       const end = moment(time).endOf('M').format(endZeroFormat);
@@ -221,6 +231,7 @@ export default class SpeedCreateTime extends Component {
     let scrollLeft = scrollX + clientX - left;
     let leftValue = 0;
     let indexValue = 0;
+
     for (let i = 0; i < periodList.length; i++) {
       leftValue = leftValue + periodList[i].width;
       if (scrollLeft > leftValue) {
@@ -229,6 +240,7 @@ export default class SpeedCreateTime extends Component {
         break;
       }
     }
+
     return { indexValue, leftValue, scrollLeft };
   }
   handleMouseMove = event => {
@@ -237,12 +249,15 @@ export default class SpeedCreateTime extends Component {
     const scrollY = Math.abs(chartScroll.y);
     const { top, left } = this.gunterViewEl.getBoundingClientRect();
     const y = event.clientY - top;
+
     if (event.clientX <= left + 5) {
       this.handleMouseLeave();
       return;
     }
+
     if (y) {
       const index = Math.floor((y + scrollY) / recordHeight);
+
       if (withoutArrangementIndexs.includes(index) || withoutArrangementMilepostIndexs.includes(index)) {
         const isMilepost = withoutArrangementMilepostIndexs.includes(index);
         const list = isMilepost ? dayPeriodList : periodList;
@@ -275,9 +290,11 @@ export default class SpeedCreateTime extends Component {
       borderColor: record ? record.color : null,
     };
     const currentMilepostWidth = width > milepostWidth ? width : milepostWidth;
-    if (disable) {
+
+    if (disable || window.shareState.shareId) {
       return null;
     }
+
     return (
       <Fragment>
         {left !== null && (

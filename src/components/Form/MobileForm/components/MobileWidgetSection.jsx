@@ -7,6 +7,7 @@ import styled from 'styled-components';
 import { Icon, SvgIcon } from 'ming-ui';
 import RelationList from 'mobile/RelationRow/RelationList';
 import { ADD_EVENT_ENUM } from '../../core/enum';
+import { getTitleStyle } from '../tools/utils';
 import RelateRecord from '../widgets/RelateRecord';
 import RelationSearch from '../widgets/RelationSearch';
 
@@ -108,6 +109,7 @@ function TabIcon({ control = {}, widgetStyle = {}, activeTabControlId }) {
         </IconCon>
       );
     }
+
     iconUrl = safeParse(icon).iconUrl;
   }
 
@@ -162,6 +164,7 @@ function MobileWidgetSection(props) {
     if (activeControl.type === 52) {
       return;
     }
+
     setActiveTabControlId(_.get(tabControls[0], 'controlId'));
     changeMobileTab(tabControls[0]);
   }, [flag]);
@@ -174,6 +177,7 @@ function MobileWidgetSection(props) {
     let changeControls = [];
     let triggerType = '';
     const preControls = _.get($sectionControls, 'current') || [];
+
     if (preControls.length > tabControls.length) {
       // 卸载
       changeControls = _.differenceBy(preControls, tabControls, 'controlId');
@@ -183,11 +187,13 @@ function MobileWidgetSection(props) {
       changeControls = _.differenceBy(tabControls, preControls, 'controlId');
       triggerType = ADD_EVENT_ENUM.SHOW;
     }
+
     if (_.isFunction(props.triggerCustomEvent) && changeControls.length && triggerType) {
       changeControls.forEach(itemControl => {
         props.triggerCustomEvent({ ...itemControl, triggerType });
       });
     }
+
     $sectionControls.current = tabControls;
   };
 
@@ -200,6 +206,16 @@ function MobileWidgetSection(props) {
     const data = _.isArray(value) ? value : value ? JSON.parse(value) : [];
 
     if (_.isArray(data) && data.length) return data.length;
+  };
+
+  const parseStyleString = str => {
+    return str.split(';').reduce((acc, item) => {
+      if (!item.trim()) return acc;
+      const [key, value] = item.split(':');
+      const jsKey = key.trim().replace(/-([a-z])/g, (_, c) => c.toUpperCase());
+      acc[jsKey] = value.trim();
+      return acc;
+    }, {});
   };
 
   const TabsContent = () => {
@@ -216,13 +232,25 @@ function MobileWidgetSection(props) {
       >
         {allTabs.map((tab, index) => {
           const count = getCount(tab);
+          const titleStyle = getTitleStyle(tab.advancedSetting?.titlestyle);
+          const titleColor = tab.advancedSetting?.titlecolor;
+          const style = {};
+
+          if (titleStyle) {
+            Object.assign(style, parseStyleString(titleStyle));
+          }
+
+          if (titleColor) {
+            style.color = titleColor;
+          }
+
           return (
             <Tabs.Tab
               key={tab.controlId}
               title={
                 <Fragment>
                   {tab.showTabLine && <i className="tabLine" />}
-                  <span className={cx('tabName ellipsis bold', { mLeft8: index === 0 })}>
+                  <span className={cx('tabName ellipsis bold', { mLeft8: index === 0 })} style={style}>
                     <TabIcon control={tab} widgetStyle={widgetStyle} activeTabControlId={activeTabControlId} />
                     {tab.controlName}
                   </span>

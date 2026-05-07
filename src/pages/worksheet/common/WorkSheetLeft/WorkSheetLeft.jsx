@@ -19,15 +19,18 @@ import './WorkSheetLeft.less';
 function getProjectfoldedFromStorage() {
   let result = {};
   const storageStr = window.localStorage.getItem(`worksheet_left_projectfolded_${md.global.Account.accountId}`);
+
   if (!storageStr) {
     return result;
   }
+
   try {
     result = JSON.parse(storageStr);
   } catch (err) {
     console.log(err);
     return {};
   }
+
   return result;
 }
 
@@ -55,12 +58,14 @@ class WorkSheetLeft extends Component {
     if (nextProps.groupId !== this.props.groupId) {
       this.getSheetList(nextProps);
     }
+
     if (!_.isEqual(nextProps.groupData, this.props.groupData)) {
       this.getSheetList(nextProps);
     }
   }
   getSheetList = props => {
     const { appId, groupId, groupData } = props || this.props;
+
     if (groupData) {
       this.props.sheetListActions.updateSheetList(groupData);
       this.props.sheetListActions.updateSheetListLoading(false);

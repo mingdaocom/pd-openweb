@@ -9,6 +9,7 @@ import { Option } from './Options';
 
 const useCompare = value => {
   const ref = useRef(null);
+
   if (!_.isEqual(value, ref.current)) {
     ref.current = value;
   }
@@ -41,7 +42,9 @@ export default function RelateRecordOptions(props) {
     if (!_.isEmpty(staticRecords)) {
       return;
     }
+
     let filterControls;
+
     if (control && control.advancedSetting.filters) {
       filterControls = getFilter({ control, formData, appId: parentAppId });
     }
@@ -57,17 +60,21 @@ export default function RelateRecordOptions(props) {
       getType: 32,
       langType: window.shareState.shareId ? getCurrentLangCode() : undefined,
     };
+
     if (navshow === '3') {
       args.filterControls = filterControls || [];
     }
+
     if (parentWorksheetId && control.controlId && _.get(parentWorksheetId, 'length') === 24) {
       args.relationWorksheetId = parentWorksheetId;
       args.controlId = control.controlId;
     }
+
     const res = await worksheetAjax.getFilterRows(args);
 
     setRecords(res.data);
   }
+
   useEffect(() => {
     load();
   }, [useCompare(formData)]);

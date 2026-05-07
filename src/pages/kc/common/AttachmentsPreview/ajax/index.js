@@ -12,6 +12,7 @@ const rejectErr = function (ajaxPromise) {
             error: 'no response',
           };
         }
+
         if (resp.error) {
           reject(resp.error);
         } else {
@@ -55,6 +56,7 @@ export function fetchViewUrl(attachment) {
             error: true,
           };
         }
+
         if (resp.error) {
           reject('获取预览链接失败');
         } else {
@@ -64,6 +66,7 @@ export function fetchViewUrl(attachment) {
           } else {
             reject('获取预览链接失败');
           }
+
           resolve(attachment);
         }
       })

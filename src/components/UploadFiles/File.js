@@ -172,6 +172,7 @@ export default class FileComponent extends Component {
     const { data } = this.props;
     let nodeType = 0;
     let sourceData = {};
+
     if (data.refId) {
       nodeType = 2;
       sourceData.nodeId = data.refId;
@@ -212,6 +213,7 @@ export default class FileComponent extends Component {
       callback: link => {
         const { linkName, linkContent } = link;
         let updatePromise;
+
         if (data.refId) {
           updatePromise = kcService.updateNode({
             id: data.refId,
@@ -225,6 +227,7 @@ export default class FileComponent extends Component {
             originLinkUrl: linkContent,
           });
         }
+
         updatePromise
           .then(() => {
             alert(_l('修改成功'));
@@ -292,14 +295,17 @@ export default class FileComponent extends Component {
   renderFileImage(url) {
     let { imageSrc } = this.state;
     let _this = this;
+
     if (!imageSrc) {
       let image = new Image();
+
       image.onload = function () {
         _this.setState({
           imageSrc: true,
           imageWidth: this.width,
         });
       };
+
       image.onerror = () => {
         // 图片加载错误，把 viewImage 设为 false，表示作为附件预览
         _this.setState({
@@ -307,8 +313,10 @@ export default class FileComponent extends Component {
           viewImage: false,
         });
       };
+
       image.src = url;
     }
+
     return imageSrc ? (
       <div className="UploadFiles-fileImage" style={{ backgroundImage: `url(${url})` }} />
     ) : (
@@ -646,6 +654,7 @@ export default class FileComponent extends Component {
       isPicture = false;
       browse = false;
     }
+
     // 知识视频
     if (isKc && isVid) {
       fileResponse.previewUrl = fileResponse.thumbnailPath;
@@ -706,6 +715,7 @@ export default class FileComponent extends Component {
     let isMDLink = fileResponse.viewType === 5;
 
     let isDownload = false;
+
     if (isKc) {
       isDownload = fileResponse.allowDown === 'ok';
     } else if (fileResponse.accountId === md.global.Account.accountId || isPicture || fileResponse.allowDown === 'ok') {
@@ -713,6 +723,7 @@ export default class FileComponent extends Component {
     }
 
     let downloadUrl = false;
+
     if (fileResponse.downloadUrl) {
       downloadUrl =
         fileResponse.attachmentType == 5

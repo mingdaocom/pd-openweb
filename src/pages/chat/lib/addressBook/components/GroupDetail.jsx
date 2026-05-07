@@ -36,6 +36,7 @@ export default class GroupDetail extends React.Component {
           return;
 
         let newInfo = {};
+
         switch (type) {
           case 'UPDATE_AVATAR':
             newInfo.avatar = groupInfo.groupAvatar;
@@ -60,6 +61,7 @@ export default class GroupDetail extends React.Component {
             newInfo = { ...groupInfo };
             break;
         }
+
         updateGroupModel(groupId, newInfo);
       },
     });

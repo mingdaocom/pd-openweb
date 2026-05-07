@@ -154,7 +154,6 @@ class MyHome extends Component {
                 onClick={() => this.setState({ themeVisible: true })}
               >
                 {_l('主题')}
-                <Icon icon="beta1" className="mLeft5" style={{ color: 'var(--color-success)' }} />
               </List.Item>
             )}
             <List.Item

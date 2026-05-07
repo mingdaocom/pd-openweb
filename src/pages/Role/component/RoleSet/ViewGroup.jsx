@@ -11,6 +11,7 @@ export default class ViewGroup extends PureComponent {
 
   componentWillEnter(callback) {
     const { hasViews } = this.props;
+
     if (this.list && hasViews) {
       $(this.list).stop().slideDown(300, callback);
     }
@@ -18,6 +19,7 @@ export default class ViewGroup extends PureComponent {
 
   componentWillLeave(callback) {
     const { hasViews } = this.props;
+
     if (this.list && hasViews) {
       $(this.list).stop().slideUp(300, callback);
     }

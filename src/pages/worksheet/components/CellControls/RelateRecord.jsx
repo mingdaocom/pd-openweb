@@ -90,6 +90,7 @@ export default class RelateRecord extends React.Component {
     if (!value || value[0] !== '[') {
       return [];
     }
+
     try {
       return safeParse(value, 'array').map(r =>
         r.sourcevalue ? JSON.parse(r.sourcevalue) : { rowid: r.sid, titleValue: r.name },
@@ -104,11 +105,13 @@ export default class RelateRecord extends React.Component {
     const { tableId, count = 0, recordId, cell, isediting, updateEditingStatus } = this.props;
     const { records } = this.state;
     const canAdd = cell.enumDefault === 2 ? count < 50 : records.length === 0;
+
     switch (e.key) {
       case 'Escape':
         if (this.state.dialogActive) {
           return;
         }
+
         this.handleVisibleChange(false);
         break;
       case 'Enter':
@@ -119,15 +122,18 @@ export default class RelateRecord extends React.Component {
             this.relateRecordTagsPopup.current.selectRecords();
           }
         }
+
         break;
       default:
         (() => {
           if (!e.isInputValue && (isediting || !e.key || !isKeyBoardInputChar(e.key))) {
             return;
           }
+
           updateEditingStatus(true);
           setTimeout(() => {
             const input = document.querySelector(`.cell-${tableId}-${recordId}-${cell.controlId} input`);
+
             if (this.dropdownRef.current) {
               this.dropdownRef.current.setState({ keywords: (input.value = e.key) });
             }
@@ -140,6 +146,7 @@ export default class RelateRecord extends React.Component {
 
   getReordsLength(value) {
     let length = 0;
+
     if (/^\[(.*)\]$/.test(value)) {
       try {
         length = JSON.parse(value).length;
@@ -149,6 +156,7 @@ export default class RelateRecord extends React.Component {
     } else {
       length = parseInt(value, 10);
     }
+
     return length;
   }
   renderSelected() {
@@ -156,17 +164,21 @@ export default class RelateRecord extends React.Component {
     const { relationControls = [] } = cell;
     let titleControl = _.find(relationControls, c => c.attribute === 1);
     const matchedTitleControl = find(relationControls, { controlId: cell.advancedSetting.showtitleid });
+
     if (cell.advancedSetting.showtitleid && matchedTitleControl) {
       titleControl = matchedTitleControl;
     }
+
     let records = [];
+
     if (!titleControl) {
       return null;
     }
+
     if (isMobileTable) {
       records = this.state.records;
       return records.map((record, index) => (
-        <RecordCardCellRelateRecord key={index}>
+        <RecordCardCellRelateRecord className="mobileRelateRecordWrap" key={index}>
           {getTitleTextFromRelateControl(cell, record)}
         </RecordCardCellRelateRecord>
       ));
@@ -176,8 +188,10 @@ export default class RelateRecord extends React.Component {
       } catch (err) {
         console.log(err);
       }
+
       return records.map((record, index) => {
         let controlValue = record.name;
+
         if (record.sourcevalue) {
           try {
             controlValue = JSON.parse(record.sourcevalue)[titleControl.controlId];
@@ -188,6 +202,7 @@ export default class RelateRecord extends React.Component {
           titleControl = cell.sourceControl;
           controlValue = record.name;
         }
+
         return (
           <ViewHoverRelateRecordCard
             record={record.sourcevalue ? JSON.parse(record.sourcevalue) : record}
@@ -206,6 +221,7 @@ export default class RelateRecord extends React.Component {
 
   handleVisibleChange = visible => {
     const { cell, updateEditingStatus, updateCell, onValidate } = this.props;
+
     if (!visible && this.changed) {
       const newValue = JSON.stringify(
         formatRecordToRelateRecord(cell.relationControls, this.records).map(r => ({
@@ -213,6 +229,7 @@ export default class RelateRecord extends React.Component {
         })),
       );
       const validateResult = onValidate(newValue, true);
+
       if (validateResult.errorType === 'REQUIRED') {
         this.changed = false;
         this.setState({ records: this.parseValue(this.props.cell.value) || [] });
@@ -220,25 +237,30 @@ export default class RelateRecord extends React.Component {
         alert(_l('%0不能为空', cell.controlName), 3);
         return;
       }
+
       updateCell({
         value: newValue,
       });
       this.changed = false;
     }
+
     updateEditingStatus(visible);
   };
 
   handleRelateRecordTagChange = ({ changed, addedIds, deletedIds, records = [] } = {}) => {
     const { cell, updateEditingStatus, updateCell, onValidate } = this.props;
+
     if (!changed) {
       updateEditingStatus(false);
       return;
     }
+
     const newValue = records.length
       ? JSON.stringify(formatRecordToRelateRecord(cell.relationControls, records, { addedIds, deletedIds }))
       : `deleteRowIds: ${deletedIds.join(',')}`;
 
     const validateResult = onValidate(newValue, true);
+
     if (validateResult.errorType === 'REQUIRED') {
       this.changed = false;
       this.setState({ records: this.parseValue(this.props.cell.value) || [] });
@@ -246,6 +268,7 @@ export default class RelateRecord extends React.Component {
       alert(_l('%0不能为空', cell.controlName), 3);
       return;
     }
+
     // if (_.isEmpty(addedIds) && _.isEmpty(deletedIds)) {
     //   updateEditingStatus(false);
     //   return;
@@ -261,6 +284,7 @@ export default class RelateRecord extends React.Component {
         value: data.value,
       });
     }
+
     updateEditingStatus(false);
   };
 
@@ -302,21 +326,26 @@ export default class RelateRecord extends React.Component {
     const allowOpenList = from !== 21 && !isTrash && worksheetId && recordId;
     const recordsLength = this.getReordsLength(cell.value);
     let showCount = recordsLength >= 1000 ? '999+' : recordsLength;
+
     if (isSubList && recordsLength >= 1000) {
       showCount = 1000;
     }
+
     if (isRequestingRelationControls) {
       return <div className={className} style={style} onClick={onClick} />;
     }
+
     if (advancedSetting.showcount === '1') {
       showCount = _l('查看');
     }
+
     if (
       includes(
         [RELATE_RECORD_SHOW_TYPE.LIST, RELATE_RECORD_SHOW_TYPE.TABLE, RELATE_RECORD_SHOW_TYPE.TAB_TABLE],
         parseInt(showtype, 10),
       ) ||
-      isSubList
+      isSubList ||
+      (isMobileTable && cell.enumDefault === 2) // h5子表内关联多条呈现计数
     ) {
       return (
         <div className={className} style={style} onClick={onClick}>
@@ -327,6 +356,7 @@ export default class RelateRecord extends React.Component {
                 if (!allowOpenList || browserIsMobile() || row.fakeCreatedAt) {
                   return;
                 }
+
                 e.stopPropagation();
                 if (isSubList) {
                   openChildTable({

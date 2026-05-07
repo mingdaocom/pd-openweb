@@ -1,7 +1,7 @@
 import React from 'react';
 import cx from 'classnames';
 import styled from 'styled-components';
-import { Icon } from 'ming-ui';
+import { Icon, LoadDiv } from 'ming-ui';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
 import RegExpValidator from 'src/utils/expression';
 
@@ -41,7 +41,17 @@ const ContentWrap = styled.div`
 export default props => {
   const { editable, widget, themeColor, customPageConfig = {} } = props;
   const { componentConfig = {} } = widget;
-  const { name, url, showType = 1, showName = true, action = 0, openMode = 1, linkUrl, fill = 1 } = componentConfig;
+  const {
+    name,
+    url,
+    showType = 1,
+    showName = true,
+    action = 0,
+    openMode = 1,
+    linkUrl,
+    fill = 1,
+    imageUploadLoading,
+  } = componentConfig;
   const isDark = customPageConfig.pageStyleType === 'dark';
   const previewUrl = componentConfig.previewUrl || url;
 
@@ -69,6 +79,7 @@ export default props => {
       if (openMode === 1) {
         window.open(linkUrl);
       }
+
       if (openMode === 2) {
         location.href = linkUrl;
       }
@@ -103,6 +114,10 @@ export default props => {
               style={{ backgroundImage: `url(${previewUrl})` }}
             />
           )
+        ) : imageUploadLoading ? (
+          <div className="h100 flexColumn alignItemsCenter justifyContentCenter">
+            <LoadDiv />
+          </div>
         ) : (
           <div className="h100 flexColumn alignItemsCenter justifyContentCenter textTertiary">
             <Icon className="Font40" icon="insert_photo_21" />

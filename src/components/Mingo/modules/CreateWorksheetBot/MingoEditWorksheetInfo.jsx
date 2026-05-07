@@ -46,7 +46,7 @@ const Con = styled.div`
     align-items: center;
     justify-content: space-between;
     cursor: pointer;
-    background: var(--color-background-primary);
+    background: var(--color-background-input);
     padding: 0 10px;
   }
   &:not(.is-editing) {
@@ -60,7 +60,7 @@ const Con = styled.div`
       width: 46px;
       height: 46px;
       border-radius: 8px;
-      background: var(--color-background-primary);
+      background: var(--color-background-tertiary);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -76,8 +76,8 @@ const Con = styled.div`
 const IconSelector = styled.div`
   padding: 10px;
   border-radius: 3px;
-  background: var(--color-background-primary);
-  box-shadow: 0px 3px 12px 1px rgba(0,0,0,0.16);
+  background: var(--color-background-card);
+  box-shadow: var(--shadow-lg);
   .title {
     font-size: 12px;
     color: var(--color-text-tertiary);
@@ -200,6 +200,7 @@ export default function MingoEditWorksheetInfo({
                   alert(_l('请输入名称'), 3);
                   return;
                 }
+
                 appManagementAjax
                   .editWorkSheetInfoForApp({
                     worksheetId,

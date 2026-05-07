@@ -96,12 +96,14 @@ export const handleAPPScanCode = ({
 
         if (cid && value) {
           const currentControl = _.find(scanCodeData, v => v.controlId === cid);
+
           if (currentControl.type === 29) {
             // 关联记录
             handleRelateRow(currentControl, value, worksheetInfo, updateData);
           } else if (currentControl.type === 14) {
             // 附件
             const originValue = currentControl.value ? JSON.parse(currentControl.value) : [];
+
             if (_.isObject(originValue)) {
               const { attachments = [], attachmentData = [] } = originValue;
               updateData({
@@ -128,6 +130,7 @@ export const handleAPPScanCode = ({
             updateData({ controlId: cid, value });
           }
         }
+
         // 执行至最后一个字段
         if (finished && isSave) {
           handleSubmit(isContinueNext);
@@ -153,6 +156,7 @@ export const handleAPPScanCode = ({
  */
 export const handleRelateRow = (control = {}, content, worksheetInfo, updateData) => {
   const currentWorksheetId = control.dataSource;
+
   if (content.includes('worksheetshare') || content.includes('public/record')) {
     const shareId = (content.match(/\/worksheetshare\/(.*)/) || content.match(/\/public\/record\/(.*)/))[1];
     sheetAjax
@@ -170,15 +174,24 @@ export const handleRelateRow = (control = {}, content, worksheetInfo, updateData
     return;
   } else {
     const result = content.match(/app\/(.*)\/(.*)\/(.*)\/row\/(.*)/);
+
     if (result) {
       const [, appId, worksheetId, viewId, rowId] = result;
       const { scanlink } = _.get(control, 'advancedSetting') || {};
+
       if (appId && worksheetId && viewId && rowId) {
         if (scanlink !== '1') {
           return;
         }
+
         if (currentWorksheetId === worksheetId) {
-          getRelateData(control, content, { appId, worksheetId, viewId, rowId }, worksheetInfo, updateData);
+          getRelateData(
+            control,
+            content,
+            { appId, worksheetId, viewId, rowId, isLink: true },
+            worksheetInfo,
+            updateData,
+          );
         } else {
           alert(_l('无法关联，此记录不在可关联的范围内'), 3);
         }
@@ -225,6 +238,7 @@ const getRelateData = (control = {}, content, extra = {}, worksheetInfo = {}, up
     const scanRelateRecordValues = localStorage.getItem('scanRelateRecordValues')
       ? JSON.parse(localStorage.getItem('scanRelateRecordValues'))
       : {};
+
     if (!scanRelateRecordValues[control.controlId] && !_.isEmpty(relateDataInfo)) {
       scanRelateRecordValues[control.controlId] = [relateDataInfo];
       localStorage.setItem('scanRelateRecordValues', JSON.stringify(scanRelateRecordValues));
@@ -237,6 +251,7 @@ const getRelateData = (control = {}, content, extra = {}, worksheetInfo = {}, up
           : currentRelateRecords;
       localStorage.setItem('scanRelateRecordValues', JSON.stringify(scanRelateRecordValues));
     }
+
     if (!_.isEmpty(firstRow)) {
       updateData({
         controlId: control.controlId,
@@ -269,7 +284,8 @@ const getRelateData = (control = {}, content, extra = {}, worksheetInfo = {}, up
     return;
   }
 
-  const { appId, worksheetId, viewId, rowId, isShareLink } = extra;
+  // isShareLink: 分享链接, isLink: 内部链接
+  const { appId, worksheetId, viewId, rowId, isShareLink, isLink } = extra;
 
   // 处理公开分享链接（getFilterRows无权限访问）
   if (isShareLink) {
@@ -312,7 +328,7 @@ const getRelateData = (control = {}, content, extra = {}, worksheetInfo = {}, up
           },
         ]
       : [],
-    keyWords: scancontrol === '1' && scancontrolid ? '' : content,
+    keyWords: isLink || (scancontrol === '1' && scancontrolid) ? '' : content,
     langType: window.shareState.shareId ? getCurrentLangCode() : undefined,
     fastFilters:
       scancontrol === '1' && scancontrolid && !rowId

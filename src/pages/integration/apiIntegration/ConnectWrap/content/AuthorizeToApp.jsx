@@ -171,6 +171,7 @@ const WrapCon = styled.div`
     border-radius: 7px !important;
   }
 `;
+
 //授权到应用
 function AuthorizeToApp(props) {
   const [{ keywords, optionLoading, loading, info, projectId }, setState] = useSetState({
@@ -182,6 +183,7 @@ function AuthorizeToApp(props) {
     },
     projectId: props.companyId,
   });
+
   const getProcessConfigInfo = () => {
     setState({ loading: true });
     processAjax
@@ -195,6 +197,7 @@ function AuthorizeToApp(props) {
         setState({ info: res, loading: false });
       });
   };
+
   const saveProcessConfigInfo = data => {
     processAjax
       .saveProcessConfig(
@@ -211,6 +214,7 @@ function AuthorizeToApp(props) {
         props.hasChange();
       });
   };
+
   useEffect(() => {
     getProcessConfigInfo();
   }, []);
@@ -267,6 +271,7 @@ function AuthorizeToApp(props) {
                 if (optionLoading) {
                   return;
                 }
+
                 authorizeApp([record.id], 2);
               }}
             >
@@ -308,11 +313,13 @@ function AuthorizeToApp(props) {
     { text: _l('12小时'), value: 720 },
     { text: _l('24小时'), value: 1440 },
   ];
+
   // 授权
   const authorizeApp = (apkIds, type) => {
     if (optionLoading) {
       return;
     }
+
     setState({
       optionLoading: true,
     });
@@ -333,6 +340,7 @@ function AuthorizeToApp(props) {
         props.onFresh();
       });
   };
+
   const updateSource = data => {
     saveProcessConfigInfo({ ...info, ...data });
   };
@@ -351,6 +359,7 @@ function AuthorizeToApp(props) {
       },
     });
   };
+
   /**
    * 添加普通成员
    */
@@ -381,9 +390,11 @@ function AuthorizeToApp(props) {
       },
     });
   };
+
   if (loading) {
     return <LoadDiv />;
   }
+
   return (
     <Wrap className="">
       <WrapCon>

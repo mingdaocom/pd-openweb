@@ -8,7 +8,8 @@ import account from 'src/api/account';
 import RegisterController from 'src/api/register';
 import DepDropDown from 'src/pages/AuthService/components/DepDropDown.jsx';
 import { ActionResult } from 'src/pages/AuthService/config.js';
-import { getDepartmentInfo, registerSuc } from 'src/pages/AuthService/register/util.js';
+import { getDepartmentInfo } from 'src/pages/AuthService/register/util.js';
+import { registerSuc } from 'src/pages/AuthService/util.js';
 import { encrypt, getRequest } from 'src/utils/common';
 import { mdAppResponse } from 'src/utils/project';
 
@@ -34,6 +35,7 @@ export default function (props) {
   useEffect(() => {
     const { userCard = {} } = props;
     const { isMustWorkSite, isMustDepartment, isMustJobNumber, isMustJob } = userCard;
+
     if (!isMustWorkSite && !isMustDepartment && !isMustJobNumber && !isMustJob) {
       submitUserCard();
     } else {
@@ -59,6 +61,7 @@ export default function (props) {
       company = {},
     } = props;
     const isV = validateUserCardRequiredField();
+
     if (isV) {
       setState({ loading: true });
       let params = {
@@ -161,9 +164,11 @@ export default function (props) {
 
   const validateEditCard = data => {
     let { dialCode, password = '', emailOrTel = '' } = props;
+
     if (![1, 2].includes(data.joinProjectResult)) {
       setState({ loading: false });
     }
+
     switch (data.joinProjectResult) {
       case 1:
         alert({

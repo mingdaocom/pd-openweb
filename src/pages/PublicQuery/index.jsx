@@ -60,6 +60,7 @@ class WorksheetSahre extends React.Component {
     if (this.state.isSearch && !prevState.isSearch && !this.state.PublicQuery) {
       this.loadPublicQuery();
     }
+
     if (!this.state.isSearch && prevState.isSearch && !this.state.WorksheetListShare) {
       this.loadWorksheetListShare();
     }
@@ -172,6 +173,7 @@ class WorksheetSahre extends React.Component {
 
     this.promiseRowsData.then(data => {
       let { resultCode } = data || {};
+
       if (resultCode === 14) {
         //需要重新验证
         this.setState(
@@ -211,6 +213,7 @@ class WorksheetSahre extends React.Component {
       controls = controls.filter(o => !SYS.includes(o.controlId));
       let sys = controls.filter(o => SYS.includes(o.controlId));
       const viewSet = data.worksheet.views.find(o => o.viewId === viewId);
+
       if (controls.length) {
         controls = replaceControlsTranslateInfo(data.worksheet.appId, worksheetId, controls);
       }
@@ -285,6 +288,7 @@ class WorksheetSahre extends React.Component {
           </div>
         );
       }
+
       return (
         <PublicQuery
           publicqueryRes={publicqueryRes}

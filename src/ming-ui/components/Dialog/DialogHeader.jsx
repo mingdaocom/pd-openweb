@@ -6,6 +6,7 @@ class DialogHeader extends Component {
     if (!this.props.title) {
       return null;
     }
+
     return <div className="mui-dialog-default-title">{this.props.title}</div>;
   }
 }

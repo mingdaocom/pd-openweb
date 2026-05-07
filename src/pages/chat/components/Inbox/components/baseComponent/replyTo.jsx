@@ -37,12 +37,14 @@ export default class ReplyTo extends React.Component {
   fetchReplyMsg() {
     if (this.state.replayMsg || this.state.loading) return false;
     const { sourceType, sourceId, replyId } = this.props;
+
     const callback = msg => {
       this.setState({
         replayMsg: msg,
         loading: false,
       });
     };
+
     this.setState({ loading: true });
     if (sourceType === SOURCE_TYPE.POST) {
       this.ajax = PostController.getReplyMessage({

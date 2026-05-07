@@ -52,6 +52,7 @@ const Email = props => {
     formItemId,
     useCallback(data => {
       const { triggerType } = data;
+
       switch (triggerType) {
         case 'trigger_tab_enter':
           setIsEditing(true);
@@ -94,6 +95,7 @@ const Email = props => {
     if (event.target.value.trim() !== originValue) {
       onChange(event.target.value.trim());
     }
+
     setIsEditing(false);
     onBlur(originValue);
   };

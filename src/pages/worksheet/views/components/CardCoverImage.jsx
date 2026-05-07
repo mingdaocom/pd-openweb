@@ -112,7 +112,7 @@ const CoverImageWrap = styled.div`
   }
   &.dir-left {
     border: none;
-    border-right: 1px solid rgba(0, 0, 0, 0.04);
+    border-right: 1px solid var(--color-border-secondary);
     &.display-circle,
     &.display-square {
       border: none;
@@ -178,17 +178,20 @@ export default function CardCoverImage(props) {
   if (!isGalleryView && !isHierarchyView && position !== 'left' && !coverImage && !ext && type !== 47) return null;
   // 嵌入字段iframe展示
   const isIframeCover = isIframeControl(coverData);
+
   const previewAttachment = e => {
     // 不允许预览
     if (opencover === '2') {
       return;
     }
+
     e.stopPropagation();
 
     const recordAttachmentSwitch = !viewId
       ? true
       : isOpenPermit(permitList.recordAttachmentSwitch, sheetSwitchPermit, viewId);
     let hideFunctions = ['editFileName', 'saveToKnowlege'];
+
     if (!recordAttachmentSwitch || allowDownload === '0') {
       /* 是否不可下载 且 不可保存到知识和分享 */
       hideFunctions.push('download', 'share');
@@ -238,6 +241,7 @@ export default function CardCoverImage(props) {
         backgroundSize: COVER_FILL_TYPE_BACKGROUND_SIZE[coverFillType],
       };
     }
+
     return {
       backgroundImage: `url(${coverImage})`,
     };
@@ -245,6 +249,7 @@ export default function CardCoverImage(props) {
 
   const getCover = () => {
     const isMobile = browserIsMobile();
+
     if (!coverImage && !ext) {
       return (
         <div className={cx('coverWrap', 'emptyCoverWrap')}>
@@ -252,11 +257,13 @@ export default function CardCoverImage(props) {
         </div>
       );
     }
+
     const img = new Image();
     img.src = coverImage;
     img.onerror = () => {
       setIsErr(true);
     };
+
     if (coverImage && !isErr) {
       return (
         <div className={cx('coverWrap', '')} onClick={previewAttachment} style={getStyle()}>
@@ -264,6 +271,7 @@ export default function CardCoverImage(props) {
         </div>
       );
     }
+
     return (
       <div className={cx('coverWrap', '', { mobileOverWrap: isMobile })} onClick={previewAttachment}>
         <div className={cx('fileIcon', getClassNameByExt(ext))} />
@@ -305,6 +313,7 @@ export default function CardCoverImage(props) {
 
   const renderContent = () => {
     const isBarCode = type === 47;
+
     if (isIframeCover) {
       return getIframe();
     } else if (isBarCode) {

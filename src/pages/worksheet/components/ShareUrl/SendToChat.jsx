@@ -104,10 +104,12 @@ export default function SendToChat(props) {
         setList(data);
       });
   }
+
   function handleSend() {
     if (card && !card.url) {
       card.url = url;
     }
+
     chatAjax
       .sendCardToChat({
         cards: card ? [card] : [],
@@ -123,6 +125,7 @@ export default function SendToChat(props) {
         }
       });
   }
+
   function handleDialogSelectUser() {
     setListActive(false);
     setActiveIndex(null);
@@ -210,6 +213,7 @@ export default function SendToChat(props) {
           if (visible && !list.length) {
             loadChat();
           }
+
           setListActive(visible);
         }}
         destroyPopupOnHide
@@ -235,21 +239,26 @@ export default function SendToChat(props) {
                   e.stopPropagation();
                   e.preventDefault();
                   const code = event.keyCode || event.which;
+
                   if (code === 13) {
                     const account = list[activeIndex];
+
                     if (account) {
                       setSelectedUser(account);
                       setListActive(false);
                       setActiveIndex(null);
                       descriptionRef.current.focus();
                     }
+
                     return;
                   }
+
                   if (code === 38) {
                     const index = activeIndex === null ? list.length : activeIndex - 1;
                     setActiveIndex(index < 0 ? list.length - 1 : index);
                     return;
                   }
+
                   if (code === 40) {
                     const index = activeIndex === null ? 0 : activeIndex + 1;
                     setActiveIndex(index >= list.length ? 0 : index);

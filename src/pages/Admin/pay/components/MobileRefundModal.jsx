@@ -110,10 +110,12 @@ function RefundConfirm(props) {
       alert(_l('请输入退款金额'), 2);
       return;
     }
+
     if (Number(amount) <= 0) {
       alert(_l('至少退款0.01元'), 2);
       return;
     }
+
     if (Number(amount) > max) {
       alert('金额大于可退款额，请重新输入', 2);
       return;

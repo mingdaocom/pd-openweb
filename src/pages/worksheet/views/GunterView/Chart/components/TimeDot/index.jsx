@@ -53,6 +53,7 @@ class MonitorTimeDot extends Component {
       });
       return;
     }
+
     if (left >= x + chartScroll.wrapperWidth) {
       this.setState({
         position: { right: 10 },
@@ -71,9 +72,11 @@ class MonitorTimeDot extends Component {
           style={{ top, ...position, backgroundColor: row.color }}
           onClick={() => {
             const { position } = this.state;
+
             if (position.left) {
               onPositionRow(row.endTime);
             }
+
             if (position.right) {
               onPositionRow(row.startTime);
             }
@@ -116,6 +119,7 @@ export default class TimeDot extends Component {
         />
       );
     }
+
     if (left === 0 && width === 0) {
       return (
         <DotWrapper

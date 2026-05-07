@@ -117,6 +117,7 @@ class PostCommentList extends React.Component {
             if (this.state.loading) {
               return <LoadDiv className="pBottom15 pTop5" />;
             }
+
             if (!(this.state.isExpand || totalCount - count <= 0)) {
               return (
                 <a className="loadMoreComments" onClick={this.toggleViewAll}>

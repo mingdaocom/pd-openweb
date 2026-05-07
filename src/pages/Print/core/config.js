@@ -54,6 +54,7 @@ export const PRINT_TYPE = {
   EXCEL_PRINT: 5, // excel打印
   QR_CODE_PRINT: 3, // 二维码打印
   BAR_CODE_PRINT: 4, // 条码打印
+  CLOUD_PRINT: 6, // 云打印
 };
 
 export const PRINT_TEMP = {
@@ -122,6 +123,12 @@ export const PRINT_TYPE_STYLE = {
     text: _l('Excel 模板'),
     fileIcon: 'fileIcon-excel',
   }, // excel打印
+  [PRINT_TYPE.CLOUD_PRINT]: {
+    icon: 'cloud_printing',
+    background: 'var(--color-success)',
+    text: _l('云打印'),
+    fileIcon: 'fileIcon-cloud',
+  }, // 云打印
 };
 
 export const APPROVAL_POSITION_OPTION = [

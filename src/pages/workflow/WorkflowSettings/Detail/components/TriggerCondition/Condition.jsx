@@ -85,6 +85,17 @@ export default class Condition extends Component {
 
   cacheCityPickerData = [];
 
+  getConditionItemValue = item => _.get(item, 'value');
+
+  getConditionItemKey = item => _.get(item, 'value.key');
+
+  getValidConditionValues = conditionValues => {
+    return (conditionValues || []).filter(item => {
+      const value = this.getConditionItemValue(item);
+      return !_.isUndefined(value) && !_.isNull(value);
+    });
+  };
+
   /**
    * 获取字段
    */
@@ -604,7 +615,7 @@ export default class Condition extends Component {
           return {
             text: opts.value,
             value: opts.key,
-            disabled: !!_.find(conditionValues, obj => obj.value.key === opts.key),
+            disabled: !!_.find(conditionValues, obj => this.getConditionItemKey(obj) === opts.key),
           };
         });
       }
@@ -622,14 +633,17 @@ export default class Condition extends Component {
               placeholder={_l('请选择')}
               border
               openSearch
-              onChange={key =>
+              onChange={key => {
+                const selectedOption = _.find(options, opts => opts.key === key);
+                if (!selectedOption) return;
+
                 this.updateConditionValue({
-                  value: _.find(options, opts => opts.key === key),
+                  value: selectedOption,
                   i,
                   j,
                   isSingle: _.includes(['9', '10'], item.conditionId) && _.includes([9, 11], filedTypeId),
-                })
-              }
+                });
+              }}
               renderTitle={() => this.renderDropdownTagList(conditionValues, i, j)}
             />
           )}
@@ -697,7 +711,7 @@ export default class Condition extends Component {
                   border
                   renderTitle={
                     !conditionValues[0] || conditionValues[0].type === undefined
-                      ? () => <span className="textSecondary">{_l('请选择')}</span>
+                      ? () => <span className="textPlaceholder">{_l('请选择')}</span>
                       : () => (
                           <span>
                             {(DATE_LIST.find(o => o.value === (conditionValues[0].type || execType)) || {}).text}
@@ -1041,13 +1055,15 @@ export default class Condition extends Component {
    * 渲染标签式下拉选择
    */
   renderDropdownTagList(conditionValues, i, j) {
+    const validConditionValues = this.getValidConditionValues(conditionValues);
+
     return (
       <div className="flex triggerConditionNum triggerConditionDropdown">
-        {!conditionValues.length ? (
+        {!validConditionValues.length ? (
           <div className="textDisabled pLeft10 pRight10">{_l('请选择')}</div>
         ) : (
           <ul className="pLeft6 tagWrap">
-            {conditionValues.map((list, index) => {
+            {validConditionValues.map((list, index) => {
               return (
                 <li key={index} className="tagItem flexRow">
                   <span className="tag ellipsis" title={list.value.value}>
@@ -1079,7 +1095,7 @@ export default class Condition extends Component {
       title: _l('选择人员'),
       SelectUserSettings: {
         filterResigned: false,
-        selectedAccountIds: unique ? [] : users.map(item => item.value.key),
+        selectedAccountIds: unique ? [] : this.getValidConditionValues(users).map(item => item.value.key),
         projectId: this.props.projectId,
         dataRange: 2,
         unique,
@@ -1104,7 +1120,7 @@ export default class Condition extends Component {
       showCreateBtn: false,
       selectFn: departments => {
         if (!unique) {
-          const oldIds = oldDepartments.map(item => item.value.key);
+          const oldIds = this.getValidConditionValues(oldDepartments).map(item => item.value.key);
           _.remove(departments, item => _.includes(oldIds, item.departmentId));
         }
 
@@ -1122,7 +1138,7 @@ export default class Condition extends Component {
       unique,
       onSave: roles => {
         if (!unique) {
-          const oldIds = oldRoles.map(item => item.value.key);
+          const oldIds = this.getValidConditionValues(oldRoles).map(item => item.value.key);
           _.remove(roles, item => _.includes(oldIds, item.organizeId));
         }
 
@@ -1178,10 +1194,11 @@ export default class Condition extends Component {
     // 单选 || 多选 || 下拉 || 等级 || 日期公式加减
     if (filedTypeId === 9 || filedTypeId === 10 || filedTypeId === 11 || filedTypeId === 28 || filedTypeId === 38) {
       if (typeof value === 'string') {
-        _.remove(data[i][j].conditionValues, obj => obj.value.key === value);
+        _.remove(data[i][j].conditionValues, obj => this.getConditionItemKey(obj) === value);
       } else if (isSingle) {
+        if (!value) return;
         data[i][j].conditionValues = [{ value }];
-      } else {
+      } else if (value) {
         data[i][j].conditionValues.push({ value });
       }
     }
@@ -1189,11 +1206,11 @@ export default class Condition extends Component {
     // 地区
     if (filedTypeId === 19 || filedTypeId === 23 || filedTypeId === 24) {
       if (typeof value === 'string') {
-        _.remove(data[i][j].conditionValues, obj => obj.value.key === value);
+        _.remove(data[i][j].conditionValues, obj => this.getConditionItemKey(obj) === value);
       } else {
         const last = _.last(value);
         const key = last.id;
-        const isExist = _.find(data[i][j].conditionValues, obj => obj.value.key === key);
+        const isExist = _.find(data[i][j].conditionValues, obj => this.getConditionItemKey(obj) === key);
 
         if (!isExist) {
           data[i][j].conditionValues.push({ value: { key, value: last.path } });
@@ -1211,7 +1228,7 @@ export default class Condition extends Component {
       };
 
       if (typeof value === 'string') {
-        _.remove(data[i][j].conditionValues, obj => obj.value.key === value);
+        _.remove(data[i][j].conditionValues, obj => this.getConditionItemKey(obj) === value);
       } else if (isSingle) {
         data[i][j].conditionValues = [
           { value: { key: (value[0] || {})[KEY[filedTypeId].id], value: (value[0] || {})[KEY[filedTypeId].name] } },

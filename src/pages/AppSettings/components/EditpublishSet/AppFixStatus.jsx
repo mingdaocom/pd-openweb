@@ -58,6 +58,7 @@ export default class AppFixStatus extends Component {
   }
   renderFooter() {
     const { fixed, onCancel } = this.props;
+
     if (fixed) {
       return (
         <Fragment>

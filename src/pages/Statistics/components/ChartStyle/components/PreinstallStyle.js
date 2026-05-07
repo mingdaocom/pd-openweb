@@ -84,9 +84,11 @@ const PreinstallStyle = props => {
       ...pivotTableStyle,
       ...data,
     };
+
     if (pivoTableColor) {
       config.pivoTableColorIndex = pivoTableColorIndex + 1;
     }
+
     onChangeStyle(
       {
         pivotTableStyle: config,

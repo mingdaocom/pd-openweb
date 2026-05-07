@@ -82,6 +82,7 @@ const Process = props => {
                   processId: item.id,
                 });
               }
+
               onClose();
             }}
           >
@@ -110,6 +111,7 @@ export default props => {
         if (requestAppId) {
           setApp(_.find(data, { app: { id: requestAppId } }));
         }
+
         setList(data);
         setLoading(false);
       });

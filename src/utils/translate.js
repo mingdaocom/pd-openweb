@@ -21,11 +21,13 @@ export const replaceControlsTranslateInfo = (appId, worksheetId, controls = []) 
       controlName: translateInfo.name || c.controlName,
       hint: translateInfo.hintText || c.hint,
     };
+
     // 选项
     if ([9, 10, 11].includes(c.type)) {
       const optionTranslateInfo = c.dataSource ? getTranslateInfo(appId, null, c.dataSource) : translateInfo;
       replaceOptionControlTranslateInfo(data, { translateInfo, optionTranslateInfo });
     }
+
     // 检查项
     if (c.type === 36 && advancedSetting.itemnames) {
       const itemnames = JSON.parse(advancedSetting.itemnames);
@@ -37,28 +39,34 @@ export const replaceControlsTranslateInfo = (appId, worksheetId, controls = []) 
       });
       data.advancedSetting.itemnames = JSON.stringify(newItemnames);
     }
+
     // 数值
     if ([6, 8, 31].includes(c.type) && (advancedSetting.suffix || advancedSetting.prefix)) {
       if (advancedSetting.suffix) {
         data.advancedSetting.suffix = translateInfo.suffix || advancedSetting.suffix;
       }
+
       if (advancedSetting.prefix) {
         data.advancedSetting.prefix = translateInfo.suffix || advancedSetting.prefix;
       }
     }
+
     // 子表 || 关联表
     if (c.type === 34 || c.type === 29) {
       if (data.sourceBtnName) {
         const translateInfo = getTranslateInfo(appId, null, data.dataSource);
         data.sourceBtnName = translateInfo.createBtnName || data.sourceBtnName;
       }
+
       data.relationControls = replaceControlsTranslateInfo(appId, data.dataSource, data.relationControls);
     }
+
     // 他表字段
     if (c.type === 30) {
       const { dataSource } = _.find(controls, { controlId: c.dataSource.replace(/\$/g, '') }) || {};
+
       // 选项集
-      if (c.sourceControl.dataSource && [9, 10, 11].includes(c.sourceControlType)) {
+      if (c.sourceControl?.dataSource && [9, 10, 11].includes(c.sourceControlType)) {
         const optionTranslateInfo = getTranslateInfo(appId, null, c.sourceControl.dataSource);
         replaceOptionControlTranslateInfo(data, { translateInfo, optionTranslateInfo });
       } else {
@@ -69,12 +77,14 @@ export const replaceControlsTranslateInfo = (appId, worksheetId, controls = []) 
         }
       }
     }
+
     // 填充备注字段内容
     if (c.type === 10010) {
       data.dataSource = translateInfo.remark || c.dataSource;
     } else {
       data.desc = translateInfo.description || c.desc;
     }
+
     return data;
   });
 };
@@ -89,6 +99,7 @@ export const replaceAdvancedSettingTranslateInfo = (appId, worksheetId, advanced
     deftabname: translateInfo.defaultTabName || advancedSetting.deftabname,
     btnname: translateInfo.createBtnName || advancedSetting.btnname,
   };
+
   if (data.doubleconfirm) {
     const doubleconfirm = JSON.parse(data.doubleconfirm);
     data.doubleconfirm = JSON.stringify({
@@ -98,15 +109,18 @@ export const replaceAdvancedSettingTranslateInfo = (appId, worksheetId, advanced
       cancelName: translateInfo.cancelName || doubleconfirm.cancelName,
     });
   }
+
   return data;
 };
 
 export const replaceRulesTranslateInfo = (appId, worksheetId, rules) => {
   return rules.map(rule => {
     const translateInfo = getTranslateInfo(appId, worksheetId, rule.ruleId);
+
     if (rule.type === 1) {
       rule.ruleItems[0].message = translateInfo.message || rule.ruleItems[0].message;
     }
+
     return rule;
   });
 };

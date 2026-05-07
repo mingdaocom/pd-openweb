@@ -13,6 +13,7 @@ const STATUS2ICON = {
   revoke: 'repeal-o',
   delete: 'report',
 };
+
 export default ({
   isList = false,
   statusCode = 1,

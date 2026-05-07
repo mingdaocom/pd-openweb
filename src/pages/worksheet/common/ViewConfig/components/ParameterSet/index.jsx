@@ -100,6 +100,7 @@ const getAllTypes = (controls = []) => {
   });
   return allTypes;
 };
+
 const ColumnDrop = props => {
   let { value, advancedSetting = {}, controls = [], worksheetControls = [] } = props;
   const { max } = advancedSetting;
@@ -168,16 +169,19 @@ const CustomControlDrop = props => {
         }
         onChange={value => {
           let data = [];
+
           if (!value) {
             data = [];
           } else {
             data = [value];
           }
+
           if (props.sourceControlType === 29) {
             const info = worksheetControls.find(o => o.controlId === value) || {};
             props.onChange({ type: info.type, value: { cid: value, showControls: [] } });
             return;
           }
+
           props.onChange(data);
         }}
         renderTitle={() => {
@@ -217,6 +221,7 @@ const CustomControlDrop = props => {
     </div>
   );
 };
+
 export default function ParameterSet(params) {
   const { view = {}, onChangeView, worksheetControls } = params;
   const [{ paramSettings }, setState] = useSetState({
@@ -241,6 +246,7 @@ export default function ParameterSet(params) {
         value: pluginMapValue,
         row: i + 1,
       };
+
       if (d.type === 36) {
         let staticValue = (safeParse(_.get(o, 'advancedSetting.defsource') || '[]')[0] || {}).staticValue;
         d = {
@@ -260,6 +266,7 @@ export default function ParameterSet(params) {
         if ([true, false].includes(d.value)) {
           d = { ...d, value: d.value ? '1' : '0' };
         }
+
         if (d.advancedSetting.showtype === '1') {
           d = {
             ...d,
@@ -273,6 +280,7 @@ export default function ParameterSet(params) {
           };
         }
       }
+
       //数值
       if (d.type === 6) {
         d = {
@@ -283,6 +291,7 @@ export default function ParameterSet(params) {
           },
         };
       }
+
       if ([9, 10, 11].includes(d.type)) {
         d = {
           ...d,
@@ -294,9 +303,11 @@ export default function ParameterSet(params) {
           value: _.isEmpty(d.value) ? '' : JSON.stringify(d.value),
         };
       }
+
       if (d.type === 200) {
         d.worksheetControls = worksheetControls;
       }
+
       return { ...d, size: 12 }; //全部按整行显示
     });
     setState({
@@ -322,6 +333,7 @@ export default function ParameterSet(params) {
       { pluginId: _.get(view, 'pluginInfo.id'), editAttrs: ['advancedSetting', 'pluginId'] },
     );
   };
+
   const renderReshTime = isNull => {
     const { pluginInfo = {} } = view;
     const { switchSettings = {} } = pluginInfo;
@@ -332,6 +344,7 @@ export default function ParameterSet(params) {
       </React.Fragment>
     ) : null;
   };
+
   const renderCon = () => {
     if (paramSettings.length <= 0) {
       return (
@@ -344,6 +357,7 @@ export default function ParameterSet(params) {
         </React.Fragment>
       );
     }
+
     return (
       <React.Fragment>
         <CustomFields
@@ -355,9 +369,11 @@ export default function ParameterSet(params) {
             if (!controlId) {
               return;
             }
+
             setState({ paramSettings: data });
             cache.current.paramSettings = data;
             const info = data.find(o => o.controlId === controlId);
+
             if (info && isUnTextWidget(info)) {
               handleUpdate(data);
             }
@@ -373,6 +389,7 @@ export default function ParameterSet(params) {
       </React.Fragment>
     );
   };
+
   const sourceType = (_.get(view, 'pluginInfo') || {}).source;
   return (
     <>

@@ -755,6 +755,7 @@ const emotionData = [
       };
     }
   }
+
   defaultData = emotions[0];
   bearData = emotions[1];
   AruData = emotions[2];

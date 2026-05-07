@@ -39,6 +39,7 @@ const TextareaWrap = styled.div`
     color: var(--color-text-disabled) !important;
     white-space: pre-wrap;
     word-break: break-all;
+    background: var(--color-background-input) !important;
   }
   .customFormTextarea {
     box-sizing: border-box;
@@ -78,6 +79,7 @@ const Textarea = props => {
 
   // 开启扫码输入并且禁止手动输入，隐藏输入框
   const disableInput = startTextScanCode && disableManual;
+
   if (disableInput) {
     hint = hint || _l('请扫码输入');
   }
@@ -103,15 +105,18 @@ const Textarea = props => {
 
   const onBlur = event => {
     const trimValue = event.target.value.trim();
+
     if (trimValue !== value) {
       props.onChange(trimValue);
     }
+
     setIsEditing(false);
     handleMaskClick();
     if (window.isWeiXin) {
       // 处理微信webview键盘收起 网页未撑开
       window.scrollTo(0, 0);
     }
+
     props.onBlur(originValue, event.target.value);
   };
 
@@ -123,6 +128,7 @@ const Textarea = props => {
       if (showMaskValue) {
         return dealMaskValue({ ...props, value });
       }
+
       return isUnLink ? (
         value
       ) : (
@@ -183,7 +189,7 @@ const Textarea = props => {
       textareaRef.current.style.height = 0;
       textareaRef.current.style.height = `${textareaRef.current.scrollHeight + 3}px`;
     }
-  }, [isEditing, currentValue, disabled, formDisabled]);
+  }, [isEditing, currentValue, disabled, formDisabled, advancedSetting.valuesize]);
 
   useEffect(() => {
     setCurrentValue(getEditValue());
@@ -286,7 +292,7 @@ Textarea.propTypes = {
 
 export default memo(Textarea, (prevProps, nextProps) => {
   return _.isEqual(
-    _.pick(prevProps, ['value', 'disabled', 'controlId', 'formDisabled', 'showMaskValue']),
-    _.pick(nextProps, ['value', 'disabled', 'controlId', 'formDisabled', 'showMaskValue']),
+    _.pick(prevProps, ['value', 'disabled', 'controlId', 'formDisabled', 'showMaskValue', 'advancedSetting.valuesize']),
+    _.pick(nextProps, ['value', 'disabled', 'controlId', 'formDisabled', 'showMaskValue', 'advancedSetting.valuesize']),
   );
 });

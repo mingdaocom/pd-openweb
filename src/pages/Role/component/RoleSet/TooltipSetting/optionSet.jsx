@@ -51,6 +51,7 @@ export default function Set(props) {
         setComponentData(res);
       });
   };
+
   const renderList = (title, actionList) => {
     let isNotAll = actionList.filter(o => !(sheet[o.key] || {}).enable).length > 0;
     return (
@@ -104,6 +105,7 @@ export default function Set(props) {
       </React.Fragment>
     );
   };
+
   const renderAcitionList = (title, actionList = [], list = [], key, noline) => {
     let isAll = list.length <= 0;
     let s = 'unableCustomButtons' === key ? 'buttonId' : 'templateId';
@@ -134,6 +136,7 @@ export default function Set(props) {
                 //过滤掉 Ai 动作
                 return null;
               }
+
               return (
                 <div className="subCheckbox InlineBlock flexRow alignItemsCenter">
                   <Checkbox
@@ -181,6 +184,7 @@ export default function Set(props) {
       </React.Fragment>
     );
   };
+
   const rednerPay = () => {
     return (
       <React.Fragment>
@@ -208,9 +212,11 @@ export default function Set(props) {
       </React.Fragment>
     );
   };
+
   if (loading) {
     return <LoadDiv className="mTop80" />;
   }
+
   const featureType = getFeatureStatus(projectId, VersionProductType.PAY);
   return (
     <Wrap className="TxtLeft">

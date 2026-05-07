@@ -15,11 +15,14 @@ class CustomBtnList extends React.Component {
   render() {
     let data = [];
     const { btnList, btnData } = this.props;
+
     if (btnList.length === btnData.length) {
       return '';
     }
+
     btnList.map(item => {
       const dataFind = _.find(btnData, it => it.btnId === item.btnId);
+
       if (!dataFind) {
         data.push(item);
       }

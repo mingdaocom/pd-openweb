@@ -57,9 +57,11 @@ export default class BaseColumnHead extends React.Component {
       clearTimeout(window.dragclicktimer);
       window.dragclicktimer = undefined;
       const tableDom = document.querySelector('.sheetViewTable');
+
       if (!tableDom) {
         return;
       }
+
       const result = getTableColumnWidth(tableDom, rows, control, columnStyle, worksheetId);
       updateSheetColumnWidths({ controlId: control.controlId, value: result });
     } else {
@@ -78,15 +80,19 @@ export default class BaseColumnHead extends React.Component {
     const { isLast, columnIndex, control, style, updateSheetColumnWidths } = this.props;
     const columnWidth = style.width;
     const tableElement = $(this.drag).parents('.sheetViewTable')[0];
+
     if (!tableElement) {
       return;
     }
+
     const tableId = (tableElement.className.match(/id-([\w-]+)-id/) || [])[1];
     const defaultLeft = clientX - tableElement.getBoundingClientRect().left;
     let maskMinLeft;
+
     if (control.type === 6 && control.advancedSetting && control.advancedSetting.showtype === '2') {
       maskMinLeft = defaultLeft - (columnWidth - 10) + 120;
     }
+
     emitter.emit('TRIGGER_CHANGE_COLUMN_WIDTH_MASK_' + tableId, {
       columnIndex,
       columnWidth: columnWidth - (control.appendWidth || 0),
@@ -108,6 +114,7 @@ export default class BaseColumnHead extends React.Component {
 
   getSortIcon() {
     const { isAsc } = this.props;
+
     if (isAsc === true) {
       return <i className="icon icon-score-up sortIcon" />;
     } else if (isAsc === false) {
@@ -118,11 +125,13 @@ export default class BaseColumnHead extends React.Component {
   handleChangeSort = () => {
     const { isAsc, changeSort } = this.props;
     let newSortType;
+
     if (_.isUndefined(isAsc)) {
       newSortType = false;
     } else if (isAsc === false) {
       newSortType = true;
     }
+
     changeSort(newSortType);
   };
 
@@ -139,25 +148,38 @@ export default class BaseColumnHead extends React.Component {
       showRequired,
       renderPopup,
       getPopupContainer,
+      hideMaskIcon = false,
     } = this.props;
     const { listVisible } = this.state;
     const control = redefineComplexControl(this.props.control);
     const controlType = control.sourceControlType || control.type;
     const canSort = !disableSort && !disabled && fieldCanSort(controlType) && !isOtherShowFeild(control);
-    const maskData = _.get(control, 'advancedSetting.datamask') === '1';
+    const maskData =
+      !hideMaskIcon &&
+      _.get(control, 'advancedSetting.datamask') === '1' &&
+      !(
+        _.get(window, 'shareState.isPublicView') ||
+        _.get(window, 'shareState.isPublicPage') ||
+        _.get(window, 'shareState.isPublicRecord')
+      );
     let sustractWidth = 0;
+
     if (showRequired) {
       sustractWidth += 8;
     }
+
     if (showRequired && control.required) {
       sustractWidth += 7;
     }
+
     if (canSort && typeof isAsc !== 'undefined') {
       sustractWidth += 13;
     }
+
     if (control.desc) {
       sustractWidth += 21;
     }
+
     const head = (
       <div className={cx('baseColumnHead columnHead allowOutClick', className, { isLast })} style={style}>
         <div className="inner allowOutClick">

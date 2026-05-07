@@ -56,6 +56,7 @@ export const replaceColor = ({ pivotTableStyle, customPageConfig, themeColor, so
       data.columnBgColor = '#fafafa';
       data.columnTextColor = '#757575';
     }
+
     if (data.lineBgColor === 'themeColor') {
       data.columnBgColor = '#ffffffcc';
       data.lineTextColor = '#151515';
@@ -63,37 +64,47 @@ export const replaceColor = ({ pivotTableStyle, customPageConfig, themeColor, so
   } else {
     const { columnTextColor, lineTextColor } = data;
     const lightColor = themeColor && generate(themeColor)[0];
+
     if (columnBgColor === 'themeColor' || columnBgColor === 'DARK_COLOR') {
       data.columnBgColor = themeColor;
     }
+
     if (lineBgColor === 'themeColor' || lineBgColor === 'DARK_COLOR') {
       data.lineBgColor = themeColor;
     }
+
     if (columnBgColor === 'LIGHT_COLOR') {
       data.columnBgColor = lightColor;
     }
+
     if (lineBgColor === 'LIGHT_COLOR') {
       data.lineBgColor = lightColor;
     }
+
     if (columnTextColor === 'DARK_COLOR') {
       data.columnTextColor = themeColor;
     }
+
     if (lineTextColor === 'DARK_COLOR') {
       data.lineTextColor = themeColor;
     }
+
     if (columnTextColor === 'LIGHT_COLOR') {
       data.columnTextColor = lightColor;
     }
+
     if (lineTextColor === 'LIGHT_COLOR') {
       data.lineTextColor = lightColor;
     }
   }
+
   if (pageStyleType === 'dark') {
     data.evenBgColor = originWidgetBgColor || widgetBgColor;
     data.evenTextColor = '#ffffffcc';
     data.oddBgColor = originWidgetBgColor || widgetBgColor;
     data.oddTextColor = '#ffffffcc';
   }
+
   // if (!_.isEmpty(linkageMatch)) {
   //   const { columnBgColor, lineBgColor } = data;
   //   const lowAlphaColumnBgColor = new TinyColor(columnBgColor).setAlpha(0.3).toRgbString();
@@ -126,6 +137,7 @@ export default class extends Component {
   componentWillReceiveProps(nextProps) {
     const { style } = nextProps.reportData;
     const { style: oldStyle } = this.props.reportData;
+
     if (style.paginationSize !== oldStyle.paginationSize) {
       this.setState({ pageSize: style.paginationSize });
     }
@@ -157,12 +169,15 @@ export default class extends Component {
     const { reportData } = this.props;
     const { style } = reportData;
     const { pivotTableColumnFreeze, pivotTableLineFreeze } = style ? style : {};
+
     if (pivotTableColumnFreeze) {
       return this.$ref.current.querySelector('.ant-table-body');
     }
+
     if (pivotTableLineFreeze) {
       return this.$ref.current.querySelector('.ant-table-content');
     }
+
     return null;
   }
   handleMouseDown = (event, index) => {
@@ -178,12 +193,14 @@ export default class extends Component {
     document.onmousemove = event => {
       const x = event.clientX - startClientX;
       const width = target.parentElement.clientWidth + x;
+
       if (width >= 80) {
         this.setState({
           dragValue: startDragValue + x,
         });
       }
     };
+
     document.onmouseup = event => {
       const x = event.clientX - startClientX;
       const width = target.parentElement.clientWidth + x;
@@ -200,6 +217,7 @@ export default class extends Component {
     const { reportId, style } = reportData;
     const { pivotTableColumnWidthConfig = {} } = style || {};
     const key = `pivotTableColumnWidthConfig-${reportId}`;
+
     if (sessionStorage.getItem(key)) {
       return JSON.parse(sessionStorage.getItem(key)) || {};
     } else {
@@ -216,6 +234,7 @@ export default class extends Component {
       ...data,
       [index]: width,
     };
+
     if (settingVisible) {
       onChangeCurrentReport({
         style: {
@@ -224,6 +243,7 @@ export default class extends Component {
         },
       });
     }
+
     sessionStorage.setItem(key, JSON.stringify(config));
   };
   getColumnWidth = index => {
@@ -242,12 +262,14 @@ export default class extends Component {
     if (widthModel === 3) {
       return undefined;
     }
+
     if (width) {
       return Number(width);
     } else {
       if (widthModel === 2) {
         return index < lines.length ? 150 : 100;
       }
+
       if (pivotTableColumnFreeze || pivotTableLineFreeze) {
         return 130;
       } else if (!_.isEmpty(config)) {
@@ -316,14 +338,15 @@ export default class extends Component {
     if (_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length) {
       linkageMatch.onlyChartIds = style.autoLinkageChartObjectIds;
     }
+
     const isAll = this.isViewOriginalData && this.isLinkageData;
     const { x, y } = this.getParentNode().getBoundingClientRect();
     this.setState(
       {
         dropdownVisible: isAll,
         offset: {
-          x: event.pageX - x + 20,
-          y: event.pageY - y,
+          x: event.pageX - x + (isMobile ? -100 : 10),
+          y: event.pageY - y + 20,
         },
         match: param,
         linkageMatch,
@@ -332,6 +355,7 @@ export default class extends Component {
         if (!isAll && this.isViewOriginalData) {
           this.handleRequestOriginalData();
         }
+
         if (!isAll && this.isLinkageData) {
           this.handleAutoLinkage();
         }
@@ -362,6 +386,7 @@ export default class extends Component {
       alert(_l('暂不支持预览'), 3);
       return;
     }
+
     const index = _.findIndex(res, { fileID: file.fileID });
     const allowDownload = (_.get(control, 'advancedSetting.allowdownload') || '1') === '1';
     const hideFunctions = ['editFileName', 'saveToKnowlege', 'share'].concat(allowDownload ? [] : ['download']);
@@ -444,6 +469,7 @@ export default class extends Component {
               </Fragment>
             );
           }
+
           return (
             <Fragment>
               {item.name}
@@ -465,6 +491,7 @@ export default class extends Component {
     for (let i = columns.length - 1; i >= 0; i--) {
       const column = columns[i];
       const next = columns[i + 1];
+
       if (next) {
         column.children = [get(next)];
       } else {
@@ -480,6 +507,7 @@ export default class extends Component {
         const data = get(columns[0]);
         const freezeChildren = linesChildren.filter(n => n.fixed);
         const noFreezeChildren = linesChildren.filter(n => !n.fixed);
+
         const getFreeze = data => {
           if (data.children.length === linesChildren.length) {
             return {
@@ -495,6 +523,7 @@ export default class extends Component {
             };
           }
         };
+
         const getNoFreeze = data => {
           if (data.children.length === linesChildren.length) {
             return {
@@ -512,8 +541,10 @@ export default class extends Component {
             };
           }
         };
+
         return [getFreeze(data), getNoFreeze(data)];
       }
+
       return [get(columns[0])];
     } else {
       return linesChildren;
@@ -535,6 +566,7 @@ export default class extends Component {
       const defaultEmpty = control.xaxisEmptyType ? '--' : ' ';
       const advancedSetting = control.advancedSetting || {};
       const valueKey = valueMap[id];
+
       if (_.isObject(data)) {
         return valueKey
           ? renderValue(valueKey[data.value], advancedSetting) || defaultEmpty
@@ -570,6 +602,7 @@ export default class extends Component {
                 if (record.key === 'sum' || record.isSubTotal) {
                   return;
                 }
+
                 this.handleClick({ event, index, record });
               },
             };
@@ -583,6 +616,7 @@ export default class extends Component {
             if (value && subTotal) {
               record.lineSubTotal = Number(yvalueMap[item.controlId][subTotal]);
             }
+
             record.sumCount = columnData.sum;
             return this.renderBodyTd({
               value,
@@ -633,6 +667,7 @@ export default class extends Component {
     if (columns.length) {
       result.forEach((item, index) => {
         const firstItem = item.y.length ? item.y[0] : null;
+
         if (firstItem) {
           const isObject = _.isObject(firstItem);
           const colSpan = isObject ? firstItem.length : 1;
@@ -665,6 +700,7 @@ export default class extends Component {
     if (columnSummary.location === 3 && columnTotal) {
       dataList.unshift(columnTotal);
     }
+
     if (columnSummary.location === 4 && columnTotal) {
       dataList.push(columnTotal);
     }
@@ -720,6 +756,7 @@ export default class extends Component {
         const { rename, controlName, showNumber = true } = _.find(yaxisList, { controlId: item.t_id }) || {};
         const name = rename || controlName;
         const sumData = _.find(columnSummary.controlList, { controlId: item.t_id }) || {};
+
         if (sumData.number || sumData.percent) {
           childrenYaxisList.push({
             title: () => {
@@ -744,9 +781,11 @@ export default class extends Component {
                 sumData,
               };
               const subTotal = !record.isSubTotal && getLineSubTotal(item.data, recordIndex);
+
               if (subTotal && valueMap[item.t_id]) {
                 newRecord.lineSubTotal = Number(valueMap[item.t_id][subTotal]);
               }
+
               newRecord.showNumber = record.isSubTotal && newRecord.type === 'columns' ? true : showNumber;
               // newRecord.showPercent = (subTotal || newRecord.key === 'sum' && !record.isSubTotal && newRecord.type === 'columns') && percent.enable && percent.type;
               newRecord.showPercent = false;
@@ -812,6 +851,7 @@ export default class extends Component {
       result.forEach((item, i) => {
         const value = item.data[index];
         const valueKey = yvalueMap[item.t_id] || null;
+
         if (_.isArray(value)) {
           obj[`${item.t_id}-${i}`] = value
             .map(data => {
@@ -853,6 +893,7 @@ export default class extends Component {
       const value = _.isNumber(item.sum) ? item.sum : '';
       const sumData = _.find(lineSummary.controlList, { controlId: item.t_id }) || {};
       const sumSuffix = sumData.name && !item.summary_col ? sumData.name : undefined;
+
       if (sumSuffix) {
         summary[`${item.t_id}-${i}`] = {
           value,
@@ -866,6 +907,7 @@ export default class extends Component {
     if (showLineTotal && lineSummary.location == 1 && pageIndex === 1) {
       dataSource.unshift(summary);
     }
+
     if (showLineTotal && lineSummary.location == 2) {
       dataSource.push(summary);
     }
@@ -875,9 +917,11 @@ export default class extends Component {
   getParentNode() {
     const { isThumbnail, reportData, isHorizontal } = this.props;
     const { reportId } = reportData;
+
     if (isHorizontal) {
       return document.querySelector(`.adm-popup-body`);
     }
+
     return isThumbnail
       ? document.querySelector(isMobile ? `.statisticsCard-${reportId}` : `.statisticsCard-${reportId} .content`)
       : document.querySelector(`.ChartDialog .chart .flex`);
@@ -896,23 +940,29 @@ export default class extends Component {
     const lineFreeze = isMobile ? mobilePivotTableLineFreeze : pivotTableLineFreeze;
     const parent = this.getParentNode();
     const config = {};
+
     if (isPrintPivotTable) {
       return config;
     }
+
     if (lineFreeze) {
       config.x = '100%';
     }
+
     if (columnFreeze && parent) {
       const lineHeight = 39;
       const columnsLength = (columns.length || 1) + (yaxisList.length === 1 ? 0 : 1);
       const headerHeight = columnsLength * lineHeight;
       const offsetHeight = isMobile && isHorizontal ? document.body.clientWidth - 80 : parent.offsetHeight - 15;
       const paginationHeight = paginationVisible && dataSource.length > this.state.pageSize ? 45 : 0;
+
       if (!lineFreeze) {
         config.x = '100%';
       }
+
       config.y = offsetHeight - headerHeight - paginationHeight;
     }
+
     return config;
   }
   getMaxFileLength(data, index) {
@@ -921,9 +971,11 @@ export default class extends Component {
       if (item && item.value && _.isArray(item.value[index])) {
         return item.value[index].length;
       }
+
       if (_.isArray(item)) {
         return item[index].length;
       }
+
       return null;
     });
     const value = _.max(data);
@@ -1018,6 +1070,7 @@ export default class extends Component {
   renderSheetControl(data, control) {
     const { isThumbnail, sourceType } = this.props;
     const { controlType, advancedSetting } = control;
+
     if (controlType === WIDGETS_TO_API_TYPE_ENUM.DEPARTMENT) {
       const item = window.safeParse(data);
       return (
@@ -1026,9 +1079,11 @@ export default class extends Component {
         </DepartmentTooltip>
       );
     }
+
     if (controlType === WIDGETS_TO_API_TYPE_ENUM.USER_PICKER) {
       const { projectId } = this.props;
       const { accountId, fullname, avatar } = window.safeParse(data);
+
       if (accountId) {
         return (
           <div className="userWrap flexRow alignItemsCenter pointer">
@@ -1048,6 +1103,7 @@ export default class extends Component {
         return data;
       }
     }
+
     if (controlType === WIDGETS_TO_API_TYPE_ENUM.SWITCH) {
       if (_.get(advancedSetting, 'showtype') === '0') {
         return data === '1' ? '✅' : '';
@@ -1055,6 +1111,7 @@ export default class extends Component {
         return data;
       }
     }
+
     if (isOptionControl(controlType)) {
       const { value, color } = window.safeParse(data);
       return (
@@ -1063,6 +1120,7 @@ export default class extends Component {
         </div>
       );
     }
+
     return data;
   }
   renderLineTd(data, row, index, control, diffWidth) {
@@ -1082,11 +1140,13 @@ export default class extends Component {
 
     if (_.isObject(data) && 'value' in data) {
       const props = {};
+
       if (data.sum) {
         props.colSpan = data.length;
       } else {
         props.rowSpan = data.length;
       }
+
       if (controlType === 29 && !_.isEmpty(fields) && !data.sum && _.isArray(data.value)) {
         const res = data.value;
         return {
@@ -1187,6 +1247,7 @@ export default class extends Component {
         record,
         emptyShowType,
       };
+
       if (textColorRule.model) {
         if (controlId !== textColorRule.controlId) {
           const colorRuleIndex = _.findIndex(yaxisList, { controlId: textColorRule.controlId });
@@ -1204,6 +1265,7 @@ export default class extends Component {
           }),
         );
       }
+
       if (bgColorRule.model) {
         if (controlId !== bgColorRule.controlId) {
           const colorRuleIndex = _.findIndex(yaxisList, { controlId: bgColorRule.controlId });
@@ -1221,6 +1283,7 @@ export default class extends Component {
           }),
         );
       }
+
       if (dataBarRule && record.key !== 'sum') {
         Object.assign(
           barStyle,
@@ -1234,16 +1297,19 @@ export default class extends Component {
         axisStyle.borderColor = dataBarRule.axisColor;
         onlyShowBar = dataBarRule.onlyShowBar;
       }
+
       if (record.key === 'sum' && record.type === 'columns') {
         value = value || 0;
         const { sumCount, sumData } = record;
         const percent = `${((value / sumCount) * 100).toFixed(2)}%`;
+
         if (sumData.number) {
           value = formatrChartValue(value, false, yaxisList, controlId);
           if (sumSuffix) {
             value = `${sumSuffix} ${value}`;
           }
         }
+
         if (sumData.percent) {
           if (sumData.number) {
             value = `${value} (${percent})`;
@@ -1265,11 +1331,13 @@ export default class extends Component {
         const percentValue = formatNumberValue((originalValue / count) * 100, percentConfig);
         percent = count ? `${percentValue}%` : '0%';
       }
+
       if (record.showPercent === 2) {
         const count = record.sumCount || 0;
         const percentValue = formatNumberValue((originalValue / count) * 100, percentConfig);
         percent = count ? `${percentValue}%` : '0%';
       }
+
       if ([1, 2].includes(record.showPercent) && record.showNumber) {
         percent = `(${percent})`;
       }

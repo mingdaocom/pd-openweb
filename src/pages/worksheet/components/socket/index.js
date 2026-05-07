@@ -36,13 +36,16 @@ const getBatchNoticeDescription = ({ finished, total, failed, executeType }) => 
 const getSingleNoticeDescription = ({ cause, causeMsg, type, status = 1, executeType, finished }) => {
   const getHint = () => {
     const { text } = STATUS[status];
+
     if ([3, 4].includes(status)) {
       return FLOW_FAIL_REASON[cause] || causeMsg || text;
     }
+
     return executeType === 2 && finished === 0 && status !== 2
       ? _l('您的流程已进入队列，这可能需要一段时间。现在您可以进行其他操作，执行完成后将会通知您')
       : text;
   };
+
   const isOperate = _.includes([3, 4], type);
   return isOperate ? _l('正在等待%0', TYPES[type]) : getHint();
 };
@@ -102,9 +105,11 @@ export default function initWorksheetSocket() {
       if (total === finished && !complete[storeId]) {
         complete[storeId] = data;
       }
-      const noticeTitle = storeId ? _l('批量操作 ”%0“', title) : title;
+
+      const noticeTitle = storeId ? _l('批量操作 “%0”', title) : title;
       const description = getBatchNoticeDescription(complete[storeId] || data);
       let btnList = [];
+
       if (!(executeType === 2 && finished === 0)) {
         btnList = [
           {
@@ -113,10 +118,12 @@ export default function initWorksheetSocket() {
           },
         ];
       }
+
       const onClose = () => {
         mdNotification.close(`batchUpdateWorkflowNotice${storeId}`);
         process.closeStorePush({ storeId });
       };
+
       mdNotification[finished > 0 && complete[storeId] ? 'success' : 'info']({
         title: noticeTitle,
         description,
@@ -142,9 +149,11 @@ export default function initWorksheetSocket() {
       if (status === 2 && enableTip === false) {
         return;
       }
+
       if (status === 2 && enableTip && tipText) {
         description = tipText;
       }
+
       alert({
         msg: description,
         type: isOperate ? 4 : promptType,

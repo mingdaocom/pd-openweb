@@ -57,13 +57,16 @@ class PostMain extends React.Component {
     const e = event || window.event;
     if (e.button !== 0 || this.state.isFastCreate) return; // 只左键松开时触发
     const even = e.srcElement || e.target;
+
     if ($(even).hasClass('postContent') || $(even).closest('.postContent').length) {
       let txt = '';
+
       if (document.selection) {
         txt = document.selection.createRange().text; // IE
       } else {
         txt = document.getSelection();
       }
+
       txt = txt
         .toString()
         .trim()
@@ -74,6 +77,7 @@ class PostMain extends React.Component {
       const eTop = e.clientY < 0 ? e.clientY + sh : e.clientY + sh;
       const pLeft = $(even).closest('.postContent').offset().left;
       const pTop = $(even).closest('.postContent').offset().top;
+
       if (txt) {
         this.setState({
           isFastCreate: true,
@@ -83,6 +87,7 @@ class PostMain extends React.Component {
         });
       }
     }
+
     e.stopPropagation();
   };
 
@@ -93,6 +98,7 @@ class PostMain extends React.Component {
   render() {
     const postItem = this.props.postItem;
     let fastCreateHtml;
+
     if (this.state.isFastCreate) {
       fastCreateHtml = (
         <FastCreateTaskSchedule
@@ -102,6 +108,7 @@ class PostMain extends React.Component {
         />
       );
     }
+
     return (
       <div
         className={cx('postContent ', this.props.className)}

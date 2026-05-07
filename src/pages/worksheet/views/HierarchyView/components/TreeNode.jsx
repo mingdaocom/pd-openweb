@@ -47,6 +47,7 @@ export default class TreeNode extends Component {
                   />
                 );
               }
+
               return (
                 <TreeNode
                   key={item.rowId}

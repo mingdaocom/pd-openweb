@@ -65,6 +65,7 @@ export default class extends React.Component {
   componentDidUpdate() {
     const scrollWidth = this.scrollinner.current.scrollWidth;
     const scrollHeight = this.scrollinner.current.scrollHeight;
+
     if (scrollWidth !== this.scrollWidth || scrollHeight !== this.scrollHeight) {
       this.initScrollBar();
     }
@@ -115,6 +116,7 @@ export default class extends React.Component {
       this.startScrollTop = this.scrollinner.current.scrollTop;
       this.verdown = true;
     }
+
     if (e.target === this.scrollhor.current) {
       this.lastX = e.x;
       this.startScrollLeft = this.scrollinner.current.scrollLeft;
@@ -127,6 +129,7 @@ export default class extends React.Component {
       this.scrollinner.current.scrollTop = this.startScrollTop + (e.y - this.lastY) / (this.height / this.scrollHeight);
       e.preventDefault();
     }
+
     if (this.hordown) {
       this.scrollinner.current.scrollLeft = this.startScrollLeft + (e.x - this.lastX) / (this.width / this.scrollWidth);
       e.preventDefault();
@@ -144,16 +147,19 @@ export default class extends React.Component {
     if (!this.scrollcon || !this.scrollcon.current || !this.scrollinner || !this.scrollinner.current) {
       return;
     }
+
     if (this.scrollhor && this.scrollhor.current) {
       this.scrollhor.current.style.transform = `translate3d(${
         (this.scrollinner.current.scrollLeft / this.scrollWidth) * this.width
       }px,0px,0px)`;
     }
+
     if (this.scrollver && this.scrollver.current) {
       this.scrollver.current.style.transform = `translate3d(0px,${
         (this.scrollinner.current.scrollTop / this.scrollHeight) * this.height
       }px,0px)`;
     }
+
     this.props.onScroll(e);
   };
 

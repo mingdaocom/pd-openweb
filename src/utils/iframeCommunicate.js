@@ -75,6 +75,7 @@ export class ParentBridge {
   // 清理过期的请求
   cleanup() {
     const now = Date.now();
+
     for (const [messageId, promise] of this.pendingPromises.entries()) {
       if (now - promise.timestamp > this.timeout) {
         promise.reject(new Error('Request timeout'));
@@ -105,6 +106,7 @@ export class MessageHandler {
 
     // 检查是否已经在处理相同的请求
     const requestKey = `${messageId}`;
+
     if (this.processingRequests.has(requestKey)) {
       return;
     }
@@ -113,6 +115,7 @@ export class MessageHandler {
 
     try {
       const handler = this.handlers.get(methodName);
+
       if (!handler) {
         throw new Error(`Method ${methodName} not found`);
       }

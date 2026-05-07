@@ -50,6 +50,7 @@ const IDWidget = props => {
     formItemId,
     useCallback(data => {
       const { triggerType } = data;
+
       switch (triggerType) {
         case 'trigger_tab_enter':
           setIsEditing(true);
@@ -78,9 +79,11 @@ const IDWidget = props => {
 
   const handleBlur = event => {
     const newVal = formatValue(event.target.value.trim());
+
     if (newVal !== originValue) {
       onChange(newVal);
     }
+
     setIsEditing(false);
     onBlur(originValue);
   };

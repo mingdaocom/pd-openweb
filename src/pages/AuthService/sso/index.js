@@ -36,6 +36,7 @@ function start() {
         withCredentials: false,
         success: result => {
           const { accountResult, sessionId } = result.data;
+
           if (accountResult === 1) {
             setPssId(sessionId);
             if (checkOriginUrl(url)) {
@@ -91,6 +92,7 @@ function start() {
     } else {
       const hosts = location.host.split('.');
       const projectId = p || hosts[0];
+
       function onFail(err) {
         window.alert(JSON.stringify(err));
       }
@@ -104,6 +106,7 @@ function start() {
         async: true,
         success: result => {
           const { corpId, state, clientWorkingPattern } = result.data;
+
           if (corpId) {
             dd.ready(function () {
               dd.runtime.permission.requestAuthCode({
@@ -113,6 +116,7 @@ function start() {
                   const dingdingLoginUrl = `/sso/dingding?state=${state}&ret=${encodeURIComponent(newRet || '')}&i=${
                     i || ''
                   }&code=${code}&pc_slide=${pc_slide}`;
+
                   if (dd.pc && !isPcSlide) {
                     if (clientWorkingPattern === 1) {
                       document.body.innerText = '已在默认浏览器打开';

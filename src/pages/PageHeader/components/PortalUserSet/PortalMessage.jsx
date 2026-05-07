@@ -54,6 +54,7 @@ class PortalMessage extends Component {
     const { sessionList = [] } = nextProps;
     const count = (sessionList.find(o => o.value === 'worksheet') || {}).count;
     const countProps = ((this.props.sessionList || []).find(o => o.value === 'worksheet') || {}).count;
+
     if (count > 0 && countProps !== count) {
       this.setState({
         count,
@@ -68,6 +69,7 @@ class PortalMessage extends Component {
       })
       .then(sessionList => {
         const count = (sessionList.find(o => o && o.value === 'worksheet') || {}).count;
+
         if (count > 0) {
           this.setState({
             count,

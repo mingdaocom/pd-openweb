@@ -189,6 +189,7 @@ export default function ControlsSetting(props) {
           let sectionLi = it.type === 52 ? controls.filter(l => l.sectionId === it.controlId) : [];
           let isChecked = !isRelationControls ? it.checked : getIsChecked(it);
           const isSysTime = !!SYST_PRINT[it.controlId] && _.endsWith(it.controlId, 'time');
+
           const handleClick = () => {
             handleChecked(it);
           };
@@ -291,6 +292,7 @@ export default function ControlsSetting(props) {
         {liControls.map(it => {
           const uniqueId = `${list.controlId}_${it.controlId}`;
           const hasExpandKey = expandKey.includes(uniqueId);
+
           const handleClick = () => {
             onClickLiRelation({ it, controls: liControls, orderNumberList, relationControlId: list.controlId });
           };

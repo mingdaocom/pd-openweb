@@ -341,6 +341,7 @@ export default class ChartStyle extends Component {
       } else {
         value = 1;
       }
+
       this.handleChangeStyle({ columnCount: value });
     }, 100);
 
@@ -673,9 +674,11 @@ export default class ChartStyle extends Component {
               const result = {
                 summary,
               };
+
               if (displaySetup) {
                 result.displaySetup = displaySetup;
               }
+
               changeCurrentReport(result, isRequest);
             },
           })}

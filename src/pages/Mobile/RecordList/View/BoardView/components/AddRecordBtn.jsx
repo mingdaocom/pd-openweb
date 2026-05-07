@@ -43,6 +43,7 @@ const AddRecordBtn = props => {
       window.location.href = `/mobile/addRecord/${appId}/${worksheetInfo.worksheetId}/${view.viewId}`;
       return;
     }
+
     if (window.isMingDaoApp) {
       handlePushState('page', 'newRecord');
     }
@@ -69,7 +70,9 @@ const AddRecordBtn = props => {
         if (_.isEmpty(record)) {
           return;
         }
+
         let key = itemFirstGroup.key;
+
         // 一级分组为-1时，表示未指定，新增的数据要重新判断在哪个一级分组下
         if (key === '-1') {
           const firstGroupKeys = viewData.map(group => group.key);

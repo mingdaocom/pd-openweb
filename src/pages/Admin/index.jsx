@@ -109,19 +109,25 @@ export default class AdminEntryPoint extends PureComponent {
 
         const itemMenu = subMenuArray.filter(sub => sub.key === key)[0] || {};
         let featureType = getFeatureStatus(projectId, itemMenu.featureId);
+        let hasFeatureIdsAuth = false;
 
         if (itemMenu.featureIds) {
           itemMenu.featureIds
             .filter(l => !window.platformENV.isPlatform || !itemMenu.platformHiddenIds.includes(l))
             .forEach(l => {
               let itemFeatureType = getFeatureStatus(projectId, l);
+
               if (itemFeatureType) {
+                hasFeatureIdsAuth = true;
                 featureType = featureType ? Math.min(itemFeatureType, featureType).toString() : itemFeatureType;
               }
             });
         }
 
-        return !(_.includes(['analytics', 'applog', 'computing', 'aggregationTable', 'quota'], key) && !featureType);
+        if (itemMenu.featureId && !featureType) return false;
+        if (itemMenu.featureIds && !hasFeatureIdsAuth) return false;
+
+        return true;
       });
 
       return result;

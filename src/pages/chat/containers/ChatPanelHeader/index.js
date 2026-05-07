@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import cx from 'classnames';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
+import { LoadDiv } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import GroupController from 'src/api/group';
 import PersonalStatus from 'src/pages/chat/components/MyStatus/PersonalStatus';
@@ -12,6 +13,7 @@ import config from '../../utils/config';
 import Constant from '../../utils/constant';
 import { createDiscussion } from '../../utils/group';
 import * as socket from '../../utils/socket';
+import errorIcon from '../SessionList/resource/errorIcon.png';
 
 const PersonalStatusWrap = styled(PersonalStatus)`
   flex: 1;
@@ -67,9 +69,11 @@ class ChatPanelHeader extends Component {
   }
   handleBlur() {
     const { value } = this.state;
+
     if (value) {
       return;
     }
+
     this.setState({
       focus: false,
       searchVisible: false,
@@ -86,9 +90,11 @@ class ChatPanelHeader extends Component {
     if (event.which === 27) {
       this.handleSearchHidden();
     }
+
     // 回车
     if (event.which === 13) {
       const { value } = this.state;
+
       if (value) {
         this.props.onSearchText(value);
       }
@@ -181,9 +187,11 @@ class ChatPanelHeader extends Component {
     const { session } = this.props;
     const { isGroup, id } = session;
     const isFileTrsnsfer = id === Constant.FILE_TRANSFER.id;
+
     if (isFileTrsnsfer || (isGroup && !session.isPost)) {
       return;
     }
+
     if (isGroup) {
       window.open(`/feed?groupId=${id}`);
     } else {
@@ -192,6 +200,7 @@ class ChatPanelHeader extends Component {
   }
   renderIcon() {
     const { session } = this.props;
+
     if (session.isPushNotice) {
       return <i className="icon-notifications_off" />;
     } else {
@@ -269,7 +278,7 @@ class ChatPanelHeader extends Component {
   };
 
   render() {
-    const { infoVisible, session, isWindow, isOpenFile } = this.props;
+    const { infoVisible, session, isWindow, isOpenFile, socketState } = this.props;
     const { searchVisible, focus, value } = this.state;
     const name = session.name || session.fullname;
     const isFileTrsnsfer = session.id === Constant.FILE_TRANSFER.id;
@@ -279,6 +288,12 @@ class ChatPanelHeader extends Component {
 
     return (
       <div className="ChatPanel-header">
+        {socketState === 1 && <LoadDiv className="flexRow alignItemsCenter mRight5" size="small" />}
+        {socketState === 2 && (
+          <Tooltip title={_l('连接失败，点击刷新重试')} placement="bottom">
+            <img src={errorIcon} className="errorIcon pointer mRight5" onClick={() => location.reload()} />
+          </Tooltip>
+        )}
         {session.isPost && (
           <Tooltip placement="bottomLeft" type="white" title={this.getGroupMessage()}>
             <i
@@ -368,10 +383,11 @@ class ChatPanelHeader extends Component {
 }
 
 export default connect(state => {
-  const { currentSession, isWindow } = state.chat;
+  const { currentSession, isWindow, socketState } = state.chat;
 
   return {
     currentSession,
     isWindow,
+    socketState,
   };
 })(ChatPanelHeader);

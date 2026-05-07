@@ -18,6 +18,7 @@ function insertImageToEditor(container, elemstr) {
     selection.removeAllRanges();
     selection.addRange(window.lastEditRange);
   }
+
   if (!window.getSelection) {
     container.focus();
     selection.getRangeAt(0);
@@ -39,18 +40,21 @@ function insertImageToEditor(container, elemstr) {
       hasR_lastChild = hasR_lastChild.previousSibling;
       hasR.removeChild(e);
     }
+
     range = selection.getRangeAt(0);
     range.insertNode(hasR);
     if (hasR_lastChild) {
       range.setEndAfter(hasR_lastChild);
       range.setStartAfter(hasR_lastChild);
     }
+
     // 清除选定对象的所有光标对象
     selection.removeAllRanges();
     // 插入新的光标对象
     selection.addRange(range);
     window.lastEditRange = selection.getRangeAt(0);
   }
+
   container.focus();
 }
 
@@ -73,6 +77,7 @@ Emotion.prototype.getDefaultTab = function getDefaultTab(options) {
   if (!window.localStorage || !window.localStorage[options.historyKey]) {
     return 1;
   }
+
   return 0;
 };
 
@@ -142,6 +147,7 @@ Emotion.prototype.emotion = function emotion() {
     if ((!_this.options.mdBear && item.tab.name === _l('笨笨熊')) || (!_this.options.history && index === 0)) {
       return;
     }
+
     if ((!_this.options.showAru && item.tab.name === 'Aru') || (!_this.options.history && index === 0)) {
       return;
     }
@@ -212,12 +218,14 @@ Emotion.prototype._getPosition = function _getPosition() {
     } else if (placements[0] === 'right') {
       position.left -= elemWidth - this.$el.outerWidth();
     }
+
     if (placements[1] === 'top') {
       position.top -= elemHeight;
     } else if (placements[1] === 'bottom') {
       position.top += this.$el.outerHeight() + 8;
     }
   }
+
   return position;
 };
 
@@ -255,6 +263,7 @@ Emotion.prototype.select = function select(event) {
   if (this.options.autoHide) {
     this.hide();
   }
+
   if (!this.options.divEditor) {
     // 对于图片类的表情，由于其图片过大，无法跟文字在一起排版，所以一般单独做一条信息处理，所以不会在输入框中显示，需要单独处理
     if ($currentTarget.hasClass('emotionItemBear')) {
@@ -298,6 +307,7 @@ Emotion.prototype.select = function select(event) {
         this.options.onSelect.call(this, $currentTarget.attr('code'), targetEmotionSrc, _val);
       }
     }
+
     // 重新设置光标位置
     var oldVal = this.$target.val();
     var target = this.$target.get(0);
@@ -334,6 +344,7 @@ Emotion.prototype.select = function select(event) {
       insertImageToEditor(this.$target.get(0), this.parse(_val));
       this._storeHistory(targetEmotion);
     }
+
     var $imgs = this.$target.find('img');
     for (var i = 0; i < $imgs.length; ++i) {
       $imgs[i].contentEditable = false;
@@ -353,12 +364,14 @@ Emotion.prototype._storeHistory = function _storeHistory(emotionStr) {
       window.localStorage[this.options.historyKey] = JSON.stringify([emotionStr]);
       return;
     }
+
     var htyEmotions = JSON.parse(window.localStorage[this.options.historyKey]);
     // 如果要记录的表情已存在，则将该表情的位置提前
     var index = _.indexOf(htyEmotions, emotionStr);
     if (index !== -1) {
       htyEmotions.splice(index, 1);
     }
+
     htyEmotions.unshift(emotionStr);
 
     if (htyEmotions.length > this.options.historySize) {
@@ -390,6 +403,7 @@ Emotion.prototype.show = function show(left, top) {
         _this.emotion().find('.mdEmotionPanel').removeClass('active').eq($this.index()).addClass('active');
         _this.load($this.data('emotion-index'));
       }
+
       return false;
     })
     .on('mouseover', '.emotionItemBear', function () {
@@ -466,6 +480,7 @@ Emotion.prototype.load = function (index) {
             </a>`;
       });
     }
+
     $targetEmotion.html(content).data('loaded', true);
   }
 };
@@ -523,6 +538,7 @@ Emotion.prototype.parse = function (str) {
         if (emotionData[index].tab.name === _l('笨笨熊')) {
           emotion.img = emotion.img.replace('.png', '.gif');
         }
+
         const src =
           Emotion.options.imgPath +
           emotionData[index].tab.path +

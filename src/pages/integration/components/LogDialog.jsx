@@ -42,6 +42,7 @@ const Wrap = styled.div`
     padding: 16px;
   }
 `;
+
 export default function LogDialog(props) {
   const [{ data, tab, loading, isErr }, setState] = useSetState({
     data: {},
@@ -75,6 +76,7 @@ export default function LogDialog(props) {
         },
       );
   };
+
   const renderTabCon = () => {
     return (
       <div className="tabCon TxtLeft mTop22">
@@ -95,11 +97,14 @@ export default function LogDialog(props) {
       </div>
     );
   };
+
   const getInfo = info => {
     let da = {};
+
     if (!info) {
       return da;
     }
+
     try {
       da = JSON.parse(info);
     } catch (error) {
@@ -109,8 +114,10 @@ export default function LogDialog(props) {
         data: info,
       };
     }
+
     return da;
   };
+
   return (
     <Dialog
       className=""

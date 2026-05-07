@@ -82,9 +82,11 @@ export default class DepDropDown extends Component {
                 this.cachePath[o.departmentId] = path ? `${path} / ${o.departmentName}` : o.departmentName;
                 let name = o.departmentName;
                 let nameArr = [name];
+
                 if (keywords) {
                   let mt = name.match(keywords);
                   let len = keywords.length;
+
                   if (mt) {
                     nameArr = [];
                     while (mt) {
@@ -93,11 +95,13 @@ export default class DepDropDown extends Component {
                       name = name.slice(mt.index + len);
                       mt = name.match(keywords);
                     }
+
                     if (name) {
                       nameArr.push(name);
                     }
                   }
                 }
+
                 let text = nameArr.map((item, index) => {
                   if (item === keywords) {
                     return (
@@ -106,6 +110,7 @@ export default class DepDropDown extends Component {
                       </span>
                     );
                   }
+
                   return <span key={item + index}>{item}</span>;
                 });
                 return {
@@ -116,6 +121,7 @@ export default class DepDropDown extends Component {
                 };
               });
             };
+
             this.ajax = '';
             this.setState({ searchOptions: getItem(result), options: null });
           } else {

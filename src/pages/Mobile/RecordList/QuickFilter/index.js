@@ -19,6 +19,7 @@ import { conditionAdapter, turnControl, validate } from './utils';
 const Con = styled.div`
   padding-bottom: calc(constant(safe-area-inset-bottom) - 20px);
   padding-bottom: calc(env(safe-area-inset-bottom) - 20px);
+  background-color: var(--color-background-card);
   .header {
     padding: 10px 15px;
     justify-content: flex-end;
@@ -114,6 +115,7 @@ export function QuickFilter(props) {
     controls,
     pcUpdateQuickFilter,
     onHideSidebar,
+    allowFilter = true,
     base = {},
     mobileNavGroupFilters = [],
     quickFilter = [],
@@ -166,29 +168,36 @@ export function QuickFilter(props) {
 
     if (needCheckRequired) {
       const emptyItems = itemsWithValues.filter(item => item.isRequired && !validate(item));
+
       if (emptyItems.length) {
         setRequiredErrorVisible(true);
         alert(_l('请填写%0', _.get(emptyItems, '0.control.controlName')), 2);
         return;
       }
     }
+
     setRequiredErrorVisible(false);
     const quickFilter = itemsWithValues.filter(validate).map(conditionAdapter);
+
     if (quickFilter.length) {
       const quickFilterDataFormat = quickFilter.map(c => {
         let values = formatFilterValuesToServer(c.dataType, c.values);
+
         if (values[0] === 'isEmpty') {
           c.filterType = 7;
           values = [];
         }
+
         if (c.filterType === FILTER_CONDITION_TYPE.DATE_BETWEEN && c.dateRange !== 18) {
           c.filterType = FILTER_CONDITION_TYPE.DATEENUM;
         }
+
         return {
           ...c,
           values,
         };
       });
+
       if (_.includes(TextTypes.concat(NumberTypes), store.current.activeType)) {
         debounceUpdateQuickFilter.current(quickFilterDataFormat, view);
       } else {
@@ -202,6 +211,7 @@ export function QuickFilter(props) {
     if (_.includes([21], view.viewType)) {
       pcUpdateFilters({ filterControls }, view);
     }
+
     onHideSidebar();
   };
 
@@ -218,8 +228,10 @@ export function QuickFilter(props) {
     if (_.includes([21], view.viewType)) {
       pcUpdateFilters({ filterControls: [] }, view);
     }
+
     onHideSidebar();
   };
+
   useEffect(() => {
     setValues(getDefaultValues(filters));
   }, [view.viewId]);
@@ -318,7 +330,7 @@ export function QuickFilter(props) {
         )}
 
         {/* APP网页集成自定义筛选 */}
-        {window.isMingDaoApp && (
+        {window.isMingDaoApp && allowFilter && (
           <Fragment>
             <div className="flexRow alignCenter Font14 pTop16 pBottom16" onClick={openAppFilter}>
               <span className="bold textPrimary">{_l('自定义筛选')}</span>

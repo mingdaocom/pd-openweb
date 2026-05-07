@@ -10,6 +10,7 @@ const TYPES = {
   4: _l('工作流'),
   5: _l('文件处理'),
 };
+
 export default () => {
   if (!window.IM) return;
   IM.socket.on('mdy_export', ({ state, type, apps = [], id, index, totalIndex }) => {
@@ -17,6 +18,7 @@ export default () => {
     let description = '';
     let action = '';
     let duration = null;
+
     if (state === 1) {
       description = _l('这可能需要一段时间，现在您可以进行其他操作，导出完成后通知您');
       action = 'info';
@@ -57,6 +59,7 @@ export default () => {
     let description = '';
     let action = '';
     let duration = null;
+
     if (state === 4) {
       description = _l('这可能需要一段时间，现在您可以进行其他操作，导入完成后通知您');
       action = 'info';

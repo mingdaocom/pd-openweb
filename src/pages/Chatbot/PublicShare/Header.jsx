@@ -141,6 +141,7 @@ export default function Header({
 }) {
   const searchParams = new URL(location.href).searchParams;
   const isEmbed = !!searchParams.get('embed') || window.top !== window.self;
+
   if (isEmbed) {
     return (
       <Con className={cx('t-flex t-items-center t-justify-between isEmbed')}>
@@ -155,6 +156,7 @@ export default function Header({
       </Con>
     );
   }
+
   return (
     <Con className={cx('t-flex t-items-center t-justify-between', { isSmallMode, isFooter, isEmbed })}>
       {!isFooter && (

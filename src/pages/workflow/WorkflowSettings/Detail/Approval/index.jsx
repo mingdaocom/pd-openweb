@@ -141,7 +141,7 @@ export default class Approval extends Component {
         this.setState({ data: result }, () => {
           callback();
 
-          if (isApproval && !result.selectNodeId) {
+          if (isApproval && !result.selectNodeId && result.flowNodeList && result.flowNodeList[0]?.nodeId) {
             this.onChange(result.flowNodeList[0].nodeId);
           }
         });
@@ -224,7 +224,7 @@ export default class Approval extends Component {
       return;
     }
 
-    if (userTaskNullMap[5] && !userTaskNullMap[5].length) {
+    if (userTaskNullMap && userTaskNullMap[5] && !userTaskNullMap[5].length) {
       alert(_l('必须指定代理人'), 2);
       return;
     }
@@ -629,9 +629,11 @@ export default class Approval extends Component {
           }
           onChange={countersignType => {
             let condition = '';
+
             if (countersignType === 4) {
               condition = '100';
             }
+
             this.updateSource({
               countersignType,
               operationTypeList: _.intersection(

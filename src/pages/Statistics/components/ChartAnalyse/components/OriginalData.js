@@ -52,6 +52,7 @@ export default class OriginalData extends Component {
   };
   handleChange = event => {
     const { value } = event.target;
+
     if (value === 1) {
       this.props.onChangeDisplaySetup(
         {

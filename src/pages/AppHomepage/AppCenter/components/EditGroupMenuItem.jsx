@@ -72,6 +72,7 @@ function EditPanel(props) {
   const filteredProjectGroups = projectGroups.filter(
     g => !keywords || new RegExp(keywords.toLowerCase()).test((g.name || '').toLowerCase()),
   );
+
   function renderGroups(group, i) {
     const checked = _.includes(selectedIds, group.id);
     return (
@@ -95,6 +96,7 @@ function EditPanel(props) {
       </GroupItem>
     );
   }
+
   if (isEmpty) {
     return (
       <EditPanelCon>
@@ -107,6 +109,7 @@ function EditPanel(props) {
       </EditPanelCon>
     );
   }
+
   return (
     <EditPanelCon>
       <Header className="search">

@@ -115,14 +115,17 @@ class Search extends Component {
           : data;
         const { rows } = this.state;
         const newRows = rows.concat(data);
+
         if (newRows.length === 1) {
           const url = `/mobile/record/${params.appId}/${params.worksheetId}/${params.viewId}/${newRows[0].rowid}`;
+
           if (window.isMingDaoApp) {
             location.href = url;
           } else {
             window.mobileNavigateTo(url, true);
           }
         }
+
         this.setState({
           rows: newRows,
           isMore: data.length === pageSize,
@@ -135,6 +138,7 @@ class Search extends Component {
     const { target } = event;
     const { loading, isMore } = this.state;
     const isEnd = target.scrollHeight - target.scrollTop <= target.clientHeight;
+
     if (isEnd && !loading && isMore) {
       this.requestFilterRows();
     }
@@ -150,6 +154,7 @@ class Search extends Component {
       if (item.attribute === 1) {
         return true;
       }
+
       return _.isEmpty(view) ? true : !view.controls.includes(item.controlId);
     });
 
@@ -165,6 +170,7 @@ class Search extends Component {
         allowAdd={sheetInfo.allowAdd}
         onClick={() => {
           const url = `/mobile/record/${params.appId}/${params.worksheetId}/${params.viewId}/${item.rowid}`;
+
           if (window.isMingDaoApp) {
             location.href = url;
           } else {

@@ -44,6 +44,7 @@ export default props => {
         widget.sectionId || widget.tabId ? 'parentNode.parentNode.parentNode' : 'parentNode.parentNode',
       );
       const tuneIcon = card.querySelector('.widgetContentTools .icon-tune');
+
       if (container && tuneIcon) {
         const elementRect = tuneIcon.getBoundingClientRect();
         const containerRect = container.getBoundingClientRect();

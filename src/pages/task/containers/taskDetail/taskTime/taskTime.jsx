@@ -280,6 +280,7 @@ class TaskTime extends Component {
   updatePlanTime(time, isUpdateStartTime) {
     const { taskId, openType } = this.props;
     const { data } = this.props.taskDetails[taskId];
+
     const callback = source => {
       if (openType === OPEN_TYPE.slide) {
         afterUpdateTaskDate(source);
@@ -309,6 +310,7 @@ class TaskTime extends Component {
   updateTaskActualStartTime(actualStartTime) {
     const { taskId, openType } = this.props;
     const { data } = this.props.taskDetails[taskId];
+
     const callback = () => {
       if (openType === OPEN_TYPE.slide) {
         afterUpdateTaskDateInfo(taskId, data.startTime, data.deadline, actualStartTime, data.completeTime);
@@ -329,6 +331,7 @@ class TaskTime extends Component {
   updateCompletedTime(completeTime) {
     const { taskId, openType } = this.props;
     const { data } = this.props.taskDetails[taskId];
+
     const callback = () => {
       if (openType === OPEN_TYPE.slide) {
         afterUpdateTaskDateInfo(taskId, data.startTime, data.deadline, data.actualStartTime, completeTime);

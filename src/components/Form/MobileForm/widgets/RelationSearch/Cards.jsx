@@ -28,9 +28,11 @@ export default function Cards(props) {
   } = props;
   let { records } = props;
   const showNewRecord = !disabled && allowNewRecord;
+
   if (control.type === 51 && control.enumDefault === 1) {
     records = records.slice(0, 1);
   }
+
   const hideTitle = control.type === 51 && control.enumDefault === 1;
   return (
     <Fragment>
@@ -60,6 +62,7 @@ export default function Cards(props) {
                 if (!allowOpenRecord) {
                   return;
                 }
+
                 onOpen(record.rowid);
               }}
             />

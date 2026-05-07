@@ -7,7 +7,7 @@ import departmentController from 'src/api/department';
 import userAjax from 'src/api/user';
 import { hasPermission } from 'src/components/checkPermission';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
-import { getCurrentProject } from 'src/utils/project';
+import UserCountLimitLink from 'src/pages/Admin/user/membersDepartments/UserCountLimitLink';
 import PageTableCon from '../../../components/PageTableCon';
 import WorkHandoverDialog from '../../../components/WorkHandoverDialog';
 import ActionDrop from './ActionDrop';
@@ -261,14 +261,7 @@ export default class extends React.Component {
               this.getData();
               alert(_l('恢复成功'));
             } else if (data == 4) {
-              const { licenseType } = getCurrentProject(projectId, true);
-              let link = '';
-              if (licenseType === 0) {
-                link = <span>{_l('当前用户数已超出人数限制')}</span>;
-              } else {
-                link = <span>{_l('当前用户数已超出人数限制')}</span>;
-              }
-              alert(link, 3);
+              alert(<UserCountLimitLink projectId={projectId} />, 3);
             } else {
               alert(_l('恢复失败'), 2);
             }

@@ -11,6 +11,7 @@ import { SwitchStyle } from './style';
 export default function TableSet(props) {
   const { appId, view, updateCurrentView } = props;
   const isManageView = view.viewId === view.worksheetId;
+
   const handleChange = (obj, editAttrs) => {
     if (editAttrs) {
       updateCurrentView({

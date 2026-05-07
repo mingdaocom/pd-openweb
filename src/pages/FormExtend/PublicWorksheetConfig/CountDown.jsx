@@ -38,6 +38,7 @@ export default class CountDown extends Component {
     if (diffTime < 0) {
       clearInterval(timer);
     }
+
     this.setState({
       timeStr: this.formatTime(diffDays, durationTime.hours(), durationTime.minutes(), durationTime.seconds()),
       isArrive: diffTime < 0,

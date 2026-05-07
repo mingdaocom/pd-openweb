@@ -81,6 +81,7 @@ export default class RecordCollect extends Component {
           if (!arr.some(v => v.appId === item.appId)) {
             arr.push(item);
           }
+
           return arr;
         }, []);
         this.setState({ collectRecords: res, loading: false, apps });
@@ -101,9 +102,11 @@ export default class RecordCollect extends Component {
     if (appId) {
       searchRecords = _.filter(collectRecords, item => item.appId === appId);
     }
+
     if (searchVal) {
       searchRecords = searchRecords.filter(item => new RegExp(searchVal.toUpperCase()).test(item.title));
     }
+
     this.setState({ selectAppId: appId, searchValue: searchVal, searchRecords, loading: false });
   };
 

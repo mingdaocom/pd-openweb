@@ -146,12 +146,15 @@ const WithoutRowsWrap = styled.div`
 
 export function getCardColNum({ width, isMobile, enumDefault }) {
   let colNum = 1;
+
   if (!isMobile || enumDefault === 1) {
     colNum = Math.floor((width + CARDS_GAP) / (CARD_MIN_WIDTH + CARDS_GAP));
   }
+
   if (colNum === 0 || isMobile) {
     colNum = 1;
   }
+
   return colNum;
 }
 
@@ -198,6 +201,7 @@ class RelateRecordCards extends Component {
       this.mobileShowAddAsDropdown ? safeParse(advancedSetting.chooseshowids, 'array') : showControls,
     );
     let showLoadMore = true;
+
     try {
       if ((props.records || []).length >= props.count) {
         showLoadMore = false;
@@ -205,6 +209,7 @@ class RelateRecordCards extends Component {
     } catch (err) {
       console.error(err);
     }
+
     this.state = {
       sheetTemplateLoading: hasRelateControl,
       controls: hasRelateControl
@@ -226,15 +231,19 @@ class RelateRecordCards extends Component {
 
   componentDidMount() {
     const { count = 0, records = [], control = {} } = this.props;
+
     if (this.state.sheetTemplateLoading) {
       this.loadControls();
     }
+
     if (_.get(this, 'props.control.isSubList')) {
       const loadedCount = records.length;
+
       if (loadedCount < count) {
         this.loadMoreRecords(1);
       }
     }
+
     if (
       (_.get(window, 'shareState.isPublicForm') &&
         _.includes(['2', '5', '6'], _.get(this, 'props.control.advancedSetting.originShowType'))) ||
@@ -255,18 +264,22 @@ class RelateRecordCards extends Component {
 
   componentWillReceiveProps(nextProps) {
     const control = nextProps.control || {};
+
     if (this.props.control.dataSource !== nextProps.control.dataSource) {
       const {
         control: { relationControls = [], showControls = [] },
       } = nextProps;
       const hasRelateControl = this.hasRelateControl(relationControls, showControls);
+
       if (hasRelateControl || (browserIsMobile() && _.includes([FROM.H5_EDIT, FROM.RECORDINFO], control.from))) {
         this.setState({ sheetTemplateLoading: true });
         this.loadControls(nextProps);
       }
     }
+
     if (nextProps.flag !== this.props.flag) {
       let showLoadMore = true;
+
       try {
         if ((nextProps.records || []).length >= nextProps.count) {
           showLoadMore = false;
@@ -274,6 +287,7 @@ class RelateRecordCards extends Component {
       } catch (err) {
         console.error(err);
       }
+
       if (
         (_.get(window, 'shareState.isPublicForm') &&
           _.includes(['2', '5', '6'], _.get(this, 'props.control.advancedSetting.originShowType'))) ||
@@ -300,8 +314,10 @@ class RelateRecordCards extends Component {
           }
         }
       }
+
       this.setState({ defaultCount: nextProps.count });
     }
+
     if (!_.isEqual(nextProps.records, this.props.records)) {
       this.setState({ records: nextProps.records, count: nextProps.count });
     }
@@ -312,9 +328,11 @@ class RelateRecordCards extends Component {
       control: { showControls = [], advancedSetting },
     } = this.props;
     const { controls } = this.state;
+
     if (this.mobileShowAddAsDropdown) {
       showControls = safeParse(advancedSetting.chooseshowids, 'array');
     }
+
     return showControls.map(scid => _.find(controls, c => c.controlId === scid)).filter(identity);
   }
 
@@ -392,11 +410,14 @@ class RelateRecordCards extends Component {
   onQueryChange = () => {
     const { showMobileSelectRecord, previewRecord, showNewRecord } = this.state;
     const { recordId, controlId } = _.get(this.props, 'control') || {};
+
     if (showMobileSelectRecord && browserIsMobile()) {
       const ele = document.querySelector(`.mobileSelectRecordWrap-${controlId}`);
+
       if (!ele) {
         return;
       }
+
       handleReplaceState('page', `mobileSelectRecord-${controlId}`, () => {
         ele && document.body.removeChild(ele);
       });
@@ -414,9 +435,11 @@ class RelateRecordCards extends Component {
   getCoverUrl(coverId, record) {
     const { controls } = this.state;
     const coverControl = _.find(controls, c => c.controlId && c.controlId === coverId);
+
     if (!coverControl) {
       return;
     }
+
     try {
       const coverFile = _.find(JSON.parse(record[coverId]), file => RegExpValidator.fileIsPicture(file.ext));
       const { previewUrl = '' } = coverFile;
@@ -426,6 +449,7 @@ class RelateRecordCards extends Component {
     } catch (err) {
       console.log(err);
     }
+
     return;
   }
 
@@ -476,6 +500,7 @@ class RelateRecordCards extends Component {
             isLoadingMore: false,
             showLoadMore: newRecords.length < res.count && res.data.length > 0,
           };
+
           if (
             browserIsMobile() &&
             _.includes(['2', '5'], _.get(advancedSetting, 'showtype')) &&
@@ -483,6 +508,7 @@ class RelateRecordCards extends Component {
           ) {
             newState.count = res.count;
           }
+
           return newState;
         });
       });
@@ -528,6 +554,7 @@ class RelateRecordCards extends Component {
       addedIds: addedIds.filter(r => !_.includes(recordIds, r.rowid)),
       count: 0,
     };
+
     if (_.isFunction(cb)) {
       cb(changes);
     } else {
@@ -556,6 +583,13 @@ class RelateRecordCards extends Component {
     const { count, records, addedIds = [] } = this.state;
     newAdded = newAdded.map(r => ({ ...r, isNewAdd: true })).slice(0, MAX_COUNT - count);
     const newRecords = multiple ? _.uniqBy(newAdded.concat(records), r => r.rowid) : newAdded;
+    newAdded = newAdded.filter(
+      r =>
+        !_.includes(
+          records.map(r => r.rowid),
+          r.rowid,
+        ),
+    );
     this.setState(
       {
         records: newRecords,
@@ -594,6 +628,7 @@ class RelateRecordCards extends Component {
           rowid: recordId,
         }),
       };
+
       if (titleControl.type === 29) {
         try {
           const cellData = JSON.parse(titleControl.value);
@@ -603,6 +638,7 @@ class RelateRecordCards extends Component {
           defaultRelatedSheetValue.name = '';
         }
       }
+
       return {
         worksheetId,
         relateSheetControlId: controlId,
@@ -621,10 +657,12 @@ class RelateRecordCards extends Component {
 
     if (!$(evt.target).closest('.relateRecordBtn').length) return;
     let count = _.isUndefined(this.state.count) ? records.length : this.state.count;
+
     if (count >= MAX_COUNT) {
       alert(_l('最多关联%0条', MAX_COUNT), 3);
       return;
     }
+
     if (enumDefault2 !== 10 && enumDefault2 !== 11) {
       this.handleSelectRecord(this.handleAdd);
     } else if (this.allowNewRecord) {
@@ -700,6 +738,7 @@ class RelateRecordCards extends Component {
       mobileSelectRecord(Object.assign(selectOptions, options));
       return;
     }
+
     selectRecords(Object.assign(selectOptions, options));
   }
 
@@ -731,6 +770,7 @@ class RelateRecordCards extends Component {
       (control.advancedSetting.allowcancel !== '0' || enumDefault === 1) && controlPermission.editable;
     const isMobile = browserIsMobile();
     const colNum = getCardColNum({ width, isMobile, enumDefault, records });
+
     if (isCard || this.mobileShowAddAsDropdown) {
       return (
         <RecordsCon
@@ -754,6 +794,7 @@ class RelateRecordCards extends Component {
               direction="vertical"
               onSortEnd={newItems => {
                 const newRecords = newItems.concat(records.filter(r => !find(newItems, n => n.rowid === r.rowid)));
+
                 if (formIsEditing || !recordId || control.isSubList) {
                   this.setState({ records: newRecords }, () => {
                     this.handleChange(undefined, { needFullUpdate: true });
@@ -931,14 +972,17 @@ class RelateRecordCards extends Component {
     const isMobile = browserIsMobile();
     const isScanQR = getIsScanQR();
     const multiple = enumDefault === 2;
+
     if (sheetTemplateLoading) {
       return null;
     }
+
     const filterControls = getFilter({ control, formData, appId });
     const NewRecordComponent = isMobile ? MobileNewRecord : NewRecord;
     const controlPermission = controlState(control, from);
     const allowRemove = control.advancedSetting.allowcancel !== '0' || enumDefault === 1;
     const { searchcontrol } = advancedSetting;
+
     const renderHint = () => {
       if (disabledManualWrite) {
         return _l('扫码添加%0', sourceEntityName);
@@ -1029,7 +1073,7 @@ class RelateRecordCards extends Component {
                     ) : isMobile && showAddAsDropdown ? (
                       this.renderDropDownRecordsCon()
                     ) : (
-                      <Button className="relateRecordBtn" onClick={this.handleClick}>
+                      <Button className="relateRecordBtn relateRecordCardsMainBtn" onClick={this.handleClick}>
                         <i className="icon icon-plus mRight5 Font16"></i>
                         <span className="overflow_ellipsis WordBreak" title={sourceBtnName || sourceEntityName || ''}>
                           {sourceBtnName || sourceEntityName || ''}
@@ -1077,10 +1121,17 @@ class RelateRecordCards extends Component {
                     viewId={advancedSetting.openview || control.viewId}
                     from={from === FROM.DRAFT ? 3 : 1}
                     hideRecordInfo={() => {
-                      this.setState({ previewRecord: undefined });
+                      this.setState({
+                        previewRecord: undefined,
+                      });
                       if (_.isFunction(control.refreshRecord)) {
                         control.refreshRecord();
                       }
+                    }}
+                    updateRows={(rowIds = [], updatedRow = {}) => {
+                      this.setState({
+                        records: records.map(r => (includes(rowIds, r.rowid) ? { ...r, ...updatedRow } : r)),
+                      });
                     }}
                     projectId={projectId}
                     updateRows={(rowIds = [], updatedRow = {}) => {

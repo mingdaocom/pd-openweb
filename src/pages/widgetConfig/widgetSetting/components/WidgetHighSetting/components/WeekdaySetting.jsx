@@ -63,6 +63,7 @@ export default function WeekdaySetting({ data, onChange }) {
       if (index !== weekdayArr.length - 1 && Number(item) + 1 !== Number(weekdayArr[index + 1])) {
         isContinue = false;
       }
+
       const text = _.get(
         _.find(WEEKDAY_TYPE, we => we.value === item),
         'text',

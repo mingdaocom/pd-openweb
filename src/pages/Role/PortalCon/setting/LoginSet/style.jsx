@@ -124,7 +124,7 @@ export const Wrap = styled.div`
       }
       &:hover {
         .iconBox {
-          box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+          box-shadow: var(--shadow-lg);
         }
       }
     }

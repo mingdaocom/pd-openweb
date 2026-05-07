@@ -71,6 +71,7 @@ export default function BatchDialog(props) {
       });
     });
   };
+
   return (
     <Dialog
       className="BatchDialog"

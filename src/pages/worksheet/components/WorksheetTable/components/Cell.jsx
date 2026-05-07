@@ -11,12 +11,14 @@ import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import { controlState } from 'src/utils/control';
 import { checkCellIsEmpty, controlIsNumber, isRelateRecordTableControl } from 'src/utils/control';
 import { getRecordColor } from 'src/utils/record';
+import { getSheetCellRuleFieldStyleVars } from '../util';
 import CollapseExpandButton from './CollapseExpandButton';
 import DataCell from './DataCell';
 
 export function getRelateRecordCountOfControlFromRow(control, row = {}) {
   try {
     const isTable = isRelateRecordTableControl(control);
+
     if (isTable) {
       return row['rq' + control.controlId] || row[control.controlId];
     } else {
@@ -50,13 +52,19 @@ function compareRowFormDataValues(prevRowFormData, nextRowFormData) {
     if (prevData[i]?.value !== nextData[i]?.value) {
       return false;
     }
-    if (prevData[i]?.fieldPermission === nextData[i]?.fieldPermission) {
+
+    if (prevData[i]?.fieldPermission !== nextData[i]?.fieldPermission) {
+      return false;
+    }
+
+    if (!isEqual(prevData[i]?.advancedSetting, nextData[i]?.advancedSetting)) {
       return false;
     }
   }
 
   return true;
 }
+
 const CellCon = styled.div`
   .hoverShow {
     visibility: hidden;
@@ -91,7 +99,7 @@ const TreeExpandIcon = styled.div`
     .icon {
       color: var(--color-primary);
     }
-    background: rgba(0, 0, 0, 0.05);
+    background: var(--color-background-secondary);
     .line {
       transition: transform 0.2s ease-in;
     }
@@ -136,7 +144,7 @@ const AddChildBtn = styled.div`
     font-size: 20px;
   }
   &:hover {
-    background: rgba(0, 0, 0, 0.05);
+    background: var(--color-background-hover);
   }
 `;
 
@@ -194,8 +202,8 @@ const MemorizedDataCell = memo(DataCell, (prevProps, nextProps) => {
     'control.options',
     'control.controlPermissions',
     'control.fieldPermission',
+    'control.advancedSetting',
     'control.relationControls',
-    'control.advancedSetting.datamask',
     'row.allowedit',
     'row.sys_lock',
     'row.utime', // 添加更新时间比较
@@ -211,12 +219,14 @@ const MemorizedDataCell = memo(DataCell, (prevProps, nextProps) => {
     'row.sys_lock',
     'row.utime',
   ];
+
   if (!every(simpleKeys, key => get(prevProps, key) === get(nextProps, key))) {
     return false;
   }
 
   // 再比较复杂属性（对象、数组）
   const complexKeys = compareKeys.filter(key => !simpleKeys.includes(key));
+
   if (!every(complexKeys, key => isEqual(get(prevProps, key), get(nextProps, key)))) {
     return false;
   }
@@ -278,6 +288,7 @@ function Cell(props) {
     cellErrors,
     rowHeightEnum,
     rulePermissions,
+    showControlStyle,
     masterData,
     sheetSwitchPermit,
     sheetViewHighlightRows,
@@ -325,9 +336,11 @@ function Cell(props) {
   };
   control.fieldPermission = rulePermissions[`${row.rowid}-${control.controlId}`] || control.fieldPermission || '111';
   const currentColumnStyle = columnStyles[control.controlId] || {};
+
   if (row.isSubListFooter) {
     return <span style={{ ...cellStyle, height: 26 }} />;
   }
+
   const value = row[control.controlId];
   const cellType = getCellType(grid.id);
   const needHightLight =
@@ -345,6 +358,7 @@ function Cell(props) {
       rowIsEmpty: isEmpty(row) && cellType === 'data',
       [`control-val-${control.controlId}`]: cellType !== 'head',
       [`control-head-${control.controlId}`]: cellType === 'head',
+      [`control-rule-${control.controlId}-${row.rowid}`]: cellType !== 'head',
       placeholder: !row.rowid,
       emptyRow: row.rowid && isFunction(row.rowid.startsWith) && row.rowid.startsWith('empty'),
       oddRow: rowIndex % 2 === 1,
@@ -389,7 +403,7 @@ function Cell(props) {
     },
     (() => {
       if (isUndefined(get(currentColumnStyle, 'direction'))) {
-        return controlIsNumber(control) ? 'alignRight' : '';
+        return controlIsNumber(control) && isHorizontal ? 'alignRight' : '';
       } else {
         if (
           cellType !== 'head' &&
@@ -397,13 +411,16 @@ function Cell(props) {
         ) {
           return '';
         }
+
         return ['', 'alignCenter', 'alignRight'][get(currentColumnStyle, 'direction')];
       }
     })(),
   );
+
   if (grid.id.startsWith('bottom') || grid.id.startsWith('top')) {
     cellStyle.height = 34;
   }
+
   if (grid.id.startsWith('top') && columnHeadHeight > 34) {
     cellStyle.height = columnHeadHeight;
     className += ' wrapControlName';
@@ -411,6 +428,7 @@ function Cell(props) {
       className += ' headAlignCenter';
     }
   }
+
   if (control.type === 'emptyForResize' && cellType !== 'foot') {
     return (
       <div
@@ -425,12 +443,14 @@ function Cell(props) {
       />
     );
   }
+
   if (addLineColumnOfVerticalTable && rowIndex === 0 && isFunction(cellProps.renderVerticalAddLine)) {
     return cellProps.renderVerticalAddLine({
       className,
       style: cellStyle,
     });
   }
+
   const recordColor =
     recordColorConfig &&
     getRecordColor({
@@ -439,9 +459,11 @@ function Cell(props) {
       controls,
       row,
     });
+
   if (recordColor && recordColorConfig.showBg && recordColor.lightColor && control.type !== 'emptyForResize') {
     cellStyle.backgroundColor = recordColor.lightColor;
   }
+
   if (isFunction(renderFunctions.groupMore) && row.rowid === 'loadGroupMore') {
     return renderFunctions.groupMore({
       className,
@@ -453,6 +475,7 @@ function Cell(props) {
       getColumnWidth,
     });
   }
+
   if (isFunction(renderFunctions.groupTitle) && row.rowid === 'groupTitle') {
     return renderFunctions.groupTitle({
       className,
@@ -464,6 +487,7 @@ function Cell(props) {
       getColumnWidth,
     });
   }
+
   if (
     isFunction(renderFunctions.rowHead) &&
     (isHorizontal ? control.type === 'rowHead' : false) &&
@@ -500,6 +524,7 @@ function Cell(props) {
       rowHeadComp
     );
   }
+
   if (isFunction(renderFunctions.head) && (isHorizontal ? cellType === 'head' : columnIndex === 0)) {
     return renderFunctions.head({
       isVertical: direction === 'vertical',
@@ -514,16 +539,19 @@ function Cell(props) {
       updateSheetColumnWidths,
     });
   }
+
   if (isFunction(renderFunctions.foot) && cellType === 'foot') {
     if (control.type === 'emptyForResize') {
       className += ' emptyForResize';
     }
+
     return renderFunctions.foot({
       className,
       style: cellStyle,
       columnIndex,
     });
   }
+
   if (!isEmpty(row) && isFunction(renderFunctions.operates) && control.type === 'operates') {
     return renderFunctions.operates({
       className,
@@ -536,18 +564,21 @@ function Cell(props) {
       onCellClick,
     });
   }
+
   const error = cellErrors[`${row.rowid}-${control.controlId}`];
   const cellEditable =
     !readonly && row && row.allowedit && controlState(control).editable && lineEditable && !disableQuickEdit;
   const newCellStyle = { ...cellStyle };
   let cellWidth;
   const treeNodeData = get(treeTableViewData, `treeMap.${row.key}`);
+
   if (control.isTreeExpandCell && treeNodeData) {
     cellWidth = getTreeExpandCellWidth(treeNodeData.index, rows.length);
     newCellStyle.width = cellStyle.width - cellWidth;
     newCellStyle.left = cellWidth;
     newCellStyle.top = 0;
   }
+
   const cell = (
     <MemorizedDataCell
       isCharge={isCharge}
@@ -603,6 +634,7 @@ function Cell(props) {
       registerRef={(ref, newCellIndex) => registerRef(ref, newCellIndex || cellIndex)}
     />
   );
+
   if (control.isTreeExpandCell && treeNodeData) {
     const targetControlId = treeLayerControlId || _.get(view, 'viewControl');
     let addParentControl = { ...find(controls, c => c.controlId === targetControlId) };
@@ -627,7 +659,9 @@ function Cell(props) {
             {
               oddRow: rowIndex % 2 === 1,
               highlightFromProps: sheetViewHighlightRows[row.rowid],
-              highlight: needHightLight,
+              highlight:
+                needHightLight ||
+                String(window[`activeRowIndex-${tableId}`]) === String(isHorizontal ? rowIndex : columnIndex),
               verticalCenter: rowHeight === 34,
             },
           )}
@@ -658,6 +692,7 @@ function Cell(props) {
                       forceUpdate: !(isSubList || isRelateRecordList) && e.shiftKey,
                     });
                   }
+
                   delete window[`sheetTableHighlightRow${tableId}`];
                 }}
               >
@@ -723,6 +758,7 @@ function Cell(props) {
       </CellCon>
     );
   }
+
   return cell;
 }
 

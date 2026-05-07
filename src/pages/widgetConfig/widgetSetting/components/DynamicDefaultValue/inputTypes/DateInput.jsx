@@ -22,6 +22,7 @@ export default class DateInput extends Component {
     super(props);
     const { data, onDynamicValueChange, clearOldDefault } = props;
     const { default: defaultValue } = data;
+
     if (defaultValue) {
       onDynamicValueChange([{ cid: '', rcid: '', staticValue: defaultValue }]);
       clearOldDefault({ default: '', enumDefault: 0 });
@@ -69,9 +70,11 @@ export default class DateInput extends Component {
       const dateProps = getDatePickerConfigs(data);
       const formatMode = dateProps.formatMode;
       let formatText = formatMode ? formatMode : data.type === 16 ? 'YYYY-MM-DD HH:mm:ss' : 'YYYY-MM-DD';
+
       if (withMaxOrMin) {
         formatText = formatText.replace(/-/g, '/');
       }
+
       return moment(value.format(formatMode)).format(formatText);
     };
 
@@ -95,12 +98,13 @@ export default class DateInput extends Component {
     if (isDynamic) {
       return <OtherFieldList {...this.props} onClick={this.handleClick} formatMode={formatMode} />;
     }
+
     if (withMaxOrMin && from === DYNAMIC_FROM_MODE.FAST_FILTER) {
       const [minValue, maxValue] = defValue.split('-');
       return (
         <WrapMaxOrMin className="flexRow alignItemsCenter">
           <MdAntDateRangePicker
-            className="customAntPicker timeMaxOrMinCon"
+            className="timeMaxOrMinCon"
             key={defValue}
             value={minValue && maxValue ? [moment(minValue, formatMode), moment(maxValue, formatMode)] : []}
             showTime={dateProps.mode === 'datetime'}

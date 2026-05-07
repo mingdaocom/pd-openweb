@@ -120,6 +120,7 @@ export default function EditGroup(props) {
           alert(_l('请填写名称'), 3);
           return;
         }
+
         onChange({
           name,
           groupType,

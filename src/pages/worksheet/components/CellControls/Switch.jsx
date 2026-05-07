@@ -46,10 +46,12 @@ export default class Switch extends React.Component {
 
   handleChange = checked => {
     const { cell, updateCell } = this.props;
+
     if (cell.required && checked) {
       alert(_l('%0为必填字段', cell.controlName), 3);
       return;
     }
+
     this.setState(
       {
         value: !checked,
@@ -72,6 +74,7 @@ export default class Switch extends React.Component {
     const showtype = advancedSetting.showtype;
     const itemnames = getSwitchItemNames(this.props.cell);
     const editable = this.props.editable && !(row.rowid || '').startsWith('empty');
+
     if (showtype === '1') {
       const text = value ? _.get(itemnames[0], 'value') : _.get(itemnames[1], 'value');
       return (
@@ -121,6 +124,7 @@ export default class Switch extends React.Component {
     } = this.props;
     const isMobile = browserIsMobile();
     const forPortal = mode === 'portal';
+
     // 视图卡片（radio显示文案）|| (移动端或者外部门户只显示checkbox)
     if (
       (from === FROM.CARD && advancedSetting.showtype === '2') ||
@@ -139,6 +143,7 @@ export default class Switch extends React.Component {
         )
       );
     }
+
     return (
       <div className={cx('cellSwitch cellControl', className)} style={style} onClick={onClick}>
         <div

@@ -54,6 +54,7 @@ class ApplyList extends React.Component {
             }),
           );
         }
+
         this.actionSheetHandler.close();
       },
     });

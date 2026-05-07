@@ -10,12 +10,13 @@ const Wrap = styled.div`
   flex: 1;
   padding: 10px 24px;
   min-width: 0;
+  background-color: var(--color-background-tertiary);
 
   .body {
     border-radius: 4px;
-    box-shadow: 0px 1px 4px #00000029;
+    box-shadow: var(--shadow-sm);
     overflow: auto;
-    background-color: var(--color-background-primary);
+    background-color: var(--color-background-card);
   }
 `;
 

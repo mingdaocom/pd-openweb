@@ -116,9 +116,11 @@ const SUPPORT_FOCUS_WIDGET = [2, 8, 5, 3, 4, 41, 7];
 // 根据字段类型筛选支持的事件
 export const getEventDisplay = (data = {}) => {
   const filterEventEnum = [ADD_EVENT_ENUM.SHOW, ADD_EVENT_ENUM.HIDE];
+
   if (_.includes(SUPPORT_VALUE_CHANGE_WIDGET, data.type)) {
     filterEventEnum.push(ADD_EVENT_ENUM.CHANGE);
   }
+
   if (
     (_.includes(SUPPORT_FOCUS_WIDGET, data.type) && !isCustomWidget(data)) ||
     (data.type === 6 && _.get(data, 'advancedSetting.showtype') === '0')
@@ -135,6 +137,7 @@ export const getActionDisplay = eventType => {
     const filterAction = [ACTION_VALUE_ENUM.LINK, ACTION_VALUE_ENUM.CREATE];
     return ACTION_VALUE_TYPE.filter(i => !_.includes(filterAction, i.value));
   }
+
   return ACTION_VALUE_TYPE;
 };
 

@@ -10,6 +10,7 @@ import { replaceAdvancedSettingTranslateInfo, replaceControlsTranslateInfo } fro
 function getTableAdvancedSettingOfControl(control) {
   let { advancedSetting = {} } = control;
   const isPublicForm = _.get(window, 'shareState.isPublicForm') && window.shareState.shareId;
+
   if (isPublicForm && control.type === 29) {
     advancedSetting.allowlink = '0';
     advancedSetting.allowedit = '0';
@@ -26,6 +27,7 @@ function getTableAdvancedSettingOfControl(control) {
       };
     }
   }
+
   return advancedSetting;
 }
 
@@ -34,6 +36,7 @@ export function getRowDetail(params, controls, options = {}) {
     if (!controls) {
       params.getTemplate = true;
     }
+
     const isPublicForm = _.get(window, 'shareState.isPublicForm') && window.shareState.shareId;
 
     (isPublicForm

@@ -11,6 +11,7 @@ export class RequestPool {
   }
   init() {
     const { abortController } = this;
+
     if (abortController) {
       abortController.signal.addEventListener('abort', () => {
         // destroy
@@ -37,9 +38,11 @@ export class RequestPool {
 
   processQueue(key) {
     const queue = this.queues[key];
+
     if (queue.concurrentRequests === 0) {
       queue.cache = undefined;
     }
+
     if (queue.concurrentRequests >= this.maxConcurrentRequests || queue.queue.length === 0) {
       return;
     }
@@ -52,17 +55,20 @@ export class RequestPool {
     const queue = this.queues[key];
     queue.concurrentRequests++;
     const requestKey = JSON.stringify(request.options);
+
     if (queue && queue.cache && queue.cache[requestKey]) {
       request.resolve(queue.cache[requestKey]);
       queue.concurrentRequests--;
       this.processQueue(key);
       return;
     }
+
     mdPost(request.options)
       .then(data => {
         if (!queue.cache) {
           queue.cache = {};
         }
+
         queue.cache[requestKey] = data;
         request.resolve(data);
       })

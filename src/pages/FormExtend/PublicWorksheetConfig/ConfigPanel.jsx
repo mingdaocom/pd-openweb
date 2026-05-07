@@ -206,6 +206,7 @@ class ConfigPanel extends React.Component {
       if (isEmpty(lastRow) || isFullLineControl(widget) || isFullLineControl(head(lastRow))) {
         return update(widgetList, { $push: [[widget]] });
       }
+
       // 如果最后一行还有空位则添加控件 否则另起一行
       if (lastRow.length < columnNumber) {
         return update(widgetList, {
@@ -217,6 +218,7 @@ class ConfigPanel extends React.Component {
           },
         });
       }
+
       return update(widgetList, { $push: [[widget]] });
     }, []);
 
@@ -225,6 +227,7 @@ class ConfigPanel extends React.Component {
       if (row.length === 1 && !isFullLineControl(row[0]) && columnNumber > 1) {
         return row.map(item => ({ ...item, size: WHOLE_SIZE / columnNumber }));
       }
+
       return row;
     });
 
@@ -349,6 +352,7 @@ class ConfigPanel extends React.Component {
                         buriedUpgradeVersionDialog(projectId, VersionProductType.PAY);
                         return;
                       }
+
                       location.href = `/worksheet/form/edit/${worksheetInfo.worksheetId}/pay`;
                     }}
                   >

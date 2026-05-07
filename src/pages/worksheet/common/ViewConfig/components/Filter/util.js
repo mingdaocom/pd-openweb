@@ -9,6 +9,7 @@ export function formatCondition(condition, relationControls, fromCondition) {
       groupFilters: condition.groupFilters.map(it => formatCondition(it, relationControls)),
     };
   }
+
   const control = _.find(relationControls, column => condition.controlId === column.controlId) || {};
   // type为关联他表，type取sourceControlType的值 -1//无值, 通用方法转换redefineComplexControl
 
@@ -35,6 +36,7 @@ export function formatCondition(condition, relationControls, fromCondition) {
     dynamicSource: [],
     isDynamicsource: false,
   };
+
   if ((_.get(condition, 'dynamicSource') || []).length > 0) {
     return initialDynamicSource;
   } else {

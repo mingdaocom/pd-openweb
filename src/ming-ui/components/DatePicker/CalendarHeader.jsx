@@ -7,6 +7,7 @@ function formatMonth(month) {
   if (month < 10) {
     return `0${month}`;
   }
+
   return month;
 }
 
@@ -31,18 +32,22 @@ class CalendarHeader extends Component {
 
   render() {
     let beginEnd;
+
     if (this.props.direction === 'left') {
       beginEnd = this.props.locale.lang.begin;
     }
+
     if (this.props.direction === 'right') {
       beginEnd = this.props.locale.lang.end;
     }
 
     // header-year
     const yearClassList = [`${this.props.prefixCls}-header-year`];
+
     if (this.props.view === 'year') {
       yearClassList.push('active');
     }
+
     const year = (
       <span
         className={yearClassList.join(' ')}
@@ -54,10 +59,13 @@ class CalendarHeader extends Component {
 
     // header-month
     const monthClassList = [`${this.props.prefixCls}-header-month`];
+
     if (this.props.view === 'month') {
       monthClassList.push('active');
     }
+
     let month = null;
+
     if (this.props.mode !== 'year') {
       month = (
         <span

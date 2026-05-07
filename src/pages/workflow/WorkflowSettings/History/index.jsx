@@ -217,6 +217,7 @@ class History extends Component {
 
   renderTalksDrawer() {
     const { chatBotHistory, selectConversationId } = this.state;
+
     const selectFunc = id => {
       this.setState(
         {
@@ -370,6 +371,7 @@ class History extends Component {
               });
               this.getProcessAccumulation();
             }}
+            expireType={flowInfo.expireType}
           />
           <HistoryList
             processId={flowInfo.id}

@@ -88,6 +88,7 @@ class Calender extends Component {
     const firstDayOfWeek = props.firstDayOfWeek;
     const list = [];
     let i = 0;
+
     while (i < 7) {
       const item = firstDayOfWeek + i >= 7 ? firstDayOfWeek + i - 7 : firstDayOfWeek + i;
 
@@ -115,6 +116,7 @@ class Calender extends Component {
     const list = [];
 
     let i = 0;
+
     while (i <= endDate - startDate) {
       const date = startDate + i;
 
@@ -123,9 +125,11 @@ class Calender extends Component {
       const disabled = !LibCalender.dateInRange(time, props.min, props.max);
       // is same date with props.value
       let current = false;
+
       if (props.range) {
         current = LibCalender.dateInRange(time, props.value[0], props.value[1]);
       }
+
       if (
         !props.range &&
         props.value.getFullYear() === year &&
@@ -134,14 +138,18 @@ class Calender extends Component {
       ) {
         current = true;
       }
+
       // is inRange
       let inRange = false;
+
       if (props.selectedRange) {
         inRange = LibCalender.dateInRange(time, props.selectedRange[0], props.selectedRange[1]);
       }
+
       // is today
       let now = false;
       const today = new Date();
+
       if (today.getFullYear() === year && today.getMonth() === month && today.getDate() === date) {
         now = true;
       }
@@ -229,6 +237,7 @@ class Calender extends Component {
 
     let i = 0;
     let prevItem = null;
+
     while (i < 6) {
       const items = allDays.slice(7 * i, 7 * (i + 1));
 
@@ -255,6 +264,7 @@ class Calender extends Component {
         if (item.inRange && (j === 0 || (j > 0 && !prevItem.inRange))) {
           items[j].left = true;
         }
+
         // right
         if (item.inRange && (j === 6 || (j < 6 && !items[j + 1].inRange))) {
           items[j].right = true;
@@ -283,26 +293,33 @@ class Calender extends Component {
     const thisMonth = props.cursor.getMonth();
 
     let i = 0;
+
     while (i < 12) {
       const time = new Date(thisYear, i, 1);
       // is month disabled
       const disabled = !LibCalender.monthInRange(time, props.min, props.max);
       // is current month
       let current = false;
+
       if (props.range) {
         current = LibCalender.monthInRange(time, props.value[0], props.value[1]);
       }
+
       if (!props.range && props.value.getFullYear() === thisYear && props.value.getMonth() === i) {
         current = true;
       }
+
       // is inRange
       let inRange = false;
+
       if (props.selectedRange) {
         inRange = LibCalender.monthInRange(time, props.selectedRange[0], props.selectedRange[1]);
       }
+
       // is this month
       let now = false;
       const today = new Date();
+
       if (today.getFullYear() === thisYear && today.getMonth() === thisMonth && thisMonth === i) {
         now = true;
       }
@@ -323,6 +340,7 @@ class Calender extends Component {
     const list = [];
 
     let j = 0;
+
     while (j < 3) {
       const items = monthList.slice(4 * j, 4 * (j + 1));
       list.push(items);
@@ -346,27 +364,35 @@ class Calender extends Component {
     const startYear = page * 10 - 1;
 
     let i = 0;
+
     while (i < 12) {
       const year = startYear + i;
       const time = new Date(year, 0, 1);
       // is year disabled
       let disabled = false;
+
       if ((props.min && year < props.min.getFullYear()) || (props.max && year > props.max.getFullYear())) {
         disabled = true;
       }
+
       // is current year
       let current = false;
+
       if (props.range) {
         current = year >= props.value[0].getFullYear() && year <= props.value[1].getFullYear();
       }
+
       if (!props.range) {
         current = props.value.getFullYear() === year;
       }
+
       // is inRange
       let inRange = false;
+
       if (props.selectedRange) {
         inRange = year >= props.selectedRange[0].getFullYear() && year <= props.selectedRange[1].getFullYear();
       }
+
       // is this year
       const now = new Date().getFullYear() === year;
 
@@ -389,6 +415,7 @@ class Calender extends Component {
     const list = [];
 
     let j = 0;
+
     while (j < 3) {
       const items = yearList.slice(4 * j, 4 * (j + 1));
       list.push(items);
@@ -425,6 +452,7 @@ class Calender extends Component {
 
   renderContent = () => {
     let content = null;
+
     if (this.props.mode === 'date') {
       content = (
         <DateTable

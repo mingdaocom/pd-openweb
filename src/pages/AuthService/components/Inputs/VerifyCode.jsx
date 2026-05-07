@@ -10,6 +10,7 @@ import { emitter, encrypt } from 'src/utils/common';
 
 // 'inputCode',//验证码
 let sendVerifyCodeTimer = null;
+
 export default function (props) {
   const {
     warnList = [],
@@ -61,6 +62,7 @@ export default function (props) {
     onChange({ warnList: validationData.warnList });
     if (isV) {
       const { type, sendVerifyCode, appId } = props;
+
       const callback = res => {
         if (res.ret !== 0) {
           setState({ verifyCodeLoading: false });
@@ -68,6 +70,7 @@ export default function (props) {
         } else {
           setState({ verifyCodeLoading: true });
         }
+
         const account = (isTel(emailOrTel) ? dialCode : '') + emailOrTel;
         let param = {
           account: encrypt(account),
@@ -77,6 +80,7 @@ export default function (props) {
           captchaType: md.global.getCaptchaType(),
           lang: getCurrentLangCode(),
         };
+
         const fetchCallBack = data => {
           if (data.actionResult == ActionResult.success) {
             updateWarn([{ tipDom: 'code', warnTxt: _l('验证码发送成功') }]);
@@ -120,9 +124,11 @@ export default function (props) {
             if (data.actionResult === ActionResult.accoutRegisterClosed && type === 'portalLogin') {
               alert(_l('当前门户不在设置的注册时间范围内，暂不支持注册'), 3);
             }
+
             if (data.actionResult == ActionResult.balanceIsInsufficient) {
               alert(_l('当前企业账户信用点不足，无法发送短信/邮件'), 2);
             }
+
             // 非第一次
             if (codeType == CodeTypeEnum.message) {
               setState({ firstSendVerifyCode: false });
@@ -137,12 +143,14 @@ export default function (props) {
             }
           }
         };
+
         const renderErr = error => {
           setState({ verifyCodeLoading: false });
           if (error.errorMessage) {
             updateWarn([{ tipDom: 'inputCode', warnTxt: error.errorMessage, isError: true }]);
           }
         };
+
         if (type === 'portalLogin') {
           sendVerifyCode({ ...param, appId })
             .then(data => fetchCallBack({ ...data, ...param }))
@@ -177,6 +185,7 @@ export default function (props) {
         if (!verifyCode) {
           updateWarn([{ tipDom: 'code', warnTxt: 'txt' }]);
         }
+
         clearInterval(sendVerifyCodeTimer);
         sendVerifyCodeTimer = null;
       } else {
@@ -196,6 +205,7 @@ export default function (props) {
           ]);
           hasWarn = true;
         }
+
         setState({
           verifyCodeText: _l('%0秒后重发', seconds),
         });

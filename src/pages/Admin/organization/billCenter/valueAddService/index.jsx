@@ -57,10 +57,12 @@ export default class ValueAddService extends Component {
   //自定义金额
   handleInputChange(e) {
     let tmpPrince = parseInt(e.target.value) || 50;
+
     if (tmpPrince > 999999) {
       tmpPrince = 999999;
       alert(_l('最多充值金额 999999 信用点'), 3);
     }
+
     this.setState({
       inputValue: tmpPrince,
     });

@@ -27,6 +27,7 @@ const OrgRole = props => {
     formItemId,
     useCallback(data => {
       const { triggerType } = data;
+
       switch (triggerType) {
         case 'Enter':
           if (destoryRef.current) return;
@@ -38,6 +39,7 @@ const OrgRole = props => {
             destoryRef.current();
             destoryRef.current = null;
           }
+
           break;
         default:
           break;

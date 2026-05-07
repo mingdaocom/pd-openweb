@@ -4,6 +4,7 @@ import { Dialog, Icon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import certificationApi from 'src/api/certification.js';
 import projectSettingAjax from 'src/api/projectSetting';
+import PurchaseExpandPack from 'src/pages/Admin/components/PurchaseExpandPack.jsx';
 import SelectCertification from 'src/pages/certification/components/SelectCertification';
 import { settingEarlyWarning } from 'src/pages/workflow/WorkflowList/components/WorkflowMonitor/EarlyWarningDialog';
 import { navigateTo } from 'src/router/navigateTo';
@@ -12,7 +13,16 @@ import { PERMISSION_ENUM } from '../../enum';
 
 // 组织管理首页-账户信用点卡片
 export default function AccountBalance(props) {
-  const { projectId, data, isLocal, authority, isTrial, isFree, trialAuthenticate, updateData = () => {} } = props;
+  const {
+    projectId,
+    data,
+    isMingdaoSaas,
+    authority,
+    isTrial,
+    isFree,
+    trialAuthenticate,
+    updateData = () => {},
+  } = props;
   const { balanceInfo } = data;
   const hasBalance = authority.includes(PERMISSION_ENUM.FINANCE);
 
@@ -75,6 +85,7 @@ export default function AccountBalance(props) {
       },
     });
   };
+
   // 身份认证
   const handleAuthenticate = () => {
     Dialog.confirm({
@@ -102,6 +113,7 @@ export default function AccountBalance(props) {
       handleAuthenticate();
       return;
     }
+
     location.assign(`/admin/valueaddservice/${projectId}`);
   };
 
@@ -148,17 +160,23 @@ export default function AccountBalance(props) {
           </span>
         ) : (
           <Fragment>
-            {!isLocal && ((isTrial && data.authType) || !isTrial) && (
-              <span className="blueBtn Bold" onClick={handleClickRecherge}>
-                {_l('充值')}
-              </span>
-            )}
+            {!window.platformENV.isLocal &&
+              (window.platformENV.isOverseas ? (
+                <PurchaseExpandPack className="blueBtn" text={_l('充值')} type="recharge" projectId={projectId} />
+              ) : (
+                isMingdaoSaas &&
+                (data.authType || !isTrial) && (
+                  <span className="blueBtn Bold" onClick={handleClickRecherge}>
+                    {_l('充值')}
+                  </span>
+                )
+              ))}
             {hasBalance && (
               <Fragment>
                 <span className="whiteBtn Bold" onClick={() => navigateTo(`/admin/billinfo/${projectId}/recharge`)}>
                   {_l('使用明细')}
                 </span>
-                {!isLocal && (
+                {isMingdaoSaas && (
                   <span className="whiteBtn Bold" onClick={() => updateData({ balanceManageVisible: true })}>
                     {_l('管理')}
                   </span>

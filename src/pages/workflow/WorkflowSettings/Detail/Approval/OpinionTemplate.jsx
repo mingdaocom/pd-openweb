@@ -38,6 +38,7 @@ const Btn = styled.div`
 export default ({ title, description, keys, opinionTemplate, onSave, onClose }) => {
   const [inputType, setType] = useState(opinionTemplate.inputType);
   const [data, setData] = useState(opinionTemplate.opinions);
+
   const checkOKDisabled = () => {
     let hasTemplate = false;
 
@@ -49,6 +50,7 @@ export default ({ title, description, keys, opinionTemplate, onSave, onClose }) 
 
     return inputType !== 1 && !hasTemplate;
   };
+
   const renderItem = ({ items, item, index, DragHandle, dragging, sourceKey }) => {
     return (
       <SortableItemBox className="flexRow mTop10 alignItemsCenter">
@@ -70,6 +72,7 @@ export default ({ title, description, keys, opinionTemplate, onSave, onClose }) 
                   if (i === index) {
                     o.value = value;
                   }
+
                   return o;
                 }),
               }),

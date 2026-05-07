@@ -69,11 +69,11 @@ const BtnWrap = styled.div`
   }
   &.adjustText {
     button {
-      background-color: var(--color-background-secondary);
+      background-color: var(--color-background-tertiary);
       color: ${props => props.color};
       box-shadow: none;
       &:hover {
-        background-color: ${new TinyColor('#f8f8f8').darken(3).toString()};
+        background-color: var(--color-background-hover);
       }
     }
     .iconWrap {
@@ -107,12 +107,14 @@ export default function ButtonDisplay({
   const isFullWidth = btnType === 2 ? true : width === 1;
   const isMobile = layoutType === 'mobile';
   const newList = _.chunk(buttonList, layoutType === 'web' ? count : mobileCount);
+
   const getWidth = () => {
     const newCount = isMobile ? mobileCount : count;
     if (isFullWidth || isMobile)
       return { width: `${100 / (buttonList.length > newCount ? newCount : buttonList.length)}%` };
     return {};
   };
+
   const translateInfo = getTranslateInfo(appId, null, widget.id);
   return (
     <ButtonDisplayWrap className="buttonDisplayWrap">

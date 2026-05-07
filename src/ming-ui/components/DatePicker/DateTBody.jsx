@@ -22,6 +22,7 @@ function beforeCurrentMonthYear(current, today) {
   if (current.year() < today.year()) {
     return 1;
   }
+
   return current.year() === today.year() && current.month() < today.month();
 }
 
@@ -29,6 +30,7 @@ function afterCurrentMonthYear(current, today) {
   if (current.year() > today.year()) {
     return 1;
   }
+
   return current.year() === today.year() && current.month() > today.month();
 }
 
@@ -84,6 +86,7 @@ class DateTBody extends Component {
     const lastMonth1 = month1.clone();
     lastMonth1.add(0 - lastMonthDiffDay, 'days');
     let passed = 0;
+
     for (iIndex = 0; iIndex < DATE_ROW_COUNT; iIndex++) {
       for (jIndex = 0; jIndex < DATE_COL_COUNT; jIndex++) {
         current = lastMonth1;
@@ -91,10 +94,12 @@ class DateTBody extends Component {
           current = current.clone();
           current.add(passed, 'days');
         }
+
         dateTable.push(current);
         passed = passed + 1;
       }
     }
+
     const tableHtml = [];
     passed = 0;
 
@@ -109,9 +114,11 @@ class DateTBody extends Component {
         if (jIndex < DATE_COL_COUNT - 1) {
           next = dateTable[passed + 1];
         }
+
         if (jIndex > 0) {
           last = dateTable[passed - 1];
         }
+
         let cls = cellClass;
         let disabled = false;
         let selected = false;
@@ -137,31 +144,38 @@ class DateTBody extends Component {
           if (!isBeforeCurrentMonthYear && !isAfterCurrentMonthYear) {
             const startValue = selectedValue[0];
             const endValue = selectedValue[1];
+
             if (isSameDay(current, startValue)) {
               isInRangeClass = true;
               cls += ` ${selectedStartClass} ${inRangeClass}`;
             }
+
             if (isSameDay(current, endValue)) {
               isInRangeClass = true;
               cls += ` ${selectedEndClass} ${inRangeClass}`;
             }
+
             if (direction === 'left' && isSameDay(current, startValue)) {
               selected = true;
             }
+
             if (direction === 'right' && isSameDay(current, endValue)) {
               selected = true;
             }
+
             if (startValue && endValue) {
               if (current.isAfter(startValue, 'day') && current.isBefore(endValue, 'day')) {
                 isInRangeClass = true;
                 cls += ` ${inRangeClass}`;
               }
+
               if (
                 startValue.isAfter(endValue, 'day') &&
                 (isSameDay(current, endValue) || isSameDay(current, startValue))
               ) {
                 isInRangeClass = false;
               }
+
               if (startValue.isAfter(endValue, 'day') && isSameDay(current, endValue)) {
                 cls += ` ${errorEndDay}`;
               }
@@ -172,34 +186,42 @@ class DateTBody extends Component {
         } else if (isSameDay(current, value)) {
           selected = true;
         }
+
         if (selectedValue && !Array.isArray(selectedValue) && isSameDay(current, selectedValue)) {
           cls += ` ${selectedDateClass}`;
         }
+
         if (isBeforeCurrentMonthYear) {
           disabled = true;
           cls += ` ${lastMonthDayClass}`;
         }
+
         if (isAfterCurrentMonthYear) {
           disabled = true;
           cls += ` ${nextMonthDayClass}`;
         }
+
         if (disabledDate) {
           if (disabledDate(current, value)) {
             disabled = true;
             if (!last || !disabledDate(last, value)) {
               cls += ` ${firstDisableClass}`;
             }
+
             if (!next || !disabledDate(next, value)) {
               cls += ` ${lastDisableClass}`;
             }
           }
         }
+
         if (selected) {
           cls += ` ${selectedClass}`;
         }
+
         if (disabled) {
           cls += ` ${disabledClass}`;
         }
+
         const dateHtml = (
           <div key={getIdFromDate(current)} className={dateClass} aria-selected={selected} aria-disabled={disabled}>
             {current.date()}
@@ -233,6 +255,7 @@ class DateTBody extends Component {
         </div>,
       );
     }
+
     return <div className={`${prefixCls}-tbody`}>{tableHtml}</div>;
   }
 }

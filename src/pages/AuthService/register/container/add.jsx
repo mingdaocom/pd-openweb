@@ -10,6 +10,7 @@ import { mdAppResponse } from 'src/utils/project';
 const Wrap = styled.div`
   min-height: 460px;
 `;
+
 export default function (props) {
   const { onChange = () => {}, regcode = '' } = props;
   const [{ loading, warnTxt, focusDiv }, setState] = useSetState({
@@ -46,6 +47,7 @@ export default function (props) {
           setState({ loading: false });
           let str = _l('操作失败');
           let { dialCode, password = '', emailOrTel = '' } = props;
+
           if (data.joinProjectResult === 2) {
             str = _l('您已提交申请，请耐心等待管理员审批！');
             if (window.isMingDaoApp) {
@@ -70,6 +72,7 @@ export default function (props) {
           } else if (data.joinProjectResult === 13) {
             str = _l('申请加入失败，您在该企业已离职，请联系管理员恢复权限');
           }
+
           if (data.joinProjectResult === 3) {
             alert({
               msg: str,
@@ -81,6 +84,7 @@ export default function (props) {
                     settings: { action: 'enterpriseRegister.addSuccess', account: dialCode + emailOrTel, password },
                   });
                 }
+
                 location.href = '/personal?type=enterprise';
               },
             });
@@ -97,10 +101,12 @@ export default function (props) {
 
   const renderCon = () => {
     const { regcode, onChange = () => {} } = props;
+
     const renderWarn = () => {
       if (!warnTxt) return;
       return <div className={cx('warnTips')} dangerouslySetInnerHTML={{ __html: warnTxt }}></div>;
     };
+
     const renderClassName = (key, value) => {
       const warn = warnTxt;
       return {
@@ -110,6 +116,7 @@ export default function (props) {
         errorDivCu: !!focusDiv && focusDiv === key,
       };
     };
+
     return (
       <React.Fragment>
         <div className="messageBox mTop5">
@@ -175,6 +182,7 @@ export default function (props) {
             setState({ warnTxt: _l('请填写组织门牌号'), focusDiv: '' });
             return;
           }
+
           onSubmit();
         }}
       >

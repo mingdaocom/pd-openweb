@@ -87,6 +87,7 @@ const OtherInput = props => {
       </OtherInputWrap>
     );
   }
+
   return null;
 };
 

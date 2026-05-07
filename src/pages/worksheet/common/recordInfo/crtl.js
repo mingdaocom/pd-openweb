@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import _, { isEmpty } from 'lodash';
 import { quickSelectUser } from 'ming-ui/functions';
 import appManagement from 'src/api/appManagement';
 import publicWorksheetApi from 'src/api/publicWorksheet';
@@ -41,6 +41,7 @@ export function loadRecord({
       checkView: !!viewId,
       langType: window.shareState.shareId ? getCurrentLangCode() : undefined,
     };
+
     if (instanceId && workId) {
       apiargs.getType = 9;
       apiargs.instanceId = instanceId;
@@ -56,6 +57,7 @@ export function loadRecord({
     }
 
     let promise;
+
     if (!getRules) {
       promise = Promise.all([(promise = getRowDetail(apiargs, controls))]);
     } else {
@@ -69,12 +71,14 @@ export function loadRecord({
         }),
       ]);
     }
+
     promise
       .then(([row, rules]) => {
         if (row.resultCode === 1 || row.resultCode === 71) {
           if (row.roleType !== 0) {
             row.resultCode = 1;
           }
+
           resolve(rules ? { ...row, rules: replaceRulesTranslateInfo(appId, worksheetId, rules) } : row);
         } else {
           reject(row);
@@ -116,13 +120,16 @@ export function updateRecord(
       console.error(err);
     }
   };
+
   // 有些只读控件不在updateControlIds范围内，也需要传给后端做业务规则校验
-  const updatedControls = data
-    .filter(
-      control =>
-        (updateControlIds.indexOf(control.controlId) > -1 && control.type !== 30) || _.includes([31], control.type),
-    )
-    .map(control => formatControlToServer(control));
+  const updatedControls = isEmpty(updateControlIds)
+    ? []
+    : data
+        .filter(
+          control =>
+            (updateControlIds.indexOf(control.controlId) > -1 && control.type !== 30) || _.includes([31], control.type),
+        )
+        .map(control => formatControlToServer(control));
   let apiargs = {
     appId,
     viewId,
@@ -135,6 +142,7 @@ export function updateRecord(
     pushUniqueId: md.global.Config.pushUniqueId,
     ...(updateType ? { updateType } : {}),
   };
+
   if (instanceId && workId) {
     apiargs.getType = 9;
     apiargs.instanceId = instanceId;
@@ -159,6 +167,7 @@ export function updateRecord(
     if (!(instanceId && workId)) {
       alert(_l('没有需要保存的字段'), 2);
     }
+
     handleCallback('empty');
     return;
   }
@@ -192,6 +201,7 @@ export function updateRecord(
         } else {
           handleRecordError(res.resultCode);
         }
+
         handleCallback(true);
       }
     })
@@ -233,6 +243,7 @@ export function handleSubmitDraft(
   const receiveControlsIds = rules.reduce((controlIds, item) => {
     const { filters = [], ruleItems = [] } = item;
     let ids = [];
+
     if (!_.isEmpty(filters)) {
       filters.forEach(it => {
         controlIds = controlIds.concat((it.groupFilters || []).map(v => v.controlId)).concat(it.controlId);
@@ -247,6 +258,7 @@ export function handleSubmitDraft(
         }
       });
     }
+
     if (!_.isEmpty(ruleItems)) {
       ruleItems.forEach(it => {
         controlIds = controlIds.concat(it.controls.map(it => it.controlId));
@@ -278,6 +290,7 @@ export function handleSubmitDraft(
           onSubmitEnd();
           return;
         }
+
         onSubmitSuccess(res.data);
         onSubmitEnd();
       } else {
@@ -294,6 +307,7 @@ export function handleSubmitDraft(
         } else {
           handleRecordError(res.resultCode);
         }
+
         handleCallback(true);
       }
     })
@@ -309,6 +323,7 @@ export function updateRecordControl({ appId, viewId, worksheetId, recordId, cell
     if (_.isEmpty(cells) && cell) {
       cells = [cell];
     }
+
     worksheetAjax
       .updateWorksheetRow({
         appId,
@@ -321,12 +336,15 @@ export function updateRecordControl({ appId, viewId, worksheetId, recordId, cell
         if (!data.data) {
           if (data.resultCode === 32) {
             const errorResult = getRuleErrorInfo(rules, data.badData);
+
             if (_.get(errorResult, '0.errorInfo.0')) {
               alert('编辑失败，' + _.get(errorResult, '0.errorInfo.0.errorMessage'), 2);
             }
+
             reject();
             return;
           }
+
           handleRecordError(data.resultCode, cell);
           reject();
         } else {
@@ -405,10 +423,12 @@ export function updateRelateRecords({
       rowIds: recordIds,
       updateType: updateType === 21 ? updateType : undefined,
     };
+
     if (instanceId && workId) {
       args.instanceId = instanceId;
       args.workId = workId;
     }
+
     worksheetAjax
       .updateRowRelationRows(args)
       .then(data => {
@@ -425,9 +445,11 @@ export function updateRelateRecords({
 export function isOwner(ownerAccount, formdata) {
   let accountsOfOwner = [];
   let isSettingOwner = false;
+
   if (ownerAccount && ownerAccount.accountId === md.global.Account.accountId) {
     return true;
   }
+
   try {
     accountsOfOwner = formdata
       .filter(c => c.type === 26 && c.userPermission === 2)
@@ -436,6 +458,7 @@ export function isOwner(ownerAccount, formdata) {
   } catch (err) {
     console.log(err);
   }
+
   accountsOfOwner.forEach(accounts => {
     accounts.forEach(account => {
       if (account.accountId === md.global.Account.accountId) {
@@ -494,6 +517,7 @@ export function handleChangeOwner({ recordId, ownerAccountId, appId, projectId, 
         if (users[0].accountId === md.global.Account.accountId) {
           users[0].fullname = md.global.Account.fullname;
         }
+
         changeOwner(users, users[0].accountId);
       },
     },
@@ -501,6 +525,7 @@ export function handleChangeOwner({ recordId, ownerAccountId, appId, projectId, 
       if (users[0].accountId === md.global.Account.accountId) {
         users[0].fullname = md.global.Account.fullname;
       }
+
       changeOwner(users, users[0].accountId);
     },
   });
@@ -551,6 +576,7 @@ export async function exportRelateRecordRecords({
     exportControlsId,
     rowIds,
   };
+
   if (typeof rowIds !== 'undefined') {
     postWithToken(`${downLoadUrl}/ExportExcel/Export`, { worksheetId, tokenType: 8 }, args, {
       responseType: 'blob',

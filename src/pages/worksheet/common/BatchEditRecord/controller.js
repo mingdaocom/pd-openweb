@@ -31,6 +31,7 @@ export function handleBatchUpdateRecords({
     rowIds: hasAuthRowIds,
     controls: needUpdateControls,
   };
+
   if (allWorksheetIsSelected) {
     delete args.rowIds;
     args.isAll = true;
@@ -54,6 +55,7 @@ export function handleBatchUpdateRecords({
     args.keyWords = searchArgs.keyWords;
     args.searchType = searchArgs.searchType;
   }
+
   worksheetApi.updateWorksheetRows(args).then(data => {
     if (data.isSuccess) {
       clearSelect();
@@ -63,6 +65,7 @@ export function handleBatchUpdateRecords({
       } else if (hasAuthRowIds.length < selectedRows.length) {
         alert(_l('修改成功，无编辑权限或已锁定的%0无法修改', worksheetInfo.entityName));
       }
+
       if (allWorksheetIsSelected) {
         reloadWorksheet();
       } else {
@@ -72,12 +75,14 @@ export function handleBatchUpdateRecords({
         });
         updateRows(hasAuthRowIds, changes);
       }
+
       getWorksheetSheetViewSummary();
       onUpdate();
       onClose();
     } else {
       alert(_l('修改失败'), 2);
     }
+
     setIsUpdating(false);
   });
 }
@@ -86,16 +91,20 @@ export function getEditType(control) {
   if (control.type === 14 || control.unique) {
     return 'clear';
   }
+
   return 'modify';
 }
 
 export function getDisabledTabs(control) {
   const { type, controlId, unique, required } = control;
+
   if (type === 14 || unique) {
     return ['modify'];
   }
+
   if (required || controlId === 'ownerid') {
     return ['clear'];
   }
+
   return [];
 }

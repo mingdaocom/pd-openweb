@@ -17,9 +17,9 @@ const HistoryListBox = styled.div`
   padding: 12px 0px;
   width: 440px;
   display: flex;
-  background: var(--color-background-primary);
+  background: var(--color-background-card);
   border-radius: 5px;
-  box-shadow: 0 20px 24px 1px rgba(0, 0, 0, 0.1608);
+  box-shadow: var(--shadow-xl);
   left: 12px;
   top: 67px;
   bottom: 12px;
@@ -32,7 +32,7 @@ const HistoryListBox = styled.div`
   }
 
   .historyLine {
-    background: var(--color-border-primary);
+    background: var(--color-border-secondary);
     height: 1px;
     margin-top: 8px;
     margin-bottom: 8px;
@@ -55,7 +55,7 @@ const ListItem = styled.div`
   border-radius: 8px;
   margin-bottom: 8px;
   &:not(.disabled):hover {
-    background: var(--color-background-secondary);
+    background: var(--color-background-hover);
     .icon-more_horiz {
       visibility: visible;
     }
@@ -96,8 +96,8 @@ const MenuBox = styled.div`
   min-width: 180px;
   padding: 5px 0;
   border-radius: 3px;
-  background: var(--color-background-primary);
-  box-shadow: 0 3px 6px 1px rgba(0, 0, 0, 0.1608);
+  background: var(--color-background-card);
+  box-shadow: var(--shadow-lg);
 `;
 
 const openPublishVersion = (id, isIntegration, isPlugin) => {
@@ -149,6 +149,7 @@ export default ({ flowInfo, isPlugin, customBtn, wrapClassName, isIntegration = 
       isFirstLoad = false;
     });
   }, 200);
+
   const updateVersionName = ({ id, date, index, versionName }) => {
     setSelectId('');
 
@@ -186,6 +187,7 @@ export default ({ flowInfo, isPlugin, customBtn, wrapClassName, isIntegration = 
       },
     });
   };
+
   const renderItem = (item, index) => {
     return (
       <ListItem key={index} className="flexRow alignItemsCenter">

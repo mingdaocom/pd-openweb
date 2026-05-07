@@ -1,6 +1,12 @@
 .mobileSheetRowRecord {
   background-color: var(--color-background-primary);
   box-sizing: border-box;
+  &.recordInfoPage {
+    // 兼容APP内访问落地页时底部安全区域背景色与记录详情背景色不一致
+    min-height: 100vh;
+    padding-bottom: calc(constant(safe-area-inset-bottom) - 20px);
+    padding-bottom: calc(env(safe-area-inset-bottom) - 20px);
+  }
   .recordScroll {
     -webkit-overflow-scrolling: touch;
   }
@@ -255,7 +261,7 @@
       text-align: center;
       font-weight: 500;
       color: var(--color-primary);
-      background-color: var(--color-background-tertiary);
+      background-color: rgb(152 194 255 / 10%);
       border-radius: 11px;
       margin-left: 6px;
       & > i {

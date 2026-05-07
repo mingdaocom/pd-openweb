@@ -78,9 +78,11 @@ export default class extends Component {
 
   getData = (props = this.props) => {
     let { appId } = this.ids;
+
     if (md.global.Account.isPortal) {
       appId = md.global.Account.appId;
     }
+
     if (!appId) return;
     const { appPkg } = props;
     const { sections, permissionType, isLock } = appPkg;
@@ -164,14 +166,17 @@ export default class extends Component {
     const { disabledPointer } = this.state;
     const { offsetWidth, scrollLeft, scrollWidth } = $ele;
     const actualWidth = scrollLeft + offsetWidth;
+
     if (!scrollLeft && disabledPointer !== 'left') {
       this.setState({ disabledPointer: 'left' });
       return;
     }
+
     if (actualWidth === scrollWidth && disabledPointer !== 'right') {
       this.setState({ disabledPointer: 'right' });
       return;
     }
+
     if (scrollLeft && actualWidth < scrollWidth && disabledPointer !== null) {
       this.setState({ disabledPointer: null });
     }
@@ -180,10 +185,12 @@ export default class extends Component {
   // 确认滚动指示器是否显示
   ensurePointerVisible = () => {
     const $ele = document.querySelector('.appItemsInnerWrap');
+
     if (!$ele) {
       this.setState({ isAppItemOverflow: false });
       return;
     }
+
     const { offsetWidth, scrollWidth } = $ele;
     this.setState({ isAppItemOverflow: offsetWidth < scrollWidth });
   };
@@ -201,12 +208,15 @@ export default class extends Component {
     const isLeftClicked = $ele.classList.contains('leftPointer');
     const isRightClicked = $ele.classList.contains('rightPointer');
     const scrollDistance = Math.floor(offsetWidth / 2);
+
     if (isLeftClicked) {
       this.scrollEle($wrap, Math.max(0, scrollLeft - scrollDistance));
     }
+
     if (isRightClicked) {
       this.scrollEle($wrap, scrollLeft + scrollDistance);
     }
+
     this.ensurePointerStatus();
   };
 
@@ -234,6 +244,7 @@ export default class extends Component {
             }
           });
         }
+
         return;
     }
   };
@@ -282,6 +293,7 @@ export default class extends Component {
       .addAppSection({ appId, sourceAppSectionId, ...defaultAppGroup })
       .then(({ data: appSectionId }) => {
         const appGroupItem = { appSectionId, ...defaultAppGroup };
+
         if (sourceAppSectionId) {
           const temp = _.cloneDeep(data);
           const baseIndex = temp.findIndex(item => item.appSectionId === sourceAppSectionId);
@@ -292,6 +304,7 @@ export default class extends Component {
           this.props.updateAppGroup(data.concat(appGroupItem));
           this.setState({ data: data.concat(appGroupItem), focusGroupId: appSectionId });
         }
+
         navigateTo(`/app/${appId}/${appSectionId}`, true);
         this.ensurePointerVisible();
       })
@@ -308,6 +321,7 @@ export default class extends Component {
    */
   handleRenameAppGroup = (appSectionId, obj, isNeedModify = true) => {
     const { appId } = this.ids;
+
     if (isNeedModify) {
       api.updateAppSectionName({ appSectionId, appId, ...obj }).then(({ data }) => {
         if (data) {
@@ -315,6 +329,7 @@ export default class extends Component {
         }
       });
     }
+
     this.ensurePointerVisible();
     this.setState({ focusGroupId: null, activeAppItemId: '' });
   };
@@ -323,13 +338,16 @@ export default class extends Component {
   updateSingleAppGroup = (appSectionId, obj) => {
     const { data } = this.state;
     const temp = _.cloneDeep(data);
+
     for (let i = 0; i < temp.length; i++) {
       let item = temp[i];
+
       if (item.appSectionId === appSectionId) {
         temp[i] = { ...item, ...obj };
         break;
       }
     }
+
     this.setState({ data: temp });
     this.props.updateAppGroup(temp);
   };

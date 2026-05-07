@@ -68,6 +68,7 @@ class PostList extends React.Component {
         : this.props.options.listType === postEnum.LIST_TYPE.fav
           ? 'star'
           : 'normal';
+
     if (this.props.loading) {
       posts = (
         <PostCard key={0} {...commonProps}>

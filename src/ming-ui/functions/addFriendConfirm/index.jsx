@@ -31,10 +31,12 @@ function AddFriendConfirm(props) {
       accountId,
       message: data.message,
     };
+
     if (data.showExtraInput) {
       param.company = data.companyName;
       param.profession = data.profession;
     }
+
     addressBookController
       .addFriend(param)
       .then(function (data) {
@@ -42,6 +44,7 @@ function AddFriendConfirm(props) {
           if (typeof callback === 'function') {
             callback();
           }
+
           alert(_l('发送成功'));
         } else if (data.status === 2) {
           alert(_l('对方已是您的好友'), 3);
@@ -52,6 +55,7 @@ function AddFriendConfirm(props) {
             alert(_l('发送失败'), 2);
           }
         }
+
         handleClose();
       })
       .catch(function () {

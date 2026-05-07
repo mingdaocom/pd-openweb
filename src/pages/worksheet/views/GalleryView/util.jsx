@@ -25,6 +25,7 @@ export const getDataWithFormat = (row, props) => {
   const arr = [];
 
   const titleControl = getTitleControlForCard(view, controls);
+
   if (titleControl) {
     arr.push({ ..._.pick(titleControl, RENDER_RECORD_NECESSARY_ATTR), value: parsedRow[titleControl.controlId] });
   }
@@ -42,6 +43,7 @@ export const getDataWithFormat = (row, props) => {
 
   displayControlsCopy.forEach(id => {
     const currentControl = _.find(controls, ({ controlId }) => controlId === id);
+
     if (currentControl) {
       arr.push({ ..._.pick(currentControl, RENDER_RECORD_NECESSARY_ATTR), value: parsedRow[id] });
     }

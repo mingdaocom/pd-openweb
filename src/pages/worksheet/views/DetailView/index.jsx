@@ -76,6 +76,7 @@ const Drag = styled.div(
 );
 
 let preViewId = '';
+
 function DetailView(props) {
   const {
     viewId,
@@ -137,6 +138,7 @@ function DetailView(props) {
       if (inputRef.current) {
         inputRef.current.value = '';
       }
+
       fetchRows(1, '');
     } else {
       setTimeout(() => {
@@ -154,6 +156,7 @@ function DetailView(props) {
     ) {
       return;
     }
+
     setCurrentRecord(detailViewRows[0] || {});
     preViewId = viewId;
   }, [detailViewRows]);
@@ -181,17 +184,21 @@ function DetailView(props) {
   const handleKeyDown = e => {
     const editingElements = document.getElementsByClassName('editingBar');
     const isEditing = !![...editingElements].filter(el => el.style.overflow === '').length;
+
     if (!!detailViewRows.length && _.get(e, 'target.parentNode.id') === 'detailNavList') {
       const currentIndex = _.findIndex(detailViewRows, item => item.rowid === currentRecord.rowid);
+
       if (e.keyCode === 38) {
         if (isEditing) {
           return;
         }
+
         currentIndex > 0 && setCurrentRecord(detailViewRows[currentIndex - 1]);
       } else if (e.keyCode === 40) {
         if (isEditing) {
           return;
         }
+
         currentIndex < detailViewRows.length - 1 && setCurrentRecord(detailViewRows[currentIndex + 1]);
       }
     }
@@ -204,6 +211,7 @@ function DetailView(props) {
         return 'filter';
       return 'empty';
     };
+
     if (!isOpenGroup) {
       return (
         <span
@@ -239,6 +247,7 @@ function DetailView(props) {
                   alert(_l('请先保存或取消当前更改'), 3);
                   return;
                 }
+
                 setCurrentRecord(item);
               }}
               onUpdateFn={(updated, item) => {

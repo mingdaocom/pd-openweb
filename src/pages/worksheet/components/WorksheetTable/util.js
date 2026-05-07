@@ -1,6 +1,7 @@
 import _, { get } from 'lodash';
 import { checkRuleLocked } from 'src/components/Form/core/formUtils';
 import { updateRulesData } from 'src/components/Form/core/formUtils/updateRulesData';
+import { canSetWidgetStyle, getTitleStyle } from 'src/pages/widgetConfig/util/setting';
 import { emitter } from 'src/utils/common';
 import { controlState, replaceByIndex } from 'src/utils/control';
 
@@ -19,6 +20,7 @@ export function checkCellFullVisible(element) {
   if (element.parentNode.className.includes('cellPopupCon')) {
     element = element.parentNode;
   }
+
   const left = element.offsetLeft;
   const top = element.offsetTop;
   const width = element.offsetWidth;
@@ -33,18 +35,23 @@ export function checkCellFullVisible(element) {
   const leftVisible = left >= scrollLeft;
   const topVisible = top >= scrollTop;
   const bottomVisible = top + height <= scrollTop + gridHeight;
+
   if (!leftVisible) {
     newLeft = left;
   }
+
   if (!rightVisible) {
     newLeft = left + width - gridWidth;
   }
+
   if (!topVisible) {
     newTop = top;
   }
+
   if (!bottomVisible) {
     newTop = top + height - gridHeight;
   }
+
   return {
     fullvisible: rightVisible && leftVisible && topVisible && bottomVisible,
     newLeft,
@@ -58,6 +65,7 @@ export function handleLifeEffect(
     showColumnWidthChangeMask,
     tableType,
     isSubList,
+    formItemId,
     isRelateRecordList,
     cache = {},
     onCellEnter = () => {},
@@ -74,9 +82,11 @@ export function handleLifeEffect(
 ) {
   const tableElement = document.querySelector(`.sheetViewTable.id-${tableId}-id`);
   const $tableElement = $(`.sheetViewTable.id-${tableId}-id`);
+
   function handleCellEnter(e) {
     const $target = $(e.originalEvent.target).closest('.cell');
     const classMatch = $target.attr('class').match(/.*(row-([0-9]+|head)) .*/);
+
     if (classMatch && $tableElement) {
       const hoverClassName = classMatch[1] === 'row-head' ? 'row-head-hover' : 'hover';
       $tableElement.find('.cell,.expandCell').removeClass(hoverClassName);
@@ -87,59 +97,73 @@ export function handleLifeEffect(
           $target.addClass('grayHover');
         }
       }
+
       onCellEnter($target[0]);
     }
   }
+
   function handleCellLeave(e) {
     try {
       if (e.relatedTarget && e.relatedTarget.closest('.expandCell')) return;
     } catch (err) {
       console.log(err);
     }
+
     if ($tableElement) {
       $tableElement.find('.cell,.expandCell').removeClass('hover').removeClass('row-head-hover');
       if (tableType === 'classic') {
         $tableElement.find('.cell').removeClass('grayHover');
       }
+
       onCellLeave($tableElement.find('.cell')[0], e);
     }
   }
+
   function handleTableMouseEnter(e) {
     onTableMouseEnter(e);
   }
+
   function handleTableMouseLeave(e) {
     onTableMouseLeave(e);
   }
+
   function handleTableMouseMove(e) {
     onTableMouseMove(e);
   }
+
   function handleSwitchCell(e) {
     let nextCellIsRowStart;
     let nextCellIsRowEnd;
     let nextCellIsColumnStart;
     let nextCellIsColumnEnd;
     let newIndex = 1;
+
     if (_.isUndefined(cache.focusIndex)) {
       return;
     }
 
     const fastSwitch = (window.isMacOs && e.metaKey) || (!window.isMacOs && e.ctrlKey);
+
     if (fastSwitch) {
       e.stopPropagation();
       e.preventDefault();
     }
+
     const columnCount = cache.columnCount;
     const rowCount = cache.rowCount;
+
     switch (e.keyCode) {
       case KEY_MAP.LEFT:
         newIndex = cache.focusIndex - 1;
         if (newIndex % columnCount === 0) {
           return;
         }
+
         if (fastSwitch) {
           nextCellIsRowStart = true;
           newIndex = cache.focusIndex - (cache.focusIndex % columnCount) + 1;
         }
+
         break;
       case KEY_MAP.TOP:
         newIndex = cache.focusIndex - columnCount;
@@ -147,6 +171,7 @@ export function handleLifeEffect(
           nextCellIsColumnStart = true;
           newIndex = cache.focusIndex % columnCount;
         }
+
         break;
       case KEY_MAP.RIGHT:
       case KEY_MAP.TAB:
@@ -159,14 +184,17 @@ export function handleLifeEffect(
             return;
           }
         }
+
         if (fastSwitch) {
           nextCellIsRowEnd = true;
           newIndex = Math.ceil(cache.focusIndex / columnCount) * rowCount - 1;
         }
+
         if ((newIndex % columnCount) - 1 === cache.fixedColumnCount) {
           // 冻结列下一列可能不可见
           nextCellIsRowStart = true;
         }
+
         break;
       case KEY_MAP.BOTTOM:
         newIndex = cache.focusIndex + columnCount;
@@ -174,13 +202,16 @@ export function handleLifeEffect(
           nextCellIsColumnEnd = true;
           newIndex = (rowCount - 1) * columnCount + (cache.focusIndex % columnCount);
         }
+
         break;
       default:
         break;
     }
+
     if (newIndex < 1) {
       return;
     }
+
     if (newIndex > rowCount * columnCount - 1) {
       if (e.action === 'text_enter_to_next' && isSubList) {
         addNewRow();
@@ -189,45 +220,69 @@ export function handleLifeEffect(
         }, 100);
         return;
       }
+
+      // 子表最后一格按 Tab：退出子表焦点，进入外层表单 Tab 逻辑
+      if (isSubList && e.keyCode === KEY_MAP.TAB && !e.shiftKey && formItemId) {
+        e.preventDefault();
+        e.stopPropagation();
+        focusCell(-10000);
+        window.activeTableId = undefined;
+        window.dispatchEvent(new CustomEvent('form-request-tab-to-next', { detail: { formItemId } }));
+        return;
+      }
+
       setScroll(0, 0);
       newIndex = 1;
     }
+
     const nextFocusElement = tableElement.querySelector('.cell-' + newIndex);
+
     if (nextFocusElement) {
       const result = checkCellFullVisible(nextFocusElement);
+
       if (!result.fullvisible) {
         setScroll(result.newLeft, result.newTop);
       }
     }
+
     if (nextCellIsRowStart) {
       setScroll(0);
     }
+
     if (nextCellIsRowEnd) {
       setScroll(10000);
     }
+
     if (nextCellIsColumnStart) {
       setScroll(undefined, 0);
     }
+
     if (nextCellIsColumnEnd) {
       setScroll(undefined, 10000);
     }
+
     focusCell(newIndex, { noTriggerHandFocusCell: e.action === 'text_enter_to_next' });
     e.stopPropagation();
     e.preventDefault();
   }
+
   function removeReadOnlyTip() {
     const readOnlyTip = tableElement.querySelector('.readOnlyTip');
+
     if (readOnlyTip) {
       readOnlyTip.parentElement.removeChild(readOnlyTip);
     }
   }
+
   function handleKeyDown(e) {
     if (tableType !== 'classic' || tableId !== window.activeTableId) {
       return;
     }
+
     removeReadOnlyTip();
     if (e.key === 'Enter') {
       const focusElement = tableElement.querySelector(`.cell-${cache.focusIndex}`);
+
       if (
         focusElement &&
         (!focusElement.classList.contains('editable') ||
@@ -240,6 +295,7 @@ export function handleLifeEffect(
         return;
       }
     }
+
     if (
       !cache.hasEditingCell &&
       _.includes([KEY_MAP.TAB, KEY_MAP.BOTTOM, KEY_MAP.TOP, KEY_MAP.LEFT, KEY_MAP.RIGHT], e.keyCode)
@@ -249,9 +305,11 @@ export function handleLifeEffect(
       handleTableKeyDown(cache.focusIndex, e);
     }
   }
+
   function handleOuterClick(e) {
     removeReadOnlyTip();
     const forceOutClick = _.includes(get(e, 'target.className') || '', 'allowOutClick');
+
     if (
       (e.target.closest(
         '.cellNeedFocus,.mui-dialog-container,.UploadFilesTriggerWrap,.rc-trigger-popup, .selectUserBox',
@@ -264,6 +322,7 @@ export function handleLifeEffect(
     ) {
       return;
     }
+
     if (!e.target.closest(`.sheetViewTable.id-${tableId}-id`) || forceOutClick) {
       try {
         if (_.get(safeParse(window.tempCopyForSheetView), 'tableId') === tableId) {
@@ -272,13 +331,16 @@ export function handleLifeEffect(
       } catch (err) {
         console.log(err);
       }
+
       if (window.activeTableId === tableId) {
         focusCell(-10000);
         window.activeTableId = undefined;
       }
+
       onOuterClick();
     }
   }
+
   emitter.addListener('TRIGGER_CHANGE_COLUMN_WIDTH_MASK_' + tableId, showColumnWidthChangeMask);
   $tableElement.on('mouseenter', '.cell:not(.row-id-groupTitle)', handleCellEnter);
   $tableElement.on('mouseleave', '.cell:not(.row-id-groupTitle)', handleCellLeave);
@@ -309,12 +371,20 @@ export function getControlFieldPermissionsAfterRules(row, controls, rules) {
   });
   const isLock = !/^(temp|default)/.test(row.rowid) && checkRuleLocked(rules, formData, row.rowid);
   const fieldPermissions = {};
+  const ruleControlAdvancedSettings = {};
   formData.forEach(item => {
+    const permKey = row.rowid + '-' + item.controlId;
+    const base = _.find(controls, c => c.controlId === item.controlId) || {};
+    const baseAdv = base.advancedSetting || {};
+    if (!_.isEqual(item.advancedSetting || {}, baseAdv)) {
+      ruleControlAdvancedSettings[permKey] = item.advancedSetting;
+    }
+
     if (isLock) {
-      fieldPermissions[row.rowid + '-' + item.controlId] =
-        (item.fieldPermission[0] || '1') + '0' + (item.fieldPermission[2] || '1');
+      fieldPermissions[permKey] = (item.fieldPermission[0] || '1') + '0' + (item.fieldPermission[2] || '1');
       return;
     }
+
     if (item.sectionId) {
       const sectionControl = _.find(formData, c => c.controlId === item.sectionId);
       const sectionControlState = controlState({
@@ -328,22 +398,49 @@ export function getControlFieldPermissionsAfterRules(row, controls, rules) {
         itemControlState.editable && sectionControlState.editable ? '1' : '0',
       );
     }
-    fieldPermissions[row.rowid + '-' + item.controlId] = item.fieldPermission || '111';
+
+    fieldPermissions[permKey] = item.fieldPermission || '111';
   });
-  return fieldPermissions;
+  return { fieldPermissions, ruleControlAdvancedSettings };
 }
 
 export function getRulePermissions({ data = [], controls, rules } = {}) {
-  const result = {};
+  const fieldPermissions = {};
+  const ruleControlAdvancedSettings = {};
+  const touchedRowIds = [];
   data.forEach(row => {
-    const controlFieldPermissions = getControlFieldPermissionsAfterRules(row, controls, rules);
-    if (!_.isEmpty(controlFieldPermissions)) {
-      Object.keys(controlFieldPermissions).forEach(key => {
-        result[key] = controlFieldPermissions[key];
-      });
-    }
+    touchedRowIds.push(row.rowid);
+    const { fieldPermissions: fp, ruleControlAdvancedSettings: ras } = getControlFieldPermissionsAfterRules(
+      row,
+      controls,
+      rules,
+    );
+    Object.assign(fieldPermissions, fp);
+    Object.assign(ruleControlAdvancedSettings, ras);
   });
-  return result;
+  return { fieldPermissions, ruleControlAdvancedSettings, touchedRowIds };
+}
+
+/** 表格内业务规则字段样式：仅同步值颜色（覆盖 getControlStyles 的 !important） */
+export function getSheetCellRuleFieldStyleVars(control) {
+  const mergedAdv = {
+    ...(control.type === 30 ? get(control, 'sourceControl.advancedSetting', {}) || {} : {}),
+    ...(control.advancedSetting || {}),
+  };
+  const styleObject = getTitleStyle(mergedAdv.valuestyle, { returnObject: true });
+  const pseudoControl = {
+    ...control,
+    type: control.type === 30 ? control.sourceControlType || 2 : control.type,
+    enumDefault: control.type === 30 ? get(control, 'sourceControl.enumDefault') : control.enumDefault,
+    advancedSetting: mergedAdv,
+  };
+
+  if (!canSetWidgetStyle(pseudoControl)) {
+    return {};
+  }
+
+  const { valuecolor = 'var(--color-text-primary)' } = mergedAdv;
+  return { '--rule-value-color': valuecolor, ...styleObject };
 }
 
 function getTextHeight(text = '', width, style = '') {
@@ -373,12 +470,15 @@ export function getTableHeadHeight(columns) {
         ),
       ),
   );
+
   if (textHeight < 18) {
     return 18;
   }
+
   if (textHeight > 68) {
     return 68;
   }
+
   return textHeight;
 }
 
@@ -394,6 +494,7 @@ export function showReadOnlyTip(target, isLastRow) {
     source.style.borderBottom = 'none';
     source.style.top = target.offsetTop - 30 + 3 + 'px';
   }
+
   source.style.left = target.offsetLeft + 'px';
   source.style.width = target.clientWidth + 'px';
   target.parentElement.appendChild(source);

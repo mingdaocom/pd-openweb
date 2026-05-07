@@ -132,6 +132,7 @@ class Map extends Component {
     return Children.map(this.props.children, child => {
       if (child) {
         const cType = child.type;
+
         /* 针对下面两种组件不注入地图相关属性
          * 1. 明确声明不需要注入的
          * 2. DOM 元素
@@ -139,15 +140,46 @@ class Map extends Component {
         if (cType.preventAmap || typeof cType === 'string') {
           return child;
         }
+
         return React.cloneElement(child, {
           __map__: this.map,
           // consider to remove __ele__, because map.getContainer can also get this
           __ele__: this.mapWrapper,
         });
       }
+
       return child;
     });
   }
+
+  reloadCurrentPosition = () => {
+    if (!window.AMap) return;
+
+    window.AMap.plugin('AMap.Geolocation', () => {
+      const geo = new window.AMap.Geolocation({
+        enableHighAccuracy: true,
+        timeout: 10000,
+      });
+
+      geo.getCurrentPosition((status, result) => {
+        if (status === 'complete' && result.position) {
+          const lnglat = [result.position.lng, result.position.lat];
+          console.log('----currentPosition----', lnglat);
+          this.setState({ currentPosition: lnglat });
+
+          const { isCurrentPosition, setCenter, setOriginalCenter } = this.props;
+
+          if (isCurrentPosition && setCenter) {
+            setCenter(lnglat);
+            setOriginalCenter(lnglat);
+            if (this.map) this.map.setCenter(lnglat); // 更新地图中心
+          }
+        } else {
+          console.error('定位失败:', result);
+        }
+      });
+    });
+  };
 
   initMapInstance() {
     if (!this.map) {
@@ -165,6 +197,78 @@ class Map extends Component {
           this.runMapSetter(key, setterParam);
         }
       });
+
+      this.reloadCurrentPosition();
+
+      this.map.on('click', e => {
+        const { getLatLngOnClick } = this.props;
+
+        if (getLatLngOnClick) {
+          getLatLngOnClick({ left: e.pixel.x, top: e.pixel.y, lnglat: e.lnglat });
+        }
+      });
+
+      this.map.on('dragstart', this.handleResetAddRecordBtn);
+
+      this.map.on('zoomstart', this.handleResetAddRecordBtn);
+    }
+  }
+
+  handleResetAddRecordBtn = () => {
+    const { resetAddRecordBtn = () => {} } = this.props;
+    resetAddRecordBtn();
+  };
+
+  compareDistance(lng, lat) {
+    const { mapControl } = this.props;
+    const distance = mapControl?.advancedSetting?.distance;
+    const { currentPosition } = this.state;
+
+    if (mapControl.enumDefault2 !== 1 || !distance || !currentPosition) return true;
+
+    const lngLat = new window.AMap.LngLat(currentPosition[0], currentPosition[1]);
+    const myDistance = lngLat.distance([lng, lat]);
+
+    if (myDistance < distance) {
+      return true;
+    }
+
+    return false;
+  }
+
+  getAddress(lng, lat, callback) {
+    if (!window.AMap) return;
+
+    if (!this.compareDistance(lng, lat)) {
+      alert(_l('不在定位范围内'), 2);
+      return;
+    }
+
+    window.AMap.plugin('AMap.Geocoder', () => {
+      const geocoder = new window.AMap.Geocoder({
+        city: '全国',
+      });
+      geocoder.getAddress([lng, lat], (status, result) => {
+        if (status === 'complete' && result.info === 'OK') {
+          const address = result.regeocode.formattedAddress;
+          callback && callback(address, result.regeocode);
+        } else {
+          callback && callback(null);
+        }
+      });
+    });
+  }
+
+  moveCenter(center) {
+    if (this.map) {
+      this.map.setCenter(center);
+    }
+  }
+
+  zoomByStep(step) {
+    if (this.map) {
+      const currentZoom = this.map.getZoom();
+      this.map.setZoom(currentZoom + step);
     }
   }
 
@@ -208,6 +312,7 @@ class Map extends Component {
         )}）`,
       );
     }
+
     NativeDynamicProps.concat(ExtendedDynamicProps).forEach(key => {
       if (key in nextProps) {
         if (this.detectPropChanged(key, prevProps, nextProps)) {
@@ -237,8 +342,11 @@ class Map extends Component {
 
   getSetterValue(key, props) {
     if (key === 'center') {
-      return getAMapPosition(props.center);
+      console.log('----center----', props, this.state.currentPosition);
+      const center = props.isCurrentPosition ? this.state.currentPosition : props.center;
+      return getAMapPosition(center);
     }
+
     return props[key];
   }
 
@@ -259,11 +367,14 @@ class Map extends Component {
 
   setPlugins(props) {
     const pluginList = ['Scale', 'ToolBar', 'MapType', 'HawkEye', 'ControlBar'];
+
     if ('plugins' in props) {
       const plugins = props.plugins;
+
       if (plugins && plugins.length) {
         plugins.forEach(p => {
           let name, config, visible;
+
           if (typeof p === 'string') {
             name = p;
             config = null;
@@ -274,7 +385,9 @@ class Map extends Component {
             visible = 'visible' in config && typeof config.visible === 'boolean' ? config.visible : true;
             delete config.visible;
           }
+
           const idx = pluginList.indexOf(name);
+
           if (idx === -1) {
             log.warning(`没有 ‘${name}’ 这个插件，请检查是否拼写错误`);
           } else {
@@ -286,6 +399,7 @@ class Map extends Component {
         });
       }
     }
+
     this.removeOrDisablePlugins(pluginList);
   }
 
@@ -358,12 +472,15 @@ class Map extends Component {
   exposeMapInstance() {
     if ('events' in this.props) {
       const events = this.props.events || {};
+
       if (isFun(events.created)) {
         events.created(this.map);
         delete events.created;
       }
+
       return events;
     }
+
     return false;
   }
 
@@ -390,6 +507,11 @@ class Map extends Component {
   }
 
   componentWillUnmount() {
+    if (this.map && this.handleResetAddRecordBtn) {
+      this.map.off('dragstart', this.handleResetAddRecordBtn);
+      this.map.off('zoomstart', this.handleResetAddRecordBtn);
+    }
+
     this.destroyMap();
   }
 }

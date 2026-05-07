@@ -97,6 +97,7 @@ const MobileSearch = props => {
           if (searchInput.current) {
             searchInput.current.value = '';
           }
+
           props.onChange();
         }}
       >
@@ -139,9 +140,11 @@ const MobileSearch = props => {
                 onCompositionStart={() => (isOnComposition.current = true)}
                 onCompositionEnd={event => {
                   const value = searchInput.current.value.trim();
+
                   if (event.type === 'compositionend') {
                     isOnComposition.current = false;
                   }
+
                   searchRealTime(value);
                 }}
               />

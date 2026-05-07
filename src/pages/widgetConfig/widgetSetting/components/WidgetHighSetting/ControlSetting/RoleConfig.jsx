@@ -67,6 +67,7 @@ export default function RoleConfig(props) {
 
   const handleRemove = item => {
     const index = existIndex(item);
+
     if (index > -1) {
       const nextValue = update(chooseRange, { $splice: [[index, 1]] });
       onChange(handleAdvancedSettingChange(data, { chooserange: JSON.stringify(nextValue) }));
@@ -136,6 +137,7 @@ export default function RoleConfig(props) {
                       />
                     );
                   }
+
                   return getUserDisplay(item);
                 })}
               </Fragment>

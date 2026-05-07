@@ -41,6 +41,7 @@ export default class RepeatBox extends Component {
     let weekDayArray = weekDay ? weekDay.split(',').sort((a, b) => a - b) : [];
     const value = event.target.getAttribute('value');
     const isInArray = weekDayArray.indexOf(value) !== -1;
+
     if (isInArray) {
       weekDayArray = _.without(weekDayArray, value);
     } else {
@@ -49,6 +50,7 @@ export default class RepeatBox extends Component {
         .sort((a, b) => a - b)
         .commit();
     }
+
     this.props.change({
       weekDay: weekDayArray.join(','),
     });
@@ -177,6 +179,7 @@ export default class RepeatBox extends Component {
     const {
       calendar: { end, recurType, recurCount, untilDate },
     } = this.props;
+
     if (recurType === RECURTYPE.COUNT) {
       return (
         <span className="mLeft10">

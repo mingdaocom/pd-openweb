@@ -55,6 +55,7 @@ export const bindWxWork = projectId => {
           reject(1);
           return;
         }
+
         window.wx.config({
           beta: true,
           debug: false,
@@ -92,6 +93,7 @@ export const bindFeishu = projectId => {
           reject(1);
           return;
         }
+
         window.h5sdk.config({
           appId: data.appId,
           timestamp: data.timestamp,
@@ -128,6 +130,7 @@ export const bindDing = projectId => {
         if (!data) {
           reject();
         }
+
         window.dd.config({
           agentId: data.agentId,
           corpId: data.corpId,
@@ -162,6 +165,7 @@ export const bindWeLink = projectId => {
         if (!data) {
           reject();
         }
+
         window.HWH5.config({
           appId: data.appId,
           timestamp: data.timestamp,
@@ -189,6 +193,7 @@ export const handleTriggerEvent = (scanFn, bindFn, errorFn = _.noop) => {
     window.configSuccess = false;
     window.configLoading = false;
   }
+
   if (window.configSuccess) {
     scanFn();
   } else {

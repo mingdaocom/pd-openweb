@@ -140,6 +140,7 @@ export default class InboxFilter extends React.Component {
 
   handleEmptyUser = () => {
     const { time, appId } = this.state;
+
     if (time || appId) {
       this.setState(
         {
@@ -165,6 +166,7 @@ export default class InboxFilter extends React.Component {
     const { timeLevel } = this.state;
     const { format } = _.find(dateScope, { value: timeLevel });
     const data = format ? format() : time;
+
     if (data) {
       this.setState(
         {

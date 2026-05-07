@@ -12,11 +12,14 @@ var ACTIONRESULTS = {
 
 function Comp() {
   const [result, setState] = useState(ACTIONRESULTS.LinkAuthInvalid);
+
   const getEmailValidate = () => {
     let token = getRequest()['token'];
+
     if (!token) {
       return;
     }
+
     accountController
       .emailValidate({
         token,

@@ -74,10 +74,12 @@ function Edit(params) {
     });
     let dd = worksheetControls.find(item => item.controlId === activeFastFilterId) || {};
     let controlNew = controlsFilter.find(o => o.controlId === activeFastFilterId) || {};
+
     if ([10].includes(controlNew.type) && controlNew.filterType === 0) {
       //单选转成多选的字段 是、是其中一个=包含其中一个
       controlNew.filterType = 2;
     }
+
     if (!controlNew.controlId) {
       controlNew = {
         ...getSetDefault(dd),
@@ -86,6 +88,7 @@ function Edit(params) {
         sourceControl: dd.sourceControl,
       };
     }
+
     controlNew.type = getControlFormatType(dd);
     let advancedSetting = controlNew.advancedSetting || {};
     setState({ fastFilters: d, dataControls: dd, control: controlNew, advancedSetting, dataType: controlNew.type });
@@ -125,12 +128,14 @@ function Edit(params) {
 
   const getDaterange = () => {
     let { daterange } = advancedSetting;
+
     try {
       daterange = safeParse(daterange, 'array');
     } catch (error) {
       console.log(error);
       daterange = [];
     }
+
     return daterange;
   };
 
@@ -147,6 +152,7 @@ function Edit(params) {
       />
     );
   };
+
   const renderLimit = () => {
     return (
       <React.Fragment>
@@ -173,11 +179,14 @@ function Edit(params) {
       </React.Fragment>
     );
   };
+
   const updateView = (fastFilters, advanced) => {
     let param = { fastFilters };
+
     if (advanced) {
       param.advancedSetting = advanced;
     }
+
     if (fastFilters.length <= 0) {
       param.advancedSetting = {
         ...param.advancedSetting,
@@ -185,19 +194,23 @@ function Edit(params) {
         enablebtn: '0',
       };
     }
+
     param.editAttrs = Object.keys(param);
     if (Object.keys(param.advancedSetting || {}).length > 0) {
       param.editAdKeys = Object.keys(param.advancedSetting || {});
     }
+
     updateCurrentView(Object.assign(view, param));
   };
 
   const getShowTypeForDataRange = () => {
     const controlData = worksheetControls.find(item => item.controlId === control.controlId) || {};
     const { type } = controlData;
+
     if (type === 38) {
       return _.get(controlData, 'unit');
     }
+
     return _.get(controlData, 'advancedSetting.showtype');
   };
 
@@ -226,11 +239,13 @@ function Edit(params) {
               }
             });
             const ids = safeParse(_.get(view, 'advancedSetting.requiredcids'), 'array');
+
             if (ids.includes(control.controlId)) {
               updateView(fastFilterData, { requiredcids: JSON.stringify(ids.filter(o => o !== control.controlId)) });
             } else {
               updateView(fastFilterData);
             }
+
             setActiveFastFilterId(data.controlId);
           }}
           style={{
@@ -303,6 +318,7 @@ function Edit(params) {
                   types: NAVSHOW_TYPE.filter(o => o.value !== '1').filter(o => {
                     //选项作为分组，分组没有筛选
                     let type = info.type === 30 ? info.sourceControlType : info.type;
+
                     if ([9, 10, 11, 26].includes(type)) {
                       return o.value !== '3';
                     } else {
@@ -319,6 +335,7 @@ function Edit(params) {
                     control.values[0]
                   ) {
                     const data = safeParse(control.values);
+
                     if (data.id === 'isEmpty') {
                       newValue.values = JSON.stringify([]);
                       return updateViewSet({
@@ -326,6 +343,7 @@ function Edit(params) {
                       });
                     }
                   }
+
                   updateViewSet({
                     advancedSetting: { ...advancedSetting, ...newValue },
                   });
@@ -450,6 +468,7 @@ function Edit(params) {
     </React.Fragment>
   );
 }
+
 @errorBoundary
 class EditCon extends React.Component {
   render() {
@@ -463,6 +482,7 @@ export default class EditFastFilter extends React.Component {
     if (!this.props.showFastFilter) {
       return '';
     }
+
     const { saveViewSetLoading } = this.props;
     return (
       <Wrap>

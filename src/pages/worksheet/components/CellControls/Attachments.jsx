@@ -20,7 +20,6 @@ import RegExpValidator from 'src/utils/expression';
 import { addBehaviorLog, compatibleMDJS } from 'src/utils/project';
 import { FROM } from './enum';
 
-
 const Con = styled.div`
   &:hover {
     .CutCon {
@@ -141,9 +140,9 @@ const OperateIcon = styled.div`
 const HoverPreviewPanelCon = styled.div`
   text-align: center;
   width: 240px;
-  box-shadow: 0px 1px 6px rgba(0, 0, 0, 0.24);
+  box-shadow: var(--shadow-lg);
   border-radius: 6px;
-  background-color: var(--color-background-primary);
+  background-color: var(--color-background-card);
   overflow: hidden;
   .fileDetail {
     text-align: left;
@@ -242,16 +241,19 @@ function addAttachmentIndex(submitData, enumDefault) {
       data.index = submitData.attachments.length + submitData.knowledgeAtts.length + index;
     });
   }
+
   return submitData;
 }
 
 function parseValue(valueStr = '[]') {
   let value = [];
+
   try {
     value = JSON.parse(valueStr);
     if (value.attachmentData && value.attachments && value.knowledgeAtts) {
       value = [...value.attachments, ...value.knowledgeAtts, ...value.attachmentData];
     }
+
     value = value.map(attachment => {
       const newAttachment =
         attachment.createTime || !_.isUndefined(attachment.fileSize)
@@ -269,9 +271,11 @@ function parseValue(valueStr = '[]') {
               filesize: attachment.fileSize || attachment.filesize,
             }
           : attachment;
+
       if (newAttachment.ext === '.') {
         newAttachment.ext = '';
       }
+
       newAttachment.origin = attachment;
       return newAttachment;
     });
@@ -279,6 +283,7 @@ function parseValue(valueStr = '[]') {
     console.log(err);
     return [];
   }
+
   return value;
 }
 
@@ -306,10 +311,12 @@ function previewAttachment({
   const recordAttachmentSwitch = isOpenPermit(permitList.recordAttachmentSwitch, sheetSwitchPermit, viewId);
   let hideFunctions = ['editFileName', 'saveToKnowlege'];
   const allowDownload = advancedSetting.allowdownload || '1';
+
   if (!recordAttachmentSwitch || disableDownload || allowDownload === '0') {
     /* 是否不可下载 且 不可保存到知识和分享 */
     hideFunctions.push('download', 'share');
   }
+
   addBehaviorLog('previewFile', worksheetId, { fileId, rowId: recordId });
   const attachmentsData = attachments.map(attachment => {
     if (attachment.fileID && attachment.fileID.slice(0, 2) === 'o_') {
@@ -320,6 +327,7 @@ function previewAttachment({
         name: attachment.originalFilename || _l('图片'),
       });
     }
+
     return Object.assign({}, attachment, {
       previewAttachmentType: 'COMMON_ID',
     });
@@ -397,6 +405,7 @@ function HoverPreviewPanel(props) {
     allowDownload === '1';
   const imageUrl = attachment.previewUrl.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/2/h/160');
   const allowNewPage = recordId && !recordId.startsWith('temp-') && _.isEmpty(window.shareState);
+
   const handleOpenControlAttachmentInNewTab = (fileId, options = {}) => {
     addBehaviorLog('previewFile', worksheetId, { fileId, rowId: recordId });
     openControlAttachmentInNewTab(
@@ -412,11 +421,14 @@ function HoverPreviewPanel(props) {
       ),
     );
   };
+
   useEffect(() => {
     const image = new Image();
+
     image.onload = () => {
       setLoading(false);
     };
+
     image.src = imageUrl;
   }, []);
   function handleDelete() {
@@ -442,6 +454,7 @@ function HoverPreviewPanel(props) {
       );
     }
   }
+
   return (
     <HoverPreviewPanelCon
       onClick={e => {
@@ -516,9 +529,11 @@ function HoverPreviewPanel(props) {
 function AttachmentImage(props) {
   const { showShape, style = {} } = props;
   let { width, height, objectFit } = style;
+
   if (showShape === 'circle' || showShape === 'rect') {
     width = height;
   }
+
   const imgRef = useRef();
   useEffect(() => {
     return () => {
@@ -651,6 +666,7 @@ function Attachment(props) {
       alert(_l('您权限不足，无法预览，请联系管理员或文件上传者'), 3);
       return;
     }
+
     openControlAttachmentInNewTab({
       appId,
       recordId,
@@ -773,9 +789,11 @@ function CellAttachments(props, sourceRef) {
     }[String(columnStyle.coverFillType)] || 'cover';
   const [, onlyAllowMobileInput] = strDefault.split('');
   const allowupload = advancedSetting.allowupload || '1';
+
   if (cell.type === 14 && onlyAllowMobileInput === '1') {
     editable = false;
   }
+
   const [uploadFileVisible, setUploadFileVisible] = useState(isediting);
   const [attachments, setAttachments] = useState(parseValue(value));
   const [temporaryAttachments, setTemporaryAttachments] = useState([]);
@@ -812,6 +830,7 @@ function CellAttachments(props, sourceRef) {
           '.triggerTraget',
           '.folderSelectDialog',
           '.fileDetail',
+          '.pcUploadModal',
         ].join(','),
       )
     ) {
@@ -833,6 +852,7 @@ function CellAttachments(props, sourceRef) {
     const tempSavedKcAttachments = attachmentList.filter(c => /^o_/.test(c.fileID) && c.refId).map(c => c.origin);
     submitData.attachmentData = attachmentList.filter(c => !/^o_/.test(c.fileID)).map(c => c.origin);
     submitData.attachments = (temporaryAttachments || [])
+      .filter(c => /^o_/.test(c.fileID))
       .concat(tempSavedAttachments)
       .map(a => ({ ...a, isEdit: false }));
     submitData.knowledgeAtts =
@@ -845,11 +865,13 @@ function CellAttachments(props, sourceRef) {
       {
         callback: data => {
           let parsedValue = [];
+
           try {
             parsedValue = JSON.parse(data[cell.controlId]);
           } catch (err) {
             console.log(err);
           }
+
           setAttachments(
             parsedValue.map(file => ({
               ext: file.ext,
@@ -866,6 +888,7 @@ function CellAttachments(props, sourceRef) {
     setTemporaryAttachments([]);
     setTemporaryKnowledgeAtts([]);
   }
+
   const attachmentsComp = attachments.map((attachment, index) => (
     <Attachment
       showShape={showShape}
@@ -895,9 +918,11 @@ function CellAttachments(props, sourceRef) {
       }}
     />
   ));
+
   if (isediting && allowupload === '1') {
     const popContent = (
       <UploadFilesTrigger
+        specialFilter={target => ref.current.contains(target)}
         allowUploadFileFromMobile
         appId={appId}
         worksheetId={worksheetId}
@@ -914,6 +939,7 @@ function CellAttachments(props, sourceRef) {
         canAddLink={false}
         minWidth={130}
         showAttInfo={false}
+        canPcUpload={true}
         attachmentData={[]}
         temporaryData={temporaryAttachments}
         onTemporaryDataUpdate={res => {
@@ -929,6 +955,13 @@ function CellAttachments(props, sourceRef) {
         }}
         onClose={() => {
           setUploadFileVisible(false);
+          if (temporaryAttachments?.length && temporaryAttachments.some(t => !t.key)) {
+            setTemporaryAttachments([]);
+          }
+
+          if (temporaryKnowledgeAtts?.length && temporaryKnowledgeAtts.some(t => !t.key)) {
+            setTemporaryAttachments([]);
+          }
         }}
         onOk={() => {
           handleChange();
@@ -973,6 +1006,7 @@ function CellAttachments(props, sourceRef) {
       </Trigger>
     );
   }
+
   return (
     <Con
       className={cx(className, { canedit: editable })}

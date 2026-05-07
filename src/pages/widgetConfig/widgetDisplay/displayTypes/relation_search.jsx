@@ -83,6 +83,7 @@ export default function RelationSearch({ data = {}, fromType, isTab }) {
         </EditModelWrap>
       );
     }
+
     return null;
   };
 

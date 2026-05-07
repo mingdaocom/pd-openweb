@@ -3,6 +3,7 @@ import cx from 'classnames';
 import { find } from 'lodash';
 import PropTypes from 'prop-types';
 import styled, { keyframes } from 'styled-components';
+import Share from 'src/pages/worksheet/components/Share';
 import { navigateTo } from 'src/router/navigateTo';
 import { deleteChat, deleteChatHistory, getChatHistories, updateChatTitle } from '../utils';
 import ChatItemList from './ChatItemList';
@@ -57,6 +58,8 @@ export const ChatHistoryContent = forwardRef(function ChatHistoryContent(
   }));
   const [isLoading, setIsLoading] = useState(true);
   const [histories, setHistories] = useState();
+  const [shareChatId, setShareChatId] = useState('');
+  const [shareTitle, setShareTitle] = useState('');
   useEffect(() => {
     getChatHistories().then(data => {
       window.mingoChatHistories = data;
@@ -64,6 +67,7 @@ export const ChatHistoryContent = forwardRef(function ChatHistoryContent(
       setIsLoading(false);
       if (setDocumentTitle && currentChatId) {
         const newTitle = find(histories, { chatId: currentChatId })?.title;
+
         if (newTitle) {
           document.title = newTitle;
         }
@@ -71,47 +75,74 @@ export const ChatHistoryContent = forwardRef(function ChatHistoryContent(
     });
   }, []);
   return (
-    <ChatItemList
-      className={cx('chatHistoryContent', className)}
-      header={header}
-      showHeader={showHeader}
-      isLoading={isLoading}
-      chatListData={histories}
-      currentChatId={currentChatId}
-      isLand={isLand}
-      allowShareChat={allowShareChat}
-      onClick={e => e.stopPropagation()}
-      onSelect={item => {
-        onSelect(item);
-        if (setDocumentTitle && item.title) {
-          document.title = item.title;
-        }
-      }}
-      onDelete={async item => {
-        await deleteChat(item.chatId);
-        await deleteChatHistory(item.chatId);
-        setHistories(histories.filter(history => history.chatId !== item.chatId));
-        if (currentChatId === item.chatId && isLand) {
-          navigateTo('/mingo');
-        }
-      }}
-      onRename={async (newTitle, item) => {
-        await updateChatTitle(item.chatId, newTitle);
-        setHistories(
-          histories.map(history => (item.chatId === history.chatId ? { ...history, title: newTitle } : history)),
-        );
-      }}
-      onShare={item => {
-        window.open(`/mingo/share/${item.chatId}`, '_blank');
-      }}
-      onClose={onClose}
-    />
+    <>
+      <ChatItemList
+        className={cx('chatHistoryContent', className)}
+        header={header}
+        showHeader={showHeader}
+        isLoading={isLoading}
+        chatListData={histories}
+        currentChatId={currentChatId}
+        isLand={isLand}
+        allowShareChat={allowShareChat}
+        onClick={e => e.stopPropagation()}
+        onSelect={item => {
+          onSelect(item);
+          if (setDocumentTitle && item.title) {
+            document.title = item.title;
+          }
+        }}
+        onDelete={async item => {
+          await deleteChat(item.chatId);
+          await deleteChatHistory(item.chatId);
+          setHistories(histories.filter(history => history.chatId !== item.chatId));
+          if (currentChatId === item.chatId && isLand) {
+            navigateTo('/mingo');
+          }
+        }}
+        onRename={async (newTitle, item) => {
+          await updateChatTitle(item.chatId, newTitle);
+          setHistories(
+            histories.map(history => (item.chatId === history.chatId ? { ...history, title: newTitle } : history)),
+          );
+        }}
+        onShare={item => {
+          setShareChatId(item.id);
+          setShareTitle(item.title);
+        }}
+        onClose={onClose}
+      />
+
+      {shareChatId && (
+        <Share
+          isCharge
+          title={_l('分享会话: %0', shareTitle)}
+          from="mingoHelp"
+          privateShare={false}
+          params={{
+            sourceId: `${shareChatId}`,
+            title: shareTitle,
+          }}
+          onClose={() => setShareChatId(null)}
+        />
+      )}
+    </>
   );
 });
 
 export default function ChatHistoryPopup(props) {
   return (
-    <Con className="t-flex t-items-end" onClick={props.onClose}>
+    <Con
+      className="t-flex t-items-end"
+      onClick={e => {
+        if (e.target.closest('.mdModalWrap')) {
+          return;
+        }
+
+        e.stopPropagation();
+        props.onClose();
+      }}
+    >
       <ChatHistoryContent {...props} />
     </Con>
   );

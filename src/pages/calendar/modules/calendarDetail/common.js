@@ -109,6 +109,7 @@ export const formatRecur = function (calendar) {
   let detail = '';
   let until = '';
   let layer = RECURLAYERS[frequency - 1];
+
   // 重复频率
   // 每月 每周 每年
   // 每2月
@@ -120,6 +121,7 @@ export const formatRecur = function (calendar) {
 
   if (frequency === FREQUENCY.WEEK) {
     const weekDays = calendar.weekDay ? calendar.weekDay.split(',') : [];
+
     if (weekDays.length === 5 && parseInt(weekDays[0], 10) === 1 && parseInt(weekDays[4], 10) === 5) {
       weekDay = _l('在 工作日');
     } else {
@@ -127,6 +129,7 @@ export const formatRecur = function (calendar) {
         return WEEKDAYS[day];
       }).join('、');
     }
+
     detail = weekDay + ' ';
   } else if (frequency === FREQUENCY.MONTH) {
     detail = _l('在第 %0 天', moment(calendar.start).format('D'));
@@ -158,6 +161,7 @@ export const formatShowTime = function (calendar) {
   const endTime = moment(end);
 
   const isSameDay = startTime.isSame(endTime, 'day');
+
   /**
    * 显示时间foramt
    * @desc 同一年的时间格式: MM月DD日 非同一年显示年份 全天日程不显示 HH:mm
@@ -166,14 +170,17 @@ export const formatShowTime = function (calendar) {
   const timeFormat = (time, isEndTime) => {
     const isCurrYear = moment(time).isSame(moment(), 'year');
     let TIMEFORMAT = isCurrYear ? _l('MM月DD日 (ddd)') : _l('YYYY年MM月DD日 (ddd)');
+
     if (!allDay) {
       TIMEFORMAT += ' HH:mm';
       if (isSameDay && isEndTime) {
         TIMEFORMAT = 'HH:mm';
       }
     }
+
     return time.format(TIMEFORMAT);
   };
+
   if (allDay) {
     return `${timeFormat(startTime)}${isSameDay ? '' : ' ' + _l('至') + ' ' + timeFormat(endTime, true)}${_l('全天')}`;
   } else {
@@ -328,6 +335,7 @@ export const addMember = ({ members, users }, { id, recurTime, originRecur, isCh
           if (data.limitedCount) {
             alert(_l('邀请成功，但有%0位用户邀请失败，外部用户短信邀请用量达到上限', data.limitedCount), 3);
           }
+
           resolve({ source, isAllCalendar });
         } else if (source.code === 9) {
           alert(_l('邀请短信发送数量已达最大限制。'), 3);
@@ -429,6 +437,7 @@ export const editCalendar = (calendar, isEdit, { originStartTime, originEndTime 
           untilDate,
           recurCount,
         } = calendar;
+
         // 修改重复日程的开始和结束时间，传重复日程的新oldStartTime oldEndTime
         if (isAllCalendar) {
           if (start !== originStartTime) {
@@ -529,6 +538,7 @@ export const editCalendar = (calendar, isEdit, { originStartTime, originEndTime 
             } else if (_.isFunction(Config.saveCallback)) {
               Config.saveCallback(); // 刷新日历
             }
+
             alert(_l('修改成功'));
           } else if (code === 3) {
             alert(_l('无权限或日程已删除'), 3);
@@ -538,6 +548,7 @@ export const editCalendar = (calendar, isEdit, { originStartTime, originEndTime 
         });
       };
     };
+
     if (members.length > 1) {
       afterRefreshOp(function (reInvite, directRun) {
         recurCalendarUpdate(
@@ -625,6 +636,7 @@ export const deleteCalendar = function ({ id, recurTime, originRecur, isChildCal
           if (typeof Config.deleteCallback === 'function') {
             Config.deleteCallback();
           }
+
           resolve();
         } else {
           alert(_l('删除失败'), 3);
@@ -712,6 +724,7 @@ export const removeWxMember = function (thirdId, { id, recurTime, originRecur, i
         }
       });
     };
+
     recurCalendarUpdate(
       {
         operatorTitle: _l('您确定移出日程成员吗？'),

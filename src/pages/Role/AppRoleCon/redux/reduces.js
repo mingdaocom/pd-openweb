@@ -36,6 +36,7 @@ export const roleId = (state = 'all', action) => {
       return state;
   }
 };
+
 //成员数据
 export const user = (state = [], action) => {
   switch (action.type) {

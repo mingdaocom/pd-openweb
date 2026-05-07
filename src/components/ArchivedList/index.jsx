@@ -36,11 +36,13 @@ export default ({
   const [showList, setShowList] = useState(false);
   const [list, setList] = useState([]);
   const [selectItem, setSelectItem] = useState(archivedItem);
+
   const onSelect = (item = {}) => {
     setSelectItem(item);
     onChange(item);
     setShowList(false);
   };
+
   const renderTrigger = () => {
     return (
       <Trigger

@@ -14,6 +14,7 @@ export const getTodoCount = (params = {}) => {
     if (request) {
       request.abort();
     }
+
     request = instance.getTodoCount(params);
     request.then(list => {
       const mySponsor = list[0]; // 我的发起
@@ -51,9 +52,11 @@ export default class Entry extends Component {
     const { waitingExamine = 0 } = countData || {};
     const isNative = ['native', 'integration'].includes(type);
     const { iconColor } = store.getState().appPkg;
+
     if (_.isFunction(renderContent)) {
       return renderContent({ count, waitingExamine }, onClick);
     }
+
     return (
       <Tooltip title={_l('流程待办')}>
         <div

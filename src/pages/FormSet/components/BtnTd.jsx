@@ -40,6 +40,7 @@ export default function BtnTd(props) {
         cb && cb();
       });
   };
+
   const handleCopy = () => {
     sheetAjax
       .copyWorksheetBtn({
@@ -57,6 +58,7 @@ export default function BtnTd(props) {
         }
       });
   };
+
   const optionWorksheetBtn = ({ appId, viewId, optionType }) => {
     sheetAjax
       .optionWorksheetBtn({
@@ -75,6 +77,7 @@ export default function BtnTd(props) {
         }
       });
   };
+
   const renderTxt = () => {
     let listviews = safeParse(_.get(it, 'advancedSetting.listviews'), 'array');
     const canBatchViewIds = views
@@ -85,6 +88,7 @@ export default function BtnTd(props) {
     const noBatch = (it.writeObject === 2 || it.writeType === 2) && it.clickType === 3; //填写且配置了关联=>不能设置成批量按钮
     const allList = !noBatch ? [...dt, ...listviews] : dt;
     const data = _.uniq(allList);
+
     if (data.length > 0) {
       let str = data
         .map(item => {
@@ -95,8 +99,10 @@ export default function BtnTd(props) {
         .join(',');
       return str;
     }
+
     return _l('未分配视图');
   };
+
   const color = !it.color
     ? 'var(--color-primary)'
     : it.color === 'transparent' && !it.icon
@@ -140,11 +146,13 @@ export default function BtnTd(props) {
                 input.current.focus();
                 return;
               }
+
               if (btnList.find(l => l.name === newName && l.btnId !== it.btnId)) {
                 alert(_l('按钮名称重名，请重新修改'), 3);
                 input.current.focus();
                 return;
               }
+
               let data = btnList.map(os => {
                 if (os.btnId === it.btnId) {
                   return {

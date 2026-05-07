@@ -20,7 +20,7 @@ export default class RoleAuth extends React.Component {
       showApplyForRole: false,
       showCreateRole: false,
     };
-    Config.setPageTitle(_l('管理员'));
+    Config.setPageTitle(_l('组织 - 管理员'));
   }
 
   componentWillMount() {

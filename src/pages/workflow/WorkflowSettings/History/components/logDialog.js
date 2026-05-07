@@ -126,6 +126,7 @@ const LogDialog = props => {
   const [model, setModel] = useState('');
   const [isError, setIsError] = useState(false);
   const [support, setSupport] = useState({});
+
   const ListIcon = ({ item }) => {
     const { icon, ...style } = (() => {
       if (item.role === 'memory') {
@@ -223,10 +224,12 @@ const LogDialog = props => {
       </Fragment>
     );
   };
+
   const copyText = text => {
     copy(text);
     alert(_l('复制成功'));
   };
+
   const diffTime = (item, list, index, showDesc = false) => {
     const formatTime = diff => {
       let min = 0;
@@ -251,8 +254,12 @@ const LogDialog = props => {
 
     return diff <= 0 ? '' : showDesc ? _l('耗时：%0', formatTime(diff)) : formatTime(diff);
   };
+
   const onScroll = _.debounce(() => {
-    const offsetTop = document.querySelector('.logDialogWrapper').offsetTop;
+    const wrapper = document.querySelector('.logDialogWrapper');
+    if (!wrapper) return;
+
+    const offsetTop = wrapper.offsetTop;
     const sections = document.querySelectorAll('.workflowSectionName');
     let sectionIndex = 0;
 
@@ -266,6 +273,13 @@ const LogDialog = props => {
 
     setCurrentSectionIndex(sectionIndex);
   }, 200);
+
+  useEffect(() => {
+    return () => {
+      onScroll.cancel();
+    };
+  }, []);
+
   const convertObjectData = data => {
     try {
       return JSON.parse(data);
@@ -364,8 +378,7 @@ const LogDialog = props => {
                       className={cx({ active: currentSectionIndex === index })}
                       onClick={() => {
                         const sections = document.querySelectorAll('.workflowSectionName');
-
-                        sections[index].scrollIntoView();
+                        sections[index]?.scrollIntoView();
                       }}
                     >
                       <ListIcon item={item} />

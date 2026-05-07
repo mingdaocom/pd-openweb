@@ -137,10 +137,12 @@ export default class MapHandler {
           locationFailedCallback();
           return;
         }
+
         locationFailedAlert && alert(_l('定位获取失败，请重试'), 2);
       } else {
         callback(status, result);
       }
+
       this.geolocation = null;
     });
   }

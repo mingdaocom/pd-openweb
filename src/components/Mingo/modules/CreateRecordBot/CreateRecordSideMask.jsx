@@ -19,6 +19,7 @@ const SideMaskWrap = styled.div`
 function clearLatestMessagesOfMingoCreateRecord(worksheetId) {
   const latestMessagesOfMingoCreateRecord = localStorage.getItem('latestMessagesOfMingoCreateRecord');
   const parsedData = safeParse(latestMessagesOfMingoCreateRecord);
+
   if (parsedData?.worksheetId === worksheetId) {
     localStorage.removeItem('latestMessagesOfMingoCreateRecord');
   }
@@ -37,6 +38,7 @@ export default function CreateRecordSideMask({
   useEffect(() => {
     document.querySelectorAll('.ant-modal-wrap').forEach(el => {
       const modalRoot = el.closest('.ant-modal-root');
+
       if (modalRoot) {
         modalRoot.classList.add('hide');
       }
@@ -47,6 +49,7 @@ export default function CreateRecordSideMask({
     return () => {
       document.querySelectorAll('.ant-modal-wrap').forEach(el => {
         const modalRoot = el.closest('.ant-modal-root');
+
         if (modalRoot) {
           modalRoot.classList.remove('hide');
         }
@@ -71,6 +74,7 @@ export default function CreateRecordSideMask({
           if (!continueAdd) {
             clearLatestMessagesOfMingoCreateRecord(worksheetId);
           }
+
           emitter.emit('RELOAD_SHEET_VIEW');
           onAdd(rowData, { continueAdd });
         }}

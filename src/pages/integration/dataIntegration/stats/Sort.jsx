@@ -8,6 +8,7 @@ export const SORT_TYPE = {
   DESC: 'DESC',
 };
 const sortTypes = [null, SORT_TYPE.ASC, SORT_TYPE.DESC];
+
 export default function (props) {
   const { listLoading, sort, keyStr, txt, onSort } = props;
   return (
@@ -20,6 +21,7 @@ export default function (props) {
         } else {
           sortFlag = sortFlag === 2 ? 0 : sortFlag + 1;
         }
+
         onSort({ fieldName: sortFlag === 0 ? '' : keyStr, sortDirection: sortTypes[sortFlag] });
       }}
     >

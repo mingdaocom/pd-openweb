@@ -99,10 +99,18 @@ const Label = styled.div`
   color: var(--color-text-secondary);
   max-width: 140px;
   min-width: 60px;
-  text-align: right;
-  line-height: 1.2em;
-  padding-top: 8.2px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
   font-weight: bold;
+  .name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .requiredMark {
+    flex-shrink: 0;
+  }
 `;
 
 const Content = styled.div`
@@ -167,15 +175,19 @@ export function turnControl(control) {
   if (control.type === WIDGETS_TO_API_TYPE_ENUM.SHEET_FIELD) {
     control.type = control.sourceControlType;
   }
+
   if (control.type === WIDGETS_TO_API_TYPE_ENUM.SUBTOTAL && control) {
     control.type = control.enumDefault2 || 6;
   }
+
   if (control.type === WIDGETS_TO_API_TYPE_ENUM.FORMULA_DATE) {
     control.type = control.enumDefault === 2 ? (control.unit === '3' ? 15 : 16) : 6;
   }
+
   if (control.type === WIDGETS_TO_API_TYPE_ENUM.FORMULA_FUNC) {
     control.type = control.enumDefault2;
   }
+
   return control;
 }
 
@@ -184,6 +196,7 @@ export function conditionAdapter(condition) {
   if (condition.dataType === 29 && condition.filterType === 2) {
     condition.filterType = 24;
   }
+
   return condition;
 }
 
@@ -191,6 +204,7 @@ function getDefaultValues(items) {
   const values = {};
   items.forEach((item, i) => {
     const key = `${_.get(item, 'control.controlId') || _.get(item, 'controlId')}-${i}`;
+
     if (!_.isEmpty(item.value) || !_.isEmpty(item.values)) {
       values[key] = {
         values: item.values,
@@ -208,6 +222,7 @@ function getDefaultValues(items) {
 export default function Conditions(props) {
   const {
     from,
+    defaultTriggerUpdate = false,
     showTextAdvanced,
     isDark,
     worksheetId,
@@ -271,6 +286,7 @@ export default function Conditions(props) {
       _.get(view, 'advancedSetting.requiredcids'),
     ],
   );
+
   function update(newValues, { noDebounce } = {}) {
     didMount.current = true;
     const valuesToUpdate = newValues || values;
@@ -281,31 +297,39 @@ export default function Conditions(props) {
       spliceType: item.spliceType || 1,
       ...valuesToUpdate[`${_.get(item, 'control.controlId')}-${i}`],
     }));
+
     if (needCheckRequired) {
       const emptyItems = itemsWithValues.filter(item => item.isRequired && !validate(item));
+
       if (emptyItems.length) {
         setRequiredErrorVisible(true);
         alert(_l('请填写%0筛选值', _.get(emptyItems, '0.control.controlName')), 3);
         return;
       }
     }
+
     setRequiredErrorVisible(false);
     const quickFilter = itemsWithValues.filter(validate).map(conditionAdapter);
+
     if (quickFilter.length) {
       const formattedFilter = quickFilter.map(c => {
         let values = formatFilterValuesToServer(c.dataType, c.values);
+
         if (values[0] === 'isEmpty') {
           c.filterType = 7;
           values = [];
         }
+
         if (c.filterType === FILTER_CONDITION_TYPE.DATE_BETWEEN && c.dateRange !== 18) {
           c.filterType = FILTER_CONDITION_TYPE.DATEENUM;
         }
+
         return {
           ...c,
           values,
         };
       });
+
       if (_.includes(TextTypes.concat(NumberTypes), store.current.activeType) && !noDebounce) {
         debounceUpdateQuickFilter.current(formattedFilter, view);
       } else {
@@ -320,6 +344,7 @@ export default function Conditions(props) {
       }
     }
   }
+
   useEffect(() => {
     didMount.current = false;
     setRequiredErrorVisible(false);
@@ -327,6 +352,7 @@ export default function Conditions(props) {
   }, [view.viewId]);
   useEffect(() => {
     let newValues;
+
     if (isConfigMode) {
       newValues = { ...values };
       filters.forEach((item, i) => {
@@ -335,6 +361,7 @@ export default function Conditions(props) {
       });
       setValues(newValues);
     }
+
     if (didMount.current && !showQueryBtn && !_.isEmpty(values)) {
       update(newValues);
     }
@@ -346,7 +373,7 @@ export default function Conditions(props) {
   }, [viewRowsLoading]);
   useEffect(() => {
     didMount.current = true;
-    if (from === 'filterComp') {
+    if (defaultTriggerUpdate) {
       update();
     }
   }, []);
@@ -415,9 +442,13 @@ export default function Conditions(props) {
           }
           onClick={isConfigMode ? () => onFilterClick(item.fid, item) : _.noop}
         >
-          <Label className="label ellipsis" title={item.control.controlName}>
-            {item.control.controlName || _l('未命名')}
-            {item.isRequired && <span style={{ color: 'var(--color-error)' }}>*</span>}
+          <Label className="label" title={item.control.controlName}>
+            <span className="name">{item.control.controlName || _l('未命名')}</span>
+            {item.isRequired && (
+              <span className="requiredMark" style={{ color: 'var(--color-error)' }}>
+                *
+              </span>
+            )}
           </Label>
           <Content className="content">
             <FilterInput
@@ -469,6 +500,7 @@ export default function Conditions(props) {
                 if (viewRowsLoading && isQuerying) {
                   return;
                 }
+
                 setIsQuerying(true);
                 update(undefined, { noDebounce: true });
               }}

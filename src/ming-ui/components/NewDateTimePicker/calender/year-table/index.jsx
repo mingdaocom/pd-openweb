@@ -17,19 +17,24 @@ class YearTable extends Component {
     const trList = this.props.bodyData.map((row, i) => {
       const tdList = row.map((item, j) => {
         const classList = [];
+
         if (item.disabled) {
           classList.push('disabled');
         }
+
         if (item.current) {
           classList.push('current');
           classList.push('ThemeBGColor3');
         }
+
         if (item.other) {
           classList.push('other');
         }
+
         if (item.inRange) {
           classList.push('in-range');
         }
+
         if (item.now) {
           classList.push('now');
           classList.push('ThemeColor3');

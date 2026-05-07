@@ -6,6 +6,7 @@ import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { Icon, Menu, MenuItem, ScrollView } from 'ming-ui';
 import { VerticalMiddle } from 'worksheet/components/Basics';
+import { purchaseMethodFunc } from 'src/components/pay/versionUpgrade/PurchaseMethodModal';
 import { emitter } from 'src/utils/common';
 import { getCurrentProject } from 'src/utils/project';
 import CommonUserHandle from '../components/CommonUserHandle';
@@ -166,6 +167,7 @@ function AppCenterHeader(props) {
 
   useEffect(() => {
     const project = getCurrentProject(projectId || localStorage.getItem('currentProjectId'));
+
     if (_.isEmpty(project)) {
       if (projects[0] && projects[0].projectId) {
         setCurrentProject(projects[0]);
@@ -198,6 +200,7 @@ function AppCenterHeader(props) {
               if (project.projectId !== 'external') {
                 safeLocalStorageSetItem('currentProjectId', project.projectId);
               }
+
               emitter.emit('CHANGE_CURRENT_PROJECT', project);
             }}
           >
@@ -210,6 +213,7 @@ function AppCenterHeader(props) {
       })}
     </ProjectsMenu>
   );
+
   if (projects.length > Math.ceil((window.innerHeight - 160) / 40)) {
     menuContent = <ScrollCon height={Math.ceil((window.innerHeight - 160) / 40) * 40}>{menuContent}</ScrollCon>;
   }
@@ -295,7 +299,10 @@ function AppCenterHeader(props) {
                 <div
                   className="upgrade Hand"
                   onClick={() =>
-                    purchaseMethodFunc({ projectId: currentProject.projectId, isTrial: currentProject.licenseType == 2 })
+                    purchaseMethodFunc({
+                      projectId: currentProject.projectId,
+                      isTrial: currentProject.licenseType == 2,
+                    })
                   }
                 >
                   <i className="icon icon-auto_awesome Font16 TxtMiddle mRight5" />

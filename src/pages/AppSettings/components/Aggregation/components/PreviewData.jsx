@@ -67,6 +67,7 @@ const SelectedFilter = styled(FlexCenter)`
 `;
 
 let ajaxPromise = null;
+
 export default function PreviewData(props) {
   const { match = {} } = props;
   let { params } = match;
@@ -131,6 +132,7 @@ export default function PreviewData(props) {
       setState({ loading: false, hasGet: true });
       return;
     }
+
     sheetAjax
       .getWorksheetInfo(
         {
@@ -145,13 +147,16 @@ export default function PreviewData(props) {
           aggName: res.name || _l('未命名聚合表'),
         });
         let data = {};
+
         try {
           data = await getAppInfo(res.appId);
         } catch (error) {
           console.log(error);
         }
+
         const hasAppResourceAuth = checkPermission(res.projectId, PERMISSION_ENUM.APP_RESOURCE_SERVICE);
         const canView = hasAppResourceAuth || canEditData(data.permissionType) || canEditApp(data.permissionType);
+
         if (!canView) {
           setState({
             noRole: true,
@@ -159,6 +164,7 @@ export default function PreviewData(props) {
           });
           return;
         }
+
         !_.isUndefined(res.appTimeZone) && (window[`timeZone_${res.appId}`] = res.appTimeZone);
         setState({
           controls: _.get(res, 'template.controls')
@@ -166,6 +172,7 @@ export default function PreviewData(props) {
               if (a.row === b.row) {
                 return a.col - b.col;
               }
+
               return a.row - b.row;
             })
             .filter(o => ![...ALL_SYS, 'rowid'].includes(o.controlId) && o.controlName !== 'unique_pk_mdy0000'),
@@ -227,6 +234,7 @@ export default function PreviewData(props) {
     if (loading) {
       return;
     }
+
     setState({
       pageIndex: index,
     });
@@ -236,6 +244,7 @@ export default function PreviewData(props) {
     if (!filterVisible) {
       return '';
     }
+
     return (
       <FilterDialog
         // allowEmpty
@@ -261,6 +270,7 @@ export default function PreviewData(props) {
       />
     );
   };
+
   let filteredText;
   let countFilter = [];
   (filters || []).forEach(o => {

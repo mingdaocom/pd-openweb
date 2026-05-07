@@ -21,31 +21,38 @@ const DepartmentTooltip = ({ item = {}, projectId, advancedSetting = {}, draggin
         setDepartmentName('');
         return;
       }
+
       if (departmentName !== LOADING_TEXT) {
         setVisible(true);
         return;
       }
+
       if (item.isDelete) {
         setDepartmentName(_l('%0部门已被删除', item.deleteCount > 1 ? `${item.deleteCount}个` : ''));
         setVisible(true);
         return;
       }
+
       if (item.disabled) {
         setDepartmentName(_l('部门已停用'));
         setVisible(true);
         return;
       }
+
       if (_.get(window, 'shareState.shareId') || !projectId) {
         setDepartmentName('');
         setVisible(false);
         return;
       }
+
       const { allpath } = advancedSetting;
+
       if (allpath === '1' || _.isEmpty(getCurrentProject(projectId))) {
         setDepartmentName(item.departmentName);
         setVisible(true);
         return;
       }
+
       departmentAjax.getDepartmentFullNameByIds({ projectId, departmentIds: [item.departmentId] }).then(res => {
         setDepartmentName(_.get(res, '0.name'));
         setVisible(true);

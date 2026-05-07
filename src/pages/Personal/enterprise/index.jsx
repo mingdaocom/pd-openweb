@@ -225,9 +225,11 @@ export default class AccountChart extends React.Component {
   render() {
     const { loading, isEnterprise, authCount, dialog } = this.state;
     const canCreateProject = md.global.Account.superAdmin || md.global.SysSettings.enableCreateProject;
+
     if (loading) {
       return <LoadDiv className="mTop40" />;
     }
+
     return (
       <Fragment>
         {isEnterprise ? (

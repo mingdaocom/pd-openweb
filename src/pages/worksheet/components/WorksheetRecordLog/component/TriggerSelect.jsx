@@ -30,4 +30,5 @@ function TriggerSelect(props) {
     </Trigger>
   );
 }
+
 export default TriggerSelect;

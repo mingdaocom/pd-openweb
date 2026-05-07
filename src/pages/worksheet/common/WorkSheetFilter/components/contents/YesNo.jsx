@@ -19,16 +19,19 @@ export default class YesNo extends Component {
 
   getRadioGroupData = () => {
     const { control } = this.props;
+
     if (control.type === 36) {
       const itemnames = getSwitchItemNames(control, { isShow: true });
       return itemnames.map(item => ({ text: item.value, value: Number(item.key) }));
     }
+
     if (includes([40, 41], control.type)) {
       return [
         { text: _l('为空'), value: 0 },
         { text: _l('不为空'), value: 1 },
       ];
     }
+
     return [
       { text: _l('有%25026'), value: 1 },
       { text: _l('无%25027'), value: 0 },
@@ -37,17 +40,21 @@ export default class YesNo extends Component {
 
   getCheckedByFilterType = type => {
     const { control } = this.props;
+
     if (control.type === 36) {
       return type === FILTER_CONDITION_TYPE.EQ ? 1 : 0;
     }
+
     return type === FILTER_CONDITION_TYPE.HASVALUE ? 1 : 0;
   };
 
   getFilterTypeByCheckedValue = value => {
     const { control } = this.props;
+
     if (control.type === 36) {
       return value ? FILTER_CONDITION_TYPE.EQ : FILTER_CONDITION_TYPE.NE;
     }
+
     return value ? FILTER_CONDITION_TYPE.HASVALUE : FILTER_CONDITION_TYPE.ISNULL;
   };
   render() {

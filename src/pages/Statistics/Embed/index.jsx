@@ -50,6 +50,7 @@ export default class EmbedChart extends Component {
           window[`langData-${appId}`] = lang.items;
           window[`langVersion-${appId}`] = langInfo.version;
         }
+
         this.setState({
           appInfo: data,
           loading: false,
@@ -59,9 +60,11 @@ export default class EmbedChart extends Component {
   }
   render() {
     const { loading, appInfo } = this.state;
+
     if (loading) {
       return <LoadDiv />;
     }
+
     if (isMobile) {
       return <MobileChart reportId={this.chartId} projectId={appInfo.projectId} />;
     } else {

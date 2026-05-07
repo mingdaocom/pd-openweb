@@ -14,6 +14,7 @@ export default class Star extends React.Component {
 
   clickHandler(flag) {
     const { inboxId } = this.props;
+
     return () => {
       inboxController
         .setInboxFavorite({
@@ -38,9 +39,11 @@ export default class Star extends React.Component {
   }
   render() {
     const { isFavorite } = this.state;
+
     if (md.global.Account.isPortal && browserIsMobile()) {
       return null;
     }
+
     return (
       <div className="Right">
         {isFavorite === '1' ? (
@@ -55,7 +58,7 @@ export default class Star extends React.Component {
           <Icon
             icon="star-hollow"
             className="Font18 Hand ThemeHoverColor3"
-            style={{ color: 'var(--color-border-primary)' }}
+            style={{ color: 'var(--color-border-tertiary)' }}
             hint={_l('加星')}
             onClick={this.clickHandler('1')}
           />

@@ -25,6 +25,7 @@ const RecordInfoPage = props => {
 
   return (
     <RecordInfo
+      className="recordInfoPage"
       appId={appId}
       worksheetId={worksheetId}
       viewId={viewId}
@@ -92,6 +93,7 @@ export const RecordInfoModal = forwardRef(props => {
       mask={false}
       position="bottom"
       className={cx('mobileModal RecordInfoModal', className)}
+      bodyStyle={{ backgroundColor: 'var(--color-background-primary)!important' }}
       onClose={onClose}
       visible={visible}
     >

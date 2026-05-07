@@ -59,6 +59,7 @@ export default class PrePayOrder extends Component {
     this.setState({ loading: true });
 
     let selectedMerchants = [];
+
     try {
       selectedMerchants = await paymentAjax.getPaymentSettingSelectedMerchants(
         { worksheetId, projectId, appId },
@@ -147,11 +148,13 @@ export default class PrePayOrder extends Component {
                     : `${location.origin}/portal`,
               });
             }
+
             onCancel();
             location.href = `${md.global.Config.WebUrl}orderpay/${res.orderId}`;
           } else {
             this.setState({ orderId: res.orderId, payLoading: false }, () => this.getData());
           }
+
           onUpdateSuccess({ orderId: res.orderId });
         } else {
           this.setState({ orderStatus: res, loading: false, payLoading: false });
@@ -177,6 +180,7 @@ export default class PrePayOrder extends Component {
       this.setState({ orderInfo, orderStatus: status, loading: false, errorMessage: msg });
       return;
     }
+
     this.setState({ orderInfo, loading: false, orderStatus: status, expireCountdown });
     amount > 0 && this.pollOrderStatus(orderInfo);
     expireTime !== 0 && amount <= 0 && this.handleCountDown(expireCountdown);
@@ -223,6 +227,7 @@ export default class PrePayOrder extends Component {
             if (amount === 0 && !msg) {
               this.handleCountDown(expireCountdown);
             }
+
             if (!!msg || amount === 0) return;
 
             setTimeout(() => {

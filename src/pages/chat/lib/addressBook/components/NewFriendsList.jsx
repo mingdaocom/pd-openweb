@@ -46,6 +46,7 @@ export default class NewFriendsList extends React.Component {
       pageSize: 10,
     }).then(({ allCount, list }) => {
       const { listData, pageIndex } = this.state;
+
       if (allCount !== 0) {
         this.setState({
           hasMore: list && list.length >= 10,
@@ -53,6 +54,7 @@ export default class NewFriendsList extends React.Component {
           listData: (listData || []).concat(list),
         });
       }
+
       this.setState({
         isLoading: false,
       });

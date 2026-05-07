@@ -15,22 +15,27 @@ import { formatQuickFilter } from 'src/utils/filter';
 
 let getRows;
 let getRowsIds = [];
+
 export const fetch = searchArgs => {
   return (dispatch, getState) => {
     const { base, quickFilter = [] } = getState().sheet;
     const { worksheetId, viewId, appId, chartId } = base;
+
     if (getRows && getRowsIds.includes(viewId)) {
       getRows.abort();
     }
+
     getRowsIds.push(viewId);
     if (searchArgs.beginTime) {
       searchArgs.beginTime = moment(searchArgs.beginTime, 'YYYY-MM-DD HH:mm')
         .subtract(1, 'days')
         .format('YYYY-MM-DD HH:mm');
     }
+
     if (searchArgs.endTime) {
       searchArgs.endTime = moment(searchArgs.endTime, 'YYYY-MM-DD HH:mm').add(1, 'days').format('YYYY-MM-DD HH:mm');
     }
+
     dispatch({ type: 'WORKSHEET_VIEW_UPDATE_ROWS_LOADING', value: true });
     getRows = sheetAjax.getFilterRows(
       getFilledRequestParams({
@@ -106,9 +111,11 @@ export const fetchExternal = () => {
     const { base = {} } = getState().sheet;
     const { worksheetId, viewId } = base;
     const initType = dispatch(getInitType());
+
     if (!(getShowExternalData() || []).includes(`${worksheetId}-${viewId}`) && 'eventNoScheduled' !== initType) {
       dispatch(getEventScheduledData('eventNoScheduled'));
     }
+
     dispatch(getEventScheduledData(initType));
   };
 };
@@ -130,6 +137,7 @@ const formatData = arr => {
         return true;
       }
     });
+
     if (!alreadyExists) {
       let res = [];
       res.push(oldData);
@@ -160,12 +168,15 @@ const getCardByDays = (arrB = [], arrT = []) => {
 
 const dataResort = obj => {
   let { arr = [], addData = [], isAdd = false, isUp = false, updataRowIds = [] } = obj;
+
   if (updataRowIds.length > 0) {
     let data = addData.filter(o => updataRowIds.includes(o.extendedProps.rowid));
+
     if (data.length > 0) {
       //新获取的数据中包含更新的数据,则删除老数据，重新计算
       arr = arr.map(it => {
         let a = it.res.find(d => updataRowIds.includes(d.extendedProps.rowid));
+
         if (!a) {
           return it;
         } else {
@@ -178,11 +189,14 @@ const dataResort = obj => {
       arr = arr.filter(o => o.res.length > 0 || moment().format('YYYY-MM-DD').isSame(o.date, 'day'));
     }
   }
+
   let newArr = [];
+
   if (isAdd) {
     if (addData.length <= 0) {
       newArr = arr;
     }
+
     if (isUp) {
       newArr = getCardByDays(arr, formatData(addData));
     } else {
@@ -191,6 +205,7 @@ const dataResort = obj => {
   } else {
     newArr = formatData(addData);
   }
+
   //今天无数据的情况下，添加今天
   if (newArr.length > 0 && !newArr.find(it => moment().isSame(it.date, 'day'))) {
     let T = newArr.filter(it => moment().isAfter(it.date));
@@ -201,6 +216,7 @@ const dataResort = obj => {
     });
     newArr = T.concat(B);
   }
+
   newArr = newArr.sort((a, b) => {
     return Date.parse(a.date) - Date.parse(b.date);
   });
@@ -227,17 +243,21 @@ export function getCalendarData() {
       enddate = '',
       calendarcids = '[]',
     } = getAdvanceSetting(currentView);
+
     try {
       calendarcids = JSON.parse(calendarcids);
     } catch (error) {
       calendarcids = [];
       console.log(error);
     }
+
     let colorList = colorid ? controls.find(it => it.controlId === colorid) || [] : [];
     let timeControls = getTimeControls(controls);
+
     if (calendarcids.length <= 0) {
       calendarcids = [{ begin: begindate ? begindate : (timeControls[0] || {}).controlId, end: enddate }]; //兼容老数据
     }
+
     let calendarInfo = calendarcids.map(o => {
       const startData = o.begin ? timeControls.find(it => it.controlId === o.begin) || {} : {};
       const endData = o.end ? timeControls.find(it => it.controlId === o.end) || {} : {};
@@ -254,6 +274,7 @@ export function getCalendarData() {
       : 'today prev,next dayGridMonth,dayGridWeek,dayGridDay';
     let viewType = getCalendartypeData()[`${worksheetId}-${viewId}`];
     let typeStr = '';
+
     if (viewType) {
       if (['dayGridWeek', 'timeGridWeek'].includes(viewType)) {
         typeStr = isTimeStyle(calendarInfo[0].startData) ? 'timeGridWeek' : 'dayGridWeek';
@@ -263,6 +284,7 @@ export function getCalendarData() {
         typeStr = viewType;
       }
     }
+
     dispatch({
       type: 'CHANGE_CALENDAR_DATA',
       data: {
@@ -279,9 +301,11 @@ export function getCalendarData() {
 export const getInitType = () => {
   return () => {
     let type = window.localStorage.getItem('CalendarShowExternalTypeEvent');
+
     if (!type) {
       safeLocalStorageSetItem('CalendarShowExternalTypeEvent', 'eventNoScheduled');
     }
+
     return type || 'eventNoScheduled';
   };
 };
@@ -317,6 +341,7 @@ export const getEventScheduledData = type => {
 
 let getFilterRows;
 let getFilterRowsIds = [];
+
 export function getEventList({
   pageIndex = 1,
   typeEvent = 'eventNoScheduled',
@@ -331,9 +356,11 @@ export function getEventList({
     const { appId, worksheetId, viewId } = base;
     const currentView = getCurrentView(getState().sheet);
     const { calendarInfo = [] } = calendarData;
+
     if (getFilterRows && getFilterRowsIds.includes(viewId)) {
       getFilterRows.abort();
     }
+
     dispatch({ type: 'CHANGE_CALENDAR_IS_OVER', data: true });
     let prams = {
       appId,
@@ -357,6 +384,7 @@ export function getEventList({
     });
     if (typeEvent === 'eventScheduled') {
       let filterControls = [];
+
       if (!keyWords) {
         if (isUp) {
           //早于今天
@@ -387,6 +415,7 @@ export function getEventList({
           });
         });
       }
+
       //已排期
       prams = {
         ...prams,
@@ -420,6 +449,7 @@ export function getEventList({
         filterControls,
       };
     }
+
     getFilterRows = sheetAjax.getFilterRows(
       getFilledRequestParams({
         ...prams,
@@ -430,6 +460,7 @@ export function getEventList({
     getFilterRows.then(rowsData => {
       getFilterRowsIds = getFilterRowsIds.filter(o => o !== viewId);
       let s = rowsData.data;
+
       if (keyWords) {
         let searchDataList = [];
         s.forEach(it => {
@@ -458,6 +489,7 @@ export function getEventList({
         } else {
           l = s;
         }
+
         let events = [];
         s.forEach(it => {
           events.push(
@@ -476,6 +508,7 @@ export function getEventList({
             return Date.parse(a.start) - Date.parse(b.start);
           });
         }
+
         let dts = {
           ...calenderEventList,
           [typeEvent]: !isAdd
@@ -505,6 +538,7 @@ export function getEventList({
                 })
               : calenderEventList.eventScheduledDtResort,
         };
+
         //重新获取已排期的数据 充值已排期今天之前的数据
         if (pageIndex === 1 && typeEvent === 'eventScheduled' && !isUp) {
           dts = {
@@ -514,12 +548,14 @@ export function getEventList({
             eventScheduledUpCount: 0, //已排期 今天之前的 Count
           };
         }
+
         dispatch({
           type: 'CHANGE_CALENDAR_LIST',
           data: dts,
         });
         dispatch({ type: 'CHANGE_CALENDAR_LOADING', data: false });
       }
+
       dispatch({ type: 'CHANGE_CALENDAR_IS_OVER', data: true });
       if (cb) {
         dispatch({ type: 'CHANGE_CALENDAR_LOADING', data: true });
@@ -594,6 +630,7 @@ export function refreshEventList() {
     dispatch({ type: 'CHANGE_CALENDAR_LOADING', data: true });
   };
 }
+
 //当前新增表单
 export function updateCalendarEventIsAdd(data) {
   return dispatch => {
@@ -612,6 +649,7 @@ export function updateEventData(rowId, data, time) {
     const currentView = getCurrentView(getState().sheet);
     let { keyWords, searchData, eventScheduledDtResort = [], updataRowIds = [] } = calenderEventList;
     const typeEvent = dispatch(getInitType());
+
     if (keyWords) {
       // 搜索状态 直接更新卡片数据
       let da = [];
@@ -645,10 +683,12 @@ export function updateEventData(rowId, data, time) {
       } else {
         let da = calenderEventList[`${typeEvent}Dt`] || [];
         let add = false;
+
         //已排期，判断是否已获取，已获取则更新 否则添加新时间数据
         if (typeEvent === 'eventScheduled') {
           let start = (eventScheduledDtResort[0] || {}).date;
           let end = (eventScheduledDtResort[eventScheduledDtResort.length - 1] || {}).date;
+
           if (
             !(
               moment(time).isBetween(start, end) ||
@@ -662,6 +702,7 @@ export function updateEventData(rowId, data, time) {
             add = true;
           }
         }
+
         if (da.findIndex(it => it.rowid === rowId) < 0) {
           da = da.concat(_.omit(data, ['allowedit', 'allowdelete']));
           add = true;
@@ -674,6 +715,7 @@ export function updateEventData(rowId, data, time) {
             }
           });
         }
+
         let events = [];
         da.forEach(it => {
           events.push(

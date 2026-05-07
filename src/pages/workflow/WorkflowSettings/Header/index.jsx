@@ -37,8 +37,8 @@ const MenuBox = styled.div`
   min-width: 180px;
   padding: 5px 0;
   border-radius: 3px;
-  background: var(--color-background-primary);
-  box-shadow: 0 3px 6px 1px rgba(0, 0, 0, 0.1608);
+  background: var(--color-background-card);
+  box-shadow: var(--shadow-lg);
   .Item-content {
     padding-left: 36px !important;
   }
@@ -121,6 +121,7 @@ const Footer = styled.div`
 
 const BotBox = styled.div`
   height: calc(100vh - 87px);
+  width: 500px;
   position: absolute;
   right: 16px;
   top: 71px;
@@ -591,6 +592,7 @@ class Header extends Component {
     const { isProgressing } = this.state;
     const { flowNodeMap } = workflowDetail;
     let showSendModeDialog = this.hasTodoNode(flowNodeMap);
+
     const execFunc = (debugEvents = []) => {
       this.setState({ isProgressing: true });
 
@@ -790,6 +792,7 @@ class Header extends Component {
    */
   getNodeDetail = () => {
     const { flowInfo, isIntegration } = this.props;
+
     const isSystemVariable = o => {
       return o.processVariableType === 3 && flowInfo.startAppType === APP_TYPE.LOOP_PROCESS;
     };

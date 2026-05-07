@@ -1,6 +1,7 @@
-import React from 'react';
+﻿import React from 'react';
 import { MINGO_TASK_TYPE } from './ChatBot/enum';
 import CustomBot from './modules/AgentPromptGenBot';
+import AppInfoOptimizationBot from './modules/AppInfoOptimizationBot';
 import CreateRecordBot from './modules/CreateRecordBot';
 import CreateWorksheetBot from './modules/CreateWorksheetBot';
 import CreateWorksheetDataBot from './modules/CreateWorksheetDataBot';
@@ -49,8 +50,11 @@ export default function MingoEntry({
     return <CreateRecordBot base={base} onClose={onClose} onBack={onBack} />;
   } else if (taskType === MINGO_TASK_TYPE.CREATE_WORKSHEET_DATA_ASSIGNMENT) {
     return <CreateWorksheetDataBot base={base} onClose={onClose} onBack={onBack} />;
+  } else if (taskType === MINGO_TASK_TYPE.APP_INFO_OPTIMIZATION) {
+    return <AppInfoOptimizationBot base={base} onClose={onClose} onBack={onBack} />;
   } else if (taskType === MINGO_TASK_TYPE.CUSTOM_BOT) {
     return <CustomBot base={base} onClose={onClose} onBack={onBack} />;
   }
+
   return null;
 }

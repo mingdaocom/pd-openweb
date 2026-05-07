@@ -116,6 +116,7 @@ export default function AIAction(props) {
     if (ajaxFn) {
       ajaxFn.abort();
     }
+
     ajaxFn = worksheetAjax.getWorksheetBtns({
       worksheetId,
       btnType: 1,
@@ -173,9 +174,11 @@ export default function AIAction(props) {
     if (saveLoading) {
       return;
     }
+
     if (!_.trim(params.name)) {
       return;
     }
+
     setState({ saveLoading: true });
 
     worksheetAjax

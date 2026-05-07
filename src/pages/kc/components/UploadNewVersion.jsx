@@ -46,6 +46,7 @@ class UploadNewVersion extends React.Component {
           const file = files[0];
           const targetFileExt = item.ext;
           const newVersionExt = RegExpValidator.getExtOfFileName(file.name);
+
           if (RegExpValidator.fileIsPicture('.' + targetFileExt)) {
             if (!RegExpValidator.fileIsPicture('.' + newVersionExt)) {
               alert(_l('请选择图片文件'), 3);
@@ -57,6 +58,7 @@ class UploadNewVersion extends React.Component {
             up.setOption('auto_start', false);
             return;
           }
+
           up.setOption('auto_start', true);
           up.splice(0, up.files.length - 1);
           _this.dialog = uploadNewVersionDailog(item, file, _this.props.callback);

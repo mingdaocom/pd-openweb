@@ -45,6 +45,7 @@ const arraySplitList = [
   { txt: _l('拆开'), value: true },
   { txt: _l('合并'), value: false },
 ];
+
 export default function GroupCon(props) {
   const { list, onChange, sourceTables, updateErr, flowData, sourceInfos } = props;
 
@@ -56,9 +57,11 @@ export default function GroupCon(props) {
     });
     let isDelete = _.get(item, 'resultField.isDelete');
     const fields = _.get(item, 'fields') || [];
+
     if (fields.length !== sourceTables.length) {
       isDelete = true;
     }
+
     fields.map(o => {
       if (isDelStatus(o, sourceInfos, '')) {
         isDelete = true;
@@ -158,11 +161,14 @@ export default function GroupCon(props) {
                                   if (o.value === item.aggFuncType) {
                                     return;
                                   }
+
                                   const hs = !!list.find(it => it.oid === item.oid && it.aggFuncType === o.value);
+
                                   if (hs) {
                                     alert(_l('不能重复添加相同归组方式的相同字段'), 3);
                                     return;
                                   }
+
                                   onUpdate(
                                     items.map(a => {
                                       if (_.get(a, 'resultField.id') === _.get(item, 'resultField.id')) {
@@ -178,6 +184,7 @@ export default function GroupCon(props) {
                                           }),
                                         };
                                       }
+
                                       return a;
                                     }),
                                   );
@@ -246,6 +253,7 @@ export default function GroupCon(props) {
                                           arraySplit: o.value,
                                         };
                                       }
+
                                       return a;
                                     }),
                                   );
@@ -324,9 +332,11 @@ export default function GroupCon(props) {
               if (_.get(item, 'resultField.alias') === name) {
                 return;
               }
+
               if (!getRuleAlias(name, props.flowData, true)) {
                 return alert(_l('已存在该字段名称，名称不可重复'), 3);
               }
+
               onUpdate(
                 items.map(o => {
                   if (_.get(o, 'resultField.id') === _.get(item, 'resultField.id')) {
@@ -338,6 +348,7 @@ export default function GroupCon(props) {
                       },
                     };
                   }
+
                   return o;
                 }),
                 false,

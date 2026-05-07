@@ -241,6 +241,7 @@ export default function GroupItem(props) {
       </VerticalMiddle>
     </GroupItemCon>
   );
+
   if (id || to) {
     return (
       <GroupItemLink

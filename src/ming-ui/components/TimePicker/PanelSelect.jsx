@@ -14,6 +14,7 @@ class PanelSelect extends Component {
 
   componentDidMount() {
     const selectedItem = this._select.querySelector('.TimePicker-select-item.actived');
+
     if (selectedItem) {
       const dis = this._select.scrollTop + (selectedItem.offsetTop - this._select.scrollTop);
       scrollTo(this._select, dis, 0);

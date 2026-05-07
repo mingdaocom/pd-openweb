@@ -4,6 +4,7 @@ import { Popover } from 'antd';
 import _ from 'lodash';
 import moment from 'moment';
 import SheetContext from 'worksheet/common/Sheet/SheetContext';
+import { RECORD_COLOR_SHOW_TYPE } from 'worksheet/constants/enum';
 import { getEmbedValue } from 'src/components/Form/core/formUtils/helper';
 import { permitList } from 'src/pages/FormSet/config';
 import { isOpenPermit } from 'src/pages/FormSet/util';
@@ -12,8 +13,9 @@ import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/D
 import EditableCard from 'src/pages/worksheet/views/components/EditableCard.jsx';
 import { getRecordAttachments } from 'src/pages/worksheet/views/util.js';
 import { RENDER_RECORD_NECESSARY_ATTR } from 'src/pages/worksheet/views/util.js';
-import { isTimeStyle } from 'src/utils/control';
+import { getAdvanceSetting, isTimeStyle } from 'src/utils/control';
 import { getRecordColorConfig } from 'src/utils/record';
+import { CARD_WIDTH } from './constants';
 import { isEmojiCharacter } from './util';
 
 const EventCardContent = ({
@@ -27,18 +29,22 @@ const EventCardContent = ({
   sheetButtons = [],
   printList = [],
   eventClick,
+  getButtonsCheckStatus,
   ...props
 }) => {
   // 准备卡片数据
   const item = _.cloneDeep(_.get(info, 'event.extendedProps'));
+
   if (item?.info?.begin && item[item.info.begin]) {
     item[item.info.begin] = isTimeStyle(_.get(item, 'info.startData'))
       ? moment(item[item.info.begin])
       : item[item.info.begin];
   }
+
   if (item?.info?.end && item[item.info.end]) {
     item[item.info.end] = isTimeStyle(_.get(item, 'info.endData')) ? moment(item[item.info.end]) : item[item.info.end];
   }
+
   const coverCid = currentView.coverCid || _.get(worksheetInfo, 'advancedSetting.coverid');
   let formData = controls.map(o => ({ ...o, value: item[o.controlId] }));
   const { coverImage, allAttachments } = getRecordAttachments(item[coverCid]);
@@ -76,6 +82,7 @@ const EventCardContent = ({
     const arr = [];
 
     const titleControl = controls.find(o => o.attribute === 1);
+
     if (titleControl) {
       arr.push({
         ..._.pick(titleControl, RENDER_RECORD_NECESSARY_ATTR),
@@ -90,6 +97,7 @@ const EventCardContent = ({
 
     displayControlsCopy.forEach(id => {
       const currentControl = _.find(controls, ({ controlId }) => controlId === id);
+
       if (currentControl) {
         const value = parsedRow[id];
         arr.push({ ..._.pick(currentControl, RENDER_RECORD_NECESSARY_ATTR), value });
@@ -137,6 +145,7 @@ const EventCardContent = ({
           canDrag={false}
           isCharge={isCharge}
           currentView={{ ...currentView, appId, worksheetId, groupId, projectId: worksheetInfo.projectId }}
+          buttonsCheckStatus={getButtonsCheckStatus()}
           allowCopy={worksheetInfo.allowAdd}
           allowRecreate={worksheetInfo.allowAdd}
           sheetSwitchPermit={sheetSwitchPermit}
@@ -168,6 +177,7 @@ const EventCard = ({
   views,
   eventClick,
   isMove,
+  getButtonsCheckStatus,
   ...props
 }) => {
   const { event, el } = info;
@@ -175,19 +185,9 @@ const EventCard = ({
   const [visible, setVisible] = useState(false);
   const [offsetX, setOffsetX] = useState(0);
   const hoverRef = useRef(null);
-  const cardWidth = 300; // 卡片宽度
 
-  const handleEventTimeDisplay = () => {
-    const timeEl = eventEl.querySelector('.fc-event-time');
-    if (!timeEl) return;
-    const { event, view } = info;
-    const { allDay } = event;
-    const isMonthView = view.type === 'dayGridMonth';
-    const setElementVisibility = (element, visible) => {
-      element.style.display = visible ? '' : 'none';
-    };
-    setElementVisibility(timeEl, isTimeStyle(_.get(info, 'event.extendedProps.startData')) && !(allDay && isMonthView));
-  };
+  const { stringColor, backgroundColor, borderColor, textColor, recordColor } = _.get(event, 'extendedProps', {});
+  const colortype = getAdvanceSetting(currentView).colortype || RECORD_COLOR_SHOW_TYPE.BG;
 
   useEffect(() => {
     if (!_.get(event, ['extendedProps', 'editable'])) {
@@ -195,7 +195,9 @@ const EventCard = ({
     }
 
     const titleEl = eventEl.querySelector('.fc-event-title');
+
     if (titleEl) {
+      titleEl.style.setProperty('color', textColor, 'important');
       const mark = _.get(event, ['extendedProps', 'mark']);
       const title = _.get(event, 'title', '');
 
@@ -215,8 +217,25 @@ const EventCard = ({
         titleEl.style.fontWeight = 'bold';
       }
     }
-    handleEventTimeDisplay();
-  }, [eventEl, event, currentView]);
+
+    ['Top', 'Bottom', 'Left', 'Right'].forEach(side => {
+      eventEl.style[`border${side}`] = `1px solid ${borderColor}`;
+    });
+    eventEl.style.setProperty('background-color', 'var(--color-background-primary)', 'important');
+    if (colortype !== RECORD_COLOR_SHOW_TYPE.LINE || !recordColor) {
+      eventEl.style.setProperty(
+        'background-image',
+        `linear-gradient(${backgroundColor}, ${backgroundColor})`,
+        'important',
+      );
+    } else {
+      eventEl.style.removeProperty('background-image');
+    }
+
+    if ([RECORD_COLOR_SHOW_TYPE.LINE, RECORD_COLOR_SHOW_TYPE.LINE_BG].includes(colortype) && recordColor) {
+      eventEl.style.borderLeft = `4px solid ${stringColor}`;
+    }
+  }, [eventEl, event, currentView, info, stringColor, backgroundColor, borderColor, colortype]);
 
   const handleMouseMove = e => {
     if (!hoverRef.current) return;
@@ -224,14 +243,16 @@ const EventCard = ({
     const timebarRect = hoverRef.current.getBoundingClientRect();
     const timebarWidth = timebarRect.width;
 
-    if (timebarWidth > cardWidth) {
+    if (timebarWidth > CARD_WIDTH) {
       const mouseX = e.clientX - timebarRect.left;
-      let cardLeft = mouseX - cardWidth / 2;
+      let cardLeft = mouseX - CARD_WIDTH / 2;
+
       if (cardLeft < 0) {
         cardLeft = 0;
-      } else if (cardLeft + cardWidth > timebarWidth) {
-        cardLeft = timebarWidth - cardWidth;
+      } else if (cardLeft + CARD_WIDTH > timebarWidth) {
+        cardLeft = timebarWidth - CARD_WIDTH;
       }
+
       setOffsetX(cardLeft);
     } else {
       setOffsetX(0);
@@ -261,6 +282,7 @@ const EventCard = ({
           views={views}
           {...props}
           eventClick={eventClick}
+          getButtonsCheckStatus={getButtonsCheckStatus}
         />
       }
       align={{
@@ -307,6 +329,7 @@ export const eventDidMount = (
   props,
   eventClick,
   isMove,
+  getButtonsCheckStatus,
 ) => {
   const container = document.createElement('div');
   container.className = `custom-card-container_${_.get(info, 'event.extendedProps.rowid')}`;
@@ -324,6 +347,7 @@ export const eventDidMount = (
       worksheetInfo={worksheetInfo}
       base={base}
       sheetSwitchPermit={sheetSwitchPermit}
+      getButtonsCheckStatus={getButtonsCheckStatus}
       isCharge={isCharge}
       eventClick={eventClick}
       {...props}

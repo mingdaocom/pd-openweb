@@ -18,8 +18,10 @@ import { mobileSelectRecord } from 'mobile/components/RecordCardListDialog';
 import { selectOrgRole as mobileSelectOrgRole } from 'mobile/components/SelectOrgRole';
 import { selectUser } from 'mobile/components/SelectUser';
 import { openAddRecord as mobileAddRecord } from 'mobile/Record/addRecord';
+import exportSheet from 'worksheet/common/ExportSheet';
 import addRecord from 'worksheet/common/newRecord/addRecord';
 import { openRecordInfo } from 'worksheet/common/recordInfo';
+import { importDataFromExcel } from 'worksheet/common/WorksheetBody/ImportDataFromExcel';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
 import { selectRecords } from 'src/components/SelectRecords';
 import { openMobileRecordInfo } from 'src/pages/Mobile/Record';
@@ -141,9 +143,11 @@ export const utils = {
         }
       });
     }
+
     if (isMobile) {
       handlePushState('page', 'recordDetail');
     }
+
     return new Promise(resolve => {
       (isMobile ? openMobileRecordInfo : openRecordInfo)({
         projectId: args.projectId,
@@ -185,6 +189,7 @@ export const utils = {
         }
       });
     }
+
     return new Promise(resolve => {
       (isMobile ? mobileAddRecord : addRecord)({
         ...args,
@@ -217,11 +222,13 @@ export const utils = {
         }
       });
     }
+
     return new Promise(resolve => {
       function handleSelect(users) {
         emitWidgetAction('select-users', users);
         resolve(users);
       }
+
       if (isMobile) {
         selectUser({
           type: 'user',
@@ -266,11 +273,13 @@ export const utils = {
         }
       });
     }
+
     return new Promise(resolve => {
       function handleSelect(departments) {
         emitWidgetAction('select-departments', departments);
         resolve(departments);
       }
+
       if (isMobile) {
         selectUser({
           type: 'department',
@@ -317,11 +326,13 @@ export const utils = {
         }
       });
     }
+
     return new Promise(resolve => {
       function handleSelect(orgs) {
         emitWidgetAction('select-org-roles', orgs);
         resolve(orgs);
       }
+
       if (isMobile) {
         mobileSelectOrgRole({
           projectId: rest.projectId,
@@ -361,6 +372,7 @@ export const utils = {
         }
       });
     }
+
     return new Promise(resolve => {
       (isMobile ? mobileSelectRecord : selectRecords)({
         projectId: rest.projectId,
@@ -380,6 +392,7 @@ export const utils = {
   },
   selectLocation: (options = {}) => {
     const { distance } = options;
+
     if (window.isMingDaoApp) {
       const sessionId = Math.random().toString(32).slice(2);
       return mdAppResponse({
@@ -407,6 +420,7 @@ export const utils = {
         }
       });
     }
+
     return new Promise(resolve => {
       selectLocation({
         ...options,
@@ -430,7 +444,29 @@ export const utils = {
         });
       });
     }
+
     return Promise.resolve({});
+  },
+  getThemeMode: () => {
+    return localStorage.getItem('themeMode') || 'light';
+  },
+  importDataFromExcel: async (options = {}) => {
+    const isDisabled = location.pathname.indexOf('public') > -1 || window.isPublicApp || md.global.Account.isPortal;
+
+    if (isDisabled) {
+      return Promise.resolve({});
+    }
+
+    return importDataFromExcel(options);
+  },
+  exportSheet: async (options = {}) => {
+    const isDisabled = location.pathname.indexOf('public') > -1 || window.isPublicApp || md.global.Account.isPortal;
+
+    if (isDisabled) {
+      return Promise.resolve({});
+    }
+
+    return exportSheet(options);
   },
   renderText,
 };

@@ -2,7 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import DocumentTitle from 'react-document-title';
-import _ from 'lodash';
+import _, { get } from 'lodash';
 import styled from 'styled-components';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
 import Sheet from 'worksheet/common/Sheet/Sheet';
@@ -29,6 +29,7 @@ function ViewComp(props) {
   const { forcePageSize, authRefreshTime, showHeader, showPageTitle, headerLeft, headerRight } = props;
   const {
     config,
+    appId,
     worksheetInfo,
     views,
     viewId,
@@ -51,9 +52,12 @@ function ViewComp(props) {
       )}
       {showHeader && (
         <Header
+          appId={appId}
           forcePageSize={forcePageSize}
           maxCount={maxCount}
           worksheetInfo={worksheetInfo}
+          viewId={viewId}
+          views={views}
           view={view}
           sheetSwitchPermit={sheetSwitchPermit}
           showAsSheetView={showAsSheetView}
@@ -67,8 +71,15 @@ function ViewComp(props) {
           updateSearchRecord={updateSearchRecord}
           refreshSheet={refreshSheet}
           openNewRecord={openNewRecord}
-          fromEmbed={config.fromEmbed}
-          isDraft={config.isDraft}
+          {..._.pick(config, [
+            'fromEmbed',
+            'isDraft',
+            'isAddRecord',
+            'searchRecord',
+            'allowFilter',
+            'allowDraft',
+            'allowImport',
+          ])}
           updateFiltersWithView={value => updateFilters(value, view)}
           onExport={() => {
             emitter.emit('EXPORT_CURRENT_VIEW_AS_EXCEL', { allowExportStatistics: false });
@@ -86,7 +97,7 @@ function ViewComp(props) {
           authRefreshTime={authRefreshTime}
           config={{
             ...config,
-            hideColumnFilter: true,
+            allowFilter: get(window, 'shareState.shareId') ? false : config.allowFilter,
           }}
         />
       </ViewCon>

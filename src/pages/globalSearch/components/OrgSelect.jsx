@@ -64,6 +64,7 @@ export default function OrgSelect(props) {
       setOrgList(list);
       return;
     }
+
     list = list.filter(l => l.companyName.indexOf(value.trim()) > -1);
     setOrgList(needAll ? [ALL_ORG].concat(list) : list);
   };

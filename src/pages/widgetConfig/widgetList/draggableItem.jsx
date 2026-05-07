@@ -20,6 +20,7 @@ export default function DraggableItem(props) {
       buriedUpgradeVersionDialog(globalSheetInfo.projectId, item.featureId);
       return;
     }
+
     let data = {
       ...DEFAULT_DATA[enumType],
       type: enumWidgetType[enumType],
@@ -38,6 +39,7 @@ export default function DraggableItem(props) {
               info: Object.assign({}, info, { tabposition: tempPosition }),
             });
           };
+
           addWidget(data, para, callback);
           onClose();
         },
@@ -46,6 +48,7 @@ export default function DraggableItem(props) {
     }
 
     const err = checkWidgetMaxNumErr(data, allControls);
+
     if (err) {
       alert(err, 3);
       return;

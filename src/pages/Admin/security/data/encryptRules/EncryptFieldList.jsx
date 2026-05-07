@@ -84,14 +84,17 @@ export default class EncryptFieldList extends Component {
   getAppList = () => {
     const { projectId } = this.props;
     const { appPageIndex, isMoreApp, loadingApp, keyword = '' } = this.state;
+
     // 加载更多
     if (appPageIndex > 1 && ((loadingApp && isMoreApp) || !isMoreApp)) {
       return;
     }
+
     this.setState({ loadingApp: true });
     if (this.appPromise) {
       this.appPromise.abort();
     }
+
     this.appPromise = appManagementAjax.getAppsByProject({
       projectId,
       status: '',
@@ -128,6 +131,7 @@ export default class EncryptFieldList extends Component {
       this.setState({ worksheetList: [] });
       return;
     }
+
     const { projectId } = this.props;
     appManagementAjax.getWorksheetsUnderTheApp({ projectId, appIds: [appId], isFilterCustomPage: true }).then(res => {
       const newWorksheetList = (res[appId] || []).map(item => {
@@ -148,6 +152,7 @@ export default class EncryptFieldList extends Component {
     if (this.promise) {
       this.promise.abort();
     }
+
     this.promise = projectEncryptAjax.pagedEncryptFields({
       projectId,
       encryptRuleId,
@@ -222,6 +227,7 @@ export default class EncryptFieldList extends Component {
             onPopupScroll={e => {
               e.persist();
               const { scrollTop, offsetHeight, scrollHeight } = e.target;
+
               if (scrollTop + offsetHeight === scrollHeight) {
                 if (isMoreApp) {
                   this.getAppList();

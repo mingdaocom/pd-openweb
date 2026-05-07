@@ -244,11 +244,13 @@ export default class Label extends Component {
                 controlId: '',
                 dataBarRule: data,
               };
+
               if (colorRules.length) {
                 onChangeDisplayValue('colorRules', [rule, colorRules[1]]);
               } else {
                 onChangeDisplayValue('colorRules', [rule, {}]);
               }
+
               onCancel();
             }}
             onCancel={onCancel}
@@ -358,11 +360,14 @@ export default class Label extends Component {
         if (yaxisList.length > 1) {
           return true;
         }
+
         return displaySetup.showTotal;
       }
+
       if ([reportTypes.BidirectionalBarChart].includes(reportType)) {
         return summary.showTotal || _.get(rightY, 'summary.showTotal');
       }
+
       return false;
     };
 
@@ -452,10 +457,12 @@ export default class Label extends Component {
             tagRender={props => {
               const { label, value, closable, onClose } = props;
               const isExist = value == 'all' ? true : _.find(yaxisList, { controlId: value });
+
               const onPreventMouseDown = event => {
                 event.preventDefault();
                 event.stopPropagation();
               };
+
               return (
                 <Tag
                   color={isExist ? undefined : 'error'}

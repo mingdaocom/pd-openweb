@@ -18,9 +18,11 @@ const previewAttachments = function (options, extra) {
           } catch (err) {
             console.error(err);
           }
+
           if (rootContainer) {
             document.body.removeChild(rootContainer);
           }
+
           if (typeof options.closeCallback === 'function') {
             options.closeCallback();
           }

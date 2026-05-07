@@ -220,6 +220,7 @@ export default class UserBaseInfoSetting extends Component {
   renderAddAction = isCard => {
     const typeFields = isCard ? 'basePopupVisible' : 'cardPopupVisible';
     const { editStatus } = this.props;
+
     if (!editStatus) {
       return (
         <div className="disabledAction mTop12 Hand">

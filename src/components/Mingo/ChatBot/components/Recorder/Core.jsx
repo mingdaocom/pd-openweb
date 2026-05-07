@@ -34,9 +34,11 @@ const Core = forwardRef(
       if (cache.current.autoStopTimer) {
         clearTimeout(cache.current.autoStopTimer);
       }
+
       if (cache.current.didMount) {
         return;
       }
+
       cache.current.didMount = true;
       start();
       cache.current.autoStopTimer = setTimeout(() => {

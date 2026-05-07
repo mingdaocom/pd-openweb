@@ -30,5 +30,6 @@ export function getRowsRelation({ control, recordId, formData, parentAppId }, pa
     getFilterRowsPromise = publicWorksheetAjax.getRelationRows;
     args.shareId = window.publicWorksheetShareId;
   }
+
   return getFilterRowsPromise(args);
 }

@@ -23,10 +23,12 @@ export default class SubSheet extends Component {
     const {
       data: { relationControls = [] },
     } = this.props;
+
     if (!relationControls.length) {
       alert(_l('请先添加字段'), 3);
       return;
     }
+
     this.setState({ recordListVisible: true });
   };
   removeRelateSheet = () => {
@@ -34,10 +36,12 @@ export default class SubSheet extends Component {
   };
   onTriggerClick = () => {
     const { defaultType, eventKey } = this.props;
+
     if (defaultType === 'dynamiccustom' && !eventKey) {
       this.setState({ recordListVisible: true });
       return;
     }
+
     defaultType && this.$wrap.triggerClick();
   };
   render() {

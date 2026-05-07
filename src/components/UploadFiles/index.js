@@ -15,6 +15,7 @@ import * as ajax from 'src/pages/kc/common/AttachmentsPreview/ajax';
 import { formatFileSize } from 'src/utils/common';
 import RegExpValidator from 'src/utils/expression';
 import FileComponent from './File';
+import openPcCamera from './PcUpload';
 import {
   checkAccountUploadLimit,
   checkFileAvailable,
@@ -140,6 +141,14 @@ export default class UploadFiles extends Component {
      */
     previewHideFunctions: PropTypes.arrayOf(PropTypes.string),
     removeDeleteFilesFn: PropTypes.bool,
+    /**
+     * 头部右侧内容自定义
+     */
+    headerRightElement: PropTypes.element,
+    /**
+     * 文件总大小上限（单位 MB），默认 4G
+     */
+    maxTotalSize: PropTypes.number,
   };
   static defaultProps = {
     canAddLink: false,
@@ -163,6 +172,7 @@ export default class UploadFiles extends Component {
     onDropPasting: () => {},
     rowDisplay: false,
     removeDeleteFilesFn: false,
+    maxTotalSize: 1024 * 4,
   };
   constructor(props) {
     super(props);
@@ -197,16 +207,19 @@ export default class UploadFiles extends Component {
         attachmentData: nextProps.attachmentData,
       });
     }
+
     if ('temporaryData' in nextProps && !this._uploading) {
       this.setState({
         temporaryData: formatTemporaryData(nextProps.temporaryData),
       });
     }
+
     if ('kcAttachmentData' in nextProps && !this._uploading) {
       this.setState({
         kcAttachmentData: formatKcAttachmentData(nextProps.kcAttachmentData),
       });
     }
+
     if (nextProps.originCount !== this.props.originCount) {
       this.setState({
         originCount: nextProps.originCount,
@@ -217,9 +230,11 @@ export default class UploadFiles extends Component {
   handleOpenControlAttachmentInNewTab(fileID, options = {}) {
     const { controlId } = this.props;
     const recordBaseInfo = _.get(this, 'context.recordBaseInfo');
+
     if (!recordBaseInfo) {
       return;
     }
+
     openControlAttachmentInNewTab(
       _.assign(
         _.pick(recordBaseInfo, ['appId', 'recordId', 'viewId', 'worksheetId']),
@@ -234,6 +249,7 @@ export default class UploadFiles extends Component {
 
   onRemoveAll(uploader) {
     uploader.files.forEach(item => {
+      //解决removeFile会修改uploader内部队列，导致遍历索引变化，遗漏删除文件问题
       setTimeout(() => {
         uploader.removeFile({ id: item.id });
       }, 0);
@@ -241,6 +257,13 @@ export default class UploadFiles extends Component {
     this._uploading = false;
     this.props.onUploadComplete(true);
   }
+
+  removeErrorFile = (uploader, fileId) => {
+    if (fileId && uploader.removeFile) {
+      uploader.removeFile({ id: fileId });
+    }
+  };
+
   onOpenFolderSelectDialog() {
     selectNode({
       isFolderNode: 2,
@@ -270,10 +293,12 @@ export default class UploadFiles extends Component {
       // 可能会有重复的文件，用 false 表示的，这里需要过滤一下
       newKcAttachmentData = kcAttachmentData.concat(newKcAttachmentData.filter(n => n));
       let isAvailable = true;
+
       // 附件配置控制（包含数量、单个文件大小、类型）
       if (advancedSetting) {
         isAvailable = checkFileAvailable(advancedSetting, newKcAttachmentData, temporaryData.length + originCount);
       }
+
       if (!isAvailable) return;
 
       // 最多只能上传20个知识文件
@@ -297,12 +322,24 @@ export default class UploadFiles extends Component {
       );
     });
   }
+  async openPcCameraDialog() {
+    const cameraProps = {
+      onOk: files => {
+        if (files && files.length && this.qiniuUploadRef?.uploader) {
+          this.qiniuUploadRef.uploader.addFile(files);
+        }
+      },
+    };
+
+    openPcCamera(cameraProps);
+  }
   removeUploadingFile = id => {
     if (this.currentFile) {
       this.currentFile.stop();
       this.currentFile.removeFile({ id });
       this.currentFile.start();
     }
+
     const newTemporaryData = this.state.temporaryData.filter(item => item.id !== id);
     this.setState(
       {
@@ -324,12 +361,14 @@ export default class UploadFiles extends Component {
       callback: link => {
         const { linkName, linkContent } = link;
         const { temporaryData } = this.state;
+
         if (
           temporaryData.filter(attachment => attachment.fileExt === '.url' && attachment.originLinkUrl).length >= 100
         ) {
           alert(_l('附件数量超过限制，一次上传不得超过100个附件'), 3);
           return;
         }
+
         const newTemporaryData = temporaryData.concat({
           fileID: Math.random().toString(),
           fileExt: '.url',
@@ -407,21 +446,26 @@ export default class UploadFiles extends Component {
       alert(_l('名称不能包含以下字符：') + '\\ / : * ? " < > |', 3);
       return;
     }
+
     if (_.isEmpty(newName)) {
       alert(_l('名称不能为空'), 2);
       return;
     }
+
     if (checkValueByFilterRegex) {
       const error = checkValueByFilterRegex(newName);
+
       if (error) {
         alert(error, 2);
         return;
       }
     }
+
     const newTemporaryData = this.state.temporaryData.map(item => {
       if (item.fileID === id) {
         item.originalFileName = newName;
       }
+
       return item;
     });
     this.setState(
@@ -447,17 +491,21 @@ export default class UploadFiles extends Component {
       if (item.refId && !item.shareUrl) {
         return false;
       }
+
       if (item.attachmentType == 5) {
         return false;
       }
+
       return true;
     });
     const { hideDownload = false } = this.props;
     let hideFunctions = (this.props.previewHideFunctions || []).concat(['editFileName']);
+
     if (hideDownload) {
       /* 是否不可下载 且 不可保存到知识和分享 */
       hideFunctions.push('download', 'share', 'saveToKnowlege');
     }
+
     previewAttachments(
       {
         attachments,
@@ -482,8 +530,10 @@ export default class UploadFiles extends Component {
         mdReplaceAttachment: newAttachment => {
           let { attachmentData } = this.state;
           const newAttachmentData = attachmentData.slice();
+
           if (newAttachment && newAttachment.docVersionID) {
             const attachmentIndex = _.findIndex(attachmentData, d => d.docVersionID === newAttachment.docVersionID);
+
             if (attachmentIndex > -1) {
               newAttachmentData[attachmentIndex] = newAttachment;
               this.setState({
@@ -500,11 +550,12 @@ export default class UploadFiles extends Component {
     if (event.target.classList.contains('UploadFiles-editInput')) {
       return;
     }
+
     const { temporaryData } = this.state;
     // 数据预览
     const mdData = temporaryData.filter(item => item.twice);
     // 七牛数据预览
-    const quData = temporaryData.filter(item => !item.twice);
+    const quData = temporaryData.filter(item => !item.twice).filter(item => item.fileID);
 
     // 查找索引
     const mdIndex = findIndex(mdData, id);
@@ -539,9 +590,11 @@ export default class UploadFiles extends Component {
               size: item.fileSize,
               fileid: item.fileID,
             };
+
             if (item.fileExt === '.url') {
               result.linkUrl = item.originLinkUrl;
             }
+
             return result;
           }),
           index: quIndex,
@@ -603,8 +656,10 @@ export default class UploadFiles extends Component {
   onReplaceAttachment(newAttachment) {
     let { attachmentData } = this.state;
     const newAttachmentData = attachmentData.slice();
+
     if (newAttachment && newAttachment.fileID) {
       const index = _.findIndex(attachmentData, d => d.fileID === newAttachment.fileID);
+
       if (index > -1) {
         newAttachmentData[index] = newAttachment;
         this.setState({
@@ -630,6 +685,9 @@ export default class UploadFiles extends Component {
     return (
       <div onClick={e => e.stopPropagation()}>
         <QiniuUpload
+          ref={qiniuUploadRef => {
+            this.qiniuUploadRef = qiniuUploadRef;
+          }}
           options={{
             drop_element: dropPasteElement,
             paste_element: dropPasteElement,
@@ -673,6 +731,7 @@ export default class UploadFiles extends Component {
               ? temporaryData.map(item => item.fileSize).reduce((item, count) => count + item)
               : 0;
             let totalSize = parseFloat(currentTotalSize / 1024 / 1024) + parseFloat(filesSize / 1024 / 1024);
+
             if (totalSize > maxTotalSize) {
               alert('附件总大小超过 ' + formatFileSize(maxTotalSize * 1024 * 1024) + '，请您分批次上传', 3);
               _this.onRemoveAll(uploader);
@@ -725,6 +784,7 @@ export default class UploadFiles extends Component {
             // 验证拦截空文件
             for (let i = 0, length = files.length; i < length; i++) {
               const file = files[i].getNative();
+
               if (file.size === 0) {
                 alert(_l('不支持上传空文件'), 3);
                 _this.onRemoveAll(uploader);
@@ -741,6 +801,7 @@ export default class UploadFiles extends Component {
                 return n;
               });
               const errors = result.filter(n => n);
+
               if (errors.length) {
                 errors.forEach(n => {
                   alert(n, 2);
@@ -777,6 +838,13 @@ export default class UploadFiles extends Component {
               files.splice(files.length - num, num).map(file => {
                 uploader.removeFile({ id: file.id });
               });
+
+              // onAdd 开始时已触发 onUploadComplete(false)，若本次新增全部被裁剪掉，需要复位完成态
+              if (!files.length) {
+                _this._uploading = false;
+                _this.props.onUploadComplete(true);
+                return false;
+              }
             }
 
             const addFiles = [];
@@ -796,7 +864,8 @@ export default class UploadFiles extends Component {
                 id: item.id,
                 info: item.getNative(),
               });
-              addFiles.push({ id: item.id, progress: 0.1, base });
+              // 为后续“总大小”校验提供字段，避免在上传中阶段因 fileSize 缺失导致校验绕过
+              addFiles.push({ id: item.id, fileSize: item.size || 0, progress: 0.1, base });
             });
 
             _this.setState({
@@ -816,6 +885,7 @@ export default class UploadFiles extends Component {
               if (file.id === item.id && 'progress' in item) {
                 item.progress = uploadPercent;
               }
+
               return item;
             });
 
@@ -832,6 +902,7 @@ export default class UploadFiles extends Component {
                 delete item.progress;
                 delete item.base;
               }
+
               return item;
             });
 
@@ -846,10 +917,12 @@ export default class UploadFiles extends Component {
             _this.props.onUploadComplete(true);
           }}
           onError={(uploader, error) => {
-            _this.onRemoveAll(uploader);
+            _this.removeErrorFile(uploader, error?.file?.id);
+
             if ((window.platformENV.isOverseas || window.platformENV.isLocal) && error.response) {
               try {
                 const res = JSON.parse(error.response);
+
                 if (res.code === 50001) {
                   alert(res.message, 2);
                   return;
@@ -861,6 +934,7 @@ export default class UploadFiles extends Component {
                 console.error(error);
               }
             }
+
             if (error.code === window.plupload.FILE_SIZE_ERROR) {
               alert(_l('单个文件大小超过%0MB，无法支持上传', maxTotalSize), 2);
             } else {
@@ -884,7 +958,7 @@ export default class UploadFiles extends Component {
   }
   render() {
     let {
-      advancedSetting,
+      advancedSetting = {},
       controlId,
       worksheetId,
       worksheetIdForScan,
@@ -898,9 +972,12 @@ export default class UploadFiles extends Component {
       canAddLink,
       canAddKnowledge,
       callFrom,
+      headerRightElement,
+      canPcUpload = false,
     } = this.props;
     let { temporaryData, kcAttachmentData, attachmentData } = this.state;
-    const allowappupload = ((advancedSetting || {}).allowappupload || '1') === '1';
+    const allowappupload = (advancedSetting.allowappupload || '1') === '1';
+    const { allowcamera } = advancedSetting;
     let { totalSize, currentPrograss } = getAttachmentTotalSize(temporaryData);
     let length = temporaryData.length + kcAttachmentData.length + attachmentData.length;
     let emptys = Array.from({ length: 15 });
@@ -941,6 +1018,12 @@ export default class UploadFiles extends Component {
                   <span>{_l('链接文件')}</span>
                 </div>
               )}
+              {allowcamera && canPcUpload && (
+                <div className="flexRow valignWrapper" onClick={this.openPcCameraDialog.bind(this)}>
+                  <i className="icon icon-switch_camera textSecondary Font19" />
+                  <span>{_l('摄像头')}</span>
+                </div>
+              )}
               {allowUploadFileFromMobile && allowappupload && (
                 <GenScanUploadQr
                   worksheetId={worksheetIdForScan || worksheetId}
@@ -960,6 +1043,7 @@ export default class UploadFiles extends Component {
                       alert(_l('最多上传%0个文件', advancedSetting.maxcount), 2);
                       return;
                     }
+
                     const newTemporaryData = [...temporaryData, ...files];
                     this.setState({
                       temporaryData: newTemporaryData,
@@ -975,15 +1059,19 @@ export default class UploadFiles extends Component {
                 </GenScanUploadQr>
               )}
             </div>
-            <div className="UploadFiles-ramSize">
-              <div className="UploadFiles-attachmentProgress">
-                <div style={{ width: `${currentPrograss}%` }} className="UploadFiles-currentProgress ThemeBGColor3" />
+            {headerRightElement ? (
+              headerRightElement
+            ) : (
+              <div className="UploadFiles-ramSize">
+                <div className="UploadFiles-attachmentProgress">
+                  <div style={{ width: `${currentPrograss}%` }} className="UploadFiles-currentProgress ThemeBGColor3" />
+                </div>
+                <div className="UploadFiles-info">
+                  {totalSize}/{md.global.SysSettings.fileUploadLimitSize}M(
+                  {canAddLink ? _l('至多本地,知识,链接各100个') : _l('至多本地,知识文件各100个')})
+                </div>
               </div>
-              <div className="UploadFiles-info">
-                {totalSize}/{md.global.SysSettings.fileUploadLimitSize}M(
-                {canAddLink ? _l('至多本地,链接各100个') : _l('至多本地文件各100个')})
-              </div>
-            </div>
+            )}
           </div>
         )}
         <div

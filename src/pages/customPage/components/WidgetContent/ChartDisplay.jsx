@@ -21,22 +21,27 @@ const ChartDisplay = props => {
 
   useEffect(() => {
     const customPageContent = document.querySelector('#componentsWrap');
+
     window[`refresh-${objectId}`] = () => {
       setVisible(false);
       setTimeout(() => {
         setVisible(true);
       }, 100);
     };
+
     if (!customPageContent || customPageContent.classList.contains('adjustScreen')) {
       setVisible(true);
       return;
     }
+
     const chart = customPageContent.querySelector(`.widgetContent .analysis-${widget.id}`);
+
     const checkVisible = () => {
       if (!chart) {
         setVisible(true);
         return;
       }
+
       if (!visible) {
         const pageRect = customPageContent.getBoundingClientRect();
         const rect = chart.getBoundingClientRect();
@@ -44,11 +49,13 @@ const ChartDisplay = props => {
         value && setVisible(true);
       }
     };
+
     customPageContent.addEventListener('scroll', checkVisible, false);
     checkVisible();
     if (columnWidthConfig) {
       sessionStorage.setItem(`pivotTableColumnWidthConfig-${widget.value}`, columnWidthConfig);
     }
+
     return () => {
       customPageContent.removeEventListener('scroll', checkVisible, false);
       delete window[`refresh-${objectId}`];

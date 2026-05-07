@@ -104,6 +104,7 @@ const DevelopContent = ({ data, allControls, onChange }) => {
           }}
           onBlur={e => {
             const newAlias = e.target.value.trim();
+
             if (error === 1) {
               alert(_l('该别名已存在'), 3);
             } else if (error === 2) {

@@ -9,11 +9,14 @@ import { Tooltip } from 'ming-ui/antd-components';
 import Confirm from 'ming-ui/components/Dialog/Confirm';
 import appManagementAjax from 'src/api/appManagement';
 import downloadAjax from 'src/api/download';
+import openAuthorAjax from 'src/api/openAuthor';
 import sheetAjax from 'src/api/worksheet';
 import ArchivedList from 'src/components/ArchivedList';
+import { getMyPermissions, hasPermission } from 'src/components/checkPermission';
 import unauthorizedPic from 'src/components/UnusualContent/unauthorized.png';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import IsAppAdmin from 'src/pages/Admin/components/IsAppAdmin';
+import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 import WorksheetRecordLogDialog from 'src/pages/worksheet/components/WorksheetRecordLog/WorksheetRecordLogDialog';
 import { navigateTo } from 'src/router/navigateTo';
 import { getTranslateInfo } from 'src/utils/app';
@@ -123,6 +126,20 @@ export default class AppAndWorksheetLog extends Component {
         ? APP_WORKSHEET_LOG_COLUMNS.concat(PRIVATE_APP_WORKSHEET_LOG_COLUMNS)
         : APP_WORKSHEET_LOG_COLUMNS;
     const { oldsheetlog } = getRequest(location.search);
+
+    //应用内日志不需要校验组织日志权限
+    const myPermissions = props.appId ? [] : getMyPermissions(props.projectId);
+    const initLogType = localStorage.getItem('globalLogTab') ? +localStorage.getItem('globalLogTab') : 0;
+    this.tabList = props.appId
+      ? TAB_LIST
+      : TAB_LIST.filter(it =>
+          it.tab === 0
+            ? hasPermission(myPermissions, PERMISSION_ENUM.APP_MANAGE_LOG) &&
+              hasPermission(myPermissions, PERMISSION_ENUM.RECORD_OPERATE_LOG) &&
+              hasPermission(myPermissions, PERMISSION_ENUM.USER_ACTION_LOG)
+            : hasPermission(myPermissions, it.permissionKey),
+        );
+
     this.state = {
       appList: [],
       worksheetList: [],
@@ -138,12 +155,14 @@ export default class AppAndWorksheetLog extends Component {
         visible: false,
         title: '',
       },
-      logType: localStorage.getItem('globalLogTab') ? +localStorage.getItem('globalLogTab') : 0,
+      logType: this.tabList.map(it => it.tab).includes(initLogType) ? initLogType : this.tabList[0]?.tab,
       disabledExportBtn: false,
       isAuthority: true, // 是否有权限（应用： 管理员、运营者，后台超级管理员）
       showWorksheetLog: !!oldsheetlog,
       activeDateRange: [],
+      integrationAppList: [],
     };
+
     this.columns = columns
       .map(item => {
         return {
@@ -155,6 +174,8 @@ export default class AppAndWorksheetLog extends Component {
               companyName,
               module,
               operationType,
+              souceType,
+              sourceName,
               operationDatetime,
               application = {},
               appItem = {},
@@ -258,6 +279,8 @@ export default class AppAndWorksheetLog extends Component {
                 return (
                   <span>{_.get(_.find(OPERATE_LIST, it => it.value === operationType) || {}, 'label') || '-'}</span>
                 );
+              case 'sourceType':
+                return <span>{souceType === 2 ? sourceName : _l('官方')}</span>;
               case 'operationDatetime':
                 return <span>{dateConvertToUserZone(operationDatetime)}</span>;
               default:
@@ -279,14 +302,17 @@ export default class AppAndWorksheetLog extends Component {
   getAppList = () => {
     const { projectId } = this.props;
     const { appPageIndex, isMoreApp, loadingApp, keyword = '' } = this.state;
+
     // 加载更多
     if (appPageIndex > 1 && ((loadingApp && isMoreApp) || !isMoreApp)) {
       return;
     }
+
     this.setState({ loadingApp: true });
     if (this.appPromise) {
       this.appPromise.abort();
     }
+
     this.appPromise = appManagementAjax.getAppsByProject({
       projectId,
       status: '',
@@ -342,6 +368,7 @@ export default class AppAndWorksheetLog extends Component {
       isMoreApp,
       archivedItem = {},
       activeDateRange = [],
+      integrationAppList = [],
     } = this.state;
     const {
       appIds = [],
@@ -350,6 +377,8 @@ export default class AppAndWorksheetLog extends Component {
       operationTypes = [],
       dateTimeRange = {},
       archiveDate,
+      operationSource,
+      integrationApp,
     } = searchValues;
     const galFeatureType = getFeatureStatus(projectId, VersionProductType.globalBehaviorLog);
     let operationTypesData = OPERATE_LIST.filter(it =>
@@ -387,7 +416,7 @@ export default class AppAndWorksheetLog extends Component {
             key: 'dateTimeRange',
             type: 'antdRangePicker',
             label: _l('操作时间'),
-            placeholder: [_l('开始日期'), _l('结束日期')],
+            placeholder: [_l('最近30天'), _l('至今')],
             defaultPickerValue: _.isEmpty(archivedItem)
               ? []
               : [moment(archivedItem.start, 'YYYY-MM-DD').subtract(30, 'days'), moment(archivedItem.end, 'YYYY-MM-DD')],
@@ -401,6 +430,7 @@ export default class AppAndWorksheetLog extends Component {
                 if (!activeDateRange) {
                   return false;
                 }
+
                 const tooLate = activeDateRange[0] && current.diff(activeDateRange[0], 'months') > 5;
                 const tooEarly = activeDateRange[1] && activeDateRange[1].diff(current, 'months') > 5;
                 return !!tooEarly || !!tooLate;
@@ -442,6 +472,7 @@ export default class AppAndWorksheetLog extends Component {
         onPopupScroll: e => {
           e.persist();
           const { scrollTop, offsetHeight, scrollHeight } = e.target;
+
           if (scrollTop + offsetHeight === scrollHeight) {
             if (isMoreApp) {
               this.getAppList();
@@ -495,14 +526,69 @@ export default class AppAndWorksheetLog extends Component {
         maxTagCount: 'responsive',
         filterOption: (inputValue, option) => option.children.toLowerCase().includes(inputValue.toLowerCase()),
       },
+      {
+        key: 'operationSource',
+        type: 'select',
+        label: _l('操作来源'),
+        placeholder: _l('全部'),
+        allowClear: true,
+        options: [
+          { value: 1, label: _l('官方') },
+          { value: 2, label: _l('第三方应用') },
+        ],
+        value: operationSource,
+        filterOption: (inputValue, option) => option.children.toLowerCase().includes(inputValue.toLowerCase()),
+      },
+      {
+        key: 'integrationApp',
+        type: 'select',
+        label: _l('第三方应用'),
+        placeholder: _l('全部'),
+        allowClear: true,
+        mode: 'multiple',
+        maxTagCount: 'responsive',
+        options: [
+          { value: '', label: _l('全部') },
+          ...integrationAppList.map(it => ({ value: it.oAuthAppId, label: it.name })),
+        ],
+        value: integrationApp,
+        loading: this.state.LoadingIntegrationApp,
+        filterOption: (inputValue, option) => option.children.toLowerCase().includes(inputValue.toLowerCase()),
+        onDropdownVisibleChange: visible => {
+          if (visible) {
+            if (integrationAppList.length) {
+              return;
+            }
+
+            this.setState({ LoadingIntegrationApp: true });
+            openAuthorAjax
+              .getAppConfigs({ projectId, appId })
+              .then(res => {
+                this.setState({ LoadingIntegrationApp: false, integrationAppList: res });
+              })
+              .catch(() => {
+                this.setState({ LoadingIntegrationApp: false });
+              });
+          }
+        },
+      },
     ];
 
     return coditions.filter(v => {
       let filterArr = [];
+
       if (appId) {
         filterArr = logType === 1 ? ['appIds'] : logType === 2 ? ['appIds', 'modules'] : ['appIds'];
       } else {
         filterArr = logType === 1 ? [] : logType === 2 ? ['modules'] : [];
+      }
+
+      if (logType === 3) {
+        filterArr = ['operationSource', 'integrationApp'];
+      }
+
+      if (operationSource === 1) {
+        filterArr = [...filterArr, 'integrationApp'];
       }
 
       return !_.includes(filterArr, v.key);
@@ -512,7 +598,7 @@ export default class AppAndWorksheetLog extends Component {
   getLogList = (params = {}) => {
     this.setState({ loading: true, pageIndex: params.pageIndex });
     const { projectId, appId } = this.props;
-    const { logType, searchValues, archivedItem = {} } = this.state;
+    const { logType, searchValues, archivedItem = {}, appPageIndex, appList, worksheetList } = this.state;
     const { pageIndex = 1, pageSize = 50 } = params;
     const {
       selectUserInfo = [],
@@ -522,6 +608,8 @@ export default class AppAndWorksheetLog extends Component {
       operationTypes = [],
       dateTimeRange = {},
       archiveDate,
+      operationSource,
+      integrationApp,
     } = searchValues;
     const { startDate, endDate } = dateTimeRange;
 
@@ -551,14 +639,17 @@ export default class AppAndWorksheetLog extends Component {
           : moment(archiveDate).endOf('month').format('YYYY-MM-DD HH:mm:ss'),
       isSingle: appId ? true : false,
       archivedId: archivedItem.id,
+      souceType: operationSource || 0,
+      sourceIds: integrationApp,
     })
       .then(res => {
         if (res.resultCode === 7) {
           this.setState({ isAuthority: false, loading: false });
           return;
         }
-        !this.props.appId && this.getAppList();
-        this.props.appId && this.getWorksheetList([this.props.appId]);
+
+        !this.props.appId && appPageIndex === 1 && !appList.length && this.getAppList();
+        this.props.appId && !worksheetList.length && this.getWorksheetList([this.props.appId]);
 
         this.setState({
           dataSource: res.list.map(item => {
@@ -594,6 +685,8 @@ export default class AppAndWorksheetLog extends Component {
       operationTypes = [],
       dateTimeRange = {},
       archiveDate,
+      operationSource,
+      integrationApp,
     } = searchValues;
     const { startDate, endDate } = dateTimeRange;
 
@@ -621,6 +714,8 @@ export default class AppAndWorksheetLog extends Component {
       menuName: _.get(_.find(TAB_LIST, v => v.tab === logType) || {}, 'tabName'),
       isSingle: appId ? true : false,
       archivedId: archivedItem.id,
+      souceType: operationSource || 0,
+      sourceIds: integrationApp,
     };
 
     downloadAjax
@@ -683,7 +778,7 @@ export default class AppAndWorksheetLog extends Component {
     const { appIds = [], worksheetIds = [] } = searchValues;
     const glFeatureType = getFeatureStatus(projectId, VersionProductType.glabalLog);
     const galFeatureType = getFeatureStatus(projectId, VersionProductType.globalBehaviorLog);
-    const tabList = TAB_LIST.filter(it => (!galFeatureType ? it.tab !== 3 : true));
+    const tabList = this.tabList.filter(it => (!galFeatureType ? it.tab !== 3 : true));
 
     if (glFeatureType === '2') {
       return (
@@ -692,6 +787,7 @@ export default class AppAndWorksheetLog extends Component {
         </div>
       );
     }
+
     if (!isAuthority) {
       return (
         <NoAuthorWrap>
@@ -833,9 +929,11 @@ export default class AppAndWorksheetLog extends Component {
                     alert(_l('最大跨度6个月'), 2);
                     return;
                   }
+
                   if (searchParams.appIds && searchParams.appIds.length && !_.isEqual(searchParams.appIds, appIds)) {
                     this.getWorksheetList(searchParams.appIds);
                   }
+
                   if (_.isEmpty(searchParams) && this.state.keyword) {
                     this.setState({ appPageIndex: 1, keyword: '' }, this.getAppList);
                   }

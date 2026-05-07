@@ -110,6 +110,7 @@ export const VerificationPass = props => {
                           reject(_l('图形验证失败'));
                         }
                       };
+
                       new captcha(callback);
                     });
                   },

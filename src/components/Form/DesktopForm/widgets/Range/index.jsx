@@ -33,6 +33,7 @@ const Range = props => {
     formItemId,
     useCallback(data => {
       const { triggerType } = data;
+
       switch (triggerType) {
         case 'trigger_tab_enter':
           setActiveIndex(1);

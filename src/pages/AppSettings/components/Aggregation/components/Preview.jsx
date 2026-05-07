@@ -19,6 +19,7 @@ import Table from './Table';
 let ajaxPromise = null;
 let ajaxPromisePublish = null;
 let ajaxPromiseStatus = null;
+
 function Preview(props) {
   const cache = useRef({});
   const { projectId, appId, onChangePreview } = props;
@@ -74,6 +75,7 @@ function Preview(props) {
   useEffect(() => {
     if (props.flowData.worksheetId) {
       const { isAllChange } = isHasChange(props.flowData);
+
       //所有的映射都不匹配，不重新获取数据
       if (!isAllChange) {
         getData({ worksheetId: props.flowData.worksheetId });
@@ -95,6 +97,7 @@ function Preview(props) {
   useEffect(() => {
     const { isAllChange, isDisPreview } = isHasChange(flowData);
     let param = {};
+
     if (isAllChange || isDisPreview) {
       param = {
         data: [],
@@ -102,6 +105,7 @@ function Preview(props) {
         previewAgain: true,
       };
     }
+
     setState({
       ...param,
       disablePreview: isDisPreview,
@@ -203,6 +207,7 @@ function Preview(props) {
       controlList,
     });
   };
+
   //更新当前页面状态     // UN_PUBLIC RUNNING STOP ERROR CREATING FINISHED PREPARE
   const onChangeStatus = (syncTaskStatus = '') => {
     setState({
@@ -241,6 +246,7 @@ function Preview(props) {
       searchType: 1,
     });
   };
+
   //轮询获取计数，计数>0则获取数据
   const getRunFetch = async worksheetId => {
     if (!worksheetId || cache.current.syncTaskStatus === 'STOP') return;
@@ -259,6 +265,7 @@ function Preview(props) {
       });
       return;
     }
+
     ajaxPromise = sheetAjax.getFilterRows({
       worksheetId,
       pageSize: pageSize,
@@ -284,9 +291,11 @@ function Preview(props) {
   const refresh = id => {
     if (cache.current.syncTaskStatus === 'STOP') return;
     let worksheetId = id || cache.current.worksheetId || worksheetId;
+
     if (ajaxPromiseStatus) {
       ajaxPromiseStatus.abort();
     }
+
     ajaxPromiseStatus = AggTableAjax.getPreviewTaskStatus(
       {
         projectId,
@@ -297,10 +306,12 @@ function Preview(props) {
     );
     ajaxPromiseStatus.then(async res => {
       const { taskStatus } = res;
+
       if (res.worksheetId && res.worksheetId !== worksheetId) {
         worksheetId = res.worksheetId;
         changeInfoWithWorksheetId(res);
       }
+
       //完成 UN_PUBLIC RUNNING STOP ERROR CREATING FINISHED
       onChangeStatus(taskStatus);
       if (!['CREATING', 'RUNNING'].includes(taskStatus)) {
@@ -308,6 +319,7 @@ function Preview(props) {
           //结束后获取计数，无计数=>则延迟2s重新获取计数和数据
           // console.log('结束后获取计数', moment().format('YYYY/MM/DD HH:mm:ss'));
           const allNum = await getNumFetch(worksheetId);
+
           if (allNum > 0) {
             getData({ worksheetId, withCount: false });
           } else {
@@ -317,6 +329,7 @@ function Preview(props) {
             setTimeout(async () => {
               if (cache.current.syncTaskStatus !== 'STOP') {
                 const count = await getNumFetch(worksheetId);
+
                 if (count > 0) {
                   getData({
                     withCount: false,
@@ -399,6 +412,7 @@ function Preview(props) {
         onChangeStatus('ERROR');
         return;
       }
+
       let newData = { ...flowData, fieldIdAndAssignCidMap: data.fieldIdAndAssignCidMap };
       setState({ flowData: newData, pageIndex: 1 });
       setControls(newData);
@@ -418,6 +432,7 @@ function Preview(props) {
       }
     }
   };
+
   //获取计数
   const getCount = (worksheetId = flowData.worksheetId) => {
     if (!worksheetId) return;
@@ -433,6 +448,7 @@ function Preview(props) {
       });
     });
   };
+
   //获取rowDt
   const getData = ({
     worksheetId = cache.current.worksheetId || flowData.worksheetId,
@@ -472,12 +488,15 @@ function Preview(props) {
       });
     });
   };
+
   const changePageIndex = index => {
     if (loading) {
       return;
     }
+
     getData({ worksheetId, pI: index, withLoading: true });
   };
+
   const noPublishAndHasPreview = flowData.aggTableTaskStatus === 0 && worksheetId && !syncTaskStatus && !hasChange; //未发布过但之前预览过
   const hsPublish = flowData.aggTableTaskStatus === 1;
   const hsFinished = (noPublishAndHasPreview || syncTaskStatus === 'FINISHED') && !previewRunning;
@@ -485,6 +504,7 @@ function Preview(props) {
     ['PREPARE', 'RUNNING'].includes(syncTaskStatus) ||
     ((noPublishAndHasPreview || syncTaskStatus === 'FINISHED') && previewRunning);
   const showChange = hasChange && worksheetId;
+
   const renderTips = () => {
     return (
       <div
@@ -559,6 +579,7 @@ function Preview(props) {
       </div>
     );
   };
+
   const renderTb = () => {
     const controlsForPreview = controlList.map(o => {
       o.advancedSetting && (o.advancedSetting.isdecrypt = '1');
@@ -641,6 +662,7 @@ function Preview(props) {
                             </TextAbsoluteCenter>
                           );
                         }
+
                         const disable = isPublishing || ['CREATING', 'RUNNING', 'PREPARE'].includes(syncTaskStatus);
                         return (
                           <div className="previewBtnCon flexRow alignItemsCenter">
@@ -705,6 +727,7 @@ function Preview(props) {
       </React.Fragment>
     );
   };
+
   return (
     <WrapPreview className="h100 flexColumn">
       {(showChange || syncTaskStatus || noPublishAndHasPreview) && !disablePreview && renderTips()}
@@ -712,4 +735,5 @@ function Preview(props) {
     </WrapPreview>
   );
 }
+
 export default Preview;

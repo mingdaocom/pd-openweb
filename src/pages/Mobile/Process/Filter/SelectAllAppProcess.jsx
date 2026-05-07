@@ -112,6 +112,7 @@ const SelectProcess = props => {
               } else {
                 onChange(item);
               }
+
               onClose();
             }}
           >
@@ -142,6 +143,7 @@ export default props => {
       setLoading(true);
       homeAppApi.getAllHomeApp().then(data => {
         const list = data.validProject.filter(item => item.projectApps.length);
+
         if (requestAppId) {
           const apps = _.flatten(list.map(item => item.projectApps));
           const app = _.find(apps, { id: requestAppId });
@@ -152,6 +154,7 @@ export default props => {
           });
           onChange({ apkId: app.id, processId: undefined });
         }
+
         setValidProject(list);
         setLoading(false);
       });
@@ -161,11 +164,13 @@ export default props => {
   useEffect(() => {
     if (_.isString(processType)) {
       let request = null;
+
       if (processType) {
         request = processVersionApi.list;
       } else {
         request = processVersionApi.listAll;
       }
+
       request({
         relationId: currentSelectAppId,
         processListType: processType || undefined,

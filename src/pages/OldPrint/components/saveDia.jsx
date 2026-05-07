@@ -60,6 +60,7 @@ export default class SaveDia extends React.Component {
             alert(_l('请输入模板名称'), 3);
             return;
           }
+
           this.props.setValue(this.state.printData);
           this.props.onCancel();
         }}

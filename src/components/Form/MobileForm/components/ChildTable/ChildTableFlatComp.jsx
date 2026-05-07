@@ -89,9 +89,19 @@ const FlattenContent = styled.div`
       }
     }
   }
+  .mobileRelateRecordWrap {
+    overflow: hidden;
+    word-break: break-all;
+    text-overflow: ellipsis;
+    white-space: pre-line;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+  }
 `;
 
 const ExpandAllCon = styled.span`
+  position: absolute;
   display: inline-block;
   color: var(--color-primary);
   font-size: 13px;
@@ -205,6 +215,7 @@ export default function ChildTableFlatComp(props) {
           // 增加延迟，确保 CustomFields 等组件内容已渲染
           timeoutId = setTimeout(() => {
             const currentElement = rowRefs.current[expandRowIndex];
+
             if (currentElement) {
               // 将当前元素滚动置顶
               currentElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -239,7 +250,8 @@ export default function ChildTableFlatComp(props) {
     <FlattenContent>
       {!isEdit && showRows.length ? (
         <ExpandAllCon
-          className="expandAll mBottom12 bold"
+          className="expandAll bold"
+          style={{ top: showExpand ? 45 : 3 }}
           onClick={() => setExpandIds(expandIds.length === showRows.length ? [] : showRows.map(item => item.rowid))}
         >
           <Icon
@@ -289,6 +301,7 @@ export default function ChildTableFlatComp(props) {
             {!isExpand || (!isEdit && isExpand) ? (
               <CardCellControls
                 className={!isExpand ? 'childTableAbstractContent' : columnnum === '2' ? 'rowColumn2' : 'rowColumn1'}
+                isMobileTable
                 hideTitle={true}
                 from={from}
                 projectId={projectId}
@@ -356,7 +369,7 @@ export default function ChildTableFlatComp(props) {
 
                     clearTimeout(timer);
                     timer = setTimeout(() => {
-                      submitChildTableCheckData();
+                      submitChildTableCheckData({ isQuickUpdateCheck: true });
                     }, 500);
                   }}
                 />

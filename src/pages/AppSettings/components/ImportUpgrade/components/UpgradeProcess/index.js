@@ -115,6 +115,7 @@ export default class UpgradeProcess extends Component {
       .then(res => {
         const { resultCode, contrasts = {}, id } = res;
         const { worksheets = [] } = contrasts;
+
         if (resultCode === 0) {
           this.setState(
             {
@@ -136,6 +137,7 @@ export default class UpgradeProcess extends Component {
           if (this.state.password) {
             alert(_l('密码错误，校验失败'), 2);
           }
+
           this.setState({ isEncrypt: true, compareLoading: false, analyzeLoading: false, contrasts: {} });
         } else {
           this.setState({
@@ -166,6 +168,7 @@ export default class UpgradeProcess extends Component {
     this.setState({ batchCheckedLoading: true });
 
     const res = [];
+
     for (let l of checkFiles) {
       res.push(
         await appManagementAjax.batchImportCheck({
@@ -193,6 +196,7 @@ export default class UpgradeProcess extends Component {
           exixt: res[0].exixt,
         };
       }
+
       this.setState({ files: [...files], analyzeLoading: false, addFilesLoading: false, batchCheckedLoading: false });
     } else {
       const newList = res
@@ -719,6 +723,7 @@ export default class UpgradeProcess extends Component {
   openShowUpgradeDetail = ({ id, upgradeType, sourceId }) => {
     const { appDetail } = this.props;
     const { worksheetDetailData, upgradeId, batchUpdate, files, currentAppIndex, batchId } = this.state;
+
     if (worksheetDetailData[id]) {
       this.setState({
         currentWorksheet: { id, upgradeType },

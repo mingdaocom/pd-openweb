@@ -163,6 +163,7 @@ export default class Overview extends Component {
     if (this.props.appId) {
       return;
     }
+
     this.getOverviewData();
     this.getChartData();
   }
@@ -399,10 +400,12 @@ export default class Overview extends Component {
   getAppList(projectId) {
     const { appList } = this.state;
     const { appPageIndex = 1, isMoreApp, loadingApp, keyword = '' } = this.state;
+
     // 加载更多
     if (appPageIndex > 1 && ((loadingApp && isMoreApp) || !isMoreApp)) {
       return;
     }
+
     this.setState({ loadingApp: true });
 
     appManagement
@@ -607,6 +610,7 @@ export default class Overview extends Component {
                   onPopupScroll={e => {
                     e.persist();
                     const { scrollTop, offsetHeight, scrollHeight } = e.target;
+
                     if (scrollTop + offsetHeight === scrollHeight) {
                       if (isMoreApp) {
                         this.getAppList(projectId);

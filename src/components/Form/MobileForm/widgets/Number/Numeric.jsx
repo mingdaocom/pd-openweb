@@ -32,6 +32,7 @@ const getAutoValue = (dotformat, val) => {
   if (dotformat === '1') {
     return formatStrZero(val);
   }
+
   return val;
 };
 
@@ -52,19 +53,24 @@ const Numeric = props => {
     isMaskReadonly = false,
   } = props;
   let { prefix, suffix = props.unit, currency } = props.advancedSetting || {};
+
   if (type === 8 && _.includes(['1', '2'], showformat)) {
     const { currencycode, symbol } = safeParse(currency || '{}');
     prefix = showformat === '1' ? symbol : currencycode;
     suffix = '';
   }
+
   const getEditValue = () => {
     let val = props.value;
+
     if (numshow === '1' && val) {
       val = accMul(val, 100);
     }
+
     val = getAutoValue(dotformat, val);
     return val;
   };
+
   const inputRef = useRef(null);
   const [isEditing, setIsEditing] = useState(false);
   const [originValue, setOriginValue] = useState('');
@@ -91,6 +97,7 @@ const Numeric = props => {
         value = formatNumberThousand(value);
       }
     }
+
     return `${value || value === 0 ? [prefix, value, suffix].filter(v => isEffective(v)).join(' ') : hint}`;
   };
 
@@ -144,6 +151,7 @@ const Numeric = props => {
     setIsEditing(false);
 
     let value = props.value;
+
     if (value === '-') {
       value = '';
     } else if (value) {
@@ -163,6 +171,7 @@ const Numeric = props => {
     if (!numinterval || disabled) return null;
 
     let value = props.value;
+
     if (numshow === '1' && !isNaN(parseFloat(value))) {
       value = accMul(value, 100);
     }
@@ -172,6 +181,7 @@ const Numeric = props => {
     } else {
       value = accSub(parseFloat(value || 0), parseFloat(numinterval));
     }
+
     onChange({}, `${value}`);
   };
 
@@ -193,6 +203,7 @@ const Numeric = props => {
     setCurrentValue(getEditValue());
 
     const editValue = getEditValue();
+
     if (inputRef.current && (editValue === null || editValue === undefined || editValue === '')) {
       inputRef.current.value = '';
     }

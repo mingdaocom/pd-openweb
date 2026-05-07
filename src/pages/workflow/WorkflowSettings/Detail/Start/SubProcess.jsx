@@ -34,6 +34,7 @@ export default ({ data, updateSource }) => {
         if (o.controlId === controlId) {
           o[key] = value;
         }
+
         return o;
       }),
     });

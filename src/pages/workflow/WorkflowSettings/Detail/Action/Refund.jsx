@@ -73,11 +73,7 @@ export default props => {
         </div>
       )}
 
-      <FindResult
-        appType={data.appType}
-        executeType={data.executeType}
-        switchExecuteType={executeType => updateSource({ executeType })}
-      />
+      <FindResult appType={data.appType} executeType={data.executeType} updateSource={updateSource} />
     </Fragment>
   );
 };

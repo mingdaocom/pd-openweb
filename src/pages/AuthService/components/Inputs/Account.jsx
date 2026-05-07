@@ -95,9 +95,11 @@ export default function (props) {
           onClick={() => {
             const { dialCode, mobilephone, email } = props;
             let mobile = mobilephone;
+
             if (dialCode) {
               mobile = mobilephone.replace(dialCode, '');
             }
+
             onChange({
               emailOrTel: emailOrTel === email ? mobile : email,
               dialCode: emailOrTel === email ? dialCode : '',

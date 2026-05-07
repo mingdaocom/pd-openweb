@@ -22,6 +22,7 @@ const DisplayWrap = styled.div`
     }
   }
 `;
+
 export default function WidgetPreview(props) {
   const { getLoading } = props;
   return (

@@ -36,16 +36,19 @@ class NodeShare extends React.Component {
     getAttachment()
       .then(({ node, attachments, fileId, allowDownload = true } = {}) => {
         if (attachments) {
-          this.setState({ attachments, fileId, loading: false, allowDownload: true });
+          this.setState({ attachments, fileId, loading: false, allowDownload });
           return;
         }
+
         if (!node) {
           this.setState({ loading: false });
           return;
         }
+
         if (node.type === NODE_TYPE.FOLDER) {
           node = null;
         }
+
         if (this._isMounted) {
           this.setState({ node, allowDownload, loading: false });
         }
@@ -61,6 +64,7 @@ class NodeShare extends React.Component {
 
   render() {
     const { loading, allowDownload, attachments, fileId } = this.state;
+
     if (!AttachmentsPreview || loading) {
       return <LoadDiv size="big" />;
     } else if (!this.state.node && isEmpty(attachments)) {

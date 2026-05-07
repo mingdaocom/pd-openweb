@@ -92,17 +92,21 @@ export default class MobilePhone extends React.Component {
   handleBlur = () => {
     const { error, ignoreErrorMessage, updateCell, updateEditingStatus } = this.props;
     const { tempValue, value } = this.state;
+
     setTimeout(() => {
       window.cellTextIsBlurring = false;
     }, 100);
+
     if (error && !ignoreErrorMessage) {
       this.handleExit();
       return;
     }
+
     if (tempValue === value) {
       updateEditingStatus(false);
       return;
     }
+
     updateCell({
       value: tempValue,
     });
@@ -144,6 +148,7 @@ export default class MobilePhone extends React.Component {
 
   handleTableKeyDown = e => {
     const { cell, updateEditingStatus } = this.props;
+
     const setKeyboardValue = value => {
       updateEditingStatus(true, () => {
         setTimeout(() => {
@@ -154,21 +159,26 @@ export default class MobilePhone extends React.Component {
         }, 10);
       });
     };
+
     if (e.key === 'v' && (e.ctrlKey || e.metaKey)) {
       if (window.tempCopyForSheetView) {
         setKeyboardValue(window.tempCopyForSheetView);
       } else {
         navigator.clipboard?.readText?.().then(setKeyboardValue);
       }
+
       return;
     }
+
     switch (e.key) {
       default:
         (() => {
           const value = cell.type === 6 || cell.type === 8 ? formatNumberFromInput(e.key, false) : e.key;
+
           if (!value || !isKeyBoardInputChar(e.key)) {
             return;
           }
+
           updateEditingStatus(true, () => {
             setTimeout(() => {
               if (this.editRef && this.editRef.current && this.editRef.current.input) {
@@ -180,12 +190,14 @@ export default class MobilePhone extends React.Component {
             e.preventDefault();
           });
         })();
+
         break;
     }
   };
 
   handleKeydown = e => {
     const { tableId, cell, updateEditingStatus } = this.props;
+
     if (e.keyCode === 27) {
       updateEditingStatus(false);
       this.setState({
@@ -211,6 +223,7 @@ export default class MobilePhone extends React.Component {
     if (!this.masked) {
       return;
     }
+
     e.stopPropagation();
     addBehaviorLog('worksheetDecode', this.props.worksheetId, {
       rowId: this.props.recordId,

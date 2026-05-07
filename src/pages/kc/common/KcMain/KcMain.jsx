@@ -112,6 +112,7 @@ class KcMain extends Component {
     } else {
       changeFolder(path);
     }
+
     bindEvent(
       this.jqns,
       Object.assign({}, this.props, {
@@ -126,6 +127,7 @@ class KcMain extends Component {
 
   componentWillReceiveProps(nextProps) {
     const { path, query, changeFolder } = this.props;
+
     if (nextProps.path !== path || nextProps.query.q !== query.q) {
       changeFolder(nextProps.path);
     }
@@ -176,11 +178,13 @@ class KcMain extends Component {
 
   toggleDetailAndTogglePin = () => {
     let { isPinDetail, isShowDetail } = this.state;
+
     if (isPinDetail === isShowDetail) {
       isPinDetail = isShowDetail = !isShowDetail;
     } else {
       isPinDetail = isShowDetail = true;
     }
+
     this.setState({ isShowDetail, isPinDetail });
   };
 
@@ -390,6 +394,7 @@ class KcMain extends Component {
         </div>
       );
     }
+
     // 主体
     return (
       <div className="kcMain kcMain flex" ref={kcApp => (this.kcApp = kcApp)}>
@@ -414,6 +419,7 @@ class KcMain extends Component {
                             if (!data.list || typeof data.list !== 'object') {
                               reject();
                             }
+
                             resolve(
                               data.list
                                 .filter(item => item.type !== 1)

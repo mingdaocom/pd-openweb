@@ -139,6 +139,7 @@ class ContactsHidden extends React.Component {
 
   refreshFn = () => {
     const { dispatch, isEdit, projectId } = this.props;
+
     if (isEdit) {
       Confirm({
         className: '',
@@ -176,6 +177,7 @@ class ContactsHidden extends React.Component {
     } = this.props;
     if (loading) return <LoadDiv className="mTop10" />;
     const featureType = getFeatureStatus(projectId, VersionProductType.contactsHide);
+
     if (featureType === '2') {
       return (
         <div className="orgManagementWrap">
@@ -183,9 +185,11 @@ class ContactsHidden extends React.Component {
         </div>
       );
     }
+
     if (this.state.pageLoading) {
       return <LoadDiv className="mTop80" />;
     }
+
     const currentEditRule = _.find(rules, it => it.type === editType) || {};
 
     return (

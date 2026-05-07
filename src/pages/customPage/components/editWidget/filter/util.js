@@ -20,9 +20,11 @@ export const formatFiltersGroup = (id, filtersGroup) => {
         'minValue',
         'maxValue',
       ]);
+
       if (controlId === 'rowid') {
         data.filterType = 1;
       }
+
       return {
         ...data,
         spliceType: 1,
@@ -37,6 +39,7 @@ const getShowType = control => _.get(control, 'advancedSetting.showtype');
 
 const getControl = data => {
   const { dataType, objectControls = [] } = data || {};
+
   // 时间类型控件，找到刻度最小的控件显示
   if ([WIDGETS_TO_API_TYPE_ENUM.DATE].includes(dataType)) {
     const type = {
@@ -47,6 +50,7 @@ const getControl = data => {
     const res = objectControls.sort((a, b) => type[getShowType(a.control)] - type[getShowType(b.control)]);
     return res[0];
   }
+
   if ([WIDGETS_TO_API_TYPE_ENUM.DATE_TIME].includes(dataType)) {
     const type = {
       2: 3,
@@ -56,6 +60,7 @@ const getControl = data => {
     const res = objectControls.sort((a, b) => type[getShowType(a.control)] - type[getShowType(b.control)]);
     return res[0];
   }
+
   return objectControls[0] || {};
 };
 

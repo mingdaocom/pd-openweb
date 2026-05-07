@@ -65,6 +65,7 @@ export default function AddControlDiaLog(params) {
         setVisible(false);
       });
   };
+
   return (
     <Dialog
       title={title}

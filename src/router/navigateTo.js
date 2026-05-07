@@ -20,25 +20,30 @@ export function fillUrl(url) {
   ) {
     url = url.replace('app/' + md.global.Account.appId, md.global.Account.addressSuffix);
   }
+
   if (!url.startsWith(window.subPath)) {
     url = (window.subPath || '') + url;
   }
+
   // 隐藏功能项参数
   const hideOptions = getAppFeaturesPath();
 
   if (hideOptions && url.indexOf(hideOptions) < 0) {
     url = url + (url.indexOf('?') > -1 ? `&${hideOptions}` : `?${hideOptions}`);
   }
+
   if (window.isPublicApp && !new URL('http://z.z' + url).hash) {
     url = url + '#publicapp' + window.publicAppAuthorization + (hash2 ? `#${hash2}` : ``);
     return url;
   }
+
   return url + (hash ? `#${hash}` : '');
 }
 
 export function redirect(url, navigate = toUrl => (location.href = toUrl)) {
   if (url === '/app/my') {
     const latestGroup = safeParse(localStorage.getItem(`latest_group_${md.global.Account.accountId}`));
+
     if (!_.isEmpty(latestGroup)) {
       navigate(`/app/my/group/${latestGroup.projectId}/${latestGroup.groupType}/${latestGroup.groupId}`);
       return true;
@@ -63,6 +68,7 @@ export function navigateTo(url, isReplace = false, noRedirect = false) {
   if (url === location.href) {
     return;
   }
+
   if (window.reactRouterHistory) {
     if (isReplace) {
       window.reactRouterHistory.replace(String(url));
@@ -115,6 +121,7 @@ export function navigateToLogin({ needSecondCheck, needReturnUrl = true, redirec
       window.isWaiting = true;
     }
   };
+
   const checkLogin = isDialogClick => {
     login.checkLogin().then(isLogin => {
       const isNewTab =
@@ -144,6 +151,7 @@ export function navigateToLogin({ needSecondCheck, needReturnUrl = true, redirec
       pendingCheckLogin = '';
     });
   };
+
   const loginFailDialog = () => {
     if (document.getElementsByClassName('loginFailDialog').length) return;
 

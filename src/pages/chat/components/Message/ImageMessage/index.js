@@ -5,7 +5,6 @@ import { Tooltip } from 'ming-ui/antd-components';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
 import Config from 'src/pages/chat/utils/config';
-import RegExpValidator from 'src/utils/expression';
 import * as utils from '../../../utils/';
 import FileMessage from '../FileMessage';
 import { handleMessageFilePreview } from '../MessageToolbar';
@@ -17,49 +16,53 @@ export default class ImageMessage extends Component {
     this.state = {
       loading: false,
       previewUrl: '',
+      isError: false,
     };
   }
   componentDidMount() {
     const { session, message, messageLength } = this.props;
     const { files } = message.msg;
-    const bigImg = parseInt(files.size / 1024 / 1024) >= 20;
-    const previewUrl = message.kcFile
-      ? files.url
-      : bigImg
-        ? files.url
-        : `${files.url}${files.url.indexOf('?') >= 0 ? '&' : '?'}imageView2/2/w/200/q/100`;
+    const previewUrl = message.kcFile ? files.url : _.get(files, 'thumbs.web_1') || files.url;
     this._isMounted = true;
-    this.handleLoadImage(previewUrl).then(() => {
-      if (!this._isMounted) {
-        return;
-      }
-      this.setState(
-        {
-          loading: true,
-          previewUrl,
-        },
-        () => {
-          utils.scrollEnd(session.id, messageLength <= Config.MSG_LENGTH_MORE);
-        },
-      );
-    });
+    this.handleLoadImage(previewUrl)
+      .then(() => {
+        if (!this._isMounted) {
+          return;
+        }
+
+        this.setState(
+          {
+            loading: true,
+            previewUrl,
+          },
+          () => {
+            utils.scrollEnd(session.id, messageLength <= Config.MSG_LENGTH_MORE);
+          },
+        );
+      })
+      .catch(() => {
+        this.setState({ isError: true });
+      });
   }
   componentWillUnmount() {
     this._isMounted = false;
   }
   handleLoadImage(url) {
-    return new Promise(resolve => {
+    return new Promise((resolve, reject) => {
       const image = new Image();
       image.onload = resolve;
+      image.onerror = reject;
       image.src = url;
     });
   }
   handleMessageFilePreview() {
     const { message, session } = this.props;
     const { files } = message.msg;
+
     if (session.accountId && !session.isContact) {
       return;
     }
+
     if (files.isEmotion) {
       return;
     } else if (message.kcFile) {
@@ -76,12 +79,11 @@ export default class ImageMessage extends Component {
     }
   }
   render() {
-    const { loading, previewUrl } = this.state;
+    const { loading, previewUrl, isError } = this.state;
     const { message, session } = this.props;
     const { files } = message.msg;
-    const fileExt = (_.get(files, 'fileExt') || RegExpValidator.getExtOfFileName(_.get(files, 'name'))).toLowerCase();
 
-    if (fileExt.includes('heic') || fileExt.includes('heif')) {
+    if (isError) {
       return <FileMessage message={message} session={session} />;
     }
 

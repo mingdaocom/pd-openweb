@@ -20,6 +20,7 @@ export function getStepStatusText(stepStatus) {
     case STEP_STATUS.CREATING_WORKSHEET_WIDGETS:
       return _l('生成表单字段');
   }
+
   return;
 }
 

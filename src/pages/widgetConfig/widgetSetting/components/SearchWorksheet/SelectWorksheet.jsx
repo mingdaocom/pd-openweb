@@ -60,6 +60,7 @@ export default function SelectWorksheetDialog(props) {
     ..._.pick(props, ['appId', 'sheetId', 'appName']),
   });
   const { appId, sheetId, appName = '' } = ids;
+
   const isDelete = key => {
     const currentData = data[key] || [];
     return ids[idContrast[key]] && !_.find(currentData, da => da.value === ids[idContrast[key]]);
@@ -78,6 +79,7 @@ export default function SelectWorksheetDialog(props) {
             : { text: appName, value: appId },
         );
       };
+
       setData({
         app: getFormatApps(),
       });

@@ -159,10 +159,12 @@ const appPermissions = Component => {
     componentDidMount() {
       const { params, path } = this.props.match;
       const { appId } = params;
+
       if (['undefined', 'null'].includes(appId) || _.get(window, 'shareState.shareId')) {
         this.setState({ loading: false });
         return;
       }
+
       if (path.includes('recordList')) {
         homeAppApi
           .getPageInfo({
@@ -172,12 +174,14 @@ const appPermissions = Component => {
           })
           .then(data => {
             const { wsType } = data;
+
             if (wsType === 1) {
               window.mobileNavigateTo(
                 `/mobile/customPage/${appId}/${params.groupId}/${params.worksheetId}${location.search}`,
                 true,
               );
             }
+
             if (wsType === 3) {
               window.mobileNavigateTo(
                 `/mobile/chatbot/${appId}/${params.groupId}/${params.worksheetId}${location.search}`,
@@ -186,6 +190,7 @@ const appPermissions = Component => {
             }
           });
       }
+
       homeAppApi
         .checkApp(
           {
@@ -232,6 +237,7 @@ const appPermissions = Component => {
       const { params } = this.props.match;
       const { loading, appStatus, fixedData } = this.state;
       const isNoPublish = window.isMingDaoApp ? fixedData.appDisplay : fixedData.webMobileDisplay;
+
       if (loading) {
         return (
           <div className="flexRow justifyContentCenter alignItemsCenter h100">
@@ -239,13 +245,16 @@ const appPermissions = Component => {
           </div>
         );
       }
+
       if (fixedData.fixed || isNoPublish) {
         const { fixAccount, fixRemark } = fixedData;
         return <FixedPage fixAccount={fixAccount} fixRemark={fixRemark} isNoPublish={isNoPublish} />;
       }
+
       if (appStatus !== 1) {
         return <AppPermissionsInfo appId={params.appId} appStatus={appStatus} />;
       }
+
       return <Component {...this.props} />;
     }
   }

@@ -68,8 +68,8 @@ const Wrap = styled.div`
   }
 `;
 const WrapPopup = styled.div`
-  background: var(--color-background-primary);
-  box-shadow: 0px 4px 16px 1px rgba(0, 0, 0, 0.24);
+  background: var(--color-background-card);
+  box-shadow: var(--shadow-sm);
   padding: 6px 0;
   border-radius: 3px 3px 3px 3px;
   width: 160px;
@@ -126,9 +126,11 @@ function PluginSettings(params) {
       paramSettings: list,
     });
   };
+
   const openEdit = n => {
     setState({ editInfo: paramSettings.find((o, i) => i === n), showEdit: true });
   };
+
   const onEdit = (info, n) => {
     let list = paramSettings.map((o, i) => {
       if (i === n) {
@@ -147,6 +149,7 @@ function PluginSettings(params) {
       true,
     );
   };
+
   const onDelete = n => {
     const { view } = params;
     onChangeView(
@@ -166,6 +169,7 @@ function PluginSettings(params) {
       { pluginId: _.get(view, 'pluginInfo.id'), editAttrs: ['advancedSetting', 'pluginId'] },
     );
   };
+
   return (
     <Wrap className="mTop24">
       {/* <div className="title Bold mTop24">{_l('提交设置')}</div> */}
@@ -197,6 +201,7 @@ function PluginSettings(params) {
           }}
           onBlur={() => {
             let value = name.trim();
+
             if (_.get(view, 'pluginInfo.name') !== value) {
               onChangeView({ name: value }, true);
             }
@@ -322,6 +327,7 @@ function PluginSettings(params) {
                       className="Hand Font14"
                       onClick={() => {
                         let num = paramSettings.filter(a => a.fieldId === o.fieldId).length;
+
                         const getNum = num => {
                           if (paramSettings.find(a => a.fieldId === `${o.fieldId}${num}`)) {
                             return getNum(num + 1);
@@ -329,6 +335,7 @@ function PluginSettings(params) {
                             return num;
                           }
                         };
+
                         onChangeView(
                           {
                             paramSettings: paramSettings.concat(
@@ -428,9 +435,11 @@ function PluginSettings(params) {
                   return o;
                 }
               });
+
               if (_.isEqual(list, paramSettings)) {
                 return;
               }
+
               onChangeView(
                 {
                   paramSettings: list,
@@ -446,15 +455,18 @@ function PluginSettings(params) {
         <AddDialog
           onOk={str => {
             let value = [];
+
             try {
               value = safeParse(str, 'array');
             } catch (error) {
               console.log(error);
               return alert(_l('请输入正确的格式'), 3);
             }
+
             if (!(_.isObject(value) && _.isArray(value)) || value.length <= 0) {
               return alert(_l('请输入正确的格式'), 3);
             }
+
             let errData = value.filter(
               o =>
                 !(
@@ -467,13 +479,17 @@ function PluginSettings(params) {
                   PARAM_TYPES.map(it => it.type).includes(o.type)
                 ),
             );
+
             if (errData.length > 0) {
               return alert(_l('请输入正确的格式'), 3);
             }
+
             let ids = value.map(o => o.fieldId);
+
             if (_.uniq(ids).length < ids.length) {
               return alert(_l('请输入正确的格式'), 3);
             }
+
             onChangeView(
               {
                 paramSettings: value,
@@ -494,4 +510,5 @@ function PluginSettings(params) {
     </Wrap>
   );
 }
+
 export default errorBoundary(PluginSettings);

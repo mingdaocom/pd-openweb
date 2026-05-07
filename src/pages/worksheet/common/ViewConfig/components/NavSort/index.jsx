@@ -120,6 +120,7 @@ export default function (props) {
             onChange={infos => {
               const type = viewControlData.type === 30 ? viewControlData.sourceControlType : viewControlData.type;
               let values = [];
+
               switch (type) {
                 case 29:
                 case 26:
@@ -133,6 +134,7 @@ export default function (props) {
                   values = infos;
                   break;
               }
+
               values = values.slice(0, 50);
               onChange({
                 [customitemsKey]: JSON.stringify(values),

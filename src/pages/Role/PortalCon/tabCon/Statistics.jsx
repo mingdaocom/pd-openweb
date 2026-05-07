@@ -78,6 +78,7 @@ const TIME = [
 ]; //颗粒度：最近7天、最近一个月、最近一季度、最近半年、最近一年
 let LineChartRegisterEl = null;
 let LineChartLoginEl = null;
+
 function Statistics(props) {
   const { appId } = props;
   const [show, setShow] = useState(false);
@@ -124,23 +125,27 @@ function Statistics(props) {
       .then((res = {}) => {
         const { visitsData = {}, registerData = {} } = res;
         let dataVisits = [];
+
         for (var key in visitsData) {
           dataVisits.push({
             date: key,
             value: visitsData[key],
           });
         }
+
         dataVisits = dataVisits.sort((a, b) => {
           return a.date > b.date ? 1 : -1;
         });
         setData(dataVisits);
         let dataRegister = [];
+
         for (let key in registerData) {
           dataRegister.push({
             date: key,
             value: registerData[key],
           });
         }
+
         dataRegister = dataRegister.sort((a, b) => {
           return a.date > b.date ? 1 : -1;
         });
@@ -155,6 +160,7 @@ function Statistics(props) {
     if (!g2plotComponent) {
       return;
     }
+
     const { Line } = g2plotComponent;
     LineChartLoginEl = new Line(loginEl.current, {
       ...prarm,
@@ -171,6 +177,7 @@ function Statistics(props) {
     if (!g2plotComponent) {
       return;
     }
+
     const { Line } = g2plotComponent;
     LineChartRegisterEl = new Line(registerEl.current, {
       ...prarm,

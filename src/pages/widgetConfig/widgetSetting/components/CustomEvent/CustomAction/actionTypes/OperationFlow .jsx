@@ -38,6 +38,7 @@ export default function OperationFlow(props) {
         const defSource = safeParse(item.defsource);
         return _.some(defSource, d => _.get(d, 'cid') || _.get(d, 'staticValue'));
       }
+
       return true;
     });
     const canSaveFilter = checkConditionCanSave(filterItems);
@@ -67,7 +68,7 @@ export default function OperationFlow(props) {
         <ApiSearchConfig
           {...props}
           fromCustom={true}
-          allControls={allControls.concat(ROW_ID_CONTROL)}
+          allControls={allControls}
           fromCustomEventApi={true}
           fromOperationFlow={true}
           setControls={setControls}

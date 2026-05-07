@@ -24,6 +24,7 @@ class RelationList extends Component {
     if (location.search.indexOf('relateRecord') === -1) {
       localStorage.removeItem('openRecordDetailIds');
     }
+
     window.addEventListener('popstate', this.onQueryChange);
   }
   componentWillReceiveProps(nextProps) {
@@ -47,6 +48,7 @@ class RelationList extends Component {
   loadData = props => {
     const { controlId, control, instanceId, workId, worksheetId, recordId, rowId, from, formData } = props;
     let newParams = null;
+
     if (instanceId && workId) {
       newParams = {
         instanceId,
@@ -65,6 +67,7 @@ class RelationList extends Component {
         controlId,
       };
     }
+
     props.updateBase(newParams);
     props.loadRow({ ...control, formData }, from);
   };
@@ -140,6 +143,7 @@ class RelationList extends Component {
         });
         return newItem;
       }
+
       return item;
     });
 

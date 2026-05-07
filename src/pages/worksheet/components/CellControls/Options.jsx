@@ -110,14 +110,17 @@ function OtherOption(props) {
   const [value, setValue] = useState(otherValue);
   const [error, setError] = useState();
   const conRef = useRef();
+
   function handleSave() {
     if (otherRequired && !value.trim()) {
       setError(true);
       alert(_l('请填写补充信息'), 3);
       return;
     }
+
     onSave(value ? 'other:' + value.trim() : 'other');
   }
+
   useClickAway(conRef, handleSave);
   return (
     <Trigger
@@ -133,6 +136,7 @@ function OtherOption(props) {
               if (v) {
                 setError(false);
               }
+
               setValue(v.slice(0, 200));
             }}
             onSave={onSave}
@@ -241,11 +245,14 @@ export default class Options extends React.Component {
       if (value === '0' || value === 0) {
         value = '';
       }
+
       if (typeof value === 'string') {
         value = [value];
       }
+
       value = JSON.stringify((value || []).sort().reverse());
     }
+
     const validateResult = onValidate(value);
     const error = validateResult.errorType;
     this.setState({
@@ -256,19 +263,24 @@ export default class Options extends React.Component {
     if (!isMultiple && isOther && !needUpdateCell) {
       return;
     }
+
     if (!isMultiple && noUpdateCell) {
       return;
     }
+
     const ignoreErrorMessage = this.props.ignoreErrorMessage || validateResult?.ignoreErrorMessage;
+
     if (error && !ignoreErrorMessage) {
       return;
     }
+
     if (isMultiple && this.isSubList) {
       this.setState({
         value,
       });
       return;
     }
+
     updateCell({
       value: formatControlToServer(Object.assign({}, cell, { value })).value,
     });
@@ -276,6 +288,7 @@ export default class Options extends React.Component {
       alert(validateResult?.errorMessage, 3);
       return;
     }
+
     if (!value || !isMultiple) {
       this.handleExit();
     }
@@ -283,6 +296,7 @@ export default class Options extends React.Component {
 
   handleTableKeyDown = e => {
     const { updateEditingStatus } = this.props;
+
     switch (e.key) {
       case 'Tab':
       case 'Escape':
@@ -292,6 +306,7 @@ export default class Options extends React.Component {
         if (!isKeyBoardInputChar(e.key)) {
           return;
         }
+
         updateEditingStatus(true);
         break;
     }
@@ -301,6 +316,7 @@ export default class Options extends React.Component {
     const { cell, error, updateEditingStatus, updateCell } = this.props;
     const { value } = this.state;
     const isMultiple = cell.type === 10;
+
     if (!isMultiple || !error || this.ignoreErrorMessage) {
       updateEditingStatus(false);
     } else if (error) {
@@ -310,6 +326,7 @@ export default class Options extends React.Component {
       });
       return;
     }
+
     if (isMultiple && this.isSubList && value !== this.props.cell.value) {
       updateCell({
         value: formatControlToServer(Object.assign({}, cell, { value })).value,
@@ -319,13 +336,17 @@ export default class Options extends React.Component {
 
   getShowValue(option, { defaultEmpty = false } = {}) {
     const { value } = this.state;
+
     if (option.key === 'other') {
       const otherValue = _.find(JSON.parse(value || '[]'), i => i.includes(option.key));
+
       if (defaultEmpty && otherValue === 'other') {
         return;
       }
+
       return otherValue === 'other' ? option.value : _.replace(otherValue, 'other:', '') || option.value;
     }
+
     return option.value;
   }
 
@@ -360,12 +381,15 @@ export default class Options extends React.Component {
       this.isSubList || this.isRelateRecord
         ? () => $(this.cell.current).parents('.recordInfoForm')[0] || document.body
         : popupContainer;
+
     if ((this.isSubList && isOther) || fromEmbed) {
       getPopupContainer = () => document.body;
     }
+
     const showErrorAsPopup =
       (this.isSubList || this.isRelateRecord) && (rowIndex === 0 || _.includes(className, 'lastRow'));
     let editcontent;
+
     if (!isMultiple && isOther && !error) {
       editcontent = (
         <OtherOption
@@ -419,6 +443,7 @@ export default class Options extends React.Component {
                   if (!visible && !this.isChanging) {
                     this.handleExit();
                   }
+
                   this.isChanging = false;
                 },
               }}
@@ -442,6 +467,7 @@ export default class Options extends React.Component {
                   if ((!error || this.isSubList) && !visible && !this.isChanging) {
                     this.handleExit();
                   }
+
                   this.isChanging = false;
                 },
                 onInputKeyDown: e => {
@@ -471,7 +497,9 @@ export default class Options extends React.Component {
         </div>
       );
     }
+
     let content;
+
     if (showAsRadioGroup) {
       content = (
         <Radio
@@ -512,6 +540,7 @@ export default class Options extends React.Component {
                 if (showAsText || showAsTextWithBg) {
                   return <div>{this.getShowValue(option)}</div>;
                 }
+
                 return (
                   <span
                     className="cellOption ellipsis"
@@ -530,6 +559,7 @@ export default class Options extends React.Component {
         </Fragment>
       );
     }
+
     return (
       <React.Fragment>
         <EditableCellCon

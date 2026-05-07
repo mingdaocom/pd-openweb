@@ -60,12 +60,14 @@ class Container extends Component {
 
   fetchData(isShowLoading, props) {
     const { calendarId, recurTime } = props || this.props;
+
     if (isShowLoading) {
       this.setState({
         isLoading: true,
         noAuth: false,
       });
     }
+
     getCalendarDetail(calendarId, recurTime)
       .then(({ data }) => {
         data.calendar.title = htmlDecodeReg(data.calendar.title);
@@ -101,9 +103,11 @@ class Container extends Component {
   render() {
     const { data } = this.state;
     let title = _l('日程详情');
+
     if (data) {
       title = data.calendar.title;
     }
+
     if (Config.isDetailPage) {
       return <DocumentTitle title={title}>{this.renderContent()}</DocumentTitle>;
     } else {
@@ -155,6 +159,7 @@ export default function (options) {
     };
   } else {
     const { saveCallback } = Config;
+
     Config.exitCallback = function () {
       // 日程首页的一些操作
       if (location.href.indexOf('/apps/calendar/home') !== -1) {

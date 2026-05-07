@@ -66,9 +66,11 @@ export default class ViewConfigCon extends Component {
     if (nextProps.viewId !== this.props.viewId) {
       const { view = {}, viewConfigTab, setViewConfigTab } = nextProps;
       const isDevCustomView = (_.get(view, 'pluginInfo') || {}).source === 0; //是否可以开发状态的自定义视图
+
       if (viewConfigTab) {
         setViewConfigTab('');
       }
+
       this.setState({
         viewSetting: viewConfigTab
           ? viewConfigTab
@@ -77,6 +79,7 @@ export default class ViewConfigCon extends Component {
             : 'Setting',
       });
     }
+
     if (!_.isEqual(nextProps.view.moreSort, this.props.view.moreSort)) {
       this.setState({
         view: nextProps.view,
@@ -111,11 +114,13 @@ export default class ViewConfigCon extends Component {
     const coverColumns = filterHidedControls(columns, view.controls, false).filter(c => !!c.controlName);
     const viewTypeText = VIEW_DISPLAY_TYPE[view.viewType];
     const isRelateMultiSheetHierarchyView = viewTypeText === 'structure' && String(view.childType) === '2';
+
     if (isRelateMultiSheetHierarchyView) {
       return (
         <HierarchyViewSetting {...this.props} filteredColumns={filteredColumns} coverColumns={coverColumns} forCarSet />
       );
     }
+
     return (
       <CardSet
         {..._.pick(this.props, [
@@ -137,9 +142,11 @@ export default class ViewConfigCon extends Component {
   renderViewSetting() {
     const { columns, view } = this.props;
     const isDevCustomView = (_.get(view, 'pluginInfo') || {}).source === 0; //是否可以开发状态的自定义视图
+
     if (VIEW_DISPLAY_TYPE[view.viewType] === 'customize' && !isDevCustomView) {
       return <ParameterSet {...this.props} onChangeView={this.onChangeCustomView} />;
     }
+
     const viewTypeText = VIEW_DISPLAY_TYPE[view.viewType];
     const filteredColumns = filterHidedControls(columns, view.controls, false)
       .filter(c => !!c.controlName && !_.includes([22, 10010, 43, 45, 49, 51], c.type))
@@ -163,11 +170,13 @@ export default class ViewConfigCon extends Component {
         );
       },
     };
+
     const renderCom = () => {
       switch (viewTypeText) {
         case 'board':
         case 'structure':
           const isRelateMultiSheetHierarchyView = viewTypeText === 'structure' && String(view.childType) === '2';
+
           if (!isRelateMultiSheetHierarchyView) {
             return (
               <div className="cardAppearanceWrap">
@@ -206,6 +215,7 @@ export default class ViewConfigCon extends Component {
               />
             );
           }
+
         case 'gallery':
           return this.renderCardSet();
         case 'detail':
@@ -244,8 +254,10 @@ export default class ViewConfigCon extends Component {
           );
       }
     };
+
     const renderTitleSet = () => {
       const { updateCurrentView } = this.props;
+
       switch (viewTypeText) {
         case 'resource':
         case 'gunter':
@@ -271,6 +283,7 @@ export default class ViewConfigCon extends Component {
           return null;
       }
     };
+
     return (
       <div className="viewConfigWrap">
         {renderCom()}
@@ -301,6 +314,7 @@ export default class ViewConfigCon extends Component {
 
   onChangeCustomView = (data, isPlugin, others) => {
     const { updateCurrentView, view, appId } = this.props;
+
     if (isPlugin) {
       this.editPlugin(data);
     } else {
@@ -415,9 +429,11 @@ export default class ViewConfigCon extends Component {
         return <EnvParams {...this.props} />;
       default:
         const isDevCustomView = (_.get(view, 'pluginInfo') || {}).source === 0; //是否可以开发状态的自定义视图
+
         if (VIEW_DISPLAY_TYPE[view.viewType] === 'customize' && isDevCustomView) {
           return <DebugConfig {...this.props} onChangeView={this.onChangeCustomView} />;
         }
+
         return this.renderViewSetting(); // 基础设置
     }
   };
@@ -425,6 +441,7 @@ export default class ViewConfigCon extends Component {
   render() {
     const { viewSetting, showBatch } = this.state;
     const data = viewTypeConfig.find(item => item.type === viewSetting) || {};
+
     const conRender = () => {
       const { view } = this.props;
       const isDevCustomView = (_.get(view, 'pluginInfo') || {}).source === 0; //是否可以开发状态的自定义视图

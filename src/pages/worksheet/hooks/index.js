@@ -4,11 +4,13 @@ import { useEffect, useRef } from 'react';
 
 export function useRefStore(initialValue = {}) {
   const cache = useRef(initialValue);
+
   function set(key, value, reset) {
     if (!key) {
       console.error('need a key');
       return;
     }
+
     if (typeof key === 'object') {
       if (reset) {
         for (let k in cache.current) {
@@ -17,6 +19,7 @@ export function useRefStore(initialValue = {}) {
           }
         }
       }
+
       for (let k in key) {
         if (k) {
           cache.current[k] = key[k];
@@ -30,6 +33,7 @@ export function useRefStore(initialValue = {}) {
       }
     }
   }
+
   return [cache.current, set];
 }
 
@@ -39,6 +43,7 @@ export function usePasteText(onPaste = () => {}, ...args) {
       const text = e.clipboardData.getData('text');
       onPaste(text);
     };
+
     document.addEventListener('paste', handlePaste);
     return () => {
       document.removeEventListener('paste', handlePaste);

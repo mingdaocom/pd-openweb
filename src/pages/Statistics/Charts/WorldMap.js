@@ -28,17 +28,21 @@ const getSizeLavel = data => {
   let max = Math.ceil(res.length / 10);
   let currentIndex = max;
   let lavel = 1;
+
   for (let i = 0; i < res.length; i++) {
     let current = res[i];
     let last = res[i - 1];
+
     if (i === currentIndex) {
       currentIndex = currentIndex + max;
       if (current.v !== (last && last.v)) {
         lavel = lavel + 1;
       }
     }
+
     current.sizeLavel = lavel;
   }
+
   return res;
 };
 
@@ -55,6 +59,7 @@ const getPointData = reportData => {
     value.map(item => {
       map.forEach((element, index) => {
         const target = element.value.filter(n => n.x === item.x)[0];
+
         if (yaxisList.length > 1 ? target.m[nControlId] : target.v) {
           const location = locationMap[target.x];
           const value = yaxisList.length > 1 ? target.m[nControlId] : target.v;
@@ -164,6 +169,7 @@ export default class extends Component {
   componentWillReceiveProps(nextProps) {
     const { style = {}, displaySetup = {} } = nextProps.reportData;
     const { style: oldStyle = {}, displaySetup: oldDisplaySetup = {} } = this.props.reportData;
+
     if (
       (!_.isEmpty(displaySetup) && displaySetup.showChartType !== oldDisplaySetup.showChartType) ||
       displaySetup.magnitudeUpdateFlag !== oldDisplaySetup.magnitudeUpdateFlag ||
@@ -177,6 +183,7 @@ export default class extends Component {
     ) {
       this.resetChart(nextProps);
     }
+
     if (nextProps.isLinkageData !== this.props.isLinkageData) {
       this.isLinkageData =
         nextProps.isLinkageData &&
@@ -184,7 +191,8 @@ export default class extends Component {
     }
   }
   handleClickPoint = event => {
-    const { xaxes, appId, reportId, name, reportType, split, style } = this.props.reportData;
+    const { reportData, isMobile } = this.props;
+    const { xaxes, appId, reportId, name, reportType, split, style } = reportData;
     const { feature, x, y } = event;
     const { properties } = feature;
     const param = {};
@@ -195,6 +203,7 @@ export default class extends Component {
       reportType,
       filters: [],
     };
+
     if (xaxes.cid) {
       const isNumber = isFormatNumber(xaxes.controlType);
       const value = properties.id;
@@ -209,6 +218,7 @@ export default class extends Component {
         control: xaxes,
       });
     }
+
     if (split.controlId) {
       const isNumber = isFormatNumber(split.controlType);
       const value = properties.groupKey;
@@ -216,6 +226,7 @@ export default class extends Component {
       if (!xaxes.cid) {
         linkageMatch.value = properties.id;
       }
+
       linkageMatch.filters.push({
         controlId: split.controlId,
         values: [param[split.cid]],
@@ -225,15 +236,17 @@ export default class extends Component {
         control: split,
       });
     }
+
     if (_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length) {
       linkageMatch.onlyChartIds = style.autoLinkageChartObjectIds;
     }
+
     const isAll = this.isViewOriginalData && this.isLinkageData;
     this.setState(
       {
         dropdownVisible: isAll,
         offset: {
-          x: x,
+          x: x + (isMobile ? -100 : 0),
           y: y + 20,
         },
         match: param,
@@ -243,6 +256,7 @@ export default class extends Component {
         if (!isAll && this.isViewOriginalData) {
           this.handleRequestOriginalData();
         }
+
         if (!isAll && this.isLinkageData) {
           this.handleAutoLinkage();
         }
@@ -320,9 +334,11 @@ export default class extends Component {
           opacity: 0.3,
           strokeWidth: 1,
         });
+
       if (this.isViewOriginalData || this.isLinkageData) {
         pointLayer.on('click', this.handleClickPoint);
       }
+
       this.scene.addLayer(pointLayer);
       this.scene.addPopup(
         new this.LayerPopup({

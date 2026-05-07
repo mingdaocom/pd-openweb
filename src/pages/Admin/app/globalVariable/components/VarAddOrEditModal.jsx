@@ -193,6 +193,7 @@ export default function VarAddOrEditModal(props) {
     }
 
     const nameReg = /^[a-zA-Z]([a-zA-Z0-9_.]+)?$/;
+
     if (!nameReg.test(formData.name)) {
       alert(_l('变量名称不符合规范, 请以字母开头，数字和下划线组合命名'), 3);
       return;
@@ -339,9 +340,11 @@ export default function VarAddOrEditModal(props) {
                     setFormData({ value: '' });
                     return;
                   }
+
                   if (value.length > 16) {
                     return;
                   }
+
                   const parsedValue = parseInt(value);
                   setFormData({ value: isNaN(parsedValue) ? 0 : parsedValue });
                 }}

@@ -24,6 +24,7 @@ export default class Discussion extends Component {
   }
   render() {
     let hiddenTabs = ['discussPortal', 'approval', 'workflow', 'pay', 'logs']; //工作表讨论暂时不支持外部讨论功能
+
     if (!this.props.discussSwitch) {
       // 工作表讨论权限
       hiddenTabs.push('discuss', 'files');

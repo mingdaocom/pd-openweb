@@ -1,0 +1,36 @@
+.fieldConfigContainer {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  .subTitle {
+    margin: 8px 0 20px;
+    font-size: 13px;
+    color: var(--color-text-secondary);
+    .link {
+      color: var(--color-primary);
+      cursor: pointer;
+      &:hover {
+        color: var(--color-primary-dark);
+      }
+    }
+  }
+  .collapsePanelList {
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    margin: 0 -20px;
+    .collapsePanelBox {
+      padding: 0 20px;
+    }
+    .collapsePanel + .collapsePanel {
+      margin-top: 20px;
+    }
+  }
+  .addSheetButton {
+    padding-left: 14px;
+    margin-top: 20px;
+    width: 200px;
+  }
+}

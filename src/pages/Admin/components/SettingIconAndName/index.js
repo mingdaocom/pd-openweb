@@ -132,6 +132,7 @@ export default class SettingIconAndName extends Component {
                   alert(_l('名称不得为空'), 2);
                   return;
                 }
+
                 handleSave({
                   name,
                   iconUrl,

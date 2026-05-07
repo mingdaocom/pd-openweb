@@ -5,11 +5,19 @@ import worksheetAjax from 'src/api/worksheet';
 import { getSheetViewRows } from 'worksheet/common/TreeTableHelper';
 import { RECORD_COLOR_SHOW_TYPE, VIEW_CONFIG_RECORD_CLICK_ACTION } from 'worksheet/constants/enum';
 import { FORM_ERROR_TYPE_TEXT } from 'src/components/Form/core/config';
+import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget.js';
 import { getAppFeaturesPath } from 'src/utils/app';
 import { isLightColor, isRelateRecordTableControl } from 'src/utils/control';
 import { renderText as renderCellText } from 'src/utils/control';
-import { checkCellIsEmpty, formatAttachmentValue, getTitleTextFromRelateControl } from 'src/utils/control';
+import {
+  checkCellIsEmpty,
+  formatAttachmentValue,
+  getTitleTextFromRelateControl,
+  getValueStyle,
+} from 'src/utils/control';
+import { VersionProductType } from 'src/utils/enum';
+import { getFeatureStatus } from 'src/utils/project';
 
 export function filterEmptyChildTableRows(rows = []) {
   try {
@@ -26,9 +34,11 @@ export function getNewRecordPageUrl({ appId, worksheetId, viewId }) {
 
 export function getRelateRecordCountFromValue(value, propsCount) {
   let count = 0;
+
   try {
     let savedCount;
     const parsedData = safeParse(value, 'array');
+
     if (!_.isUndefined(_.get(parsedData, '0.count'))) {
       savedCount = parsedData[0].count;
     } else if (value === '') {
@@ -38,15 +48,18 @@ export function getRelateRecordCountFromValue(value, propsCount) {
     } else {
       savedCount = parsedData[0]?.count || parsedData.length;
     }
+
     if (!_.isUndefined(savedCount) && !_.isNaN(Number(savedCount))) {
       count = Number(savedCount);
     }
   } catch (err) {
     console.log(err);
   }
+
   if (String(value).startsWith('deleteRowIds')) {
     return 0;
   }
+
   return count;
 }
 
@@ -125,6 +138,7 @@ export function getSummaryInfo(type, control) {
   if (type === 37 || type === 53) {
     type = control.enumDefault2;
   }
+
   if (type === 6 || type === 8 || type === 31 || type === 28 || (type === 38 && control && control.enumDefault === 1)) {
     return {
       list: SUMMARY_LIST.filter(item => item.type === 'COMMON')
@@ -154,9 +168,11 @@ export function formatRecordToRelateRecord(
   if (!_.isArray(records)) {
     records = [];
   }
+
   const titleControl = _.find(controls, control => control.attribute === 1);
   const value = records.map((record = {}) => {
     let name = titleControl ? record[titleControl.controlId] : '';
+
     if (titleControl && titleControl.type === 29 && name) {
       /**
        * 关联[使用他表字段作为标题的表]多层嵌套后，无法获得 souceControl 原始数据，这里异化为当关联表用他表字段作为标题时
@@ -170,6 +186,7 @@ export function formatRecordToRelateRecord(
         name = '';
       }
     }
+
     return {
       name,
       sid: record.rowid,
@@ -190,11 +207,13 @@ function checkCellIsFilled(control, value) {
   if (control.type === 36) {
     return value === true || String(value) === '1';
   }
+
   return !checkCellIsEmpty(value);
 }
 
 export const getSummaryResult = (rows, control, summaryType) => {
   let result;
+
   switch (summaryType) {
     case SUMMARY_TYPE.COMPLETED:
       result = rows.filter(row => checkCellIsFilled(control, row[control.controlId])).length;
@@ -223,6 +242,7 @@ export const getSummaryResult = (rows, control, summaryType) => {
       );
       break;
   }
+
   return result;
 };
 
@@ -230,6 +250,7 @@ export function copySublistControlValue(control, value) {
   if (checkCellIsEmpty(value)) {
     return value;
   }
+
   switch (control.type) {
     case WIDGETS_TO_API_TYPE_ENUM.TEXT: // 文本
     case WIDGETS_TO_API_TYPE_ENUM.MOBILE_PHONE: // 手机号码
@@ -338,6 +359,7 @@ export function getRecordTempValue(data = [], relateRecordMultipleData = {}, { u
     });
   Object.keys(relateRecordMultipleData).forEach(controlId => {
     const control = relateRecordMultipleData[controlId];
+
     if (control) {
       results[control.controlId] = control.value;
     }
@@ -348,6 +370,7 @@ export function getRecordTempValue(data = [], relateRecordMultipleData = {}, { u
 export function parseRecordTempValue(data = {}, originFormData, defaultRelatedSheet = {}) {
   let formdata = [];
   let relateRecordData = {};
+
   try {
     formdata = originFormData.map(c => {
       if (c.type === WIDGETS_TO_API_TYPE_ENUM.SUB_LIST && data[c.controlId]) {
@@ -380,45 +403,57 @@ export function parseRecordTempValue(data = {}, originFormData, defaultRelatedSh
   } catch (err) {
     console.error(err);
   }
+
   return { formdata, relateRecordData };
 }
 
 export function handleSortRows(rows, control, isAsc) {
   function getControlValueSortType(control) {
     const controlType = control.sourceControlType || control.type;
+
     if (controlType === 6 || controlType === 8 || controlType === 31 || controlType === 36) {
       return 'NUMBER';
     } else {
       return 'STRING';
     }
   }
+
   const controlValueType = getControlValueSortType(control);
+
   if (_.isUndefined(isAsc)) {
     return _.sortBy(rows, 'addTime');
   }
+
   let newRows = _.sortBy(rows, row =>
     controlValueType === 'NUMBER'
       ? parseFloat(row[control.controlId])
       : renderCellText({ ...control, value: row[control.controlId] }),
   );
+
   if (!isAsc) {
     newRows = newRows.reverse();
   }
+
   return newRows;
 }
 
 export function getRecordColor({ controlId, controls, colorItems, row }) {
   const colorControl = _.find(controls, { controlId });
+
   if (!colorControl || colorControl.enumDefault2 !== 1) {
     return;
   }
+
   if (!row[colorControl.controlId]) {
     return;
   }
+
   let activeKey = safeParse(row[colorControl.controlId])[0];
+
   if (activeKey && typeof activeKey === 'string' && activeKey.startsWith('other')) {
     activeKey = 'other';
   }
+
   const activeOption = colorControl.options.find(
     c => c.key === activeKey && (colorItems === '' || _.includes(colorItems, c.key)),
   );
@@ -454,6 +489,7 @@ export function filterRowsByKeywords({ rows, keywords = '', controls }) {
   if (!keywords) {
     return rows;
   }
+
   return rows.filter(
     row =>
       controls
@@ -468,6 +504,7 @@ export function filterRowsByKeywords({ rows, keywords = '', controls }) {
 export const openLinkFromRecord = (linkControlId, record = {}) => {
   if (linkControlId) {
     const link = record[linkControlId];
+
     if (link && /^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$/i.test(link.replace(/\? /, ''))) {
       window.open(link);
     }
@@ -476,6 +513,7 @@ export const openLinkFromRecord = (linkControlId, record = {}) => {
 
 export const handleRecordClick = (view, row, openRecord = () => {}) => {
   const clickType = _.get(view, 'advancedSetting.clicktype') || VIEW_CONFIG_RECORD_CLICK_ACTION.OPEN_RECORD;
+
   if (clickType === VIEW_CONFIG_RECORD_CLICK_ACTION.OPEN_RECORD) {
     openRecord();
   } else if (clickType === VIEW_CONFIG_RECORD_CLICK_ACTION.OPEN_LINK) {
@@ -505,12 +543,14 @@ export function getSubListUniqueError({ store, control, badData = [] } = {}) {
     const [childTableControlId, controlId, value = ''] = badData[0].split(':');
     const state = store.getState();
     let rows = state.rows;
+
     if (get(state, 'base.isTreeTableView')) {
       rows = getSheetViewRows(
         { rows: _.filter(rows, r => !/^empty-/.test(r.rowid)) },
         { treeMap: get(state, 'treeTableViewData.treeMap', {}) },
       );
     }
+
     const badRowIds = filterEmptyChildTableRows(rows)
       .filter(r =>
         value.indexOf('-') > -1 ? (r[controlId] || '').indexOf(value) > -1 : (r[controlId] || '') === value,
@@ -540,11 +580,14 @@ export async function getRecordLandUrl({ appId, worksheetId, viewId, recordId })
   if (md.global.Account.isPortal) {
     appId = md.global.Account.appId;
   }
+
   if (!appId) {
     const res = await worksheetAjax.getWorksheetInfo({ worksheetId });
     appId = res.appId;
   }
+
   const appFeaturesPath = getAppFeaturesPath();
+
   if (viewId) {
     return `${location.origin}${window.subPath || ''}/app/${appId}/${worksheetId}/${viewId}/row/${recordId}${
       appFeaturesPath ? '?' + appFeaturesPath : ''
@@ -574,6 +617,7 @@ export async function fillRowRelationRows(control, rowId, worksheetId, isRecreat
   ];
   let defSource = '';
   let filledControl = _.cloneDeep(control);
+
   const addPrefixForRowIdOfRows = (rows = [], prefix = '') => {
     const rowIds = rows.map(row => row.rowid);
     return rows.map(row => {
@@ -615,11 +659,13 @@ export async function fillRowRelationRows(control, rowId, worksheetId, isRecreat
               itemValue[c.controlId] = undefined;
               return;
             }
+
             if (isRecreate && c.type === 29 && c.advancedSetting.showtype === '3') {
               let value = safeParse(item[c.controlId], 'array').slice(0, 5);
               itemValue[c.controlId] = JSON.stringify(value);
               return;
             }
+
             itemValue[c.controlId] =
               c.type === WIDGETS_TO_API_TYPE_ENUM.ATTACHMENT
                 ? formatAttachmentValue(item[c.controlId], isRecreate, true)
@@ -629,6 +675,7 @@ export async function fillRowRelationRows(control, rowId, worksheetId, isRecreat
         });
         defSource = [{ cid: '', rcid: '', isAsync: false, staticValue: JSON.stringify(staticValue) }];
       }
+
       filledControl.defsource = JSON.stringify(defSource);
       filledControl.advancedSetting = {
         ...control.advancedSetting,
@@ -658,6 +705,7 @@ export async function handleRowData(props) {
     let defcontrols = _.cloneDeep(columns);
     _.forIn(defaultData, (value, key) => {
       let control = columns.find(l => l.controlId === key);
+
       if (!control) return;
       else if ([38, 32, 33].includes(control.type) || (control.fieldPermission || '111').split('')[2] === '0') {
         defaultData[key] = null;
@@ -694,4 +742,74 @@ export async function handleRowData(props) {
   } else {
     RE_CREATE_ERROR[data.resultCode] && alert(RE_CREATE_ERROR[data.resultCode], 2);
   }
+}
+
+/**
+ * 发送云打印
+ * @param {*} id 打印模板id
+ * @param {*} projectId
+ * @param {*} appId
+ * @param {*} worksheetId
+ * @param {*} rowIds
+ * @param {*} callback 回调函数
+ */
+export function sendCloudPrint({
+  id,
+  projectId,
+  appId,
+  worksheetId,
+  rowIds,
+  mobileUpgradeCallback,
+  finishCallback = () => {},
+}) {
+  if (rowIds.length > 50) {
+    alert(_l('单次最多打印 50 条'), 3);
+    finishCallback();
+    return;
+  }
+
+  const featureType = getFeatureStatus(projectId, VersionProductType.wordPrintTemplate);
+
+  if (featureType === '2') {
+    _.isFunction(mobileUpgradeCallback)
+      ? mobileUpgradeCallback()
+      : buriedUpgradeVersionDialog(projectId, VersionProductType.wordPrintTemplate);
+    finishCallback();
+    return;
+  }
+
+  worksheetAjax
+    .sendCloudPrint({
+      id,
+      projectId,
+      appId,
+      worksheetId,
+      rowIds,
+    })
+    .then(() => {
+      alert(_l('打印推送成功'));
+    })
+    .finally(() => {
+      finishCallback();
+    });
+}
+
+export function getRecordControlStyles(ruleControlAdvancedSettings) {
+  return Object.keys(ruleControlAdvancedSettings).map(key => {
+    const [rowId, controlId] = [key.slice(0, key.lastIndexOf('-')), key.slice(key.lastIndexOf('-') + 1)];
+    const advancedSetting = ruleControlAdvancedSettings[key];
+    const valueStyle = getValueStyle({
+      type: 2,
+      enumDefault: 1,
+      advancedSetting,
+      value: '_',
+    }).valueStyle;
+    return `
+      .control-rule-${controlId}-${rowId} {
+        > span:not(.editIcon), > a, .worksheetCellPureString, .titleText, &.titleText {
+          ${valueStyle}
+        }
+      }
+    `;
+  });
 }

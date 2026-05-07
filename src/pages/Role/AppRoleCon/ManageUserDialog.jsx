@@ -143,6 +143,7 @@ function ManageUserDialog(props) {
   isAdmin = isOwner || isAdmin;
   const editApp = canEditApp(appDetail.permissionType, appDetail.isLock);
   const editUser = canEditData(appDetail.permissionType);
+
   const updateAppRoleNotify = () => {
     const { appId } = props;
     AppAjax.updateAppRoleNotify({ appId, notify: !notify }).then(data => {
@@ -151,6 +152,7 @@ function ManageUserDialog(props) {
       }
     });
   };
+
   return (
     <Dialog
       visible

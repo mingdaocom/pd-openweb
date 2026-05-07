@@ -28,7 +28,7 @@ const BtnSettingWrap = styled.div`
   flex-direction: column;
   flex-basis: 360px;
   max-width: 360px;
-  background-color: var(--color-background-disabled);
+  background-color: var(--color-background-secondary);
   padding: 16px 0;
   .btnDisplayTab {
     display: flex;
@@ -91,7 +91,7 @@ const BtnSettingWrap = styled.div`
       margin-top: 0;
     }
     .Dropdown--input {
-      background-color: var(--color-background-primary);
+      background-color: var(--color-background-input);
     }
     .settingTitle {
       font-weight: bold;
@@ -101,7 +101,7 @@ const BtnSettingWrap = styled.div`
       font-size: 13px;
       border-radius: 3px;
       padding: 3px;
-      background-color: var(--color-background-disabled);
+      background-color: var(--color-background-tertiary);
       > div {
         height: 25px;
         line-height: 25px;
@@ -114,7 +114,7 @@ const BtnSettingWrap = styled.div`
         border-radius: 3px;
         padding: 3px 0;
         font-weight: bold;
-        background-color: var(--color-background-card);
+        background-color: var(--color-background-primary);
       }
     }
     .colorsWrap {
@@ -176,6 +176,7 @@ const BtnSettingWrap = styled.div`
       box-shadow: none;
       padding: 7px 11px;
       border-radius: 3px 0 0 3px !important;
+      background: var(--color-background-input);
     }
   }
   .customPageBtnSelectIcon {
@@ -292,6 +293,7 @@ function BtnSetting(props) {
       if (sheetRequest && sheetRequest.abort) {
         sheetRequest.abort();
       }
+
       setSheetLoading(true);
       sheetRequest = sheetAjax.getWorksheetInfo({
         worksheetId: value,
@@ -319,6 +321,7 @@ function BtnSetting(props) {
             },
           });
         }
+
         setSheetLoading(false);
       });
     }
@@ -385,6 +388,7 @@ function BtnSetting(props) {
         </Fragment>
       );
     }
+
     // 打开视图
     if (action === 2) {
       return (
@@ -431,6 +435,7 @@ function BtnSetting(props) {
         </Fragment>
       );
     }
+
     // 打开自定义页面
     if (action === 3) {
       return (
@@ -464,6 +469,7 @@ function BtnSetting(props) {
         </Fragment>
       );
     }
+
     // 打开链接
     if (action === 4) {
       return (
@@ -471,7 +477,7 @@ function BtnSetting(props) {
           <div className="settingItem">
             <div className="settingTitle">{_l('链接')}</div>
             <Input
-              className="Font13"
+              className="Font13 bgInput"
               style={{ width: '100%' }}
               value={value}
               onChange={value => setBtnSetting({ ...btnSetting, value })}
@@ -504,6 +510,7 @@ function BtnSetting(props) {
         </Fragment>
       );
     }
+
     // 扫码
     if (action === 5) {
       const { qrCodeIsOpen, barCodeIsOpen, recordLink, otherLink, text, placeholder } = _.isObject(config)
@@ -514,7 +521,7 @@ function BtnSetting(props) {
           <div className="settingItem">
             <div className="settingTitle">{_l('引导文字')}</div>
             <Input
-              className="w100 Font13"
+              className="w100 Font13 bgInput"
               value={placeholder}
               onChange={value => {
                 setBtnSetting({
@@ -537,9 +544,11 @@ function BtnSetting(props) {
                   checked={qrCodeIsOpen}
                   onChange={e => {
                     const { checked } = e.target;
+
                     if (!checked && !barCodeIsOpen) {
                       return;
                     }
+
                     setBtnSetting({
                       ...btnSetting,
                       config: {
@@ -558,9 +567,11 @@ function BtnSetting(props) {
                   checked={barCodeIsOpen}
                   onChange={e => {
                     const { checked } = e.target;
+
                     if (!checked && !qrCodeIsOpen) {
                       return;
                     }
+
                     setBtnSetting({
                       ...btnSetting,
                       config: {
@@ -776,6 +787,7 @@ function BtnSetting(props) {
         </Fragment>
       );
     }
+
     // 调用封装业务流程
     if (action === 6) {
       return (
@@ -792,6 +804,7 @@ function BtnSetting(props) {
         </Fragment>
       );
     }
+
     return null;
   };
 
@@ -875,7 +888,7 @@ function BtnSetting(props) {
                     changeAction(value);
                   }}
                   menuStyle={{ width: '100%' }}
-                  style={{ width: '100%', background: 'var(--color-background-primary)' }}
+                  style={{ width: '100%' }}
                   placeholder={_l('选择执行操作')}
                   border
                 />

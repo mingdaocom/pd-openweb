@@ -18,6 +18,7 @@ export const initialState = {
 
 export function formatForSave(filter, options = {}) {
   let items;
+
   if (filter.isGroup) {
     items = update(filter.conditionsGroups || [], {
       $apply: conditionsGroups =>
@@ -35,6 +36,7 @@ export function formatForSave(filter, options = {}) {
     });
   } else {
     const conditions = _.get(filter, 'conditionsGroups.0.conditions');
+
     if (!_.isEmpty(conditions)) {
       items = conditions
         .filter(condition => (options.noCheck ? true : checkConditionAvailable(condition)))
@@ -43,6 +45,7 @@ export function formatForSave(filter, options = {}) {
       items = [];
     }
   }
+
   return items;
 }
 
@@ -71,9 +74,11 @@ class Actions {
     if (!worksheetId) return;
     worksheetAjax.getWorksheetFilters({ worksheetId }).then(data => {
       let filters = data.map(formatOriginFilterGroupValue);
+
       if (md.global.Account.isPortal) {
         filters = filters.filter(o => o.type !== 2); // 外部门户 排除公共筛选
       }
+
       cb(filters);
       this.dispatch({
         type: 'UPDATE',
@@ -129,6 +134,7 @@ class Actions {
     const condition = getDefaultCondition(control, from);
     setTimeout(() => {
       const dom = document.querySelector('.keyStr_' + condition.keyStr + ' .ant-select-selector');
+
       if (dom) {
         dom.click();
       }
@@ -249,6 +255,7 @@ class Actions {
             filter: formatOriginFilterGroupValue(data),
           });
         }
+
         cb(formatOriginFilterGroupValue(data));
         this.dispatch({
           type: 'UPDATE',

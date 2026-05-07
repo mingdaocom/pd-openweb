@@ -153,11 +153,11 @@ const RecordItemWrap = styled.div`
     width: 24px;
     line-height: 24px;
     border-radius: 3px;
-    background-color: rgba(255, 255, 255, 0.9);
+    background-color: var(--color-background-secondary);
     text-align: center;
     font-size: 18px;
     &:hover {
-      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16);
+      box-shadow: var(--shadow-sm);
       background-color: var(--color-background-primary);
       i {
         color: var(--color-primary);
@@ -196,9 +196,9 @@ const RecordFieldsWrap = styled(FlexCenter)`
   .contentWrap {
     flex: 1;
     overflow: auto;
-    scrollbar-color: auto;
+    scrollbar-width: none;
     &::-webkit-scrollbar {
-      height: 0;
+      display: none;
     }
   }
   .linelimitcomp {
@@ -255,6 +255,7 @@ const BaseCard = props => {
     currentGroupKey,
     entityName,
     roleType,
+    buttonsCheckStatus,
   } = props;
   const isMobile = browserIsMobile();
   let { rowId, coverImage, allowEdit, allowDelete, allowAdd, rawRow } = data;
@@ -280,6 +281,7 @@ const BaseCard = props => {
       if (path.length < 2) return currentView;
       return viewControls[path.length - 1];
     }
+
     return currentView;
   };
 
@@ -300,6 +302,7 @@ const BaseCard = props => {
   );
   let viewId, worksheetId;
   let paramForOperatePrint = {};
+
   if (viewParaOfRecord) {
     viewId = viewParaOfRecord.viewId;
     worksheetId = viewParaOfRecord.worksheetId;
@@ -310,6 +313,7 @@ const BaseCard = props => {
     viewId = para.viewId;
     worksheetId = para.worksheetId;
   }
+
   const $ref = useRef(null);
 
   if (isEmpty(data)) return null;
@@ -322,6 +326,7 @@ const BaseCard = props => {
     _.get(para, 'advancedSetting.controlstyle') === '1' || _.get(para, 'advancedSetting.controlstyleapp') === '1';
   const abstractValue = abstract ? renderCellText(abstractControl, { noMask: absShowFullValue, appId }) : '';
   const otherFields = update(fields, { $splice: [[titleIndex, 1]] });
+
   const titleMasked = key => {
     const controlField = key === 'title' ? titleField : abstractControl;
     const fullValue = key === 'title' ? forceShowFullValue : absShowFullValue;
@@ -344,6 +349,7 @@ const BaseCard = props => {
       const viewConfig = viewControls[path.length - 1];
       return get(viewConfig, 'showControlName');
     }
+
     return showControlName;
   };
 
@@ -449,6 +455,7 @@ const BaseCard = props => {
         </FlexCenter>
       );
     }
+
     return displayContent;
   };
 
@@ -485,6 +492,7 @@ const BaseCard = props => {
   const getPopAlign = () => {
     if ($ref.current) {
       const { right } = $ref.current.getBoundingClientRect();
+
       /**
        * 如果右侧放不下就放卡片的左侧
        * 208 = 目录的宽度(200) + 间隔(8)
@@ -496,11 +504,13 @@ const BaseCard = props => {
         };
       }
     }
+
     return {
       points: ['tl', 'tr'],
       offset: [16, -8],
     };
   };
+
   const hideOperate = isMobile || _.get(window, 'shareState.isPublicView') || _.get(window, 'shareState.isPublicPage');
   const { recordColorConfig } = data;
   const recordColor =
@@ -512,10 +522,12 @@ const BaseCard = props => {
       row: row,
     });
   let fieldList = otherFields;
+
   if (!isGalleryView && !showNull) {
     //不显示空的内容
     fieldList = otherFields.filter(item => !isEmptyCell(item));
   }
+
   const showFields = getCanDisplayControls(
     fieldShowCount && fieldShowCount !== 'undefined' && (!hoverShowAll || isQuickEditing)
       ? fieldList.slice(0, fieldShowCount)
@@ -526,6 +538,7 @@ const BaseCard = props => {
     fieldShowCount !== 'undefined' &&
     hoverShowAll &&
     !(_.get(window, 'shareState.isPublicView') || _.get(window, 'shareState.isPublicPage'));
+
   const renderCell = item => {
     if (isEmptyCell(item) && !isGalleryView && !showNull) return null;
     const cell = _.find(data.formData, c => c.controlId === item.controlId) || item;
@@ -547,12 +560,15 @@ const BaseCard = props => {
       />
     );
     let style = {};
+
     if (item.type === 6) {
       style.width = '100%';
     }
+
     if (isGalleryView) {
       style.minHeight = '21px';
     }
+
     // 画廊视图或有内容控件则渲染
     return (
       <div key={item.controlId} className={cx('fieldItem', { galleryRowfieldItem: isGalleryView })} style={style}>
@@ -560,6 +576,7 @@ const BaseCard = props => {
       </div>
     );
   };
+
   return (
     <div>
       <RecordItemWrap
@@ -704,8 +721,10 @@ const BaseCard = props => {
           row={row}
           entityName={entityName}
           recordId={rowId}
+          status={buttonsCheckStatus}
           onCopySuccess={onCopySuccess}
           onDeleteSuccess={onDelete}
+          onUpdateRow={onUpdate}
         />
       )}
     </div>

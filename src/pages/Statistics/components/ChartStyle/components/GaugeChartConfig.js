@@ -35,12 +35,14 @@ const defaultSectionColorConfig = {
 const getSection = (value, isFloor) => {
   const n = 100 / value;
   const result = [];
+
   for (let i = 0; i < value; i++) {
     if (i) {
       const v = n * i;
       result.push(isFloor ? Math.floor(v) : Number(v.toFixed(2)));
     }
   }
+
   return result
     .concat(100)
     .reverse()
@@ -56,17 +58,20 @@ const SectionColorConfigModal = props => {
   const { sectionColorConfig = defaultSectionColorConfig } = style;
   const [data, setData] = useState(sectionColorConfig);
   const { type, isFloor, quantity, sectionColors } = data;
+
   const changeSectionColorConfig = config => {
     setData({
       ...data,
       ...config,
     });
   };
+
   const sortSectionColors = () => {
     changeSectionColorConfig({
       sectionColors: sectionColors.sort((a, b) => b.value - a.value),
     });
   };
+
   return (
     <Modal
       title={_l('区间颜色')}
@@ -89,19 +94,24 @@ const SectionColorConfigModal = props => {
                   const next = sectionColors[index + 1] || {};
                   return item.value >= next.value || _.isUndefined(next.value);
                 });
+
                 if (filterSectionColors.length !== sectionColors.length) {
                   alert(_l('当前值请按从大到小填写'), 3);
                   return;
                 }
+
                 if (sectionColors.filter(item => !item.value).length) {
                   alert(_l('当输入大于0的值'), 3);
                   return;
                 }
+
                 const values = sectionColors.map(n => n.value);
+
                 if (_.uniq(values).length !== values.length) {
                   alert(_l('不允许配置相同值'), 3);
                   return;
                 }
+
                 onChangeStyle({ sectionColorConfig: data });
                 onCancel();
               }}
@@ -123,10 +133,12 @@ const SectionColorConfigModal = props => {
             const data = {
               type: value,
             };
+
             if (value === 1) {
               data.quantity = sectionColors.length;
               data.sectionColors = getSection(sectionColors.length, isFloor);
             }
+
             changeSectionColorConfig(data);
           }}
         >
@@ -151,12 +163,15 @@ const SectionColorConfigModal = props => {
               }}
               onBlur={() => {
                 let value = quantity || 0;
+
                 if (value <= 0) {
                   value = 1;
                 }
+
                 if (value >= 10) {
                   value = 10;
                 }
+
                 const newSectionColors = getSection(value, isFloor);
                 changeSectionColorConfig({
                   quantity: value,
@@ -175,9 +190,11 @@ const SectionColorConfigModal = props => {
                     className="textTertiary Font20 pointer mBottom2 hoverColorPrimary"
                     onClick={() => {
                       let value = quantity + 1;
+
                       if (value >= 10) {
                         value = 10;
                       }
+
                       const newSectionColors = getSection(value, isFloor);
                       changeSectionColorConfig({
                         quantity: value,
@@ -195,9 +212,11 @@ const SectionColorConfigModal = props => {
                     className="textTertiary Font20 pointer mTop2 hoverColorPrimary"
                     onClick={() => {
                       let value = quantity - 1;
+
                       if (value <= 1) {
                         value = 1;
                       }
+
                       const newSectionColors = getSection(value, isFloor);
                       changeSectionColorConfig({
                         quantity: value,
@@ -240,12 +259,15 @@ const SectionColorConfigModal = props => {
               onChange={event => {
                 const v = event.target.value.replace(/[^0-9]+/g, '');
                 let value = v ? Number(v) : '';
+
                 if (value <= 0) {
                   value = 0;
                 }
+
                 if (value >= 100) {
                   value = 100;
                 }
+
                 changeSectionColorConfig({
                   sectionColors: sectionColors.map((data, i) => {
                     if (index === i) {
@@ -254,6 +276,7 @@ const SectionColorConfigModal = props => {
                         value,
                       };
                     }
+
                     return data;
                   }),
                 });
@@ -278,6 +301,7 @@ const SectionColorConfigModal = props => {
                         color: value,
                       };
                     }
+
                     return data;
                   }),
                 });
@@ -377,9 +401,11 @@ const GaugeColor = props => {
               value={color}
               onChange={value => {
                 const data = { gaugeColor: value };
+
                 if (chartColor) {
                   data.chartColorIndex = chartColorIndex + 1;
                 }
+
                 onChangeStyle(data);
               }}
             >
@@ -429,11 +455,13 @@ const GaugeColor = props => {
             controlId: '',
             dataBarRule: data,
           };
+
           if (colorRules.length) {
             onChangeDisplayValue('colorRules', [colorRules[0], rule]);
           } else {
             onChangeDisplayValue('colorRules', [{}, rule]);
           }
+
           setRuleColorModalVisible(false);
         }}
         onCancel={() => setRuleColorModalVisible(false)}

@@ -20,6 +20,7 @@ export default class PrintOptDialog extends Component {
   constructor(props) {
     super(props);
     let controlOption = [];
+
     if (props.controlOption === 'all') {
       controlOption.splice(0, controlOption.length);
       const { reqInfo = {} } = props;
@@ -41,6 +42,7 @@ export default class PrintOptDialog extends Component {
     } else {
       controlOption = props.controlOption;
     }
+
     this.state = {
       controlOption,
       options: props.options || {},
@@ -56,6 +58,7 @@ export default class PrintOptDialog extends Component {
     const index = controlOption.indexOf(controlId);
     let formDetailEvaluateLength = 0;
     const { reqInfo = {} } = this.state;
+
     if (reqInfo.formControls) {
       reqInfo.formControls.forEach(formControlItem => {
         if (formControlItem.tempControls.filter(item => item.needEvaluate).length > 0) {
@@ -63,11 +66,13 @@ export default class PrintOptDialog extends Component {
         }
       });
     }
+
     if (index > -1) {
       controlOption.splice(index, 1);
     } else {
       controlOption.push(controlId);
     }
+
     if (
       controlOption.length ===
       (reqInfo.controls || []).filter(item => !item.printHide).length + formDetailEvaluateLength
@@ -83,6 +88,7 @@ export default class PrintOptDialog extends Component {
       if (item.key === key) {
         item.show = !item.show;
       }
+
       return item;
     });
     this.setState({
@@ -95,6 +101,7 @@ export default class PrintOptDialog extends Component {
       if (item.flowNode.id === key) {
         item.show = !item.show;
       }
+
       return item;
     });
     this.setState({
@@ -103,6 +110,7 @@ export default class PrintOptDialog extends Component {
   }
   toggleCheckAll = function () {
     const controlOption = this.state.controlOption;
+
     if (this.state.printCheckAll) {
       // controlOption.splice(0, this.state.reqInfo.controls.filter(item => !item.printHide).length);
       this.setState({ controlOption: [], printCheckAll: false });
@@ -122,6 +130,7 @@ export default class PrintOptDialog extends Component {
           }
         });
       }
+
       this.setState({ controlOption, printCheckAll: true });
     }
   }.bind(this);
@@ -244,6 +253,7 @@ export default class PrintOptDialog extends Component {
           } else {
             controlOption = this.state.controlOption;
           }
+
           if (controlOption !== 'all' && controlOption.length === 0) {
             alert(_l('打印字段不可为空'), 3);
             return false;
@@ -256,12 +266,15 @@ export default class PrintOptDialog extends Component {
               options,
             );
           }
+
           if (type === 'task') {
             this.props.onUpdateTask(this.state.task);
           }
+
           if (type === 'workflow') {
             this.props.onUpdateWorkflow(this.state.workflow);
           }
+
           alert(_l('修改成功'));
         }}
         onCancel={() => {

@@ -120,6 +120,7 @@ export default class InboxList extends React.Component {
   renderList() {
     const { count } = this.props;
     const { list, pageIndex, isLoading, failed } = this.state;
+
     if (list.length) {
       return this.state.list.map((inboxItem, index) => (
         <Fragment key={inboxItem.inboxId}>
@@ -138,6 +139,7 @@ export default class InboxList extends React.Component {
 
   renderLoading() {
     const { pageIndex, isLoading, failed } = this.state;
+
     if (failed && !isLoading) {
       return (
         <div className="mTop10 TxtCenter">
@@ -159,6 +161,7 @@ export default class InboxList extends React.Component {
 
   renderNullDiv() {
     const { inboxType, inboxFavorite } = this.props;
+
     if (inboxFavorite) {
       return (
         <div className="nullTip starMsg">

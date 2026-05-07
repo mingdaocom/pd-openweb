@@ -1,4 +1,4 @@
-import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react';
+﻿import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { useMeasure } from 'react-use';
 import cx from 'classnames';
 import { chain, findLast, findLastIndex, flatten, get, identity, isArray, isEmpty, omit } from 'lodash';
@@ -33,7 +33,7 @@ const MingoContentWrap = styled.div`
     font-weight: bold;
     margin: 26px 0 6px;
     font-size: 15px;
-    color: var(--color-text-title);
+    color: var(--color-text-primary);
   }
   .sendCon {
     position: relative;
@@ -143,6 +143,7 @@ function contentIsEmpty(content) {
       }).length === 0
     );
   }
+
   return false;
 }
 
@@ -157,6 +158,7 @@ function getContentOfMessage(message) {
       ];
   const toolMap = message.tool_map || {};
   const filteredToolCalls = filterToolCalls(message.tool_calls || []);
+
   if (!isEmpty(filteredToolCalls)) {
     content = [
       ...content,
@@ -166,6 +168,7 @@ function getContentOfMessage(message) {
       },
     ];
   }
+
   return content;
 }
 
@@ -173,6 +176,7 @@ export function formatMessage(message) {
   if (!['user', 'assistant'].includes(message.role)) {
     return;
   }
+
   const result = {};
   result.id = get(message, 'metadata.id');
   result.instanceId = message.instanceId;
@@ -185,6 +189,7 @@ export function formatMessage(message) {
   if (isEmpty(result.content) && isEmpty(result.media)) {
     return;
   }
+
   return result;
 }
 
@@ -230,9 +235,11 @@ export function formatMessages(messages) {
 
 function getLoadingText(name = '') {
   const toolName = getToolName(name);
+
   if (toolName) {
     return _l('正在调用工具：%0', toolName);
   }
+
   return _l('思考中');
 }
 
@@ -306,9 +313,11 @@ function MingoContent(props, ref) {
           conversationId,
           messages: messages.slice(-1).map(item => {
             const result = omit(item, ['id']);
+
             if (result.role === 'user') {
               delete result.media;
             }
+
             return result;
           }),
           prevUserMessageId,
@@ -324,14 +333,20 @@ function MingoContent(props, ref) {
     },
     onMessagePipe: (messageContent, messageData) => {
       setIsExecutingToolCalls(false);
-      if (cache.current.autoPlay) {
-        speechSynthesizer.current.speakStream(messageContent);
+      try {
+        if (cache.current.autoPlay) {
+          speechSynthesizer.current.speakStream(messageContent);
+        }
+      } catch (error) {
+        console.error('Error speaking message:', error);
       }
+
       if (!cache.current.conversationId && messageData.conversationId) {
         setConversationId(messageData.conversationId);
         cache.current.conversationId = messageData.conversationId;
         cache.current.needSetGenerateConversation = messageData.conversationId;
       }
+
       if (messageData.step === 'TOOL') {
         setLoadingStatus({ statusText: getLoadingText(messageData.name), type: 'TOOL' });
       } else {
@@ -343,6 +358,7 @@ function MingoContent(props, ref) {
         onGenerateConversation(cache.current.needSetGenerateConversation);
         cache.current.needSetGenerateConversation = undefined;
       }
+
       setLoadingStatus();
       console.log('onMessageDone', messages);
     },
@@ -392,6 +408,7 @@ function MingoContent(props, ref) {
         if (newMessages.length < 50) {
           setHasMore(false);
         }
+
         setMessages(prev => [...newMessages, ...prev]);
         setPageIndex(nextPageIndex);
 
@@ -400,6 +417,7 @@ function MingoContent(props, ref) {
           const newScrollViewInfo = messageListRef.current?.scrollViewRef?.current?.getScrollInfo();
           const newScrollHeight = newScrollViewInfo?.scrollHeight || 0;
           const scrollDiff = newScrollHeight - oldScrollHeight;
+
           if (scrollDiff > 0 && messageListRef.current?.scrollViewRef?.current) {
             messageListRef.current.scrollViewRef.current.scrollTo({ top: scrollDiff });
           }
@@ -410,10 +428,12 @@ function MingoContent(props, ref) {
         cache.current.isLoadingMore = false;
       });
   }, [isLoadingMore, hasMore, conversationId, pageIndex, chatbotId, hasScrolledToBottom]);
+
   const handleSend = (newMessage, { fromMessageId, files = [], originMessageForRegenerate } = {}) => {
     if (sessionStorage.getItem(`chatbotNewCreate-${chatbotId}`)) {
       handleHideGuide();
     }
+
     setError();
     setIsChatting(true);
     setHasScrolledToBottom(true);
@@ -427,6 +447,7 @@ function MingoContent(props, ref) {
       handleScrollToBottom();
     }, 100);
   };
+
   const filteredMessages = messages.filter(item => {
     if (item.hidden) return false;
     if (contentIsEmpty(item.content) && isEmpty(item.media)) return false;
@@ -440,6 +461,7 @@ function MingoContent(props, ref) {
       if (cache.current.loadAbortController) {
         cache.current.loadAbortController.abort();
       }
+
       setIsChatting(false);
       cache.current = {};
     },
@@ -482,10 +504,12 @@ function MingoContent(props, ref) {
         if (!isEmpty(chatbotConfigData)) {
           setChatbotConfig(chatbotConfigData);
         }
+
         setConversationId(shareId ? conversationIdForShare : props.conversationId);
         if (!shareId) {
           cache.current.conversationId = props.conversationId;
         }
+
         const formattedMessages = formatMessages(
           getMessageListData.sort((a, b) => new Date(a.ctime) - new Date(b.ctime)),
         ).filter(identity);
@@ -509,6 +533,7 @@ function MingoContent(props, ref) {
         sendRef.current && sendRef.current.focus();
       }
     }
+
     cache.current.prevConversionId = props.conversationId;
   }, [props.conversationId, shareId]);
   useEffect(() => {
@@ -557,7 +582,7 @@ function MingoContent(props, ref) {
       )}
       <MessageList
         width={width}
-        allowShare={!get(window, 'shareState.isPublicChatbot') && !shareId}
+        allowShare={!get(window, 'shareState.isPublicChatbot') && !shareId && !isTest}
         shareMode={shareMode}
         isSelectAll={isSelectAll}
         selectedMessageIds={selectedMessageIds}
@@ -641,9 +666,11 @@ function MingoContent(props, ref) {
           { messageId, modelMessageId, needConfirm, isLastAssistantMessage, isLastPart },
         ) => {
           const filteredToolCalls = filterToolCalls(toolCalls);
+
           if (isEmpty(filteredToolCalls)) {
             return null;
           }
+
           return (
             <ToolCallsCon>
               <div className="tool-calls-message t-flex t-flex-row t-items-center t-space-between">
@@ -662,6 +689,7 @@ function MingoContent(props, ref) {
                       if (item.id === messageId) {
                         return { ...item, hasSubmit: false };
                       }
+
                       return item;
                     });
                   });

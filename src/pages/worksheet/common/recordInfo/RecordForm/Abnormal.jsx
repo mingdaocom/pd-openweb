@@ -13,6 +13,7 @@ export default function Abnormal(props) {
   if (isFunction(renderAbnormal)) {
     return <div className="abnormalCon flexColumn">{renderAbnormal()}</div>;
   }
+
   return (
     <div className="abnormalCon flexColumn">
       <span className="statusIcon Icon icon icon-error1" />

@@ -59,6 +59,7 @@ export default class WorkflowMonitor extends Component {
         },
       }) ||
       {};
+
     if (showHistoryDetail) {
       flowMonitor
         .getDifferenceProcessListByIds({
@@ -77,6 +78,7 @@ export default class WorkflowMonitor extends Component {
         });
       return;
     }
+
     const params = {
       companyId: projectId,
       pageIndex: isRefresh ? 1 : pageIndex,
@@ -84,6 +86,7 @@ export default class WorkflowMonitor extends Component {
       keyword,
       ...extraParams,
     };
+
     if (pageIndex === 1) {
       Promise.all([flowMonitor.getDifferenceProcessCount(params), flowMonitor.getDifferenceProcessList(params)]).then(
         ([count, res]) => {
@@ -130,6 +133,7 @@ export default class WorkflowMonitor extends Component {
   // 流程名称模糊搜索
   changeFlowName = e => {
     let value = e.target.value.trim();
+
     if (!value || (e.keyCode && e.keyCode === 13)) {
       this.setState({ keyword: value, pageIndex: 1 }, this.getFlowList);
     }

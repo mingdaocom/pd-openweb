@@ -2,16 +2,27 @@ import React, { Fragment } from 'react';
 import { useSetState } from 'react-use';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Checkbox, Dialog, Dropdown, Icon, Input } from 'ming-ui';
+import { Checkbox, Dialog, Dropdown, Icon, Input, RadioGroup } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import { CUSTOM_DISPLAY, DISPLAY_MASK } from 'src/pages/widgetConfig/config/setting';
 import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
 import InputValue from 'src/pages/widgetConfig/widgetSetting/components/WidgetVerify/InputValue';
 import { dealMaskValue } from './util';
 
+const DEFAULT_MASK_OPTIONS = [
+  {
+    text: _l('全部掩盖'),
+    value: '1',
+  },
+  {
+    text: _l('全部显示'),
+    value: '2',
+  },
+];
+
 const Setting_Config = [
   {
-    text: _l('开头显示'),
+    text: _l('开头'),
     dropdownKey: 'maskbegin',
     inputKey: 'mdchar',
     errKey: 'mdErr',
@@ -35,7 +46,7 @@ const Setting_Config = [
     ],
   },
   {
-    text: _l('结尾显示'),
+    text: _l('结尾'),
     dropdownKey: 'maskend',
     inputKey: 'mechar',
     errKey: 'meErr',
@@ -106,6 +117,9 @@ const SelectItem = styled.div`
   .Width100 {
     width: 100px;
   }
+  .mRight80 {
+    margin-right: 80px !important;
+  }
 `;
 
 const getMaskTypeByType = type => {
@@ -133,10 +147,12 @@ export default function MaskSettingDialog(props) {
     'maskmid',
     'masklen',
     'maskwords',
+    'defaultmask',
   ]);
   const [detail, setDetail] = useSetState({
     ...originAdvanceData,
     ...(!originAdvanceData.masktype ? { masktype: getMaskTypeByType(data.type) } : {}),
+    ...(!originAdvanceData.defaultmask ? { defaultmask: '1' } : {}),
   });
   const originErr = {
     mdErr: false,
@@ -147,7 +163,7 @@ export default function MaskSettingDialog(props) {
   // status  掩盖：true，解密：false
   const [testInfo, setTestInfo] = useSetState({ text: '', maskText: '', status: false, visible: !!detail.masklen });
 
-  const { masktype, maskmid = '', masklen = '', maskwords = '' } = detail;
+  const { masktype, maskmid = '', masklen = '', maskwords = '', defaultmask = '1' } = detail;
 
   const renderShowValue = (item = {}) => {
     const selectValue = _.find(DISPLAY_MASK, i => i.value === item.value) || {};
@@ -187,6 +203,7 @@ export default function MaskSettingDialog(props) {
         } else if (testInfo.visible && err.mlErr) {
           return alert(_l('虚拟掩码长度应在1～100以内'), 3);
         }
+
         onChange(
           handleAdvancedSettingChange(data, {
             ...(detail.masktype !== 'custom' ? _.pick(detail, 'masktype') : detail),
@@ -217,78 +234,93 @@ export default function MaskSettingDialog(props) {
       {masktype === 'custom' && (
         <SelectItem>
           <div className="title Bold">{_l('设置')}</div>
-          <div className="textTertiary">{_l('设置需要显示的字符，其他字符全部显示为掩码')}</div>
-
-          {Setting_Config.map(({ text, dropdownKey, inputKey, data, errKey }) => {
-            const dropValue = detail[dropdownKey] || '0';
-            const inputValue = detail[inputKey];
-            return (
-              <div className="flexCenter mTop12">
-                <span className="InlineBlock Width100 mRight10">{text}</span>
-                <Dropdown
-                  className="Width200"
-                  border
-                  isAppendToBody
-                  showItemTitle
-                  value={dropValue}
-                  renderTitle={value => {
-                    return <span title={value.text}>{value.text}</span>;
-                  }}
-                  data={data}
-                  onChange={value => {
-                    setDetail({ [dropdownKey]: value, [inputKey]: '' });
-                    setErr({ [errKey]: false });
-                  }}
-                />
-                {dropValue === '1' && (
-                  <Fragment>
-                    <span className="mLeft20 flex">{_l('字数')}</span>
-                    <InputValue
-                      className="inputBox"
-                      type={2}
-                      placeholder={_l('请输入字数')}
-                      value={inputValue}
-                      onChange={value => {
-                        setDetail({ [inputKey]: value });
-                        setErr({ mdErr: !value || !parseInt(value) });
-                      }}
-                    />
-                  </Fragment>
-                )}
-                {_.includes(['2', '3'], dropValue) && (
-                  <Fragment>
-                    <span className="mLeft20 flex">{_l('字符')}</span>
-                    <Input
-                      className="inputBox"
-                      placeholder={_l('请输入字符')}
-                      value={inputValue}
-                      onChange={value => {
-                        setDetail({ [inputKey]: value });
-                        setErr({ meErr: !value });
-                      }}
-                    />
-                  </Fragment>
-                )}
-              </div>
-            );
-          })}
 
           <div className="flexCenter mTop12">
-            <span className="Width100 mRight10">{_l('中间显示')}</span>
-            <Input
-              className="flex inputBox"
-              placeholder={_l('按顺序输入显示的字符，多个使用,隔开。如：a,b,c')}
-              value={maskmid}
-              onChange={value => setDetail({ maskmid: value })}
+            <span className="Width100 mRight10">{_l('基础规则')}</span>
+            <RadioGroup
+              data={DEFAULT_MASK_OPTIONS}
+              checkedValue={defaultmask}
+              radioItemClassName="mRight80"
+              onChange={value => setDetail({ defaultmask: value })}
             />
           </div>
+
+          {detail.defaultmask === '1' && (
+            <Fragment>
+              {Setting_Config.map(({ text, dropdownKey, inputKey, data, errKey }) => {
+                const dropValue = detail[dropdownKey] || '0';
+                const inputValue = detail[inputKey];
+                return (
+                  <div className="flexCenter mTop12">
+                    <span className="InlineBlock Width100 mRight10">{text}</span>
+                    <Dropdown
+                      className="Width200"
+                      border
+                      isAppendToBody
+                      showItemTitle
+                      value={dropValue}
+                      renderTitle={value => {
+                        return <span title={value.text}>{value.text}</span>;
+                      }}
+                      data={data}
+                      onChange={value => {
+                        setDetail({ [dropdownKey]: value, [inputKey]: '' });
+                        setErr({ [errKey]: false });
+                      }}
+                    />
+                    {dropValue === '1' && (
+                      <Fragment>
+                        <span className="mLeft20 flex">{_l('字数')}</span>
+                        <InputValue
+                          className="inputBox"
+                          type={2}
+                          placeholder={_l('请输入字数')}
+                          value={inputValue}
+                          onChange={value => {
+                            setDetail({ [inputKey]: value });
+                            setErr({ mdErr: !value || !parseInt(value) });
+                          }}
+                        />
+                      </Fragment>
+                    )}
+                    {_.includes(['2', '3'], dropValue) && (
+                      <Fragment>
+                        <span className="mLeft20 flex">{_l('字符')}</span>
+                        <Input
+                          className="inputBox"
+                          placeholder={_l('请输入字符')}
+                          value={inputValue}
+                          onChange={value => {
+                            setDetail({ [inputKey]: value });
+                            setErr({ meErr: !value });
+                          }}
+                        />
+                      </Fragment>
+                    )}
+                  </div>
+                );
+              })}
+
+              <div className="flexCenter mTop12">
+                <span className="Width100 mRight10">{_l('中间显示')}</span>
+                <Input
+                  className="flex inputBox"
+                  placeholder={_l('按顺序输入显示的字符，多个使用,隔开。如：a,b,c')}
+                  value={maskmid}
+                  onChange={value => setDetail({ maskmid: value })}
+                />
+              </div>
+            </Fragment>
+          )}
 
           <div className="flexCenter mTop12">
             <span className="Width100 mRight10">
               {_l('始终掩盖')}
-              <Tooltip placement="bottom" title={_l('掩盖规则的优先级高于开头显示、结尾显示和中间显示。')}>
-                <Icon icon="help" className="Font15 textTertiary mLeft4" />
-              </Tooltip>
+              {detail.defaultmask === '1' && (
+                <Tooltip placement="bottom" title={_l('掩盖规则的优先级高于开头显示、结尾显示和中间显示。')}>
+                  <Icon icon="help" className="Font15 textTertiary mLeft4" />
+                </Tooltip>
+              )}
             </span>
             <Input
               className="flex inputBox"

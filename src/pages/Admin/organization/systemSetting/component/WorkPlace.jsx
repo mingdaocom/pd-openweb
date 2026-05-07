@@ -134,6 +134,7 @@ export default class WorkPlace extends Component {
       workSiteIds: _.isArray(ids) ? ids : [ids],
       projectId: Config.projectId,
     };
+
     if (reqData.workSiteIds.length > 0) {
       Dialog.confirm({
         title: _l('确认删除所选择的工作地点？'),
@@ -344,9 +345,11 @@ export default class WorkPlace extends Component {
                               if (type === 'prev') {
                                 return <a className="page">{_l('上一页')}</a>;
                               }
+
                               if (type === 'next') {
                                 return <a className="page">{_l('下一页')}</a>;
                               }
+
                               return originalElement;
                             },
                           }

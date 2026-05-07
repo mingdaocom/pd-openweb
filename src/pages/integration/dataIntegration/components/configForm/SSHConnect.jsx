@@ -144,7 +144,7 @@ const DialogWrapper = styled.div`
   }
 
   .errorInfo {
-    background-color: rgba(244, 67, 54, 0.05);
+    background-color: var(--color-error-bg);
     border-radius: 3px;
     padding: 8px 16px;
   }
@@ -200,6 +200,7 @@ export default function SSHConnect(props) {
     if (submitLoading) {
       return;
     }
+
     setSubmitLoading(true);
 
     sshConfigApi
@@ -272,6 +273,7 @@ export default function SSHConnect(props) {
           } else {
             onChange({ enableSsh: 1 });
           }
+
           setSubmitDisabled(true);
         }}
       />
@@ -378,6 +380,7 @@ export default function SSHConnect(props) {
                   if (value === 1 && !sshFormData.sshPublicKey) {
                     onGenerateCrack();
                   }
+
                   setSshFormData({ authType: value });
                 }}
               />

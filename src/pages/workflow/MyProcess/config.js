@@ -136,6 +136,7 @@ const getYear = () => {
   const minYear = 2018;
   const maxYear = moment().get('year');
   const result = [];
+
   for (let i = minYear; i <= maxYear; i++) {
     result.push({
       text: i === maxYear ? _l('今年') : _l('%0年', i),
@@ -145,6 +146,7 @@ const getYear = () => {
       },
     });
   }
+
   return result.reverse();
 };
 
@@ -188,6 +190,38 @@ export const covertTime = time => {
   }`;
 };
 
+export const getStateParam = tab => {
+  let param = {};
+
+  if (tab === TABS.WAITING_APPROVE) {
+    param = { type: 4 };
+  }
+
+  if (tab === TABS.WAITING_FILL) {
+    param = { type: 3 };
+  }
+
+  if (tab === TABS.WAITING_EXAMINE) {
+    param = {
+      type: 5,
+      complete: false,
+    };
+  }
+
+  if (tab === TABS.MY_SPONSOR) {
+    param = { type: 0 };
+  }
+
+  if (tab === TABS.COMPLETE) {
+    param = {
+      type: -1,
+      complete: true,
+    };
+  }
+
+  return param;
+};
+
 export const TABS = {
   WAITING_APPROVE: 0, // 待审批
   WAITING_FILL: 1, // 待填写
@@ -195,3 +229,21 @@ export const TABS = {
   MY_SPONSOR: 3, // 我发起
   COMPLETE: 4, // 已完成
 };
+
+export const SORT_LIST = [
+  {
+    name: _l('默认'),
+    icon: 'import_export',
+    value: undefined,
+  },
+  {
+    name: _l('最新在前'),
+    icon: 'Subtable_Collapse',
+    value: false,
+  },
+  {
+    name: _l('最旧在前'),
+    icon: 'Subtable_Expand',
+    value: true,
+  },
+];

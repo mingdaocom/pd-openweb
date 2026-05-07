@@ -2,7 +2,9 @@ import _ from 'lodash';
 import {
   DATABASE_TYPE,
   DEPT_FIELDS,
+  isPostgresqlDestinationType,
   isValidName,
+  lowercaseIfString,
   namePattern,
   PERSONNEL_FIELDS,
   RELATED_RECORD_FIELDS,
@@ -23,10 +25,23 @@ export const getInitFieldsMapping = (sourceFields, isSourceAppType, destDsType) 
         if (isSourceAppType && isDestAppType && item.isUniquePk) {
           return 'rowid';
         } else {
-          return needReplace ? item.name.replace(namePattern, '') : item.name;
+          let n = needReplace ? item.name.replace(namePattern, '') : item.name;
+
+          if (isPostgresqlDestinationType(destDsType)) {
+            n = lowercaseIfString(n);
+          }
+
+          return n;
         }
       }
     };
+
+    const initDestName = getInitName();
+    const initDestAliasRaw = item.alias || initDestName;
+    const initDestAlias = isPostgresqlDestinationType(destDsType)
+      ? lowercaseIfString(initDestAliasRaw)
+      : initDestAliasRaw;
+
     return {
       sourceField: item,
       destField: {
@@ -37,8 +52,8 @@ export const getInitFieldsMapping = (sourceFields, isSourceAppType, destDsType) 
         isNotNull: isExistJoinPk ? item.isUniquePk : item.isPk,
         isPk: item.isPk,
         isUniquePk: item.isUniquePk,
-        name: getInitName(),
-        alias: item.alias || getInitName(),
+        name: initDestName,
+        alias: initDestAlias,
         dataType: null,
         jdbcTypeId: null,
         precision: null,
@@ -140,10 +155,12 @@ export const getInitWorkSheetFields = (
           remark: control.remark,
         },
       };
+
       if (!isDestAppType && _.includes([26, 27, 29], control.type)) {
         if (control.type === 26) {
           //人员字段拆分
           const isExternalUser = control.advancedSetting.usertype === '2'; // 外部成员
+
           if (isExternalUser) {
             initWorkSheetFields.push({
               ...commonObj,
@@ -207,6 +224,7 @@ export const getDefaultData = (
 
   const newFieldsMapping = (mapping || []).map(item => {
     const isValidField = isValidName(item.sourceField.name) || isSourceAppType;
+
     //设置默认选中字段(第一个名称相同的字段)--仅对于选择已有表情况
     if (isSetDefaultFields) {
       const matchedFields = getMatchedFieldsOptions(
@@ -217,6 +235,7 @@ export const getDefaultData = (
         isDestAppType,
       );
       const sameNameFields = matchedFields.filter(f => f.name === item.sourceField.name);
+
       if (!item.destField.id && sameNameFields.length > 0 && !hasSetFields[sameNameFields[0].name]) {
         hasSetFields[sameNameFields[0].name] = 1;
         return {
@@ -242,7 +261,9 @@ export const getDefaultData = (
         };
       }
     }
+
     const itemOptions = types[item.sourceField.id] || [];
+
     //不支持类型的主键isCheck设置为false
     if (itemOptions.length === 0) {
       return {
@@ -250,6 +271,7 @@ export const getDefaultData = (
         destField: { ...item.destField, isCheck: false },
       };
     }
+
     //过滤出和源字段类型一样的字段，没有则返回{}
     const initOption = itemOptions.filter(o =>
       isDestAppType ? o.mdType === item.sourceField.mdType : o.typeName.toLowerCase() === item.sourceField.dataType,
@@ -270,6 +292,7 @@ export const getDefaultData = (
     const mdType = item.destField.isUniquePk ? 2 : (initOption || itemOptions[0]).mdType;
     const canSetTitle = canSetAsTitle({ type: mdType }) && (item.sourceField.oid || '').split('_')[1] !== 'rowid';
     const isTitle = isDestAppType ? notCanvas && canSetTitle && !isSetTitle : null;
+
     if (!isSetTitle && canSetTitle) {
       isSetTitle = true;
     }
@@ -309,6 +332,7 @@ export const isNotSupportField = (sourceField, matchedTypes) => {
 
 export const getExtraParams = (type, formData) => {
   let extraParams = {};
+
   switch (type) {
     case DATABASE_TYPE.ORACLE:
       extraParams = {
@@ -324,5 +348,6 @@ export const getExtraParams = (type, formData) => {
         saslMechanism: formData.saslMechanism ? JSON.parse(formData.saslMechanism)[0] : undefined,
       };
   }
+
   return extraParams;
 };

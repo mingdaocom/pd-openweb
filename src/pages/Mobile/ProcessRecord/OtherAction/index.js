@@ -1,12 +1,13 @@
 import React, { Component, Fragment } from 'react';
 import { ActionSheet, Popup, TextArea } from 'antd-mobile';
+import cx from 'classnames';
 import _ from 'lodash';
 import { Icon, Signature, VerifyPasswordInput } from 'ming-ui';
 import delegationApi from 'src/pages/workflow/api/delegation';
-import instanceAJAX from 'src/pages/workflow/api/instance';
 import AttachmentFiles, { UploadFileWrapper } from 'mobile/components/AttachmentFiles';
 import SelectUser from 'mobile/components/SelectUser';
 import verifyPassword from 'src/components/verifyPassword';
+import instanceAJAX from 'src/pages/workflow/apiV2/instance';
 import { ACTION_TO_TEXT } from 'src/pages/workflow/components/ExecDialog/config';
 import { compatibleMDJS, handlePushState, handleReplaceState } from 'src/utils/project';
 import functionTemplateModal from '../FunctionTemplateModal';
@@ -24,12 +25,15 @@ export default class extends Component {
     if (props.action === 'return' && backFlowNodes.length) {
       backNodeId = backFlowNodes[0].id;
     }
+
     if (props.action === 'taskRevoke') {
       backNodeId = _.get(instance, 'allowTaskRevokeBackNodeId') || '';
     }
+
     if (props.action === 'pass' && _.find(opinions[4], { selected: true })) {
       content = _.find(opinions[4], { selected: true }).value;
     }
+
     if (_.includes(['overrule', 'return'], props.action) && _.find(opinions[5], { selected: true })) {
       content = _.find(opinions[5], { selected: true }).value;
     }
@@ -100,6 +104,7 @@ export default class extends Component {
     if (!window.isMingDaoApp) {
       return;
     }
+
     if (disabled) {
       if (action) {
         handlePushState('page', `otherAction-${action}`);
@@ -114,6 +119,7 @@ export default class extends Component {
             history.back();
             return 2;
           }
+
           return 1;
         },
       });
@@ -163,6 +169,7 @@ export default class extends Component {
         if (entrustList[user.accountId]) {
           return entrustList[user.accountId].trustee.accountId;
         }
+
         return user.accountId;
       })
       .join(',');
@@ -220,6 +227,7 @@ export default class extends Component {
           signature: undefined,
         });
       }
+
       if (this.isNoneVerification) {
         this.setState({ showPassword: false });
       }
@@ -230,6 +238,7 @@ export default class extends Component {
         alert(_l('请输入密码'), 3);
         return;
       }
+
       verifyPassword({
         projectId,
         password: this.password,
@@ -263,14 +272,18 @@ export default class extends Component {
       });
   };
   handleOpenTemplate = data => {
+    const { instanceId } = this.props;
+
     functionTemplateModal({
       ...data,
+      instanceId,
       onSelect: content => this.setState({ content, customApproveContent: content ? true : false }),
       onCustom: () => {
         this.setState({ customApproveContent: true }, () => {
           this.textarea && this.textarea.focus();
         });
       },
+      updateOpinionList: opinionList => this.setState({ opinionList }),
     });
   };
   handleOpenEntrust = (e, data) => {
@@ -326,7 +339,7 @@ export default class extends Component {
           >
             <span>{_l('取消')}</span>
           </div>
-          <div className="flex Font17 textPrimary TxtCenter">{_l('选择退回节点')}</div>
+          <div className="flex Font15 textPrimary TxtCenter bold">{_l('选择退回节点')}</div>
           <div
             className="right"
             onClick={() => {
@@ -338,7 +351,7 @@ export default class extends Component {
             {_l('确认')}
           </div>
         </div>
-        <div className="backFlowNodesList pTop10" style={{ borderTop: '1px solid #e9e9e9' }}>
+        <div className="backFlowNodesList">
           {backFlowNodes.map(item => (
             <div
               className="flexRow alignItemsCenter flex pAll10"
@@ -350,7 +363,7 @@ export default class extends Component {
               }}
             >
               <span className="textPrimary flex">{item.name}</span>
-              {backNodeId === item.id ? <Icon icon="ok" /> : null}
+              {backNodeId === item.id ? <Icon icon="ok" className="Font18" /> : null}
             </div>
           ))}
         </div>
@@ -380,6 +393,7 @@ export default class extends Component {
         </div>
       );
     }
+
     if (_.includes(['transfer', 'transferApprove', 'after', 'before', 'addApprove'], action)) {
       return (
         <div className="itemWrap flexRow valignWrapper">
@@ -403,6 +417,7 @@ export default class extends Component {
   renderSignType() {
     const { selectedUser, countersignType } = this.state;
     const { action } = this.props;
+
     if (_.includes(['after', 'before'], action) && selectedUser.length > 1) {
       const personsPassing = [
         { text: _l('或签（一名审批人通过或否决即可）'), value: 3 },
@@ -410,6 +425,7 @@ export default class extends Component {
         { text: _l('会签（只需一名审批人通过，否决需全员否决）'), value: 2 },
         // { text: _l('会签（按比例投票通过）'), value: 4 },
       ];
+
       const handleOpen = () => {
         this.actionSheetHandler = ActionSheet.show({
           actions: personsPassing.map(item => {
@@ -426,6 +442,7 @@ export default class extends Component {
           },
         });
       };
+
       return (
         <div className="itemWrap flexRow valignWrapper" onClick={handleOpen}>
           <div className="textPrimary Font13 bold flex">{_l('多人审批时采用的审批方式')}</div>
@@ -437,6 +454,7 @@ export default class extends Component {
   renderSelectUser() {
     const { projectId, action, instance } = this.props;
     const { selectUserVisible, selectedUser, nextUserRange } = this.state;
+
     if (selectUserVisible) {
       const TYPES = {
         transferApprove: 6,
@@ -520,6 +538,7 @@ export default class extends Component {
   }
   renderAttachment() {
     const { files } = this.state;
+
     if (files.length) {
       return (
         <div className="flexRow pLeft15 pRight15">
@@ -543,6 +562,7 @@ export default class extends Component {
     const { action, instance } = this.props;
     const { encrypt } = (instance || {}).flowNode || {};
     const { showPassword, removeNoneVerification } = this.state;
+
     if (_.includes(['pass', 'overrule', 'return'], action) && encrypt && showPassword) {
       return (
         <div className="flexRow am-textarea-item pTop20 pBottom0">
@@ -582,12 +602,15 @@ export default class extends Component {
       _.includes(['pass', 'overrule', 'return', 'after', 'before', 'taskRevoke', 'revoke'], action) &&
       allowUploadAttachment;
     let opinions = [];
+
     if (_.includes(['after', 'pass'], action)) {
       opinions = opinionTemplateOpinions[4];
     }
+
     if (_.includes(['overrule', 'return'], action)) {
       opinions = opinionTemplateOpinions[5];
     }
+
     const selectTemplateVisible =
       !customApproveContent &&
       _.includes(['pass', 'after', 'overrule', 'return'], action) &&
@@ -727,7 +750,7 @@ export default class extends Component {
     return (
       <Popup
         visible={visible}
-        className="otherActionModal mobileModal"
+        className={cx('otherActionModal mobileModal', { backFlowNodeModal: backFlowNodesVisible })}
         onClose={() => {
           if (edit) return;
           this.takeOverNavigation(false, this.props.action);

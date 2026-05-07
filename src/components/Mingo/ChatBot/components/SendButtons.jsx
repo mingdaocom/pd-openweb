@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { BgIconButton } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
+import mingoAjax from 'src/api/mingo';
 import { formatResponseData } from 'src/components/UploadFiles/utils';
 import chatbotApi from 'src/pages/workflow/apiV2/chatbot';
 import { compatibleMDJS } from 'src/utils/project';
@@ -51,6 +52,7 @@ function SendButtons(
     loading,
     chatbotId,
     needOcr,
+    mingoOcr,
     useAppThemeColor,
     tokenType,
     dropFileElementId,
@@ -104,22 +106,34 @@ function SendButtons(
             file.name = file.originalFileName;
             file.type = ['.jpg', '.jpeg', '.png'].includes(file.fileExt) ? 'image' : file.type;
             const commonAttachment = formatResponseData(file, file);
+            const isImage = file.type === 'image' || ['.jpg', '.jpeg', '.png'].includes(file.fileExt);
+            const shouldOcr = needOcr && !(mingoOcr && isImage);
             onUpdateFiles(oldFiles =>
               [
                 ...oldFiles,
                 ...[file].map(f =>
                   f.id === file.id
-                    ? { ...f, status: needOcr ? 'ocr' : 'uploaded', file, commonAttachment, url: file.url }
+                    ? { ...f, status: shouldOcr ? 'ocr' : 'uploaded', file, commonAttachment, url: file.url }
                     : f,
                 ),
               ].filter(f => f.id !== sessionId),
             );
-            if (needOcr) {
-              chatbotApi
-                .ocr({
-                  chatbotId,
-                  media: JSON.stringify([commonAttachment]),
-                })
+            if (shouldOcr) {
+              const ocrPromise = mingoOcr
+                ? mingoAjax.fileOcrParse({
+                    files: [
+                      {
+                        fileUrl: file.url,
+                        fileExt: file.fileExt,
+                        originalFileName: file.originalFileName,
+                      },
+                    ],
+                  })
+                : chatbotApi.ocr({
+                    chatbotId,
+                    media: JSON.stringify([commonAttachment]),
+                  });
+              ocrPromise
                 .then(([ocrId]) => {
                   onUpdateFiles(oldFiles => [
                     ...oldFiles
@@ -191,19 +205,31 @@ function SendButtons(
             }}
             onUploaded={(uploader, file, response) => {
               const commonAttachment = formatResponseData(file, response);
+              const isImage = /^image\//.test(file.type) || /\.(jpg|jpeg|png|gif|webp)$/i.test(file.name);
+              const shouldOcr = needOcr && !(mingoOcr && isImage);
               onUpdateFiles(oldFiles => [
                 ...oldFiles.map(f =>
                   f.id === file.id
-                    ? { ...f, status: needOcr ? 'ocr' : 'uploaded', file, commonAttachment, url: file.url }
+                    ? { ...f, status: shouldOcr ? 'ocr' : 'uploaded', file, commonAttachment, url: file.url }
                     : f,
                 ),
               ]);
-              if (needOcr) {
-                chatbotApi
-                  .ocr({
-                    chatbotId: cache.current.chatbotId,
-                    media: JSON.stringify([commonAttachment]),
-                  })
+              if (shouldOcr) {
+                const ocrPromise = mingoOcr
+                  ? mingoAjax.fileOcrParse({
+                      files: [
+                        {
+                          fileUrl: file.url,
+                          fileExt: file.fileExt,
+                          originalFileName: file.originalFileName,
+                        },
+                      ],
+                    })
+                  : chatbotApi.ocr({
+                      chatbotId: cache.current.chatbotId,
+                      media: JSON.stringify([commonAttachment]),
+                    });
+                ocrPromise
                   .then(([ocrId]) => {
                     onUpdateFiles(oldFiles => [
                       ...oldFiles.map(f => (f.id === file.id ? { ...f, status: 'uploaded', ocrId } : f)),
@@ -283,6 +309,7 @@ function SendButtons(
                 setAutoPlay(true);
                 return;
               }
+
               onSend();
             }}
           />

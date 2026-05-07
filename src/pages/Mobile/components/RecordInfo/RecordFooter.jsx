@@ -171,6 +171,7 @@ export default class RecordFooter extends Component {
       if (!value || !value.startsWith('[')) {
         return value;
       }
+
       return getDynamicValue(formData, {
         type: 2,
         advancedSetting: {
@@ -305,29 +306,6 @@ export default class RecordFooter extends Component {
         console.log(res, 'cancel');
       },
     });
-  };
-
-  handlePrint = () => {
-    const { instanceId, workId, recordBase, recordInfo } = this.props;
-    const { projectId } = recordInfo;
-    const { worksheetId, recordId, viewId, appId } = recordBase;
-    // js sdk 对接原生打印
-    compatibleMDJS(
-      'showPrintList',
-      {
-        type: instanceId || workId ? 'workflow' : 'row', // row/workflow
-        projectId, // 网络ID
-        appId, // 应用ID
-        // row
-        sheetId: worksheetId, // 工作表ID
-        viewId: viewId, // 视图ID
-        rowId: recordId, // 记录ID
-        // workflow
-        workId,
-        instanceId,
-      },
-      () => {},
-    );
   };
 
   handleCollectRecord = () => {
@@ -565,6 +543,9 @@ export default class RecordFooter extends Component {
       editLockedUser,
       onUpdate,
       worksheetInfo,
+      instanceId,
+      workId,
+      formData,
     } = this.props;
     const { recordActionVisible, customBtns, isFavorite, RecordAction, aiActionBtns } = this.state;
 
@@ -576,7 +557,10 @@ export default class RecordFooter extends Component {
         worksheetId={recordBase.worksheetId}
         viewId={recordBase.viewId}
         rowId={recordBase.recordId}
+        instanceId={instanceId}
+        workId={workId}
         sheetRow={recordInfo}
+        formData={formData}
         customBtns={customBtns}
         aiActionBtns={aiActionBtns}
         switchPermit={recordInfo.switchPermit}
@@ -586,7 +570,6 @@ export default class RecordFooter extends Component {
         handleDeleteSuccess={handleDeleteSuccess}
         recordActionVisible={recordActionVisible}
         onShare={this.handleShare}
-        handlePrint={this.handlePrint}
         hideRecordActionVisible={() => {
           this.setState({ recordActionVisible: false });
         }}

@@ -76,21 +76,26 @@ export function getRecordAttachments(coverImageStr) {
   if (!coverImageStr) return res;
   let coverImage;
   let allAttachments = [];
+
   try {
     if (coverImageStr) {
       let coverArr = '';
+
       try {
         coverArr = JSON.parse(coverImageStr);
       } catch (e) {
         console.log(e);
         coverArr = '';
       }
+
       if (_.isArray(coverArr) && coverArr.length) {
         allAttachments = allAttachments.concat(coverArr.filter(file => !!file.ext));
         const firstFile = _.head(allAttachments);
+
         if (firstFile && firstFile.ext) {
           const isPicture = RegExpValidator.fileIsPicture(firstFile.ext);
           const previewUrl = _.get(firstFile, 'previewUrl');
+
           if (isPicture) {
             coverImage =
               previewUrl.indexOf('imageView2') > -1
@@ -106,6 +111,7 @@ export function getRecordAttachments(coverImageStr) {
     alert(_l('获取记录封面失败'), 2);
     console.log(error);
   }
+
   return { ...res, coverImage, allAttachments };
 }
 
@@ -126,9 +132,11 @@ export const isTextTitle = (controls = []) =>
 
 export const getCardDisplayPara = ({ currentView = {}, data = {} }) => {
   const { childType, viewControls } = currentView;
+
   // 多表关联层级视图显示设置要从配置中取
   if (String(childType) === '2') {
     const currentIndex = (_.get(data, 'path') || []).length - 1;
+
     if (currentIndex > 0) {
       const { showControlName, worksheetId, coverType } = viewControls[currentIndex] || {};
       return {
@@ -139,6 +147,7 @@ export const getCardDisplayPara = ({ currentView = {}, data = {} }) => {
       };
     }
   }
+
   return currentView;
 };
 
@@ -149,12 +158,14 @@ export const isListRelate = item => {
 
 export const getMultiRelateViewConfig = (view, stateData) => {
   const { viewType, childType, viewControls } = view;
+
   // 多表关联层级视图
   if (viewType === 2 && childType === 2) {
     const { path = [] } = stateData;
     if (path.length === 1) return view;
     return viewControls[path.length - 1] || {};
   }
+
   return view;
 };
 
@@ -192,6 +203,7 @@ export const getSearchData = sheet => {
           item.children.map(i => getPathId(i, newPathId));
         }
       };
+
       getPathId(row, []);
     });
   } else if (Number(view.viewType) === 5) {
@@ -231,6 +243,7 @@ export const renderTitleByViewtitle = (row, controls, view, useDateConvertToServ
         );
       return;
     }
+
     str = str + o;
   });
   return str;

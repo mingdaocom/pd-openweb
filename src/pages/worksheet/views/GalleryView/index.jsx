@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, useMemo } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import cx from 'classnames';
@@ -7,6 +7,7 @@ import { LoadDiv, ScrollView } from 'ming-ui';
 import autoSize from 'ming-ui/decorators/autoSize';
 import worksheetAjax from 'src/api/worksheet';
 import addRecord from 'worksheet/common/newRecord/addRecord';
+import useButtonStatusOfRows from 'worksheet/hooks/useButtonStatusOfRows';
 import * as actions from 'worksheet/redux/actions/galleryview';
 import { getEmbedValue } from 'src/components/Form/core/formUtils/helper';
 import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
@@ -18,6 +19,7 @@ import { getAdvanceSetting } from 'src/utils/control';
 import { addBehaviorLog, handlePushState, handleReplaceState } from 'src/utils/project';
 import { handleRecordClick } from 'src/utils/record';
 import { getRecordColorConfig } from 'src/utils/record';
+import { filterButtonBySheetSwitchPermit, getSheetOperatesButtons } from 'src/utils/worksheet';
 import ViewEmpty from '../components/ViewEmpty';
 import { getRecordAttachments } from '../util';
 import GalleryItem from './GalleryItem';
@@ -53,19 +55,11 @@ const EmptyState = ({ filters, isFiltered }) => {
   if (filters.keyWords || !isEmpty(filters.filterControls)) {
     return <ViewEmpty filters={filters} />;
   }
+
   return <NoRecords sheetIsFiltered={isFiltered} />;
 };
 
-@autoSize
-@connect(
-  state => ({
-    ...state.sheet,
-    chatVisible: state.chat.visible,
-    sheetListVisible: state.sheetList.isUnfold,
-  }),
-  dispatch => bindActionCreators(actions, dispatch),
-)
-export default class RecordGallery extends Component {
+class RecordGalleryInner extends Component {
   state = {
     recordInfoVisible: false,
     recordId: '',
@@ -121,6 +115,7 @@ export default class RecordGallery extends Component {
       );
       this.props.updateGalleryViewCard({ needUpdate: true });
     }
+
     this.setState({ clicksearch });
     if (
       !_.isEqual(
@@ -162,6 +157,7 @@ export default class RecordGallery extends Component {
   updateRecordEvent = ({ worksheetId, recordId, rowKey }) => {
     const { base = {}, galleryview } = this.props;
     const { gallery = [] } = galleryview;
+
     if (worksheetId === this.props.worksheetId && _.find(gallery, r => r.rowid === recordId)) {
       worksheetAjax
         .getRowDetail({
@@ -173,6 +169,7 @@ export default class RecordGallery extends Component {
         })
         .then(res => {
           const row = JSON.parse(res.rowData);
+
           if (res.resultCode === 1 && res.isViewData) {
             this.props.updateRow(row, rowKey);
           } else {
@@ -201,6 +198,7 @@ export default class RecordGallery extends Component {
 
     if (!base.maxCount && !_.get(currentView, 'advancedSetting.groupsetting')) {
       const { galleryViewRecordCount, gallery, galleryLoading, galleryIndex } = galleryview;
+
       if (gallery.length < galleryViewRecordCount && !galleryLoading) {
         this.props.fetch(galleryIndex + 1);
       }
@@ -233,6 +231,7 @@ export default class RecordGallery extends Component {
         window.location.href = `/mobile/record/${appId}/${worksheetId}/${viewId}/${item.rowid}`;
         return;
       }
+
       handlePushState('page', 'recordDetail');
       this.setState({ recordId: item.rowid, recordInfoVisible: true, rowKey: rowKey });
       addBehaviorLog('worksheetRecord', worksheetId, { rowId: item.rowid });
@@ -289,6 +288,7 @@ export default class RecordGallery extends Component {
     let groupInfo = {};
 
     const { groupsetting } = getAdvanceSetting(currentView);
+
     if (groupsetting && item.allowedit) {
       const groupControl = controls.find(o => o.controlId === _.get(safeParse(groupsetting, 'array'), '[0].controlId'));
       if (groupControl)
@@ -320,6 +320,7 @@ export default class RecordGallery extends Component {
               this.props.deleteRow(item.rowid, rowKey);
               return;
             }
+
             this.props.updateRow(item, rowKey);
           }}
           onDeleteFn={id => this.props.deleteRow(id, rowKey)}
@@ -368,11 +369,13 @@ export default class RecordGallery extends Component {
         },
       });
     };
+
     const allowAdd =
       canEditForGroupControl({
         allowAdd: worksheetInfo?.allowAdd,
         control,
       }) && allowAddNewRecord;
+
     if (!allowAdd) {
       return <div className="textSecondary Font16 pTop20 pBottom20 TxtCenter">{_l('该分组下无记录')}</div>;
     }
@@ -498,3 +501,49 @@ export default class RecordGallery extends Component {
     );
   }
 }
+
+// 包装组件，用于提供按钮状态
+
+const RecordGalleryWrapper = props => {
+  const { base = {}, views = [], galleryview = {}, sheetButtons, printList, sheetSwitchPermit } = props;
+  const { viewId, worksheetId } = base;
+  const currentView = views.find(o => o.viewId === viewId) || {};
+  const { gallery = [] } = galleryview;
+
+  // 获取所有记录 ID
+  const allRecordIds = useMemo(() => {
+    const groupsetting = _.get(currentView, 'advancedSetting.groupsetting');
+
+    if (groupsetting) {
+      return _.flatMap(gallery, item => (item.rows || []).map(row => safeParse(row)?.rowid)).filter(Boolean);
+    }
+
+    return gallery.map(item => item.rowid).filter(Boolean);
+  }, [gallery, currentView]);
+
+  // 获取操作按钮
+  const operateButtons = useMemo(() => {
+    let buttons = getSheetOperatesButtons(currentView, { buttons: sheetButtons, printList });
+    buttons = filterButtonBySheetSwitchPermit(buttons, sheetSwitchPermit, viewId);
+    return buttons;
+  }, [currentView, sheetButtons, printList, sheetSwitchPermit, viewId]);
+
+  // 获取按钮 ID
+  const btnIds = useMemo(() => operateButtons.map(b => b.btnId).filter(Boolean), [operateButtons]);
+
+  // 获取按钮状态
+  const { buttonsCheckStatus } = useButtonStatusOfRows(worksheetId, allRecordIds, btnIds);
+
+  return <RecordGalleryInner {...props} buttonsCheckStatus={buttonsCheckStatus} />;
+};
+
+export default autoSize(
+  connect(
+    state => ({
+      ...state.sheet,
+      chatVisible: state.chat.visible,
+      sheetListVisible: state.sheetList.isUnfold,
+    }),
+    dispatch => bindActionCreators(actions, dispatch),
+  )(RecordGalleryWrapper),
+);

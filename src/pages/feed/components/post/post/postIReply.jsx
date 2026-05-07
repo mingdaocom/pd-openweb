@@ -31,6 +31,7 @@ class PostIReply extends React.Component {
       });
       return;
     }
+
     this.setState({ selectedOperation: postEnum.OPERATE_TYPE.comment, focusCommentBox: true });
   };
 

@@ -60,6 +60,7 @@ export default class BaseColor extends Component {
       colorType: type,
       colorGroupIndex: undefined,
     };
+
     if (type === 1) {
       if (colorGroupId && colorGroupId.includes('personColor')) {
         param.colorGroupId = colorGroupId;
@@ -73,6 +74,7 @@ export default class BaseColor extends Component {
       param.customColors = customColors;
       safeLocalStorageSetItem('chartCustomColors', JSON.stringify(customColors));
     }
+
     onChange({
       style: {
         ...currentReport.style,
@@ -96,10 +98,13 @@ export default class BaseColor extends Component {
       type: value,
       colorIndex: 0,
     };
+
     if (value === 2) {
       const { colorGroupId, personColors } = this.state;
+
       if (colorGroupId && colorGroupId.includes('personColor')) {
         const { colors } = _.find(personColors, { id: colorGroupId }) || {};
+
         if (colors) {
           data.customColors = colors;
         }
@@ -111,11 +116,13 @@ export default class BaseColor extends Component {
         const { colors } =
           _.find(this.chartColors.concat({ ...adaptThemeColors[0], id: 'adaptThemeColor' }), { id: colorGroupId }) ||
           {};
+
         if (colors) {
           data.customColors = colors;
         }
       }
     }
+
     this.setState(data);
   };
   handleAddCustomColor = () => {
@@ -232,6 +239,7 @@ export default class BaseColor extends Component {
                 if (index === i) {
                   return value;
                 }
+
                 return item;
               }),
             });
@@ -333,10 +341,12 @@ export default class BaseColor extends Component {
                   type="primary"
                   onClick={() => {
                     const { value } = document.querySelector('.savePersonColorModal input');
+
                     if (!value) {
                       alert(_l('请输入名称'), 3);
                       return;
                     }
+
                     this.setState({
                       type: 1,
                       savePersonColorVisible: false,

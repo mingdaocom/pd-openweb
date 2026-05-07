@@ -4,7 +4,7 @@ import _ from 'lodash';
 import { Checkbox, Icon } from 'ming-ui';
 import InputValue from 'src/pages/widgetConfig/widgetSetting/components/WidgetVerify/InputValue.jsx';
 import { AnimationWrap, DisplayMode, SettingItem } from '../../../styled';
-import { getAdvanceSetting, isCustomWidget, notExplainDisplay } from '../../../util';
+import { fixedBottomWidgets, getAdvanceSetting, isCustomWidget } from '../../../util';
 import { canSetWidgetStyle, handleAdvancedSettingChange, updateConfig } from '../../../util/setting';
 import { SectionItem } from '../SplitLineConfig/style';
 import WidgetColor from '../WidgetColor';
@@ -50,7 +50,9 @@ const StyleDefault = props => {
   const sizeResult = defaultConfig.size || (editKey === 'rowtitlestyle' || data.type === 34 ? '1' : '0');
   const colorResult =
     defaultConfig.color ||
-    (_.includes(['cardtitlestyle'], editKey) && data.type !== 34 ? '#757575' : 'var(--color-text-primary)');
+    (_.includes(['cardtitlestyle'], editKey) && data.type !== 34
+      ? 'var(--color-text-secondary)'
+      : 'var(--color-text-title)');
   return (
     <Fragment>
       <SectionItem key={editKey}>
@@ -65,6 +67,7 @@ const StyleDefault = props => {
                 onChange(handleAdvancedSettingChange(data, { [colorKey]: value }));
                 return;
               }
+
               onChange(
                 handleAdvancedSettingChange(data, {
                   [editKey]: JSON.stringify({ ...defaultConfig, color: value }),
@@ -87,11 +90,13 @@ const StyleDefault = props => {
                       value: isActive ? '0' : '1',
                       index: value,
                     });
+
                     if (isOldConfig) {
                       const styleKey = editKey.startsWith('title') ? 'titlestyle' : 'valuestyle';
                       onChange(handleAdvancedSettingChange(data, { [styleKey]: result }));
                       return;
                     }
+
                     onChange(
                       handleAdvancedSettingChange(data, {
                         [editKey]: JSON.stringify({ ...defaultConfig, style: result }),
@@ -106,32 +111,35 @@ const StyleDefault = props => {
           </AnimationWrap>
         </div>
       </SectionItem>
-      <SectionItem className="mTop10">
-        <div className="label textSecondary">{_l('字号')}</div>
-        <AnimationWrap className="flex">
-          {DISPLAY_SIZE_TYPES.map(({ text, value }) => (
-            <div
-              className={cx('animaItem', {
-                active: sizeResult === value,
-              })}
-              onClick={() => {
-                if (isOldConfig) {
-                  const sizeKey = editKey.startsWith('title') ? 'titlesize' : 'valuesize';
-                  onChange(handleAdvancedSettingChange(data, { [sizeKey]: value }));
-                  return;
-                }
-                onChange(
-                  handleAdvancedSettingChange(data, {
-                    [editKey]: JSON.stringify({ ...defaultConfig, size: value }),
-                  }),
-                );
-              }}
-            >
-              {text}
-            </div>
-          ))}
-        </AnimationWrap>
-      </SectionItem>
+      {!fixedBottomWidgets(data) && (
+        <SectionItem className="mTop10">
+          <div className="label textSecondary">{_l('字号')}</div>
+          <AnimationWrap className="flex">
+            {DISPLAY_SIZE_TYPES.map(({ text, value }) => (
+              <div
+                className={cx('animaItem', {
+                  active: sizeResult === value,
+                })}
+                onClick={() => {
+                  if (isOldConfig) {
+                    const sizeKey = editKey.startsWith('title') ? 'titlesize' : 'valuesize';
+                    onChange(handleAdvancedSettingChange(data, { [sizeKey]: value }));
+                    return;
+                  }
+
+                  onChange(
+                    handleAdvancedSettingChange(data, {
+                      [editKey]: JSON.stringify({ ...defaultConfig, size: value }),
+                    }),
+                  );
+                }}
+              >
+                {text}
+              </div>
+            ))}
+          </AnimationWrap>
+        </SectionItem>
+      )}
     </Fragment>
   );
 };
@@ -259,12 +267,15 @@ const TextHeightLimit = props => {
           }}
           onBlur={value => {
             let tempMinValue = Number(value || 36);
+
             if (tempMinValue < 36) {
               tempMinValue = 36;
             }
+
             if (maxheight && tempMinValue > Number(maxheight)) {
               tempMinValue = maxheight;
             }
+
             onChange(handleAdvancedSettingChange(data, { minheight: tempMinValue.toString() }));
           }}
         />
@@ -284,9 +295,7 @@ const TextHeightLimit = props => {
           }}
           onBlur={value => {
             let tempMaxValue = value === '' ? '' : Number(value);
-            if (type === 2 && value && tempMaxValue > 400) {
-              tempMaxValue = 400;
-            }
+
             if (minheight && value && tempMaxValue < Number(minheight)) {
               tempMaxValue = minheight;
             }
@@ -301,22 +310,20 @@ const TextHeightLimit = props => {
 
 // 字段
 export const WidgetItem = props => {
-  const { data } = props;
+  const { data, from } = props;
   const { type, enumDefault } = data;
   const { titlestyle, titlecolor, titlesize, valuestyle, valuecolor, valuesize } = getAdvanceSetting(data);
   return (
     <Fragment>
-      {!notExplainDisplay(data) && (
-        <SettingItem>
-          <div className="settingItemTitle">{_l('字段标题')}</div>
-          <StyleDefault
-            {...props}
-            editKey="titledefault"
-            ignoreFormat={[0]}
-            defaultStyle={JSON.stringify({ style: titlestyle, color: titlecolor, size: titlesize })}
-          />
-        </SettingItem>
-      )}
+      <SettingItem>
+        <div className="settingItemTitle">{_l('字段标题')}</div>
+        <StyleDefault
+          {...props}
+          editKey="titledefault"
+          ignoreFormat={[0]}
+          defaultStyle={JSON.stringify({ style: titlestyle, color: titlecolor, size: titlesize })}
+        />
+      </SettingItem>
       {!isCustomWidget(data) && canSetWidgetStyle(data) && (
         <SettingItem>
           <div className="settingItemTitle">{type === 51 ? _l('字段值（文本）') : _l('字段值')}</div>
@@ -327,16 +334,25 @@ export const WidgetItem = props => {
           />
         </SettingItem>
       )}
-      {((type === 2 && _.includes([1, 3], enumDefault)) || type === 41) && <TextHeightLimit {...props} />}
+      {from !== 'rule' && ((type === 2 && _.includes([1, 3], enumDefault)) || type === 41) && (
+        <TextHeightLimit {...props} />
+      )}
+      {from !== 'rule' && type === 49 && enumDefault === 0 && (
+        <SettingItem>
+          <div className="settingItemTitle">{_l('按钮')}</div>
+          <OtherDefault {...props} editKey="cardstyle" />
+        </SettingItem>
+      )}
     </Fragment>
   );
 };
 
 //卡片
 export const CardItem = props => {
+  const { from } = props;
   return (
     <Fragment>
-      <PositionDefault {...props} editKey="cardtitlestyle" />
+      {from !== 'rule' && <PositionDefault {...props} editKey="cardtitlestyle" />}
       <SettingItem>
         <div className="settingItemTitle">{_l('记录标题')}</div>
         <StyleDefault {...props} editKey="rowtitlestyle" ignoreFormat={[0]} />

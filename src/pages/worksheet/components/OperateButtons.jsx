@@ -89,6 +89,7 @@ export default function OperateButtons({
   isInCard,
   recordId,
   entityName = _l('记录'),
+  onUpdateRow = () => {},
   onCopySuccess = () => {},
   onDeleteSuccess = () => {},
 }) {
@@ -111,6 +112,7 @@ export default function OperateButtons({
       disabled: button.type === 'custom_button' && !status[`${recordId}-${button.btnId}`],
     }));
   }
+
   const operatesButtonsStyle = getSheetOperatesButtonsStyle(view);
   const { visibleNum, primaryNum, style, showIcon } = operatesButtonsStyle;
   const showMore = visibleNum < buttons.length;
@@ -128,7 +130,7 @@ export default function OperateButtons({
     return () => {
       setBtnDisable({});
     };
-  }, [row.rowid, refreshFlag]);
+  }, [row.rowid, row.utime, refreshFlag]);
   if (isEmpty(context)) return null;
   if (
     !buttons.length ||
@@ -165,6 +167,7 @@ export default function OperateButtons({
           entityName={entityName}
           worksheetId={worksheetId}
           recordId={recordId}
+          onUpdateRow={onUpdateRow}
           buttons={buttons.map((button, index) => ({
             ...button,
             icon: button.icon || (style === 'icon' ? 'custom_actions' : ''),
@@ -179,6 +182,7 @@ export default function OperateButtons({
                   alert(_l('预览模式下，不能操作'), 3);
                   return;
                 }
+
                 if (button.type === 'copy') {
                   handleCopyRecord({
                     worksheetId,
@@ -191,6 +195,7 @@ export default function OperateButtons({
                     alert(_l('%0已锁定', entityName), 3);
                     return;
                   }
+
                   handleDeleteRecord({
                     worksheetId,
                     recordId,
@@ -237,6 +242,8 @@ export default function OperateButtons({
                               ...o,
                               value: get(row, o.controlId),
                             })),
+                          updatePrintStatus: ({ printLoading }) =>
+                            setBtnDisable(old => ({ ...old, [button.btnId]: printLoading })),
                         });
                       } else {
                         alert(_l('无法打印“%0”', button.printItem.name), 3);
@@ -263,6 +270,7 @@ OperateButtons.propTypes = {
   isInCard: PropTypes.bool,
   recordId: PropTypes.string,
   relateRecordControlId: PropTypes.string,
+  onUpdateRow: PropTypes.func,
   onCopySuccess: PropTypes.func,
   onDeleteSuccess: PropTypes.func,
 };

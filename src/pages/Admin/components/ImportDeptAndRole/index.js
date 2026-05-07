@@ -324,6 +324,7 @@ export default class ImportDeptAndRole extends Component {
     const { fileName } = this.state;
     this.setState({ importFileLoading: true });
     const _this = this;
+
     const callback = rsp => {
       // 开始导入
       const requestData = {
@@ -344,6 +345,7 @@ export default class ImportDeptAndRole extends Component {
       promiseRequest
         .then(result => {
           const { actionResult, failes } = result;
+
           if (actionResult === 1 || actionResult === 6) {
             if (!_.isEmpty(failes)) {
               _this.setState({
@@ -353,6 +355,7 @@ export default class ImportDeptAndRole extends Component {
               });
               return;
             }
+
             this.props.updateList();
             _this.setState({
               importFileLoading: false,

@@ -19,6 +19,7 @@ export default function DragCore({ className, style, setRef, children, onDrag, o
           clearTimeout(clickTimerRef.current);
           clickTimerRef.current = null;
         }
+
         isWaitingForDoubleClickRef.current = false;
         lastClickTimeRef.current = 0;
 
@@ -40,6 +41,7 @@ export default function DragCore({ className, style, setRef, children, onDrag, o
               onDrag(e);
             }
           }
+
           clickTimerRef.current = null;
         }, DOUBLE_CLICK_DELAY);
       }

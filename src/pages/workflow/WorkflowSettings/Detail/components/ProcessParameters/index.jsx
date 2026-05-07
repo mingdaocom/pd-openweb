@@ -51,6 +51,7 @@ export default ({
                   o => o.nodeId !== data.selectNodeId || item.nodeId === data.selectNodeId,
                 );
               }
+
               return o;
             })}
             formulaMap={data.formulaMap}

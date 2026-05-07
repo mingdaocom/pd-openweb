@@ -26,9 +26,11 @@ class VoteList extends React.Component {
   handleVote = () => {
     const { dispatch } = this.props;
     const optionIndex = this.state.checkedOptions.join(',');
+
     if (!optionIndex) {
       return alert(_l('请选择投票项'), 3);
     }
+
     postAjax
       .votePost({
         optionIndex,
@@ -46,6 +48,7 @@ class VoteList extends React.Component {
 
   handleOptionChange = (optionIndex, evt) => {
     let checkedOptions = this.state.checkedOptions;
+
     if (evt.target.checked) {
       if (this.props.voteItem.AvailableNumber > 1) {
         // 多选
@@ -59,6 +62,7 @@ class VoteList extends React.Component {
         // 单选
         checkedOptions = [optionIndex];
       }
+
       this.setState({ checkedOptions });
     } else {
       checkedOptions = _.filter(checkedOptions, oi => oi != optionIndex);

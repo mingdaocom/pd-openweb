@@ -35,10 +35,12 @@ const renderHeader = (filterStatus, setFilterStatus, setFastFilters, filterStatu
 
 const renderControl = (text, data) => {
   let portal_status = safeParse(data.portal_status, 'array')[0];
+
   //正常、未激活（添加用户后用户未注册）停用
   if (portal_status === '5') {
     return <span className="textTertiary">{_l('未激活')}</span>;
   }
+
   return (userStatusList.filter(o => o.value + '' !== '5').find(o => o.value === portal_status) || {}).text;
 };
 
@@ -97,6 +99,7 @@ export const getColumns = (controls, roleList, filterStatus, setFilterStatus, se
         name: _l('角色'),
         render: (text, data) => {
           let role = '';
+
           try {
             let d = safeParse(data['portal_role'], 'array');
             role = d[0] || '';
@@ -104,6 +107,7 @@ export const getColumns = (controls, roleList, filterStatus, setFilterStatus, se
             console.log(error);
             role = '';
           }
+
           const roleName = (roleList.find(o => o.roleId === role) || {}).name;
           return (
             <span className="overflow_ellipsis WordBreak" title={roleName}>
@@ -158,6 +162,7 @@ export const getColumnsShowControls = ({
       render: (text, data) => {
         let dataList = [];
         let portal_status = safeParse(data.portal_status, 'array')[0];
+
         //正常、未激活（添加用户后用户未注册）停用
         if (portal_status === '5') {
           dataList = [

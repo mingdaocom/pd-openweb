@@ -23,9 +23,7 @@ const SelectItem = styled.div`
 const SelectSheetWrap = styled.div`
   background: var(--color-background-primary);
   border-radius: 4px;
-  box-shadow:
-    0 4px 20px rgba(0, 0, 0, 0.2),
-    0 2px 6px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-lg);
   .tabNav {
     display: flex;
     padding-left: 20px;
@@ -34,7 +32,7 @@ const SelectSheetWrap = styled.div`
   .navItem {
     margin-bottom: 0 !important;
     padding: 12px 0;
-    color: rgba(0, 0, 0, 0.85);
+    color: var(--color-text-primary);
     border-bottom: 2px solid transparent;
     cursor: pointer;
     font-size: 14px;
@@ -215,6 +213,7 @@ export default function SelectSheetFromApp(props) {
   useEffect(() => {
     appManagementAjax.getAppForManager({ projectId, type: 0 }).then(res => {
       let selectAppId = '';
+
       const getFormatApps = () => {
         const currentIndex = _.findIndex(res, item => item.appId === currentAppId);
         const currentApp = currentIndex > -1 ? res[currentIndex] : [];
@@ -227,12 +226,14 @@ export default function SelectSheetFromApp(props) {
             }
           });
         }
+
         return appList.map(({ appName, appId }) =>
           appId === currentAppId
             ? { text: _l('%0  (本应用)', appName), value: appId }
             : { text: appName, value: appId },
         );
       };
+
       setData({ app: getFormatApps(), appId: selectAppId || appId });
     });
   }, []);
@@ -267,6 +268,7 @@ export default function SelectSheetFromApp(props) {
         });
       return;
     }
+
     homeAppAjax.getWorksheetsByAppId({ appId, type: 0 }).then(res => {
       setData({
         sheet: res.map(({ workSheetId: value, workSheetName: text, iconUrl }) =>

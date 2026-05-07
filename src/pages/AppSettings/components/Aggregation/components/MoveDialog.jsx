@@ -29,6 +29,7 @@ export default function MoveDialog(props) {
         if (props.appId === appId) {
           appName += _l('（本应用）');
         }
+
         return {
           value: appId,
           text: appName,
@@ -37,10 +38,12 @@ export default function MoveDialog(props) {
       setState({ appList: result });
     });
   };
+
   const onMove = () => {
     if (!selectAppId || props.appId === selectAppId) {
       return;
     }
+
     AggTableAjax.move(
       {
         appId: selectAppId,
@@ -53,6 +56,7 @@ export default function MoveDialog(props) {
       onCancel();
     });
   };
+
   return (
     <Dialog
       dialogClasses={className}

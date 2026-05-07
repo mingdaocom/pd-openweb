@@ -17,23 +17,27 @@ const getWidthAndLeft = (beginTime, startTime, endTime) => {
       widthDays: durDays(startTime, endTime) + 1,
     };
   }
+
   if (startTime.isValid() && !endTime.isValid()) {
     return {
       leftDays: durDays(beginTime, startTime),
       widthDays: 1,
     };
   }
+
   if (!startTime.isValid() && endTime.isValid()) {
     return {
       leftDays: durDays(beginTime, endTime),
       widthDays: 1,
     };
   }
+
   return {
     leftDays: 0,
     widthDays: 0,
   };
 };
+
 export default class GraphContent extends Component {
   constructor(props) {
     super(props);

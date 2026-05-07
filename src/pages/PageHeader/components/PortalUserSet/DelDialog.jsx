@@ -8,9 +8,11 @@ import { removePssId } from 'src/utils/pssId';
 import AccountCon from './AccountCon';
 
 const DelDialogWrap = styled.div``;
+
 export default function DelDialog(props) {
   const { setShow, show, appId, classNames, account, type } = props;
   const [code, setCode] = useState('');
+
   const verificationOld = () => {
     if (!code) {
       alert(_l('请输入验证码'), 3);
@@ -65,11 +67,13 @@ export default function DelDialog(props) {
             } else {
               alert(_l('验证码错误'), 3);
             }
+
             return;
           }
         });
     }
   };
+
   return (
     <Dialog
       title={_l('注销账户')}

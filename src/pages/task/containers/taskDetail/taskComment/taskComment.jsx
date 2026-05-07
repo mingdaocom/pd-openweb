@@ -25,6 +25,7 @@ class TaskComment extends Component {
     if (data.newAccounts.length) {
       this.props.dispatch(discussionsAddMembers(taskId, data.newAccounts));
     }
+
     this.props.scrollToComment();
   };
 

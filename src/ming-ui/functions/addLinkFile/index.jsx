@@ -16,6 +16,7 @@ function AddLinkFile(props) {
       alert(_l('链接名称不能包含以下字符：') + '\\ / : * ? " < > |', 3);
       return false;
     }
+
     return true;
   };
 
@@ -25,6 +26,7 @@ function AddLinkFile(props) {
     } else if (url.match(/^http/)) {
       return true;
     }
+
     alert(_l('当前只支持 http:// 和 https:// 开头的链接'), 3);
     return false;
   };
@@ -34,22 +36,27 @@ function AddLinkFile(props) {
       alert(_l('链接名不能为空'), 3);
       return false;
     }
+
     if (!link) {
       alert(_l('链接url不能为空'), 3);
       return false;
     }
+
     if (!validate(name)) {
       return false;
     }
+
     if (!validateUrl(link)) {
       return false;
     }
+
     if (typeof callback === 'function') {
       callback({
         linkName: name,
         linkContent: link,
       });
     }
+
     handleClose();
   };
 

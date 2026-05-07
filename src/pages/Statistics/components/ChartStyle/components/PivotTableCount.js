@@ -125,6 +125,7 @@ export default function pivotTableCountPanelGenerator(props) {
               const newLines = lines.map((n, index) => {
                 return index ? { ...n, subTotal: checked } : n;
               });
+
               if (!newLines.filter(n => n.subTotal).length) {
                 param.yaxisList = yaxisList.map(n => {
                   return {
@@ -133,6 +134,7 @@ export default function pivotTableCountPanelGenerator(props) {
                   };
                 });
               }
+
               param.pivotTable.lines = newLines;
               changeCurrentReport(param, true);
             }}
@@ -206,6 +208,7 @@ export default function pivotTableCountPanelGenerator(props) {
                     checked={!!_.find(controlList, { controlId: item.controlId })}
                     onChange={event => {
                       const id = item.controlId;
+
                       if (event.target.checked) {
                         const data = {
                           controlId: id,
@@ -281,6 +284,7 @@ export default function pivotTableCountPanelGenerator(props) {
     const { yaxisList } = currentReport;
     const { showColumnTotal, columnSummary = {} } = pivotTable;
     const { controlList = [], rename } = columnSummary;
+
     const onChangeCountVisible = (id, checked, data) => {
       if (checked) {
         const control = {
@@ -317,6 +321,7 @@ export default function pivotTableCountPanelGenerator(props) {
         );
       }
     };
+
     const onChangeSummary = (id, data, isRequest = true) => {
       const newControlList = controlList
         .map(item => {
@@ -345,6 +350,7 @@ export default function pivotTableCountPanelGenerator(props) {
         isRequest,
       );
     };
+
     const renderExtra = item => {
       const control = _.find(controlList, { controlId: item.controlId });
       return (
@@ -357,6 +363,7 @@ export default function pivotTableCountPanelGenerator(props) {
               onChange={event => {
                 const { checked } = event.target;
                 const id = item.controlId;
+
                 if (control) {
                   onChangeSummary(id, { number: checked });
                 } else {
@@ -372,6 +379,7 @@ export default function pivotTableCountPanelGenerator(props) {
               onChange={event => {
                 const { checked } = event.target;
                 const id = item.controlId;
+
                 if (control) {
                   onChangeSummary(id, { percent: checked });
                 } else {
@@ -385,6 +393,7 @@ export default function pivotTableCountPanelGenerator(props) {
         </Fragment>
       );
     };
+
     const countYaxisList = yaxisList.filter(item => (isNumberControl(item.controlType) ? true : item.normType !== 7));
 
     return (
@@ -404,6 +413,7 @@ export default function pivotTableCountPanelGenerator(props) {
                 ...pivotTable,
                 showColumnTotal: checked,
               };
+
               if (checked) {
                 data.columnSummary = {
                   ...columnSummary,
@@ -419,6 +429,7 @@ export default function pivotTableCountPanelGenerator(props) {
                   }),
                 };
               }
+
               changeCurrentReport(
                 {
                   pivotTable: data,

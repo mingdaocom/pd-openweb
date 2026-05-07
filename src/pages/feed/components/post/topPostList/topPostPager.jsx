@@ -29,6 +29,7 @@ function TopPostPager(props) {
     </div>
   );
 }
+
 TopPostPager.propTypes = {
   pageIndex: PropTypes.number.isRequired,
   pageCount: PropTypes.number.isRequired,

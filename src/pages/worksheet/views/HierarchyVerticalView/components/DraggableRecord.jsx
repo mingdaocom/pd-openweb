@@ -74,6 +74,7 @@ export default function DraggableRecord(props) {
     stateTree,
     width,
     hierarchyTopLevelDataCount = 0,
+    buttonsCheckStatus,
   } = props;
   const { rowId, visible, path = [], pathId = [], children = [] } = data;
   const recordData = dealHierarchyData(treeData[rowId], {
@@ -98,6 +99,7 @@ export default function DraggableRecord(props) {
       if (String(view.childType) === '2') {
         return isParentSibling(draggingItem.path, data.path);
       }
+
       return !isParent(draggingItem.path, data.path);
     },
     drop() {
@@ -132,6 +134,7 @@ export default function DraggableRecord(props) {
       } else {
         updateMovedRecord({ src: draggingItem, target: data });
       }
+
       localStorage.removeItem('draggingHierarchyItem');
     },
     collect(monitor) {
@@ -189,18 +192,21 @@ export default function DraggableRecord(props) {
       let _depth = stateTree.length > 1 ? depth : depth + 1;
       return allowAdd && _depth < viewControls.length;
     }
+
     return allowAdd;
   };
 
   drag(drop($dragDropRef));
 
   let STYLE = {};
+
   if (isNarrow) {
     STYLE = {
       minWidth: 240,
       maxWidth: 240,
     };
   }
+
   if (width) {
     STYLE = {
       minWidth: Number(width),
@@ -246,6 +252,7 @@ export default function DraggableRecord(props) {
             }}
             updateTitleData={updateTitleData}
             showNull={true}
+            buttonsCheckStatus={buttonsCheckStatus}
           />
         ) : (
           <div className="skeletonBox" style={{ height: realCardHeight }}>
@@ -265,6 +272,7 @@ export default function DraggableRecord(props) {
             closeEdit={closeEdit}
             updateTitleData={updateTitleData}
             showNull={true}
+            buttonsCheckStatus={buttonsCheckStatus}
           />
         </RecordPortal>
       )}

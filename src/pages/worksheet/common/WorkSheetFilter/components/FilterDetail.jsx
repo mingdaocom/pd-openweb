@@ -123,14 +123,17 @@ export default function FilterDetail(props) {
   const { projectId, appId, worksheetId, isCharge } = base;
   const featureType = supportGroup ? getFeatureStatus(projectId, VersionProductType.filterGroup) : '';
   let canEdit = props.canEdit;
+
   if (_.isUndefined(canEdit)) {
     canEdit = filter.type === FILTER_TYPE.PUBLIC ? isCharge : filter.createAccountId === md.global.Account.accountId;
   }
+
   function handleSave({ saveAsNew = false } = {}) {
     if (window.isPublicApp) {
       alert(_l('预览模式下，不能操作'), 3);
       return;
     }
+
     if (isNew || saveAsNew) {
       saveWorksheetFilter({
         title: saveAsNew ? _l('另存为筛选器') : _l('保存筛选器'),
@@ -164,6 +167,7 @@ export default function FilterDetail(props) {
       );
     }
   }
+
   function scrollToEnd() {
     if (scrollRef.current) {
       setTimeout(() => {
@@ -171,6 +175,7 @@ export default function FilterDetail(props) {
       }, 10);
     }
   }
+
   function handleBack() {
     if (needSave) {
       Dialog.confirm({
@@ -185,6 +190,7 @@ export default function FilterDetail(props) {
       onBack();
     }
   }
+
   return (
     <Con className={cx({ isSingleFilter, canEdit })}>
       {!isSingleFilter && !isNew && (
@@ -201,6 +207,7 @@ export default function FilterDetail(props) {
                 alert(_l('名称不能为空'), 3);
                 return;
               }
+
               if (filter.name !== value.trim()) {
                 actions.changeEditingFilter({ name: value.trim() });
                 return true;
@@ -247,6 +254,7 @@ export default function FilterDetail(props) {
                 onChange={(value = {}, conditionIndex) => {
                   actions.updateCondition(value, groupIndex, conditionIndex);
                   const condition = conditionsGroup.conditions[conditionIndex];
+
                   if (condition && !_.isUndefined(value.folded)) {
                     setFoldedMap({
                       ...foldedMap,
@@ -281,12 +289,14 @@ export default function FilterDetail(props) {
               columns={filterAddConditionControls(controls)}
               from={from}
               widgetControlData={_.get(conditionProps, 'widgetControlData')}
+              disabled={_.get(conditionProps, 'disableAddCondition')}
               onAdd={control => {
                 if (filter.isGroup) {
                   actions.addCondition(control, undefined, from);
                 } else {
                   actions.addCondition(control, 0, from);
                 }
+
                 onAddCondition();
                 scrollToEnd();
               }}
@@ -316,6 +326,7 @@ export default function FilterDetail(props) {
                       alert(_l('预览模式下，不能操作'), 3);
                       return;
                     }
+
                     buriedUpgradeVersionDialog(projectId, VersionProductType.filterGroup);
                   } else {
                     const spliceType = _.get(conditionsGroups, '0.spliceType');

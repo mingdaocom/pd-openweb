@@ -37,6 +37,7 @@ const DropdownComp = props => {
     formItemId,
     useCallback(data => {
       const { triggerType } = data;
+
       switch (triggerType) {
         case 'trigger_tab_enter':
           selectRef.current && selectRef.current.focus();
@@ -60,10 +61,11 @@ const DropdownComp = props => {
           key={item.key}
           className={cx(
             'ellipsis mTop5 mBottom5 mRight5 Font13',
-            { textWhite: enumDefault2 === 1 && !isLightColor(item.color), isEmpty: item.key === 'isEmpty' },
+            enumDefault2 === 1 ? (isLightColor(item.color) ? 'textBlack' : 'textWhite') : '',
             enumDefault2 === 1 ? 'customAntDropdownTitleWithBG' : 'customAntDropdownTitle',
+            { isEmpty: item.key === 'isEmpty' },
           )}
-          style={{ background: enumDefault2 === 1 ? item.color : '' }}
+          style={enumDefault2 === 1 ? { background: item.color } : { color: 'var(--color-text-primary)' }}
           title={item.value}
         >
           {item.value}
@@ -81,14 +83,10 @@ const DropdownComp = props => {
       return (
         <span
           className={cx(
-            'customRadioItem',
-            'ellipsis',
+            'customRadioItem ellipsis',
+            enumDefault2 === 1 ? (isLightColor(item.color) ? 'textBlack' : 'textWhite') : '',
             {
-              textWhite: enumDefault2 === 1 && !isLightColor(item.color),
               isEmpty: item.key === 'isEmpty',
-            },
-            { textBlack: enumDefault2 === 1 && isLightColor(item.color) },
-            {
               'pLeft12 pRight12': enumDefault2 === 1,
             },
           )}
@@ -168,11 +166,9 @@ const DropdownComp = props => {
         key={tagValue}
         className={cx(
           'mTop5 mBottom5 mRight5',
-          {
-            textWhite: enumDefault2 === 1 && !isLightColor(currentItem.color),
-            isEmpty: tagValue === 'isEmpty',
-          },
+          enumDefault2 === 1 ? (isLightColor(currentItem.color) ? 'textBlack' : 'textWhite') : '',
           enumDefault2 === 1 ? 'customAntDropdownTitleWithBG' : 'customAntDropdownTitle',
+          { isEmpty: tagValue === 'isEmpty' },
         )}
         style={{ background: enumDefault2 === 1 ? currentItem.color : '' }}
         title={label}

@@ -46,9 +46,11 @@ export default function NavGroup(props) {
   if (loading) {
     return <LoadDiv className="pTop16" />;
   }
+
   if (navGroupData && navGroupData.length <= 0 && keywords) {
     return <div className="noData mTop35 TxtCenter textTertiary">{_l('没有搜索结果')}</div>;
   }
+
   let navData = navGroupData;
   navData = sortDataByCustomNavs(navData, view, controls);
   if (!keywords) {
@@ -82,18 +84,22 @@ export default function NavGroup(props) {
           : navData;
     }
   }
+
   let isOption = [9, 10, 11, 28].includes(source.type) || [9, 10, 11, 28].includes(source.sourceControlType); //是否选项
   let { navfilters = '[]', navshow } = getAdvanceSetting(view);
+
   try {
     navfilters = JSON.parse(navfilters);
   } catch (error) {
     console.log(error);
     navfilters = [];
   }
+
   //系统字段关闭，且为状态时，默认显示成 全部
   if (navGroup.controlId === 'wfstatus' && !isOpenPermit(permitList.sysControlSwitch, sheetSwitchPermit)) {
     navshow = '0';
   }
+
   if (navfilters.length > 0 && navshow === '2') {
     // 显示 指定项 //加上全部和空
     if (isOption) {
@@ -193,10 +199,12 @@ export default function NavGroup(props) {
                 (navGroupCounts.find(d => d.key === (!o.value ? 'all' : o.value === 'null' ? '' : o.value)) || {})
                   .count || 0,
               );
+
               // 显示有数据的项 //排除全部和空
               if (navshow === '1' && count <= 0 && !['null', ''].includes(o.value)) {
                 return;
               }
+
               const showCount = count > 0 && view.viewType !== 2;
               const keyStr = _.includes([26, 27, 48], source.type) ? TYPES[source.type].name : '';
               const txtName =

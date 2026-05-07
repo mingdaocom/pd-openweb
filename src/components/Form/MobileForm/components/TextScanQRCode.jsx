@@ -15,6 +15,7 @@ const Box = styled(ScanQRCode)`
   position: absolute;
   right: 0;
   top: 0;
+  background-color: var(--color-background-input);
 `;
 
 export default class Widgets extends Component {

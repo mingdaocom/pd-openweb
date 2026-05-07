@@ -73,8 +73,9 @@ class Header extends React.Component {
             isTainted = true;
           }
         }
+
         let imgEle = document.createElement('img');
-        imgEle.src = canvasData.toDataURL('image/jpeg');
+        imgEle.src = dataUrl;
         imgEle.width = 400;
         let oldNode = contentCardList[index];
         oldNode.parentNode.appendChild(imgEle);
@@ -90,6 +91,7 @@ class Header extends React.Component {
       if (isTainted) {
         alert(_l('检测到跨域附件，已跳过导出，可在记录中直接下载'), 3);
       }
+
       let content = (contentNode.innerHTML || '').replace(/figure/g, 'p');
       let noPrint = document.querySelector('#printContent .noPrint');
 
@@ -150,6 +152,7 @@ class Header extends React.Component {
             document.body.removeChild(printFrame);
           }
         };
+
         const mediaQueryList = window.frames[printFrame.name].matchMedia('print');
         mediaQueryList.addListener(mediaQueryCallback);
         window.frames[printFrame.name].focus();
@@ -239,6 +242,7 @@ class Header extends React.Component {
                           alert(_l('请输入模板名称'), 3);
                           return;
                         }
+
                         saveFn();
                       }}
                     >

@@ -38,6 +38,7 @@ const mapAdvancedSettings = (source, direction = 'toNav') => {
   });
   return result;
 };
+
 export default function (props) {
   const [{ showChangeName }, setState] = useSetState({
     showChangeName: false,
@@ -81,10 +82,12 @@ export default function (props) {
       groupfilters: JSON.stringify([]),
       groupopen: '',
     };
+
     if (view.viewType === 1) {
       //看板视图设置了分组，则第一个看板不固定
       info.freezenav = '';
     }
+
     return info;
   };
 
@@ -166,6 +169,7 @@ export default function (props) {
                     ) {
                       return;
                     }
+
                     if (!value) {
                       updateAdvancedSetting({
                         groupsetting: '',
@@ -176,6 +180,7 @@ export default function (props) {
                       });
                       return;
                     }
+
                     let advanced = getInfo(worksheetControls.find(o => o.controlId === value) || {});
                     updateAdvancedSetting(advanced);
                   }}

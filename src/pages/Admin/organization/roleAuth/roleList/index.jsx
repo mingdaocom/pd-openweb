@@ -36,6 +36,7 @@ class RoleList extends React.Component {
 
   componentDidMount() {
     const { manualRef } = this.props;
+
     if (manualRef) {
       manualRef(this);
     }

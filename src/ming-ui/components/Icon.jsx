@@ -5,9 +5,11 @@ import PropTypes from 'prop-types';
 function Icon(props) {
   const { icon, className, style, type = 'default', ...otherProps } = props;
   let { fontClass, prefix } = props;
+
   if (!fontClass) {
     fontClass = 'icon';
   }
+
   if (!prefix) {
     prefix = fontClass + '-';
   }
@@ -21,6 +23,7 @@ function Icon(props) {
     />
   );
 }
+
 Icon.propTypes = {
   icon: PropTypes.string,
   hint: PropTypes.string,

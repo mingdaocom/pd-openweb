@@ -36,6 +36,7 @@ export default function FeatureListWrap(props) {
           customContent,
           featureId,
           onClick = () => {},
+          isEnabled,
           clickSwitch = () => {},
           clickSetting = () => {},
         } = item;
@@ -53,6 +54,7 @@ export default function FeatureListWrap(props) {
                 buriedUpgradeVersionDialog(projectId, featureId);
                 return;
               }
+
               onClick();
             }}
           >
@@ -64,7 +66,7 @@ export default function FeatureListWrap(props) {
                   {!_.isUndefined(featureId) && featureType === '2' && <UpgradeIcon />}
                 </div>
                 {description && <div className={cx('textTertiary', { mTop5: customContent })}>{description}</div>}
-                {customContent && <div>{customContent}</div>}
+                {customContent && <div className="mTop5">{customContent}</div>}
               </div>
               {showSetting && (
                 <span className="colorPrimary Hand mRight20" onClick={clickSetting}>
@@ -72,7 +74,12 @@ export default function FeatureListWrap(props) {
                 </span>
               )}
               {showSwitch && <Switch checked={switchChecked} onClick={clickSwitch} />}
-              {showSlideIcon && <Icon icon="arrow-right-border" className="Font18 textTertiary Right Hand" />}
+              {showSlideIcon && (
+                <div className="flexRow alignItemsCenter">
+                  {isEnabled && <span className="Green mRight20 Font14 bold">{_l('已启用')}</span>}
+                  <Icon icon="arrow-right-border" className="Font18 textTertiary Right Hand" />
+                </div>
+              )}
             </div>
           </ConfigItemWrap>
         );

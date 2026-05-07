@@ -9,14 +9,17 @@ export default class DepartmentInput extends Component {
   // 成员多选数据处理
   removeItem = id => {
     const { dynamicValue, onDynamicValueChange } = this.props;
+
     const getId = item => {
       const { staticValue } = item;
       if (!staticValue) return '';
       return _.get(_.isString(staticValue) ? JSON.parse(staticValue) : staticValue, 'departmentId');
     };
+
     const index = _.findIndex(dynamicValue, item => {
       return getId(item) === id;
     });
+
     if (index > -1) {
       onDynamicValueChange(update(dynamicValue, { $splice: [[index, 1]] }));
     }

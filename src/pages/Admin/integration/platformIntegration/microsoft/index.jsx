@@ -104,6 +104,7 @@ export default function Microsoft(props) {
 
     workMicrosoftApi.editMicrosoftProjectSetting({ projectId, [key]: value }).then(res => {
       const { item1, item2 } = res || {};
+
       if (!item1) {
         alert(item2 || _l('操作失败'), 2);
         return;
@@ -114,6 +115,7 @@ export default function Microsoft(props) {
           alert(_l('取消成功'));
           onClose();
         }
+
         setSetting({ [key]: value });
       }
     });
@@ -123,6 +125,7 @@ export default function Microsoft(props) {
     if (onlyLoginAjax.current) {
       onlyLoginAjax.current.abort();
     }
+
     onlyLoginAjax.current = workMicrosoftApi.setEntraOnlyLogin({ projectId, status: value });
     onlyLoginAjax.current
       .then(res => {
@@ -149,6 +152,7 @@ export default function Microsoft(props) {
       .checkMicrosoftToMingByApp({ projectId })
       .then(res => {
         const { item1, item2, item3 = {} } = res;
+
         if (!item1) {
           alert(_l(item2 || '同步失败'), 2);
           return;

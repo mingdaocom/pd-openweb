@@ -26,7 +26,7 @@ const BatchOptBtn = styled.div`
   padding-bottom: calc(env(safe-area-inset-bottom) - 20px);
   font-weight: 700;
   box-shadow: 0 -6px 12px rgba(0, 0, 0, 0.12);
-  background-color: var(--color-background-primary);
+  background-color: var(--color-background-card);
   font-size: 15px;
   border-radius: 8px 8px 0 0;
   z-index: 1;
@@ -40,17 +40,17 @@ const BatchOptBtn = styled.div`
     color: rgba(244, 67, 54, 0.5);
   }
   .extraOpt {
-    text-align: right;
+    width: 30px;
+    height: 36px;
+    line-height: 36px;
+    text-align: center;
+    font-weight: 500;
+    color: var(--color-primary);
+    background-color: rgba(152, 194, 255, 0.1);
+    border-radius: 11px;
+    margin-left: 6px;
     i {
-      color: var(--color-text-tertiary);
-      vertical-align: middle;
-    }
-  }
-  .disabledExtra {
-    color: rgba(158, 158, 158, 0.5);
-    i {
-      color: rgba(158, 158, 158, 0.5);
-      vertical-align: middle;
+      line-height: 36px;
     }
   }
 `;
@@ -91,6 +91,7 @@ class SheetView extends Component {
       hasGroupFilter,
       mobileNavGroupFilters,
     } = this.props;
+
     const handlePullToRefresh = () => {
       this.props.updateIsPullRefreshing(true);
       this.props.changePageIndex(1);
@@ -205,10 +206,12 @@ class SheetView extends Component {
       .filter(item => _.includes(batchOptCheckedData, item.rowid))
       .filter(item => item.allowdelete || item.allowDelete)
       .map(item => item.rowid);
+
     if (_.isEmpty(batchOptCheckedData)) {
       alert(_l('未选中记录'), 3);
       return;
     }
+
     if (!allWorksheetIsSelected && hasAuthRowIds.length === 0) {
       alert(_l('无权限删除选择的记录'), 3);
     } else {
@@ -218,6 +221,7 @@ class SheetView extends Component {
         worksheetId,
         isAll: allWorksheetIsSelected,
       };
+
       if (args.isAll) {
         args.excludeRowIds = batchOptCheckedData.map(item => item.rowid);
         args.fastFilters = (quickFilter || []).map(f =>
@@ -240,6 +244,7 @@ class SheetView extends Component {
       } else {
         args.rowIds = hasAuthRowIds;
       }
+
       worksheetAjax
         .deleteWorksheetRows(args)
         .then(res => {
@@ -250,6 +255,7 @@ class SheetView extends Component {
             } else if (hasAuthRowIds.length < batchOptCheckedData.length) {
               alert(_l('删除成功，无编辑权限的记录无法删除'), 3);
             }
+
             this.props.changeBatchOptData([]);
           }
         })
@@ -263,6 +269,7 @@ class SheetView extends Component {
     const { worksheetId, viewId, batchOptCheckedData, filters, quickFilter, navGroupFilters } = this.props;
     const { filterControls, keyWords, searchType } = filters;
     let args = { isAll };
+
     if (isAll) {
       args = {
         ...args,
@@ -285,6 +292,7 @@ class SheetView extends Component {
         ]),
       );
     }
+
     if (searchType === 2) {
       args.filterControls = [
         {
@@ -296,6 +304,7 @@ class SheetView extends Component {
         },
       ];
     }
+
     this.props.changeBatchOptData([]);
     processAjax
       .startProcess({
@@ -313,10 +322,12 @@ class SheetView extends Component {
   };
   handleBatchOperateCustomBtn = btn => {
     const { allWorksheetIsSelected, batchOptCheckedData } = this.props;
+
     if (allWorksheetIsSelected && batchOptCheckedData && batchOptCheckedData.length > 1000) {
       alert(_l('前选中数量超过1000条，无法执行此操作'), 3);
       return;
     }
+
     // 立即执行
     this.triggerCustomBtn(btn, allWorksheetIsSelected);
     this.setState({ showButtons: false });
@@ -345,6 +356,7 @@ class SheetView extends Component {
       rowIds,
       controls,
     };
+
     if (allWorksheetIsSelected) {
       delete args.rowIds;
       updateArgs.isAll = true;
@@ -367,6 +379,7 @@ class SheetView extends Component {
       );
       updateArgs.navGroupFilters = navGroupFilters;
     }
+
     worksheetAjax.updateWorksheetRows(updateArgs).then(data => {
       changeBatchOptData([]);
       callback();
@@ -374,9 +387,11 @@ class SheetView extends Component {
       if (data.successCount === batchOptCheckedData.length && args.workflowType === 2) {
         alert(_l('修改成功'));
       }
+
       if (_.find(controls, item => _.includes([10, 11], item.type) && /color/.test(item.value))) {
         refreshWorksheetControls();
       }
+
       this.props.fetchSheetRows();
     });
   };
@@ -406,7 +421,7 @@ class SheetView extends Component {
           <BatchOptBtn>
             {canDelete && (
               <div
-                className={cx('deleteOpt flex', {
+                className={cx('deleteOpt', {
                   disabledDel: !canDelete,
                 })}
                 onClick={() => {
@@ -415,6 +430,7 @@ class SheetView extends Component {
                     alert(_l('预览模式下，不能操作'), 3);
                     return;
                   }
+
                   this.setState({ deleteVisible: true });
                 }}
               >
@@ -423,15 +439,15 @@ class SheetView extends Component {
               </div>
             )}
             {showCusTomBtn && (
-              <div
-                className={cx('extraOpt flex', {
-                  disabledExtra: !showCusTomBtn,
-                })}
-                onClick={this.showCustomButtoms}
-              >
-                <Icon icon="custom_actions" className="mRight10 Font20 extraIcon" />
-                {_l('执行动作')}
-              </div>
+              <Fragment>
+                <div className="flex minWidth0"></div>
+                <div className="h100 flexRow alignItemsCenter" onClick={this.showCustomButtoms}>
+                  <span> {_l('更多操作')}</span>
+                  <div className="extraOpt">
+                    <Icon icon="expand_less" className="Font20 extraIcon" />
+                  </div>
+                </div>
+              </Fragment>
             )}
           </BatchOptBtn>
         )}

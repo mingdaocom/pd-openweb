@@ -41,13 +41,17 @@ export default function FilterDetailName(props) {
   const ref = useRef();
   const [value, setValue] = useState(name);
   const [active, setActive] = useState();
+
   function handleBlur() {
     const result = onChange(value);
+
     if (!result) {
       setValue(name);
     }
+
     setActive(false);
   }
+
   useEffect(() => {
     setValue(name);
   }, [name]);
@@ -74,6 +78,7 @@ export default function FilterDetailName(props) {
             if (!editable) {
               return;
             }
+
             setActive(true);
             setTimeout(() => {
               if (ref.current) {

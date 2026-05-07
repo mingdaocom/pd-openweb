@@ -288,10 +288,12 @@ class TaskList extends Component {
     // 页面滚动加载更多
     $taskList.on('scroll', function () {
       const { folderId, taskFilter } = that.props.taskConfig;
+
       // 阶段视图不分页
       if (folderId || taskFilter === 9) {
         return;
       }
+
       // myTaskSettings hidden
       that.hideTaskSetting();
       const _this = $(this);
@@ -380,6 +382,7 @@ class TaskList extends Component {
     // document事件
     $(document).on('click', event => {
       const $target = $(event.target);
+
       // `我的任务`
       if (
         $target.closest('.myTaskSettingList').length <= 0 &&
@@ -494,6 +497,7 @@ class TaskList extends Component {
           // 获取页面存在的folderId
           $('#taskList .taskListFolderName').each(function () {
             const folderId = $(this).data('folderid');
+
             if (existsFolderIdArray.indexOf(folderId) < 0) {
               existsFolderIdArray.push(folderId);
             }
@@ -502,11 +506,13 @@ class TaskList extends Component {
           const folders = data.data;
           let folderCount = folders.length;
           let folder;
+
           // 存在的项目
           for (let i = 0; i < folderCount; i++) {
             if (!folders[i].folderID) {
               folders[i].folderID = 1;
             }
+
             folder = folders[i];
             if (existsFolderIdArray.indexOf(folder.folderID) > -1) {
               folder.formatTaskTime = formatTaskTime;
@@ -539,11 +545,13 @@ class TaskList extends Component {
         data.pageIndex = taskListSettings.pageIndex;
         const singleTaskTpl = singleTask.replace('#include.nodeCommTr', nodeCommTr);
         const allTasks = doT.template(singleTaskTpl)(data);
+
         if (taskListSettings.pageIndex === 1) {
           $('#taskList').html(allTasks);
         } else {
           $('#taskList table tbody').append(allTasks);
         }
+
         // 动画
         this.slideUpTd();
         // 是否存在更多
@@ -562,6 +570,7 @@ class TaskList extends Component {
           this.renderNoData();
         }
       }
+
       taskListSettings.isMore = false;
     }
 
@@ -669,6 +678,7 @@ class TaskList extends Component {
       if (data.taskNum === 0) {
         this.renderNoData();
       }
+
       // 每个分类上的 任务计数
       this.renderMyTaskNum(data);
     } else {
@@ -736,9 +746,11 @@ class TaskList extends Component {
       */
     $.each(classify, (item, v) => {
       const arr = data.data['classify_' + v];
+
       for (let i = 0; i < v + 1; i++) {
         sumList += data.data['classify_' + i] ? data.data['classify_' + i].length : 0;
       }
+
       // undefined
       if (!arr) {
         taskListSettings.myTaskIsMore[v] = false;
@@ -827,6 +839,7 @@ class TaskList extends Component {
       const $tasks = $this.siblings('.listStageTaskContent').find('tr');
       const isClosed = $this.find('.downArrow').length > 0;
       const type = $this.data('type');
+
       if (isClosed) {
         config.FilterMeTaskClassify.push(type);
         $('.listStageTaskContent')
@@ -835,6 +848,7 @@ class TaskList extends Component {
           .each(function () {
             const $task = $(this);
             const taskId = $task.data('taskid');
+
             if (config.FilterTaskID.indexOf(taskId) < 0) {
               config.FilterTaskID.push(taskId);
             }
@@ -857,6 +871,7 @@ class TaskList extends Component {
   myTaskPreLoad($List) {
     const $taskList = $('#taskList');
     const $trs = $taskList.find('table tr').filter(':visible');
+
     // 余下数据不足一屏 自动加载
     if ($trs.length < config.pageSize || !$List.find('tr').length) {
       taskListSettings.pageIndex = 1;
@@ -919,6 +934,7 @@ class TaskList extends Component {
           if (listSort === 0) {
             this.afterUpdateClassify(taskIDs.split(','), type);
           }
+
           config.FilterTaskID = config.FilterTaskID.concat(taskIDs.split(','));
           alert(_l('操作成功'), 1);
         } else {
@@ -979,8 +995,10 @@ class TaskList extends Component {
 
     // 母任务处理
     const parentTaskId = result.data.parentTaskId;
+
     if (parentTaskId) {
       const $tr = $("#taskList tr[data-taskid='" + parentTaskId + "']");
+
       if ($tr.find('.icon-task-card').length > 0) {
         const $subCount = $tr.find('.subCount');
         $subCount.text(parseInt($subCount.text(), 10) + 1);
@@ -1004,6 +1022,7 @@ class TaskList extends Component {
     if ($('#taskList table').length > 0) {
       source.isExists = true;
     }
+
     if (listSort == 4) {
       // 不存在`未关联的项目`
       if ($('.taskListFolderName[data-folderid=null]').length <= 0) {
@@ -1021,6 +1040,7 @@ class TaskList extends Component {
     // 按项目
     if (listSort == 4) {
       const folderId = (source.data || {}).folderID;
+
       if (source.isExists) {
         $(".taskListFolderName[data-folderid='" + folderId + "']")
           .next()
@@ -1049,6 +1069,7 @@ class TaskList extends Component {
       const $allCountTask = $('.myTask .allCountTask:first');
       $allCountTask.text(parseInt($allCountTask.text() || 0, 10) + 1);
     }
+
     this.renderChargeHeaderAvatar();
   };
 
@@ -1059,12 +1080,15 @@ class TaskList extends Component {
     const $el = $('#taskList tr[data-taskid=' + this.state.taskId + ']');
     const $newTopic = $el.find('.newTopic');
     const $newTaskTip = $el.find('.newTaskTip');
+
     // 处理小红点
     const removeTipFun = function () {
       if ($el.data('isnotice')) {
         const $leftNewTip = $('#taskNavigator .myTask .newTip');
+
         if ($leftNewTip.length) {
           const count = parseInt($leftNewTip.attr('data-count'), 10);
+
           if (count === 1) {
             $leftNewTip.remove();
           } else {

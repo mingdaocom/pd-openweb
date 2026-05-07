@@ -178,6 +178,7 @@ class ColorLevel extends Component {
   }
   getGradientColors = () => {
     const { min, max, center, centerVisible } = this.state;
+
     if (centerVisible) {
       const colors1 = getGradientColors(min.color, center.color, 50);
       const colors2 = getGradientColors(center.color, max.color, 50);
@@ -264,6 +265,7 @@ class ColorLevel extends Component {
     const { yaxisList, reportType } = this.props;
     const { min, center, max, centerVisible, controlId, applyValue } = this.state;
     const filterYaxisList = _.uniqBy(yaxisList, 'controlId').filter(data => data.normType !== 7);
+
     const renderOption = data => {
       const norm = _.find(textNormTypes, { value: data.normType });
       return (
@@ -273,6 +275,7 @@ class ColorLevel extends Component {
         </Select.Option>
       );
     };
+
     return (
       <Fragment>
         <div className="flexRow valignWrapper mTop16">
@@ -429,6 +432,7 @@ class ColorScope extends Component {
       onDeleteRule: this.handleDeleteRule,
     };
     const filterYaxisList = _.uniqBy(yaxisList, 'controlId').filter(data => data.normType !== 7);
+
     const renderOption = data => {
       const norm = _.find(textNormTypes, { value: data.normType });
       return (
@@ -438,6 +442,7 @@ class ColorScope extends Component {
         </Select.Option>
       );
     };
+
     return (
       <Fragment>
         <div className="mTop16 mBottom8">

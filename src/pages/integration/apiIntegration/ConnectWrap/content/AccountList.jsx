@@ -216,9 +216,11 @@ function AccountList(props) {
   if (loading) {
     return <LoadDiv />;
   }
+
   const onCreate = () => {
     getOpenUrl();
   };
+
   //添加授权账户
   const getOpenUrl = () => {
     Oauth2Ajax.authorize(
@@ -230,6 +232,7 @@ function AccountList(props) {
       window.open(res.oauth2Url, '_blank', 'width=800,height=600');
     });
   };
+
   // 编辑名称｜删除
   const onEdit = (data, isDel) => {
     Oauth2Ajax.updateAccessToken(
@@ -254,6 +257,7 @@ function AccountList(props) {
       }
     });
   };
+
   //重新授权
   const refreshAuth = id => {
     Oauth2Ajax.refreshAuthorize(
@@ -265,6 +269,7 @@ function AccountList(props) {
       window.open(res.oauth2Url, '_blank', 'width=800,height=600');
     });
   };
+
   //刷新授权
   const refreshToken = id => {
     Oauth2Ajax.refreshToken(
@@ -280,6 +285,7 @@ function AccountList(props) {
       }
     });
   };
+
   const noDataRender = () => {
     return (
       <div className="noData TxtCenter">
@@ -295,6 +301,7 @@ function AccountList(props) {
       </div>
     );
   };
+
   const renderCon = () => {
     return (
       <div className="listCon flexColumn">
@@ -382,6 +389,7 @@ function AccountList(props) {
       </div>
     );
   };
+
   return (
     <Wrap className="flexColumn">
       {list.length <= 0 ? noDataRender() : renderCon()}

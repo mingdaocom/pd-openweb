@@ -2,6 +2,7 @@ import React, { Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
+import { ROW_ID_CONTROL } from 'src/pages/widgetConfig/config/widget';
 import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
 import DynamicDefaultValue from '../DynamicDefaultValue';
 
@@ -47,7 +48,8 @@ export default function SearchParams(props) {
   const renderItem = item => {
     const isChild = item.dataSource;
     const mapItem = _.find(requestmap, i => i.id === item.controlId) || {};
-    const filterAllControls = item.type === 27 ? allControls.filter(i => i.type === 27) : allControls;
+    const filterAllControls =
+      item.type === 27 ? allControls.filter(i => i.type === 27) : allControls.concat(ROW_ID_CONTROL);
     const isSearch = (data.type === 50 && data.enumDefault === 2) || data.type === 43;
     return (
       <div className={cx('childWrap', { isChild })}>
@@ -66,7 +68,7 @@ export default function SearchParams(props) {
         <DynamicDefaultValue
           from={data.type === 43 ? 3 : 2} // 为了异化默认值其他字段配置
           {..._.pick(props, ['globalSheetInfo', 'titleControl', 'fromCustomEventApi'])}
-          allControls={filterAllControls}
+          allControls={filterAllControls.filter(_.identity)}
           data={{
             ...handleAdvancedSettingChange(item, {
               defsource: mapItem.defsource || '',

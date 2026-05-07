@@ -68,6 +68,7 @@ export default function ScoreConfig({ data, onChange }) {
       setNames(defaultNames);
       return;
     }
+
     // 文案与数值不等，无值清空
     if (max && Number(max) !== itemnames.length) {
       setNames(getNames());
@@ -100,6 +101,7 @@ export default function ScoreConfig({ data, onChange }) {
               if (!names.length && Number(max) === 5) {
                 setNames(defaultNames);
               }
+
               setVisible(true);
             } else {
               onChange(handleAdvancedSettingChange(data, { itemnames: '' }));

@@ -19,6 +19,7 @@ const FORMULA_TYPES = [
     text: _l('函数'),
   },
 ];
+
 export default function SwitchType({ data, fromAggregation, onChange }) {
   const { controlId, enumDefault2 } = data;
   const isSaved = controlId && !controlId.includes('-');
@@ -29,6 +30,7 @@ export default function SwitchType({ data, fromAggregation, onChange }) {
       sourceControlId: '',
       dataSource: '',
     };
+
     if (type === 31) {
       onChange(
         handleAdvancedSettingChange(

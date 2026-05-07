@@ -19,12 +19,13 @@ export default class Invoice extends Component {
     super(props);
     this.state = {
       loading: true,
-      currentTab: 'taxNo',
+      currentTab: 'list',
       disabledExportBtn: true,
       createTaxVisible: false,
       curTaxNo: '',
       showCreateTaxBtn: false,
       myPermissions: [],
+      taxList: [],
     };
   }
 
@@ -33,28 +34,11 @@ export default class Invoice extends Component {
     const myPermissions = getMyPermissions(Config.projectId);
     const tabKeys = TABS.filter(item => hasPermission(myPermissions, item.permissionKeys)).map(item => item.key);
 
-    if (type) {
-      const initialTab = ['create', 'taxNo'].includes(type) ? 'taxNo' : 'list';
-      this.setState({
-        myPermissions,
-        loading: false,
-        currentTab: tabKeys.includes(initialTab) ? initialTab : tabKeys[0],
-        createTaxVisible: type === 'create',
-      });
-      return;
-    }
-
-    if (!tabKeys.includes('taxNo')) {
-      this.setState({ myPermissions, loading: false, currentTab: 'list' });
-      window.history.replaceState({}, '', `${location.origin}/admin/invoice/${Config.projectId}/list`);
-      return;
-    }
-
     merchantInvoiceApi
       .getTaxInfoList({ projectId: Config.projectId, pageFilter: { pageIndex: 1, pageSize: 50 } })
       .then(({ taxInfos }) => {
-        const initialTab = taxInfos?.length ? 'list' : 'taxNo';
-        const currentTab = tabKeys.includes(initialTab) ? initialTab : tabKeys[0];
+        const initialTab = !taxInfos?.length || ['create', 'taxNo'].includes(type) ? 'taxNo' : 'list';
+        const currentTab = tabKeys.length === 1 || !tabKeys.includes(initialTab) ? tabKeys[0] : initialTab;
         this.setState({
           myPermissions,
           loading: false,
@@ -78,6 +62,11 @@ export default class Invoice extends Component {
       taxList,
     } = this.state;
     const featureType = getFeatureStatus(Config.projectId, VersionProductType.invoice);
+    const hasPermissionTabs = TABS.filter(item => hasPermission(myPermissions, item.permissionKeys));
+    const tabs =
+      hasPermissionTabs.length > 1 && !taxList.length
+        ? hasPermissionTabs.filter(item => item.key === 'taxNo')
+        : hasPermissionTabs;
 
     const handleActionClick = ({ type, taxNo }) => {
       const { projectId } = Config;
@@ -127,7 +116,7 @@ export default class Invoice extends Component {
                 <span>{_l('创建开票税号')}</span>
               </Fragment>
             ) : (
-              TABS.filter(item => hasPermission(myPermissions, item.permissionKeys)).map(item => (
+              tabs.map(item => (
                 <span
                   key={item.key}
                   className={cx('tabItem Hand', { active: currentTab === item.key })}
@@ -169,7 +158,9 @@ export default class Invoice extends Component {
           )}
         </div>
 
-        <div className={`flexColumn orgManagementContent ${createTaxVisible ? '' : 'overflowHidden'}`}>
+        <div
+          className={`flexColumn orgManagementContent ${createTaxVisible || !taxList.length ? '' : 'overflowHidden'}`}
+        >
           {currentTab === 'taxNo' && (
             <TaxNumber
               ref={ele => (this.com = ele)}
@@ -189,6 +180,7 @@ export default class Invoice extends Component {
               ref={ele => (this.com = ele)}
               projectId={Config.projectId}
               updateDisabledExportBtn={disabledExportBtn => this.setState({ disabledExportBtn })}
+              taxList={taxList}
             />
           )}
         </div>

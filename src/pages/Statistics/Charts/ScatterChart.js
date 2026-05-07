@@ -12,8 +12,10 @@ const formatChartData = (data, splitId) => {
   if (_.isEmpty(data)) {
     return [];
   }
+
   const result = [];
   const { value } = data[0];
+
   if (splitId) {
     value.forEach(item => {
       const name = item.x;
@@ -33,6 +35,7 @@ const formatChartData = (data, splitId) => {
       let obj = {};
       data.forEach(element => {
         const target = element.value.filter(n => n.originalX === item.originalX)[0];
+
         if (target) {
           obj[element.c_id] = target.v;
         }
@@ -44,6 +47,7 @@ const formatChartData = (data, splitId) => {
       });
     });
   }
+
   return result;
 };
 
@@ -52,11 +56,13 @@ const getControlMinAndMax = (yaxisList, data) => {
 
   const get = id => {
     let values = [];
+
     for (let i = 0; i < data.length; i++) {
       if (id in data[i]) {
         values.push(data[i][id]);
       }
     }
+
     const min = _.min(values) || 0;
     const max = _.max(values);
     return {
@@ -107,6 +113,7 @@ export default class extends Component {
   componentWillReceiveProps(nextProps) {
     const { displaySetup, style } = nextProps.reportData;
     const { displaySetup: oldDisplaySetup, style: oldStyle } = this.props.reportData;
+
     if (
       displaySetup.showLegend !== oldDisplaySetup.showLegend ||
       displaySetup.legendType !== oldDisplaySetup.legendType ||
@@ -131,6 +138,7 @@ export default class extends Component {
       const config = this.getComponentConfig(nextProps);
       this.ScatterChart && this.ScatterChart.update(config);
     }
+
     if (nextProps.isLinkageData !== this.props.isLinkageData) {
       this.ScatterChart && this.ScatterChart.destroy();
       this.renderScatterChart(nextProps);
@@ -141,6 +149,7 @@ export default class extends Component {
     const { displaySetup, style, xaxes, split } = reportData;
     const config = this.getComponentConfig(props);
     const { Scatter } = this.g2plotComponent;
+
     if (this.chartEl) {
       this.ScatterChart = new Scatter(this.chartEl, config);
       this.isViewOriginalData = displaySetup.showRowList && props.isViewOriginalData;
@@ -151,11 +160,13 @@ export default class extends Component {
       if (this.isViewOriginalData || this.isLinkageData) {
         this.ScatterChart.on('element:click', this.handleClick);
       }
+
       this.ScatterChart.render();
     }
   }
   handleClick = event => {
-    const { xaxes, split, appId, reportId, name, reportType, style, map } = this.props.reportData;
+    const { reportData, isMobile } = this.props;
+    const { xaxes, split, appId, reportId, name, reportType, style, map } = reportData;
     const currentData = event.data.data;
     const gEvent = event.gEvent;
     const param = {};
@@ -166,6 +177,7 @@ export default class extends Component {
       reportType,
       filters: [],
     };
+
     if (xaxes.cid) {
       const isNumber = isFormatNumber(xaxes.controlType);
       const value = currentData.originalId;
@@ -180,6 +192,7 @@ export default class extends Component {
         control: xaxes,
       });
     }
+
     if (split.controlId) {
       const isNumber = isFormatNumber(split.controlType);
       const value = currentData[split.controlId];
@@ -193,15 +206,17 @@ export default class extends Component {
         control: xaxes,
       });
     }
+
     if (_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length) {
       linkageMatch.onlyChartIds = style.autoLinkageChartObjectIds;
     }
+
     const isAll = this.isViewOriginalData && this.isLinkageData;
     this.setState(
       {
         dropdownVisible: isAll,
         offset: {
-          x: gEvent.x,
+          x: gEvent.x + (isMobile ? -100 : 0),
           y: gEvent.y + 20,
         },
         match: param,
@@ -211,6 +226,7 @@ export default class extends Component {
         if (!isAll && this.isViewOriginalData) {
           this.handleRequestOriginalData();
         }
+
         if (!isAll && this.isLinkageData) {
           this.handleAutoLinkage();
         }
@@ -262,6 +278,7 @@ export default class extends Component {
     const rule = _.get(colorRules[0], 'dataBarRule') || {};
     const isRuleColor = _.isEmpty(split.controlId) && !_.isEmpty(rule);
     const controlMinAndMax = isRuleColor ? getControlMinAndMax(yaxisList, data) : {};
+
     const getRuleColor = value => {
       const color = getStyleColor({
         value,
@@ -271,6 +288,7 @@ export default class extends Component {
       });
       return color || colors[0];
     };
+
     const xField = _.get(yaxisList[0], 'controlId');
     const yField = _.get(yaxisList[1], 'controlId');
     const sizeFieldIndex = inheritLastYaxis ? inheritLastYaxisIndex : 2;
@@ -291,14 +309,17 @@ export default class extends Component {
       color: data => {
         const controlId = data[split.controlId];
         let color = colors[0];
+
         if (isRuleColor) {
           const value = data[_.get(yaxisList[0], 'controlId')] || 0;
           color = getRuleColor(value);
         }
+
         if (split.controlId) {
           const splitIndex = _.findIndex(map, { originalKey: controlId });
           color = colors[splitIndex % colors.length] || colors[0];
         }
+
         if (!_.isEmpty(linkageMatch)) {
           if (linkageMatch.value === data.originalId) {
             return color;
@@ -306,6 +327,7 @@ export default class extends Component {
             return new TinyColor(color).setAlpha(0.3).toRgbString();
           }
         }
+
         return color;
       },
       legend:

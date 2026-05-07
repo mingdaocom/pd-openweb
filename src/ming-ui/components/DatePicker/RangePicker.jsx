@@ -106,6 +106,7 @@ class RangePicker extends Component {
   getFormat = () => {
     const props = this.props;
     let { format } = props;
+
     if (!format) {
       if (props.timePicker) {
         format = props.locale.lang.dateTimeFormat;
@@ -113,11 +114,13 @@ class RangePicker extends Component {
         format = props.locale.lang.dateFormat;
       }
     }
+
     return format;
   };
 
   getDateString = (value, format) => {
     const props = this.props;
+
     if (value && Array.isArray(value) && value[0] && value[1]) {
       return (
         <span className="Calendar-picker-input-duration">
@@ -127,6 +130,7 @@ class RangePicker extends Component {
         </span>
       );
     }
+
     return <span>{props.placeholder}</span>;
   };
 
@@ -153,6 +157,7 @@ class RangePicker extends Component {
           if (children) {
             return <span className="Calendar-picker-input">{React.cloneElement(children)}</span>;
           }
+
           return (
             <span tabIndex="0" className="Calendar-picker-input">
               {this.getDateString(value, formatVal)}

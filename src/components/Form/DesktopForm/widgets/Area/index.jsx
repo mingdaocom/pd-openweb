@@ -29,6 +29,7 @@ export default function AreaWidgets(props) {
     formItemId,
     useCallback(data => {
       const { triggerType } = data;
+
       switch (triggerType) {
         case 'trigger_tab_enter':
           inputRef.current && inputRef.current.focus();
@@ -49,6 +50,7 @@ export default function AreaWidgets(props) {
   const handleChange = data => {
     const { anylevel } = advancedSetting;
     const last = _.last(data);
+
     if (search) {
       setSearch(undefined);
       setKeywords('');

@@ -105,11 +105,11 @@ export const ROUTE_CONFIG = {
   },
   printForm: {
     path: '/printForm/:appId/:printType/:type/:from/:key?',
-    component: () => import('src/pages/OldPrint'),
-  },
-  printFormBatch: {
-    path: '/printFormBatch/:appId/:printType/:type/:from/:key?',
     component: () => import('src/pages/Print'),
+  },
+  printFormOld: {
+    path: '/printFormOld/:appId/:printType/:type/:from/:key?',
+    component: () => import('src/pages/OldPrint'),
   },
   printPivotTable: {
     path: '/printPivotTable/:reportId/:themeColor?',

@@ -99,9 +99,11 @@ const CustomButtons = props => {
         !button.color || button.color === 'transparent' || btnDisable[button.btnId] || button.disabled
           ? 'var(--color-text-disabled)'
           : buttonColor.color;
-      if (!button.showAsPrimary) {
+
+      if (!button.showAsPrimary || (button.showAsPrimary && !isInCard)) {
         fillColor = button.color;
       }
+
       return (
         <SvgIcon
           className="InlineBlock icon svgIcon"
@@ -139,10 +141,12 @@ const CustomButtons = props => {
     if (button.disabled || btnDisable[button.btnId]) {
       return true;
     }
+
     if ((isRecordLock && !includes(['print', 'share'], button.type)) || (isEditLock && button.clickType === 3)) {
       alert(isRecordLock ? _l('%0已锁定', entityName) : _l('不允许多人同时编辑，稍后重试'), 3);
       return true;
     }
+
     if (isUndefined(button.type) || button.type === 'custom_button') {
       worksheetAjax
         .checkWorksheetRowBtn({

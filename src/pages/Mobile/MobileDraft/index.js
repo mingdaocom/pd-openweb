@@ -5,6 +5,7 @@ import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 import worksheetAjax from 'src/api/worksheet';
+import { openMobileRecordInfo } from 'src/pages/Mobile/Record';
 import { updateDraftTotalInfo } from 'src/pages/worksheet/common/WorksheetDraft/utils';
 import DraftList from './DraftList';
 
@@ -76,14 +77,29 @@ function MobileDraftList(props) {
             getDraftData={getDraftData}
             updateDraftList={(rowId, rowData) => {
               let data = _.clone(draftData);
+
               if (!rowData) {
                 data = data.filter(it => it.rowid !== rowId);
               } else {
                 const index = _.findIndex(data, it => it.rowid === rowId);
                 data[index] = rowData;
               }
+
               updateDraftTotal(data.length);
               setDraftDataList(data);
+
+              if (rowId && _.get(worksheetInfo, 'advancedSetting.subafter') === '3') {
+                openMobileRecordInfo({
+                  className: 'full',
+                  appId: appId,
+                  worksheetId: worksheetId,
+                  rowId: rowId,
+                  viewId: _.get(worksheetInfo, 'advancedSetting.subview'),
+                  from: 3,
+                  enablePayment: worksheetInfo.enablePayment,
+                  filledByAiMap: props.mobileFilledByAiMap,
+                });
+              }
             }}
           />
         </div>

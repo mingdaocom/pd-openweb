@@ -121,6 +121,7 @@ function NewRecord(props) {
       alert(_l('预览模式下，不能操作'), 3);
       return;
     }
+
     removePromptCancelAddRecordDialog();
     newRecordContent.current.newRecord({
       autoFill,
@@ -156,11 +157,13 @@ function NewRecord(props) {
       onError={() => setAbnormal(true)}
     />
   );
+
   const submitNextCreate = () => {
     if (window.isPublicApp) {
       alert(_l('预览模式下，不能操作'), 3);
       return;
     }
+
     function submit() {
       newRecordContent.current.newRecord({
         isContinue: true,
@@ -174,17 +177,20 @@ function NewRecord(props) {
         $(`.${modalClassName}`).find('.scrollViewContainer .scroll-viewport')[0]?.scrollTo({ top: 0 });
       }
     }
+
     if (needConfirm) {
       handleConfirm(submit);
     } else {
       submit();
     }
   };
+
   const submitRecord = () => {
     if (window.isPublicApp) {
       alert(_l('预览模式下，不能操作'), 3);
       return;
     }
+
     function submit() {
       newRecordContent.current.newRecord({
         autoFill,
@@ -192,12 +198,14 @@ function NewRecord(props) {
         rowStatus: 1,
       });
     }
+
     if (needConfirm) {
       handleConfirm(submit);
     } else {
       submit();
     }
   };
+
   const footer = !abnormal && (
     <div className="footerBox flexRow" onClick={e => e.stopPropagation()}>
       {loading && (
@@ -302,6 +310,7 @@ function NewRecord(props) {
   // 根据条件获取要显示的图标按钮
   const getVisibleIconButtons = () => {
     const allowedTypes = [];
+
     if (showMingoCreate && !md.global.SysSettings.hideAIBasicFun) {
       allowedTypes.push('mingoCreate');
     }
@@ -316,6 +325,7 @@ function NewRecord(props) {
 
     return iconButtons.filter(button => allowedTypes.includes(button.type));
   };
+
   const dialogProps = {
     headerComp: (
       <HeaderComp>
@@ -335,6 +345,7 @@ function NewRecord(props) {
         hideNewRecord();
         removeTempRecordValueFromLocal('tempNewRecord', worksheetId);
       }
+
       if (cache.current.formChanged && !promptCancelAddRecord && allowDraft) {
         Dialog.confirm({
           dialogClasses: 'promptCancelAddRecord',
@@ -402,9 +413,11 @@ function NewRecord(props) {
       if (window.richTextDialogIsActive) {
         return;
       }
+
       e.preventDefault();
       e.stopPropagation();
       const latestCreateTimestamp = getLatestCreateTimestampOfWithSaveShortcut();
+
       if (latestCreateTimestamp === didMountTimestamp.current) {
         !abnormal && setTimeout(() => submitRecord(), 50);
       }

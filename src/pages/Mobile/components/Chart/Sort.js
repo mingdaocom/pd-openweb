@@ -42,6 +42,7 @@ export default class ChartSort extends Component {
         item.originalControlId = item.controlId;
         item.controlId = `${item.controlId}-right`;
       }
+
       return item;
     });
   };
@@ -49,6 +50,7 @@ export default class ChartSort extends Component {
     const { xaxes = {}, yaxisList, rightY, split = {}, reportType, lines, columns } = this.props.currentReport;
     const isPivotTable = reportType === reportTypes.PivotTable;
     const yList = yaxisList.map(item => item.controlId);
+
     if (isPivotTable) {
       const linesId = lines.map(item =>
         isTimeControl(item.controlType) ? `${item.controlId}-${item.particleSizeType}` : item.controlId,
@@ -72,6 +74,7 @@ export default class ChartSort extends Component {
       });
       sorts = formatSorts(sorts, [xaxesId, ...yList, splitId, ...newRightYList, rightYSplitId], ySameList);
     }
+
     this.props.onChangeCurrentReport({
       sorts,
     });
@@ -90,9 +93,11 @@ export default class ChartSort extends Component {
       if (currentCustomSort === xaxes.controlId) {
         this.handleChangeXSort(sortListKey, { controlId: xaxes.controlId });
       }
+
       if (currentCustomSort === splitId) {
         this.handleChangeYSort(sortListKey, { controlId: splitId });
       }
+
       if (rightYSplitId) {
         const ySameList = _.filter(yaxisList, item => _.find(rightY.yaxisList, { controlId: item.controlId })).map(
           item => item.controlId,
@@ -189,12 +194,8 @@ export default class ChartSort extends Component {
           }
         } else {
           if (isPivotTable) {
-            const lineItem = _.findLast(currentReport.lines) || {};
-            const columnItem = _.findLast(currentReport.columns) || {};
             const key = _.findKey(n);
-            return _.find(yaxisList, { controlId: key }) || [lineItem.controlId, columnItem.controlId].includes(key)
-              ? null
-              : n;
+            return _.find(yaxisList, { controlId: key }) ? null : n;
           } else {
             if (displaySetup.isPile) {
               return n;
@@ -210,11 +211,9 @@ export default class ChartSort extends Component {
     }
   };
   handleChangePivotTableSort = (value, { controlId }) => {
-    const { yaxisList, sorts, lines, columns } = this.props.currentReport;
+    const { sorts } = this.props.currentReport;
 
     if (sorts.length) {
-      const lineItem = _.findLast(lines) || {};
-      const columnItem = _.findLast(columns) || {};
       const currentEmpty = _.isEmpty(_.find(sorts, controlId));
 
       if (currentEmpty) {
@@ -232,10 +231,7 @@ export default class ChartSort extends Component {
             return null;
           }
         } else {
-          const key = _.findKey(n);
-          return [lineItem.controlId, columnItem.controlId].includes(controlId) && _.find(yaxisList, { controlId: key })
-            ? null
-            : n;
+          return n;
         }
       });
       this.handleChangeSorts(newSorts.filter(item => item));

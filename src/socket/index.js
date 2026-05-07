@@ -4,6 +4,7 @@ import io from 'socket.io-client';
 import exportPivotTableSocket from 'statistics/components/socket';
 import worksheetSocket from 'worksheet/components/socket';
 import appSocketInit from 'src/pages/Admin/app/appManagement/socket';
+import knowledgeSocketInit from 'src/pages/AppSettings/components/Knowledge/socket';
 import appManageSocket from 'src/pages/AppSettings/components/socket';
 import workflowSocketInit from 'src/pages/workflow/socket';
 import { wsexcelSocketInit } from 'src/pages/worksheet/common/WorksheetBody/ImportDataFromExcel/ImportDataFromExcel';
@@ -57,6 +58,8 @@ export default () => {
 
   // 应用备份/应用升级
   appManageSocket();
+  // 知识库推送
+  knowledgeSocketInit();
 
   wsexcelbatchSocketInit();
 };

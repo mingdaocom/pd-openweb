@@ -264,9 +264,11 @@ function Header({ data, apkInfo, isConnectOwner, forPage, listId, onCancel, onDe
                     placeholder={_l('添加API标题')}
                     onChange={e => {
                       let str = e.target.value;
+
                       if (e.target.value.trim().length > 40) {
                         str = e.target.value.trim().slice(0, 40);
                       }
+
                       const newData = { ...data, name: str };
                       onDataChange && onDataChange(newData);
                       if (e.target.value.length <= 0 && TipRef && TipRef.current) {
@@ -313,9 +315,11 @@ function Header({ data, apkInfo, isConnectOwner, forPage, listId, onCancel, onDe
                 value={data.explain}
                 onChange={e => {
                   let str = e.target.value;
+
                   if (e.target.value.trim().length > 200) {
                     str = e.target.value.trim().slice(0, 200);
                   }
+
                   const newData = { ...data, explain: str };
                   onDataChange && onDataChange(newData);
                 }}

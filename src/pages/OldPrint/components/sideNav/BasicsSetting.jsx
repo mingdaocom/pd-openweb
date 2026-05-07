@@ -87,7 +87,7 @@ export default function BasicsSetting(props) {
           />
           {item.tip && (
             <Tooltip placement="right" title={item.tip}>
-              <div className="Gray_9e help InlineBlock TxtTop mLeft5">
+              <div className="textTertiary help InlineBlock TxtTop mLeft5">
                 <Icon icon="help" className="Font14" />
               </div>
             </Tooltip>

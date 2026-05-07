@@ -29,9 +29,11 @@ class MessageView extends Component {
   }
   shouldComponentUpdate(nextProps) {
     const { session } = this.props;
+
     if (session.id === nextProps.currentSession.value) {
       return true;
     }
+
     return false;
   }
   componentDidMount() {
@@ -51,9 +53,11 @@ class MessageView extends Component {
     ).then(res => {
       res = _.isArray(res) ? res.reverse() : [];
       const isAddUnreadLine = topUnread && unreadCount;
+
       if (isAddUnreadLine && res[res.length - unreadCount]) {
         res[res.length - unreadCount].unreadLine = true;
       }
+
       if (session.accountId && !session.isContact) {
         const remind = Object.assign({}, res[res.length - 1]);
         remind.id = Date.now();
@@ -61,6 +65,7 @@ class MessageView extends Component {
         remind.sysType = Constant.MSGTYPE_SYSTEM_ERROR;
         res.push(remind);
       }
+
       this.props.dispatch(actions.setMessage(session.id, utils.formatMessages(res)));
     });
   }
@@ -71,17 +76,21 @@ class MessageView extends Component {
   componentWillReceiveProps(nextProps) {
     const { session, sessionList, currentSession, gotoMessage } = nextProps;
     const gotoMessageId = gotoMessage[session.id];
+
     // 右侧点击了搜索消息
     if (gotoMessageId) {
       this.handleGotoMessage(gotoMessageId);
       this.props.dispatch(actions.removeGotoMessage(session.id));
     }
+
     // 打开聊天框时，有10条以上的未读消息
     if (currentSession && currentSession.value) {
       const topUnread = sessionList.filter(item => item.value == session.id)[0] || {};
+
       if (!topUnread.messageCount) {
         return;
       }
+
       this.setState({
         topUnread: topUnread.messageCount > config.MSG_LENGTH_MORE ? topUnread.messageCount : 0,
       });
@@ -94,16 +103,19 @@ class MessageView extends Component {
     const newMessages = this.props.messages[id];
     const topUnread = sessionList.filter(item => item.value == id)[0] || {};
     const { direction, isDownLoadingMessage } = this.state;
+
     // 加载完新消息，存在需要查询的消息
     if (this.state.gotoMessageId) {
       this.handleGotoMessage(this.state.gotoMessageId);
       return;
     }
+
     // 刚加载完第一页的数据
     if (!prevMessage) {
       this.handleScrollEnd();
       return;
     }
+
     // 加载一页
     if (newMessages.length - prevMessage.length >= config.MSG_LENGTH_MORE && direction == 'up') {
       setTimeout(() => {
@@ -113,13 +125,16 @@ class MessageView extends Component {
       }, 0);
       return;
     }
+
     // 刚发送的消息 & 收到新消息
     if (newMessages.length - prevMessage.length === 1) {
       const message = newMessages[newMessages.length - 1];
+
       if (message.isMine) {
         isDownLoadingMessage ? this.handleBottomEnd() : this.handleScrollEnd();
       }
     }
+
     // 已经打开的窗口，有新消息
     if (newMessages.length === prevMessage.length) {
       if (topUnread.count) {
@@ -127,9 +142,11 @@ class MessageView extends Component {
       } else {
         const endMessage = newMessages[newMessages.length - 1] || {};
         const { type, card, isMine, id } = endMessage;
+
         if (isMine && type === Constant.MSGTYPE_FILE && typeof id === 'number') {
           this.handleScrollEnd();
         }
+
         if (
           isMine &&
           type === Constant.MSGTYPE_CARD &&
@@ -140,6 +157,7 @@ class MessageView extends Component {
         }
       }
     }
+
     if (newMessages.length - prevMessage.length >= 1 && direction == 'up') {
       this.handleScrollEnd();
     }
@@ -175,14 +193,17 @@ class MessageView extends Component {
     const { session, messages } = this.props;
     const currentMessage = messages[session.id] || [];
     const message = _.find(currentMessage, { id });
+
     if (message && message.id) {
       const { gotoMessageId } = this.state;
       const messageEl = $(`#Message-${message.id}`);
       const { scrollTo, getScrollInfo } = this.scrollView;
       const { clientHeight, scrollTop } = getScrollInfo();
+
       if (gotoMessageId) {
         this.setState({ gotoMessageId: '', isDownLoadingMessage: true });
       }
+
       // 指定的消息在不在可视区
       scrollTo({
         top: scrollTop + messageEl.position().top - (clientHeight - messageEl.height()) / 2,
@@ -218,11 +239,14 @@ class MessageView extends Component {
     const isBottom = $ChatPanel.data('isBottom') == undefined ? true : $ChatPanel.data('isBottom');
     const bottomUnread = bottomUnreadMessage[session.id] || [];
     const diff = maxScrollTop - scrollTop;
+
     if (scrollTop === 0 && isMore) {
       const { time } = messageList[0] || {};
+
       if (loading || !time) {
         return;
       }
+
       this.lastScrollHeight = scrollHeight;
       this.getMessage(
         {
@@ -237,9 +261,11 @@ class MessageView extends Component {
       });
     } else if (Math.ceil(scrollTop) === maxScrollTop && isDownLoadingMessage) {
       const { time } = messageList[messageList.length - 1] || {};
+
       if (loading || !time) {
         return;
       }
+
       this.setState({
         loading: true,
         direction: 'down',
@@ -278,6 +304,7 @@ class MessageView extends Component {
           }),
         );
       }
+
       if (isBottom) {
         $ChatPanel.data('isBottom', false);
         $ChatPanel.find('.ChatPanel-iconBottom').removeClass('hidden');
@@ -295,6 +322,7 @@ class MessageView extends Component {
   };
   handleBottomEnd() {
     const { isDownLoadingMessage } = this.state;
+
     if (isDownLoadingMessage) {
       const { session } = this.props;
       const type = session.isGroup ? Constant.SESSIONTYPE_GROUP : Constant.SESSIONTYPE_USER;
@@ -328,12 +356,14 @@ class MessageView extends Component {
     const { maxScrollTop } = getScrollInfo();
     const top = messageEl.position() ? messageEl.position().top : 0;
     const scrollTop = maxScrollTop - Math.abs(top);
+
     // 指定的消息在不在可视区
     if (top + messageEl.height() <= messageEl.height()) {
       scrollTo({
         top: scrollTop,
       });
     }
+
     this.setState({
       topUnread: 0,
     });
@@ -360,6 +390,7 @@ class MessageView extends Component {
   }
   handleBottomUnreadScroll() {
     const { isDownLoadingMessage } = this.state;
+
     if (isDownLoadingMessage) {
       this.handleBottomEnd();
     } else {
@@ -370,6 +401,7 @@ class MessageView extends Component {
     if (event.target.classList.contains('addMember')) {
       const { session } = this.props;
       const { isForbidInvite, isAdmin } = session;
+
       if (isAdmin || !isForbidInvite) {
         addGroupMembers({
           id: session.id,
@@ -408,6 +440,7 @@ class MessageView extends Component {
     const { session, messages } = this.props;
     const { loading, errorParam } = this.state;
     const messageList = messages[session.id] || [];
+
     if (errorParam && direction === 'up') {
       this.getMessage(errorParam, 'up').then(res => {
         res = _.isArray(res) ? res.reverse() : [];
@@ -458,12 +491,14 @@ class MessageView extends Component {
     let atId =
       unreadMessage.messageAtlist && unreadMessage.messageAtlist.length ? unreadMessage.messageAtlist[0] : false;
     const messageEl = $(`#Message-${atId}`);
-    if (messageEl.size()) {
+
+    if (messageEl?.length) {
       // at 消息在可视区就清除掉
       if (messageEl.position().top + messageEl.height() >= messageEl.height()) {
         atId = null;
       }
     }
+
     return (
       <div
         className={cx('ChatPanel-unreadTop', { hidden: !topUnread })}

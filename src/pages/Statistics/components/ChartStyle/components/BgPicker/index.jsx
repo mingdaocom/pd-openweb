@@ -92,20 +92,24 @@ export default function BgPicker(props) {
       const { iconColor } = replaceColor({ iconColor: bgColor }, {}, themeColor);
       return { backgroundColor: iconColor };
     }
+
     if (bgStyleValue === 'gradient') {
       const { gradient } = config;
       return { background: `linear-gradient(${gradient})` };
     }
+
     if (bgStyleValue === 'image') {
       const { bgImageIndex } = config;
       const src = images(`./${bgImageIndex}.jpg`);
       return { backgroundImage: `url(${src})`, backgroundSize: 'cover' };
     }
+
     if (bgStyleValue === 'custom') {
       const { displaySetup } = props;
       const previewUrl = displaySetup.previewUrl || displaySetup.imageUrl;
       return { backgroundImage: `url(${previewUrl})`, backgroundSize: 'cover' };
     }
+
     return { backgroundColor: 'var(--color-background-primary)' };
   };
 

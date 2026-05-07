@@ -58,6 +58,7 @@ const WrapCon = styled.div`
     }
   }
 `;
+
 function Drop(props) {
   const { updateCompany = () => {}, updateState = () => {}, info = {} } = props;
   const [{ dropDownVisible, extraDatas, warnList }, setState] = useSetState({
@@ -124,6 +125,7 @@ function Drop(props) {
         onVisibleChange={props.onVisibleChange}
         renderTitle={() => {
           let ids = _.get(extraDatas, `${info.id}`) || [];
+
           if (info.multiple === 1) {
             return (
               <div className="">
@@ -151,6 +153,7 @@ function Drop(props) {
               </div>
             );
           }
+
           let id = ids[0];
           return (
             <span

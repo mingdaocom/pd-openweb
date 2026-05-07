@@ -22,6 +22,7 @@ const NumberWidget = props => {
       const { triggerType } = data;
       const controlRefs = getControlRef(controlId) || {};
       const { handleFocus, handleBlur } = controlRefs;
+
       switch (triggerType) {
         case 'trigger_tab_enter':
           handleFocus();

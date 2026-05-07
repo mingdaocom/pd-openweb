@@ -4,6 +4,7 @@ const enumObj = obj => {
   _.keys(obj).forEach(key => (obj[obj[key]] = key));
   return obj;
 };
+
 export const orderRecordType = enumObj({
   SMS: 1, // 短信发送
   ReCharge: 2, // 充值
@@ -38,6 +39,8 @@ export const orderRecordType = enumObj({
   DocumentParsing: 30,
   AIActions: 32, // AI 动作
   Merchant: 100,
+  KnowledgeBaseVectorization: 33,
+  Chunks: 34, // 向量知识库分块
 });
 
 export const orderTypeText = {
@@ -74,6 +77,8 @@ export const orderTypeText = {
   AIAgent: 'AI Agent',
   AIActions: _l('AI 动作'),
   DocumentParsing: _l('AI Agent-文档解析'),
+  KnowledgeBaseVectorization: _l('知识库向量化'),
+  Chunks: _l('向量分块扩充包'),
 };
 
 export const enumInvoiceStatus = enumObj({
@@ -115,9 +120,9 @@ export const orderRecordStatusDropdownData = [{ value: 0, text: _l('全部') }].
 export const enumOrderRecordStatus = enumObj(orderRecordStatus);
 
 export const PAID_RECORD_TYPE = [
-  2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 16, 17, 18, 19, 21, 22, 23, 25, 26, 28, 100,
+  2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 16, 17, 18, 19, 21, 22, 23, 25, 26, 28, 34, 100,
 ];
-export const RECHARGE_RECORD_TYPE = [1, 15, 20, 24, 27, 29, 31, 30, 32];
+export const RECHARGE_RECORD_TYPE = [1, 15, 20, 24, 27, 29, 31, 30, 32, 33];
 
 // 支付记录类型
 export const orderRecordPaidTypeDropdownData = [{ value: 0, text: _l('全部') }].concat(

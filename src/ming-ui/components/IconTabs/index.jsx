@@ -107,7 +107,8 @@ function IconTabs(props) {
 
   const getSystemTypeScrollTop = () => {
     SYSTEM_TYLE.forEach((item, index) => {
-      SYSTEM_TYLE[index].offsetTop = document.getElementById(item.key).offsetTop;
+      const el = document.getElementById(item.key);
+      SYSTEM_TYLE[index].offsetTop = el ? el.offsetTop : 0;
     });
   };
 
@@ -120,7 +121,9 @@ function IconTabs(props) {
     let index = 0;
 
     SYSTEM_TYLE.forEach((item, i) => {
-      if (scrollTop >= item.offsetTop - 97) {
+      const offset = item.offsetTop;
+
+      if (typeof offset === 'number' && scrollTop >= offset - 97) {
         _currentKey = item.key;
         index = i;
       }
@@ -137,8 +140,9 @@ function IconTabs(props) {
 
   const scrollToType = item => {
     setSetting({ ...setting, currentKey: item.key });
-    let scrollTop = document.getElementById(item.key).offsetTop;
-    scrollRef.current && scrollRef.current.scrollTo({ top: scrollTop });
+    const el = document.getElementById(item.key);
+    if (!el) return;
+    scrollRef.current && scrollRef.current.scrollTo({ top: el.offsetTop });
   };
 
   const onClickIcon = param => {

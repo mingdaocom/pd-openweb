@@ -39,6 +39,7 @@ export default class ganttContent extends Component {
           return i;
         }
       }
+
       return this.posList.length - 1;
     };
 
@@ -89,12 +90,15 @@ export default class ganttContent extends Component {
      * 根据类型处理日期数据
      */
     let time;
+
     if (type === 'day') {
       time = byDay(beginTime, endTime);
     }
+
     if (type === 'week') {
       time = byWeek(beginTime, endTime);
     }
+
     if (type === 'month') {
       time = byMonth(beginTime, endTime);
     }

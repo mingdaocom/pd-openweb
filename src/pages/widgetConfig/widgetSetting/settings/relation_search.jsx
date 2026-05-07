@@ -148,6 +148,7 @@ export default function RelationSearch(props) {
   const isDeleteWorksheet = !loading && !_.isEmpty(worksheetInfo) && _.isEmpty(controls);
 
   const filterControls = getFilterRelateControls({ controls: relationControls, data });
+
   const isSheetDisplay = value => {
     return _.includes(['2', '5', '6'], value || showtype);
   };
@@ -281,6 +282,7 @@ export default function RelationSearch(props) {
                         window.open(`/app/${worksheetInfo.appId}/settings/aggregations`);
                         return;
                       }
+
                       toEditWidgetPage({ sourceId: dataSource, fromURL: 'newPage' });
                     }}
                   >
@@ -381,6 +383,7 @@ export default function RelationSearch(props) {
               className={cx('animaItem', { active: enumDefault === value })}
               onClick={() => {
                 let nextData = { ...data, enumDefault: value };
+
                 if (value === 1) {
                   const clearAds = {
                     showtype: '',
@@ -397,6 +400,7 @@ export default function RelationSearch(props) {
                   });
                   return;
                 }
+
                 onChange({
                   ...handleAdvancedSettingChange(nextData, {
                     showtype: '5',
@@ -519,6 +523,7 @@ export default function RelationSearch(props) {
               } else if (showtype !== '3' && !parseInt(value)) {
                 value = '';
               }
+
               onChange(handleAdvancedSettingChange(data, { maxcount: `${value}` }));
             }}
           />

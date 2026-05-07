@@ -96,6 +96,7 @@ function ContainerCon(props) {
   //自动登录
   const onAutoLogin = cb => {
     const autoLoginKey = window.localStorage.getItem(`PortalLoginInfo-${currentAppId}`) || '';
+
     if (autoLoginKey) {
       externalPortalAjax.autoLogin({ appId: currentAppId, autoLoginKey }).then(res => {
         const { accountResult } = res;
@@ -113,9 +114,11 @@ function ContainerCon(props) {
 
   const getUrlData = () => {
     let request = getRequest();
+
     if (paramForPcWx) {
       request = paramForPcWx;
     }
+
     const { wxState = '', mdAppId = '', accountId = '' } = request;
     request.status && setStatus(Number(request.status));
     wxState && setState({ state: wxState });
@@ -128,6 +131,7 @@ function ContainerCon(props) {
         window.shareState.isPublicFormPreview = true;
         window.shareState.isPublicForm = true;
       }
+
       //微信登录后的跳转 进入正常登录流程 带mdAppId 获取登录相关配置信息
       getBaseInfo({
         cb: res => {
@@ -136,6 +140,7 @@ function ContainerCon(props) {
             const { portalSetResult = {}, isWXOfficialExist, isExist } = res;
             const { loginMode = {}, isEnable } = portalSetResult;
             const { weChat } = loginMode;
+
             if (isWXOfficialExist && weChat && isEnable && isExist) {
               //配置了微信登录//且 门户开启 门户存在
               //进入微信登录落地页
@@ -154,6 +159,7 @@ function ContainerCon(props) {
             ) {
               setStatus(40); //自定义链接无效
             }
+
             setLoading(false);
           }
         },
@@ -173,11 +179,14 @@ function ContainerCon(props) {
     let domainName = '';
     let ajaxPromise = '';
     let request = getRequest();
+
     if (paramForPcWx) {
       request = paramForPcWx;
     }
+
     const param = customLink ? { customLink } : {};
     const { mdAppId = '', accountId = '' } = request;
+
     if (!mdAppId) {
       //从returnUrl里提取appid
       domainName = currentAppId;
@@ -186,6 +195,7 @@ function ContainerCon(props) {
         setLoading(false);
         return false;
       }
+
       setAppId(domainName);
       ajaxPromise = externalPortalAjax.getPortalSetByAppId({ appId: domainName, ...param });
     } else {
@@ -194,11 +204,13 @@ function ContainerCon(props) {
       setAppId(domainName);
       ajaxPromise = externalPortalAjax.getPortalSetByAppId({ appId: domainName, ...param });
     }
+
     if (!domainName) {
       setStatus(10000);
       setLoading(false);
       return false;
     }
+
     ajaxPromise &&
       ajaxPromise.then(res => {
         const { portalSetResult = {}, authorizerInfo = {}, isExist, status, isWXOfficialExist } = res;
@@ -208,20 +220,24 @@ function ContainerCon(props) {
           documentTitle: portalSetResult.pageTitle ? _l('登录/注册 - %0', portalSetResult.pageTitle) : _l('登录/注册'),
         });
         const isErrCustomUrl = customLink && isErrSet(portalSetResult);
+
         if (status === 12) {
           setIsErrUrl(true); // 进到登录根据配置信息判断当前版本购买人数是否超过当前版本购买人数
         }
+
         if (status === 40 || isErrCustomUrl) {
           //扩展链接不存在 || 你访问的链接已停止访问
           setStatus(40);
           setLoading(false);
           setState({ customLink: '' });
         }
+
         if (!isEnable || !isExist) {
           !isEnable && setStatus(20000);
           !isExist && setStatus(10000);
           setLoading(false);
         }
+
         setState({ fixInfo: { fixAccount: res.fixAccount, fixRemark: res.fixRemark }, authorizerInfo });
         setBaseSetInfo(portalSetResult);
         // setBaseSetInfo({ ...portalSetResult, autoLogin: !false });
@@ -239,10 +255,12 @@ function ContainerCon(props) {
   if (loading) {
     return <LoadDiv className="" style={{ margin: '120px auto' }} />;
   }
+
   if (isWXauth) {
     const { loginMode = {}, registerMode = {} } = baseSetInfo;
     return (
       <WrapWx className="flexColumn">
+        <DocumentTitle title={documentTitle} />
         {baseSetInfo.logoImageUrl ? <img src={baseSetInfo.logoImageUrl} height={40} /> : ''}
         <p className="Font26 textPrimary mAll0 Bold pageTitle flex" style={{ WebkitBoxOrient: 'vertical' }}>
           {baseSetInfo.pageTitle}
@@ -298,6 +316,7 @@ function ContainerCon(props) {
       </WrapWx>
     );
   }
+
   const renderCon = () => {
     const param = {
       ...props,
@@ -342,6 +361,7 @@ function ContainerCon(props) {
       </React.Fragment>
     );
   };
+
   return (
     <WrapCom className="h100">
       <Wrap

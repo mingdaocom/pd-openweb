@@ -183,7 +183,7 @@ export default function RelateRecordBtn(props) {
                 overflow: { adjustY: true },
               }}
             >
-              <Button onClick={btnClick}>
+              <Button className="relateRecordMainBtn" onClick={btnClick}>
                 <div className="content">
                   <i className={`icon ${iconName} mRight5 Font16`}></i>
                   <span className="overflow_ellipsis WordBreak">{btnText || _l('记录')}</span>
@@ -216,6 +216,7 @@ export default function RelateRecordBtn(props) {
                       alert(_l('预览模式下，不能操作'), 3);
                       return;
                     }
+
                     importDataFromExcel({
                       isFromRelateRecord: true,
                       isCharge,
@@ -231,7 +232,7 @@ export default function RelateRecordBtn(props) {
                     });
                   }}
                 >
-                  <i className="icon icon-file_upload Font16 textSecondary"></i>
+                  <i className="icon icon-worksheet_import Font16 textSecondary"></i>
                 </Button>
               </Tooltip>
             )}
@@ -262,6 +263,7 @@ export default function RelateRecordBtn(props) {
                 if (noSelected) {
                   return;
                 }
+
                 onBatchOperate({ action: 'removeRelation' });
               }}
             >
@@ -275,6 +277,7 @@ export default function RelateRecordBtn(props) {
                 if (noSelected) {
                   return;
                 }
+
                 onBatchOperate({ action: 'edit' });
               }}
             >
@@ -302,6 +305,7 @@ export default function RelateRecordBtn(props) {
                   if (noSelected) {
                     return;
                   }
+
                   onBatchOperate({ action: 'print' });
                 }}
               >
@@ -319,6 +323,7 @@ export default function RelateRecordBtn(props) {
                 if (noSelected) {
                   return;
                 }
+
                 onBatchOperate({ action: 'deleteRecords' });
               }}
             >
@@ -332,6 +337,7 @@ export default function RelateRecordBtn(props) {
                 if (noSelected) {
                   return;
                 }
+
                 onBatchOperate({ action: 'exportRecords' });
               }}
             >

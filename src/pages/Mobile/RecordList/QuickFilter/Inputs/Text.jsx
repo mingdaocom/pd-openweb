@@ -73,6 +73,7 @@ export default function Text(props) {
             value={values.join(' ')}
             onChange={e => {
               const value = e.target.value;
+
               if (filterType === FILTER_CONDITION_TYPE.TEXT_ALLCONTAIN) {
                 handleChange({ values: value.split(' ') });
               } else {

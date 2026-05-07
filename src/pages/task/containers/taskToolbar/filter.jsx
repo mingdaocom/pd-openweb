@@ -61,6 +61,7 @@ class Filter extends Component {
           } else {
             errorMessage(result.error);
           }
+
           this.setState({ getTagsComplete: true });
         });
     }
@@ -208,6 +209,7 @@ class Filter extends Component {
     if (!value && this.search.value) {
       this.search.value = '';
     }
+
     this.props.dispatch(updateKeyWords(value));
   }
 
@@ -392,6 +394,7 @@ class Filter extends Component {
     const { members, openAllCharges } = this.state;
     const { filterSettings } = this.props.taskConfig;
     const isMoreBtn = !openAllCharges && i === 11;
+
     const onClickFun = () => {
       if (isMoreBtn) {
         this.setState({ openAllCharges: true });
@@ -483,6 +486,7 @@ class Filter extends Component {
                     </span>
                   );
                 }
+
                 return undefined;
               }),
             )}
@@ -576,6 +580,7 @@ class Filter extends Component {
                     </span>
                   );
                 }
+
                 return undefined;
               }),
             )}

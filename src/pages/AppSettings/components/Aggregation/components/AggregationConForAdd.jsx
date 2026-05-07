@@ -40,6 +40,7 @@ export default function AddAggregation(props) {
   const isMax =
     (_.get(aggregateDt, 'nodeConfig.config.aggregateFields') || []).filter(o => !o.isCalculateField).length >=
     AGG_CONTROL_MAX;
+
   const renderAddAgg = () => {
     if (isMax) return null;
     return (
@@ -67,11 +68,13 @@ export default function AddAggregation(props) {
       controlData,
       worksheetId,
     );
+
     if (hs) {
       setState({ showList: false });
       alert(_l('不能重复添加相同计算方式的相同字段'), 3);
       return;
     }
+
     const name = childrenControl ? `${control.controlName}-${controlData.controlName}` : controlData.controlName;
     let newDt =
       control.controlId === 'rowscount'
@@ -117,6 +120,7 @@ export default function AddAggregation(props) {
       alert(_l('已存在该字段名称，名称不可重复'), 3);
       return;
     }
+
     let newDt = {
       alias: control.controlName,
       controlSetting: control,
@@ -140,9 +144,11 @@ export default function AddAggregation(props) {
         return false;
       } else {
         let isDelete = _.get(item, 'isDelete');
+
         if (isDelStatus(item, sourceInfos)) {
           isDelete = true;
         }
+
         return !isDelete;
       }
     })

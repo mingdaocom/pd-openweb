@@ -84,6 +84,7 @@ export default class ValidateInfoCon extends Component {
 
   componentDidMount() {
     const { passVerifyPassword, type } = this.props;
+
     if (passVerifyPassword && type === 'mobilePhone') {
       this.initTel();
     }
@@ -145,6 +146,7 @@ export default class ValidateInfoCon extends Component {
         this.email.focus();
         return;
       }
+
       if (!RegExpValidator.isEmail(email)) {
         alert(_l('请输入正确的邮箱'), 3);
         this.email.focus();
@@ -152,12 +154,14 @@ export default class ValidateInfoCon extends Component {
       }
     } else {
       let mobilePhone = this.iti.isValidNumber();
+
       if (!mobilePhone) {
         alert(_l('请输入正确的手机号码'), 3);
         this.mobile.focus();
         return;
       }
     }
+
     return true;
   };
 
@@ -192,6 +196,7 @@ export default class ValidateInfoCon extends Component {
             }
           } else {
             const accountTypeDesc = type === 'email' ? _l('邮箱') : _l('手机号');
+
             if (data === 2) {
               alert(_l('发送失败，新%0与现有%1一致', accountTypeDesc, accountTypeDesc), 2);
             } else if (data === 8) {
@@ -201,7 +206,8 @@ export default class ValidateInfoCon extends Component {
             } else {
               alert(_l('验证码发送失败'), 2);
             }
-            _this.setState({ sendCodeLoading: false, sendCodeTxt: _l('发送验证码') });
+
+            _this.setState({ sendCodeLoading: false, sendCodeTxt: _l('获取验证码') });
           }
         })
 
@@ -209,6 +215,7 @@ export default class ValidateInfoCon extends Component {
           _this.setState({ sendCodeLoading: false, sendCodeTxt: _l('获取验证码') });
         });
     };
+
     new captcha(callback);
   };
 
@@ -256,6 +263,7 @@ export default class ValidateInfoCon extends Component {
           window.localStorage.removeItem('LoginCheckList');
           // 修改cookie
           let loginName = window.localStorage.getItem('LoginName');
+
           if (
             loginName &&
             ((RegExpValidator.isEmail(loginName) && type === 'email') ||
@@ -263,6 +271,7 @@ export default class ValidateInfoCon extends Component {
           ) {
             safeLocalStorageSetItem('LoginName', type === 'email' ? email : this.iti.getNumber());
           }
+
           onCancel();
           setTimeout(function () {
             callback();

@@ -23,8 +23,10 @@ export function openRecordInfo(props) {
     if (_.isFunction(props.onClose)) {
       props.onClose();
     }
+
     root.unmount(div);
     document.body.removeChild(div);
   }
+
   root.render(<RecordInfo visible {...props} hideRecordInfo={destory} />);
 }

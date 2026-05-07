@@ -96,6 +96,7 @@ export default function CalendarSet(props) {
         marginLeft: parseInt($('.ant-picker-range-arrow').css('left')),
       });
     };
+
     setTimeout(() => {
       $('.ant-picker-input input').on({
         click: () => changeLeft(),
@@ -116,14 +117,17 @@ export default function CalendarSet(props) {
       editAdKeys: Object.keys(obj),
     });
   };
+
   let { begindate = '', hour24 = '0', enddate, weekbegin = '1', showall = '0' } = getAdvanceSetting(view);
   let calendarcids = [];
+
   try {
     calendarcids = safeParse(_.get(view, ['advancedSetting', 'calendarcids']), 'array');
   } catch (error) {
     console.log(error);
     calendarcids = [];
   }
+
   if (calendarcids.length <= 0) {
     calendarcids = begindate //兼容老配置
       ? [{ begin: begindate, end: enddate }]
@@ -147,6 +151,7 @@ export default function CalendarSet(props) {
         handleChange={obj => {
           // const { begindate } = obj;
           const { moreSort } = view;
+
           // 第一次创建calendar时，配置排序数据
           if (!!begindate && !moreSort) {
             let data = {};
@@ -231,6 +236,7 @@ export default function CalendarSet(props) {
             if (value === weekbegin) {
               return;
             }
+
             handleChange({ weekbegin: String(value) });
           }}
           notFoundContent={_l('当前工作表中没有单选字段，请先去添加一个')}
@@ -263,6 +269,7 @@ export default function CalendarSet(props) {
             } else {
               handleChange({ unweekday: '' });
             }
+
             setCheckedWorkDate(e);
           }}
           text={_l('只显示工作日')}
@@ -276,15 +283,18 @@ export default function CalendarSet(props) {
                   className={cx('animaItem overflow_ellipsis', { active: unweekday.indexOf(n) < 0 })}
                   onClick={() => {
                     let str = unweekday;
+
                     if (unweekday.indexOf(n) >= 0) {
                       str = str.replace(n, '');
                     } else {
                       str = `${str}` + n;
                     }
+
                     if (str.length >= 7) {
                       //不能全部选中
                       return;
                     }
+
                     handleChange({ unweekday: str });
                   }}
                 >
@@ -326,6 +336,7 @@ export default function CalendarSet(props) {
               popupClassName={`filterDateRangeInputPopup`}
               onClick={() => {
                 const $arrow = $(`.filterDateRangeInputPopup .ant-picker-range-arrow`);
+
                 if ($arrow) {
                   setTimeout(() => {
                     const $arrows = $(`.filterDateRangeInputPopup .ant-picker-range-arrow`);
@@ -341,6 +352,7 @@ export default function CalendarSet(props) {
                   alert(_l('结束时间不能早于或等于开始时间'), 3);
                   return;
                 }
+
                 updateCurrentView({
                   ...view,
                   appId,

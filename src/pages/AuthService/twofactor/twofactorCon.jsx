@@ -47,6 +47,7 @@ function useInterval(callback, delay) {
     if (delay === null) {
       return;
     }
+
     const id = setInterval(() => savedCallback.current(), delay);
     return () => clearInterval(id);
   }, [delay]);
@@ -88,6 +89,7 @@ const Twofactor = forwardRef(function Twofactor(props, ref) {
     if (verifyCode.replace(/[^\d]/g, '').trim().length >= verifyLen) {
       onLogin();
     }
+
     // 当用户开始输入新的验证码时，重置错误状态
     if (hasError && verifyCode.length > 0) {
       setHasError(false);
@@ -97,6 +99,7 @@ const Twofactor = forwardRef(function Twofactor(props, ref) {
   // 切换验证方式时，如果不是 TOTP，禁用重新发送按钮
   useEffect(() => {
     const isTotp = type === TwofactorType.totp;
+
     if (!isTotp) {
       otpInputRef.current?.setSending?.(true);
     }
@@ -108,18 +111,23 @@ const Twofactor = forwardRef(function Twofactor(props, ref) {
       setSeconds(-1);
       return;
     }
+
     const timeMap = props.timeMap || {};
     const t = timeMap[type];
+
     if (!t) {
       setSeconds(-1);
       return;
     }
+
     const now = new Date();
     const se = parseInt(30 - parseInt((now - t) / 1000));
     const isIn30 = se <= 30 && se > 0;
+
     if (isFail || !isIn30) {
       setSeconds(-1);
     }
+
     if (isIn30) {
       setSeconds(se);
     }
@@ -138,6 +146,7 @@ const Twofactor = forwardRef(function Twofactor(props, ref) {
     const resetError = () => {
       setHasError(false); // 发送验证码时重置错误状态
     };
+
     return {
       onSuccess: resetError,
       onError: resetError,
@@ -164,6 +173,7 @@ const Twofactor = forwardRef(function Twofactor(props, ref) {
     if (seconds > 0) {
       return;
     }
+
     sendFn();
   };
 
@@ -191,9 +201,11 @@ const Twofactor = forwardRef(function Twofactor(props, ref) {
           needTwofactorVerifyCode,
           invalidVerifyCode,
         } = LoginResult;
+
         if (accountResult === accountSuccess) {
           setPssId(res.sessionId);
           let data = { sessionId: res.sessionId, state: state };
+
           //手机端来源 postMessage
           if (window.isMingDaoApp) {
             if (get(window, ['webkit', 'messageHandlers', 'Save', 'postMessage'])) {
@@ -211,6 +223,7 @@ const Twofactor = forwardRef(function Twofactor(props, ref) {
             navigateTo('/login');
             return;
           }
+
           if (type === TwofactorType.totp && invalidVerifyCode === accountResult) {
             alert({
               msg: _l('验证码尝试次数过多，请返回重新进行登录再试！'),
@@ -226,15 +239,18 @@ const Twofactor = forwardRef(function Twofactor(props, ref) {
             });
             return;
           }
+
           const errorMsgMap = {
             [userFromError]: _l('账号来源类型受限'),
             [verifyCodeError]: _l('验证码错误'),
             [invalidVerifyCode]: _l('验证码失效'),
           };
           let msg = errorMsgMap[accountResult];
+
           if (!msg) {
             msg = [accountError, accountNotExist].includes(accountResult) ? _l('该账号未注册') : _l('验证失败');
           }
+
           if (msg) {
             alert(msg, 3);
             // 验证失败后不清空验证码，而是设置错误状态并聚焦到最后

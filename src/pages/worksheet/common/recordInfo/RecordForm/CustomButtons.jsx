@@ -102,7 +102,7 @@ const HoverButton = styled(Button)`
       background: transparent !important;
       &:hover {
         border: none !important;
-        background: rgba(0, 0, 0, 0.03) !important;
+        background: var(--color-background-secondary) !important;
       }
     }
     &.operates-icon {
@@ -197,6 +197,7 @@ export default class CustomButtons extends React.Component {
 
   handleRecordWorkflowUpdate = ({ recordId: triggerRecordId, triggerBtnId, isSuccess }) => {
     const { recordId } = this.props;
+
     if (
       this.continueFill &&
       isSuccess &&
@@ -217,12 +218,15 @@ export default class CustomButtons extends React.Component {
       alert(_l('预览模式下，不能操作'), 3);
       return;
     }
+
     const { count, iseditting, triggerCallback, handleTriggerCustomBtn } = this.props;
     const _this = this;
+
     if (iseditting) {
       alert(_l('正在编辑记录，无法触发自定义按钮'), 3);
       return;
     }
+
     this.activeBtn = btn;
     appendDataToLocalPushUniqueId(_this.tipConfig);
     function run({ remark } = {}) {
@@ -231,9 +235,11 @@ export default class CustomButtons extends React.Component {
           handleTriggerCustomBtn(btn);
           return;
         }
+
         _this.triggerImmediately(btn.btnId, btn);
         triggerCallback();
       }
+
       if (_.get(btn, 'advancedSetting.enableremark') && remark) {
         if (_.isFunction(handleUpdateWorksheetRow)) {
           handleUpdateWorksheetRow({
@@ -248,6 +254,7 @@ export default class CustomButtons extends React.Component {
           });
           return;
         }
+
         worksheetAjax.updateWorksheetRow({
           worksheetId,
           rowId: recordId,
@@ -262,6 +269,7 @@ export default class CustomButtons extends React.Component {
         trigger(btn);
       }
     }
+
     function verifyConform(removeNoneVerification) {
       VerifyPasswordConfirm.confirm({
         allowNoVerify: !removeNoneVerification,
@@ -270,8 +278,10 @@ export default class CustomButtons extends React.Component {
         onOk: run,
       });
     }
+
     function handleTrigger() {
       const needConfirm = btn.enableConfirm || btn.clickType === CUSTOM_BUTTOM_CLICK_TYPE.CONFIRM;
+
       function confirm({ onOk, onClose = () => {} } = {}) {
         const translateInfo = getTranslateInfo(appId, worksheetId, btn.btnId);
         confirmClick({
@@ -303,6 +313,7 @@ export default class CustomButtons extends React.Component {
           onClose,
         });
       }
+
       if (btn.clickType === CUSTOM_BUTTOM_CLICK_TYPE.FILL_RECORD) {
         _this.fillRecord({
           ...btn,
@@ -322,6 +333,7 @@ export default class CustomButtons extends React.Component {
         });
         return;
       }
+
       function verifyAndRun() {
         if (btn.verifyPwd) {
           verifyPassword({
@@ -334,6 +346,7 @@ export default class CustomButtons extends React.Component {
           run();
         }
       }
+
       if (needConfirm) {
         // 二次确认
         confirm();
@@ -341,6 +354,7 @@ export default class CustomButtons extends React.Component {
         verifyAndRun();
       }
     }
+
     if (count > md.global.SysSettings.worktableBatchOperateDataLimitCount) {
       Dialog.confirm({
         title: (
@@ -385,14 +399,17 @@ export default class CustomButtons extends React.Component {
     const { reloadRecord, loadBtns, triggerCallback } = this.props;
     const { activeBtn = {} } = this;
     const btnTypeStr = activeBtn.writeObject + '' + activeBtn.writeType;
+
     // 新建记录成功回掉
     if (this.activeBtn.workflowType === 2 && get(this.tipConfig, 'enableTip')) {
       alert(get(this.tipConfig, 'tipText'));
     }
+
     loadBtns();
     if (btnTypeStr === '12') {
       reloadRecord();
     }
+
     triggerCallback();
   };
 
@@ -422,6 +439,7 @@ export default class CustomButtons extends React.Component {
       pushUniqueId: md.global.Config.pushUniqueId,
       btnRemark: this.remark,
     };
+
     if (_.isFunction(handleUpdateWorksheetRow)) {
       handleUpdateWorksheetRow(args);
       this.setStateFn({
@@ -429,6 +447,7 @@ export default class CustomButtons extends React.Component {
       });
       return;
     }
+
     worksheetAjax.updateWorksheetRow(args).then(res => {
       if (res && res.data) {
         emitter.emit('ROWS_UPDATE');
@@ -437,18 +456,22 @@ export default class CustomButtons extends React.Component {
         if (this.activeBtn.workflowType === 2 && get(this.tipConfig, 'enableTip')) {
           alert(get(this.tipConfig, 'tipText'));
         }
+
         if (targetOptions.recordId === recordId) {
           onUpdate(_.pick(res.data, newControls.map(c => c.controlId).concat('isviewdata')), res.data, newControls);
         }
+
         if (this.activeBtn.writeObject === 1 && !res.data.isviewdata) {
           hideRecordInfo();
         }
+
         if (!this.continueFill) {
           this.setStateFn({
             fillRecordControlsVisible: false,
           });
           setCustomButtonActive(false);
         }
+
         triggerCallback();
       } else {
         if (res.resultCode === 11) {
@@ -520,6 +543,7 @@ export default class CustomButtons extends React.Component {
      **/
     const { isAll, worksheetId, recordId, changeToSelectCurrentPageFromSelectAll } = this.props;
     let rowInfo;
+
     if (recordId) {
       rowInfo = await getRowDetail({
         worksheetId,
@@ -536,6 +560,7 @@ export default class CustomButtons extends React.Component {
         advancedSetting: worksheetInfo.advancedSetting,
       };
     }
+
     const caseStr = btn.writeObject + '' + btn.writeType;
     const relationControl = _.find(rowInfo.formData, c => c.controlId === btn.relationControl);
     const addRelationControl = _.find(rowInfo.formData || [], c => c.controlId === btn.addRelationControl);
@@ -554,6 +579,7 @@ export default class CustomButtons extends React.Component {
           rowInfo.formData,
           c => find(this.activeBtn?.writeControls, wc => wc.controlId === c.controlId) && c.type === 14,
         );
+
         if (isAll && hasAttachmentControl && isFunction(changeToSelectCurrentPageFromSelectAll)) {
           // changeToSelectCurrentPageFromSelectAll();
           Dialog.confirm({
@@ -578,6 +604,7 @@ export default class CustomButtons extends React.Component {
             fillRecordControlsVisible: true,
           });
         }
+
         break;
       case '12': // 本记录 - 新建关联记录
         if (!addRelationControl || !_.isObject(addRelationControl)) {
@@ -589,8 +616,10 @@ export default class CustomButtons extends React.Component {
           });
           return;
         }
+
         try {
           const controldata = JSON.parse(addRelationControl.value);
+
           if (addRelationControl.enumDefault === 1 && controldata.length) {
             Dialog.confirm({
               title: _l('无法执行按钮“%0”', btn.name),
@@ -603,6 +632,7 @@ export default class CustomButtons extends React.Component {
         } catch (err) {
           console.log(err);
         }
+
         this.btnAddRelateWorksheetId = addRelationControl.dataSource;
         this.masterRecord = {
           rowId: recordId,
@@ -615,6 +645,7 @@ export default class CustomButtons extends React.Component {
         if (!relationControl || !_.isObject(relationControl)) {
           return;
         }
+
         this.btnRelateWorksheetId = relationControl.dataSource;
         try {
           const controldata = JSON.parse(relationControl.value);
@@ -636,6 +667,7 @@ export default class CustomButtons extends React.Component {
           });
           return;
         }
+
         this.setStateFn({
           fillRecordControlsVisible: true,
         });
@@ -644,6 +676,7 @@ export default class CustomButtons extends React.Component {
         if (!relationControl || !_.isObject(relationControl)) {
           return;
         }
+
         try {
           const controldata = JSON.parse(relationControl.value);
           this.fillRecordId = controldata[0].sid;
@@ -658,18 +691,21 @@ export default class CustomButtons extends React.Component {
           });
           return;
         }
+
         break;
     }
   }
 
   addRelateRecordRelateRecord(relationControl, relationControlrelationControlId) {
     let controldata;
+
     try {
       controldata = JSON.parse(relationControl.value);
     } catch (err) {
       console.log(err);
       return;
     }
+
     getRowDetail({
       worksheetId: relationControl.dataSource,
       getType: 1,
@@ -680,6 +716,7 @@ export default class CustomButtons extends React.Component {
         data.formData,
         c => c.controlId === relationControlrelationControlId,
       );
+
       if (!relationControlrelationControl) {
         Dialog.confirm({
           title: _l('无法执行按钮“%0”', this.activeBtn.name),
@@ -689,8 +726,10 @@ export default class CustomButtons extends React.Component {
         });
         return;
       }
+
       try {
         const relationControlrelationControlData = JSON.parse(relationControlrelationControl.value);
+
         if (relationControlrelationControl.enumDefault === 1 && relationControlrelationControlData.length) {
           Dialog.confirm({
             title: _l('无法执行按钮“%0”', this.activeBtn.name),
@@ -703,6 +742,7 @@ export default class CustomButtons extends React.Component {
       } catch (err) {
         console.log(err);
       }
+
       this.masterRecord = {
         rowId: controldata[0].sid,
         controlId: relationControlrelationControl.controlId,
@@ -724,9 +764,11 @@ export default class CustomButtons extends React.Component {
 
   setStateFn = (args, fn) => {
     const { setCustomButtonActive } = this.props;
+
     if (typeof args.fillRecordControlsVisible !== 'undefined') {
       setCustomButtonActive(args.fillRecordControlsVisible);
     }
+
     this.setState(args, fn);
   };
 
@@ -790,9 +832,11 @@ export default class CustomButtons extends React.Component {
       isEditLock,
       entityName = _l('记录'),
     } = this.props;
+
     if (button.disabled || btnDisable[button.btnId]) {
       return true;
     }
+
     if (
       ((isRecordLock && !includes(['copy', 'print', 'sysprint', 'share'], button.type)) || isEditLock) &&
       button.clickType === 3
@@ -800,6 +844,7 @@ export default class CustomButtons extends React.Component {
       alert(isRecordLock ? _l('%0已锁定', entityName) : _l('不允许多人同时编辑，稍后重试'), 3);
       return true;
     }
+
     if (isUndefined(button.type) || button.type === 'custom_button') {
       if (isOperates) {
         worksheetAjax
@@ -836,13 +881,17 @@ export default class CustomButtons extends React.Component {
       onHideMoreBtn,
     } = this.props;
     let { buttons } = this.props;
+
     if (hideDisabled) {
       buttons = buttons.filter(button => !(btnDisable[button.btnId] || button.disabled));
     }
+
     if (md.global.Account.isPortal) {
       buttons = buttons.map(b => ({ ...b, verifyPwd: false }));
     }
+
     let buttonComponents = [];
+
     if (type === 'button') {
       buttonComponents = buttons.map((button, i) => {
         const buttonColor = getButtonColor(button.color, button.showAsPrimary);
@@ -850,10 +899,13 @@ export default class CustomButtons extends React.Component {
           !button.color || button.color === 'transparent' || btnDisable[button.btnId] || button.disabled
             ? 'var(--color-text-disabled)'
             : buttonColor.color;
+
         if (isOperates && !button.showAsPrimary) {
           fillColor = button.color;
         }
+
         let mRight6 = true;
+
         if (isOperates) {
           if (button.style === 'text') {
             mRight6 = false;
@@ -865,6 +917,7 @@ export default class CustomButtons extends React.Component {
             mRight6 = false;
           }
         }
+
         const buttonComponent = (
           <span key={i} className={cx('InlineBlock borderBox', { mRight6 })}>
             <HoverButton
@@ -900,6 +953,7 @@ export default class CustomButtons extends React.Component {
                 if (this.handleButtonClick(button)) {
                   return;
                 }
+
                 onHideMoreBtn(evt);
               }}
               title={button.name}
@@ -938,6 +992,7 @@ export default class CustomButtons extends React.Component {
             </HoverButton>
           </span>
         );
+
         if (button.desc && type === 'button' && button.style !== 'icon') {
           return (
             <Tooltip placement="bottom" title={button.desc}>
@@ -975,6 +1030,7 @@ export default class CustomButtons extends React.Component {
                 if (this.handleButtonClick(button)) {
                   return;
                 }
+
                 onHideMoreBtn(evt);
               }}
             />
@@ -1013,6 +1069,7 @@ export default class CustomButtons extends React.Component {
             if (this.handleButtonClick(button)) {
               return;
             }
+
             document.body.click();
           }}
         >
@@ -1025,6 +1082,7 @@ export default class CustomButtons extends React.Component {
         </MenuItemWrap>
       ));
     }
+
     return (
       <React.Fragment>
         {this.renderDialogs()}

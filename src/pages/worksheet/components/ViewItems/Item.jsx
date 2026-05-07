@@ -38,13 +38,16 @@ export default class Item extends Component {
     if (this.isDelCustomize()) {
       return false;
     }
+
     return !md.global.Account.isPortal;
   };
   canExport = () => {
     const { item, sheetSwitchPermit } = this.props;
+
     if (this.isDelCustomize()) {
       return false;
     }
+
     return isOpenPermit(permitList.viewExportSwitch, sheetSwitchPermit, item.viewId);
   };
   renderSettingMenu = () => {
@@ -85,10 +88,12 @@ export default class Item extends Component {
     const value = event.target.value.trim();
     const { item } = this.props;
     const { name } = item;
+
     if (value && name !== value) {
       item.name = value;
       this.props.updateViewName(item);
     }
+
     this.setState({
       isEdit: false,
     });

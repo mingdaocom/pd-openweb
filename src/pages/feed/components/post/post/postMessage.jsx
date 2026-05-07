@@ -41,6 +41,7 @@ class PostMessage extends React.Component {
     if (!this._isMounted) {
       return;
     }
+
     $(findDOMNode(this))
       .find('[data-accountid]')
       .each((i, ele) => {
@@ -90,6 +91,7 @@ class PostMessage extends React.Component {
   render() {
     const postItem = this.props.postItem;
     let message = postItem.message;
+
     if (!message) {
       return false;
     }
@@ -117,6 +119,7 @@ class PostMessage extends React.Component {
       const parent = document.createElement('div');
       parent.innerHTML = message;
       const children = parent.childNodes;
+
       for (let i = children.length - 1; i >= 0; i--) {
         if (children[i] && children[i].nodeType === 3 && children[i].nodeValue) {
           const text = children[i].nodeValue.replace(
@@ -128,6 +131,7 @@ class PostMessage extends React.Component {
           parent.replaceChild(node, children[i]);
         }
       }
+
       message = parent.innerHTML;
     }
 

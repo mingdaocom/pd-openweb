@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import 'src/pages/FormSet/components/columnRules/index.less';
 
 const FlexCenter = styled.div`
   display: flex;
@@ -126,7 +127,7 @@ export const OtherFieldWrap = styled(FlexCenter)`
   margin-right: 6px;
   border-radius: 16px;
   background: #d8eeff;
-  color: var(--color-link-hover);
+  color: var(--color-primary);
   border: 1px solid var(--color-primary-transparent);
   padding: 0 12px;
   font-size: 12px;
@@ -151,7 +152,7 @@ export const OtherFieldWrap = styled(FlexCenter)`
   }
   .recordName {
     margin: 0 6px;
-    color: #789dba;
+    color: #45637b;
   }
   &:hover {
     i {
@@ -202,7 +203,8 @@ export const SelectOtherFieldWrap = styled(FlexCenter)`
 
 export const FieldInfo = styled(FlexCenter)`
   border-radius: 24px;
-  background-color: rgba(0, 0, 0, 0.08);
+  background-color: var(--tag-bg);
+  border: 1px solid var(--color-border-tertiary);
   padding-right: 8px;
   font-size: 13px;
   line-height: 24px;
@@ -272,7 +274,8 @@ export const OtherFieldList = styled(FlexCenter)`
 `;
 
 export const RelateControl = styled(FlexCenter)`
-  background: rgba(0, 0, 0, 0.08);
+  background: var(--tag-bg);
+  border: 1px solid var(--color-border-tertiary);
   padding: 0 12px;
   height: 24px;
   border-radius: 12px;

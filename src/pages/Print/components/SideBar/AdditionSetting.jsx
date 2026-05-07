@@ -75,6 +75,7 @@ export default function AdditionSetting(props) {
       />
     );
   };
+
   if (hide) return null;
 
   return (

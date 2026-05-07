@@ -41,6 +41,7 @@ function getControlCompareValue(c, value) {
 
 export function getSubListError({ rows, rules }, controls = [], showControls = [], from = 3, masterData) {
   const result = {};
+
   try {
     filterEmptyChildTableRows(rows).forEach(async row => {
       const rulesResult = checkRulesErrorOfRow({
@@ -62,9 +63,11 @@ export function getSubListError({ rows, rules }, controls = [], showControls = [
         rulesResult.formData.filter(c => _.find(showControls, id => id === c.controlId) && controlState(c).visible),
         row.rowid,
       );
+
       if (isLock) {
         return;
       }
+
       const formdata = new DataFormat({
         data: controldata.map(c => ({ ...c, isSubList: true })),
         from: FROM.NEWRECORD,
@@ -97,12 +100,14 @@ export function getSubListError({ rows, rules }, controls = [], showControls = [
           !row[c.controlId].startsWith('deleteRowIds'),
       );
       const uniqueValueRows = _.uniqBy(hadValueRows, row => getControlCompareValue(c, row[c.controlId]));
+
       if (hadValueRows.length !== uniqueValueRows.length) {
         const duplicateValueRows = hadValueRows.filter(vr => !_.find(uniqueValueRows, r => r.rowid === vr.rowid));
         duplicateValueRows.forEach(row => {
           const sameValueRows = hadValueRows.filter(
             r => getControlCompareValue(c, r[c.controlId]) === getControlCompareValue(c, row[c.controlId]),
           );
+
           if (sameValueRows.length > 1) {
             sameValueRows.forEach(r => {
               result[r.rowid + '-' + c.controlId] = FORM_ERROR_TYPE_TEXT.UNIQUE(c, true);
@@ -141,6 +146,7 @@ export const addWidthToColumns = (columns, dataSource) => {
     if (col.controlId === 'delete') {
       return col;
     }
+
     // 获取该列的所有值（加上列标题）
     const values = [col.controlName, ...dataSource.map(row => row[col.controlId] ?? '')];
     // 计算最大宽度

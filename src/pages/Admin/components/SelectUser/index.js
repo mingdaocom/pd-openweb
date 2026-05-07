@@ -52,6 +52,7 @@ export default function SelectUser(props) {
             alert(_l('超过最大选择人数'), 2);
             return;
           }
+
           setUserInfo(data);
           changeData(data);
         },

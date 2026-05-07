@@ -64,6 +64,7 @@ export default class ImportApp extends React.Component {
             alert(_l('上传失败，文件类型错误'), 2);
             return false;
           }
+
           this.setState({ file: file });
         },
         FilesAdded: up => {
@@ -142,6 +143,7 @@ export default class ImportApp extends React.Component {
       alert(ALERTMSG[this.state.appBeyond], 3);
       return;
     }
+
     const params = {
       password: this.state.password,
       url: this.state.url,
@@ -162,6 +164,7 @@ export default class ImportApp extends React.Component {
 
   renderFileInfo() {
     const { file, errTip } = this.state;
+
     if (file.name) {
       return (
         <Fragment>
@@ -183,6 +186,7 @@ export default class ImportApp extends React.Component {
 
   renderStepContent() {
     const { step, password, list, file, errTip, isHighVersions } = this.state;
+
     switch (step) {
       case 1:
         return (

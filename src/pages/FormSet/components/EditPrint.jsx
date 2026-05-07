@@ -145,6 +145,7 @@ class EditPrint extends React.Component {
             alert(_l('上传失败，文件错误'), 3);
             return false;
           }
+
           this.setState({
             loading: true,
             suc: false,
@@ -202,6 +203,14 @@ class EditPrint extends React.Component {
     const { fileName, createType, key, templateName, allowDownloadPermission, allowEditAfterPrint, advanceSettings } =
       this.state;
     const { worksheetId, downLoadUrl, templateId, refreshFn, fileType = 'Word', onClose } = this.props;
+    const advanceMap = _.keyBy(advanceSettings, 'key');
+    const enableEmptyPlaceholder = !!Number(advanceMap.enableEmptyPlaceholder?.value);
+    const emptyPlaceholderMode = advanceMap.emptyPlaceholderMode?.value;
+
+    if (enableEmptyPlaceholder && !emptyPlaceholderMode) {
+      alert(_l('请填写空值占位符内容'), 3);
+      return;
+    }
 
     this.setState({ saveLoading: true });
     let option;

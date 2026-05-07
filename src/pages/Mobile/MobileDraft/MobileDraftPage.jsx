@@ -69,12 +69,14 @@ export default class MobileDraftList extends Component {
             getDraftData={this.getDraftData}
             updateDraftList={(rowId, rowData) => {
               let data = _.clone(draftData);
+
               if (!rowData) {
                 data = data.filter(it => it.rowid !== rowId);
               } else {
                 const index = _.findIndex(data, it => it.rowid === rowId);
                 data[index] = rowData;
               }
+
               this.setState({ draftData: data });
             }}
           />

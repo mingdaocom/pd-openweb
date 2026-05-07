@@ -12,6 +12,7 @@ function getCellContentPaddingTop(control, isNotEmpty) {
   if (!isNotEmpty) {
     return 4;
   }
+
   const type = control.type === 30 ? control.sourceControlType : control.type;
   if (checkControlCanSetStyle(type)) return 6;
   switch (type) {

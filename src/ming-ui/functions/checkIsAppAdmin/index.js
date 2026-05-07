@@ -33,6 +33,7 @@ function CheckIsAppAdminCon(props) {
           callback();
           return;
         }
+
         addBehaviorLog('app', appId); // 浏览应用埋点
         navigateTo(`/app/${appId}`);
       } else {
@@ -54,6 +55,7 @@ function CheckIsAppAdminCon(props) {
             callback();
             return;
           }
+
           addBehaviorLog('app', appId); // 浏览应用埋点
           navigateTo(`/app/${appId}`);
         }

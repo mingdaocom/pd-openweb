@@ -35,10 +35,12 @@ const types = ['suffix', 'prefix'];
 
 export default function PreSuffix({ data, value, onChange }) {
   const setting = getAdvanceSetting(data);
+
   const getDefaultType = () => {
     const type = types.find(item => !!setting[item]);
     return type || 'suffix';
   };
+
   const [type, setType] = useState(getDefaultType());
 
   useEffect(() => {}, [data.controlId]);
@@ -75,6 +77,7 @@ export default function PreSuffix({ data, value, onChange }) {
         }}
         onBlur={e => {
           const value = e.target.value;
+
           // 空格不处理，空格代表无前后缀，不兜底处理
           if (!(value && !value.trim())) {
             onChange(handleAdvancedSettingChange(data, { [type]: value.trim() }));

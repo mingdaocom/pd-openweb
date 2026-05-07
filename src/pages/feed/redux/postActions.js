@@ -16,6 +16,7 @@ function handleMdAjaxFail(dispatch, actionType, payload = {}) {
 }
 
 let ajaxObj;
+
 /**
  * 加载动态列表
  * @param  {object} options     单次请求相关参数，包括 pIndex 等
@@ -24,6 +25,7 @@ let ajaxObj;
  */
 function loadPosts(options, pageOptions, currentCount = 0) {
   let lType = 'project';
+
   if (pageOptions.listType === 'ireply') {
     lType = pageOptions.listType;
     options = _.assign({ type: 2, keywords: pageOptions.keywords }, options);
@@ -35,6 +37,7 @@ function loadPosts(options, pageOptions, currentCount = 0) {
     } else {
       lType = pageOptions.listType;
     }
+
     options = _.assign(
       {
         fType: pageOptions.fromType,
@@ -58,11 +61,13 @@ function loadPosts(options, pageOptions, currentCount = 0) {
       else options.range = options.projectId ? 2 : 1;
     }
   }
+
   if (lType !== 'ireply') {
     if (ajaxObj) ajaxObj.abort();
     ajaxObj = postAjax.getPostListByLegacyPara(options);
     return ajaxObj.then(res => (res.success ? res : Promise.reject(res)));
   }
+
   return postAjax.getIRepliedList(options).then(
     res => {
       try {
@@ -173,6 +178,7 @@ export function loadTop(projectId) {
       dispatch({ type: 'POST_LOAD_TOP_SUCCESS', postList: [], projectId });
       return;
     }
+
     postAjax
       .getTopPosts({
         projectId,
@@ -214,9 +220,11 @@ function ensureProjectIdByGroupIdInOptions(options) {
       if (group && md.global.Account.projects.some(p => p.projectId === group.projectId)) {
         options.projectId = group.projectId;
       }
+
       return options;
     });
   }
+
   return Promise.resolve(options);
 }
 
@@ -318,6 +326,7 @@ export function remove(postId) {
       })
       .then(data => {
         const { success } = data;
+
         if (success) {
           alert(_l('删除成功'));
           dispatch({ type: 'POST_REMOVE_SUCCESS', postId });
@@ -346,6 +355,7 @@ function updateCommon({
         if (!success) {
           return alert(failMessage, 2);
         }
+
         const postItem = _.clone(getState().post.postsById[postId]);
         const promise = postItem ? Promise.resolve(updateMethod(postItem)) : postAjax.getPostDetail({ postId });
         promise.then(postItemResult => {
@@ -464,6 +474,7 @@ export function addTagSuccess({ postId, tagId, tagName }) {
     tagName,
     createUser: md.global.Account.accountId,
   };
+
   return (dispatch, getState) => {
     const postItem = _.clone(getState().post.postsById[postId]);
     const promise = postItem
@@ -519,9 +530,11 @@ export function addComment(args, successCallback, failCallback) {
         failCallback(result);
         return alert(_l('操作失败'), 2);
       }
+
       if (result.withPost) {
         dispatch(addSuccess(result.withPost));
       }
+
       const postId = args.postID;
       const postItem = _.clone(getState().post.postsById[postId]);
       const promise = postItem
@@ -550,6 +563,7 @@ export function removeComment(postID, commentID) {
       })
       .then(data => {
         const { success } = data;
+
         if (!success) {
           alert(_l('删除失败'), 2);
         } else {
@@ -606,6 +620,7 @@ export function edit(args, successCallback, failCallback) {
           failCallback(result);
           return alert('操作失败', 2);
         }
+
         alert(_l('操作成功'));
         dispatch({ type: 'POST_UPDATE_SUCCESS', postItem: result.post });
         if (successCallback) {

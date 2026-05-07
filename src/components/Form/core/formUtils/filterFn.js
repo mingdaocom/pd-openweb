@@ -54,6 +54,7 @@ const formatFnTimeValue = (value, mode) => {
 const getFormatMode = (control = {}, currentControl, type) => {
   let mode = '';
   let curMode = '';
+
   if (type === 10) {
     if (currentControl) {
       curMode = _.includes([15, 16], currentControl.type)
@@ -62,11 +63,13 @@ const getFormatMode = (control = {}, currentControl, type) => {
           ? 'HH:mm'
           : 'HH:mm:ss';
     }
+
     mode = control.unit === '1' ? 'HH:mm' : 'HH:mm:ss';
   } else {
     mode = (getDatePickerConfigs(control) || {}).formatMode;
     curMode = (getDatePickerConfigs(currentControl) || {}).formatMode;
   }
+
   if (_.isEmpty(currentControl) && curMode) return mode;
   return TIME_MODE_OPTIONS[mode] <= TIME_MODE_OPTIONS[curMode] ? mode : curMode;
 };
@@ -85,6 +88,7 @@ const dateFn = (filterData, value, isEQ, appTimeZone) => {
   const { dateRange, dataType } = filterData;
   let result = true;
   let date = '';
+
   switch (dateRange) {
     // { text: _l('本周'), value: 4 },
     case 4:
@@ -159,12 +163,14 @@ const dateFn = (filterData, value, isEQ, appTimeZone) => {
       result = moment(value).isSame(date, 'year');
       break;
   }
+
   return isEQ ? result : !result;
 };
 
 const dayFn = (filterData = {}, value, isGT, currentControl = {}, appTimeZone) => {
   let { dateRange, dynamicSource = [], dataType, dateRangeType, value: editValue } = filterData;
   const { type } = currentControl;
+
   if (dynamicSource.length > 0) {
     dateRange = 0;
   }
@@ -173,6 +179,7 @@ const dayFn = (filterData = {}, value, isGT, currentControl = {}, appTimeZone) =
 
   if (_.includes([101, 102], dateRange)) {
     const isFeature = dateRange === 102;
+
     // 过去....|将来...
     switch (dateRangeType) {
       case DATE_RANGE_TYPE.YEAR:
@@ -341,11 +348,13 @@ const dayFn = (filterData = {}, value, isGT, currentControl = {}, appTimeZone) =
         getDatePickerConfigs({ advancedSetting: { showtype: filterData.dataShowType }, type: dataType }) || {}
       ).formatMode;
       let tempTime = moment(value);
+
       if (dateRange === 101) {
         tempTime = moment().subtract(dateRangeTypeNum || 1, timeModeByDateRangeType(dateRangeType));
       } else if (dateRange === 102) {
         tempTime = moment().add(dateRangeTypeNum || 1, timeModeByDateRangeType(dateRangeType));
       }
+
       tempTime = tempTime.format(formatMode || 'YYYY-MM-DD');
       return dataType === 16 ? dateAppZoneToServerZone(tempTime, appTimeZone) : tempTime;
     default:
@@ -359,9 +368,11 @@ export default function filterFn({ filterData, originControl, data = [], recordI
   try {
     let { filterType = '', dataType = '', dynamicSource = [], dateRange, dateRangeType } = filterData;
     const control = redefineComplexControl(originControl);
+
     if (!control) {
       return true;
     }
+
     //比较字段值
     let compareValues = filterData.values || [];
     let compareValue = filterData.value || '';
@@ -370,14 +381,17 @@ export default function filterFn({ filterData, originControl, data = [], recordI
     let timeLevel = '';
     //条件字段值
     let { value = '', advancedSetting = {} } = control;
+
     // 指定时间添加显示格式配置
     if (filterData.dateRange === 18) {
       filterData.dataShowType = dateRangeType === 3 ? advancedSetting.showtype : dateRangeType;
     }
+
     //手机号去除区号
     if (control.type === 3) {
       value = (value || '').replace('+86', '');
     }
+
     if (_.includes([9, 10, 11], control.type) && value && value.indexOf('other')) {
       const optionsFormatVal = safeParse(value, 'array').map(i => (i.startsWith('other:') ? 'other' : i));
       value = JSON.stringify(optionsFormatVal);
@@ -389,6 +403,7 @@ export default function filterFn({ filterData, originControl, data = [], recordI
       const itemData = data.find(it => it.controlId === controlId) || {};
       value = itemData.value;
     }
+
     const conditionGroupKey = getTypeKey(control.type);
     const conditionGroup = CONTROL_FILTER_WHITELIST[conditionGroupKey] || {};
     const conditionGroupType = getConditionType({
@@ -399,9 +414,11 @@ export default function filterFn({ filterData, originControl, data = [], recordI
     });
     const { showtype } = advancedSetting; // 1 卡片 2 列表 3 下拉
     let currentControl = {};
+
     //是否多选
     if (dynamicSource.length > 0) {
       const { cid = '' } = dynamicSource[0];
+
       if (cid === 'rowid') {
         currentControl = { type: 2, value: recordId };
       } else if (cid === 'currenttime') {
@@ -418,13 +435,16 @@ export default function filterFn({ filterData, originControl, data = [], recordI
       } else {
         currentControl = _.cloneDeep(_.find(data, it => it.controlId === cid)) || {};
       }
+
       // 他表字段取原字段类型，不然日期值截取有问题，比较出错
       if (currentControl.type === 30) {
         currentControl.type = currentControl.sourceControlType;
       }
+
       if (currentControl.type === 3) {
         currentControl.value = (currentControl.value || '').replace('+86', '');
       }
+
       //是(等于)、不是(不等于)、大于(等于)、小于(等于) && NUMBER
       //大于、小于 && NUMBER、DATE
       //日期是、日期不是 && DATE
@@ -455,10 +475,12 @@ export default function filterFn({ filterData, originControl, data = [], recordI
       if (_.includes([26, 27, 48], control.type)) {
         compareValues = compareValues.map(item => {
           let curI = item ? JSON.parse(item) : item;
+
           if ((_.get(curI, 'accountId') || _.get(curI, 'id')) === 'user-self') {
             curI.accountId = md.global.Account.accountId;
             delete curI.id;
           }
+
           return curI;
         });
       }
@@ -505,11 +527,14 @@ export default function filterFn({ filterData, originControl, data = [], recordI
         const isNumShow = (con.advancedSetting || {}).numshow === '1';
         return accDiv(parseFloat(toFixed(accMul(parseFloat(v), 100), isNumShow ? con.dot + 2 : con.dot)), 100);
       }
+
       if (con.type === 5 && v) {
         return v.toLowerCase();
       }
+
       return v;
     }
+
     value = formatControlValue(value, control);
     compareValue = formatControlValue(compareValue, currentControl);
 
@@ -530,6 +555,7 @@ export default function filterFn({ filterData, originControl, data = [], recordI
           default:
             return true;
         }
+
       // EQ: 2, // 是（等于）
       // EQ_FOR_SINGLE: 51 是
       case FILTER_CONDITION_TYPE.EQ:
@@ -615,8 +641,10 @@ export default function filterFn({ filterData, originControl, data = [], recordI
               if (!value) {
                 return !!value;
               }
+
               return _.includes(compareValues, value);
             }
+
           case CONTROL_FILTER_WHITELIST.NUMBER.value:
             if (isEmptyValue(value) && isEmptyValue(compareValue)) return true;
             return parseFloat(compareValue) === parseFloat(value);
@@ -640,6 +668,7 @@ export default function filterFn({ filterData, originControl, data = [], recordI
               let valueN = _.isArray(value) ? value : safeParse(value || '[]', 'array');
               _.map(valueN, item => {
                 let curId = dynamicSource.length > 0 ? itValue.sid : itValue.id;
+
                 if (curId === item.sid) {
                   isInVal = true;
                 }
@@ -649,6 +678,7 @@ export default function filterFn({ filterData, originControl, data = [], recordI
           default:
             return true;
         }
+
       //   START: 3, // 开头是
       case FILTER_CONDITION_TYPE.START:
         switch (conditionGroupType) {
@@ -663,6 +693,7 @@ export default function filterFn({ filterData, originControl, data = [], recordI
           default:
             return true;
         }
+
       //   N_START: 9, // 开头不是
       case FILTER_CONDITION_TYPE.N_START:
         switch (conditionGroupType) {
@@ -677,6 +708,7 @@ export default function filterFn({ filterData, originControl, data = [], recordI
           default:
             return true;
         }
+
       //   END: 4, // 结尾是
       case FILTER_CONDITION_TYPE.END:
         switch (conditionGroupType) {
@@ -691,6 +723,7 @@ export default function filterFn({ filterData, originControl, data = [], recordI
           default:
             return true;
         }
+
       //   N_END: 10, // 结尾不是
       case FILTER_CONDITION_TYPE.N_END:
         switch (conditionGroupType) {
@@ -705,6 +738,7 @@ export default function filterFn({ filterData, originControl, data = [], recordI
           default:
             return true;
         }
+
       //   NCONTAIN: 5, // 不包含
       case FILTER_CONDITION_TYPE.NCONTAIN:
         switch (conditionGroupType) {
@@ -719,6 +753,7 @@ export default function filterFn({ filterData, originControl, data = [], recordI
           default:
             return true;
         }
+
       //   NE: 6, // 不是（不等于）
       //   NE_FOR_SINGLE: 52 不是
       case FILTER_CONDITION_TYPE.NE:
@@ -748,6 +783,7 @@ export default function filterFn({ filterData, originControl, data = [], recordI
               if (!value) {
                 return !!value;
               }
+
               const { code } = safeParse(value || '{}');
               const areaValues = compareValues.map(it => safeParse(it, '{}').id || safeParse(it, '{}').code);
               return !_.includes(areaValues, code);
@@ -805,8 +841,10 @@ export default function filterFn({ filterData, originControl, data = [], recordI
               if (!value) {
                 return !value;
               }
+
               return !_.includes(compareValues, value);
             }
+
           case CONTROL_FILTER_WHITELIST.NUMBER.value:
             if (isEmptyValue(value) && isEmptyValue(compareValue)) return false;
             return parseFloat(compareValue || 0) !== parseFloat(value || 0);
@@ -831,6 +869,7 @@ export default function filterFn({ filterData, originControl, data = [], recordI
               let valueN = _.isArray(value) ? value : safeParse(value || '[]', 'array');
               _.map(valueN, item => {
                 let curId = dynamicSource.length > 0 ? itValue.sid : itValue.id;
+
                 if (curId === item.sid) {
                   isInV = false;
                 }
@@ -840,6 +879,7 @@ export default function filterFn({ filterData, originControl, data = [], recordI
           default:
             return true;
         }
+
       //   ISNULL: 7, // 为空
       case FILTER_CONDITION_TYPE.ISNULL:
         switch (conditionGroupType) {
@@ -861,13 +901,16 @@ export default function filterFn({ filterData, originControl, data = [], recordI
             } else if (dataType === API_ENUM_TO_TYPE.SCORE) {
               return !value;
             }
+
             return safeParse(value || '[]').length <= 0;
           case CONTROL_FILTER_WHITELIST.BOOL.value:
             if (!value) {
               return !value;
             }
+
             if (dataType === API_ENUM_TO_TYPE.ATTACHMENT) {
               let data = safeParse(value);
+
               if (_.isArray(data)) {
                 return data.length <= 0;
               } else {
@@ -878,6 +921,7 @@ export default function filterFn({ filterData, originControl, data = [], recordI
             } else if (dataType === API_ENUM_TO_TYPE.RELATION) {
               return safeParse(value).length <= 0;
             }
+
             return !value;
           case CONTROL_FILTER_WHITELIST.USERS.value:
           case CONTROL_FILTER_WHITELIST.CASCADER.value:
@@ -886,12 +930,14 @@ export default function filterFn({ filterData, originControl, data = [], recordI
             } else {
               return safeParse(value).length <= 0;
             }
+
           case CONTROL_FILTER_WHITELIST.RELATE_RECORD.value:
             if (_.includes(['2', '5', '6'], showtype)) {
               //关联表 列表
               if (_.isArray(value)) {
                 return value.length === 0;
               }
+
               if (!value) {
                 return !value;
               } else {
@@ -908,6 +954,7 @@ export default function filterFn({ filterData, originControl, data = [], recordI
                 );
               }
             }
+
           case CONTROL_FILTER_WHITELIST.SUBLIST.value: // 子表
             store = control.store;
             state = store && store.getState();
@@ -917,11 +964,14 @@ export default function filterFn({ filterData, originControl, data = [], recordI
               if (_.isObject(value)) {
                 return filterEmptyChildTableRows(value.rows).length <= 0;
               }
+
               return value === '0' || !value;
             }
+
           default:
             return true;
         }
+
       //   HASVALUE: 8, // 不为空
       case FILTER_CONDITION_TYPE.HASVALUE:
         switch (conditionGroupType) {
@@ -943,13 +993,16 @@ export default function filterFn({ filterData, originControl, data = [], recordI
             } else if (dataType === API_ENUM_TO_TYPE.SCORE) {
               return !!value;
             }
+
             return safeParse(value || '[]').length > 0;
           case CONTROL_FILTER_WHITELIST.BOOL.value:
             if (!value) {
               return !!value;
             }
+
             if (dataType === API_ENUM_TO_TYPE.ATTACHMENT) {
               let data = safeParse(value);
+
               if (_.isArray(data)) {
                 return data.length > 0;
               } else {
@@ -962,6 +1015,7 @@ export default function filterFn({ filterData, originControl, data = [], recordI
             } else if (dataType === API_ENUM_TO_TYPE.RELATION) {
               return safeParse(value).length > 0;
             }
+
             return !!value;
           case CONTROL_FILTER_WHITELIST.USERS.value:
           case CONTROL_FILTER_WHITELIST.CASCADER.value:
@@ -970,12 +1024,14 @@ export default function filterFn({ filterData, originControl, data = [], recordI
             } else {
               return safeParse(value).length > 0;
             }
+
           case CONTROL_FILTER_WHITELIST.RELATE_RECORD.value:
             if (_.includes(['2', '5', '6'], showtype)) {
               //关联表 列表
               if (_.isArray(value)) {
                 return value.length !== 0;
               }
+
               if (!value) {
                 return !!value;
               } else {
@@ -988,6 +1044,7 @@ export default function filterFn({ filterData, originControl, data = [], recordI
                 return safeParse(value).length > 0;
               }
             }
+
           case CONTROL_FILTER_WHITELIST.SUBLIST.value: // 子表
             store = control.store;
             state = store && store.getState();
@@ -997,11 +1054,14 @@ export default function filterFn({ filterData, originControl, data = [], recordI
               if (_.isObject(value)) {
                 return filterEmptyChildTableRows(value.rows).length > 0;
               }
+
               return Number(value) > 0;
             }
+
           default:
             return true;
         }
+
       //   BETWEEN: 11, // 在范围内
       // DATE_BETWEEN: 31, // 在范围内
       case FILTER_CONDITION_TYPE.BETWEEN:
@@ -1049,15 +1109,18 @@ export default function filterFn({ filterData, originControl, data = [], recordI
               if (!value) {
                 return !!value;
               }
+
               const { code } = safeParse(value || '{}');
               const areaValues = compareValues.map(it => safeParse(it, '{}').id);
               return _.includes(areaValues, code);
               // 部门
             }
+
             break;
           default:
             return true;
         }
+
         break;
       //   NBETWEEN: 12, // 不在范围内
       //   DATE_NBETWEEN 32 //不在范围内
@@ -1106,15 +1169,18 @@ export default function filterFn({ filterData, originControl, data = [], recordI
               if (!value) {
                 return !!value;
               }
+
               const { code } = safeParse(value || '{}');
               const areaValues = compareValues.map(it => safeParse(it, '{}').id);
               return !_.includes(areaValues, code);
               // 部门
             }
+
             break;
           default:
             return true;
         }
+
         break;
       //   GT: 13, // > 晚于
       //   DATE_GT: 33, // > 晚于
@@ -1134,6 +1200,7 @@ export default function filterFn({ filterData, originControl, data = [], recordI
           default:
             return true;
         }
+
       //   GTE: 14, // >=
       //   DATE_GTE: 34, // >= 晚于等于
       case FILTER_CONDITION_TYPE.GTE:
@@ -1154,6 +1221,7 @@ export default function filterFn({ filterData, originControl, data = [], recordI
           default:
             return true;
         }
+
       //   LT: 15, // < 早于
       //   DATE_LT: 35, // < 早于
       case FILTER_CONDITION_TYPE.LT:
@@ -1172,6 +1240,7 @@ export default function filterFn({ filterData, originControl, data = [], recordI
           default:
             return true;
         }
+
       //   LTE: 16, // <=
       //   DATE_LTE: 36, // <= 早于等于
       case FILTER_CONDITION_TYPE.LTE:
@@ -1192,6 +1261,7 @@ export default function filterFn({ filterData, originControl, data = [], recordI
           default:
             return true;
         }
+
       //   DATEENUM: 17, // 日期是
       //   DATE_EQ: 37, // 日期是
       case FILTER_CONDITION_TYPE.DATEENUM:
@@ -1206,6 +1276,7 @@ export default function filterFn({ filterData, originControl, data = [], recordI
               dataType === 16
                 ? dateAppZoneToServerZone(moment().format('YYYY-MM-DD'), appTimeZone)
                 : moment().format('YYYY-MM-DD');
+
             if (_.includes([10, 101], dateRange)) {
               return hasToday
                 ? moment(value).isSameOrBefore(todayDate, timeLevel) && moment(value).isSameOrAfter(day, timeLevel)
@@ -1218,6 +1289,7 @@ export default function filterFn({ filterData, originControl, data = [], recordI
             } else if (_.includes([4, 5, 6, 7, 8, 9, 12, 13, 14, 15, 16, 17], dateRange) && !dynamicSource.length) {
               return dateFn(filterData, value, true, appTimeZone);
             }
+
             return moment(value).isSame(day, timeLevel);
           case CONTROL_FILTER_WHITELIST.TIME.value:
             return !value || (!!dynamicSource.length && !compareValue)
@@ -1226,6 +1298,7 @@ export default function filterFn({ filterData, originControl, data = [], recordI
           default:
             return true;
         }
+
       //   NDATEENUM: 18, // 日期不是
       //   DATE_NE: 38,  // 日期不是
       case FILTER_CONDITION_TYPE.NDATEENUM:
@@ -1240,6 +1313,7 @@ export default function filterFn({ filterData, originControl, data = [], recordI
               dataType === 16
                 ? dateAppZoneToServerZone(moment().format('YYYY-MM-DD'), appTimeZone)
                 : moment().format('YYYY-MM-DD');
+
             if (dateRange === 10) {
               return (
                 (hasToday ? moment(value).isAfter(todayDate, 'day') : moment(value).isSameOrAfter(todayDate, 'day')) ||
@@ -1255,6 +1329,7 @@ export default function filterFn({ filterData, originControl, data = [], recordI
             } else if (_.includes([4, 5, 6, 7, 8, 9, 12, 13, 14, 15, 16, 17], dateRange) && !dynamicSource.length) {
               return dateFn(filterData, value, false, appTimeZone);
             }
+
             return !moment(value).isSame(day, timeLevel);
           case CONTROL_FILTER_WHITELIST.TIME.value:
             return !value || (!!dynamicSource.length && !compareValue)
@@ -1263,6 +1338,7 @@ export default function filterFn({ filterData, originControl, data = [], recordI
           default:
             return true;
         }
+
       //   RCEQ: 24, // 关联表 (单条) 级联选择  =>是
       case FILTER_CONDITION_TYPE.RCEQ:
         switch (conditionGroupType) {
@@ -1274,6 +1350,7 @@ export default function filterFn({ filterData, originControl, data = [], recordI
               let valueN = _.isArray(value) ? value : safeParse(value || '[]', 'array');
               _.map(valueN, item => {
                 let curId = dynamicSource.length > 0 ? itValue.sid : itValue.id;
+
                 if (curId === item.sid) {
                   isInValue = true;
                 }
@@ -1283,6 +1360,7 @@ export default function filterFn({ filterData, originControl, data = [], recordI
           default:
             return true;
         }
+
       //   RCNE: 25, // 关联表(单条) 级联选择 =>不是
       case FILTER_CONDITION_TYPE.RCNE:
         switch (conditionGroupType) {
@@ -1295,6 +1373,7 @@ export default function filterFn({ filterData, originControl, data = [], recordI
               let valueN = _.isArray(value) ? value : safeParse(value || '[]', 'array');
               _.map(valueN, item => {
                 let curId = dynamicSource.length > 0 ? itValue.sid : itValue.id;
+
                 if (curId === item.sid) {
                   isInValue = false;
                 }
@@ -1304,6 +1383,7 @@ export default function filterFn({ filterData, originControl, data = [], recordI
           default:
             return true;
         }
+
       // ARREQ：26, // 数组等于
       case FILTER_CONDITION_TYPE.ARREQ:
         switch (conditionGroupType) {
@@ -1345,6 +1425,7 @@ export default function filterFn({ filterData, originControl, data = [], recordI
 
               return _.isEqual(safeParse(value || '[]').sort(), compareValues.sort());
             }
+
             break;
           // 关联记录
           case CONTROL_FILTER_WHITELIST.RELATE_RECORD.value:
@@ -1361,6 +1442,7 @@ export default function filterFn({ filterData, originControl, data = [], recordI
           default:
             return true;
         }
+
         break;
       // ARRNE：27, // 数组不等于
       case FILTER_CONDITION_TYPE.ARRNE:
@@ -1403,6 +1485,7 @@ export default function filterFn({ filterData, originControl, data = [], recordI
 
               return !_.isEqual(safeParse(value || '[]', 'array').sort(), compareValues.sort());
             }
+
             break;
           // 关联记录
           case CONTROL_FILTER_WHITELIST.RELATE_RECORD.value:
@@ -1419,6 +1502,7 @@ export default function filterFn({ filterData, originControl, data = [], recordI
           default:
             return true;
         }
+
         break;
       // ALLCONTAIN：28, // 数组同时包含
       case FILTER_CONDITION_TYPE.ALLCONTAIN:
@@ -1450,6 +1534,7 @@ export default function filterFn({ filterData, originControl, data = [], recordI
 
               return _.every(compareValues, its => _.includes(safeParse(value || '[]', 'array'), its));
             }
+
             break;
           // 关联记录
           case CONTROL_FILTER_WHITELIST.RELATE_RECORD.value:
@@ -1464,6 +1549,7 @@ export default function filterFn({ filterData, originControl, data = [], recordI
           default:
             return true;
         }
+
         break;
       // 文本同时包含
       case FILTER_CONDITION_TYPE.TEXT_ALLCONTAIN:

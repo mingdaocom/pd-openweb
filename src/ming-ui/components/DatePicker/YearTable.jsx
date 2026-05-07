@@ -8,11 +8,13 @@ class YearTable extends Component {
   renderList = () => {
     const list = [];
     let value = this.props.value;
+
     if (value === undefined) {
       value = new Date().getFullYear();
     }
 
     let page = this.props.page;
+
     if (page === undefined) {
       page = value % 16 ? 16 * Math.floor(value / 16) + 1 : 16 * (Math.floor(value / 16) - 1) + 1;
     }
@@ -20,9 +22,11 @@ class YearTable extends Component {
     for (let i = 0; i < 16; i++) {
       const item = this.props.page + i;
       let className = '';
+
       if (this.props.value !== undefined && item === this.props.value) {
         className = 'active';
       }
+
       list.push(
         <li
           className={className}

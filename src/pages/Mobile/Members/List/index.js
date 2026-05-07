@@ -46,6 +46,7 @@ class MemberList extends Component {
     } else {
       modal = null;
     }
+
     this.actionSheetHandler && this.actionSheetHandler.close();
     this.actionDepartmentHandler && this.actionDepartmentHandler.close();
     this.actionUserHandler && this.actionUserHandler.close();
@@ -89,15 +90,19 @@ class MemberList extends Component {
             selectUserVisible: true,
           });
         }
+
         if (index === 1 && detail.projectId) {
           this.showActionDepartment();
         }
+
         if (index === 2 && detail.projectId) {
           this.setState({ selectJobVisible: true, type: 'job' });
         }
+
         if (index === 3 && detail.projectId) {
           this.setState({ selectOrgnizedRoleVisible: true, type: 'orgnizeRole' });
         }
+
         this.actionSheetHandler.close();
       },
     });
@@ -208,6 +213,7 @@ class MemberList extends Component {
       // 系统角色&当前用户为拥有者
       BUTTONS = BUTTONS_Owers;
     }
+
     this.actionUserHandler = ActionSheet.show({
       actions: BUTTONS.map((item, index) => {
         return {
@@ -240,6 +246,7 @@ class MemberList extends Component {
             memberId,
             roleId,
           };
+
           if (isRoleCharger) {
             AppManagement.cancelRoleCharger(param).then(res => {
               if (res) {
@@ -306,6 +313,7 @@ class MemberList extends Component {
             });
             return;
           }
+
           // 移除
           Dialog.confirm({
             content: _l('是否移除该成员？'),
@@ -326,6 +334,7 @@ class MemberList extends Component {
             },
           });
         }
+
         this.actionUserHandler.close();
       },
     });
@@ -582,6 +591,7 @@ class MemberList extends Component {
 
   render() {
     const { isListLoading } = this.props;
+
     if (isListLoading) {
       return (
         <div className="flexRow justifyContentCenter alignItemsCenter h100">
@@ -589,8 +599,10 @@ class MemberList extends Component {
         </div>
       );
     }
+
     const { params } = this.props.match;
     const data = _.find(this.props.memberList.list || [], item => item.roleId === params.roleId) || {};
+
     if (
       !data ||
       (!data.users && !data.departmentsInfos) ||

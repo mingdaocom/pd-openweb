@@ -160,9 +160,11 @@ export default class Widgets extends Component {
     if (scantype === '0') {
       return [...qrCodeType, ...barCodeType];
     }
+
     if (scantype === '1') {
       return barCodeType;
     }
+
     return qrCodeType;
   }
   handleWxScanQRCode = () => {
@@ -187,6 +189,7 @@ export default class Widgets extends Component {
       },
       fail: res => {
         const { errMsg, errString } = res;
+
         if (
           !(
             errMsg.includes('cancel') ||
@@ -202,12 +205,15 @@ export default class Widgets extends Component {
   };
   getScanType = () => {
     const { scantype = '0' } = this.props;
+
     if (scantype === '0') {
       return ['barCode', 'qrCode'];
     }
+
     if (scantype === '1') {
       return ['barCode'];
     }
+
     if (scantype === '2') {
       return ['qrCode'];
     }
@@ -215,6 +221,7 @@ export default class Widgets extends Component {
   // 加载内置的扫码
   loadBuildInScan = () => {
     const { scantype } = this.props;
+
     switch (scantype) {
       case '2':
         import('jsqr').then(data => {
@@ -245,6 +252,7 @@ export default class Widgets extends Component {
       });
       return;
     }
+
     const { projectId, control = {} } = this.props;
 
     compatibleMDJS(
@@ -260,6 +268,7 @@ export default class Widgets extends Component {
         },
         cancel: function (res) {
           const { errMsg } = res;
+
           if (!(errMsg.includes('cancel') || errMsg.includes('canceled'))) {
             window.nativeAlert(JSON.stringify(res));
           }
@@ -344,6 +353,7 @@ export default class Widgets extends Component {
       () => {
         setTimeout(() => {
           const { devices } = this.state;
+
           if (devices.length) {
             this.initQrcode();
           } else {
@@ -391,6 +401,7 @@ export default class Widgets extends Component {
           this.startQrcode();
           this.setState({ resetCameraLoading: false });
           const currentCamera = _.find(devices, { id: nextCameraId });
+
           if (currentCamera) {
             Toast.info(_l('切换至 %0', currentCamera.label), 2);
           }
@@ -433,6 +444,7 @@ export default class Widgets extends Component {
     if (e.target.files.length == 0) {
       return;
     }
+
     const imageFile = e.target.files[0];
     this.html5QrCode
       .scanFile(imageFile, true)
@@ -473,6 +485,7 @@ export default class Widgets extends Component {
       },
       qrbox: function (viewfinderWidth, viewfinderHeight) {
         const MIN_SIZE = 50;
+
         if (scanShape === 'square') {
           const n = viewfinderWidth > viewfinderHeight ? viewfinderHeight : viewfinderWidth;
           const ratio = Math.floor(0.8 * n);
@@ -483,6 +496,7 @@ export default class Widgets extends Component {
           } else {
             size = ratio;
           }
+
           size = Math.max(size, MIN_SIZE); // 强制不小于 50
           return { width: size, height: size };
         } else {
@@ -510,23 +524,28 @@ export default class Widgets extends Component {
   clearQrcode = async () => {
     if (this.html5QrCode) {
       const state = this.html5QrCode.getState();
+
       try {
         // 扫码中
         if (state === 2) {
           await this.html5QrCode.stop();
         }
+
         this.html5QrCode?.clear();
         this.html5QrCode = null;
       } catch (error) {
         console.log('清除html5QRCode异常：', error);
       }
     }
+
     if (this.jsQRComponent) {
       this.stopCamera();
     }
+
     if (this.zxingComponent) {
       this.stopZxing();
     }
+
     this.setState({ isError: false, uploadFile: false, loadShadeRegion: false, cameraId: null });
   };
   waitForElementReady = (ref, errorMessage = '元素未挂载') => {
@@ -536,6 +555,7 @@ export default class Widgets extends Component {
 
       const check = () => {
         const el = ref.current;
+
         if (el) {
           resolve(el);
         } else if (attempts < maxAttempts) {
@@ -586,9 +606,11 @@ export default class Widgets extends Component {
 
   stopCamera = () => {
     const stream = this.videoRef.current?.srcObject;
+
     if (stream) {
       stream.getTracks().forEach(track => track.stop());
     }
+
     cancelAnimationFrame(this.animationFrame);
   };
 
@@ -605,6 +627,7 @@ export default class Widgets extends Component {
       const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
       const code = this.jsQRComponent(imageData.data, canvas.width, canvas.height);
+
       if (code) {
         this.handleScanSuccess(code.data);
         return;
@@ -658,6 +681,7 @@ export default class Widgets extends Component {
       .decodeFromVideoDevice(null, video, result => {
         if (result) {
           const format = result.getBarcodeFormat();
+
           if (!ALLOWED_FORMATS.includes(format)) {
             return;
           }

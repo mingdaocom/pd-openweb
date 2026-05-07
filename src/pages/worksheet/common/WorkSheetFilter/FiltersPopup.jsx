@@ -41,11 +41,12 @@ const SelectedFilter = styled(FlexCenter)`
 
 export default function FiltersPopup(props) {
   const { zIndex, actions, state, onChange, getPopupContainer, disableAdd, ...rest } = props;
-  const { worksheetId = '', type = '', filterCompId, className } = rest;
+  const { worksheetId = '', viewId = '', type = '', filterCompId, className, isSingleView = false } = rest;
   const filtersRef = useRef();
   const btnRef = useRef();
   const [popupVisible, setPopupVisible] = useState();
   const { needSave, editingFilter, activeFilter } = state;
+
   function handleWorksheetHeadAddFilter(control) {
     setPopupVisible(true);
     setTimeout(() => {
@@ -54,37 +55,44 @@ export default function FiltersPopup(props) {
       }
     }, 100);
   }
+
   useEffect(() => {
     emitter.addListener(
-      filterCompId || 'FILTER_ADD_FROM_COLUMNHEAD' + worksheetId + type,
+      filterCompId || 'FILTER_ADD_FROM_COLUMNHEAD' + worksheetId + type + (isSingleView ? viewId : ''),
       handleWorksheetHeadAddFilter,
     );
     return () => {
       emitter.removeListener(
-        filterCompId || 'FILTER_ADD_FROM_COLUMNHEAD' + worksheetId + type,
+        filterCompId || 'FILTER_ADD_FROM_COLUMNHEAD' + worksheetId + type + (isSingleView ? viewId : ''),
         handleWorksheetHeadAddFilter,
       );
     };
   }, []);
   let filteredText;
+
   if (editingFilter && /^new/.test(editingFilter.id)) {
     const filterControls = formatForSave(editingFilter);
     const count = _.sum(filterControls.map(c => _.get(c, 'groupFilters.length')));
+
     if (count > 0) {
       filteredText = _l('%0 项', count);
     }
   } else if (activeFilter) {
     filteredText = activeFilter.name + (needSave ? ' *' : '');
   }
+
   let maxHeight = btnRef.current
     ? window.innerHeight - btnRef.current.getBoundingClientRect().y - 120 - 29 - 6
     : undefined;
+
   if (maxHeight < 300) {
     maxHeight = 300;
   }
+
   if (!editingFilter && disableAdd) {
     return null;
   }
+
   return (
     <Trigger
       zIndex={zIndex || 99}

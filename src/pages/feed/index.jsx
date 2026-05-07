@@ -38,6 +38,7 @@ export default class CalendarEntrypoint extends Component {
         options.listType = 'group';
       }
     }
+
     this.props.dispatch(changeListType(options));
     this.props.dispatch(changeTitle(null));
   }

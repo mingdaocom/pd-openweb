@@ -184,11 +184,20 @@ export default function FillSettings(props) {
                 onClick={checked => setState({ smsVerification: !checked })}
                 name={_l('对填写手机号进行短信验证')}
                 tip={
-                  <PriceTip
-                    text={_l(
-                      '对填写的手机号字段进行短信验证，以确保为本人有效手机号。短信服务费用将自动从组织信用点中扣除，信用点不足时无法获取验证码。',
-                    )}
-                  />
+                  <Fragment>
+                    <div>
+                      <PriceTip
+                        text={_l(
+                          '对手机号字段进行短信验证。发送至中国大陆区的短信费用将自动从组织信用点扣除，信用点不足时无法获取验证码。',
+                        )}
+                      />
+                    </div>
+                    <div>
+                      {_l(
+                        '发送港澳台/国际短信需确保已配置服务商，否则无法送达。 短信签名默认跟随平台签名，发送港澳台/国际短信无需配置短信签名。',
+                      )}
+                    </div>
+                  </Fragment>
                 }
               />
             </div>

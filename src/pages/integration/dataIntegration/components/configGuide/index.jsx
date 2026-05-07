@@ -107,6 +107,7 @@ export default function ConfigGuide(props) {
                   if (currentTab === item.key) {
                     return;
                   }
+
                   setCurrentTab(item.key);
                 }}
               >

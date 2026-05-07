@@ -25,7 +25,7 @@ const UsageDetailWrapper = styled.div`
     .arrowIcon {
       transform: rotate(-90deg);
       margin-right: 8px;
-      color: var(--color-border-primary);
+      color: var(--color-text-placeholder);
       font-size: 20px;
     }
     .ant-switch-checked {
@@ -96,10 +96,8 @@ const TaskIcon = styled.div`
   border-radius: 50%;
   margin-right: 8px;
   font-size: 22px;
-  background: var(--color-background-primary);
-  box-shadow:
-    rgba(0, 0, 0, 0.16) 0px 0px 1px,
-    rgba(0, 0, 0, 0.06) 0px 1px 3px;
+  background: var(--color-background-card);
+  box-shadow: var(--shadow-sm);
 
   .svg-icon {
     width: 24px;

@@ -29,18 +29,21 @@ const Wrap = styled.div`
 `;
 
 function TitleDrop(props) {
-  const { advancedSetting, worksheetControls, handleChange, controls } = props;
+  const { advancedSetting, worksheetControls, handleChange, controls, cancelAble } = props;
   const { viewtitle } = advancedSetting;
+
+  const resolveTitleControl = () => {
+    if (!viewtitle && cancelAble) return {};
+    return worksheetControls.find(o => (viewtitle ? o.controlId === viewtitle : o.attribute === 1)) || {};
+  };
+
   const [{ titleControl }, setState] = useSetState({
-    titleControl: worksheetControls.find(o => (viewtitle ? o.controlId === viewtitle : o.attribute === 1)) || {},
+    titleControl: resolveTitleControl(),
   });
 
   useEffect(() => {
-    const { viewtitle } = advancedSetting;
-    setState({
-      titleControl: worksheetControls.find(o => (viewtitle ? o.controlId === viewtitle : o.attribute === 1)) || {},
-    });
-  }, [advancedSetting, worksheetControls]);
+    setState({ titleControl: resolveTitleControl() });
+  }, [advancedSetting, worksheetControls, cancelAble]);
 
   return (
     <Dropdown
@@ -48,20 +51,21 @@ function TitleDrop(props) {
       data={controls}
       value={!titleControl.controlId ? undefined : titleControl.controlId}
       border
-      // cancelAble
+      cancelAble={cancelAble}
       maxHeight={260}
       style={{ width: '100%' }}
       onChange={value => {
         if (value === titleControl.controlId) {
           return;
         }
+
         if (!value) {
           handleChange('');
         } else {
           handleChange(value);
         }
       }}
-      placeholder={_l('记录标题')}
+      placeholder={_l('请选择')}
     />
   );
 }

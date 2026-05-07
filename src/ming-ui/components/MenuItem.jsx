@@ -36,6 +36,7 @@ class MenuItem extends Component {
 
   render() {
     let { subMenu } = this.props;
+
     if (subMenu) {
       subMenu = cloneElement(subMenu, {
         isSubMenu: true,
@@ -43,6 +44,7 @@ class MenuItem extends Component {
         className: cx({ hide: !this.state.showSubMenu }, subMenu.props.className),
       });
     }
+
     return (
       <Item
         {...this.props}

@@ -36,6 +36,7 @@ export default function GeneratingPdf(props) {
   const [pageIndex, setPageIndex] = useState(1);
   const [embedUrl, setEmbedUrl] = useState();
   const [name, setName] = useState(props.name);
+
   function loadData(pageIndex = 1, cb = () => {}) {
     setLoading(true);
     worksheetAjax
@@ -57,6 +58,7 @@ export default function GeneratingPdf(props) {
         cb();
       });
   }
+
   async function handlePrint(config) {
     async function execute(urls) {
       const printData = rows.current.map((row, i) => ({
@@ -80,6 +82,7 @@ export default function GeneratingPdf(props) {
         ),
       }));
       const usePdfKit = includes([PRINT_TYPE.QR, PRINT_TYPE.BAR], config.printType);
+
       if (usePdfKit) {
         const blobUrl = await generateLabelPdf({
           ...config,
@@ -103,6 +106,7 @@ export default function GeneratingPdf(props) {
         setLoading(false);
       }
     }
+
     if (config.sourceType === SOURCE_TYPE.URL && config.sourceUrlType === SOURCE_URL_TYPE.PUBLIC) {
       worksheetAjax
         .getRowsShortUrl({
@@ -126,6 +130,7 @@ export default function GeneratingPdf(props) {
       }
     }
   }
+
   useEffect(() => {
     function print(config) {
       if (allowLoadMore) {
@@ -134,6 +139,7 @@ export default function GeneratingPdf(props) {
         handlePrint(config);
       }
     }
+
     if (printConfig) {
       print(printConfig);
     } else {

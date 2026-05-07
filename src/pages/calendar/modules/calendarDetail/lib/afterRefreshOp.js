@@ -28,6 +28,7 @@ export default function (confirmCallback, closeCallback) {
         // 保存并私信
         confirmCallback(true, true);
       }
+
       event.stopPropagation();
     });
   }, 200);

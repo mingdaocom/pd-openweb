@@ -23,6 +23,7 @@ const GalleryItem = props => {
     groupControl,
     galleryViewCard = {},
     updateGalleryViewCard = () => {},
+    buttonsCheckStatus,
   } = props;
   const $ref = useRef(null);
   const { viewId, appId } = base;
@@ -51,6 +52,7 @@ const GalleryItem = props => {
     const { viewId } = base;
     const view = views.find(o => o.viewId === viewId) || {};
     let newControl = control;
+
     if (!control.controlId && control.data) {
       const { fields = [] } = data;
       const controlId = Object.keys(control.data)[0];
@@ -59,6 +61,7 @@ const GalleryItem = props => {
         value: _.get(control, `data[${controlId}]`),
       };
     }
+
     worksheetAjax
       .updateWorksheetRow({
         rowId: data.rowId,
@@ -127,6 +130,7 @@ const GalleryItem = props => {
           allowEditForGroup={allowEditForGroup}
           groups={groups}
           groupControl={groupControl}
+          buttonsCheckStatus={buttonsCheckStatus}
         />
       ) : (
         <div className="skeletonBox" style={{ height: skeletonHeight }}>
@@ -149,6 +153,7 @@ const GalleryItem = props => {
             allowEditForGroup={allowEditForGroup}
             groups={groups}
             groupControl={groupControl}
+            buttonsCheckStatus={buttonsCheckStatus}
           />
         </RecordPortal>
       )}

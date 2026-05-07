@@ -24,20 +24,24 @@ function handleShortCut(evt, fns, datafn) {
   } = fns;
   const { selectedItems, isRecycle, currentRoot, currentFolder, previewFile, baseUrl } = datafn();
   const $target = $(evt.target);
+
   if ($target.is('input') || $target.is('textarea') || $target.is('[contenteditable]')) {
     return;
   }
+
   if (evt.ctrlKey || evt.metaKey) {
     /* Ctrl + a */
     if (evt.which === 65) {
       selectAllItems(true);
       evt.preventDefault();
     }
+
     /* Ctrl + c */
     if (evt.which === 67 && !window.getSelection().toString() && selectedItems.size !== 0) {
       moveOrCopyClick(NODE_OPERATOR_TYPE.COPY);
       evt.preventDefault();
     }
+
     /* Ctrl + x */
     if (evt.which === 88 && selectedItems.size !== 0) {
       moveOrCopyClick(NODE_OPERATOR_TYPE.MOVE, typeof currentRoot === 'object' ? currentRoot.id : null);
@@ -48,6 +52,7 @@ function handleShortCut(evt, fns, datafn) {
     if (evt.which === 13 && previewFile) {
       showDetail();
     }
+
     /* Alt + UpArrow */
     if (evt.which === 38 && !_.isEmpty(currentFolder)) {
       if (currentFolder.parentId === currentFolder.rootId) {
@@ -65,18 +70,22 @@ function handleShortCut(evt, fns, datafn) {
     if (evt.which === 46) {
       removeNode(isRecycle ? NODE_STATUS.DELETED : NODE_STATUS.RECYCLED);
     }
+
     /* Enter */
     if (evt.which === 13 && hasOnlyOneSelectedItem(selectAll, selectedItems, list) && !previewFile) {
       const item = selectedItems.first();
+
       if (item.type !== NODE_TYPE.FOLDER) {
         handlePreview(item);
       } else {
         changeFolder(item);
       }
     }
+
     /* F2 */
     if (evt.which === 113 && !previewFile && hasOnlyOneSelectedItem(selectAll, selectedItems, list)) {
       const item = selectedItems.first();
+
       if (item.canEdit) {
         // updateNodeName(item);
       }
@@ -111,6 +120,7 @@ export function registerNodeItemEvent(element, args) {
       dblclick(evt) {
         if ($(evt.target).hasClass('actions')) return false;
         const item = findItemById($(this).attr('data-id'));
+
         if (item.type === NODE_TYPE.FOLDER) {
           navigateTo(`${baseUrl}${item.position.replace(md.global.Account.accountId, 'my')}`);
         } else {
@@ -145,21 +155,25 @@ export function registerNodeItemEvent(element, args) {
         if (updating) {
           return;
         }
+
         updating = true;
         const $target = $(this);
         const item = findItemById($target.closest('.nodeItem').attr('data-id'));
+
         if (!item) {
           return;
         }
 
         const originName = item.name;
         const newName = trim($target.val());
+
         const showListName = function () {
           $target.hide().siblings('.listName,.itemExt,.thumbnailName').show();
         };
 
         if (newName && newName !== originName) {
           const validateOut = {};
+
           if (!validateFileName(newName, true, validateOut, { extLength: item.ext.length })) {
             setTimeout(() => {
               $target.val(validateOut.validName || originName).select();
@@ -181,6 +195,7 @@ export function registerNodeItemEvent(element, args) {
               if (!result) {
                 throw new Error();
               }
+
               alert(_l('修改成功'));
               kcService.getNodeById(item.id).then(node => {
                 updateNodeItem(node);
@@ -222,12 +237,14 @@ export function registerNodeItemEvent(element, args) {
     {
       click(evt) {
         const item = findItemById($(this).closest('.nodeItem').attr('data-id'));
+
         if (!(evt.ctrlKey || evt.metaKey) && !evt.shiftKey) {
           if (item.type === NODE_TYPE.FOLDER) {
             navigateTo(`${baseUrl}${item.position.replace(md.global.Account.accountId, 'my')}`);
           } else {
             handlePreview(item, evt);
           }
+
           evt.stopPropagation();
         }
       },
@@ -237,6 +254,7 @@ export function registerNodeItemEvent(element, args) {
 
   document.oncontextmenu = function (evt) {
     const $target = $(evt.target);
+
     if ($target.is('.rightMenu,.noContextMenu') || $target.closest('.rightMenu,.noContextMenu').length) {
       return false;
     }
@@ -253,6 +271,7 @@ function handleItemMouseDown(args) {
   const { isRecycle, list, selectAll, dragSelectEle, selectedItems } = getLatestData();
   const selected = (selectAll && list.size === selectedItems.size) || selectedItems.contains(item);
   const $target = $(evt.target);
+
   if (
     $target.closest('.flexRow') ||
     $target.hasClass('flexRow') ||
@@ -271,6 +290,7 @@ function handleItemMouseDown(args) {
         selectSingleItem(item);
       }
     }
+
     /* 右键*/
     if (evt.button === 2) {
       const rightMenuOption = {
@@ -278,6 +298,7 @@ function handleItemMouseDown(args) {
         clientY: evt.clientY,
         item,
       };
+
       if (!selected || hasOnlyOneSelectedItem(selectAll, selectedItems, list)) {
         rightMenuOption.isMulti = false;
         selectSingleItem(item);
@@ -300,6 +321,7 @@ function handleItemMouseDown(args) {
 export function handleDragSelectClickOnly(args) {
   const { child, evt, selectedItems, list, selectItem, selectItems, selectSingleItem } = args;
   const clickedItem = child.props.item;
+
   if (evt.ctrlKey || evt.metaKey) {
     selectItem(clickedItem);
   } else if (evt.shiftKey) {
@@ -307,6 +329,7 @@ export function handleDragSelectClickOnly(args) {
       const indexes = selectedItems.map(item => list.indexOf(item)).toArray();
       let ends = [min(indexes), max(indexes)];
       const clickedIndex = list.indexOf(clickedItem);
+
       if (clickedIndex < ends[0]) {
         ends = [clickedIndex, ends[0]];
       } else if (clickedIndex > ends[1]) {
@@ -314,6 +337,7 @@ export function handleDragSelectClickOnly(args) {
       } else {
         ends = [ends[0], clickedIndex];
       }
+
       const newSelectedItems = list.slice(ends[0], ends[1] + 1);
       selectItems(newSelectedItems);
     } else {
@@ -339,6 +363,7 @@ export function handleDragSelect(args) {
   } else {
     selectedItems = newSelectedItems;
   }
+
   selectItems(selectedItems);
 }
 

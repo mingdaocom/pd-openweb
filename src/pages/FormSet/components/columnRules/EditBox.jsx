@@ -11,6 +11,7 @@ import { ALL_SYS } from 'src/pages/widgetConfig/config/widget';
 import { HAS_DYNAMIC_TYPE } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config';
 import DynamicDefaultValue from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue';
 import { DYNAMIC_FROM_MODE } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/config.js';
+import { WidgetItem } from 'src/pages/widgetConfig/widgetSetting/components/StyleContent/StyleContentItems';
 import FilterConfig from 'src/pages/worksheet/common/WorkSheetFilter/common/FilterConfig';
 import SelectControls from 'src/pages/worksheet/common/WorkSheetFilter/components/SelectControls';
 import { redefineComplexControl } from 'src/pages/worksheet/common/WorkSheetFilter/util';
@@ -21,6 +22,7 @@ import {
   filterUnAvailable,
   getActionLabelByType,
   getErrorControls,
+  getStyleRuleControls,
   originActionItem,
   SUBMIT_DISPLAY,
   TAB_TYPES,
@@ -43,6 +45,7 @@ class EditBox extends React.Component {
     if (nextProps.selectRules.name !== this.state.name) {
       this.setState({ name: nextProps.selectRules.name });
     }
+
     if (_.get(nextProps.selectRules, 'ruleItems[0].message') !== this.state.message) {
       this.setState({ message: _.get(nextProps.selectRules, 'ruleItems[0].message') });
     }
@@ -64,9 +67,11 @@ class EditBox extends React.Component {
     let filterControls = worksheetControls
       .filter(i => !_.includes(['wfname', 'wfcuaids', 'wfcaid', 'wfctime', 'wfrtime', 'wfftime', 'rowid'], i.controlId))
       .map(redefineComplexControl);
+
     if (activeTab === TAB_TYPES.LOCK_RULE) {
       filterControls = filterControls.filter(i => _.includes([9, 10, 11, 36], i.type));
     }
+
     return (
       <div className="conditionContainer">
         <div className="Font14 Bold">
@@ -308,10 +313,12 @@ class EditBox extends React.Component {
                     currentActionData.controls = [];
                     currentActionData.message = '';
                   }
+
                   // 过滤不符合条件的已选字段
                   if (_.includes([1, 2, 3, 4, 5], type)) {
                     currentActionData = filterUnAvailable(currentActionData, worksheetControls, type);
                   }
+
                   ruleItems.splice(actionIndex, 1, currentActionData);
                   updateSelectRule('ruleItems', ruleItems);
                 }}
@@ -406,7 +413,7 @@ class EditBox extends React.Component {
 
     return (
       <div className="conditionContainer mTop0">
-        <div className="Font14 Bold mBottom20">{_l('则提示错误')}</div>
+        <div className="Font14 Bold mBottom16">{_l('则提示错误')}</div>
         <div className="Font14 mBottom12">
           {_l('提示内容')}
           <span className="Red">*</span>
@@ -422,7 +429,7 @@ class EditBox extends React.Component {
             isError && updateError('action', newValue[0], 0);
           }}
         />
-        <div className="mTop24">
+        <div className="mTop16">
           <div className="Font14 mBottom12">{_l('指定字段')}</div>
           <ActionDropDown
             actionType={6}
@@ -505,13 +512,14 @@ class EditBox extends React.Component {
     );
   };
 
+  // 锁定
   renderLockDesc = () => {
     const { selectRules = {}, updateSelectRule } = this.props;
     const { ruleItems = [] } = selectRules;
 
     return (
       <div className="conditionContainer mTop0">
-        <div className="Font14 Bold mBottom20">{_l('锁定说明')}</div>
+        <div className="Font14 Bold mBottom16">{_l('锁定说明')}</div>
         <input
           className="ruleNameInput"
           defaultValue={_.get(ruleItems, '0.message')}
@@ -525,12 +533,84 @@ class EditBox extends React.Component {
     );
   };
 
+  // 样式
+  renderStyleRule = () => {
+    const { selectRules = {}, updateSelectRule, worksheetControls = [], activeTab } = this.props;
+    const { ruleItems = [] } = selectRules;
+    const { controls = [], message: originalMessage = '' } = ruleItems[0] || {};
+    const message =
+      originalMessage ||
+      JSON.stringify({
+        titlecolor: 'var(--color-text-title)',
+        titlesize: '0',
+        titlestyle: '0000',
+        valuecolor: 'var(--color-text-title)',
+        valuesize: '0',
+        valuestyle: '0000',
+      });
+    const dropData = getStyleRuleControls(worksheetControls);
+
+    let styleRuleData = {
+      ...(controls.length > 1
+        ? { type: 2 }
+        : { ..._.find(worksheetControls, { controlId: _.last(controls)?.controlId }) }),
+      advancedSetting: {
+        ...JSON.parse(message || '{}'),
+      },
+    };
+
+    // 字段都删除时兼容呈现
+    if (!styleRuleData.type) {
+      styleRuleData.type = 2;
+    }
+
+    return (
+      <div className="conditionContainer mTop0">
+        <div className="Font14 Bold">{_l('则显示样式')}</div>
+        <div className="mTop16">
+          <div className="Font14 mBottom12">{_l('字段')}</div>
+          <ActionDropDown
+            actionType={11}
+            from="rule"
+            values={controls}
+            activeTab={activeTab}
+            dropDownData={dropData}
+            onChange={(key, value) => {
+              const newVal = [{ controls: value, message, type: 11 }];
+              updateSelectRule('ruleItems', newVal);
+            }}
+          />
+        </div>
+        <div className="textSecondary mTop10 Font13">
+          {_l('部分字段仅支持对字段名称生效（如定位等）。选择多个字段时，不支持字段值样式的字段，其字段值样式不生效。')}
+        </div>
+        {controls.length > 0 && (
+          <div style={{ width: '50%' }}>
+            <WidgetItem
+              data={styleRuleData}
+              from="rule"
+              onChange={newData => {
+                const newVal = [{ ...ruleItems[0], message: JSON.stringify(newData.advancedSetting) }];
+                updateSelectRule('ruleItems', newVal);
+              }}
+            />
+          </div>
+        )}
+      </div>
+    );
+  };
+
   renderContent = () => {
     const { activeTab } = this.props;
 
     // 交互规则
     if (activeTab === TAB_TYPES.NORMAL_RULE) {
       return this.renderAction();
+    }
+
+    // 样式规则
+    if (activeTab === TAB_TYPES.STYLE_RULE) {
+      return this.renderStyleRule();
     }
 
     // 验证规则
@@ -553,7 +633,7 @@ class EditBox extends React.Component {
             <Fragment>
               <div className="Font14 Bold">{_l('规则名称')}</div>
               <input
-                className="mTop12 ruleNameInput"
+                className="mTop12 ruleNameInput ruleName"
                 value={this.state.name}
                 onChange={e => this.setState({ name: e.target.value })}
                 onBlur={e => {

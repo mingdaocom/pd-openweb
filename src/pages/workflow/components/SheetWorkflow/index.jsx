@@ -25,6 +25,7 @@ const isMobile = browserIsMobile();
 
 const renderTimeConsuming = (createDate, completeDate) => {
   const timeConsuming = moment(createDate) - moment(completeDate);
+
   if (timeConsuming) {
     return (
       <div className="flexRow valignWrapper mBottom12">
@@ -88,6 +89,7 @@ const renderSurplusTime = data => {
     if (item.executeTime) {
       currentAccountNotified = true;
     }
+
     return _.includes([3, 4], item.type) && !item.operationTime && item.dueTime;
   });
 
@@ -180,12 +182,15 @@ function WorkflowCard(props) {
   const currentWorkItems = data.currentWorkItems || [];
   const receiveTime = _.get(workItem, 'receiveTime') || _.get(currentWorkItems[0], 'receiveTime');
   const isBranch = !!(currents || []).length;
+
   const getIsRevoke = () => {
     const current = currents[0];
     const { allowRevoke, allowApproval, workItem } = current;
     return isBranch && ((allowRevoke && allowApproval) || workItem ? false : allowRevoke);
   };
+
   const allowReset = status === 6;
+
   const handleRevoke = () => {
     onRevoke(currents[0]);
   };
@@ -350,11 +355,13 @@ export default function SheetWorkflow(props) {
         startAppId: worksheetId,
         startSourceId: recordId,
       };
+
       if (selecteArchived.id) {
         param.archivedId = selecteArchived.id;
         param.startDate = selecteArchived.start;
         param.endDate = selecteArchived.end;
       }
+
       Promise.all([
         instanceVersion.getTodoList2(param),
         instanceVersion.getTodoList2({
@@ -387,6 +394,7 @@ export default function SheetWorkflow(props) {
         setLoading(false);
         if (list.length === 1 && unfinished.length === 1) {
           const firstData = list[0];
+
           if (_.get(firstData, 'currents.length')) {
             const data = firstData.currents.filter(n => {
               const userIds = n.currentWorkItems.map(n => n.workItemAccount.accountId);
@@ -440,6 +448,7 @@ export default function SheetWorkflow(props) {
         const { flowNode } = instance.currentWork;
         flowNode.name = getTranslateInfo(appId, instance.parentId, flowNode.id).nodename || flowNode.name;
       }
+
       setCurrentWorkflow({
         ...instance,
         ...param,
@@ -459,15 +468,18 @@ export default function SheetWorkflow(props) {
         nextUserRange,
       }).then(data => {
         const { flowNodes } = data;
+
         if (['pass', 'overrule'].includes(action) && flowNodes[0]) {
           alert(_l('操作成功，流程已流传至【%0】', flowNodes[0].name));
         } else {
           alert(_l('操作成功'));
         }
+
         setActionVisible(false);
         handleCloseDrawer();
         getList().then(list => {
           const { cardData } = currentWorkflow;
+
           if (workflowVisible) {
             const card = _.find(list, { id: cardData.id });
             card && handleViewFlowStep(card);
@@ -475,6 +487,7 @@ export default function SheetWorkflow(props) {
         });
       });
     }
+
     if (action === 'taskRevoke') {
       const { works } = currentWorkflow;
       const data = _.find(works, { allowTaskRevokeBackNodeId });
@@ -495,15 +508,19 @@ export default function SheetWorkflow(props) {
 
   const handleRequest = (action, restPara = {}) => {
     let { id, workId, revokeWorkId } = currentWorkflow.cardData || {};
+
     if (action === 'revoke') {
       workId = revokeWorkId;
     }
+
     if (action === 'pass') {
       return instanceVersion.pass2({ id, workId, ...restPara });
     }
+
     if (action === 'overrule') {
       return instanceVersion.overrule2({ id, workId, ...restPara });
     }
+
     return instance[action]({ id, workId, ...restPara });
   };
 
@@ -579,6 +596,7 @@ export default function SheetWorkflow(props) {
       if (result) {
         window[`urgeDisable-workId-${data.workId}`] = true;
         const { cardData = {} } = currentWorkflow;
+
         if (cardData.workId === data.workId) {
           setCurrentWorkflow({
             ...currentWorkflow,
@@ -588,6 +606,7 @@ export default function SheetWorkflow(props) {
             },
           });
         }
+
         setList(
           list.map(item => {
             if (item.id === data.id) {
@@ -607,6 +626,7 @@ export default function SheetWorkflow(props) {
                   currents,
                 };
               }
+
               return {
                 ...item,
                 urgeDisable: true,
@@ -783,15 +803,18 @@ export default function SheetWorkflow(props) {
       if (allowTaskRevokeBackNodeId) {
         return _.find(works, { allowTaskRevokeBackNodeId });
       }
+
       if (parentCurrents.length) {
         return _.find(parentCurrents, { workId });
       }
+
       return currentWorkflow.currentWork;
     })();
     const stepsCurrents = (function () {
       if (parentCurrents.length) {
         return parentCurrents.concat(allowTaskRevokeWorks);
       }
+
       return allowTaskRevokeWorks.length ? allowTaskRevokeWorks.concat(currentWorkflow.currentWork || []) : [];
     })();
     return (
@@ -822,13 +845,16 @@ export default function SheetWorkflow(props) {
             onChangeCurrentWork={workId => {
               if (allowTaskRevokeWorks.length) {
                 const work = _.find(works, { workId }) || {};
+
                 if (work.allowTaskRevokeBackNodeId && work.workId === workId && isCharge) {
                   setAllowTaskRevokeBackNodeId(work.allowTaskRevokeBackNodeId);
                 } else {
                   setAllowTaskRevokeBackNodeId(null);
                 }
+
                 return;
               }
+
               const newCardData = _.find(parentCurrents, { workId });
               setCurrentWorkflow({
                 ...currentWorkflow,
@@ -881,6 +907,7 @@ export default function SheetWorkflow(props) {
     if (!archivedList.length) {
       return null;
     }
+
     const content = (
       <span
         className="icon_Hover_21 flexRow alignItemsCenter Hand"

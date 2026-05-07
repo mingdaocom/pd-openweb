@@ -26,6 +26,7 @@ function addViewCount(attachment) {
   ) {
     return;
   }
+
   if (attachment.previewAttachmentType === 'COMMON') {
     attachmentAjax.addAttachmentClick({
       fileId: attachment.sourceNode.fileID,
@@ -50,9 +51,11 @@ function loadAttachment(attachment, options = {}) {
     const { refId } = attachment.sourceNode || {};
     addViewCount(attachment);
     let attachmentPromise = Object.assign({}, attachment);
+
     if ((attachment.ext || '').toLocaleLowerCase() === 'pdf' && attachment.sourceNode.path) {
       // 判断文件中是否有Token
       const { path } = attachment.sourceNode;
+
       if ((path || '').indexOf('token=') >= 0) {
         // 直接返回文件url
         attachment.sourceNode.privateDownloadUrl = attachment.sourceNode.path;
@@ -116,6 +119,7 @@ function loadAttachment(attachment, options = {}) {
         rowId: options.recordId,
         controlId: options.controlId,
       };
+
       if (window.shareState && window.shareState.shareId) {
         args.type =
           _.get(window, 'shareState.isPublicRecord') ||
@@ -126,9 +130,11 @@ function loadAttachment(attachment, options = {}) {
               ? 11
               : 14;
       }
+
       if (options.from === 21) {
         args.type = 21;
       }
+
       args.worksheetId = options.worksheetId;
       attachmentPromise = attachmentAjax.getAttachmentDetail(args).then(data => {
         if (!data) {
@@ -137,12 +143,14 @@ function loadAttachment(attachment, options = {}) {
             status: LOADED_STATUS.DELETED,
           });
         }
+
         if (options.disableNoPeimission && data.refId && !data.privateDownloadUrl) {
           throw new AttachmentError({
             text: '您权限不足，无法分享，请联系管理员或文件上传者',
             status: LOADED_STATUS.DELETED,
           });
         }
+
         return Object.assign({}, attachment, {
           previewType: data.viewType,
           viewUrl: data.viewUrl,
@@ -217,6 +225,7 @@ export function getAttachmentEditDetail(params) {
 
   if (isWpsPreview(currentAttachment.ext, true) && !_.get(window, 'shareState.shareId')) {
     let attachmentShareId;
+
     if (!controlId && isNewTab) {
       attachmentShareId = location.pathname.match(/.*\/(recordfile|rowfile)\/(\w+)/)[2];
     }
@@ -265,6 +274,7 @@ function formatAttachment(attachments, callfrom) {
     } else {
       console.log('attachmentType.....');
     }
+
     if (previewAttachmentType === 'COMMON' || previewAttachmentType === 'COMMON_ID') {
       ext = attachment.ext[0] === '.' ? attachment.ext.slice(1) : attachment.ext;
       previewType = attachment.viewType || getExtType(ext) || PREVIEW_TYPE.OTHER;
@@ -284,9 +294,11 @@ function formatAttachment(attachments, callfrom) {
         attachment.shortLinkUrl = url;
         attachment.originLinkUrl = url;
       }
+
       name = splited.name;
       size = attachment.size;
     }
+
     if (previewType === PREVIEW_TYPE.PICTURE) {
       viewUrl =
         previewAttachmentType === 'COMMON'
@@ -309,13 +321,16 @@ function formatAttachment(attachments, callfrom) {
         }
       }
     }
+
     if (previewType === PREVIEW_TYPE.VIDEO && (attachment.filesize || attachment.size) > 1024 * 1024 * 1024) {
       msg = _l('文件过大，不支持在线预览，请您下载后查看');
       previewType = PREVIEW_TYPE.OTHER;
     }
+
     if (ext === 'xd') {
       previewType = PREVIEW_TYPE.OTHER;
     }
+
     return {
       previewAttachmentType,
       previewType,
@@ -384,6 +399,7 @@ export function init(options, extra) {
     if (index > attachments.length - 3) {
       loadMoreAttachments(getState(), dispatch);
     }
+
     if (index < 3) {
       preLoadMoreAttachments(getState(), dispatch);
     }
@@ -406,6 +422,7 @@ export function error() {
 function loadMoreAttachments(state, dispatch, isPre) {
   const { extra, isLoadingMore, loadMoreFinished } = state;
   const loadAjaxName = isPre ? 'preLoadMoreAttachments' : 'loadMoreAttachments';
+
   if (extra && typeof extra[loadAjaxName] === 'function' && !isLoadingMore && !loadMoreFinished) {
     dispatch({
       type: 'FILE_PREVIEW_LOAD_MORE_START',
@@ -436,17 +453,21 @@ function preLoadMoreAttachments(state, dispatch) {
 
 function changeIndexThunk(dispatch, getState, index, flag, extra = {}) {
   const state = getState();
+
   if (flag && flag === 'prev') {
     index = state.index - 1;
   } else if (flag && flag === 'next') {
     index = state.index + 1;
   }
+
   if (index > state.attachments.length - 3) {
     loadMoreAttachments(state, dispatch);
   }
+
   if (index < 3) {
     preLoadMoreAttachments(state, dispatch);
   }
+
   if (index < 0) {
     alert('已经是第一个了', 3);
     nothing();
@@ -456,6 +477,7 @@ function changeIndexThunk(dispatch, getState, index, flag, extra = {}) {
     nothing();
     return;
   }
+
   const currentAttachment = _.assign({}, state.attachments[index]);
 
   addBehaviorLog('previewFile', extra.worksheetId, {
@@ -522,6 +544,7 @@ export function renameFile(value) {
     const index = state.index;
     const currentAttachment = state.attachments[index];
     const previewAttachmentType = currentAttachment.previewAttachmentType;
+
     if (previewAttachmentType === 'KC') {
       const { id, ext } = currentAttachment.sourceNode;
       ajax
@@ -534,6 +557,7 @@ export function renameFile(value) {
           if (state.extra && typeof state.extra.performUpdateItem === 'function') {
             state.extra.performUpdateItem(currentAttachment.sourceNode);
           }
+
           dispatch({
             type: 'FILE_PREVIEW_UPDATE_FILE',
             attachment: currentAttachment,
@@ -555,6 +579,7 @@ export function renameFile(value) {
           if (state.extra && typeof state.extra.renameCallback === 'function') {
             state.extra.renameCallback(currentAttachment.sourceNode, state.originAttachments);
           }
+
           dispatch({
             type: 'FILE_PREVIEW_UPDATE_FILE',
             attachment: currentAttachment,
@@ -585,6 +610,7 @@ export function updateAllowDownload() {
           currentAttachment.sourceNode.allowDown = 'ok';
           alert('已设置为可以下载');
         }
+
         dispatch({
           type: 'FILE_PREVIEW_UPDATE_FILE',
           attachment: currentAttachment,
@@ -621,6 +647,7 @@ export function saveToKnowlwdge(savePath) {
     const currentAttachment = state.attachments[index];
     const { previewAttachmentType, sourceNode, previewType } = currentAttachment;
     let savePromise;
+
     if (savePath === 1) {
       savePromise = Promise.resolve({ type: PICK_TYPE.MY, node: { id: null, name: _l('我的文件') } });
     } else {
@@ -628,12 +655,15 @@ export function saveToKnowlwdge(savePath) {
         alert(_l('保存失败, 您无法选择文件路径'), 2);
         return;
       }
+
       savePromise = selectFolder();
     }
+
     Promise.all([savePromise])
       .then(([path]) => {
         const sourceData = {};
         let attachmentType;
+
         if (previewAttachmentType === 'COMMON') {
           attachmentType = 1;
           sourceData.fileID = sourceNode.fileID;
@@ -652,6 +682,7 @@ export function saveToKnowlwdge(savePath) {
           sourceData.name = currentAttachment.name + '.' + currentAttachment.ext;
           sourceData.filePath = sourceNode.path;
         }
+
         saveToKnowledge(attachmentType, sourceData)
           .save(path)
           .then(() => {
@@ -700,6 +731,7 @@ export function changeStateOfAttachment(attachment, index) {
 export function onClose() {
   return (dispatch, getState) => {
     const state = getState();
+
     if (state.onClose) {
       state.onClose();
     }

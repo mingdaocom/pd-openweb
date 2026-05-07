@@ -77,6 +77,10 @@
     padding-bottom: 4px;
     transform: translate3d(0, 0, 0);
 
+    .controlLabelName {
+      color: var(--color-text-title);
+    }
+
     .requiredBtnBox {
       position: absolute;
       left: -13px;
@@ -99,82 +103,6 @@
     float: left;
     position: relative;
     z-index: 1;
-  }
-
-  .customFormItemControlCreate.customFormItemControl:not(.customFormItemTabFocus) {
-    .customFormControlBox:not(.customFormMarkdown),
-    .RelateRecordDropdown .RelateRecordDropdown-selected:not(.readonly) {
-      border: 1px solid var(--color-border-primary);
-      &:not(.controlDisabled):hover {
-        border-color: var(--color-text-placeholder);
-        background-color: transparent;
-      }
-      &.active,
-      &:focus {
-        border-color: var(--color-primary) !important;
-        background: var(--color-background-primary) !important;
-        box-shadow: none !important;
-      }
-    }
-
-    .textMarkdown {
-      border: 1px solid var(--color-border-primary) !important;
-      background-color: transparent !important;
-      .vditor-reset {
-        border: none !important;
-        background-color: transparent !important;
-      }
-    }
-
-    .customFormControlMobileHover {
-      &:hover .customFormControlBox {
-        border-color: var(--color-text-placeholder);
-        background-color: transparent;
-      }
-      input.customFormControlBox {
-        border: 1px solid var(--color-border-primary);
-        background: transparent;
-        &.customFormPhoneBox {
-          border: none;
-          background: transparent;
-        }
-        &:not(.controlDisabled):hover {
-          border-color: var(--color-text-placeholder);
-          background-color: transparent;
-        }
-      }
-    }
-
-    .customAntSelect {
-      &.ant-select-open {
-        .ant-select-selector {
-          border-color: var(--color-primary) !important;
-          background-color: var(--color-background-primary) !important;
-        }
-      }
-
-      &:not(.ant-select-open):not(.ant-select-disabled) {
-        .ant-select-selector {
-          border: 1px solid var(--color-border-primary) !important;
-          background-color: transparent !important;
-        }
-        .ant-select-selector {
-          &:hover {
-            border-color: var(--color-text-placeholder) !important;
-            background-color: transparent !important;
-          }
-        }
-      }
-    }
-  }
-
-  .customFormItem:not(.isFilledByAi) {
-    .customFormItemControlCreate.customFormItemControl:not(.customFormItemTabFocus) {
-      .customFormControlBox:not(.customFormMarkdown),
-      .RelateRecordDropdown .RelateRecordDropdown-selected:not(.readonly) {
-        background-color: transparent;
-      }
-    }
   }
 
   .customFormItemControl {
@@ -969,11 +897,16 @@
         background: var(--color-background-primary) !important;
         .ant-picker-clear {
           opacity: 1;
+          background: var(--color-background-primary);
+          color: var(--color-text-disabled);
         }
       }
       .ant-picker-input {
         padding: 0;
         height: 34px !important;
+        input {
+          color: var(--color-text-primary);
+        }
       }
     }
 
@@ -999,19 +932,88 @@
     }
   }
 
+  // 新建样式
+  .customFormItemControlCreate.customFormItemControl:not(.customFormItemTabFocus) {
+    .customFormControlBox:not(.customFormMarkdown),
+    .RelateRecordDropdown .RelateRecordDropdown-selected:not(.readonly) {
+      border: 1px solid var(--color-border-primary);
+      background-color: var(--color-background-input);
+      &:not(.controlDisabled):hover {
+        border-color: var(--color-text-placeholder);
+      }
+      &.active,
+      &:focus {
+        border-color: var(--color-primary-focus);
+        box-shadow: none;
+      }
+    }
+
+    .ck.ck-toolbar.ck-toolbar_grouping,
+    .ck.ck-content:not(.ck-focused) {
+      background-color: var(--color-background-input) !important;
+      border-color: var(--color-border-primary) !important;
+    }
+
+    .textMarkdown {
+      border: 1px solid var(--color-border-primary) !important;
+      background-color: var(--color-background-input) !important;
+      .vditor-reset {
+        border: none !important;
+        background-color: var(--color-background-input) !important;
+        &:focus {
+          background-color: var(--color-background-primary) !important;
+        }
+      }
+    }
+
+    .customFormControlMobileHover {
+      input.customFormControlBox {
+        &.customFormPhoneBox {
+          border: none;
+          background: transparent;
+        }
+      }
+    }
+
+    .customAntSelect:not(.optionDisabled) {
+      .ant-select-selector {
+        border: 1px solid var(--color-border-primary) !important;
+        background-color: var(--color-background-input) !important;
+        &:hover {
+          border-color: var(--color-text-placeholder) !important;
+        }
+      }
+      &.ant-select-open {
+        .ant-select-selector {
+          border-color: var(--color-primary) !important;
+        }
+      }
+    }
+
+    .cascader-input {
+      background-color: var(--color-background-input) !important;
+      &.focused:not(.disabled) {
+        background-color: transparent !important;
+      }
+    }
+  }
+
+  // tab聚焦样式
   .customFormItemControl.customFormItemTabFocus {
     .customFormLocation,
     .customAntPicker,
     .CityPicker-input-container .customFormButton,
     .customCascader.custom-cascader .cascader-input,
-    .customAntSelect:not(.ant-select-open):not(.ant-select-disabled) .ant-select-selector {
-      border-color: var(--color-primary) !important;
-      background-color: var(--color-background-primary) !important;
+    .customAntSelect:not(.ant-select-open):not(.ant-select-disabled) .ant-select-selector,
+    // 关联下拉选中区域高亮
+    .RelateRecordDropdown .RelateRecordDropdown-selected:not(.readonly) {
+      border-color: var(--color-primary-focus) !important;
+      background-color: var(--color-background-input) !important;
     }
 
     .customAntPicker .icon-access_time,
     .customFormLocation .icon-location {
-      color: var(--color-primary) !important;
+      color: var(--color-primary-focus) !important;
     }
 
     .customFormRelationBtn,
@@ -1054,6 +1056,24 @@
           outline 0s;
       }
     }
+
+    // 子表：添加行按钮高亮
+    .addRowByLine {
+      outline: 3px solid var(--color-primary-focus-outer);
+      outline-offset: 1px;
+      transition:
+        outline-offset 0s,
+        outline 0s;
+    }
+
+    // 关联表格：主按钮高亮
+    .relateRecordMainBtn {
+      outline: 3px solid var(--color-primary-focus-outer);
+      outline-offset: 1px;
+      transition:
+        outline-offset 0s,
+        outline 0s;
+    }
   }
 }
 
@@ -1069,8 +1089,8 @@
   background: var(--color-error);
   font-size: 12px;
   margin: 0 12px;
-  right: 0;
-  max-width: fit-content;
+  width: max-content;
+  max-width: 400px;
 
   &.isChildTable {
     transform: translateY(15px);
@@ -1130,7 +1150,6 @@ input.customFormControlBox:disabled {
     }
     .ant-select-selection-item {
       opacity: 0.4;
-      color: var(--color-text-primary);
     }
   }
 
@@ -1141,12 +1160,17 @@ input.customFormControlBox:disabled {
     border-radius: 50%;
   }
 
+  .ant-select-selection-item {
+    color: var(--color-text-primary) !important;
+  }
+
   &.ant-select-multiple {
     .ant-select-selection-item {
       border-radius: 12px;
       padding: 0 12px !important;
       line-height: 24px !important;
-      background-color: #efefef !important;
+      background-color: var(--color-border-secondary) !important;
+      border-color: var(--color-border-secondary) !important;
       .ant-select-selection-item-content {
         margin-right: 6px !important;
       }
@@ -1278,7 +1302,7 @@ input.customFormControlBox:disabled {
 .customFormControlTags {
   height: 28px;
   border-radius: 26px;
-  background: var(--color-background-secondary) !important;
+  background: var(--color-border-secondary) !important;
   display: inline-flex;
   align-items: center;
   margin: 3px 8px 3px 0;
@@ -1288,6 +1312,9 @@ input.customFormControlBox:disabled {
   max-width: 100%;
   border: 1px solid transparent;
   box-sizing: border-box;
+  &.userSelectTag {
+    background: var(--color-background-tertiary) !important;
+  }
   .departWrap {
     width: 26px;
     height: 26px;
@@ -1297,6 +1324,10 @@ input.customFormControlBox:disabled {
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+  }
+  &.disabledDepartmentOrRole {
+    color: var(--color-text-secondary) !important;
+    text-decoration: line-through !important;
   }
   &.clickActive {
     border: 1px solid var(--color-primary);
@@ -1346,6 +1377,26 @@ input.customFormControlBox:disabled {
   }
   .ant-popover-arrow {
     display: none !important;
+  }
+}
+
+.customTreeSelectDropdown {
+  .ant-select-tree {
+    background-color: var(--color-background-card) !important;
+    .ant-select-tree-title {
+      color: var(--color-text-primary) !important;
+    }
+    .ant-select-tree-node-content-wrapper:hover {
+      background-color: var(--color-background-hover) !important;
+    }
+    .ant-select-tree-checkbox:not(.ant-select-tree-checkbox-checked) {
+      .ant-select-tree-checkbox-inner {
+        background: transparent !important;
+      }
+    }
+    .ant-select-tree-switcher {
+      color: #9e9e9e !important;
+    }
   }
 }
 

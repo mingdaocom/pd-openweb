@@ -56,6 +56,7 @@ export default function QuickOperate(props) {
     let selectControls = formData.filter(
       f => controlState(f, from).editable && f.type === type && f.controlId !== 'ownerid' && f.controlId !== controlId,
     );
+
     if (type === 26) {
       selectControls = selectControls.filter(s => _.get(s, 'advancedSetting.usertype') === advancedSetting.usertype);
       if (advancedSetting.usertype !== '2') {
@@ -68,6 +69,7 @@ export default function QuickOperate(props) {
     } else if (type === 48) {
       selectControls = selectControls.filter(s => !s.enumDefault2);
     }
+
     return selectControls;
   };
 
@@ -75,6 +77,7 @@ export default function QuickOperate(props) {
 
   const getFilterOptions = () => {
     let filterOptions = [].concat(DISPLAY_OPTIONS);
+
     if (
       (type === 26 &&
         !(
@@ -111,6 +114,7 @@ export default function QuickOperate(props) {
     ) {
       filterOptions = filterOptions.filter(f => !_.includes(['move', 'add'], f.value));
     }
+
     return filterOptions;
   };
 
@@ -148,6 +152,7 @@ export default function QuickOperate(props) {
       case 'add':
         const addControl = _.find(formData, f => f.controlId === option.controlId);
         const idKey = WIDGET_VALUE_ID[type];
+
         if (addControl) {
           let tempValue = safeParse(addControl.value || '[]');
           tempValue = addControl.enumDefault ? tempValue.concat([item]) : [item];
@@ -167,6 +172,7 @@ export default function QuickOperate(props) {
       case 'chat':
       case 'email':
         const res = getBaseInfo();
+
         if (option.value === 'chat' && res.accountStatus === 1 && res.isContact) {
           window.open(`/windowChat?id=${item.accountId}`);
         } else if (
@@ -184,6 +190,7 @@ export default function QuickOperate(props) {
         } else {
           alert(_l('暂无权限联系该用户'), 3);
         }
+
         break;
     }
   };

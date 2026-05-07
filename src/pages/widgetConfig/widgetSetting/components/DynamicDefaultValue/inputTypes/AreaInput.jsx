@@ -33,8 +33,10 @@ export default function (props) {
     if (_.isEmpty(last)) {
       return onDynamicValueChange([]);
     }
+
     onDynamicValueChange([{ cid: '', rcid: '', staticValue: JSON.stringify({ code: last.id, name: last.path }) }]);
   };
+
   const onTriggerClick = () => {
     defaultType && $wrap.current.triggerClick();
   };

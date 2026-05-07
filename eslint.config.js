@@ -92,6 +92,15 @@ module.exports = [
       'no-control-regex': 'off',
       'no-useless-escape': 'off',
       'no-prototype-builtins': 'off',
+
+      // 提高可维护性：在块语句、const/let 后要求空行
+      'padding-line-between-statements': [
+        'warn',
+        // 块语句（if/for/while/switch/function 等）后面加空行
+        { blankLine: 'always', prev: 'block-like', next: '*' },
+        // const/let 声明后若紧跟块语句，中间加空行
+        { blankLine: 'always', prev: ['const', 'let'], next: 'block-like' },
+      ],
     },
     settings: {
       react: {

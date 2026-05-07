@@ -224,6 +224,7 @@ export default function CommonHeader(props) {
                       handleLogin();
                       return;
                     }
+
                     if (canSaveToKnowlege) {
                       saveToKnowlwdge(1);
                     } else {
@@ -241,6 +242,7 @@ export default function CommonHeader(props) {
                       handleLogin();
                       return;
                     }
+
                     if (canSaveToKnowlege) {
                       saveToKnowlwdge(2);
                     } else {

@@ -85,6 +85,7 @@ export default function SaveButton(props) {
       )}
     </Con>
   );
+
   if (hasDownList) {
     return (
       <Trigger
@@ -108,6 +109,7 @@ export default function SaveButton(props) {
                   if (item.disabled) {
                     return;
                   }
+
                   item.onClick();
                   setPopupVisible(false);
                 }}
@@ -127,5 +129,6 @@ export default function SaveButton(props) {
       </Trigger>
     );
   }
+
   return content;
 }

@@ -1,11 +1,20 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Dialog, Icon, Radio } from 'ming-ui';
+import WaterMarkDialog from 'src/pages/Role/PortalCon/components/WaterMarkDialog';
 import { DIS_SET } from './config';
 import { SwitchStyle } from './style';
+
+// 门户水印仅支持：姓名、手机号、邮箱 + 自定义文本
+const PORTAL_WATERMARK_CONTROLS = [
+  { controlId: 'fullname', controlName: _l('姓名') },
+  { controlId: 'mobilePhone', controlName: _l('手机号') },
+  { controlId: 'email', controlName: _l('邮箱') },
+];
 
 export default function (props) {
   const { portalSetModel, onChangePortalSet } = props;
   const { noticeScope = {} } = portalSetModel;
+  const [showWaterMarkSetting, setShowWaterMarkSetting] = useState(false);
   return (
     <>
       <h6 className="Font16 textPrimary Bold mBottom0 mTop24">{_l('功能设置')}</h6>
@@ -20,6 +29,7 @@ export default function (props) {
               let data = {
                 allowExAccountDiscuss: !portalSetModel.allowExAccountDiscuss,
               };
+
               if (portalSetModel.allowExAccountDiscuss) {
                 //关闭外部门户讨论，同时关闭外部门户的消息通知
                 data = {
@@ -27,6 +37,7 @@ export default function (props) {
                   noticeScope: { ...noticeScope, discussionNotice: false },
                 };
               }
+
               onChangePortalSet({
                 portalSetModel: {
                   ...portalSetModel,
@@ -51,9 +62,11 @@ export default function (props) {
                         onClick={() => {
                           const { portalSet = {} } = props;
                           const { portalSetModel = {} } = portalSet;
+
                           if (portalSetModel.exAccountDiscussEnum === i) {
                             return;
                           }
+
                           Dialog.confirm({
                             title:
                               portalSetModel.exAccountDiscussEnum === 0
@@ -144,14 +157,74 @@ export default function (props) {
               });
             }}
           />
-          <div className="switchText LineHeight32 InlineBlock Normal textPrimary mLeft12">{_l('水印设置')}</div>
+          <div className="switchText LineHeight32 InlineBlock Normal textPrimary mLeft12">{_l('屏幕水印')}</div>
         </SwitchStyle>
         {portalSetModel.watermark === 1 && (
-          <div style={{ 'margin-left': '44px' }} className="textTertiary Font13">
-            {_l('启用水印配置后，将在外部门户内显示当前使用者的姓名+手机号后4位或邮箱前缀')}
+          <div style={{ 'margin-left': '44px' }}>
+            <div className="textTertiary Font13 mBottom8">
+              {_l('启用水印配置后，将在外部门户门户所有页面显示水印。可自定义水印文字')}
+            </div>
+            <span className="Hand ThemeColor3 Font13 Bold" onClick={() => setShowWaterMarkSetting(true)}>
+              {_l('设置')}
+            </span>
           </div>
         )}
       </div>
+      <div className="mTop5">
+        <SwitchStyle>
+          <Icon
+            icon={portalSetModel.editPersonalInfo ? 'ic_toggle_on' : 'ic_toggle_off'}
+            className="Font32 Hand"
+            onClick={() => {
+              onChangePortalSet({
+                portalSetModel: {
+                  ...portalSetModel,
+                  editPersonalInfo: !portalSetModel.editPersonalInfo,
+                },
+              });
+            }}
+          />
+          <div className="switchText LineHeight32 InlineBlock Normal textPrimary mLeft12">
+            {_l('允许外部用户修改账号信息')}
+          </div>
+        </SwitchStyle>
+      </div>
+      <div className="mTop5">
+        <SwitchStyle>
+          <Icon
+            icon={portalSetModel.editPersonalExtInfo ? 'ic_toggle_on' : 'ic_toggle_off'}
+            className="Font32 Hand"
+            onClick={() => {
+              onChangePortalSet({
+                portalSetModel: {
+                  ...portalSetModel,
+                  editPersonalExtInfo: !portalSetModel.editPersonalExtInfo,
+                },
+              });
+            }}
+          />
+          <div className="switchText LineHeight32 InlineBlock Normal textPrimary mLeft12">
+            {_l('允许外部用户修改个人扩展信息')}
+          </div>
+        </SwitchStyle>
+      </div>
+      {showWaterMarkSetting && (
+        <WaterMarkDialog
+          visible={showWaterMarkSetting}
+          defaultValue={typeof portalSetModel.watermarkTxt === 'string' ? portalSetModel.watermarkTxt : ''}
+          controls={PORTAL_WATERMARK_CONTROLS}
+          onClose={() => setShowWaterMarkSetting(false)}
+          onSave={value => {
+            onChangePortalSet({
+              portalSetModel: {
+                ...portalSetModel,
+                watermarkTxt: value,
+              },
+            });
+            setShowWaterMarkSetting(false);
+          }}
+        />
+      )}
     </>
   );
 }

@@ -316,6 +316,7 @@ class ImportDepAndPosition extends Component {
   componentWillReceiveProps(nextProps) {
     if (!_.isEqual(this.props.importExportResult, nextProps.importExportResult)) {
       let { actionResult } = nextProps.importExportResult;
+
       if (actionResult === 1) {
         this.setState({ actionResultStatus: 1 });
       } else {
@@ -369,6 +370,7 @@ class ImportDepAndPosition extends Component {
     const { importExportType } = this.props;
     this.setState({ importFileLoading: true });
     const _this = this;
+
     const callback = rsp => {
       // 开始导入
       const requestData = {
@@ -384,6 +386,7 @@ class ImportDepAndPosition extends Component {
         .importDepartmentList(requestData)
         .then(result => {
           const { actionResult, failes } = result;
+
           if (actionResult === 1 || actionResult === 6) {
             if (!_.isEmpty(failes)) {
               _this.setState({
@@ -393,9 +396,11 @@ class ImportDepAndPosition extends Component {
               });
               return;
             }
+
             if (importExportType === 'importDepartment') {
               this.props.loadDepartments('', 1);
             }
+
             _this.setState({
               importFileLoading: false,
               fileName: '',
@@ -427,6 +432,7 @@ class ImportDepAndPosition extends Component {
     let { actionResultStatus, columns, resultDetail = {} } = this.state;
     const { failes = [], successCount } = resultDetail;
     const { importExportType } = this.props;
+
     if (actionResultStatus === 1) {
       return (
         <SuccessInfo>

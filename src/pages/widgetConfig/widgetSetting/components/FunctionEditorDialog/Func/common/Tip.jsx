@@ -25,7 +25,7 @@ const Con = styled.div`
     margin: 0 4px;
     height: 24px;
     line-height: 22px;
-    color: var(--color-link-hover);
+    color: var(--color-primary);
     padding: 0 8px;
     border-radius: 24px;
     border: 1px solid var(--color-primary-transparent);
@@ -69,19 +69,24 @@ export default function Tip(props) {
   const [activeFn, setActiveFn] = useState();
   const visibleFn = hoverFn || activeFn;
   const fn = functionDetails[visibleFn];
+
   function handleEnter(fnKey) {
     setHoverFn(fnKey);
   }
+
   function handleLeave() {
     setHoverFn(activeFn);
   }
+
   function handleClick(fnKey) {
     setActiveFn(fnKey);
   }
+
   function clear() {
     setHoverFn(undefined);
     setActiveFn(undefined);
   }
+
   useEffect(() => {
     window.emitter.addListener('FUNCTIONEDITOR_FOCUS_FN', handleEnter);
     window.emitter.addListener('FUNCTIONEDITOR_BLUR_FN', handleLeave);

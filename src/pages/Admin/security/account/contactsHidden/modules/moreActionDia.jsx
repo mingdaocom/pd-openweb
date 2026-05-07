@@ -7,6 +7,7 @@ class MoreActionDia extends React.Component {
     if (!this.props.showMoreAction) {
       return '';
     }
+
     return (
       <ul className="moreActionDia">
         <li onClick={() => this.props.addUser()}>{_l('添加成员')}</li>

@@ -42,6 +42,7 @@ const UserSelect = props => {
     formItemId,
     useCallback(data => {
       const { triggerType } = data;
+
       switch (triggerType) {
         case 'Enter':
           pickUser();
@@ -51,6 +52,7 @@ const UserSelect = props => {
             destoryRef.current();
             destoryRef.current = null;
           }
+
           break;
         default:
           break;
@@ -170,7 +172,7 @@ const UserSelect = props => {
           )
         }
       >
-        <div className={cx('customFormControlTags', { clickActive: showMenu })} key={item.accountId}>
+        <div className={cx('customFormControlTags userSelectTag', { clickActive: showMenu })} key={item.accountId}>
           {from === FROM.SHARE || from === FROM.WORKFLOW ? (
             <div class="cursorDefault userHead InlineBlock" style={{ width: 26, height: 26 }}>
               <img class="circle" width="26" height="26" src={item.avatar} />

@@ -36,13 +36,17 @@ const setOptions = values => {
       };
     });
 };
+
 const getValue = (info, o) => {
   let staticValue = ['dot'].includes(o) ? _.get(info, [o]) : _.get(info, ['advancedSetting', o]);
+
   if (['defsource'].includes(o)) {
     staticValue = (safeParse(staticValue || '[]')[0] || {}).staticValue;
   }
+
   return staticValue;
 };
+
 function Edit(params) {
   const { onClose, onChange } = params;
   const [{ info, dropDownVisible }, setState] = useSetState({
@@ -64,6 +68,7 @@ function Edit(params) {
   const onUpdate = data => {
     onChange({ ...info, ...data });
   };
+
   const keys =
     controlKeys[
       (
@@ -72,10 +77,12 @@ function Edit(params) {
         ) || {}
       ).fieldId
     ] || [];
+
   const renderContent = o => {
     const renderTitle = o => {
       return <div className="title mTop24">{controlKeyNames[o]}</div>;
     };
+
     switch (o) {
       case 'controlName':
       case 'desc':
@@ -85,6 +92,7 @@ function Edit(params) {
       case 'max':
       case 'dot':
         let staticValue = getValue(info, o);
+
         const changeDef = value => {
           setState({
             info: {
@@ -96,6 +104,7 @@ function Edit(params) {
             },
           });
         };
+
         if (
           ['max'].includes(o) &&
           info.type === 200 &&
@@ -104,6 +113,7 @@ function Edit(params) {
         ) {
           return;
         }
+
         if (info.type === 6 && ['defsource'].includes(o)) {
           return (
             <React.Fragment>
@@ -123,6 +133,7 @@ function Edit(params) {
             </React.Fragment>
           );
         }
+
         if (['max', 'dot'].includes(o)) {
           return (
             <React.Fragment>
@@ -172,6 +183,7 @@ function Edit(params) {
             </React.Fragment>
           );
         }
+
         if (info.type === 36 && ['defsource'].includes(o)) {
           return (
             <React.Fragment>
@@ -187,6 +199,7 @@ function Edit(params) {
             </React.Fragment>
           );
         }
+
         return (
           <React.Fragment>
             {renderTitle(o)}
@@ -223,6 +236,7 @@ function Edit(params) {
               }}
               onBlur={e => {
                 let value = ((['controlName', 'desc', 'des'].includes(o) ? info[o] : staticValue) || '').trim();
+
                 if (['controlName', 'desc', 'des'].includes(o)) {
                   onUpdate({
                     [o]: value,
@@ -237,6 +251,7 @@ function Edit(params) {
                     },
                   });
                 }
+
                 e.stopPropagation();
               }}
             />
@@ -261,16 +276,21 @@ function Edit(params) {
           //枚举值  显示方式非平铺 不显示排列方式
           return;
         }
+
         if (info.type === 200 && info.sourceControlType === 29) {
           return;
         }
+
         let dataList = ALLOW_ITEM_TYPES;
+
         if (o === 'checktype') {
           dataList = SHOW_ITEM_TYPES;
         }
+
         if (o === 'direction') {
           dataList = MULTI_SELECT_DISPLAY;
         }
+
         if (info.type === 36) {
           dataList = BOOLEAN_SHOW_ITEM_TYPES;
         }
@@ -313,6 +333,7 @@ function Edit(params) {
                   if (item.value === 'all') {
                     return <div className={'itemText Hand forAll flexRow alignItemsCenter'}>{item.text}</div>;
                   }
+
                   const isCur = !!values.includes(WIDGETS_TO_API_TYPE_ENUM[item.value] + '');
                   return (
                     <div
@@ -331,6 +352,7 @@ function Edit(params) {
                 value={values.length <= 0 ? undefined : values}
                 onChange={value => {
                   let data = [];
+
                   if (!value) {
                     data = [];
                   } else if (value == 'all') {
@@ -340,6 +362,7 @@ function Edit(params) {
                   } else {
                     data = [...values, WIDGETS_TO_API_TYPE_ENUM[value] + ''];
                   }
+
                   onUpdate({
                     [o]: data,
                   });
@@ -440,6 +463,7 @@ function Edit(params) {
         break;
     }
   };
+
   return (
     <Wrap className="">
       <div className="con flexColumn">

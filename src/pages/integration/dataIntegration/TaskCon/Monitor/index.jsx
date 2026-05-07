@@ -38,7 +38,7 @@ const WrapCon = styled.div`
     li {
       width: 224px;
       height: 120px;
-      background: var(--color-background-secondary);
+      background: var(--color-background-tertiary);
       border-radius: 4px;
       text-align: center;
       .des {
@@ -65,6 +65,10 @@ const WrapCon = styled.div`
     height: 207px;
     .chartBox {
       height: 207px;
+    }
+    .g2-tooltip {
+      background-color: var(--color-background-card) !important;
+      box-shadow: var(--shadow-sm) !important;
     }
   }
   .listTable {
@@ -106,6 +110,7 @@ const WrapCon = styled.div`
 `;
 //配置
 let lineChart = null;
+
 function Monitor(props) {
   const g2plotComponent = useRef({});
   const { currentProjectId: projectId } = props;
@@ -188,6 +193,7 @@ function Monitor(props) {
       writeRecord: _.get(tasksTotal, 'writeTotal'),
     });
   };
+
   //获取同步任务历史流量数据
   const getHistory = (showDate = 1) => {
     MonitorAjax.getHistoricalData({
@@ -212,6 +218,7 @@ function Monitor(props) {
       });
     });
   };
+
   //获取同步任务日志列表
   const getLog = () => {
     LogAjax.getLog({
@@ -228,12 +235,15 @@ function Monitor(props) {
       });
     });
   };
+
   const dateArr = [
     { text: _l('最近1小时'), value: 1 },
     { text: _l('最近1天'), value: 2 },
     { text: _l('最近1个月'), value: 3 },
     { text: _l('最近6个月'), value: 4 },
   ];
+  const isDark = window.themeMode === 'dark';
+
   const renderChart = (initChartData = []) => {
     const { Line } = g2plotComponent.current.value;
     lineChart && lineChart.destroy();
@@ -247,21 +257,21 @@ function Monitor(props) {
       xAxis: {
         label: {
           style: {
-            fill: '#2C3542',
+            fill: isDark ? '#ffffffb0' : '#2C3542',
             opacity: 0.45,
           },
           formatter: date => moment(date).format(3 === showDate ? 'MM-DD' : 4 === showDate ? 'YYYY-MM' : 'HH:mm'),
         },
         line: {
           style: {
-            stroke: '#416180',
+            stroke: isDark ? '#484848' : '#416180',
             opacity: 0.45,
             lineWidth: 0.5,
           },
         },
         tickLine: {
           style: {
-            fill: '#BDBDBD',
+            fill: isDark ? '#484848' : '#BDBDBD',
             opacity: 1,
           },
         },
@@ -273,7 +283,7 @@ function Monitor(props) {
           // 数值格式化为千分位
           formatter: v => `${v}`.replace(/\d{1,3}(?=(\d{3})+$)/g, s => `${s},`),
           style: {
-            fill: '#2C3542',
+            fill: isDark ? '#ffffffb0' : '#2C3542',
             opacity: 0.45,
           },
           grid: {
@@ -306,6 +316,7 @@ function Monitor(props) {
     });
     lineChart.render();
   };
+
   return (
     <Wrap className="">
       <Con className="">
@@ -384,6 +395,7 @@ function Monitor(props) {
                       if (!o.errorDetail) {
                         return;
                       }
+
                       setState({
                         showErr: true,
                         errorDetail: o.errorDetail,
@@ -402,6 +414,7 @@ function Monitor(props) {
                   if (pageIndex <= 0) {
                     return;
                   }
+
                   setState({
                     pageIndex: pageIndex - 1,
                   });
@@ -422,6 +435,7 @@ function Monitor(props) {
                   ) {
                     return;
                   }
+
                   setState({
                     pageIndex: pageIndex + 1,
                   });

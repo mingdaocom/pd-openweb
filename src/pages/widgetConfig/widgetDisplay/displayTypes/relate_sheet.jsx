@@ -40,6 +40,7 @@ export default function RelateSheet({ data = {}, isTab }) {
         </CommonDisplay>
       );
     }
+
     // 下拉框
     if (showtype === '3') {
       return (
@@ -49,6 +50,7 @@ export default function RelateSheet({ data = {}, isTab }) {
         </CommonDisplay>
       );
     }
+
     if (isSheetDisplay(data)) {
       return (
         <EditModelWrap isTab={isTab}>
@@ -85,6 +87,7 @@ export default function RelateSheet({ data = {}, isTab }) {
         </EditModelWrap>
       );
     }
+
     return null;
   };
 

@@ -8,7 +8,7 @@ export const Wrap = styled.div`
     flex-shrink: 0;
     min-width: 0;
     .line {
-      border-bottom: 1px solid var(--color-border-primary);
+      border-bottom: 1px solid var(--color-border-secondary);
     }
     .cover {
       position: fixed;
@@ -48,11 +48,9 @@ export const Wrap = styled.div`
 export const WrapDropW = styled.div`
   width: 100%;
   border-radius: 3px;
-  box-shadow:
-    0 4px 20px rgba(0, 0, 0, 0.13),
-    0 2px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-lg);
   padding: 6px 0;
-  background-color: var(--color-background-primary);
+  background-color: var(--color-background-card);
 `;
 export const WrapSelectCon = styled.div`
   .topCon {
@@ -134,7 +132,7 @@ export const Header = styled.div`
   width: 100%;
   height: 54px;
   background: var(--color-background-primary);
-  box-shadow: 0px 1px 10px rgba(0, 0, 0, 0.16);
+  box-shadow: var(--shadow-md);
   z-index: 10000;
   .pageName {
     .iconWrap {
@@ -162,13 +160,6 @@ export const Header = styled.div`
       border: none;
       font-size: 17px;
       border-bottom: 2px solid var(--color-primary);
-    }
-  }
-  .ming.Button--secondary {
-    color: var(--color-text-secondary);
-    background: var(--color-background-secondary);
-    &:hover {
-      background: var(--color-background-hover);
     }
   }
   .reset {
@@ -268,7 +259,7 @@ export const WrapPreview = styled.div`
       .icon {
         color: var(--color-warning);
       }
-      background: #fff9ed;
+      background: var(--color-warning-bg);
     }
     .btn {
       padding: 0 16px;
@@ -366,8 +357,6 @@ export const WrapS = styled(Menu)`
   // }
   // height: 120px;
   .ming.MenuItem .Item-content:not(.disabled):hover {
-    background: var(--color-background-secondary) !important;
-    color: initial !important;
     .icon {
       color: var(--color-text-tertiary) !important;
     }

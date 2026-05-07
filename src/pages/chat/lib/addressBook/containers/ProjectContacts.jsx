@@ -316,6 +316,7 @@ export default class ProjectContacts extends React.Component {
   renderList() {
     const { departments, listData, selectedAccountId, isLoading, keywords, isMore, departmentsList } = this.state;
     const isSearch = !!keywords;
+
     if (isSearch) {
       return (
         <SearchContainer>

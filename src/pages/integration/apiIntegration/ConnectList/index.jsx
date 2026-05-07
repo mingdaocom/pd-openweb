@@ -141,17 +141,21 @@ function Con(props) {
     if (!props.currentProjectId) {
       return;
     }
+
     if (ajaxPromise) {
       ajaxPromise.abort();
     }
+
     setState({ loading: true });
     let sorter = {
       lastModifiedDate: timeSort === 1 ? 'ascend' : timeSort === 2 ? 'descend' : undefined,
       apiCount: countSort === 1 ? 'ascend' : countSort === 2 ? 'descend' : undefined,
     };
+
     if (!sorter.lastModifiedDate && !sorter.apiCount) {
       sorter = undefined;
     }
+
     ajaxPromise =
       tab === 3
         ? packageVersionAjax.getInstallList(
@@ -189,6 +193,7 @@ function Con(props) {
       cache.current.pgIndex = pageIndex;
     });
   };
+
   // 刷新当前数据
   const onFresh = () => {
     setState(prevState => ({
@@ -218,6 +223,7 @@ function Con(props) {
     if (loading || noMore) {
       return;
     }
+
     setState({ pageIndex: cache.current.pgIndex + 1 });
   };
 
@@ -250,6 +256,7 @@ function Con(props) {
         className="addConnect Bold Hand"
         onClick={e => {
           const projectId = props.currentProjectId;
+
           if (featureType === '2') {
             e.stopPropagation();
             setState({ showMenu: false });
@@ -277,6 +284,7 @@ function Con(props) {
                   if (searchType === value) {
                     return;
                   }
+
                   setState({
                     searchType: value,
                     pageIndex: 1,
@@ -328,7 +336,7 @@ function Con(props) {
                       <span>{_l('创建自定义连接')}</span>
                     </MenuItemWrap>
                     <MenuItemWrap
-                      icon={<Icon icon="file_upload" className="Font17 mLeft5" />}
+                      icon={<Icon icon="worksheet_import" className="Font17 mLeft5" />}
                       onClick={() => {
                         setState({ isCreate: true, showMenu: false, connectData: null });
                       }}
@@ -365,17 +373,21 @@ function Con(props) {
         onFresh();
       },
     };
+
     const onCreate = () => {
       const projectId = props.currentProjectId;
+
       if (!projectId) {
         return alert(_l('请创建或申请加入一个组织'), 3);
       }
+
       if (featureType === '2') {
         buriedUpgradeVersionDialog(projectId, VersionProductType.apiIntergration);
       } else {
         setState({ showConnect: true, connectData: null });
       }
     };
+
     return (
       <React.Fragment>
         {listConRender()}
@@ -395,6 +407,7 @@ function Con(props) {
       </React.Fragment>
     );
   };
+
   return (
     <ScrollView onScrollEnd={onScrollEnd}>
       <Wrap>
@@ -423,6 +436,7 @@ function Con(props) {
                       if (tab === o.tab) {
                         return;
                       }
+
                       setState({ tab: o.tab, pageIndex: 1 });
                     }}
                   >

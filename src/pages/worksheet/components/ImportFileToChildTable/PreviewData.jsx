@@ -71,9 +71,11 @@ const ConvertingMask = styled.div`
 
 function getMapConfigByExcel(controls = [], excelData = []) {
   const result = {};
+
   if (excelData.length < controls.length) {
     excelData = excelData.concat(new Array(controls.length - excelData.length).fill(''));
   }
+
   excelData.forEach((t, i) => {
     const valuesOfResult = _.values(result);
     const matchedControl = _.find(
@@ -193,11 +195,13 @@ export default function PreviewData(props) {
                       getSheetIndex: newSheetIndex,
                     },
                   );
+
                   if (_.get(data, 'rows')) {
                     setCellsData(data.rows.map(r => r.cells));
                   } else {
                     setCellsData([]);
                   }
+
                   setSheetIndex(newSheetIndex);
                   setTableLoading(false);
                 }}

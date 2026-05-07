@@ -104,10 +104,12 @@ export default function WidgetConfig(props) {
       </Fragment>
     );
   }
+
   // 选项
   if (_.includes([9, 10, 11], type)) {
     return <DropConfig {...props} />;
   }
+
   // 定位
   if (type === 40) {
     return (
@@ -147,6 +149,7 @@ export default function WidgetConfig(props) {
       </Fragment>
     );
   }
+
   // 地区
   if (_.includes([23, 24], type)) {
     return (
@@ -161,6 +164,7 @@ export default function WidgetConfig(props) {
       </div>
     );
   }
+
   // 签名
   if (type === 42) {
     return (
@@ -175,6 +179,7 @@ export default function WidgetConfig(props) {
       </div>
     );
   }
+
   // 查询记录
   if (type === 51) {
     const [isHiddenOtherViewRecord] = (strDefault || '000').split('');

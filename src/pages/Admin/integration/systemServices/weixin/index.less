@@ -1,0 +1,100 @@
+.adminWeiXinContainer {
+  .description {
+    background: var(--color-primary-transparent);
+    border-radius: 3px;
+    font-size: 13px;
+    padding: 12px;
+    margin-bottom: 24px;
+  }
+  .weiXinServiceAccountItem {
+    height: 70px;
+    line-height: 70px;
+    padding-left: 25px;
+    padding-right: 10px;
+    background-color: var(--color-background-card);
+    border-radius: 3px;
+    border: 1px solid var(--color-border-secondary);
+    margin-bottom: 10px;
+    &:hover {
+      box-shadow: var(--shadow-sm);
+    }
+    &.unBindItem {
+      background-color: var(--color-background-secondary);
+      border-color: var(--color-background-secondary);
+    }
+  }
+  .icon-wechat {
+    font-size: 110px;
+    color: var(--color-success);
+    margin-top: 15px;
+  }
+
+  .bindContent {
+    width: 580px;
+    margin: 100px auto 0 auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    .icon {
+      font-size: 110px;
+      color: var(--color-success);
+      margin-bottom: 8px;
+    }
+    .bindBtn {
+      height: 36px;
+      padding: 0 24px;
+      line-height: 36px;
+      background: var(--color-primary);
+      border-radius: 18px;
+      cursor: pointer;
+      text-align: center;
+      color: var(--color-white);
+      font-size: 17px;
+      font-weight: bold;
+      margin: 70px 0 16px 0;
+      &:hover {
+        background-color: rgba(33, 150, 243, 0.8);
+      }
+    }
+    input {
+      width: 480px;
+      margin: 8px 0;
+    }
+  }
+  .weixin-info-row {
+    display: flex;
+    align-items: center;
+    padding: 30px 0;
+    box-sizing: border-box;
+    border-bottom: 1px solid var(--color-border-secondary);
+    &.Hidden {
+      display: none !important;
+    }
+    .weixin-info-tag {
+      display: inline-block;
+      height: 20px;
+      line-height: 20px;
+      width: 53px;
+      margin: 0 14px;
+      text-align: center;
+      font-size: 12px;
+      background: rgba(71, 177, 75, 0.08);
+      color: var(--color-success);
+      border-radius: 10px;
+    }
+    .weixin-info-row-label {
+      display: inline-block;
+      width: 175px;
+      color: var(--color-text-secondary);
+    }
+  }
+}
+
+.weixinFuncInfoDialog {
+  height: 400px !important;
+  ul > li {
+    list-style-type: disc;
+    margin-left: 20px;
+  }
+}

@@ -12,6 +12,7 @@ export default function Group(props) {
     const data = worksheetControls.find(o => o.controlId === value) || {};
     return data.type === 30 ? data.sourceControlType : data.type;
   };
+
   return (
     <React.Fragment>
       <DropDownSet

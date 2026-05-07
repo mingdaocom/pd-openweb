@@ -50,6 +50,7 @@ export const getIndexById = ({ component, components }) => {
   const id = component.id || component.uuid;
   return _.findIndex(components, item => item.id === id || item.uuid === id);
 };
+
 export const getDefaultLayout = ({
   components = [],
   index = components.length,
@@ -68,11 +69,13 @@ export const getDefaultLayout = ({
       return { x: (components.length * 24) % 48, y: Infinity, w: 24, h: 12, minW: 2, minH: 4 };
     }
   }
+
   if (layoutType === 'mobile') {
     const { type } = _.pick(components[index], 'type');
     const { y = 0, h = 6 } = maxBy(components, item => get(item, ['mobile', 'layout', 'y'])) || {};
     const enumType = getEnumType(type);
     const minW = _.includes(['button'], enumType) ? 2 : 1;
+
     if (['view', 'tabs'].includes(enumType)) {
       return { x: 0, y: y + h, w: 4, h: titleVisible ? 9 : 8, minW, minH: 4 };
     } else if (enumType === 'filter') {
@@ -92,6 +95,7 @@ export const componentCountLimit = () => {
   //   alert(_l('自定义页面最多只能添加%0个组件', MAX_COMPONENT_COUNT), 3);
   //   return false;
   // }
+
   return true;
 };
 
@@ -160,6 +164,7 @@ export const genUrl = (url, para, info) => {
     const { type, data } = value;
     if (type === 'static') return data;
     const { mobilePhone, accountId, email } = _.get(md, ['global', 'Account']);
+
     switch (data) {
       case 'userId':
         return accountId;
@@ -179,6 +184,7 @@ export const genUrl = (url, para, info) => {
         return info[data] || '';
     }
   };
+
   const paraStr = para.reduce((p, c) => {
     const { key, value } = c;
     const data = encodeURIComponent(getData(value));
@@ -325,6 +331,7 @@ export const exportImage = ({ pageBgColor, isUserWatermark, currentProject }) =>
         if (isUserWatermark) {
           newCanvas = await addUserWatermark(newCanvas, currentProject);
         }
+
         fontlinksheet && fontlinksheet.remove();
         newCanvas.toBlob(blob => resolve(blob));
       })
@@ -346,6 +353,7 @@ export const fillObjectId = components => {
   return components.map(c => {
     if ([enumWidgetType.analysis, enumWidgetType.view].includes(c.type)) {
       const config = _.get(c, 'config') || {};
+
       if (config.objectId) {
         return c;
       } else {
@@ -358,6 +366,7 @@ export const fillObjectId = components => {
         };
       }
     }
+
     return c;
   });
 };
@@ -365,6 +374,7 @@ export const fillObjectId = components => {
 export const formatNavfilters = data => {
   const { advancedSetting } = data;
   const { navshow, navfilters, showNavfilters } = advancedSetting;
+
   if (['2'].includes(navshow) && navfilters && !showNavfilters) {
     const res = JSON.parse(navfilters);
     const { values } = handleCondition({
@@ -373,10 +383,12 @@ export const formatNavfilters = data => {
     });
     return JSON.stringify(values);
   }
+
   if (['3'].includes(navshow) && navfilters && !showNavfilters) {
     const res = JSON.parse(navfilters);
     return JSON.stringify(res.map(handleCondition));
   }
+
   return navfilters;
 };
 
@@ -384,6 +396,7 @@ export const replaceColor = (config, iconColor) => {
   const iconColors = iconColor ? generate(iconColor) : [];
   const lightColor = iconColors[0];
   const data = { ...config };
+
   if (config.pageStyleType === 'dark') {
     if (data.pageBgColor === 'iconColor10' || data.pageBgColor === 'iconColor') {
       data.widgetBgColor = iconColors[8];
@@ -393,32 +406,41 @@ export const replaceColor = (config, iconColor) => {
   } else {
     data.widgetBgColor = '#fff';
   }
+
   if (data.pageBgColor === 'iconColor10') {
     data.pageBgColor = iconColors[9];
   }
+
   if (data.widgetBgColor === data.pageBgColor) {
     data.widgetBgColor = iconColors[7];
     data.pageBgColor = iconColors[8];
   }
+
   if (data.pageBgColor === 'iconColor') {
     data.pageBgColor = iconColor;
     data.darkenPageBgColor = new TinyColor(iconColor).darken(6).toRgbString();
   }
+
   if (data.pageBgColor === 'lightColor') {
     data.pageBgColor = lightColor;
   }
+
   if (data.pivoTableColor === 'iconColor') {
     data.pivoTableColor = iconColor;
   }
+
   if (data.pivoTableColor === 'lightColor') {
     data.pivoTableColor = lightColor;
   }
+
   if (data.numberChartColor === 'iconColor') {
     data.numberChartColor = iconColor;
   }
+
   if (data.numberChartColor === 'lightColor') {
     data.numberChartColor = lightColor;
   }
+
   return data;
 };
 
@@ -426,11 +448,13 @@ export const isLightColor = color => {
   if (_.find(SYS_COLOR, { color: color.toLocaleUpperCase() })) {
     return false;
   }
+
   return utilsIsLightColor(color);
 };
 
 function getQuarterDateRange(year, quarter) {
   let startMonth, endMonth;
+
   switch (quarter) {
     case 1:
       startMonth = 1;
@@ -466,9 +490,11 @@ function getQuarterDateRange(year, quarter) {
 
 export const formatLinkageFiltersGroup = ({ sheetId, reportId, objectId }, linkageFiltersGroup) => {
   const result = [];
+
   for (let key in linkageFiltersGroup) {
     const data = linkageFiltersGroup[key];
     const { onlyChartIds = [] } = data;
+
     if (
       data.sheetId === sheetId &&
       reportId !== data.reportId &&
@@ -489,12 +515,14 @@ export const formatLinkageFiltersGroup = ({ sheetId, reportId, objectId }, linka
             dataType,
             filterType,
           };
+
           // 如果内容为空，按照为空查找
           if (_.isNull(data.values[0]) || _.isUndefined(data.values[0]) || data.values[0] === '') {
             data.filterType = FILTER_CONDITION_TYPE.ISNULL;
             data.values = [];
             return data;
           }
+
           // 处理维度作为数值字段查找
           if (
             item.type === WIDGETS_TO_API_TYPE_ENUM.NUMBER ||
@@ -506,12 +534,14 @@ export const formatLinkageFiltersGroup = ({ sheetId, reportId, objectId }, linka
             data.values = [];
             return data;
           }
+
           // 子表和关联表按照关联表查找
           if (item.type === WIDGETS_TO_API_TYPE_ENUM.SUB_LIST || item.type === WIDGETS_TO_API_TYPE_ENUM.RELATE_SHEET) {
             data.dataType = WIDGETS_TO_API_TYPE_ENUM.RELATE_SHEET;
             data.filterType = FILTER_CONDITION_TYPE.RCEQ;
             return data;
           }
+
           // 处理日期格式字段
           if (
             item.type === WIDGETS_TO_API_TYPE_ENUM.DATE ||
@@ -519,6 +549,7 @@ export const formatLinkageFiltersGroup = ({ sheetId, reportId, objectId }, linka
           ) {
             const { particleSizeType = 1 } = control;
             const value = data.values[0];
+
             // 日、分、秒
             if ([1, 7, 13].includes(particleSizeType)) {
               data.dateRangeType = 1;
@@ -526,6 +557,7 @@ export const formatLinkageFiltersGroup = ({ sheetId, reportId, objectId }, linka
               data.value = moment(value).format('YYYY-MM-DD');
               data.values = [];
             }
+
             // 周
             if (particleSizeType === 2) {
               const [year, week] = value.split('W');
@@ -536,6 +568,7 @@ export const formatLinkageFiltersGroup = ({ sheetId, reportId, objectId }, linka
               data.maxValue = end.format('YYYY-MM-DD');
               data.values = [];
             }
+
             // 月
             if (particleSizeType === 3) {
               const [year, month] = value.split('/');
@@ -552,6 +585,7 @@ export const formatLinkageFiltersGroup = ({ sheetId, reportId, objectId }, linka
               data.maxValue = end.format('YYYY-MM-DD');
               data.values = [];
             }
+
             // 季度
             if (particleSizeType === 4) {
               const [year, quarter] = value.split('Q');
@@ -561,6 +595,7 @@ export const formatLinkageFiltersGroup = ({ sheetId, reportId, objectId }, linka
               data.maxValue = end.format('YYYY-MM-DD');
               data.values = [];
             }
+
             // 年
             if (particleSizeType === 5) {
               const year = value;
@@ -571,6 +606,7 @@ export const formatLinkageFiltersGroup = ({ sheetId, reportId, objectId }, linka
               data.maxValue = end.format('YYYY-MM-DD');
               data.values = [];
             }
+
             // 时
             if (particleSizeType === 6) {
               data.dateRangeType = 1;
@@ -578,8 +614,10 @@ export const formatLinkageFiltersGroup = ({ sheetId, reportId, objectId }, linka
               data.value = moment(`${value}:00`).format('YYYY-MM-DD');
               data.values = [];
             }
+
             return data;
           }
+
           // 处理时间格式字段
           if (item.type === WIDGETS_TO_API_TYPE_ENUM.TIME) {
             const value = data.values[0];
@@ -587,6 +625,7 @@ export const formatLinkageFiltersGroup = ({ sheetId, reportId, objectId }, linka
             data.value = value;
             data.values = [];
           }
+
           // 地区改为在范围内
           if (
             item.type === WIDGETS_TO_API_TYPE_ENUM.AREA_CITY ||
@@ -595,15 +634,18 @@ export const formatLinkageFiltersGroup = ({ sheetId, reportId, objectId }, linka
           ) {
             data.filterType = FILTER_CONDITION_TYPE.BETWEEN;
           }
+
           // 级联选择改为在范围内
           if (item.type === WIDGETS_TO_API_TYPE_ENUM.CASCADER) {
             data.filterType = FILTER_CONDITION_TYPE.BETWEEN;
           }
+
           return data;
         }),
       });
     }
   }
+
   const filters = _.flatten(
     result.map(item => {
       return item.filters;
@@ -619,9 +661,11 @@ export const formatLinkageFiltersGroup = ({ sheetId, reportId, objectId }, linka
 export const updateLayout = (components, config) => {
   const oldCols = 12;
   const newCols = 48;
+
   if (_.get(config, 'webNewCols') === 48) {
     return components;
   }
+
   return components.map(c => {
     const { web = {} } = c;
     const { layout } = web;
@@ -645,6 +689,7 @@ export const updateLayout = (components, config) => {
 
 export const insertPortal = url => {
   const theportal = 'www.theportal.cn';
+
   if (md.global.Account.isPortal && url.includes('embed/')) {
     if (location.hostname === theportal) {
       const parsed = new URL(url);
@@ -656,6 +701,7 @@ export const insertPortal = url => {
       return url.replace(/(\/)embed\//, '$1portal/embed/');
     }
   }
+
   return url;
 };
 
@@ -664,39 +710,42 @@ export const syncThemeConfig = (config, themeMode = window.themeMode || 'light')
     return config;
   } else {
     const { pivoTableColorIndex = 1, numberChartColorIndex = 1, titleStyles = defaultTitleStyles } = config;
+
     if (themeMode === 'light') {
       return {
         ...config,
         pageStyleType: themeMode,
-        pageBgColor: 'lightColor',
+        pageBgColor: config.lightPageBgColor || 'lightColor',
         pivoTableColor: 'lightColor',
         pivoTableColorIndex: pivoTableColorIndex + 1,
         numberChartColor: 'iconColor',
-        numberChartColorIndex: numberChartColorIndex + 1,
+        // numberChartColorIndex: numberChartColorIndex + 1,
         titleStyles: {
           ...titleStyles,
-          color: '#333',
+          color: '#151515',
           index: Date.now(),
         },
       };
     }
+
     if (themeMode === 'dark') {
       return {
         ...config,
-        pageBgColor: 'iconColor10',
         pageStyleType: themeMode,
+        pageBgColor: config.darkPageBgColor || 'iconColor10',
         pivoTableColor: 'iconColor',
         pivoTableColorIndex: pivoTableColorIndex + 1,
         numberChartColor: 'lightColor',
-        numberChartColorIndex: numberChartColorIndex + 1,
+        // numberChartColorIndex: numberChartColorIndex + 1,
         titleStyles: {
           ...titleStyles,
-          color: '#fff',
+          color: '#f2f2f2',
           isInitial: true,
           index: Date.now(),
         },
       };
     }
+
     return config;
   }
 };

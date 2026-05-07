@@ -51,12 +51,14 @@ export default class MobileOrEmailInvite extends Component {
 
   handleSearch = () => {
     const { needAlert } = this.props;
+
     if (needAlert) {
       alert(_l('非付费用户不允许添加'), 2);
       return;
     }
 
     const _this = this;
+
     var throttled = function (res) {
       if (res.ret === 0) {
         Requests.getAccountByAccount({
@@ -117,6 +119,7 @@ export default class MobileOrEmailInvite extends Component {
         if (result && result.sendMessageResult === 1) {
           onCancel();
         }
+
         this.setState({ loading: false });
         if (_.isFunction(cb)) {
           cb();
@@ -147,6 +150,7 @@ export default class MobileOrEmailInvite extends Component {
   submit = () => {
     const { list = [], loading, selectType } = this.state;
     const { needAlert } = this.props;
+
     if (needAlert) {
       alert(_l('非付费用户不允许添加'), 2);
       return;
@@ -164,11 +168,13 @@ export default class MobileOrEmailInvite extends Component {
     this.setState({ loading: true });
 
     let accountObj = {};
+
     for (var i = 0, length = list.length; i < length; i++) {
       if (list[i] && list[i].phone) {
         accountObj[encrypt(list[i].phone)] = '';
       }
     }
+
     InviteController.getInviteAccountInfo({
       accounts: accountObj,
     })
@@ -183,6 +189,7 @@ export default class MobileOrEmailInvite extends Component {
 
   renderItem = (item, index) => {
     let content = '';
+
     if (this.state.selectType === TYPE_MODE.MOBILE) {
       content = (
         <Tel
@@ -297,9 +304,7 @@ export default class MobileOrEmailInvite extends Component {
           )}
         </div>
 
-        {((!window.platformENV.isOverseas && !window.platformENV.isLocal) ||
-          ((window.platformENV.isOverseas || window.platformENV.isLocal) &&
-            md.global.SysSettings.enableSmsCustomContent)) && (
+        {md.global.SysSettings.enableSmsCustomContent && (
           <RadioGroup
             size="middle"
             className="mBottom20"

@@ -25,9 +25,9 @@ const OptionMenu = styled.div`
   position: relative !important;
   width: 220px !important;
   padding: 6px 0 !important;
-  box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.16);
+  box-shadow: var(--shadow-sm);
   border-radius: 3px;
-  background: var(--color-background-primary);
+  background: var(--color-background-card);
 `;
 
 const MenuItem = styled.div`

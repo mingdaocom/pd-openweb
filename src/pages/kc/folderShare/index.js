@@ -35,9 +35,11 @@ var ShareFolder = function (options) {
     listCount: 0,
   };
   let urlsearch = location.search;
+
   if (!urlsearch && /^#\?token(.*)/.test(location.hash)) {
     urlsearch = location.hash.match(/^#(\?token.*)/)[1];
   }
+
   this.urlParams = qs.parse(unescape(unescape(urlsearch.slice(1))));
   this.options = _.assign({}, DEFAULTS, options);
   this.$container = $('#app');
@@ -47,6 +49,7 @@ var ShareFolder = function (options) {
   } catch (err) {
     console.log(err);
   }
+
   if (shareId) {
     shareajax.getShareFolder({ shareId, token: this.urlParams.token }).then(data => {
       if (data.node) {
@@ -54,6 +57,7 @@ var ShareFolder = function (options) {
         if (data.accountInfo && md.global.Account) {
           md.global.Account = data.accountInfo;
         }
+
         SF.init();
       } else if (data.position) {
         location.href = '/apps/kc' + data.position;
@@ -93,15 +97,18 @@ ShareFolder.prototype = {
               }
             });
         }
+
         this.openFolder(hashId);
       } else {
         this.renderList([this.rootNode]);
         this.$container.find('.path').text(_l('全部文件'));
       }
+
       $('title').text(this.rootNode.name);
     } else {
       this.renderStatus('closed');
     }
+
     this.bindEvent();
   },
   bindEvent: function () {
@@ -193,9 +200,11 @@ ShareFolder.prototype = {
         if (SF.$previewCon) {
           SF.$previewCon.remove();
         }
+
         if (hashParams.preview) {
           SF.preview();
         }
+
         if (id) {
           SF.openFolder(id);
         } else if (id === '') {
@@ -218,6 +227,7 @@ ShareFolder.prototype = {
           SF.handleLogin();
           return;
         }
+
         var attachment = SF.rootNode;
         import('src/components/shareAttachment/shareAttachment').then(share => {
           var params = {
@@ -249,6 +259,7 @@ ShareFolder.prototype = {
           SF.handleLogin();
           return;
         }
+
         SF.saveToKnowledge();
       });
     }
@@ -317,9 +328,11 @@ ShareFolder.prototype = {
         render(pathArray, true);
       }
     }
+
     function getPathConWidth() {
       return SF.$container.find('.path').width() - 32;
     }
+
     function getPathWidth() {
       return _.sum(
         $path.map(function (index, ele) {
@@ -327,6 +340,7 @@ ShareFolder.prototype = {
         }),
       );
     }
+
     function render(pathArray, cut) {
       $path = $(
         _.compact(
@@ -334,9 +348,11 @@ ShareFolder.prototype = {
             if (cut && index === 1) {
               return '<span class="ellipsis">...</span>';
             }
+
             if (cut && index > 1 && index < pathArray.length - 2) {
               return '';
             }
+
             return '<a class="ellipsis" href="' + '#folderId=' + path.pathNodeId + '">' + path.pathNodeName + '</a>';
           }),
         ).join('<span class="spliter">></span>'),
@@ -388,6 +404,7 @@ ShareFolder.prototype = {
     if (SF.$globalLoading) {
       SF.$globalLoading.remove();
     }
+
     SF.$globalLoading = $('<div class="globalLoading">' + loading + '</div>');
     SF.$fileList.append(SF.$globalLoading);
   },
@@ -474,10 +491,12 @@ ShareFolder.prototype = {
       alert(str);
       return;
     }
+
     clearTimeout(SF.timer);
     if (SF.$alert) {
       SF.$alert.remove();
     }
+
     SF.$alert = $('<div class="mobileAlertDialog" ><div class="alertDialog">' + str + '</div></div>');
     $('body').append(SF.$alert);
     SF.alertTimer = setTimeout(function () {

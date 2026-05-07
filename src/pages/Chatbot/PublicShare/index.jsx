@@ -92,6 +92,7 @@ const Entry = () => {
     if (share.resultCode === 1) {
       return <Content title={title} updateTime={updateTime} chatbotId={chatbotId} conversationId={conversationId} />;
     }
+
     if ([14, 18, 19].includes(share.resultCode)) {
       return (
         <VerificationPass
@@ -117,6 +118,7 @@ const Entry = () => {
         />
       );
     }
+
     return <ShareState code={share.resultCode} />;
   };
 

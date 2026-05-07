@@ -59,9 +59,11 @@ export default function LayoutChangedIcon(props) {
   const cache = useRef({
     isApplyAll: applyToAllChecked,
   });
+
   function closePopup() {
     setPopupVisible(false);
   }
+
   return (
     <ChangeSheetLayout className={className} style={style}>
       {isSheetView ? (

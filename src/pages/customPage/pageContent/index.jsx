@@ -143,10 +143,12 @@ function CustomPageContent(props) {
     toggle(true);
     window.parent.postMessage({ type: 'showFullscreen' }, md.global.Config.MarketUrl);
   };
+
   const closeFullscreen = () => {
     document.body.classList.remove('customPageFullscreen');
     toggle(false);
   };
+
   const isFullscreen = useFullscreen(ref, show, { onClose: closeFullscreen });
   const isMobile = browserIsMobile();
   const sheetList = [1, 3].includes(appPkg.currentPcNaviStyle) ? getAppSectionData(groupId) : props.sheetList;
@@ -165,6 +167,7 @@ function CustomPageContent(props) {
         config: syncThemeConfig(configRef.current, value),
       });
     };
+
     emitter.addListener('CHANGE_THEME_MODE', handler);
     return () => {
       emitter.removeListener('CHANGE_THEME_MODE', handler);
@@ -189,6 +192,7 @@ function CustomPageContent(props) {
       updateLoading(true);
       pageId && getPage();
     }
+
     return () => {
       updateLoading(true);
     };

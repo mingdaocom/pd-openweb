@@ -1,10 +1,10 @@
-﻿import React from 'react';
+import React from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import { MdMarkdown, RichText } from 'ming-ui';
 import BarCode from 'src/components/Form/DesktopForm/widgets/BarCode';
 import Embed from 'src/components/Form/DesktopForm/widgets/Embed';
-import { getAdvanceSetting, getDateToEn, getShowFormat } from 'src/pages/widgetConfig/util/setting';
+import { getAdvanceSetting } from 'src/pages/widgetConfig/util/setting';
 import { getSwitchItemNames, getTitleTextFromRelateControl, renderText as renderCellText } from 'src/utils/control';
 import RegExpValidator from 'src/utils/expression';
 import { USER_CONTROLS } from './config';
@@ -19,6 +19,7 @@ const getPictureImageUrl = data => {
 // 附件的显示 fileStyle 0 缩略图 1 名称 默认0
 const renderRecordAttachments = (value, isRelateMultipleSheet, fileStyle = '0') => {
   let attachments;
+
   try {
     attachments = JSON.parse(value);
   } catch (err) {
@@ -62,6 +63,7 @@ const renderRecordAttachments = (value, isRelateMultipleSheet, fileStyle = '0') 
                       onLoad={e => {
                         let width = e.target.width;
                         let height = e.target.height;
+
                         if (width > height) {
                           $(e.target).attr({
                             width: width,
@@ -145,6 +147,10 @@ const renderRecordAttachments = (value, isRelateMultipleSheet, fileStyle = '0') 
   valueItem: 他表字段valueItem；[valueItem, valueItem]
   */
 const getPrintContent = (item, sourceControlType, valueItem) => {
+  const { realShowData, enableEmptyPlaceholder, emptyPlaceholderMode } = item;
+  const placeholderMode =
+    realShowData && !!Number(enableEmptyPlaceholder) && emptyPlaceholderMode ? emptyPlaceholderMode : '';
+
   let value = !_.isUndefined(sourceControlType) ? valueItem : item.value;
   let type = sourceControlType || item.type;
   let printOption = item.printOption;
@@ -165,6 +171,7 @@ const getPrintContent = (item, sourceControlType, valueItem) => {
   switch (type) {
     case 36:
       const { showtype } = getAdvanceSetting(item);
+
       if (_.includes(['1', '2'], showtype)) {
         const itemnames = getSwitchItemNames(item, { needDefault: true });
         return _.get(
@@ -172,6 +179,7 @@ const getPrintContent = (item, sourceControlType, valueItem) => {
           'value',
         );
       }
+
       return (
         <React.Fragment>
           <span style={{ fontSize: 10 }}>{value === '1' ? '☑ ' : '☐ '}</span>
@@ -185,56 +193,59 @@ const getPrintContent = (item, sourceControlType, valueItem) => {
     case 31:
     case 37:
       if (item.noUnit) {
-        return renderCellText(dataItem, { noUnit: item.noUnit });
+        return renderCellText(dataItem, { noUnit: item.noUnit }) || placeholderMode;
       }
+
       // let _value = renderCellText(dataItem, { noUnit: !item.showUnit });
-      let _value = renderCellText(dataItem);
+      let _value = renderCellText(dataItem) || placeholderMode;
+
       //带单位
       if (item.showUnit) {
         return _value;
       } else {
         return <div style={{ textAlign: item.isRelateMultipleSheet ? 'right' : 'left' }}>{_value}</div>;
       }
+
     case 14:
       const fileStyle = item.fileStyle || {};
       const id = item.isRelateMultipleSheet ? `${item.dataSource}_${item.controlId}` : item.controlId;
 
-      return value ? renderRecordAttachments(value, item.isRelateMultipleSheet, fileStyle[id]) : '';
+      return value ? renderRecordAttachments(value, item.isRelateMultipleSheet, fileStyle[id]) : placeholderMode;
     case 15:
     case 16:
-      if (value) {
-        const showformat = getShowFormat(item);
-        const formatValue = getDateToEn(showformat, value, item.advancedSetting.showformat);
-        return formatValue;
-      }
-      return '';
+      // 直接取新接口返回的 value
+      return value || placeholderMode;
     case 28:
       return value
         ? _.get(
             _.find(getAdvanceSetting(item, 'itemnames') || [], i => i.key === `${value}`),
             'value',
           ) || _l('%0 级', value)
-        : '';
+        : placeholderMode;
     case 51:
       if (item.advancedSetting && !['2', '5', '6'].includes(item.advancedSetting.showtype)) {
         const showtitleid = _.get(item, 'advancedSetting.showtitleid');
 
         let records = [];
+
         try {
           records = JSON.parse(value);
         } catch (err) {
           console.log(err);
-          return null;
+          return placeholderMode;
         }
+
         let list = (dataItem.relationControls || []).find(o => o.attribute === 1) || [];
+
         if (list.type && ![29, 30, dataItem.sourceControlType].includes(list.type)) {
           dataItem = { ...dataItem, sourceControlType: list.type };
         }
+
         // 1 卡片 2 列表 3 文本
         if (item.advancedSetting && item.advancedSetting.showtype === '3') {
           //下拉 显示关联表名称
           if (item.isRelateMultipleSheet && records.length <= 0) {
-            return '';
+            return placeholderMode;
           }
 
           let titleControl =
@@ -253,16 +264,18 @@ const getPrintContent = (item, sourceControlType, valueItem) => {
                       ? _l('未命名')
                       : l[titleControl?.controlId]),
                 )
-                .join(', ')}
+                .join(', ') || placeholderMode}
             </span>
           );
         }
+
         //关联表内除标题字段外的其他字段
         let showControlsList = [];
         item.showControls.map(o => {
           let data = (item.relationControls || []).find(
             it => it.controlId === o && (showtitleid ? it.controlId !== showtitleid : it.attribute !== 1),
           );
+
           if (data) {
             showControlsList.push(data);
           }
@@ -296,9 +309,9 @@ const getPrintContent = (item, sourceControlType, valueItem) => {
                   <tr>
                     <td className="listTextDiv">
                       {list.type === 38
-                        ? renderCellText(item.controls.find(it => it.attribute === 1))
+                        ? renderCellText(item.controls.find(it => it.attribute === 1)) || placeholderMode
                         : showtitleid
-                          ? getTitleTextFromRelateControl(dataItem, da)
+                          ? getTitleTextFromRelateControl(dataItem, da) || placeholderMode
                           : renderCellText({
                               ...dataItem,
                               type,
@@ -307,8 +320,9 @@ const getPrintContent = (item, sourceControlType, valueItem) => {
                             }) || _l('未命名')}
                       {showControlsList.map(it => {
                         if (it.type === 41 || it.type === 22) {
-                          return '';
+                          return placeholderMode;
                         }
+
                         // 若设置不显示无内容字段=>计算内容
                         if (
                           item.showData &&
@@ -324,8 +338,9 @@ const getPrintContent = (item, sourceControlType, valueItem) => {
                             data[it.controlId],
                           )
                         ) {
-                          return '';
+                          return placeholderMode;
                         }
+
                         return (
                           <div>
                             {it.controlName || _l('未命名')}
@@ -342,7 +357,7 @@ const getPrintContent = (item, sourceControlType, valueItem) => {
                                 },
                                 it.type,
                                 data[it.controlId],
-                              ) || ''}
+                              ) || placeholderMode}
                             </div>
                           </div>
                         );
@@ -376,21 +391,26 @@ const getPrintContent = (item, sourceControlType, valueItem) => {
               })}
             </tbody>
           </table>
-        ) : null;
+        ) : (
+          placeholderMode
+        );
       } else {
-        return value;
+        return value || placeholderMode;
       }
+
     case 29:
       if (item.advancedSetting && !['2', '5', '6'].includes(item.advancedSetting.showtype)) {
         const showtitleid = _.get(item, 'advancedSetting.showtitleid');
         //非列表
         let records = [];
+
         try {
           records = JSON.parse(value);
         } catch (err) {
           console.log(err);
         }
-        if (!_.isArray(records) || !records.length) return '';
+
+        if (!_.isArray(records) || !records.length) return placeholderMode;
 
         let list = (dataItem.relationControls || []).find(o => o.attribute === 1) || {};
 
@@ -419,7 +439,7 @@ const getPrintContent = (item, sourceControlType, valueItem) => {
           return (
             <span className="relaList">
               {item.isRelateMultipleSheet
-                ? records.length
+                ? records.length || placeholderMode
                 : records
                     .map(l =>
                       showtitleid
@@ -431,7 +451,7 @@ const getPrintContent = (item, sourceControlType, valueItem) => {
                             advancedSetting: _.get(dataItem.sourceControl, 'advancedSetting'),
                           }) || _l('未命名'),
                     )
-                    .join('、')}
+                    .join('、') || placeholderMode}
             </span>
           );
         }
@@ -440,15 +460,18 @@ const getPrintContent = (item, sourceControlType, valueItem) => {
         if (item.isRelateMultipleSheet) {
           const enumDefault = dataItem.type === 29 ? 1 : dataItem.enumDefault;
 
-          return renderCellText({
-            ...dataItem,
-            enumDefault,
-            advancedSetting: _.assign(
-              item.advancedSetting,
-              enumDefault === 1 ? _.get(item, 'sourceControl.advancedSetting') : {},
-            ),
-          });
+          return (
+            renderCellText({
+              ...dataItem,
+              enumDefault,
+              advancedSetting: _.assign(
+                item.advancedSetting,
+                enumDefault === 1 ? _.get(item, 'sourceControl.advancedSetting') : {},
+              ),
+            }) || placeholderMode
+          );
         }
+
         //关联表内除标题字段外的其他字段
         let showControlsList = [];
         (item.advancedSetting.showtype === '3' && item.enumDefault === 1
@@ -458,6 +481,7 @@ const getPrintContent = (item, sourceControlType, valueItem) => {
           let data = (item.relationControls || []).find(
             it => it.controlId === o && (showtitleid ? it.controlId !== showtitleid : it.attribute !== 1),
           );
+
           if (data) {
             showControlsList.push(data);
           }
@@ -494,8 +518,9 @@ const getPrintContent = (item, sourceControlType, valueItem) => {
                             }) || _l('未命名')}
                       {showControlsList.map(it => {
                         if (it.type === 41 || it.type === 22) {
-                          return '';
+                          return placeholderMode;
                         }
+
                         // 若设置不显示无内容字段=>计算内容
                         if (
                           item.showData &&
@@ -511,8 +536,9 @@ const getPrintContent = (item, sourceControlType, valueItem) => {
                             data[it.controlId],
                           )
                         ) {
-                          return '';
+                          return placeholderMode;
                         }
+
                         return (
                           <div>
                             {it.controlName || _l('未命名')}
@@ -529,7 +555,7 @@ const getPrintContent = (item, sourceControlType, valueItem) => {
                                 },
                                 it.type,
                                 data[it.controlId],
-                              ) || ''}
+                              ) || placeholderMode}
                             </div>
                           </div>
                         );
@@ -563,18 +589,21 @@ const getPrintContent = (item, sourceControlType, valueItem) => {
               })}
             </tbody>
           </table>
-        ) : null;
+        ) : (
+          placeholderMode
+        );
       } else {
         // 关联表列表 显示表数量
-        return value;
+        return value || placeholderMode;
       }
+
     case 34: // 子表
-      return value;
+      return value || placeholderMode;
     case 42: {
       return value ? (
         <img
           src={value}
-          style={{ maxHeight: 45, maxWidth: 160 }}
+          style={{ maxHeight: 45, maxWidth: 160, width: '100%' }}
           onLoad={e => {
             $(e.target).attr({
               width: e.target.width,
@@ -583,19 +612,22 @@ const getPrintContent = (item, sourceControlType, valueItem) => {
           }}
         />
       ) : (
-        ''
+        placeholderMode
       );
     }
+
     case 45: {
       return value && dataItem.enumDefault !== 3 ? (
         <Embed {...dataItem} formData={dataItem.controls} from="print" appId={item.appId} />
       ) : (
-        ''
+        placeholderMode
       );
     }
+
     case 47: {
-      if (!item.value) {
-        return '';
+      // 二维码数据源为字段值时判断是否为空、条码
+      if (!item.value && ((item.enumDefault === 2 && item.enumDefault2 === 3) || item.enumDefault === 1)) {
+        return placeholderMode;
       }
 
       const controls = dataItem.allControls || dataItem.controls;
@@ -606,16 +638,17 @@ const getPrintContent = (item, sourceControlType, valueItem) => {
 
       return <BarCode {...barCodeData} />;
     }
+
     case 41:
     case 10010:
       return (type === 41 ? value : value || item.dataSource) ? (
         <RichText data={value || item.dataSource} className="richText" disabled={true} />
       ) : (
-        ''
+        placeholderMode
       );
     case 30: {
       if (item.sourceControlType <= 0) {
-        return '';
+        return placeholderMode;
       }
 
       const showContent = getPrintContent(
@@ -624,30 +657,34 @@ const getPrintContent = (item, sourceControlType, valueItem) => {
         value,
       );
 
-      return showContent || '';
+      return showContent || placeholderMode;
     }
+
     case 9: // OPTIONS 单选 平铺
     case 10: // MULTI_SELECT 多选
       if (!printOption || (type === 10 && _.get(item, ['advancedSetting', 'checktype']) === '1')) {
-        return renderCellText(dataItem);
+        return renderCellText(dataItem) || placeholderMode;
       } else {
         let selectedKeys = [];
+
         try {
           selectedKeys = JSON.parse(dataItem.value);
         } catch (err) {
           console.log(err);
         }
+
         return dataItem.options
           .filter(l => !l.isDeleted)
           .map(o => {
             let str = '';
-            if (type === 10 && o.hide && !selectedKeys.includes(o.key)) return null;
+            if (type === 10 && o.hide && !selectedKeys.includes(o.key)) return placeholderMode;
 
             if (selectedKeys.includes(o.key)) {
               str = type === 10 ? <i className={cx('InlineBlock', { zoomIcon: type === 10 })}>{'☑'}</i> : '■';
             } else {
               str = type === 10 ? <i className={cx('InlineBlock', { zoomIcon: type === 10 })}>{'☐'}</i> : '□';
             }
+
             return (
               <span className="InlineBlock pTop0 pBottom0" style={{ marginRight: 14 }}>
                 <b className="InlineBlock TxtTop TxtCenter">{str}</b>
@@ -656,6 +693,7 @@ const getPrintContent = (item, sourceControlType, valueItem) => {
             );
           });
       }
+
     case 27: // 部门层级
       const { advancedSetting = {} } = dataItem;
       const _valueParse = safeParse(dataItem.value, 'array').filter(l => !l.isDelete);
@@ -666,14 +704,14 @@ const getPrintContent = (item, sourceControlType, valueItem) => {
             : [];
         return pathValue.concat([item.departmentName]).join('/');
       });
-      return textList.join('，');
+      return textList.join('，') || placeholderMode;
     case 35:
       return typeof dataItem.value === 'undefined' ||
         dataItem.value === '' ||
         dataItem.value === '[]' ||
         dataItem.value === '["",""]' ||
         dataItem.value === null
-        ? ''
+        ? placeholderMode
         : renderCellText(dataItem) || _l('未命名');
     case 26: // 成员字段
       let parsedData = safeParse(value, 'array');
@@ -695,7 +733,7 @@ const getPrintContent = (item, sourceControlType, valueItem) => {
         })
         .join('、');
 
-      return textValue;
+      return textValue || placeholderMode;
     case 2:
       if (dataItem.enumDefault === 3 && dataItem.value) {
         return (
@@ -712,9 +750,10 @@ const getPrintContent = (item, sourceControlType, valueItem) => {
           </div>
         );
       }
-      return renderCellText(dataItem);
+
+      return renderCellText(dataItem) || placeholderMode;
     default:
-      return renderCellText(dataItem);
+      return renderCellText(dataItem) || placeholderMode;
   }
 };
 

@@ -5,8 +5,8 @@ import { CUSTOM_ILLUSTRATION } from '../../config';
 
 const GuildWrap = styled.div`
   width: 280px;
-  background: var(--color-background-primary);
-  box-shadow: 0px 2px 16px 1px rgba(0, 0, 0, 0.16);
+  background: var(--color-background-card);
+  box-shadow: var(--shadow-lg);
   border-radius: 3px;
   left: 100%;
   justify-content: space-between;

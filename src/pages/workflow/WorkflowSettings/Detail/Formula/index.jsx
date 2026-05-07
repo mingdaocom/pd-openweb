@@ -80,7 +80,12 @@ export default class Formula extends Component {
     flowNode
       .getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType, selectNodeId: sId, instanceId })
       .then(result => {
-        if (result.actionId === ACTION_ID.CUSTOM_ACTION_TOTAL && !result.selectNodeId) {
+        if (
+          result.actionId === ACTION_ID.CUSTOM_ACTION_TOTAL &&
+          !result.selectNodeId &&
+          result.flowNodeList &&
+          result.flowNodeList[0]?.nodeId
+        ) {
           this.getNodeDetail(props, { sId: result.flowNodeList[0].nodeId });
         } else {
           this.setState({ data: result });
@@ -253,14 +258,17 @@ export default class Formula extends Component {
     if (isNumber) {
       const { fnmatch } = this.state;
       let newFnmatch = '';
+
       if (obj.origin === '+input') {
         if (!/[0-9|\+|\-|\*|\/|\(|\),|\[|\]]/.test(obj.text[0])) {
           newFnmatch = fnmatch + obj.text[0];
         }
       }
+
       if (obj.origin === '+delete' && fnmatch && obj.removed[0]) {
         newFnmatch = /^[A-Z0-9]+$/.test(obj.removed[0]) ? fnmatch.replace(new RegExp(`${obj.removed[0]}$`), '') : '';
       }
+
       this.updateSource({ formulaValue: value }, () => {
         this.setState({
           fnmatch: newFnmatch,
@@ -326,6 +334,7 @@ export default class Formula extends Component {
    */
   handleFnClick = key => {
     const { fnmatchPos, fnmatch } = this.state;
+
     if (fnmatch) {
       this.tagtextarea.cmObj.replaceRange(
         `${key}()`,
@@ -341,6 +350,7 @@ export default class Formula extends Component {
       this.tagtextarea.cmObj.setCursor({ line: cursor.line, ch: cursor.ch + key.length + 1 });
       this.tagtextarea.cmObj.focus();
     }
+
     this.setState({
       showFormulaLayer: false,
       fnmatch: '',
@@ -840,7 +850,7 @@ export default class Formula extends Component {
           value={data.appId}
           renderTitle={
             !data.appId
-              ? () => <span className="textSecondary">{_l('请选择')}</span>
+              ? () => <span className="textPlaceholder">{_l('请选择')}</span>
               : data.appId && !selectAppItem
                 ? () => (
                     <span className="errorColor">
@@ -870,7 +880,7 @@ export default class Formula extends Component {
         {data.appId && (
           <Fragment>
             <div className="mTop20 bold">{_l('筛选条件')}</div>
-            <div className="textSecondary mTop5 flexRow alignItemsCenter">
+            <div className="Font13 textSecondary mTop5 flexRow alignItemsCenter">
               {_l('设置筛选条件，获得满足条件的数据。如果未设置筛选条件，则获取所有数据')}
               <Tooltip title={_l('请谨慎选择“他表字段”作为条件字段，可能因为数据同步更新延迟而导致结果非预期')}>
                 <i className="icon-info Font16 mLeft5 textTertiary" />
@@ -913,10 +923,12 @@ export default class Formula extends Component {
    */
   renderTotalMethod() {
     const { data } = this.state;
+
     const getTotalTypes = controlId => {
       const currentControl = _.find(data.controls, o => o.controlId === controlId);
       return getSummaryInfo(currentControl.type, currentControl);
     };
+
     const reportControl = data.controls.find(o => o.controlId === data.reportControlId) || {};
 
     return (
@@ -1000,6 +1012,7 @@ export default class Formula extends Component {
   switchWorksheet = (appId, name, otherApkId = '', otherApkName = '') => {
     const { data } = this.state;
     const appList = _.cloneDeep(data.appList);
+
     const getControls = () => {
       flowNode
         .getStartEventDeploy({

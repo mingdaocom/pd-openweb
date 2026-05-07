@@ -100,6 +100,7 @@ export default class extends Component {
     const { displaySetup, style, xaxes } = reportData;
     const config = this.getComponentConfig(props);
     const { BidirectionalBar } = this.g2plotComponent;
+
     if (this.chartEl) {
       this.BidirectionalBarChart = new BidirectionalBar(this.chartEl, config);
       this.isViewOriginalData = displaySetup.showRowList && props.isViewOriginalData;
@@ -110,6 +111,7 @@ export default class extends Component {
       if (this.isViewOriginalData || this.isLinkageData) {
         this.BidirectionalBarChart.on('element:click', this.handleClick);
       }
+
       this.BidirectionalBarChart.render();
     }
   }
@@ -181,19 +183,24 @@ export default class extends Component {
               if (data['series-field-key'] === control.controlId) {
                 const value = data[control.controlId] || 0;
                 const labelValue = formatrChartValue(value, false, yaxisList);
+
                 if (showPercent && summary.showTotal && summary.sum) {
                   const percentValue = formatNumberValue((value / summary.sum) * 100, percent);
                   return `${labelValue} (${percentValue}%)`;
                 }
+
                 return labelValue;
               }
+
               if (data['series-field-key'] === contrastControl.controlId) {
                 const value = data[contrastControl.controlId] || 0;
                 const labelValue = formatrChartValue(value, false, rightY.yaxisList);
+
                 if (showPercent && _.get(rightY, 'summary.showTotal') && _.get(rightY, 'summary.sum')) {
                   const percentValue = formatNumberValue((value / _.get(rightY, 'summary.sum')) * 100, percent);
                   return `${labelValue} (${percentValue}%)`;
                 }
+
                 return labelValue;
               }
             },
@@ -262,12 +269,15 @@ export default class extends Component {
       color: data => {
         const id = data['series-field-key'];
         let color = colors[0];
+
         if (id === control.controlId) {
           color = colors[0];
         }
+
         if (id === contrastControl.controlId) {
           color = colors[1];
         }
+
         if (!_.isEmpty(linkageMatch)) {
           if (linkageMatch.value === data.originalId) {
             return color;
@@ -275,6 +285,7 @@ export default class extends Component {
             return new TinyColor(color).setAlpha(0.3).toRgbString();
           }
         }
+
         return color;
       },
       legend: showLegend
@@ -298,6 +309,7 @@ export default class extends Component {
           if (data['series-field-key'] === control.controlId) {
             const value = data[control.controlId] || 0;
             const labelValue = formatrChartValue(value, false, yaxisList);
+
             if (showPercent && summary.showTotal && summary.sum) {
               const item = _.find(mergeData, { originalId: data.originalId });
               return {
@@ -305,14 +317,17 @@ export default class extends Component {
                 value: `${style.tooltipValueType ? labelValue : value} (${((value / summary.sum) * 100).toFixed(2)}%)`,
               };
             }
+
             return {
               name: control.rename || control.controlName,
               value: style.tooltipValueType ? labelValue : value,
             };
           }
+
           if (data['series-field-key'] === contrastControl.controlId) {
             const value = data[contrastControl.controlId] || 0;
             const labelValue = formatrChartValue(value, false, rightY.yaxisList);
+
             if (showPercent && _.get(rightY, 'summary.showTotal') && _.get(rightY, 'summary.sum')) {
               const item = _.find(mergeData, { originalId: data.originalId });
               return {
@@ -320,6 +335,7 @@ export default class extends Component {
                 value: `${style.tooltipValueType ? labelValue : value} (${((value / _.get(rightY, 'summary.sum')) * 100).toFixed(2)}%)`,
               };
             }
+
             return {
               name: contrastControl.rename || contrastControl.controlName,
               value: style.tooltipValueType ? labelValue : value,
@@ -346,7 +362,8 @@ export default class extends Component {
     return base;
   }
   handleClick = event => {
-    const { xaxes, appId, reportId, name, reportType, style } = this.props.reportData;
+    const { reportData, isMobile } = this.props;
+    const { xaxes, appId, reportId, name, reportType, style } = reportData;
     const currentData = event.data.data;
     const gEvent = event.gEvent;
     const param = {};
@@ -358,6 +375,7 @@ export default class extends Component {
       filters: [],
     };
     const { data = [] } = this.BidirectionalBarChart.options;
+
     if (xaxes.cid) {
       const isNumber = isFormatNumber(xaxes.controlType);
       const value = currentData.originalId;
@@ -372,15 +390,17 @@ export default class extends Component {
         control: xaxes,
       });
     }
+
     if (_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length) {
       linkageMatch.onlyChartIds = style.autoLinkageChartObjectIds;
     }
+
     const isAll = this.isViewOriginalData && this.isLinkageData;
     this.setState(
       {
         dropdownVisible: isAll,
         offset: {
-          x: gEvent.x,
+          x: gEvent.x + (isMobile ? -100 : 0),
           y: gEvent.y + 20,
         },
         match: param,
@@ -390,6 +410,7 @@ export default class extends Component {
         if (!isAll && this.isViewOriginalData) {
           this.handleRequestOriginalData();
         }
+
         if (!isAll && this.isLinkageData) {
           this.handleAutoLinkage();
         }

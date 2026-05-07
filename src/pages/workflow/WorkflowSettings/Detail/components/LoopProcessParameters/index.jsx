@@ -44,12 +44,14 @@ const List = styled.div`
 
 export default props => {
   const { companyId, processId, relationId, selectNodeId, data, updateSource, isFirstNode } = props;
+
   const updateItem = (controlId, key, value) => {
     updateSource({
       controls: data.controls.map(o => {
         if (o.controlId === controlId) {
           o[key] = value;
         }
+
         return o;
       }),
     });

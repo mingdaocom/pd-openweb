@@ -49,6 +49,7 @@ export default class SelectUser extends Component {
   }
   componentDidMount() {
     const { type, staticAccounts = [], advancedSetting = {}, userType } = this.props;
+
     if (type === 'user') {
       this.updateRecordPartners();
       if (!_.isEmpty(staticAccounts) && advancedSetting.navshow === '2' && userType !== 2) {
@@ -170,6 +171,7 @@ export default class SelectUser extends Component {
           prefixAccountIds,
         });
       }
+
       this.request.then(result => {
         const { list } = result.users;
         let oftenUsers = _.get(result, 'oftenUsers.list') || this.state.oftenUsers;
@@ -293,6 +295,7 @@ export default class SelectUser extends Component {
     const { departmentPath, selectedUsers, rootData = [], treeData = [] } = this.state;
     const copyDepartmentPath =
       index || index === 0 ? departmentPath.slice(0, index + 1) : departmentPath.concat(department);
+
     if (index || index === 0) {
       this.setState({
         departmentPath: copyDepartmentPath,
@@ -338,41 +341,49 @@ export default class SelectUser extends Component {
       if (item.departmentId === departmentId) {
         return { ...item, subDepartments };
       }
+
       if (item.subDepartments && item.subDepartments.length) {
         return { ...item, subDepartments: this.getTreeData(item.subDepartments, departmentId, subDepartments) };
       }
+
       return item;
     });
   };
   getChildren = (data = [], currentId) => {
     let arr = [];
     let result = [];
+
     const func = (data, id) => {
       data.find(item => {
         if (item.subDepartments && item.subDepartments.length) {
           func(item.subDepartments, id);
         }
+
         if (item.departmentId === id) {
           return (arr = item.subDepartments);
         }
       });
     };
+
     func(data, currentId);
     const flatTree = data => {
       data.forEach(item => {
         if (item.subDepartments && item.subDepartments.length) {
           flatTree(item.subDepartments);
         }
+
         delete item.subDepartments;
         result.push(item);
       });
     };
+
     arr && flatTree(arr);
     return _.isArray(result) && !_.isEmpty(result) ? result.map(item => item.departmentId) : [];
   };
   handleSave = () => {
     const { type } = this.props;
     const { selectedUsers } = this.state;
+
     if (selectedUsers.length) {
       const selectData = selectedUsers.map(item => ({
         ...item,
@@ -393,12 +404,14 @@ export default class SelectUser extends Component {
   };
   handleSearch = () => {
     const { type } = this.props;
+
     if (type === 'department') {
       this.setState({
         onlyJoinDepartmentChecked: false,
         departmentPath: [],
       });
     }
+
     this.setState(
       {
         users: [],
@@ -475,6 +488,7 @@ export default class SelectUser extends Component {
     const { selectedUsers } = this.state;
     const { onlyOne } = this.props;
     const isSelected = selectedUsers.filter(user => user.accountId === item.accountId).length;
+
     if (onlyOne) {
       this.setState(
         {
@@ -484,6 +498,7 @@ export default class SelectUser extends Component {
       );
       return;
     }
+
     if (isSelected) {
       this.setState({
         selectedUsers: selectedUsers.filter(user => user.accountId !== item.accountId),
@@ -506,6 +521,7 @@ export default class SelectUser extends Component {
     let temp = selectedUsers.filter(it =>
       selectDepartmentType === 'current' ? !_.includes(children, it.departmentId) : true,
     );
+
     if (onlyOne) {
       this.setState(
         {
@@ -780,6 +796,7 @@ export default class SelectUser extends Component {
         </List>
       );
     }
+
     let currentAccount = md.global.Account || {};
     return (
       <Fragment>

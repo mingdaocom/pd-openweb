@@ -84,8 +84,8 @@ const ChartColorSettingBox = styled.div(
 const Menu = styled.div`
   width: 120px;
   padding: 6px 0;
-  background: var(--color-background-primary);
-  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+  background: var(--color-background-card);
+  box-shadow: var(--shadow-lg);
   opacity: 1;
   border-radius: 4px;
   font-size: 13px;

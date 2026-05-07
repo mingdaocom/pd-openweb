@@ -191,7 +191,13 @@ export default class BuildAppNewRules extends Component {
           </div>
         </div>
         <div className="erweima">{isLoading ? <LoadDiv /> : <img src={url} />}</div>
-        <div className="tip">{_l('将应用安装企业微信工作台')}</div>
+
+        <div className="tip">
+          {window.platformENV.isPlatform && !window.platformENV.isOverseas && !window.platformENV.isLocal
+            ? _l('将明道云应用安装企业微信工作台')
+            : _l('将应用安装企业微信工作台')}
+        </div>
+
         <div className="subTip">{_l('企业微信管理员扫码并完成授权')}</div>
         <Button
           className="confirmBtn"

@@ -41,6 +41,7 @@ export default function SideContent(props) {
     if (visible && !loading && isEmpty(data)) {
       getData();
     }
+
     visible && inputRef && inputRef.current && inputRef.current.focus();
   }, [visible]);
 
@@ -88,6 +89,7 @@ export default function SideContent(props) {
 
     allTypes.forEach(type => {
       const group = _.get(getFilterData(), type) || [];
+
       if (group.length) {
         ['markedApps', 'externalApps', 'aloneApps'].includes(type)
           ? keys.push(`${type}/@INIT`)

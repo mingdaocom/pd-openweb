@@ -4777,7 +4777,7 @@ $.extend(DayGrid.prototype, {
         return 'background:#FFEB3B';
       if (skinCss.indexOf('#E6E6E6') >= 0)
         //灰色
-        return 'background:#B4B4B4';
+        return 'background:#DADADA';
     };
 
     // Only display a timed events time if it is the starting segment
@@ -5303,7 +5303,9 @@ $.extend(DayGrid.prototype, {
           .find('.fc-title')
           .eq(i)
           .prepend(
-            '<span class="icon-calendartask" style="width:14px;display: inline-block;height:14px;margin: 1px 3px -2px 0;font-size: 16px;vertical-align: top;"> </span>',
+            '<span class="icon-calendartask" data-endtime="' +
+              moment(segs[i].event.end._i).format('HH:mm') +
+              '" style="width:14px;display: inline-block;height:14px;margin: 1px 3px -2px 0;font-size: 16px;vertical-align: top;"> </span>',
           );
       }
 

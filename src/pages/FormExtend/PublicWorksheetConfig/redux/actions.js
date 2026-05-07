@@ -8,14 +8,17 @@ function changeKeyToServer(value) {
     value.cover = value.coverUrl.split('?')[0];
     delete value.coverUrl;
   }
+
   if (!_.isUndefined(value.logoUrl)) {
     value.logo = value.logoUrl.split('?')[0];
     delete value.logoUrl;
   }
+
   if (!_.isUndefined(value.themeIndex)) {
     value.themeColor = value.themeIndex;
     delete value.themeIndex;
   }
+
   return value;
 }
 
@@ -88,10 +91,12 @@ export function refreshShareUrl() {
 export function addWorksheetControl(controlName, cb = () => {}) {
   return (dispatch, getState) => {
     const state = getState();
+
     if (state.publicWorksheet.originalControls.length + 1 > 200) {
       alert(_l('表单中添加字段数量已达上限（200个）'), 3);
       return;
     }
+
     const {
       publicWorksheet: {
         worksheetInfo: { worksheetId },
@@ -260,6 +265,7 @@ export function showControl(showControls = []) {
     if (_.isFunction(window.scrollToFormEnd)) {
       window.scrollToFormEnd();
     }
+
     dispatch({
       type: 'WORKSHEET_SHOW_CONTROL',
       controlIds: newShowControls.map(control => control.controlId),

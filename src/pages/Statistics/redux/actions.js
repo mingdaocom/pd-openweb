@@ -34,6 +34,7 @@ export const changeBase = data => {
 };
 
 let reportConfigDetailRequest = null;
+
 export const getReportConfigDetail = (data, callBack) => {
   return (dispatch, getState) => {
     const { reportId, reportType, appId, customPageConfig = {} } = data;
@@ -54,12 +55,14 @@ export const getReportConfigDetail = (data, callBack) => {
       } else {
         dispatch(getWorksheetInfo(appId));
       }
+
       return;
     }
 
     if (reportConfigDetailRequest) {
       reportConfigDetailRequest.abort();
     }
+
     reportConfigDetailRequest = reportConfigAjax.getReportConfigDetail({
       reportId,
       reportType,
@@ -70,13 +73,16 @@ export const getReportConfigDetail = (data, callBack) => {
     reportConfigDetailRequest.then(result => {
       const { id } = window.appInfo || {};
       const { currentReport, axisControls } = initConfigDetail(reportId, result, oldReport, customPageConfig);
+
       if (viewId && !reportId && !_.get(currentReport, ['filter', 'viewId'])) {
         currentReport.filter.viewId = viewId;
       }
+
       if (currentReport.reportType === reportTypes.BarChart) {
         currentReport.displaySetup.showChartType =
           _.get(oldReport, 'displaySetup.showChartType') || currentReport.displaySetup.showChartType;
       }
+
       if (reportId) {
         dispatch({
           type: 'CHANGE_STATISTICS_BASE',
@@ -86,6 +92,7 @@ export const getReportConfigDetail = (data, callBack) => {
           },
         });
       }
+
       dispatch({
         type: 'CHANGE_STATISTICS_CURRENT_REPORT',
         data: currentReport,
@@ -103,6 +110,7 @@ export const getReportConfigDetail = (data, callBack) => {
         callBack();
         return;
       }
+
       if (reportType) {
         dispatch(getReportData());
       } else {
@@ -115,15 +123,18 @@ export const getReportConfigDetail = (data, callBack) => {
 
 let reportConfigRequest = null;
 let reportRequest = null;
+
 export const getReportData = ({ reload = false } = {}) => {
   return (dispatch, getState) => {
     const { base, currentReport, reportData } = getState().statistics;
     const { permissions, report, pageId, settingVisible, sheetVisible, filters, filtersGroup, linkageFiltersGroup } =
       base;
     const data = getNewReport(getState().statistics);
+
     const success = result => {
       result.reportId = report.id;
       const data = fillValueMap(result, pageId);
+
       if (permissions) {
         const param = mergeReportData(currentReport, result, report.id);
         dispatch({
@@ -146,11 +157,13 @@ export const getReportData = ({ reload = false } = {}) => {
             showLineTotal: data.showLineTotal,
           };
         }
+
         dispatch({
           type: 'CHANGE_STATISTICS_CURRENT_REPORT',
           data: !_.isNumber(currentReport.status) ? data : currentReport,
         });
       }
+
       dispatch({
         type: 'CHANGE_STATISTICS_REPORT_DATA',
         data: data,
@@ -164,6 +177,7 @@ export const getReportData = ({ reload = false } = {}) => {
         data: false,
       });
     };
+
     const fail = error => {
       const { errorCode } = error || {};
       dispatch({
@@ -177,6 +191,7 @@ export const getReportData = ({ reload = false } = {}) => {
         });
       }
     };
+
     dispatch({
       type: 'CHANGE_STATISTICS_LOADING',
       data: true,
@@ -186,9 +201,11 @@ export const getReportData = ({ reload = false } = {}) => {
         fail();
         return;
       }
+
       if (reportConfigRequest) {
         reportConfigRequest.abort();
       }
+
       data.filter.filterId = null;
       reportConfigRequest = reportConfigAjax.getData(data);
       reportConfigRequest
@@ -200,6 +217,7 @@ export const getReportData = ({ reload = false } = {}) => {
       if (reportRequest) {
         reportRequest.abort();
       }
+
       const { filter = {}, sorts, version, reportType } = data;
       const { particleSizeType } = data.xaxes || {};
       const params = {
@@ -210,21 +228,27 @@ export const getReportData = ({ reload = false } = {}) => {
         filters: [],
         ...getFilledRequestParams({}),
       };
+
       if (!_.isEmpty(filters)) {
         params.filters.push(filters);
       }
+
       if (!_.isEmpty(filter.filterControls)) {
         params.filters.push(filter.filterControls);
       }
+
       if (!_.isEmpty(filtersGroup)) {
         params.filters.push(filtersGroup);
       }
+
       if (!_.isEmpty(linkageFiltersGroup)) {
         params.filters.push(linkageFiltersGroup);
       }
+
       if (reportType !== reportTypes.CountryLayer) {
         params.particleSizeType = particleSizeType;
       }
+
       if (!_.isEmpty(reportData)) {
         Object.assign(params, {
           filterRangeId: filter.filterRangeId,
@@ -235,6 +259,7 @@ export const getReportData = ({ reload = false } = {}) => {
           sorts,
         });
       }
+
       reportRequest = reportRequestAjax.getData(params);
       reportRequest
         .then(result => {
@@ -242,6 +267,7 @@ export const getReportData = ({ reload = false } = {}) => {
         })
         .catch(fail);
     }
+
     if (sheetVisible && settingVisible) {
       dispatch(
         changeBase({
@@ -269,6 +295,7 @@ export const getTableData = () => {
       const { yaxisList = [] } = data;
       const leftYaxisList = reportData.yaxisList || [];
       const rightYaxisList = _.get(reportData, ['rightY', 'yaxisList']) || [];
+
       if (yaxisList.length > 1) {
         yaxisList.forEach(item => {
           const isRight = _.find(rightYaxisList, { controlId: item.controlId });
@@ -279,6 +306,7 @@ export const getTableData = () => {
           item.dot = dot;
         });
       }
+
       return data;
     };
 
@@ -287,9 +315,11 @@ export const getTableData = () => {
         if (!result.style) {
           result.style = {};
         }
+
         if (!result.valueMap) {
           result.valueMap = {};
         }
+
         dispatch({
           type: 'CHANGE_STATISTICS_TABLE_DATA',
           data: fillValueMap(formatYaxisList(result), data.pageId),
@@ -305,21 +335,27 @@ export const getTableData = () => {
         reload: true,
         filters: [],
       };
+
       if (!_.isEmpty(filters)) {
         params.filters.push(filters);
       }
+
       if (!_.isEmpty(filter.filterControls)) {
         params.filters.push(filter.filterControls);
       }
+
       if (!_.isEmpty(filtersGroup)) {
         params.filters.push(filtersGroup);
       }
+
       if (!_.isEmpty(linkageFiltersGroup)) {
         params.filters.push(linkageFiltersGroup);
       }
+
       if (reportType !== reportTypes.CountryLayer) {
         params.particleSizeType = particleSizeType;
       }
+
       if (!_.isEmpty(reportData)) {
         Object.assign(params, {
           filterRangeId: filter.filterRangeId,
@@ -330,19 +366,23 @@ export const getTableData = () => {
           sorts,
         });
       }
+
       if (!_.isEmpty(country)) {
         Object.assign(params, {
           filterCode: country.drillFilterCode,
           particleSizeType: country.drillParticleSizeType,
         });
       }
+
       reportRequestAjax.getTableData(params).then(result => {
         if (!result.style) {
           result.style = {};
         }
+
         if (!result.valueMap) {
           result.valueMap = {};
         }
+
         dispatch({
           type: 'CHANGE_STATISTICS_TABLE_DATA',
           data: fillValueMap(formatYaxisList(result), params.pageId),
@@ -426,6 +466,7 @@ export const requestOriginalData = data => {
     const viewDataType = style.viewDataType || 1;
     const { viewId } = filter;
     const view = _.find(worksheetInfo.views, { viewId });
+
     if (viewDataType === 2 && view && [VIEW_DISPLAY_TYPE.sheet].includes(view.viewType.toString())) {
       data.isPersonal = true;
     } else {
@@ -436,12 +477,14 @@ export const requestOriginalData = data => {
         }),
       );
     }
+
     dispatch(getReportSingleCacheId(data));
   };
 };
 
 let worksheetInfoRequest = null;
 let worksheetFilterByIdRequest = null;
+
 export const getWorksheetInfo = worksheetId => {
   return (dispatch, getState) => {
     const { currentReport } = getState().statistics;
@@ -456,9 +499,11 @@ export const getWorksheetInfo = worksheetId => {
       dispatch(getReportData());
       return;
     }
+
     if (worksheetInfoRequest) {
       worksheetInfoRequest.abort();
     }
+
     if (worksheetFilterByIdRequest) {
       worksheetFilterByIdRequest.abort();
     }
@@ -480,6 +525,7 @@ export const getWorksheetInfo = worksheetId => {
               _.get(worksheetResult, ['template', 'controls']),
             );
           }
+
           dispatch({
             type: 'CHANGE_STATISTICS_WORKSHEET_INFO',
             data: {
@@ -503,6 +549,7 @@ export const getWorksheetInfo = worksheetId => {
             data: false,
           });
         };
+
         if (filterId) {
           worksheetAjax.getWorksheetFilterById({ filterId }).then(filterResult => {
             if (filterResult) {
@@ -624,48 +671,58 @@ export const changeControlCheckbox = (event, item) => {
     const lines = _.get(pivotTable, ['lines']) || [];
     const columns = _.get(pivotTable, ['columns']) || [];
     const { checked } = event.target;
+
     if (checked) {
       const isNumber = isNumberControl(item.type);
       const isSplit = [reportTypes.BarChart, reportTypes.LineChart, reportTypes.DualAxes].includes(reportType);
+
       if (reportType === reportTypes.PivotTable) {
         if (isNumber) {
           dispatch(addYaxisList(item));
           return;
         }
+
         if (lines.length <= columns.length) {
           dispatch(addLines(item));
         } else {
           dispatch(addColumns(item));
         }
+
         return;
       }
+
       if (reportType === reportTypes.DualAxes) {
         if (isNumber) {
           if (yaxisList.length && split.controlId && rightSplit && _.isEmpty(rightSplit.controlId)) {
             dispatch(addRightYaxisList(item));
             return;
           }
+
           if (_.isEmpty(split.controlId)) {
             if (yaxisList.length <= rightYaxisList.length) {
               dispatch(addYaxisList(item));
             } else {
               dispatch(addRightYaxisList(item));
             }
+
             return;
           }
         }
+
         if (yaxisList.length === 1) {
           if (isSplit && _.isEmpty(split.controlId)) {
             dispatch(changeSplit(item));
             return;
           }
         }
+
         if (rightYaxisList.length === 1) {
           if (isSplit && rightSplit && _.isEmpty(rightSplit.controlId)) {
             dispatch(changeRightSplit(item));
             return;
           }
         }
+
         dispatch(
           getReportConfigDetail(
             {
@@ -677,9 +734,11 @@ export const changeControlCheckbox = (event, item) => {
               if (split.controlId) {
                 dispatch(addLines(split, false));
               }
+
               if (rightSplit && rightSplit.controlId) {
                 dispatch(addColumns(rightSplit));
               }
+
               rightYaxisList.forEach(item => {
                 dispatch(addYaxisList(item));
               });
@@ -693,6 +752,7 @@ export const changeControlCheckbox = (event, item) => {
         );
         return;
       }
+
       if (reportType === reportTypes.NumberChart && yaxisList.length) {
         if (isNumber) {
           dispatch(addYaxisList(item));
@@ -713,6 +773,7 @@ export const changeControlCheckbox = (event, item) => {
           return;
         }
       }
+
       if (
         [reportTypes.PieChart, reportTypes.FunnelChart, reportTypes.WordCloudChart, reportTypes.CountryLayer].includes(
           reportType,
@@ -722,6 +783,7 @@ export const changeControlCheckbox = (event, item) => {
           dispatch(addXaxes(item));
           return;
         }
+
         if ((yaxisList.length && xaxes.controlId) || yaxisList.length >= 1) {
           dispatch(
             getReportConfigDetail(
@@ -738,6 +800,7 @@ export const changeControlCheckbox = (event, item) => {
           return;
         }
       }
+
       if ([reportTypes.GaugeChart, reportTypes.ProgressChart].includes(reportType)) {
         dispatch(
           getReportConfigDetail(
@@ -753,6 +816,7 @@ export const changeControlCheckbox = (event, item) => {
         );
         return;
       }
+
       if (_.isEmpty(xaxes.controlId) && !isNumber) {
         if (
           ([reportTypes.CountryLayer].includes(reportType) && !isAreaControl(item.type)) ||
@@ -774,6 +838,7 @@ export const changeControlCheckbox = (event, item) => {
         } else {
           dispatch(addXaxes(item));
         }
+
         if (!reportType) {
           dispatch(
             getReportConfigDetail({
@@ -784,6 +849,7 @@ export const changeControlCheckbox = (event, item) => {
           );
         }
       }
+
       if (xaxes.controlId && !isNumber) {
         if (yaxisList.length > 1) {
           dispatch(
@@ -802,12 +868,14 @@ export const changeControlCheckbox = (event, item) => {
           );
           return;
         }
+
         if (yaxisList.length) {
           if (isSplit && _.isEmpty(split.controlId)) {
             dispatch(changeSplit(item));
             return;
           }
         }
+
         dispatch(
           getReportConfigDetail(
             {
@@ -819,11 +887,13 @@ export const changeControlCheckbox = (event, item) => {
               if (split.controlId) {
                 dispatch(addLines(split, false));
               }
+
               dispatch(addColumns(item));
             },
           ),
         );
       }
+
       if (isNumber) {
         if (split.controlId) {
           dispatch(
@@ -841,6 +911,7 @@ export const changeControlCheckbox = (event, item) => {
           );
           return;
         }
+
         dispatch(addYaxisList(item));
         if (!reportType) {
           dispatch(
@@ -856,33 +927,43 @@ export const changeControlCheckbox = (event, item) => {
       if (item.controlId === xaxes.controlId) {
         dispatch(removeXaxes());
       }
+
       if (_.find(yaxisList, { controlId: item.controlId })) {
         dispatch(removeYaxisList(item.controlId));
       }
+
       if (_.find(rightYaxisList, { controlId: item.controlId })) {
         dispatch(removeRightYaxisList(item.controlId));
       }
+
       if (split && item.controlId === split.controlId) {
         dispatch(changeSplit({ controlId: null, particleSizeType: 0 }));
       }
+
       if (rightSplit && item.controlId === rightSplit.controlId) {
         dispatch(changeRightSplit({ controlId: null, particleSizeType: 0 }));
       }
+
       if (item.controlId === _.get(config, 'min.controlId')) {
         dispatch(changeConfig({ min: null }));
       }
+
       if (item.controlId === _.get(config, 'max.controlId')) {
         dispatch(changeConfig({ max: null }));
       }
+
       if (_.find(targetList, { controlId: item.controlId })) {
         const index = _.findIndex(targetList, { controlId: item.controlId });
         dispatch(removeTargetValueAxis(index));
       }
+
       const lineItem = _.find(lines, { controlId: item.controlId });
       const columnItem = _.find(columns, { controlId: item.controlId });
+
       if (lineItem) {
         dispatch(removeLines(lineItem));
       }
+
       if (columnItem) {
         dispatch(removeColumns(columnItem));
       }
@@ -908,12 +989,14 @@ export const removeXaxes = () => {
       },
       sorts: sorts.filter(item => _.findKey(item) !== id),
     };
+
     if (reportType === reportTypes.FunnelChart) {
       data.displaySetup = {
         ...currentReport.displaySetup,
         showOptionIds: [],
       };
     }
+
     dispatch(changeCurrentReport(data, true));
   };
 };
@@ -936,10 +1019,12 @@ export const addXaxes = (control, isRequest = true) => {
           if (isTime) {
             return 1;
           }
+
           if (isArea) {
             const data = filterAreaParticleSizeDropdownData(control)[0];
             return _.get(data, 'value');
           }
+
           return 0;
         })(),
         emptyType: 0,
@@ -955,15 +1040,19 @@ export const addXaxes = (control, isRequest = true) => {
         showRowList: control.type === 40 ? false : displaySetup.showRowList,
       },
     };
+
     if (isTime && showtype === '4') {
       data.xaxes.particleSizeType = 3;
     }
+
     if (isTime && showtype === '5') {
       data.xaxes.particleSizeType = 5;
     }
+
     if (control.type === WIDGETS_TO_API_TYPE_ENUM.TIME) {
       data.xaxes.particleSizeType = 6;
     }
+
     if (isArea) {
       data.country = {
         filterCode: '',
@@ -972,6 +1061,7 @@ export const addXaxes = (control, isRequest = true) => {
         particleSizeType: 1,
       };
     }
+
     dispatch(changeCurrentReport(data, isRequest));
   };
 };
@@ -1113,6 +1203,7 @@ export const addYaxisList = (data, isRequest = true) => {
       advancedSetting,
     };
     const newYaxisList = yaxisList.concat(axis);
+
     if (reportType === reportTypes.PivotTable) {
       const { lineSummary, columnSummary } = pivotTable;
       const sumData = {
@@ -1180,15 +1271,18 @@ export const addIndexYaxisList = (data, index, isRequest = true) => {
       rename: '',
       advancedSetting,
     };
+
     if (index === 0) {
       displaySetup.xdisplay.title = data.controlName;
       if (reportType === reportTypes.WorldMap) {
         summary.controlId = axis.controlId;
       }
     }
+
     if (index === 1) {
       displaySetup.ydisplay.title = data.controlName;
     }
+
     yaxisList[index] = axis;
     dispatch(
       changeYaxisList(
@@ -1209,10 +1303,12 @@ export const changeYaxisList = (data, isRequest = true) => {
     const { reportType, displaySetup, split = {} } = currentReport;
     const { yaxisList = [], sorts = [] } = data;
     const title = yaxisList.length ? _.get(yaxisList[0], 'controlName') : null;
+
     if (reportType === reportTypes.TopChart) {
       const defaultSorts = yaxisList.length ? [{ [yaxisList[0].controlId]: 2 }] : [];
       data.sorts = sorts.length ? sorts : defaultSorts;
     }
+
     dispatch(
       changeCurrentReport(
         {
@@ -1246,6 +1342,7 @@ export const removeYaxisList = id => {
       },
       sorts: sorts.filter(item => _.findKey(item) !== id),
     };
+
     if (reportType === reportTypes.PivotTable) {
       const { lineSummary, columnSummary } = pivotTable;
       const columnControlList = columnSummary.controlList || [];
@@ -1262,12 +1359,14 @@ export const removeYaxisList = id => {
         },
       };
     }
+
     if (id === summary.controlId) {
       data.summary = {
         ...summary,
         controlId: '',
       };
     }
+
     if (reportType === reportTypes.ProgressChart) {
       const targetList = config.targetList || [];
       const index = _.findIndex(yaxisList, { controlId: id });
@@ -1276,6 +1375,7 @@ export const removeYaxisList = id => {
         targetList: targetList.filter((_, i) => i !== index),
       };
     }
+
     if ([reportTypes.BarChart, reportTypes.LineChart, reportTypes.DualAxes].includes(reportType)) {
       const { controlList = [] } = summary;
       data.summary = {
@@ -1283,6 +1383,7 @@ export const removeYaxisList = id => {
         controlList: controlList.filter(item => item.controlId !== id),
       };
     }
+
     dispatch(changeYaxisList(data));
   };
 };
@@ -1303,12 +1404,14 @@ export const changeSplit = (data, isRequest = true) => {
         ...data,
       },
     };
+
     if (data.controlId) {
       param.split.controlId = data.controlId;
       param.split.controlName = data.controlName;
       param.split.controlType = data.type;
       const isTime = isTimeControl(data.type);
       const isArea = isAreaControl(data.type);
+
       if (isTime) {
         if (data.type === WIDGETS_TO_API_TYPE_ENUM.TIME) {
           param.split.particleSizeType = 11;
@@ -1316,14 +1419,17 @@ export const changeSplit = (data, isRequest = true) => {
           param.split.particleSizeType = 10;
         }
       }
+
       if (isArea) {
         const dropdownData = filterAreaParticleSizeDropdownData(data)[0];
         param.split.particleSizeType = _.get(dropdownData, 'value');
       }
     }
+
     if (deleteId) {
       param.sorts = sorts.filter(item => _.findKey(item) !== deleteId);
     }
+
     dispatch(changeCurrentReport(param, isRequest));
   };
 };
@@ -1409,6 +1515,7 @@ export const removeRightYaxisList = id => {
       },
       sorts: sorts.filter(item => _.findKey(item) !== id),
     };
+
     if ([reportTypes.BarChart, reportTypes.LineChart, reportTypes.DualAxes].includes(reportType)) {
       const { controlList = [] } = summary;
       data.summary = {
@@ -1416,6 +1523,7 @@ export const removeRightYaxisList = id => {
         controlList: controlList.filter(item => item.controlId !== id),
       };
     }
+
     dispatch(changeRightYaxisList(data));
   };
 };
@@ -1440,9 +1548,11 @@ export const changeRightSplit = (data, isRequest = true) => {
         },
       },
     };
+
     if (deleteId) {
       param.sorts = sorts.filter(item => _.findKey(item) !== deleteId);
     }
+
     dispatch(changeCurrentReport(param, isRequest));
   };
 };
@@ -1460,6 +1570,7 @@ export const addLines = (data, isRequest = true) => {
       controlName: data.controlName,
       controlType: data.type,
     };
+
     if (isTime || isArea) {
       const disableParticleSizeTypes = [...lines, ...columns]
         .filter(item => item.particleSizeType)
@@ -1471,6 +1582,7 @@ export const addLines = (data, isRequest = true) => {
       const allowTypes = dropdownData
         .map(item => item.value)
         .filter(item => !newDisableParticleSizeTypes.includes(item));
+
       if (allowTypes.length) {
         axis.particleSizeType = allowTypes[0];
       } else {
@@ -1478,6 +1590,7 @@ export const addLines = (data, isRequest = true) => {
         return;
       }
     }
+
     dispatch(
       changeCurrentReport(
         {
@@ -1533,6 +1646,7 @@ export const addColumns = (data, isRequest = true) => {
       controlName: data.controlName,
       controlType: data.type,
     };
+
     if (isTime || isArea) {
       const disableParticleSizeTypes = [...lines, ...columns]
         .filter(item => item.particleSizeType)
@@ -1544,6 +1658,7 @@ export const addColumns = (data, isRequest = true) => {
       const allowTypes = dropdownData
         .map(item => item.value)
         .filter(item => !newDisableParticleSizeTypes.includes(item));
+
       if (allowTypes.length) {
         axis.particleSizeType = allowTypes[0];
       } else {
@@ -1551,6 +1666,7 @@ export const addColumns = (data, isRequest = true) => {
         return;
       }
     }
+
     dispatch(
       changeCurrentReport(
         {
@@ -1613,18 +1729,23 @@ export const destroy = () => {
   if (reportConfigDetailRequest) {
     reportConfigDetailRequest.abort();
   }
+
   if (reportConfigRequest) {
     reportConfigRequest.abort();
   }
+
   if (reportRequest) {
     reportRequest.abort();
   }
+
   if (worksheetInfoRequest) {
     worksheetInfoRequest.abort();
   }
+
   if (worksheetFilterByIdRequest) {
     worksheetFilterByIdRequest.abort();
   }
+
   return dispatch => {
     dispatch({
       type: 'CHANGE_STATISTICS_RESET',

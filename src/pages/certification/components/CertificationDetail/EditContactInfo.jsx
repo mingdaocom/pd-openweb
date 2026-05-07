@@ -39,10 +39,12 @@ function EditContactInfo(props) {
       alert(_l('请输入联系人姓名'), 3);
       return;
     }
+
     if (!data.contactIdNumber) {
       alert(_l('请输入联系人身份证号'), 3);
       return;
     }
+
     if (!/(^\d{15}$)|(^\d{17}(\d|X|x)$)/.test(data.contactIdNumber)) {
       alert(_l('请输入有效的身份证号码'), 3);
       return;
@@ -52,6 +54,7 @@ function EditContactInfo(props) {
       alert(_l('请输入联系人手机号'), 3);
       return;
     }
+
     if (!/^1[2-9]\d{9}$/.test(data.contactMobile)) {
       alert(_l('请输入有效的手机号'), 3);
       return;
@@ -73,6 +76,7 @@ function EditContactInfo(props) {
           } else {
             alert(RESULT_TYPES[res] + _l(',错误码:%0', res), 2);
           }
+
           setSubmitLoading(false);
         })
         .catch(() => setSubmitLoading(false));

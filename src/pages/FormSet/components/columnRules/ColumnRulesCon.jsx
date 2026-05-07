@@ -19,6 +19,7 @@ class ColumnRulesCon extends React.Component {
   }
 
   componentWillUnmount() {
+    this.props.clearColumnRules();
     this.props.updateActiveTab(0);
   }
 
@@ -117,9 +118,11 @@ class ColumnRulesCon extends React.Component {
                 ? _l('交互规则可根据条件控制字段的显隐、是否可编辑和是否必填，并支持为字段赋值。')
                 : activeTab === TAB_TYPES.CHECK_RULE
                   ? _l('当满足条件时,可对指定字段进行提示。')
-                  : _l(
-                      '满足条件时，将在记录保存后生效锁定。锁定记录无法被编辑或删除，仅应用管理员可解锁记录。只能添加一条锁定规则。',
-                    )}
+                  : activeTab === TAB_TYPES.STYLE_RULE
+                    ? _l('样式规则可以根据条件控制指定字段的颜色、字符样式和字号大小。')
+                    : _l(
+                        '满足条件时，将在记录保存后生效锁定。锁定记录无法被编辑或删除，仅应用管理员可解锁记录。只能添加一条锁定规则。',
+                      )}
             </span>
             <Support type={3} text={_l('帮助')} href="https://help.mingdao.com/worksheet/business-rule" />
           </div>

@@ -66,6 +66,7 @@ var getKcFolderOperationTips = function (data, message) {
   } else {
     result = messages.success;
   }
+
   return result;
 };
 

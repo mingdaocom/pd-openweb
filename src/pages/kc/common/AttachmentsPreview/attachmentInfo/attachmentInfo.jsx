@@ -74,11 +74,13 @@ class attachmentInfo extends React.Component {
           categories: data.categories,
         });
         const tempStr = detailMsg.replace(cutStringWithHtml(detailMsg, 200, 5), '');
+
         if (tempStr.length > 0) {
           postDetails = cutStringWithHtml(detailMsg, 200, 5) + '...';
         } else {
           postDetails = cutStringWithHtml(detailMsg, 200, 5);
         }
+
         _this.setState({
           postDetails,
         });
@@ -104,6 +106,7 @@ class attachmentInfo extends React.Component {
         </div>
       );
     }
+
     const index = this.props.index;
     const fromType = this.props.fromType;
     const sourceNode = this.props.attachments[index].originNode || this.props.attachments[index].sourceNode;
@@ -113,6 +116,7 @@ class attachmentInfo extends React.Component {
     const createUserName = sourceNode.createUserName;
     const createTime = sourceNode.createTime.replace(/-/g, '/');
     let postDetails;
+
     if (this.state.postDetails) {
       const postDetailsEle = document.createElement('div');
       postDetails = this.state.postDetails;
@@ -121,24 +125,30 @@ class attachmentInfo extends React.Component {
     } else {
       this.loadPreviewMsg();
     }
+
     let detailLink;
+
     switch (fromType) {
       case FROM_TYPE.TASK: {
         detailLink = '/apps/task/task_' + sourceID;
         break;
       }
+
       case FROM_TYPE.FOLDER: {
         detailLink = '/apps/task/folder_' + sourceID + '#detail';
         break;
       }
+
       case FROM_TYPE.CALENDAR: {
         detailLink = '/apps/calendar/detail_' + sourceID;
         break;
       }
+
       case FROM_TYPE.POST: {
         detailLink = '/feeddetail?itemID=' + sourceID;
         break;
       }
+
       default: {
         detailLink = '';
         break;

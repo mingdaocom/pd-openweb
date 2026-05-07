@@ -69,6 +69,7 @@ function UploadFiles(
           });
           return;
         }
+
         onAdd(up, files);
       }}
       onUploadProgress={(up, file) => {

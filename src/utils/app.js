@@ -72,9 +72,11 @@ export const getAppFeaturesPath = () => {
 export const getTranslateInfo = (appId, parentId, id, data) => {
   const langData = data || window[`langData-${appId}`] || [];
   const findCondition = { correlationId: id };
+
   if (parentId) {
     findCondition.parentId = parentId;
   }
+
   const info = _.find(langData, findCondition);
   return info ? info.data || {} : {};
 };
@@ -115,6 +117,7 @@ export const shareGetAppLangDetail = data => {
       })
       .then(data => {
         const langInfo = _.find(data, { langCode: langKey });
+
         if (langInfo) {
           appManagementApi
             .getAppLangDetail({
@@ -136,6 +139,7 @@ export const shareGetAppLangDetail = data => {
 // 从浏览器获取 language 匹配 getAppLangs 接口
 const getBrowserLang = () => {
   let langKey = null;
+
   switch (navigator.language) {
     case 'zh-CN':
     case 'zh_cn':
@@ -166,5 +170,6 @@ const getBrowserLang = () => {
     default:
       langKey = 'en';
   }
+
   return langKey;
 };

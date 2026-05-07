@@ -1,3 +1,5 @@
+import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
+
 export const searchDateList = [
   { value: 0, label: _l('今天') },
   { value: 1, label: _l('昨天') },
@@ -12,9 +14,9 @@ export const searchDateList = [
 
 export const TAB_LIST = [
   { tab: 0, tabName: _l('全部') },
-  { tab: 1, tabName: _l('应用管理') },
-  { tab: 2, tabName: _l('记录操作') },
-  { tab: 3, tabName: _l('用户行为') },
+  { tab: 1, tabName: _l('应用管理'), permissionKey: PERMISSION_ENUM.APP_MANAGE_LOG },
+  { tab: 2, tabName: _l('记录操作'), permissionKey: PERMISSION_ENUM.RECORD_OPERATE_LOG },
+  { tab: 3, tabName: _l('用户行为'), permissionKey: PERMISSION_ENUM.USER_ACTION_LOG },
 ];
 
 export const MODULE_LIST = [
@@ -28,6 +30,7 @@ export const MODULE_LIST = [
   { value: 4, label: _l('用户') },
   { value: 12, label: _l('打印模板') },
   { value: 20, label: _l('对话机器人') },
+  { value: 13, label: _l('云打印') },
   // { value: 5, label: _l('统计图表') },
   // { value: 6, label: _l('外部门户') },
 ];
@@ -50,6 +53,7 @@ export const OPERATE_LIST = [
   { value: 18, label: _l('开启') },
   { value: 19, label: _l('关闭') },
   { value: 20, label: _l('发布') },
+  { value: 21, label: _l('导入') },
   // { value: 13, label: _l('附件预览') },
 ];
 
@@ -153,6 +157,11 @@ export const APP_WORKSHEET_LOG_COLUMNS = [
   {
     title: _l('操作类型'),
     dataIndex: 'operationType',
+    width: 120,
+  },
+  {
+    title: _l('操作来源'),
+    dataIndex: 'sourceType',
     width: 120,
   },
   {
@@ -290,5 +299,6 @@ export const ORG_LOG_OPERATOR = [
   { value: 10, label: _l('待办委托') },
   { value: 11, label: _l('应用') },
   { value: 12, label: _l('工作流') },
-  { value: 13, label: _l('安全配置') },
+  { value: 13, label: _l('安全') },
+  { value: 14, label: _l('集成') },
 ];

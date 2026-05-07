@@ -1,5 +1,6 @@
 export function calendarLoading(state = false, action) {
   const { type } = action;
+
   switch (type) {
     case 'CHANGE_CALENDAR_LOADING':
       return action.data;
@@ -10,6 +11,7 @@ export function calendarLoading(state = false, action) {
 
 export function calendarIsOver(state = false, action) {
   const { type } = action;
+
   switch (type) {
     case 'CHANGE_CALENDAR_IS_OVER':
       return action.data;
@@ -17,8 +19,10 @@ export function calendarIsOver(state = false, action) {
       return state;
   }
 }
+
 export function calendarViewStart(state = '', action) {
   const { type } = action;
+
   switch (type) {
     case 'CHANGE_CALENDAR_VIEW_START':
       return action.data;
@@ -29,6 +33,7 @@ export function calendarViewStart(state = '', action) {
 
 export function calendarViewEnd(state = '', action) {
   const { type } = action;
+
   switch (type) {
     case 'CHANGE_CALENDAR_VIEW_END':
       return action.data;
@@ -36,6 +41,7 @@ export function calendarViewEnd(state = '', action) {
       return state;
   }
 }
+
 const stateInit = {
   eventAll: [], //全部
   eventScheduled: [], //已排期
@@ -47,6 +53,7 @@ const stateInit = {
 
 export function calenderEventList(state = stateInit, action) {
   const { type, data } = action;
+
   switch (type) {
     case 'CHANGE_CALENDAR_LIST':
       return data;
@@ -64,6 +71,7 @@ export function calenderEventList(state = stateInit, action) {
 
 export function editable(state = true, action) {
   const { type, data } = action;
+
   switch (type) {
     case 'CHANGE_CALENDAR_EDITABLE':
       return data;
@@ -74,6 +82,7 @@ export function editable(state = true, action) {
 
 export function calendarData(state = {}, action) {
   const { type, data } = action;
+
   switch (type) {
     case 'CHANGE_CALENDAR_DATA':
       return data;
@@ -84,6 +93,7 @@ export function calendarData(state = {}, action) {
 
 export function calendarEventIsAdd(state = false, action) {
   const { type, data } = action;
+
   switch (type) {
     case 'CALENDAR_EVENT_IS_ADD':
       return data;
@@ -95,6 +105,7 @@ export function calendarEventIsAdd(state = false, action) {
 //日历视图数据
 export function calendar(state = [], action) {
   const { type } = action;
+
   switch (type) {
     case 'CHANGE_CALENDARLIST':
       return action.data;
@@ -106,6 +117,7 @@ export function calendar(state = [], action) {
 //格式化后日历视图数据
 export function calendarFormatData(state = [], action) {
   const { type } = action;
+
   switch (type) {
     case 'CHANGE_CALENDAR_FORMAT':
       return action.data;

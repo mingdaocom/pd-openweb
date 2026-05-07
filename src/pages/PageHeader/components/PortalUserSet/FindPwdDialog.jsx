@@ -96,6 +96,7 @@ const AccountWrap = styled.div`
 `;
 const AccountDialogWrap = styled.div``;
 let sendVerifyCodeTimer = null;
+
 export default function TelDialog(props) {
   const { setShow, show, classNames, appId, account, onOk } = props;
   const [code, setCode] = useState('');
@@ -110,11 +111,14 @@ export default function TelDialog(props) {
   const { SysSettings = {} } = global;
   const { passwordRegexTip } = SysSettings;
   const codeDiv = useRef();
+
   const isPasswordRule = str => {
     return RegExpValidator.isPasswordValid(str);
   };
+
   const findPwdCallback = res => {
     const { accountResult } = res;
+
     switch (accountResult) {
       case 1:
         alert({
@@ -185,6 +189,7 @@ export default function TelDialog(props) {
         break;
     }
   };
+
   const countDown = () => {
     let seconds = 30;
     $(codeDiv).focus();
@@ -204,6 +209,7 @@ export default function TelDialog(props) {
       }
     }, 1000);
   };
+
   const handleSendVerifyCode = () => {
     let callback = res => {
       if (res.ret !== 0) {
@@ -216,6 +222,7 @@ export default function TelDialog(props) {
           verifyCodeLoading: true,
         });
       }
+
       let param = {
         appId: props.appId,
         ticket: res.ticket,
@@ -224,6 +231,7 @@ export default function TelDialog(props) {
         account: encrypt(props.account),
         codeType: 4, //更新密码
       };
+
       let thenFn = data => {
         if (data.actionResult === 1) {
           countDown();
@@ -244,9 +252,11 @@ export default function TelDialog(props) {
           } else {
             alert(_l('验证码发送失败'), 3);
           }
+
           return;
         }
       }; //http://web.dev.mingdao.net/portal/wxscanauth?state=0af0120d50d207807308f07b0360800400fe08a009051068
+
       externalPortalAjax
         .sendAccountVerifyCode(param)
         .then(data => {
@@ -262,15 +272,19 @@ export default function TelDialog(props) {
     if (!code) {
       return alert(_l('请输入验证码！'), 3);
     }
+
     if (!psd) {
       return alert(_l('请输入新密码！'), 3);
     }
+
     if (!isPasswordRule(psd)) {
       return alert(passwordRegexTip || _l('请输入8-20位，需包含字母和数字'), 3);
     }
+
     if (sending) {
       return;
     }
+
     const { ticket, randstr } = resRet;
     externalPortalAjax
       .findPwd({
@@ -293,12 +307,14 @@ export default function TelDialog(props) {
       if (res.ret !== 0) {
         return;
       }
+
       changePwd(
         Object.assign({}, res, {
           captchaType: md.global.getCaptchaType(),
         }),
       );
     };
+
     new captcha(callback);
   };
 

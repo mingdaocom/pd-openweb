@@ -144,10 +144,12 @@ function SelectWorksheet(props) {
     if (appPageIndex > 1 && ((loadingApp && isMoreApp) || !isMoreApp)) {
       return;
     }
+
     setData({ loadingApp: true });
     if (appPromise) {
       appPromise.abort();
     }
+
     const pageIndex = params.appPageIndex || appPageIndex;
     appPromise = appManagementAjax.getAppsByProject({
       projectId,
@@ -210,6 +212,7 @@ function SelectWorksheet(props) {
   const handleSelectApps = app => {
     const isAppChecked = !!_.find(selectApps, item => item.appId === app.appId);
     const newSelected = isAppChecked ? selectApps.filter(i => i.appId !== app.appId) : selectApps.concat(app);
+
     if (items[app.appId]) {
       const currentAppWorksheets = items[app.appId].map(item => ({ ...item, app }));
       const newSelectWorksheets = !isAppChecked

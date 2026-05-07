@@ -124,6 +124,7 @@ export const ORDER_SOURCE = [
 
 export const getOrderStatusInfo = (orderStatus, msg = '') => {
   let text, icon, color;
+
   if (orderStatus === 0) {
     text = _l('待支付');
   } else if (_.includes([1, 2, 3, 5], orderStatus)) {

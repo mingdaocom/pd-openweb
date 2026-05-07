@@ -231,12 +231,14 @@ export default function DataCollectionSettings(props) {
   const onRangeInputBlur = type => {
     if (timeRange[type].start && timeRange[type].end) {
       const newTimeRange = _.cloneDeep(timeRange);
+
       if (timeRange[type].start > timeRange[type].end) {
         newTimeRange[type].start = timeRange[type].end;
         newTimeRange[type].end = timeRange[type].start;
       }
 
       const newLimitWriteTime = _.cloneDeep(limitWriteTime);
+
       if (type !== TIME_TYPE.HOUR) {
         const resultArr = Array.from(Array(newTimeRange[type].end), (_, i) => i + 1).filter(
           item => item >= newTimeRange[type].start,
@@ -268,6 +270,7 @@ export default function DataCollectionSettings(props) {
             ? Array.from({ length: 60 - endMinute }, (_, k) => k + endMinute)
             : [];
     }
+
     if (from === 'end' && itemData.start) {
       const [startHour, startMinute] = itemData.start.split(':').map(item => parseInt(item));
       disabledHours = () => Array.from({ length: startHour }, (_, k) => k);
@@ -278,6 +281,7 @@ export default function DataCollectionSettings(props) {
             ? Array.from({ length: startMinute + 1 }, (_, k) => k)
             : [];
     }
+
     return { disabledHours, disabledMinutes };
   };
 
@@ -311,6 +315,7 @@ export default function DataCollectionSettings(props) {
                 newLimitWriteTime.hourSetting.rangHour = [];
                 break;
             }
+
             setState({ limitWriteTime: newLimitWriteTime });
           }}
         />

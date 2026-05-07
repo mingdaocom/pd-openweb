@@ -9,12 +9,15 @@ export const getAMapPosition = pos => {
   if (!pos) {
     return pos;
   }
+
   // 高德原生 AMap.LngLat 类
   if ('getLng' in pos && 'getLat' in pos) {
     return pos;
   }
+
   let lng = 0;
   let lat = 0;
+
   if ({}.toString.call(pos) === '[object Array]') {
     lng = pos[0];
     lat = pos[1];
@@ -33,15 +36,19 @@ export const getAMapPixel = ofst => {
   if (!ofst) {
     return ofst;
   }
+
   if ('getX' in ofst && 'getY' in ofst) {
     return ofst;
   }
+
   let x = 0;
   let y = 0;
+
   if ({}.toString.call(ofst) === '[object Array]') {
     x = ofst[0];
     y = ofst[1];
   }
+
   return hasWindow ? new window.AMap.Pixel(x, y) : null;
 };
 
@@ -49,9 +56,11 @@ export const getAMapSize = size => {
   if (!size) {
     return size;
   }
+
   if ('getWidth' in size) {
     return size;
   }
+
   return hasWindow ? new window.AMap.Size(size.width, size.height) : null;
 };
 

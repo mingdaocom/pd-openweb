@@ -157,6 +157,7 @@ export default class SelectField extends Component {
     const { bottom } = $title.getBoundingClientRect();
     const innerHeight = window.innerHeight;
     const $scrollWrap = document.querySelector('.selectFieldWrap');
+
     if ($scrollWrap) {
       $($scrollWrap).height(Math.min($content.offsetHeight, innerHeight - bottom - 116));
     }
@@ -165,9 +166,11 @@ export default class SelectField extends Component {
     let { fields, viewType, handleSelect, toCustomWidget, sheetSwitchPermit, ...rest } = this.props;
     const { checkedValue } = this.state;
     const EditButton = viewType === 8 ? VerifyButton : RevertButton;
+
     if (![4, 5, 7].includes(viewType)) {
       fields = setSysWorkflowTimeControlFormat(fields, sheetSwitchPermit, 'value');
     }
+
     if ([1, 8].includes(viewType)) {
       return fields.length > 0 ? (
         <DisplayFieldWrap>
@@ -191,6 +194,7 @@ export default class SelectField extends Component {
     } else if ([4, 5, 7].includes(viewType)) {
       return <DisplayFieldWrap>{this.props.context}</DisplayFieldWrap>;
     }
+
     return <ConfigureHierarchyView fields={fields} handleSelect={handleSelect} {...rest} />;
   };
   render() {

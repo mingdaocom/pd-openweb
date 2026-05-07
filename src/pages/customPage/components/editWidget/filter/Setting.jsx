@@ -4,8 +4,9 @@ import { Divider, Input, Switch } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dialog, Icon } from 'ming-ui';
+import { Dialog, Dropdown, Icon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
+import { getIconByType } from 'src/pages/widgetConfig/util';
 import FilterControl from './FilterControl';
 import FilterListSort from './FilterListSort';
 import FilterObject from './FilterObject';
@@ -48,6 +49,24 @@ const Wrap = styled.div`
     overflow-y: auto;
   }
 
+  .fastFilterControlDropdown {
+    height: auto;
+    min-height: 36px;
+    .itemT {
+      background: var(--color-background-secondary);
+      border-radius: 4px 4px 4px 4px;
+      padding: 3px 8px 3px 10px;
+      border: 1px solid var(--color-border-secondary);
+      margin-right: 5px;
+      i {
+        color: var(--color-text-tertiary);
+        &:hover {
+          color: var(--color-text-secondary);
+        }
+      }
+    }
+  }
+
   .ant-checkbox-input {
     position: absolute;
   }
@@ -72,11 +91,13 @@ function Setting(props) {
   const { advancedSetting = {} } = filterInfo;
   const { pageId, components } = props;
   const [displayType, setDisplayType] = useState('setting');
+  const [dropDownVisible, setDropDownVisible] = useState(false);
 
   const allControls = filters.map(data => {
     const { control, objectControls } = data;
     return control || _.get(objectControls[0], 'control');
   });
+  const { requiredcids = [] } = advancedSetting;
 
   const changeGlobal = e => {
     const { checked } = e.target;
@@ -86,12 +107,14 @@ function Setting(props) {
         ...f,
         global: checked,
       };
+
       if (checked) {
         data.objectControls =
           filterId === f.filterId
             ? objectControls
             : objectControls.map(c => {
                 const target = _.find(data.objectControls, { worksheetId: c.worksheetId });
+
                 if (target) {
                   return target;
                 } else {
@@ -102,6 +125,7 @@ function Setting(props) {
                 }
               });
       }
+
       return data;
     });
 
@@ -139,9 +163,11 @@ function Setting(props) {
                 };
               }),
       };
+
       if (!data.objectControls.length) {
         data.dataType = 0;
       }
+
       return data;
     });
     setFilters(newFilters);
@@ -149,13 +175,25 @@ function Setting(props) {
 
   const removeFilter = () => {
     const { filterId } = filter;
+
     if (filters.length === 1) {
       alert(_l('至少保留一个筛选器'), 3);
       return;
     }
+
     const newFilters = filters.filter(f => f.filterId !== filterId);
     setFilters(newFilters);
     setActiveId(newFilters[0].filterId);
+  };
+
+  const handleChangeRequiredcids = requiredcids => {
+    setFilterInfo({
+      ...filterInfo,
+      advancedSetting: {
+        ...advancedSetting,
+        requiredcids,
+      },
+    });
   };
 
   return (
@@ -196,6 +234,7 @@ function Setting(props) {
               if (!data.objectControls.length) {
                 data.dataType = 0;
               }
+
               updateFilter(data);
             }}
             changeGlobal={changeGlobal}
@@ -204,7 +243,12 @@ function Setting(props) {
           {!!_.get(filter, 'objectControls.length') && (
             <Fragment>
               <Divider className="mTop5 mBottom14" />
-              <FilterControl filter={filter} setFilter={updateFilter} allControls={allControls} />
+              <FilterControl
+                filter={filter}
+                setFilter={updateFilter}
+                allControls={allControls}
+                filterInfoAdvancedSetting={filterInfo.advancedSetting}
+              />
             </Fragment>
           )}
         </div>
@@ -216,13 +260,109 @@ function Setting(props) {
               size="small"
               checked={filterInfo.enableBtn}
               onChange={checked => {
+                const data = {
+                  enableBtn: checked,
+                };
+
+                if (!checked) {
+                  data.advancedSetting = {
+                    ...advancedSetting,
+                    requiredcids: undefined,
+                  };
+                }
+
                 setFilterInfo({
                   ...filterInfo,
-                  enableBtn: checked,
+                  ...data,
                 });
               }}
             />
           </div>
+          {filterInfo.enableBtn && (
+            <div className="mTop10">
+              <div>{_l('查询时必填')}</div>
+              <Dropdown
+                selectClose={false}
+                placeholder={_l('请选择')}
+                className={cx('w100 mTop8 fastFilterControlDropdown')}
+                renderItem={item => {
+                  if (item.value === 'all') {
+                    return <div className={'itemText Hand forAll flexRow alignItemsCenter'}>{item.text}</div>;
+                  }
+
+                  const isCur = !!safeParse(requiredcids, 'array').includes(item.value);
+                  return (
+                    <div
+                      className={cx('itemText flexRow alignItemsCenter', {
+                        isCur,
+                      })}
+                    >
+                      <Icon icon={getIconByType(item.type)} className="Font18 Relative" />
+                      <span className="mLeft10 flex textPrimary ellipsis">{item.text}</span>
+                      {isCur && <Icon icon="done" className="Relative ThemeColor3 Font18" />}
+                    </div>
+                  );
+                }}
+                popupVisible={dropDownVisible}
+                onVisibleChange={visible => setDropDownVisible(visible)}
+                value={safeParse(requiredcids, 'array').length <= 0 ? undefined : safeParse(requiredcids, 'array')}
+                onChange={value => {
+                  let data = [];
+
+                  if (!value) {
+                    data = [];
+                  } else if (safeParse(requiredcids, 'array').includes(value)) {
+                    data = safeParse(requiredcids, 'array').filter(o => o !== value);
+                  } else {
+                    data = [...safeParse(requiredcids, 'array'), value];
+                  }
+
+                  handleChangeRequiredcids(JSON.stringify(data));
+                }}
+                renderTitle={() => {
+                  return (
+                    <div className="">
+                      {(safeParse(requiredcids, 'array') || []).map(it => {
+                        const info = filters.filter(control => {
+                          return _.get(control.objectControls[0], 'controlId') === it;
+                        })[0];
+                        const isDel = !info;
+                        return (
+                          <div className={cx('itemT InlineBlock', { Red: isDel })}>
+                            {!isDel ? info.name || _l('未命名') : _l('已删除')}
+                            <Icon
+                              icon={'close'}
+                              className="Hand mLeft3"
+                              onClick={e => {
+                                e.stopPropagation();
+                                let data = safeParse(requiredcids, 'array').filter(a => a !== it);
+                                handleChangeRequiredcids(JSON.stringify(data));
+                              }}
+                            />
+                          </div>
+                        );
+                      })}
+                    </div>
+                  );
+                }}
+                border
+                menuClass="paramControlDropdownMenu paramControlDropdownMenuSet"
+                cancelAble
+                isAppendToBody
+                openSearch
+                data={filters
+                  .filter(item => item.dataType !== 36)
+                  .map(item => {
+                    return {
+                      value: _.get(item.objectControls[0], 'controlId'),
+                      type: item.dataType,
+                      text: item.name || _l('未命名'),
+                    };
+                  })
+                  .filter(item => item.value)}
+              />
+            </div>
+          )}
           <Divider className="mTop15 mBottom15" />
           <div className="flexRow valignWrapper">
             <div className="flexRow valignWrapper flex bold">

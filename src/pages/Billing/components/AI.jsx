@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Icon, LoadDiv } from 'ming-ui';
 import AIService from 'src/api/aIService';
+import { AI_MODEL_MODE } from '../config';
 import { getDeveloperInfo } from '../util';
 import EditableTable from './EditableTable';
 
@@ -64,6 +65,14 @@ const AITableWrap = styled.div`
       width: 60%;
     }
   }
+
+  .sectionTitle {
+    color: var(--color-text-title);
+    margin: 16px 0 8px;
+    &:first-child {
+      margin-top: 0;
+    }
+  }
 `;
 
 const AI = () => {
@@ -98,11 +107,12 @@ const AI = () => {
     AIService.getAIPricingPolicyDetail({})
       .then(res => {
         setAiModelData(res?.aiPricingPolicy?.modelRate || []);
-        setLoading(false);
       })
       .catch(error => {
         console.error('获取AI定价策略失败:', error);
         setAiModelData([]);
+      })
+      .finally(() => {
         setLoading(false);
       });
   };
@@ -111,8 +121,20 @@ const AI = () => {
     getAIPricingPolicyDetail();
   }, []);
 
-  // 计算每个开发商的行数
-  const getProviderRowSpan = item => item.models.length;
+  // 按 developer.mode 分组：只保留有 mode 的数据，类型为空的就不显示
+  const getDataByMode = () => {
+    const base =
+      aiModelData?.filter(
+        item => item.models && item.models.length > 0 && item.developer?.mode != null && item.developer?.mode !== '',
+      ) || [];
+    return {
+      embedding: base.filter(item => Number(item.developer.mode) === AI_MODEL_MODE.EMBEDDING),
+      language: base.filter(item => Number(item.developer.mode) === AI_MODEL_MODE.CHAT),
+    };
+  };
+
+  const { embedding: embeddingData, language: languageData } = getDataByMode();
+  const hasAnyData = embeddingData.length > 0 || languageData.length > 0;
 
   // 渲染价格单元格
   const renderPriceCell = (developer, model, priceType) => {
@@ -120,7 +142,7 @@ const AI = () => {
     const hasValue = value !== null && value !== undefined;
 
     if (!hasValue) {
-      return <td className="emptyCell">-</td>;
+      return <td className="flex4 emptyCell">-</td>;
     }
 
     // 根据 useMillionUnit 进行显示转换
@@ -132,6 +154,7 @@ const AI = () => {
       if (useMillionUnit) {
         return parseFloat((numValue * 1000).toFixed(5));
       }
+
       return value;
     };
 
@@ -143,6 +166,49 @@ const AI = () => {
       </td>
     );
   };
+
+  // 渲染单个类型下的表格
+  const renderTable = filteredData => (
+    <table className="editableTable aiTable">
+      <thead>
+        <tr>
+          <th className="flex1">{_l('开发商')}</th>
+          <th className="flex1">{_l('模型名称')}</th>
+          <th className="flex4">
+            {useMillionUnit ? _l('价格 (信用点 / 百万 tokens)') : _l('价格 (信用点 / 千 tokens)')}
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        {filteredData?.map(item =>
+          item.models.map((model, modelIndex) => {
+            const vendorInfo = getVendorInfo(item.developer);
+            return (
+              <tr key={`${item.developer.id}-${model.id}`}>
+                {modelIndex === 0 && (
+                  <td className="flex1 providerCell" rowSpan={item.models.length}>
+                    <div className="providerName">
+                      <div className="Font14 FontWeight400 WordBreak">{vendorInfo.name}</div>
+                      {vendorInfo.description && (
+                        <div className="providerSubtext WordBreak">{vendorInfo.description}</div>
+                      )}
+                    </div>
+                  </td>
+                )}
+                <td className="flex1 WordBreak">{model.alias || model.name}</td>
+                {renderPriceCell(item.developer, model, 'outputToken')}
+              </tr>
+            );
+          }),
+        )}
+      </tbody>
+    </table>
+  );
+
+  // 整个为空（无任何类型的模型数据）则不显示整块
+  if (!loading && !hasAnyData) {
+    return null;
+  }
 
   return (
     <EditableTable className="cardWrap flexColumn">
@@ -167,49 +233,20 @@ const AI = () => {
             <LoadDiv />
           </div>
         ) : (
-          (() => {
-            const filteredData = aiModelData?.filter(item => item.models && item.models.length > 0) || [];
-            return filteredData.length > 0 ? (
-              <table className="editableTable aiTable">
-                <thead>
-                  <tr>
-                    <th className="flex1">{_l('开发商')}</th>
-                    <th className="flex1">{_l('模型名称')}</th>
-                    <th className="flex4">
-                      {useMillionUnit ? _l('价格 (信用点 / 百万 tokens)') : _l('价格 (信用点 / 千 tokens)')}
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredData?.map(item =>
-                    item.models.map((model, modelIndex) => {
-                      const vendorInfo = getVendorInfo(item.developer);
-                      return (
-                        <tr key={`${item.developer.id}-${model.id}`}>
-                          {modelIndex === 0 && (
-                            <td className="flex1 providerCell" rowSpan={getProviderRowSpan(item)}>
-                              <div className="providerName">
-                                <div className="Font14 FontWeight400 WordBreak">{vendorInfo.name}</div>
-                                {vendorInfo.description && (
-                                  <div className="providerSubtext WordBreak">{vendorInfo.description}</div>
-                                )}
-                              </div>
-                            </td>
-                          )}
-                          <td className="flex1 WordBreak">{model.alias || model.name}</td>
-                          {renderPriceCell(item.developer, model, 'outputToken')}
-                        </tr>
-                      );
-                    }),
-                  )}
-                </tbody>
-              </table>
-            ) : (
-              <div className="flexRow justifyContentCenter alignItemsCenter mHeight200 Font14 textTertiary">
-                {_l('暂无AI模型数据')}
-              </div>
-            );
-          })()
+          <>
+            {[
+              { title: _l('语言模型'), data: languageData },
+              { title: _l('嵌入模型'), data: embeddingData },
+            ].map(
+              ({ title, data }) =>
+                data.length > 0 && (
+                  <React.Fragment key={title}>
+                    <div className="sectionTitle Font15 Bold">{title}</div>
+                    {renderTable(data)}
+                  </React.Fragment>
+                ),
+            )}
+          </>
         )}
       </AITableWrap>
     </EditableTable>

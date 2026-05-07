@@ -391,9 +391,11 @@ export default class PersonalInfo extends React.Component {
 
   render() {
     const { accountInfo, loading, educationList, workList, baseDetail, editFullName, isErr } = this.state;
+
     if (loading) {
       return <LoadDiv className="mTop40" />;
     }
+
     return (
       <div className="personalInfoContainer">
         <div className="personalTop">

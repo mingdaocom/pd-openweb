@@ -20,7 +20,7 @@ export default props => {
 
     const { instanceId, workId } = props;
     return (
-      <Popup className={cx('mobileModal full', className)} onClose={onClose} visible={visible}>
+      <Popup className={cx('processRecordInfoModal mobileModal full', className)} onClose={onClose} visible={visible}>
         {instanceId && (
           <ProcessRecordInfo isModal={true} instanceId={instanceId} workId={workId} onClose={onClose} onSave={onSave} />
         )}
@@ -40,6 +40,7 @@ export default props => {
             compatibleMDJS('back', { closeAll: true });
             return;
           }
+
           window.mobileNavigateTo('/mobile/processMatters');
         }}
         onSave={onSave}

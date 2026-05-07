@@ -40,6 +40,7 @@ const InputCon = styled.div`
     border: none !important;
     box-sizing: border-box !important;
     line-height: inherit;
+    background-color: transparent !important;
     &::placeholder {
       color: var(--color-text-disabled);
     }
@@ -130,6 +131,7 @@ export default function Text(props) {
     _.includes([FILTER_CONDITION_TYPE.START, FILTER_CONDITION_TYPE.END], filterType) &&
     _.isNumber(limit) &&
     !_.isNaN(limit);
+
   const handleChange = ({ values, newIsExact, newIsCaseSensitive }, options = {}) => {
     onChange(
       {
@@ -143,6 +145,7 @@ export default function Text(props) {
       options,
     );
   };
+
   useUpdateEffect(() => {
     if (!values.length) {
       setIsMultiple(false);
@@ -177,6 +180,7 @@ export default function Text(props) {
                     }
                   }
                 }
+
                 if (
                   _.includes(
                     [
@@ -197,6 +201,7 @@ export default function Text(props) {
               }}
               onPaste={e => {
                 const pasteValue = (e.clipboardData || window.clipboardData).getData('text');
+
                 if (pasteValue && /\n/.test(pasteValue)) {
                   setValueForMultiple(pasteValue);
                   setPasteDialogVisible(true);

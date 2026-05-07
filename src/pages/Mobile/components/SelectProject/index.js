@@ -55,10 +55,12 @@ export default function SelectProject(props) {
       ),
       onAction: action => {
         const { project } = action;
+
         // 人员选择层不需要真实修改组织
         if (!noCache) {
           safeLocalStorageSetItem('currentProjectId', project.projectId);
         }
+
         setCurrentProject(project);
         changeProject(noCache && { project });
         actionSheetHandler.close();

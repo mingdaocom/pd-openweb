@@ -229,6 +229,7 @@ export default function ViewInactive({ projectId }) {
   useEffect(() => {
     getIsFirstInactiveUsers();
     const { inactive } = getRequest();
+
     if (inactive) {
       setState({ inactiveDialogVisible: true });
     }

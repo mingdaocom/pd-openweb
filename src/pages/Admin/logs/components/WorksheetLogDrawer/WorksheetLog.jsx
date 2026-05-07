@@ -55,6 +55,7 @@ export default class Discuss extends Component {
     if (pageIndex === 1) {
       discussList = [];
     }
+
     sheetAjax
       .getLogs({
         worksheetId,
@@ -67,16 +68,19 @@ export default class Discuss extends Component {
           loading: false,
           loadouted: data.length < PAGE_SIZE,
         };
+
         if (data.length) {
           newState.pageIndex = pageIndex;
           newState.discussList = discussList.concat(data);
         }
+
         this.setState(newState);
       });
   }
 
   handleScroll = () => {
     const { loading, loadouted, pageIndex, discussList } = this.state;
+
     if (!loading && !loadouted && discussList.length >= PAGE_SIZE) {
       this.setState({ pageIndex: pageIndex + 1 });
       this.loadLog({ pageIndex: pageIndex + 1, ..._.pick(this.props, ['worksheetId', 'rowId']) });

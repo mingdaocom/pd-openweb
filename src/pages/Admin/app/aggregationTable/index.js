@@ -98,10 +98,12 @@ export default class AggregationTable extends Component {
     const { appList } = this.state;
     const { projectId } = this.props.match.params || {};
     const { appPageIndex = 1, isMoreApp, loadingApp, keyword = '' } = this.state;
+
     // 加载更多
     if (appPageIndex > 1 && ((loadingApp && isMoreApp) || !isMoreApp)) {
       return;
     }
+
     this.setState({ loadingApp: true });
 
     appManagementAjax
@@ -149,9 +151,11 @@ export default class AggregationTable extends Component {
     } else {
       this.changeTaskAjax = syncTaskApi.startTask({ projectId, taskId: item.id }, { isAggTable: true });
     }
+
     this.changeTaskAjax.then(res => {
       let isSucceeded = item.taskStatus === TASK_STATUS_TYPE.RUNNING ? res : (res || {}).isSucceeded;
       const { errorMsg, errorMsgList } = res || {};
+
       if (isSucceeded) {
         this.setState({
           list: list
@@ -204,30 +208,32 @@ export default class AggregationTable extends Component {
 
     return (
       <div className="orgManagementWrap aggregationTableWrap">
-        <AdminTitle prefix={_l('聚合表')} />
+        <AdminTitle prefix={_l('应用管理 - 聚合表')} />
         <div className="orgManagementHeader">{_l('聚合表')}</div>
         <div className="orgManagementContent flexColumn">
-          <div className="appManagementCount">
-            {featureType === '2' ? (
-              <Fragment>
-                <span>{_l('升级版本后可在应用中创建聚合表')}</span>
-                <a
-                  href="javascript:void(0);"
-                  className="ThemeColor3 ThemeHoverColor2 mLeft8 NoUnderline"
-                  onClick={() => buriedUpgradeVersionDialog(projectId, VersionProductType.aggregation)}
-                >
-                  {_l('升级版本')}
-                </a>
-              </Fragment>
-            ) : (
-              <Fragment>
-                <span className="textTertiary mRight5">{_l('已启用聚合表个数')}</span>
-                <span className="bold">
-                  {_l('%0 / %1 个', effectiveAggregationTableCount, limitAggregationTableCount)}
-                </span>
-                <span className="textTertiary mLeft15 mRight5">{_l('剩余')}</span>
-                <span className="bold">{_l('%0个', limitAggregationTableCount - effectiveAggregationTableCount)}</span>
-                {!window.platformENV.isOverseas && !window.platformENV.isLocal && (
+          {!window.platformENV.isLocal && !window.platformENV.isOverseas && (
+            <div className="appManagementCount">
+              {featureType === '2' ? (
+                <Fragment>
+                  <span>{_l('升级版本后可在应用中创建聚合表')}</span>
+                  <a
+                    href="javascript:void(0);"
+                    className="ThemeColor3 ThemeHoverColor2 mLeft8 NoUnderline"
+                    onClick={() => buriedUpgradeVersionDialog(projectId, VersionProductType.aggregation)}
+                  >
+                    {_l('升级版本')}
+                  </a>
+                </Fragment>
+              ) : (
+                <Fragment>
+                  <span className="textTertiary mRight5">{_l('已启用聚合表个数')}</span>
+                  <span className="bold">
+                    {_l('%0 / %1 个', effectiveAggregationTableCount, limitAggregationTableCount)}
+                  </span>
+                  <span className="textTertiary mLeft15 mRight5">{_l('剩余')}</span>
+                  <span className="bold">
+                    {_l('%0个', limitAggregationTableCount - effectiveAggregationTableCount)}
+                  </span>
                   <PurchaseExpandPack
                     className="ThemeHoverColor2 mLeft5"
                     text={_l('扩充')}
@@ -235,10 +241,10 @@ export default class AggregationTable extends Component {
                     routePath="expansionserviceAggregationtable"
                     projectId={projectId}
                   />
-                )}
-              </Fragment>
-            )}
-          </div>
+                </Fragment>
+              )}
+            </div>
+          )}
           <div className="flexRow">
             <Select
               className="w180 mdAntSelect"
@@ -259,6 +265,7 @@ export default class AggregationTable extends Component {
               onPopupScroll={e => {
                 e.persist();
                 const { scrollTop, offsetHeight, scrollHeight } = e.target;
+
                 if (scrollTop + offsetHeight === scrollHeight) {
                   if (isMoreApp) {
                     this.getAppList();
@@ -358,6 +365,7 @@ export default class AggregationTable extends Component {
                           if (aggTableTaskStatus === 0) {
                             return;
                           }
+
                           window.open(`/aggregation/${worksheetId || ''}`);
                         }}
                       >

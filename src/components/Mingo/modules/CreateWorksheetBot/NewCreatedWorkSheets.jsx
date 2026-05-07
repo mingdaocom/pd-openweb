@@ -37,6 +37,7 @@ const EditWorkSheetItem = styled.div`
     background: var(--color-background-hover);
   }
 `;
+
 export default function NewCreatedWorkSheets({ relateControls = [], onEditWorkSheet = () => {} }) {
   const [disabledIdsMap, setDisabledIdsMap] = useState({});
   return (

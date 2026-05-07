@@ -41,12 +41,14 @@ const getApp = (appId, cb) => dispatch => {
         (localStorage.getItem(`appExpandGroupInfo-${detail.id}`) &&
           JSON.parse(localStorage.getItem(`appExpandGroupInfo-${detail.id}`))) ||
         {};
+
       if (
         detail.appNaviDisplayType !== appExpandGroupInfo.appNaviDisplayType ||
         detail.appNaviStyle !== appExpandGroupInfo.appNaviStyle
       ) {
         localStorage.removeItem(`appExpandGroupInfo-${detail.id}`);
       }
+
       const run = () => {
         dispatch({
           type: 'UPDATE_APP_DETAIL',
@@ -60,6 +62,7 @@ const getApp = (appId, cb) => dispatch => {
           type: 'MOBILE_FETCH_SUCCESS',
         });
       };
+
       getAppLangDetail(detail).then(() => {
         run();
       });

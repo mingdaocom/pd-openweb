@@ -9,6 +9,17 @@
         <title content="加载中"></title>
     </head>
     <body>
+        <script>
+            if (
+                localStorage.themeMode === 'dark' ||
+                (localStorage.themeMode === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)
+            ) {
+                document.body.style.backgroundColor = '#161616';
+            }
+        </script>
         <script src="webpack[index]?src/router/"></script>
+        <script>
+            document.body.style.backgroundColor = '';
+        </script>
     </body>
 </html>

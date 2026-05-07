@@ -52,12 +52,15 @@ const UserItem = styled.span`
 export default props => {
   const { projectId, createAccount, onChange } = props;
   const [showSelectUser, setShowSelectUser] = useState(false);
+
   const onSave = users => {
     onChange(users[0]);
   };
+
   const pickUser = () => {
     setShowSelectUser(true);
   };
+
   return (
     <div className="flexColumn mBottom20">
       <div className="Font14 bold mBottom15">{_l('发起人')}</div>

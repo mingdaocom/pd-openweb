@@ -71,9 +71,11 @@ export default function generateStore(
   });
   store.cancelChange = () => {
     const state = store.getState();
+
     if (get(state, 'base.isTab')) {
       return;
     }
+
     const { originFirstPageResult = {} } = state;
     store.dispatch({
       type: 'CANCEL_CHANGE',
@@ -81,16 +83,20 @@ export default function generateStore(
       count: originFirstPageResult.count,
     });
   };
+
   store.init = () => store.dispatch(init());
   store.setEmpty = ({ ignoreControlId = [] } = {}) => {
     const state = store.getState();
     const { base = {} } = state;
     const controlId = get(base, 'control.controlId');
+
     if (!isEmpty(ignoreControlId) && includes(ignoreControlId, controlId)) {
       return;
     }
+
     store.dispatch({ type: 'RESET' });
     store.dispatch({ type: 'CLEAR_RECORDS' });
   };
+
   return store;
 }

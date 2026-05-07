@@ -182,11 +182,13 @@ function WidgetList({
             onClick={() => {
               if (itemDisabled) return;
               const checked = filteredSelectedWidgetIds.includes(item.controlId);
+
               if (checked) {
                 onClear(item.controlId);
               } else {
                 onFill(item.controlId, item.value);
               }
+
               setSelectedWidgetIds(oldState =>
                 oldState.includes(item.controlId)
                   ? oldState.filter(id => id !== item.controlId)

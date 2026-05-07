@@ -32,17 +32,21 @@ export const getPeriodCount = (type, minDayWidth, viewConfig) => {
   if (type === PERIOD_TYPE.day) {
     periodWidth = 30;
   }
+
   if (type === PERIOD_TYPE.week) {
     const weekCount = 7;
     const value = onlyWorkDay ? weekCount - dayOff.length : weekCount;
     periodWidth = value * minDayWidth;
   }
+
   if (type === PERIOD_TYPE.month) {
     periodWidth = onlyWorkDay ? monthWorkDay * minDayWidth : monthDay * minDayWidth;
   }
+
   if (type === PERIOD_TYPE.quarter) {
     periodWidth = onlyWorkDay ? monthWorkDay * 3 * minDayWidth : monthDay * 3 * minDayWidth;
   }
+
   if (type === PERIOD_TYPE.year) {
     periodWidth = onlyWorkDay ? monthWorkDay * 6 * minDayWidth : monthDay * 6 * minDayWidth;
     const screenPeriodCount = parseInt(screenWidth / periodWidth);
@@ -61,18 +65,22 @@ export const getAssignWorkDays = (value, time, dayOff) => {
   const result = [];
   const target = Math.abs(value);
   let count = value >= 0 ? 0 : -1;
+
   while (result.length !== target) {
     const date = moment(time).add(count, 'd');
     const day = date.day();
+
     if (value >= 0) {
       count = count + 1;
     } else {
       count = count - 1;
     }
+
     if (!dayOff.includes(day)) {
       result.push(date.format('YYYY-MM-DD'));
     }
   }
+
   return result;
 };
 
@@ -174,16 +182,20 @@ export const getDays = (start, end, center, viewConfig) => {
 const getTodayLeftValue = (start, end, dayOff) => {
   const diff = Math.abs(start.diff(end, 'd'));
   let value = 0;
+
   for (let i = 0; i <= diff; i++) {
     const momentObj = moment(start).add(i, 'd');
     const d = momentObj.days();
+
     if (!dayOff.includes(d)) {
       value = value + 1;
     }
+
     if (momentObj.format('YYYY-MM-DD') === moment().format('YYYY-MM-DD')) {
       break;
     }
   }
+
   return value;
 };
 
@@ -363,6 +375,7 @@ export const getYears = (start, end, center, viewConfig) => {
     if (isCurrent) {
       const m = Number(moment().format('MM'));
       const isToday = onlyWorkDay ? !dayOff.includes(moment().days()) : true;
+
       if (m <= 6) {
         first.isToday = isToday;
         first.left =
@@ -378,6 +391,7 @@ export const getYears = (start, end, center, viewConfig) => {
             : Math.abs(moment(lastStart).diff(moment(), 'd'))) * minDayWidth;
         last.left = last.left - minDayWidth / 2;
       }
+
       result.push(first, last);
     } else {
       result.push(first, last);
@@ -403,6 +417,7 @@ const getWeekDayCount = (start, end, dayOff) => {
   const weekEnd = moment(end).startOf('w').add(-1, 'd').format('YYYY-MM-DD');
   const diff = moment(weekEnd).diff(moment(weekStart), 'd');
   const count = (diff / 7) * (7 - dayOff.length);
+
   if (count > 0) {
     const s = getWeekDayCount2(start, weekStart, dayOff);
     const e = getWeekDayCount2(moment(weekEnd).add(1, 'd').format('YYYY-MM-DD'), end, dayOff);
@@ -415,13 +430,16 @@ const getWeekDayCount = (start, end, dayOff) => {
 const getWeekDayCount2 = (start, end, dayOff) => {
   const diff = moment(end).diff(moment(start), 'd');
   let count = 0;
+
   for (let i = 0; i <= diff; i++) {
     const day = moment(start).add(i, 'd');
     const days = day.days();
+
     if (!dayOff.includes(days)) {
       count = count + 1;
     }
   }
+
   return count;
 };
 
@@ -430,10 +448,13 @@ const getWeekDayCount2 = (start, end, dayOff) => {
  */
 export const isWeekEndDay = (date, type, viewConfig) => {
   const { onlyWorkDay, dayOff } = viewConfig;
+
   if (type !== PERIOD_TYPE.day) {
     return false;
   }
+
   const day = moment(date).days();
+
   if (onlyWorkDay) {
     const weekWorkDays = [1, 2, 3, 4, 5, 6, 0].filter(item => !dayOff.includes(item));
     const max = weekWorkDays.filter(item => item === 0).length ? 0 : Math.max.apply(null, weekWorkDays);
@@ -481,12 +502,14 @@ const calculateTimeBlock = (item, periodList, viewConfig) => {
       width: 0,
     };
   }
+
   if (moment(startTime).isSameOrAfter(maxEndTime)) {
     return {
       right: 0,
       width: 0,
     };
   }
+
   if (moment(minStartTime).isSameOrAfter(endTime)) {
     return {
       left: 0,
@@ -510,6 +533,7 @@ const calculateTimeBlock = (item, periodList, viewConfig) => {
       startLeft = startLeft + timeToPercentage(startTime, minDayWidth);
     }
   }
+
   if (moment(endTime).isSameOrAfter(minStartTime)) {
     const dayCount = onlyWorkDay
       ? getWeekDayCount(minStartTime, endTime, dayOff)
@@ -521,6 +545,7 @@ const calculateTimeBlock = (item, periodList, viewConfig) => {
       !isMilepost
     ) {
       const endHoursWidth = timeToPercentage(endTime, minDayWidth);
+
       if (endHoursWidth) {
         endLeft = endLeft + endHoursWidth - minDayWidth;
       }
@@ -565,6 +590,7 @@ export const fillRecordsTimeBlockColor = (grouping, colorControl) => {
 export const fillRecordTimeBlockColor = (record, colorControl = {}) => {
   const { controlId, options } = colorControl;
   const defaultColor = '#1677ff';
+
   if (record[controlId] && colorControl.enumDefault2 === 1) {
     const value = JSON.parse(record[controlId]);
     const colorId = _.isArray(value) ? value[0] : null;
@@ -573,6 +599,7 @@ export const fillRecordTimeBlockColor = (record, colorControl = {}) => {
   } else {
     record.color = defaultColor;
   }
+
   return record;
 };
 
@@ -582,6 +609,7 @@ export const fillRecordTimeBlockColor = (record, colorControl = {}) => {
 export const formatRecordTime = (row, { startId, endId, milepost }) => {
   let startTime = row[startId];
   let endTime = row[endId];
+
   if (row[milepost] == '1') {
     if (startTime) {
       endTime = startTime;
@@ -589,6 +617,7 @@ export const formatRecordTime = (row, { startId, endId, milepost }) => {
       startTime = endTime;
     }
   }
+
   return {
     ...row,
     startTime,
@@ -614,19 +643,23 @@ export const formatWeekDay = allowweek => {
  */
 export const getRecordIndex = (id, grouping, withoutArrangementVisible) => {
   let index = null;
+
   for (let i = 0; i < grouping.length; i++) {
     let { groupingIndex } = grouping[i];
     let rows = grouping[i].rows.filter(item => (withoutArrangementVisible ? true : item.diff > 0));
+
     for (let j = 0; j < rows.length; j++) {
       if (id === rows[j].rowid) {
         index = groupingIndex + j + 1;
         break;
       }
     }
+
     if (_.isNumber(index)) {
       break;
     }
   }
+
   return index;
 };
 
@@ -644,6 +677,7 @@ export const sortGrouping = (grouping, view = {}, controls = []) => {
  */
 export const timeToPercentage = (time, width) => {
   const [, hours] = time.split(' ');
+
   if (hours) {
     const maxTime = 2359;
     const value = Number(hours.slice(0, 5).replace(/:/, ''));

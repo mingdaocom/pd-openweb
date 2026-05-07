@@ -27,9 +27,11 @@ export default ({
     if (type === 'cancel') {
       onCancel();
     }
+
     if (type === 'ok') {
       onOk(confirmValue);
     }
+
     closeLayer();
   };
 
@@ -62,6 +64,7 @@ export default ({
   };
 
   const root = createRoot(container);
+
   const closeLayer = () => {
     setTimeout(() => {
       root.unmount();

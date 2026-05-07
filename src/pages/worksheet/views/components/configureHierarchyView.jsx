@@ -110,10 +110,12 @@ export default function HierarchyViewConfig({
       handleSelect({ childType: relateType, viewControls: hierarchyControls, viewControl: '' });
       return;
     }
+
     if (singleRelate) {
       handleSelect({ viewControl: singleRelate, childType: 1 });
       return;
     }
+
     // 当前工作表中没有符合的字段，将自动为您添加一个时，需主动清除缓存
     if (!isRelateOtherSheet && fields.length <= 0) {
       window.clearLocalDataTime({
@@ -121,8 +123,10 @@ export default function HierarchyViewConfig({
         clearSpecificKeys: ['Worksheet_GetWorksheetInfo', 'Worksheet_GetWorksheetBaseInfo'],
       });
     }
+
     handleSelect({ viewControl: 'create', childType: 1 });
   };
+
   return (
     <HierarchyViewConfigWrap>
       <SettingItem>

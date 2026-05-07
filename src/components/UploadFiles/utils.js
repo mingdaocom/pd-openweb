@@ -77,6 +77,7 @@ export const getRandStr = length => {
   ];
 
   let randArr = [];
+
   for (let i = 0; i < length; i++) {
     randArr.push(randStrArr[Math.floor(Math.random() * randStrArr.length)]);
   }
@@ -96,12 +97,14 @@ export const getHashCode = str => {
       h = h & 0xffffffff;
     }
   }
+
   return h;
 };
 
 export const isValid = files => {
   let count = 0;
   let canSvg = !window.isPublicWorksheet;
+
   for (let i = 0, length = files.length; i < length; i++) {
     if (
       RegExpValidator.validateFileExt('.' + RegExpValidator.getExtOfFileName(files[i].name)) &&
@@ -109,6 +112,7 @@ export const isValid = files => {
     )
       count++;
   }
+
   return count !== files.length;
 };
 
@@ -131,9 +135,11 @@ export const formatTemporaryData = res => {
       if (!item.key) {
         item.key = `${item.filePath}${item.fileName}${item.fileExt}`;
       }
+
       if (!item.fileID) {
         item.fileID = Date.now();
       }
+
       return item;
     }
   });
@@ -198,6 +204,7 @@ export const formatResponseData = (file, response) => {
     item.allowDown = true;
     item.docVersionID = '';
   }
+
   return item;
 };
 
@@ -209,6 +216,7 @@ export const getFilesSize = files => {
       totalSize += files[i].size;
     }
   }
+
   return totalSize;
 };
 
@@ -233,12 +241,14 @@ export const getFileExtends = fileName => {
 
 export const findIndex = (res, id) => {
   let index = -1;
+
   for (let i = 0, length = res.length; i < length; i++) {
     if (res[i].fileID === id) {
       index = i;
       break;
     }
   }
+
   return index;
 };
 
@@ -274,12 +284,14 @@ export const openMdDialog = () => {
 
 export const findIsId = (id, files) => {
   let result = false;
+
   for (let i = 0, length = files.length; i < length; i++) {
     if (files[i].id === id) {
       result = true;
       break;
     }
   }
+
   return result;
 };
 
@@ -310,6 +322,7 @@ export const isDocument = fileExt => {
     fileExt = fileExt.toLowerCase();
     return fileExts.indexOf(fileExt) >= 0;
   }
+
   return false;
 };
 
@@ -374,17 +387,21 @@ export const checkFileAvailable = (fileSettingInfo = {}, files = [], tempCount =
           filetype,
           itemField.name ? RegExpValidator.getExtOfFileName(itemField.name) : itemField.fileExt,
         );
+
         if (!verifyExt) {
           alert(errorText, 2);
           return false;
         }
       }
+
       if (max && (itemField.size || itemField.fileSize) > parseFloat(max) * 1000 * 1000) {
         alert(_l('上传失败，无法上传大于%0MB的文件', max), 2);
         return false;
       }
+
       return true;
     });
   }
+
   return isAvailable;
 };

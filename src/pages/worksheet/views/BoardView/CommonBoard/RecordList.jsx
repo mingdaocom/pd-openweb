@@ -59,8 +59,10 @@ export default function Board(props) {
       // 滚动至头部
       if ($contentRef) {
         const { current } = $contentRef;
+
         if (current) {
           const $parent = current.offsetParent;
+
           if ($parent.scrollTop) {
             $parent.scrollTop = 0;
           }
@@ -84,6 +86,7 @@ export default function Board(props) {
     if (!$scrollerRef || !$contentRef) return;
     const threshold =
       $scrollerRef.current.scrollHeight - $contentRef.current.clientHeight - $scrollerRef.current.scrollTop;
+
     if (!loading && threshold <= 100 && isMore && list.rows.length < list.totalNum) {
       setState(state => {
         const { pageIndex } = state;
@@ -105,6 +108,7 @@ export default function Board(props) {
       });
     }
   };
+
   const handleAddRecord = () => {
     let value = getFirstGroupDefaultValue(list, boardData);
     setState({ createRecordVisible: true, addRecordDefaultValue: value });
@@ -120,6 +124,7 @@ export default function Board(props) {
     if (required && key === '-1') return false;
     return true;
   };
+
   let param = {};
 
   if (_.get(view, 'advancedSetting.cardwidth')) {
@@ -174,10 +179,12 @@ export default function Board(props) {
           showFillNext
           onAdd={record => {
             let key = list.key;
+
             if (key === '-1') {
               const firstGroupKeys = viewData.map(group => group.key);
               key = firstGroupKeys.find(item => item !== '-1' && record[viewControl].includes(item)) ?? '-1';
             }
+
             addRecord({ item: record, key });
           }}
           hideNewRecord={() => setState({ createRecordVisible: false })}

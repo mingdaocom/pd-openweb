@@ -35,6 +35,7 @@ export default function (props) {
     isForPortal ? !['worksheetShareView', 'worksheetLogging', 'worksheetDiscuss'].includes(o.key) : true,
   );
   const [checkedWorksheets, setCheckedWorksheets] = useState([]);
+
   const getActions = () => {
     let data = {};
     recordActionLists.map(o => {
@@ -45,6 +46,7 @@ export default function (props) {
     });
     return data;
   };
+
   const [{ sheet, worksheet, record }, setState] = useSetState({
     sheet: getActions(),
     worksheet: '',
@@ -54,12 +56,14 @@ export default function (props) {
   const worksheets = () => {
     const handleCheckboxChange = (e, sheetId) => {
       const { checked } = e.target;
+
       if (checked) {
         setCheckedWorksheets([...checkedWorksheets, sheetId]);
       } else {
         setCheckedWorksheets(checkedWorksheets.filter(item => item !== sheetId));
       }
     };
+
     const isAllSelected = checkedWorksheets.length === sheets.length;
     const isIndeterminate = checkedWorksheets.length > 0 && !isAllSelected;
     return (
@@ -226,6 +230,7 @@ export default function (props) {
                       });
                       return;
                     }
+
                     setState({
                       sheet: {
                         ...sheet,
@@ -273,11 +278,13 @@ export default function (props) {
               value={key || 'modify'}
               onChange={e => {
                 let info = sheet;
+
                 if (e.target.value === 'clear') {
                   list.map(o => {
                     info[o.key] = { enable: false };
                   });
                 }
+
                 setState({ [type]: e.target.value, sheet: info });
               }}
             >
@@ -324,6 +331,7 @@ export default function (props) {
               onClick={() => {
                 const hasSetSheet = hasSet(sheetActionLists, worksheet);
                 const hasSetRecord = hasSet(recordActionLists, record);
+
                 if (
                   !hasSetSheet &&
                   !hasSetRecord &&
@@ -334,32 +342,40 @@ export default function (props) {
                   alert(_l('请设置修改的权限项'), 3);
                   return;
                 }
+
                 if (checkedWorksheets.length <= 0) {
                   alert(_l('请选择工作表'), 3);
                   return;
                 }
+
                 let info = sheet;
+
                 if (sheet.lookLevel === 0 || !sheet.lookLevel) {
                   info = _.omit(info, ['lookLevel']);
                 }
+
                 if (sheet.editLevel === 0 || !sheet.editLevel) {
                   info = _.omit(info, ['editLevel']);
                 }
+
                 if (sheet.removeLevel === 0 || !sheet.removeLevel) {
                   info = _.omit(info, ['removeLevel']);
                 }
+
                 if (!hasSetSheet) {
                   info = _.omit(
                     info,
                     sheetActionLists.map(o => o.key),
                   );
                 }
+
                 if (!hasSetRecord) {
                   info = _.omit(
                     info,
                     recordActionLists.map(o => o.key),
                   );
                 }
+
                 const newData = sheets
                   .filter(o => checkedWorksheets.includes(o.sheetId))
                   .map(o => {

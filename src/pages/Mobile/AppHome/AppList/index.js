@@ -104,6 +104,7 @@ class AppList extends Component {
         if (action.key === 'application') {
           window.mobileNavigateTo(`/mobile/appBox`);
         }
+
         if (action.key === 'add') {
           const title = window.isWxWork ? _l('创建自定义应用请前往企业微信PC桌面端') : _l('创建自定义应用请前往PC端');
           Dialog.alert({
@@ -112,6 +113,7 @@ class AppList extends Component {
             onAction: () => {},
           });
         }
+
         this.actionSheetHandler.close();
       },
     });

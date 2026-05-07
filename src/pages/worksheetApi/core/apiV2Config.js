@@ -757,7 +757,7 @@ export const MENU_LIST = [
       },
     ]),
     requestData: {
-      viewId: _l('视图ID,可为空'),
+      viewId: _l('视图ID'),
       pageSize: 50,
       pageIndex: 1,
       keyWords: '',

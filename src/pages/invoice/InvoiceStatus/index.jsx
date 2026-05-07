@@ -27,7 +27,6 @@ export default function InvoiceStatus(props) {
     status,
     price,
     invoiceTitle,
-    taxPayerNo,
     createTime,
     invoiceUrl,
     invoiceOutputType,
@@ -122,6 +121,14 @@ export default function InvoiceStatus(props) {
   };
 
   const renderContent = () => {
+    const enterpriseInfo = [
+      { key: 'taxPayerNo', label: _l('税号') },
+      { key: 'bankName', label: _l('开户行') },
+      { key: 'bankCode', label: _l('开户行账号') },
+      { key: 'address', label: _l('地址') },
+      { key: 'phoneNumber', label: _l('电话') },
+    ];
+
     return (
       <Fragment>
         <div className={`flexRow alignItemsCenter ${isLandPage ? 'mBottom4' : 'mBottom12'}`}>
@@ -149,12 +156,13 @@ export default function InvoiceStatus(props) {
           </div>
         )}
 
-        {invoiceOutputType === 1 && (
-          <div className="mBottom12">
-            <span className="textSecondary bold">{_l('税号：')}</span>
-            <span>{taxPayerNo}</span>
-          </div>
-        )}
+        {invoiceOutputType === 1 &&
+          enterpriseInfo.map(item => (
+            <div className="mBottom12" key={item.key}>
+              <span className="textSecondary bold">{`${item.label}：`}</span>
+              <span>{invoiceDetail[item.key] || '-'}</span>
+            </div>
+          ))}
 
         <div>
           <span className="textSecondary bold">{_l('申请时间：')}</span>

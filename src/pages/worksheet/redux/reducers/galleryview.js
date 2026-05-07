@@ -36,6 +36,7 @@ export function galleryLoading(state = false, action) {
 
 export function galleryViewRecordCount(state = 0, action) {
   const { type } = action;
+
   switch (type) {
     case 'GALLERY_VIEW_RECORD_COUNT':
       return action.count;
@@ -46,6 +47,7 @@ export function galleryViewRecordCount(state = 0, action) {
 
 export function gallery(state = [], action) {
   const { type } = action;
+
   switch (type) {
     case 'CHANGE_GALLERY_VIEW_DATA':
       return action.list;
@@ -56,6 +58,7 @@ export function gallery(state = [], action) {
 
 export function galleryIndex(state = 0, action) {
   const { type } = action;
+
   switch (type) {
     case 'CHANGE_GALLERY_VIEW_INDEX':
       return action.pageIndex;
@@ -66,6 +69,7 @@ export function galleryIndex(state = 0, action) {
 
 export function galleryViewCard(state = { needUpdate: true, height: 0 }, action) {
   const { type } = action;
+
   switch (type) {
     case 'UPDATE_GALLERY_VIEW_CARD':
       return {

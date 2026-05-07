@@ -3,7 +3,7 @@ import BaseColumnHead from 'worksheet/components/BaseColumnHead';
 import STYLE_PRINT from '../../core/exportWordPrintTemCssString';
 
 // 行转列
-const TableRToC = ({ list = [], dataSource = [], tableProps }) => {
+const TableRToC = ({ list = [], dataSource = [], tableProps, placeholderMode }) => {
   const renderMap = list.reduce((acc, item) => {
     acc[item.dataIndex === 'number' ? 'number' : item.controlId] = item.render;
     return acc;
@@ -37,6 +37,7 @@ const TableRToC = ({ list = [], dataSource = [], tableProps }) => {
             ) : (
               <td style={{ ...STYLE_PRINT.relationPrintTable_Tr_Th, borderLeft: 'none', flexShrink: 0 }}>
                 <BaseColumnHead
+                  hideMaskIcon
                   disableSort
                   className={`ant-table-cell ${row.className || ''}`}
                   style={{ width: maxNumberWidth || 'auto', padding: '5px' }}
@@ -53,7 +54,7 @@ const TableRToC = ({ list = [], dataSource = [], tableProps }) => {
                 className="WordBreak"
                 key={`print-col-${item.rowid}-${key}`}
               >
-                {renderMap[key]?.(item[key], item, colIndex)}
+                {renderMap[key]?.(item[key], item, colIndex) || placeholderMode}
               </td>
             ))}
           </tr>

@@ -114,6 +114,7 @@ export default class Card extends Component {
           );
         }
       }
+
       if (type === 0) {
         RenderRightHander = (
           <div className="textTertiary mRight10 mLeft10">
@@ -148,6 +149,7 @@ export default class Card extends Component {
       const currentWorkFlowNode = _.isEmpty(currentWorkFlowNodes)
         ? {}
         : currentWorkFlowNodes[currentWorkFlowNodes.length - 1];
+
       if (status === 1) {
         RenderResultState = (
           <div className="state bold valignWrapper">
@@ -281,6 +283,7 @@ export default class Card extends Component {
       if (item.executeTime) {
         currentAccountNotified = true;
       }
+
       return _.includes([3, 4], item.type) && !item.operationTime && item.dueTime;
     });
 
@@ -370,7 +373,11 @@ export default class Card extends Component {
   }
   renderFooter() {
     const { controls } = this.props.item;
-    return <div className="cardFooter flexRow Font13">{controls.map(item => this.renderControl(item))}</div>;
+    return (
+      <div className="cardFooter flexRow Font13">
+        {controls.filter(item => item.controlName).map(item => this.renderControl(item))}
+      </div>
+    );
   }
   render() {
     const { onClick, approveChecked } = this.props;

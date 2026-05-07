@@ -170,6 +170,7 @@ export default function SelectControlWithInput(props) {
   const [textEditing, setTextEditing] = useState();
   const [editNameVisible, setEditNameVisible] = useState(false);
   const sourceControl = type === 1 && _.find(controls, { controlId: value });
+
   function update(changes = {}) {
     onChange(
       Object.assign(
@@ -183,6 +184,7 @@ export default function SelectControlWithInput(props) {
       ),
     );
   }
+
   return (
     <React.Fragment>
       <Title className="flexRow alignItemsCenter">

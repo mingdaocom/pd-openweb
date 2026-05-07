@@ -103,6 +103,7 @@ class EditCon extends React.Component {
               : user.fullname,
         peopleAvatar: tTData === targetType.user ? user.avatar : '',
       };
+
       if (
         !_.find(
           dataByRuleId,

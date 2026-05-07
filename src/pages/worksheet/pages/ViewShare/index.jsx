@@ -99,6 +99,7 @@ const Entry = () => {
             projectId,
             appId,
           });
+
           if (lang) {
             window.appInfo = { id: appId };
             data.appName = getTranslateInfo(appId, null, appId).name || data.appName;
@@ -106,6 +107,7 @@ const Entry = () => {
             data.viewName = getTranslateInfo(appId, null, data.viewId).name || data.viewName;
           }
         }
+
         resolve(result);
       } catch (err) {
         reject(err);
@@ -151,6 +153,7 @@ const Entry = () => {
         />
       );
     }
+
     return <ShareState code={share.resultCode} />;
   };
 

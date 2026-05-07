@@ -55,6 +55,7 @@ export default class MembersPanel extends Component {
   }
   componentWillReceiveProps(nextProps) {
     const { session } = nextProps;
+
     if (session.groupMemberCount !== this.state.groupMemberCount) {
       this.setState(
         {
@@ -74,9 +75,11 @@ export default class MembersPanel extends Component {
   getGroupUsers() {
     const { session } = this.props;
     const { members, loading, pageIndex, dropdownValue } = this.state;
+
     if (loading || !pageIndex) {
       return;
     }
+
     this.setState({
       loading: true,
     });

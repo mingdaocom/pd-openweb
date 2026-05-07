@@ -20,11 +20,13 @@ function useOtpSending(timeLeft, hasSend, onSend) {
       setInternalSending(false);
       isSendingRef.current = false;
     }
+
     // 当倒计时结束时（timeLeft 从 >0 变为 0），重置发送状态，此时按钮可点击
     if (prevTimeLeftRef.current > 0 && timeLeft === 0) {
       setInternalSending(false);
       isSendingRef.current = false;
     }
+
     prevTimeLeftRef.current = timeLeft;
   }, [timeLeft]);
 
@@ -102,6 +104,7 @@ const OtpInput = forwardRef(function OtpInput(props, ref) {
     (index, delay = 0, shouldSelect = true) => {
       setTimeout(() => {
         const input = inputRefs.current[index];
+
         if (input) {
           input.focus();
           if (value[index] && shouldSelect) {
@@ -118,6 +121,7 @@ const OtpInput = forwardRef(function OtpInput(props, ref) {
     if (!stateRef.current.hasError && hasError) {
       focusInput(verifyLen - 1, 100, false);
     }
+
     stateRef.current.hasError = hasError;
   }, [hasError, verifyLen, focusInput]);
 
@@ -127,10 +131,12 @@ const OtpInput = forwardRef(function OtpInput(props, ref) {
       const firstEmptyIndex = clamp(value.length, 0, verifyLen - 1);
       focusInput(firstEmptyIndex, 500, false);
     }
+
     if (stateRef.current.timeLeft === 0 && timeLeft > 0 && hasSend) {
       const firstEmptyIndex = clamp(value.length, 0, verifyLen - 1);
       focusInput(firstEmptyIndex, 500, false);
     }
+
     stateRef.current.hasSend = hasSend;
     stateRef.current.timeLeft = timeLeft;
   }, [hasSend, timeLeft, value, verifyLen, focusInput]);
@@ -142,8 +148,10 @@ const OtpInput = forwardRef(function OtpInput(props, ref) {
         if (stateRef.current.isAutoFill) {
           stateRef.current.isAutoFill = false;
         }
+
         return;
       }
+
       const firstEmptyIndex = clamp(value.length, 0, verifyLen - 1);
       const shouldSelect = !(
         stateRef.current.isAutoFill &&
@@ -155,6 +163,7 @@ const OtpInput = forwardRef(function OtpInput(props, ref) {
         stateRef.current.isAutoFill = false;
       }
     }
+
     stateRef.current.value = value;
   }, [value, verifyLen, focusInput]);
 
@@ -171,6 +180,7 @@ const OtpInput = forwardRef(function OtpInput(props, ref) {
   useEffect(() => {
     const timer = setTimeout(() => {
       const actualValue = inputRefs.current.map(input => input?.value?.replace(/[^\d]/g, '') || '').join('');
+
       if (actualValue.length > value.length && actualValue.length <= verifyLen) {
         stateRef.current.isAutoFill = actualValue.length === verifyLen;
         onChange(actualValue.slice(0, verifyLen));
@@ -186,6 +196,7 @@ const OtpInput = forwardRef(function OtpInput(props, ref) {
         focusInput(clickedIndex);
         return;
       }
+
       const targetIndex = clamp(value.length, 0, verifyLen - 1);
       focusInput(targetIndex !== clickedIndex ? targetIndex : clickedIndex);
     },
@@ -195,13 +206,16 @@ const OtpInput = forwardRef(function OtpInput(props, ref) {
   const handleChange = useCallback(
     (index, inputValue) => {
       const digits = inputValue.replace(/[^\d]/g, '');
+
       if (!digits) {
         if (!inputValue) {
           onChange(value.slice(0, index) + value.slice(index + 1));
           focusInput(index);
         }
+
         return;
       }
+
       if (digits.length > 1) {
         processPasteText(digits, value, verifyLen, index, onChange, focusInput);
       } else {
@@ -234,6 +248,7 @@ const OtpInput = forwardRef(function OtpInput(props, ref) {
   const handleKeyDown = useCallback(
     (e, index) => {
       const { key } = e;
+
       if (key === 'Backspace') {
         e.preventDefault();
         stateRef.current.isKeyboardNavigation = true;

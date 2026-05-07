@@ -122,6 +122,7 @@ export const deleteDepartment = departmentId => (dispatch, getState) => {
           dispatch({ type: 'UPDATE_CURSOR', departmentId: '' });
           dispatch(loadAllUsers(Config.projectId, 1));
         }
+
         alert(_l('删除成功'));
       } else if (res === 3) {
         alert(_l('部门存在成员，无法删除'), 3);
@@ -225,11 +226,13 @@ export const getFullTree =
       isGetAll,
     }).then(res => {
       const updatedDepartments = updateTreeData({ type: 'create', departments: res, departmentId, parentId });
+
       if (searchValue) {
         dispatch({ type: 'UPDATE_SEARCH_VALUYE', data: searchValue });
         dispatch({ type: 'UPDATE_TYPE_CURSOR', typeCursor: 0 }); //设置选中的部门
         dispatch({ type: 'UPDATE_TYPE', typeNum: 0 });
       }
+
       dispatch(updateNewDepartments(updatedDepartments));
       dispatch({ type: 'UPDATE_CURSOR', departmentId });
       dispatch({ type: 'EXPANDED_KEYS_UPDATE', expandedKeys: getParentsId(updatedDepartments, departmentId) });
@@ -324,6 +327,7 @@ const USER_STATUS = {
   INACTIVE: 3, // 未激活
   REMOVED: 4, // 已删除
 };
+
 const fetchAllUser = (projectId, pageIndex) => {
   const params = {
     pageIndex,

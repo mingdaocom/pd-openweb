@@ -151,6 +151,7 @@ export default props => {
               onClose();
               getAuthorizes();
             }
+
             setSubmitting(false);
           })
           .catch(() => setSubmitting(false));

@@ -1,4 +1,4 @@
-import React, { forwardRef, useImperativeHandle, useRef } from 'react';
+﻿import React, { forwardRef, useImperativeHandle, useRef } from 'react';
 import cx from 'classnames';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
@@ -33,6 +33,7 @@ const Mingo = forwardRef(
       messageListHeader,
       isSmallMode,
       hideHeader,
+      callFromHelp,
     },
     ref,
   ) => {
@@ -56,11 +57,12 @@ const Mingo = forwardRef(
           defaultIsChatting={true}
           currentChatId={currentChatId}
           hideHistoryButton={!isSmallMode}
+          callFromHelp={callFromHelp}
           onNewChat={onNewChat}
           onNewChatClick={onNewChatClick}
           onInsertChatHistory={chatItem => {
             emitter.emit('insertChatHistory', chatItem);
-            navigateTo(`/mingo/chat/${chatItem.chatId}${hideHeader ? '?header=0' : ''}`);
+            navigateTo(`/mingo/chat/${chatItem.chatId}${hideHeader ? location.search : ''}`);
           }}
         />
       </Con>

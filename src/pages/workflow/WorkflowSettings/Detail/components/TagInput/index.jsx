@@ -31,6 +31,7 @@ export default class TagInput extends Component {
   createTag = e => {
     const val = e.target.value.trim();
     const { tags } = this.props;
+
     if (e.keyCode === 13 || e.type === 'blur') {
       this.setState({ val: '', inputActive: false, charWidth: 12 });
       if (tags.indexOf(val) === -1 && val) {

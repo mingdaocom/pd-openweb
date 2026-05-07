@@ -85,7 +85,7 @@ const AUTH_MAPPING = {
 export default class OtherTool extends Component {
   constructor() {
     super();
-    Config.setPageTitle(_l('其他'));
+    Config.setPageTitle(_l('集成 - 其他'));
     this.state = {
       level: 'index', //index | effective | key
       keyVisible: false,
@@ -237,9 +237,11 @@ export default class OtherTool extends Component {
         if (key === 'effective') {
           this.updateLDAPState();
         }
+
         if (key === 'sso') {
           this.updateSSO();
         }
+
         if (key === 'enabledMDLogin') {
           this.setMDLoginSetting();
         }
@@ -312,6 +314,7 @@ export default class OtherTool extends Component {
         if (!this.state[key]) {
           errorInfo[key] = errorMsg;
         }
+
         if (key === 'port' && isNaN(this.state.port)) {
           errorInfo[key] = _l('端口号必须为数字');
         }
@@ -341,6 +344,7 @@ export default class OtherTool extends Component {
 
   renderCompType(key, compType = 'input', inputDisabled, placeholder) {
     const { searchRange, DNGroupList = [], errorInfo = {} } = this.state;
+
     switch (compType) {
       case 'select':
         return this.selectTypeComp(key);
@@ -720,10 +724,12 @@ export default class OtherTool extends Component {
   // 保存自定义名称
   saveCustomName = (key, { icon, success = () => {} } = {}) => {
     const currentName = this.state[`${key}CustomName`];
+
     if (!currentName) {
       alert(_l('名称不得为空'), 2);
       return;
     }
+
     this.setState({ [`set${key}Name`]: false });
 
     if (key === 'sso' && _.isEqual(currentName, this.state[`${key}DefaultCustomName`])) return;
@@ -777,6 +783,7 @@ export default class OtherTool extends Component {
                           buriedUpgradeVersionDialog(Config.projectId, featureId);
                           return;
                         }
+
                         if (key === 'sso' && licenseType === 0) {
                           return upgradeVersionDialog({
                             projectId: Config.projectId,
@@ -784,6 +791,7 @@ export default class OtherTool extends Component {
                             isFree: true,
                           });
                         }
+
                         this.enableForm(key);
                       }}
                     />
@@ -810,6 +818,7 @@ export default class OtherTool extends Component {
                           buriedUpgradeVersionDialog(Config.projectId, featureId);
                           return;
                         }
+
                         if (key === 'sso' && licenseType === 0) {
                           return upgradeVersionDialog({
                             projectId: Config.projectId,
@@ -817,6 +826,7 @@ export default class OtherTool extends Component {
                             isFree: true,
                           });
                         }
+
                         switch (key) {
                           default:
                             this.toggleComp(key);
@@ -993,9 +1003,11 @@ export default class OtherTool extends Component {
   render() {
     const { level, loading, keyVisible } = this.state;
     const title = headerTitle[level];
+
     if (loading) {
       return <LoadDiv />;
     }
+
     return (
       <div className="otherToolBox orgManagementWrap">
         {keyVisible && (

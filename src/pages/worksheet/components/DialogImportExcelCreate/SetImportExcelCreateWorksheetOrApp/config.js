@@ -37,6 +37,7 @@ export const getList = (step, worksheetList) => {
   if (step === 2) {
     return backItem.concat(worksheetList.map(i => ({ text: i.workSheetName, value: i.workSheetId })));
   }
+
   return relateItem.concat(
     EXCEL_CONTROLS.map(item => {
       const type = _.isArray(item) ? item[0] : item;

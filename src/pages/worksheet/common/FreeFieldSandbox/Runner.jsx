@@ -36,6 +36,7 @@ function getFullCode(code) {
   if (!code) {
     return '';
   }
+
   return `${code.replace(/function +\w+/, 'function FreeField')}
   export default function () {
     const cache = useRef({});

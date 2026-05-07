@@ -44,9 +44,11 @@ export default function ColumnHead(props) {
     Object.keys(CONTROL_FILTER_WHITELIST).map(key => CONTROL_FILTER_WHITELIST[key].keys),
   );
   let canFilter = _.includes(filterWhiteKeys, itemType);
+
   if ((control.type === 30 && control.strDefault === '10') || hideFilter) {
     canFilter = false;
   }
+
   const canSort = !disabled && fieldCanSort(itemType);
   const canEdit = controlBatchCanEdit(control);
   const maskData =

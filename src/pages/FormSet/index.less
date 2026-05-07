@@ -49,356 +49,6 @@
       background-color: var(--color-background-primary);
       position: relative;
 
-      .editRuleBox {
-        .ruleNameInput {
-          width: 100%;
-          height: 36px;
-          background: var(--color-background-primary);
-          border: 1px solid var(--color-border-secondary);
-          border-radius: 4px;
-          padding: 0 12px;
-          &:focus {
-            border: 1px solid var(--color-primary);
-          }
-          &::placeholder {
-            color: var(--color-text-tertiary);
-          }
-        }
-        .errorBorder {
-          border: 1px solid var(--color-error);
-        }
-        .conditionContainer {
-          margin-top: 32px;
-          .ming.Radio:first-child {
-            width: 30%;
-          }
-          .addCondition {
-            display: inline-block;
-            margin-top: 14px;
-            color: var(--color-primary);
-            cursor: pointer;
-            font-weight: bold;
-            &:hover {
-              color: var(--color-link-hover) !important;
-            }
-          }
-          .setFieldContainer {
-            flex: 1;
-            display: flex;
-            align-items: center;
-
-            .setValueError > div > div {
-              & > :first-child,
-              .defaultOptionsWrap,
-              .CityPicker-input-container > input,
-              .tagInputareaIuput {
-                border-color: var(--color-error) !important;
-                box-shadow: unset;
-              }
-            }
-
-            .addField {
-              cursor: pointer;
-              color: var(--color-text-secondary);
-              width: fit-content;
-              margin: 6px 0 6px auto;
-              position: relative;
-              &:hover {
-                color: var(--color-primary);
-              }
-            }
-            &.pRight42 {
-              padding-right: 42px;
-            }
-            .fieldItem {
-              background: var(--color-border-secondary);
-              border-radius: 4px;
-              padding: 0 12px;
-              flex: 1;
-              line-height: 36px;
-            }
-          }
-          .addConditionIcon {
-            width: 42px;
-            line-height: 36px;
-            display: block;
-            .Icon:hover {
-              color: var(--color-link-hover) !important;
-            }
-          }
-
-          .conditionItemContent {
-            padding-right: 0 !important;
-            display: flex;
-            .dynamicSource {
-              width: 130px;
-              border-color: var(--color-border-secondary);
-              height: 36px;
-              border-radius: 4px;
-              box-shadow: none !important;
-              font-size: 13px;
-              &.flexItem {
-                flex: 1;
-                min-width: 0;
-                margin-right: 0px;
-              }
-              .ant-select-arrow {
-                margin-top: -8px !important;
-              }
-              .ant-select-selector {
-                border-color: var(--color-border-secondary);
-                height: 36px;
-                border-radius: 4px;
-                box-shadow: none !important;
-                .ant-select-selection-search-input {
-                  height: 34px;
-                }
-                .ant-select-selection-item {
-                  line-height: 34px;
-                }
-              }
-            }
-            .conditionValue {
-              flex: 1;
-              min-width: 0;
-              margin-left: 12px;
-              &.inputTextErrorBorder {
-                .inputText {
-                  border: 1px solid var(--color-error);
-                }
-              }
-
-              &.selectizeInputErrorBorder {
-                .selectize-input {
-                  border: 1px solid var(--color-error);
-                }
-              }
-              &.numberRangeErrorBorder {
-                .numberRange > input {
-                  border: 1px solid var(--color-error);
-                }
-              }
-              &.numberConditionErrorBorder {
-                .worksheetFilterNumberCondition input {
-                  border: 1px solid var(--color-error);
-                }
-              }
-              &.numberMinErrorBorder {
-                .numberRange > div:first-child {
-                  input {
-                    border: 1px solid var(--color-error);
-                  }
-                }
-              }
-              &.numberMaxErrorBorder {
-                .numberRange > div:last-child {
-                  input {
-                    border: 1px solid var(--color-error);
-                  }
-                }
-              }
-              &.optionConditionErrorBorder {
-                .filterTagCon {
-                  border: 1px solid var(--color-error);
-                }
-              }
-              &.userConditionErrorBorder {
-                .usersCon {
-                  border: 1px solid var(--color-error);
-                }
-              }
-              &.dateConditionErrorBorder {
-                .dateInputCon {
-                  border: 1px solid var(--color-error);
-                }
-              }
-              &.timeConditionErrorBorder {
-                .dateInputCon {
-                  border: 1px solid var(--color-error);
-                }
-              }
-              &.timeRangeConditionErrorBorder {
-                .dateRangeInputCon {
-                  border-color: var(--color-error);
-                }
-              }
-              &.recordConditionErrorBorder {
-                .worksheetFilterRelateRecordCondition .recordsCon {
-                  border: 1px solid var(--color-error);
-                }
-              }
-              &.cascaderConditionErrorBorder {
-                .worksheetFilterCascaderCondition .recordsCon {
-                  border: 1px solid var(--color-error);
-                }
-              }
-            }
-          }
-
-          .conditionDropdownMenu {
-            width: 120px !important;
-          }
-
-          .ruleListSelect {
-            width: 110px;
-            margin-right: 12px;
-            font-size: 13px;
-            &.flexItem {
-              flex: 1;
-              min-width: 0;
-              margin-right: 0px;
-            }
-            .ant-select-arrow {
-              margin-top: -8px !important;
-            }
-            .ant-select-selector {
-              border-color: var(--color-border-secondary);
-              height: 36px;
-              border-radius: 4px;
-              box-shadow: none !important;
-              .ant-select-selection-search-input {
-                height: 34px;
-              }
-              .ant-select-selection-item {
-                line-height: 34px;
-              }
-            }
-          }
-          .actionItemCon {
-            display: flex;
-            align-items: flex-start;
-            margin-top: 12px;
-            .deleteBtn {
-              line-height: 36px;
-              font-size: 16px;
-              margin: 0 13px;
-              &:hover {
-                color: var(--color-error) !important;
-              }
-            }
-            .errorInputBox {
-              flex: 1;
-              min-width: 0;
-              height: 36px;
-              background: rgba(245, 245, 245, 0.8);
-              border-radius: 3px;
-              padding: 0 12px;
-              box-sizing: border-box;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              font-size: 13px;
-              &:hover {
-                background: rgba(245, 245, 245, 1);
-                .hoverColor {
-                  color: var(--color-primary) !important;
-                }
-              }
-            }
-          }
-        }
-
-        h3 {
-          font-size: 16px;
-          letter-spacing: 0;
-          color: var(--color-text-title);
-          padding: 0 20px;
-        }
-
-        .showFieldBox {
-          padding: 0 20px 10px;
-
-          h5 {
-            font-size: 13px;
-            letter-spacing: 0;
-            color: var(--color-text-title);
-            margin-top: 24px;
-          }
-
-          li {
-            margin-top: 8px;
-            width: 100%;
-            display: flex;
-            height: 36px;
-
-            span {
-              background: var(--color-background-secondary) 0% 0% no-repeat padding-box;
-              border-radius: 4px;
-              flex: 1;
-              color: var(--color-text-title);
-              display: inline-block;
-              width: 100%;
-              line-height: 36px;
-              padding: 0 9px 0 12px;
-              box-sizing: border-box;
-            }
-
-            .deleteIcon {
-              line-height: 36px;
-              color: var(--color-text-tertiary);
-              cursor: pointer;
-              font-size: 18px;
-              width: 30px;
-              text-align: right;
-
-              &:hover {
-                color: var(--color-error);
-              }
-            }
-          }
-
-          .addField {
-            margin-top: 12px;
-            font-size: 13px;
-            letter-spacing: 0;
-            color: var(--color-primary);
-            height: 36px;
-            line-height: 36px;
-            display: inline-block;
-            cursor: pointer;
-            box-sizing: border-box;
-
-            i {
-              vertical-align: top;
-              line-height: 36px;
-            }
-
-            &.noFied {
-              width: 100%;
-              background: var(--color-background-secondary);
-              padding-left: 12px;
-              border-radius: 4px;
-            }
-
-            &:hover {
-              color: var(--color-link-hover);
-            }
-          }
-        }
-
-        .filterBox {
-          padding: 20px 0 0 0;
-          border-top: 1px solid var(--color-border-primary);
-
-          h5 {
-            padding: 0 20px;
-          }
-
-          .addFilterText {
-            color: var(--color-text-disabled);
-            height: 36px;
-            background: var(--color-background-secondary) 0% 0% no-repeat padding-box;
-            border-radius: 3px;
-            font-size: 13px;
-            padding: 0 12px;
-            display: block;
-            margin: 12px 20px;
-            flex: 1;
-            line-height: 36px;
-          }
-        }
-      }
-
       .columnRuleTitle {
         padding: 35px 40px 10px 40px;
         .addRules {
@@ -484,61 +134,430 @@
         }
       }
 
-      .columnRulesDrawerContainer {
-        z-index: 9;
-        position: absolute;
-        box-shadow: 0px 18px 30px 0px rgba(0, 0, 0, 0.16);
-
-        .ruleFooter {
-          .closeBtn {
-            color: var(--color-text-tertiary) !important;
-            background: var(--color-background-secondary) !important;
-            &:hover {
-              background: var(--color-border-secondary) !important;
-            }
-          }
-          .saveBtn {
-            background: var(--color-primary);
-            &:hover {
-              background: var(--color-primary);
-            }
-          }
-        }
-
-        .ant-drawer-mask {
-          background-color: transparent !important;
-        }
-        .ant-drawer-content-wrapper {
-          top: 2px;
-        }
-        .ant-drawer-footer {
-          border-top: none;
-          padding: 0px !important;
-        }
-        .ant-drawer-header {
-          .ant-drawer-header-title {
-            flex-direction: row-reverse;
-          }
-          .ant-drawer-close {
-            margin-right: 0 !important;
-          }
-          .ant-drawer-title {
-            font-size: 17px;
-            font-weight: bold;
-          }
-        }
-        .ant-drawer-body {
-          padding: 0 !important;
-          flex: 1;
-        }
-      }
-
       .rulesCon {
         flex: 1;
         min-height: 0;
         padding: 0 40px 16px 20px;
       }
     }
+  }
+}
+
+.widgetColumnRulesDrawer,
+.columnRulesDrawerContainer {
+  z-index: 9;
+  position: absolute;
+  box-shadow: 0px 18px 30px 0px rgba(0, 0, 0, 0.16);
+  .ant-drawer-header {
+    border-color: var(--color-border-primary) !important;
+  }
+  .ant-drawer-close {
+    color: var(--color-text-secondary) !important;
+  }
+
+  .editRuleBox {
+    .ruleNameInput {
+      width: 100%;
+      height: 36px;
+      border: 1px solid var(--color-border-primary);
+      border-radius: 4px;
+      padding: 0 12px;
+      &:focus {
+        border: 1px solid var(--color-primary);
+      }
+      &::placeholder {
+        color: var(--color-text-tertiary);
+      }
+      &.ruleName {
+        background: var(--color-background-secondary);
+        border: 1px solid var(--color-border-secondary);
+      }
+    }
+    .errorBorder {
+      border: 1px solid var(--color-error);
+    }
+    .conditionContainer {
+      margin-top: 32px;
+      .ming.Radio:first-child {
+        width: 30%;
+      }
+      .addCondition {
+        display: inline-block;
+        margin-top: 14px;
+        color: var(--color-primary);
+        cursor: pointer;
+        font-weight: bold;
+        &:hover {
+          color: var(--color-link-hover) !important;
+        }
+      }
+      .setFieldContainer {
+        flex: 1;
+        display: flex;
+        align-items: center;
+
+        .setValueError > div > div {
+          & > :first-child,
+          .defaultOptionsWrap,
+          .CityPicker-input-container > input,
+          .tagInputareaIuput {
+            border-color: var(--color-error) !important;
+            box-shadow: unset;
+          }
+        }
+
+        .addField {
+          cursor: pointer;
+          color: var(--color-text-secondary);
+          width: fit-content;
+          margin: 6px 0 6px auto;
+          position: relative;
+          &:hover {
+            color: var(--color-primary);
+          }
+        }
+        &.pRight42 {
+          padding-right: 42px;
+        }
+        .fieldItem {
+          background: var(--color-border-secondary);
+          border-radius: 4px;
+          padding: 0 12px;
+          flex: 1;
+          line-height: 36px;
+        }
+      }
+      .addConditionIcon {
+        width: 42px;
+        line-height: 36px;
+        display: block;
+        .Icon:hover {
+          color: var(--color-link-hover) !important;
+        }
+      }
+
+      .conditionItemContent {
+        padding-right: 0 !important;
+        display: flex;
+        .dynamicSource {
+          width: 130px;
+          border-color: var(--color-border-secondary);
+          height: 36px;
+          border-radius: 4px;
+          box-shadow: none !important;
+          font-size: 13px;
+          &.flexItem {
+            flex: 1;
+            min-width: 0;
+            margin-right: 0px;
+          }
+          .ant-select-arrow {
+            margin-top: -8px !important;
+          }
+          .ant-select-selector {
+            border-color: var(--color-border-secondary);
+            height: 36px;
+            border-radius: 4px;
+            box-shadow: none !important;
+            .ant-select-selection-search-input {
+              height: 34px;
+            }
+            .ant-select-selection-item {
+              line-height: 34px;
+            }
+          }
+        }
+        .conditionValue {
+          flex: 1;
+          min-width: 0;
+          margin-left: 12px;
+          &.inputTextErrorBorder {
+            .inputText {
+              border: 1px solid var(--color-error);
+            }
+          }
+
+          &.selectizeInputErrorBorder {
+            .selectize-input {
+              border: 1px solid var(--color-error);
+            }
+          }
+          &.numberRangeErrorBorder {
+            .numberRange > input {
+              border: 1px solid var(--color-error);
+            }
+          }
+          &.numberConditionErrorBorder {
+            .worksheetFilterNumberCondition input {
+              border: 1px solid var(--color-error);
+            }
+          }
+          &.numberMinErrorBorder {
+            .numberRange > div:first-child {
+              input {
+                border: 1px solid var(--color-error);
+              }
+            }
+          }
+          &.numberMaxErrorBorder {
+            .numberRange > div:last-child {
+              input {
+                border: 1px solid var(--color-error);
+              }
+            }
+          }
+          &.optionConditionErrorBorder {
+            .filterTagCon {
+              border: 1px solid var(--color-error);
+            }
+          }
+          &.userConditionErrorBorder {
+            .usersCon {
+              border: 1px solid var(--color-error);
+            }
+          }
+          &.dateConditionErrorBorder {
+            .dateInputCon {
+              border: 1px solid var(--color-error);
+            }
+          }
+          &.timeConditionErrorBorder {
+            .dateInputCon {
+              border: 1px solid var(--color-error);
+            }
+          }
+          &.timeRangeConditionErrorBorder {
+            .dateRangeInputCon {
+              border-color: var(--color-error);
+            }
+          }
+          &.recordConditionErrorBorder {
+            .worksheetFilterRelateRecordCondition .recordsCon {
+              border: 1px solid var(--color-error);
+            }
+          }
+          &.cascaderConditionErrorBorder {
+            .worksheetFilterCascaderCondition .recordsCon {
+              border: 1px solid var(--color-error);
+            }
+          }
+        }
+      }
+
+      .conditionDropdownMenu {
+        width: 120px !important;
+      }
+
+      .ruleListSelect {
+        width: 110px;
+        margin-right: 12px;
+        font-size: 13px;
+        &.flexItem {
+          flex: 1;
+          min-width: 0;
+          margin-right: 0px;
+        }
+        .ant-select-arrow {
+          margin-top: -8px !important;
+        }
+        .ant-select-selector {
+          border-color: var(--color-border-secondary);
+          height: 36px;
+          border-radius: 4px;
+          box-shadow: none !important;
+          .ant-select-selection-search-input {
+            height: 34px;
+          }
+          .ant-select-selection-item {
+            &:not(.ant-select-open) {
+              color: var(--color-text-primary) !important;
+            }
+            line-height: 34px;
+          }
+        }
+      }
+      .actionItemCon {
+        display: flex;
+        align-items: flex-start;
+        margin-top: 12px;
+        .deleteBtn {
+          line-height: 36px;
+          font-size: 16px;
+          margin: 0 13px;
+          &:hover {
+            color: var(--color-error) !important;
+          }
+        }
+        .errorInputBox {
+          flex: 1;
+          min-width: 0;
+          height: 36px;
+          background: rgba(245, 245, 245, 0.8);
+          border-radius: 3px;
+          padding: 0 12px;
+          box-sizing: border-box;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 13px;
+          &:hover {
+            background: rgba(245, 245, 245, 1);
+            .hoverColor {
+              color: var(--color-primary) !important;
+            }
+          }
+        }
+      }
+    }
+
+    h3 {
+      font-size: 16px;
+      letter-spacing: 0;
+      color: var(--color-text-title);
+      padding: 0 20px;
+    }
+
+    .showFieldBox {
+      padding: 0 20px 10px;
+
+      h5 {
+        font-size: 13px;
+        letter-spacing: 0;
+        color: var(--color-text-title);
+        margin-top: 24px;
+      }
+
+      li {
+        margin-top: 8px;
+        width: 100%;
+        display: flex;
+        height: 36px;
+
+        span {
+          background: var(--color-background-secondary) 0% 0% no-repeat padding-box;
+          border-radius: 4px;
+          flex: 1;
+          color: var(--color-text-title);
+          display: inline-block;
+          width: 100%;
+          line-height: 36px;
+          padding: 0 9px 0 12px;
+          box-sizing: border-box;
+        }
+
+        .deleteIcon {
+          line-height: 36px;
+          color: var(--color-text-tertiary);
+          cursor: pointer;
+          font-size: 18px;
+          width: 30px;
+          text-align: right;
+
+          &:hover {
+            color: var(--color-error);
+          }
+        }
+      }
+
+      .addField {
+        margin-top: 12px;
+        font-size: 13px;
+        letter-spacing: 0;
+        color: var(--color-primary);
+        height: 36px;
+        line-height: 36px;
+        display: inline-block;
+        cursor: pointer;
+        box-sizing: border-box;
+
+        i {
+          vertical-align: top;
+          line-height: 36px;
+        }
+
+        &.noFied {
+          width: 100%;
+          background: var(--color-background-secondary);
+          padding-left: 12px;
+          border-radius: 4px;
+        }
+
+        &:hover {
+          color: var(--color-link-hover);
+        }
+      }
+    }
+
+    .filterBox {
+      padding: 20px 0 0 0;
+      border-top: 1px solid var(--color-border-primary);
+
+      h5 {
+        padding: 0 20px;
+      }
+
+      .addFilterText {
+        color: var(--color-text-disabled);
+        height: 36px;
+        background: var(--color-background-secondary) 0% 0% no-repeat padding-box;
+        border-radius: 3px;
+        font-size: 13px;
+        padding: 0 12px;
+        display: block;
+        margin: 12px 20px;
+        flex: 1;
+        line-height: 36px;
+      }
+    }
+  }
+
+  .ruleFooter {
+    .closeBtn {
+      color: var(--color-text-tertiary) !important;
+      background: var(--color-background-secondary) !important;
+      &:hover {
+        background: var(--color-border-secondary) !important;
+      }
+    }
+    .saveBtn {
+      background: var(--color-primary);
+      &:hover {
+        background: var(--color-primary);
+      }
+    }
+  }
+
+  .ant-drawer-mask {
+    background-color: transparent !important;
+  }
+  .ant-drawer-content-wrapper {
+    top: 2px;
+  }
+  .ant-drawer-footer {
+    border-top: none;
+    padding: 0px !important;
+  }
+  .ant-drawer-header {
+    .ant-drawer-header-title {
+      flex-direction: row-reverse;
+    }
+    .ant-drawer-close {
+      margin-right: 0 !important;
+    }
+    .ant-drawer-title {
+      font-size: 17px;
+      font-weight: bold;
+    }
+  }
+  .ant-drawer-body {
+    padding: 0 !important;
+    flex: 1;
+  }
+}
+
+.widgetColumnRulesDrawer {
+  .ant-drawer-content {
+    padding-top: 50px !important;
   }
 }
 

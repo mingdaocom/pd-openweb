@@ -24,12 +24,14 @@ export default class Users extends Component {
       users: (props.fullValues || [])
         .map(value => {
           let user = {};
+
           try {
             user = JSON.parse(value);
           } catch (err) {
             console.log(err);
             return undefined;
           }
+
           return {
             accountId: user.id,
             fullname: user.name,
@@ -65,6 +67,7 @@ export default class Users extends Component {
   addUser = () => {
     const { projectId, from = '', control = {}, appId, filterResigned } = this.props;
     const tabType = getTabTypeBySelectUser(control);
+
     if (
       tabType === 1 &&
       md.global.Account.isPortal &&
@@ -73,6 +76,7 @@ export default class Users extends Component {
       alert(_l('您不是该组织成员，无法获取其成员列表，请联系组织管理员'), 3);
       return;
     }
+
     const _this = this;
 
     if (this.props.disabled) {
@@ -123,14 +127,17 @@ export default class Users extends Component {
   addUsers = selectusers => {
     const { users } = this.state;
     const newUsers = users.concat(selectusers);
+
     if (this.selectSingle) {
       this.changeUsers(selectusers.slice(0, 1));
       return;
     }
+
     if (!selectusers[0] || _.find(users, option => option.accountId === selectusers[0].accountId)) {
       alert(_l('该用户已存在'), 3);
       return;
     }
+
     this.changeUsers(newUsers);
   };
 

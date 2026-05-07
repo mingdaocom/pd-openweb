@@ -27,7 +27,7 @@ const ADD_APP_MODE = [
   },
   {
     id: 'installLoacal',
-    icon: 'file_upload',
+    icon: 'worksheet_import',
     text: _l('导入%01006'),
     featureId: VersionProductType.appImportExport,
     href: '#',
@@ -60,6 +60,7 @@ export default class AddAppItem extends Component {
         } else {
           navigateTo(`${href}?projectId=${projectId}&groupId=${groupId}`);
         }
+
         break;
       case 'createFromEmpty':
         const COLORS = getThemeColors(projectId);
@@ -130,6 +131,7 @@ export default class AddAppItem extends Component {
             const hasDataBase =
               getFeatureStatus(projectId, VersionProductType.dataBase) === '1' &&
               (!window.platformENV.isPlatform || (!window.platformENV.isOverseas && !window.platformENV.isLocal));
+
             if (hasDataBase && hasAppResourceAuth) {
               return this.getMyDbInstances('importApp');
             }
@@ -194,6 +196,7 @@ export default class AddAppItem extends Component {
     const res = await homeAppAjax.getMyDbInstances({
       projectId: this.props.projectId,
     });
+
     if (res && res.length) {
       this.setState({
         DBInstances: res,
@@ -255,11 +258,13 @@ export default class AddAppItem extends Component {
                         buriedUpgradeVersionDialog(projectId, VersionProductType.appImportExport);
                         return;
                       }
+
                       if (id === 'createFromEmpty') {
                         const hasDataBase =
                           getFeatureStatus(projectId, VersionProductType.dataBase) === '1' &&
                           (!window.platformENV.isPlatform ||
                             (!window.platformENV.isOverseas && !window.platformENV.isLocal));
+
                         if (hasDataBase && hasAppResourceAuth) {
                           this.getMyDbInstances('createFromEmpty');
                           return;
@@ -270,6 +275,7 @@ export default class AddAppItem extends Component {
                           return;
                         }
                       }
+
                       if (id === 'createFromEmpty') {
                         const hasDataBase =
                           getFeatureStatus(projectId, VersionProductType.dataBase) === '1' &&
@@ -281,9 +287,11 @@ export default class AddAppItem extends Component {
                           return;
                         }
                       }
+
                       if (id === 'importExcelCreateApp') {
                         this.setState({ dialogImportExcel: true });
                       }
+
                       this.handleClick({ id, href });
                     }}
                   >

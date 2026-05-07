@@ -13,22 +13,28 @@ const SourceBox = ({ item, isActive, onChangeCheckbox }) => {
       isDragging: monitor.isDragging(),
     }),
   });
+
   const getIcon = () => {
     if (item.controlId === 'record_count') {
       return 'calculate';
     }
+
     if ([WIDGETS_TO_API_TYPE_ENUM.SCORE, WIDGETS_TO_API_TYPE_ENUM.MONEY].includes(item.type)) {
       return 'looks_six';
     }
+
     if ([WIDGETS_TO_API_TYPE_ENUM.MULTI_SELECT].includes(item.type)) {
       return 'arrow_drop_down_circle';
     }
+
     // 公式-数字
     if (WIDGETS_TO_API_TYPE_ENUM.FORMULA_NUMBER === item.type) {
       return 'looks_six';
     }
+
     return getIconByType(item.type);
   };
+
   return (
     <div
       ref={drag}

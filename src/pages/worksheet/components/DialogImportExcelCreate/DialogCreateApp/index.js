@@ -18,6 +18,7 @@ export default class DialogCreateApp extends Component {
 
   componentDidMount() {
     const { appInfo = {} } = this.props;
+
     if (this.inputBox) {
       this.inputBox.innerHTML = appInfo.appName;
     }
@@ -42,16 +43,19 @@ export default class DialogCreateApp extends Component {
       if (sheet.sheetId === item.sheetId) {
         return { ...sheet, sheetName: val };
       }
+
       return sheet;
     });
     this.props.updateExcelDetailData(result);
   };
   onBlur = e => {
     let val = _.trim(e.target.value);
+
     if (!val) {
       this.setState({ isEditSheetName: false });
       return;
     }
+
     this.setState({ isEditSheetName: false });
   };
   render() {
@@ -160,9 +164,11 @@ export default class DialogCreateApp extends Component {
                   value={appInfo.appName}
                   onChange={e => {
                     let val = e.target.value;
+
                     if (this.inputBox) {
                       this.inputBox.innerHTML = val;
                     }
+
                     this.props.updateAppInfo({ ...appInfo, appName: val });
                   }}
                   onBlur={() => {

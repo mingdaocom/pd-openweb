@@ -112,9 +112,11 @@ const Div = styled.div``;
 
 function getTopHeight() {
   let height = Number(localStorage.getItem('recordinfoSplitHeight'));
+
   if (height > window.innerHeight - 140) {
     height = window.innerHeight - 140;
   }
+
   return height;
 }
 
@@ -127,6 +129,7 @@ function mergeTabData(tabData = [], eventData = [], dealFrom) {
           const childWidgets = eventData.filter(i => i.sectionId === tab.controlId);
           return !_.every(childWidgets, c => !(controlState(c, dealFrom).visible && !c.hidden));
         }
+
         return true;
       })
       .filter(t => controlState(t, dealFrom).visible && !t.hidden);
@@ -221,7 +224,10 @@ function RecordForm(props) {
 
   // 事件导致的显隐，分栏折叠处要控制
   const [eventData, setEventData] = useState();
-  const tabControls = mergeTabData(tabData, eventData || getRulesData, dealFrom);
+  const baseTabControls = mergeTabData(tabData, getRulesData, dealFrom);
+  const tabControlsWithEvent = mergeTabData(tabData, eventData || getRulesData, dealFrom);
+  // 事件联动触发重算时，可能出现短暂空结果，导致底部关联表格标签栏不渲染
+  const tabControls = tabControlsWithEvent.length ? tabControlsWithEvent : baseTabControls;
   const defaultTabId = _.get(_.head(tabControls), 'controlId');
   const isFixedLeft = _.get(widgetStyle, 'tabposition') === '3';
   const isFixedRight = _.get(widgetStyle, 'tabposition') === '4';
@@ -239,6 +245,7 @@ function RecordForm(props) {
   const [formHeight, setFormHeight] = useState(0);
   const [topHeight, setTopHeight] = useState(getTopHeight());
   const [dragVisible, setDragVisible] = useState();
+
   // 左右布局，非默认标签页，显示单独header
   const getActiveTabControl = tempId => {
     const sectionTabId = tempId || _.get(sectionTab, 'current.activeControlId') || defaultTabId;
@@ -246,22 +253,27 @@ function RecordForm(props) {
       ? _.find(tabControls, t => t.controlId === sectionTabId)
       : '';
   };
+
   const handleSectionClick = controlId => {
     const tempId = controlId || defaultTabId;
+
     if (isFixedLeft || isFixedRight) {
-      if (tempId === _.get(customwidget, 'current.state.activeTabControlId')) return;
+      if (tempId === _.get(customwidget, 'current.state.activeTabControlId') || !tabControls.length) return;
       customwidget && customwidget.current && customwidget.current.setActiveTabControlId(tempId);
       sectionTab && sectionTab.current && sectionTab.current.setActiveId(tempId);
       setTabHeaderControl(getActiveTabControl(tempId));
 
       const stickyBar = recordForm.current && recordForm.current.querySelector('.topCon .stickyBar');
+
       if (stickyBar) {
         stickyBar.id = tempId === 'detail' ? '' : 'stickyBarActive';
       }
+
       // 切换标签页，滚动条置顶，重新校验staticBar显示情况
       scrollToTable();
     }
   };
+
   const [tabHeaderControl, setTabHeaderControl] = useState(getActiveTabControl());
   const systemControlData = [
     {
@@ -292,15 +304,18 @@ function RecordForm(props) {
     } else {
       localStorage.removeItem('recordinfoSplitHeight');
     }
+
     setIsSplit(value);
     if (recordForm.current && !topHeight) {
       setTopHeight(formHeight * 0.5);
     }
   }
+
   function setNavVisible() {
     if (!tabControls.length || type !== 'edit' || !recordForm.current || !nav.current) {
       return;
     }
+
     const scrollConElement = recordForm.current.querySelector('.recordInfoFormScroll');
     const formElement = recordForm.current.querySelector('.recordInfoFormContent .customFieldsContainer');
     const scrollContentElement = recordForm.current.querySelector('.recordInfoFormScroll > div');
@@ -314,6 +329,7 @@ function RecordForm(props) {
       formElement.clientHeight + formElement.offsetTop + 58 + 26 + 1;
     nav.current.style.zIndex = visible ? 3 : -1;
   }
+
   function setStickyBarVisible({ isSplit } = {}) {
     const scrollContentElement = recordForm.current.querySelector(isSplit ? '.topCon' : '.recordInfoFormScroll > div');
     const stickyBar = recordForm.current.querySelector('.topCon .stickyBar');
@@ -321,38 +337,48 @@ function RecordForm(props) {
     const visible = scrollContentElement.scrollTop > (recordTitle || {}).offsetTop + (recordTitle || {}).offsetHeight;
     stickyBar.id = visible || tabHeaderControl ? 'stickyBarActive' : '';
   }
+
   const Con = type === 'edit' && !isSplit ? ScrollView : React.Fragment;
   const TopCon = isSplit ? ScrollView : Div;
+
   function scrollToTable() {
     const $recordInfoFormScroll = $(recordForm.current).find('.recordInfoFormScroll');
     const $relateRecordBlockCon = $(recordForm.current).find('.relateRecordBlockCon');
+
     if (isFixed && scrollRef.current) {
       scrollRef.current.scrollTo({ top: 0 });
       return;
     }
+
     if (scrollRef.current) {
       scrollRef.current.scrollTo({
         top: $relateRecordBlockCon[0].offsetTop - $recordInfoFormScroll.height() + 112 + 34 * 11,
       });
     }
   }
+
   function setSectionFixed(isScroll = true) {
     if (isSplit || isFixedLeft || isFixedRight) return;
     const scrollContentElement = recordForm.current.querySelector('.recordInfoFormScroll > div');
     const sectionTabBarElement = recordForm.current.querySelector('.relateRecordBlock #widgetSectionTabBar');
     const headerElement = recordForm.current.querySelector('.recordInfoFormHeader');
+
     if (scrollContentElement && sectionTabBarElement) {
       const isHideHeader = _.get(view, 'advancedSetting.showtitle') === '0';
       let stickyH = isHideHeader ? 22 : 30;
+
       if (payConfig.isShowPay) {
         stickyH = 56;
       }
+
       if (!headerElement.clientHeight) {
         stickyH = 0;
       }
+
       const isFixed = scrollContentElement.scrollTop + stickyH >= sectionTabBarElement.offsetTop;
       // 记录详情切换因为支付导致的固定问题
       const preFixed = !isScroll && sectionTabBarElement && sectionTabBarElement.style.position === 'sticky';
+
       if (isFixed || preFixed) {
         $(sectionTabBarElement).css({
           position: 'sticky',
@@ -689,6 +715,7 @@ export default function RecordFormCon(props) {
   const { loading, widgetStyle = {} } = props;
   const isFixedLeft = _.get(widgetStyle, 'tabposition') === '3';
   const isUnfold = getDefaultIsUnfold(undefined, widgetStyle);
+
   if (loading) {
     const skeleton = (
       <Fragment>
@@ -735,6 +762,7 @@ export default function RecordFormCon(props) {
       </Fragment>
     );
   }
+
   return <RecordForm {...props} />;
 }
 

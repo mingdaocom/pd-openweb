@@ -77,6 +77,7 @@ function SuccessDialog(props) {
     </Dialog>
   );
 }
+
 export default class MerchantCom extends Component {
   constructor(props) {
     super(props);
@@ -116,8 +117,10 @@ export default class MerchantCom extends Component {
       });
   };
 
-  // 获取商户可创建数量
+  // 获取商户可创建数量（私有部署创建商户提示）
   getMerchantUsage = () => {
+    if (!window.platformENV.isOverseas && !window.platformENV.isLocal) return;
+
     const { projectId } = this.props;
     paymentAjax.getMerchantUsage({ projectId }).then(res => {
       this.setState({ merchantUsage: res });
@@ -126,6 +129,7 @@ export default class MerchantCom extends Component {
 
   onClickTrial = record => {
     const { projectId, featureType } = this.props;
+
     if (featureType === '2') {
       buriedUpgradeVersionDialog(projectId, VersionProductType.PAY);
       return;
@@ -162,12 +166,19 @@ export default class MerchantCom extends Component {
   changeCreateMerchant = (key, visible) => {
     const { projectId, featureType } = this.props;
     const { currentMerchantInfo, merchantUsage = {} } = this.state;
+
     if (featureType === '2' && key === 'createMerchantVisible') {
       buriedUpgradeVersionDialog(projectId, VersionProductType.PAY);
       return;
     }
 
-    if (merchantUsage.canCreate < 1 && key === 'createMerchantVisible' && visible) {
+    // 私有部署商户数量上限提示
+    if (
+      (window.platformENV.isOverseas || window.platformENV.isLocal) &&
+      merchantUsage?.canCreate < 1 &&
+      key === 'createMerchantVisible' &&
+      visible
+    ) {
       alert(_l('支付商户号数量已达上限，请先购买'), 3);
       return;
     }
@@ -182,6 +193,7 @@ export default class MerchantCom extends Component {
 
   openCreateMerchant = (step, record) => {
     const { projectId, featureType } = this.props;
+
     if (featureType === '2') {
       buriedUpgradeVersionDialog(projectId, VersionProductType.PAY);
       return;
@@ -323,6 +335,7 @@ export default class MerchantCom extends Component {
         dataIndex: 'paymentMethod',
         render: (text, record) => {
           const { aliPayStatus, wechatPayStatus } = record;
+
           if (_.includes([1, 2], aliPayStatus) && _.includes([1, 2], wechatPayStatus)) {
             return <span>{_l('微信、支付宝')}</span>;
           } else if (_.includes([1, 2], aliPayStatus)) {
@@ -330,6 +343,7 @@ export default class MerchantCom extends Component {
           } else if (_.includes([1, 2], wechatPayStatus)) {
             return <span>{_l('微信')}</span>;
           }
+
           return '-';
         },
       },
@@ -507,11 +521,13 @@ export default class MerchantCom extends Component {
           updateCurrentMerchant={merchant => {
             const cloneMerchantList = _.clone(merchantList);
             const index = _.findIndex(cloneMerchantList, v => v.id === merchant.id);
+
             if (index === -1) {
               cloneMerchantList.unshift(merchant);
             } else {
               cloneMerchantList[index] = merchant;
             }
+
             this.setState({ merchantList: cloneMerchantList });
           }}
         />

@@ -16,6 +16,7 @@ function login() {
 
 function getParams() {
   const query = qs.parse(location.search.slice(1, location.search.length));
+
   if (/\/rowfiles\/\w+/.test(location.pathname.replace(/^\/portal/, ''))) {
     const args = (location.pathname.match(/\/rowfiles\/(.+?)\/?$/) || [])[1]?.split('/') || [];
     return {
@@ -49,14 +50,17 @@ function getParams() {
       id: query.id,
     };
   }
+
   return {};
 }
 
 export function getAttachment() {
   const { type, id, getType, worksheetId, recordId, controlId, fileId } = getParams();
+
   if (!id && type !== 'record_share_files') {
     throw new Error();
   }
+
   switch (type) {
     case 'kc_share':
       return shareAjax.getShareNode({ shareId: id }).then(r => {
@@ -74,6 +78,7 @@ export function getAttachment() {
         login();
         return;
       }
+
       return worksheetAjax
         .getAttachmentDetail({
           attachmentShareId: id,
@@ -106,6 +111,7 @@ export function getAttachment() {
         login();
         return;
       }
+
       return worksheetAjax
         .getAttachmentList({
           worksheetId,
@@ -116,9 +122,12 @@ export function getAttachment() {
         })
         .then(res => {
           if (res.resultCode === 1) {
+            const { control = {} } = res;
+            const { allowdownload = '1' } = control.advancedSetting;
             return {
               fileId,
               attachments: res.attachments || res.attachmens,
+              allowDownload: allowdownload === '1',
             };
           }
         });

@@ -71,6 +71,7 @@ export default class ImportExcel extends React.Component {
           } else {
             alert(_l('上传失败，请稍后再试。'), 2);
           }
+
           const fileList = comp.state.fileList.update(err.file.id, fileItem => {
             if (!fileItem) return fileItem;
             fileItem.errorText = errTip;
@@ -117,6 +118,7 @@ export default class ImportExcel extends React.Component {
 
   retryUpload = id => {
     const selectFile = this.state.fileList.get(id);
+
     if (!selectFile.isRef) {
       const up = this.uploader;
       const file = up.getFile(id);
@@ -128,6 +130,7 @@ export default class ImportExcel extends React.Component {
     const selectFile = this.state.fileList.get(id);
     const fileList = this.state.fileList.remove(id);
     let newFilePaths = this.state.filePaths.concat();
+
     if (selectFile.isRef) {
       newFilePaths = this.state.filePaths.filter(item => item.id !== id);
       this.setState({ fileList, filePaths: newFilePaths });

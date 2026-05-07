@@ -70,6 +70,7 @@ export default function ListItemLayer(props) {
   if (item) {
     $init.current = { initialClientOffset, item };
   }
+
   const renderContent = () => {
     if (!item && !$init.current) return null;
     const { enumType } = item || $init.current.item;
@@ -105,6 +106,7 @@ export default function ListItemLayer(props) {
       if ($layerItem.current) $layerItem.current.style.visibility = 'visible';
       $dom.isPanelSet = true;
     }
+
     // 放置成功 layer直接消失
     if (isDragging && !currentOffset) {
       resetPanelStatus();
@@ -117,6 +119,7 @@ export default function ListItemLayer(props) {
         resetPanelStatus();
         return { display: 'none' };
       }
+
       const { x = 0, y = 0 } = $init.current.initialClientOffset || {};
       resetPanelStatus();
       return {
@@ -139,6 +142,7 @@ export default function ListItemLayer(props) {
       WebkitTransform: transform,
     };
   };
+
   return (
     <ItemLayer ref={$layerItem}>
       <div className={cx('itemLayer', { isDragging })} style={getItemStyle()}>

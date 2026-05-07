@@ -72,19 +72,24 @@ const DateFilter = props => {
 
   useEffect(() => {
     const { getDate } = _.find(dateMenu, { id: selectId }) || {};
+
     if (selectId !== 'custom') {
       setVisible(false);
     }
+
     if (lastSelectId === selectId) {
       return;
     }
+
     if (selectId === 'clear') {
       onChange(null, null);
     }
+
     if (getDate) {
       const result = getDate();
       onChange(...result);
     }
+
     lastSelectId = selectId;
   }, [selectId]);
 

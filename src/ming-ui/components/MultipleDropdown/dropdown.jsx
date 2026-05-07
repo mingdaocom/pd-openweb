@@ -3,10 +3,6 @@ import ReactDOM from 'react-dom';
 import cx from 'classnames';
 import PropTypes from 'prop-types';
 import Icon from 'ming-ui/components/Icon';
-
-/**
- * 菜单组件
- */
 import MultipleDropdownMenu from './menu';
 import '../less/multidropdown.less';
 import '../less/multidropdownmenu.less';
@@ -40,6 +36,7 @@ class MultipleDropdown extends Component {
    */
   clickListener = e => {
     const node = ReactDOM.findDOMNode(this);
+
     if ((node === e.target || !node.contains(e.target)) && this.state.menuOpened) {
       this.hideMenu();
     }
@@ -76,6 +73,7 @@ class MultipleDropdown extends Component {
         value: nextProps.value,
       });
     }
+
     if (nextProps.label !== this.state.label) {
       const label = nextProps.label && nextProps.label.length ? nextProps.label.toString() : '请选择';
 
@@ -140,16 +138,20 @@ class MultipleDropdown extends Component {
 
   render() {
     const classList = ['multi-dropdown'];
+
     if (this.state.menuOpened) {
       classList.push('open');
     }
+
     if (this.button) {
       const rect = this.button.getBoundingClientRect();
       const restHeight = window.innerHeight - rect.top - rect.height;
+
       if (restHeight < 228) {
         classList.push('menu-top');
       }
     }
+
     const classNames = classList.join(' ');
 
     return (
@@ -163,11 +165,12 @@ class MultipleDropdown extends Component {
           onClick={this.toggleMenuOpened}
         >
           <span>{this.state.label}</span>
-          <Icon icon="arrow-down-border" />
+          <Icon icon="arrow-down-border" className="textTertiary" />
         </button>
         <MultipleDropdownMenu
           value={this.state.value}
           openMenu={this.state.menuOpened}
+          maxSelectNum={this.props.maxSelectNum}
           options={this.props.options}
           emptyHint={this.props.emptyHint}
           multipleLevel={this.props.multipleLevel}
@@ -205,6 +208,10 @@ MultipleDropdown.propTypes = {
       items: PropTypes.any,
     }),
   ),
+  /**
+   * 最多选择个数
+   */
+  maxSelectNum: PropTypes.number,
   /**
    * 数据为空时的提示文字
    */

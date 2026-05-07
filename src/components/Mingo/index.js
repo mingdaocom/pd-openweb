@@ -31,7 +31,7 @@ const MingoWrap = styled.div`
     .chattingTitleText {
       margin-left: 8px;
       font-size: 17px;
-      color: var(--color-text-title);
+      color: var(--color-text-primary);
       font-weight: bold;
     }
   }
@@ -42,16 +42,30 @@ function getDefaultValueOfMingoCache() {
     const cacheObj = safeParse(
       localStorage.getItem(`MINGO_CACHE_CREATE_WORKSHEET_BOT_${get(md, 'global.Account.accountId')}`),
     );
+
     if (cacheObj && cacheObj.worksheetId === window.globalStoreForMingo.worksheetId) {
       return cacheObj;
     }
     //  && globalStoreForMingo.worksheetId
   }
+
   return {};
 }
+
 function Mingo(props) {
   const { mingoFixing, onFixing, onClose, drawerVisible, sheetList, worksheetInfo } = props;
   const [base, setBase] = useState(props.base);
+  const hadPendingTask = useRef(!!window.mingoPendingStartTask);
+  // 固定显示时刷新会先挂载 Mingo，此时 Redux base 可能尚未被 WorkSheet updateBase 写入 appId；
+  // 仅用 useState 初始值会导致本地 base 一直为空，创建工作表等接口报 appId 不存在。
+  useEffect(() => {
+    // 存在待处理任务时跳过初次合并，避免 Redux 中的 base（如自定义页面ID）覆盖 pendingTask 中的正确数据
+    if (hadPendingTask.current) {
+      hadPendingTask.current = false;
+      return;
+    }
+    setBase(prev => ({ ...prev, ...props.base }));
+  }, [props.base]);
   const defaultMingoCache = useMemo(() => getDefaultValueOfMingoCache(), []);
   const [currentChatId, setCurrentChatId] = useState(null);
   const contentRef = useRef(null);
@@ -68,6 +82,9 @@ function Mingo(props) {
   const handleStartPendingTask = useCallback(() => {
     setTimeout(() => {
       if (window.mingoPendingStartTask) {
+        if (window.mingoPendingStartTask.base) {
+          setBase(window.mingoPendingStartTask.base);
+        }
         setIsChatting(true);
         setTaskType(window.mingoPendingStartTask.type);
         window.mingoPendingStartTask = null;
@@ -92,6 +109,7 @@ function Mingo(props) {
     if (taskType !== MINGO_TASK_TYPE.MINGDAO_HELP_ASSISTANT && !mingoFixing) {
       handleMingoFixing();
     }
+
     emitter.on('SET_MINGO_FIXED', handleMingoFixing);
     window.addEventListener('popstate', handleClose);
     emitter.on('SET_MINGO_VISIBLE', handleStartPendingTask);
@@ -108,6 +126,7 @@ function Mingo(props) {
   if (!drawerVisible && !mingoFixing) {
     return null;
   }
+
   return (
     <MingoWrap className="mingoWrap">
       {!includes(

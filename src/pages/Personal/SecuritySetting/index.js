@@ -109,6 +109,7 @@ export default class SecuritySetting extends Component {
           this.setState({ visible: true });
           return;
         }
+
         this.sureSettings('isTwoauthentication', 0, () => {
           this.setState({
             isTwoauthentication: !checked,
@@ -225,8 +226,10 @@ export default class SecuritySetting extends Component {
                       } else {
                         this.setState({ serviceListWeb: serviceListWeb.filter(v => v.sessionId !== sessionId) });
                       }
+
                       return;
                     }
+
                     alert(_l('退出失败'), 2);
                   });
               }}
@@ -263,6 +266,7 @@ export default class SecuritySetting extends Component {
     if (loading) {
       return <LoadDiv />;
     }
+
     //多设备同时登录开关
     const showMultipleDevicesUse =
       (!window.platformENV.isOverseas && !window.platformENV.isLocal) ||
@@ -280,10 +284,12 @@ export default class SecuritySetting extends Component {
       3: _l('TOTP'),
     };
     let txtMap = [3, 1, 2]; // 默认：TOTP > 短信 > 邮箱
+
     // 如果配置了类型，则排在第一位
     if (priorityType) {
       txtMap = [priorityType, ..._.without(txtMap, priorityType)];
     }
+
     const priorityText = txtMap.map(item => priorityTypeMap[item]).join(' > ');
     return (
       <div className="securitySettingContainer textPrimary">

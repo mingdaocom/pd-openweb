@@ -24,6 +24,7 @@ export const ajax = {
         fn.call(this, xhr.responseText);
       }
     };
+
     xhr.send();
   },
   post: function (params) {
@@ -34,13 +35,16 @@ export const ajax = {
     if (md_pss_id) {
       xhr.setRequestHeader('Authorization', `md_pss_id ${md_pss_id}`);
     }
+
     if (window.md && window.md.global.Account && window.md.global.Account.accountId) {
       xhr.setRequestHeader('AccountId', md.global.Account.accountId);
     }
+
     xhr.withCredentials = 'withCredentials' in params ? params.withCredentials : true;
     xhr.onreadystatechange = function () {
       if (xhr.readyState == 4 && (xhr.status == 200 || xhr.status == 304)) {
         let result = JSON.parse(xhr.responseText);
+
         if (result.state) {
           if (result.encrypted) {
             interfaceDataDecryption(result).then(data => {
@@ -55,9 +59,11 @@ export const ajax = {
         }
       }
     };
+
     xhr.onerror = err => {
       params.error.call(this, err);
     };
+
     xhr.send(JSON.stringify(params.data));
   },
 };
@@ -65,6 +71,7 @@ export const ajax = {
 const interfaceDataDecryption = source => {
   return new Promise(resolve => {
     const { data, key, encrypted } = source || {};
+
     if (encrypted) {
       import('crypto-js').then(CryptoJS => {
         const decrypted = CryptoJS.AES.decrypt(data, CryptoJS.enc.Utf8.parse(key), {
@@ -91,6 +98,7 @@ export const getScript = (src, func) => {
   if (func) {
     script.onload = func;
   }
+
   document.getElementsByTagName('head')[0].appendChild(script);
 };
 
@@ -99,10 +107,12 @@ export const getRequest = () => {
   const search = encodeUrl.search.replace('?', '');
   let theRequest = new Object();
   let strs = search.split('&');
+
   for (let i = 0; i < strs.length; i++) {
     let result = strs[i].split('=');
     theRequest[result[0]] = decodeURIComponent(result[1]);
   }
+
   return theRequest;
 };
 
@@ -110,6 +120,7 @@ export const replenishRet = (ret, pc_slide) => {
   const url = decodeURIComponent(ret);
   const isHash = url.includes('#');
   const isPcSlide = pc_slide.includes('true');
+
   const add = url => {
     return url.includes('?') ? `${url}&pc_slide=true` : `${url}?pc_slide=true`;
   };
@@ -129,9 +140,11 @@ export const replenishRet = (ret, pc_slide) => {
 
 export const formatOtherParam = param => {
   let result = '';
+
   for (let i in param) {
     result = `${result ? `${result}&` : ``}` + `${i}=${param[i]}`;
   }
+
   return result;
 };
 
@@ -147,6 +160,7 @@ export const checkOriginUrl = url => {
   if (url && url.includes('mingdao.com')) {
     return url;
   }
+
   if (url && url.includes('http')) {
     return url.includes(location.origin);
   } else {
@@ -183,9 +197,11 @@ export const getGlobalMeta = () => {
         } else {
           window.md.global = data['md.global'];
         }
+
         if (window.md.global && !window.md.global.Account) {
           window.md.global.Account = {};
         }
+
         resolve();
       },
     });
@@ -223,6 +239,7 @@ export const isBefore = time => {
 
 export const setCookie = (name, value, expire) => {
   let expireDate;
+
   if (!expire) {
     let nextyear = new Date();
     nextyear.setFullYear(nextyear.getFullYear() + 10);

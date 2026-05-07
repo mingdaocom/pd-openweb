@@ -21,10 +21,10 @@ const DefaultItem = styled.div`
   background-color: var(--color-background-primary);
   margin-top: 15px;
   border-radius: 6px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  box-shadow: var(--shadow-sm);
   cursor: pointer;
   &:hover {
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.16);
+    box-shadow: var(--shadow-lg);
   }
   .btnWrap {
     margin: 8px 10px;
@@ -32,7 +32,6 @@ const DefaultItem = styled.div`
 `;
 
 const Wrap = styled.div`
-  background-color: var(--color-border-secondary);
   height: 100%;
   display: flex;
   .Menu.List {
@@ -64,29 +63,34 @@ export default function Filter(props) {
     });
   };
 
-  const updateFilter = data => {
+  const updateFilter = (data, otherFilter = {}) => {
     const newFilters = filters.map(itme => {
       if (itme.filterId === activeId) {
         return { ...itme, ...data };
       }
+
       return itme;
     });
     setFilter({
       ...filter,
+      ...otherFilter,
       filters: newFilters,
     });
   };
 
   const handleSave = () => {
     const { filters } = filter;
+
     if (_.isEmpty(filters[0].objectControls)) {
       alert(_l('请配置筛选对象'), 3);
       return;
     }
+
     if (!_.get(filters[0].objectControls[0], 'controlId')) {
       alert(_l('请为筛选对象添加字段'), 3);
       return;
     }
+
     onEdit({
       filter,
     });
@@ -99,6 +103,7 @@ export default function Filter(props) {
       setLoading(false);
       return;
     }
+
     if (value) {
       worksheetApi
         .getFiltersGroupByIds({

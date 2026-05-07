@@ -38,6 +38,7 @@ class TimeBarContainer extends Component {
         if (config.scrollSelector && !config.scrollSelector.is($('.ganttMembers .ganttMembersList'))) {
           $('.ganttMembers .ganttMembersList').scrollTop(this.scrollTop);
         }
+
         utils.syncUpdateScroll();
         // 无起止时间数据居中显示
         $('.timeBars.noDateList').css('padding-left', $('.timeBarContainer').scrollLeft() + 20);
@@ -58,6 +59,7 @@ class TimeBarContainer extends Component {
           });
           // 最小时间
           let startTime = '';
+
           if (that.props.stateConfig.currentView === config.VIEWTYPE.DAY) {
             startTime = moment(config.minStartTime).add(-6, 'w').format('YYYY-MM-DD HH:00');
           } else if (that.props.stateConfig.currentView === config.VIEWTYPE.WEEK) {
@@ -65,6 +67,7 @@ class TimeBarContainer extends Component {
           } else if (that.props.stateConfig.currentView === config.VIEWTYPE.MONTH) {
             startTime = moment(config.minStartTime).add(-24, 'w').format('YYYY-MM-DD HH:00');
           }
+
           const endTime = config.minStartTime;
 
           // 设置新的最小时间
@@ -117,6 +120,7 @@ class TimeBarContainer extends Component {
   ganttEndDrop() {
     let timeLock = '';
     let chargeAccountId = '';
+
     // 开始时间不存在
     if (!config.newStartTime) {
       timeLock = false;
@@ -166,6 +170,7 @@ class TimeBarContainer extends Component {
         if (source.status) {
           // 是否更新时间轴视图
           let isUpdateTimeAxis = false;
+
           if (startTime && moment(startTime) < moment(config.minStartTime)) {
             config.minStartTime = startTime;
             isUpdateTimeAxis = true;
@@ -186,6 +191,7 @@ class TimeBarContainer extends Component {
             const callback = updateType => {
               this.updateTaskStartTimeAndDeadline(taskId, source.data.timeLock, startTime, endTime, updateType);
             };
+
             updateTimeErrorDialog(source, startTime, callback);
           }
         } else {

@@ -263,11 +263,13 @@ export default function SideNav(props) {
       _.find(md.global.Account.projects, item => item.projectId === projectId),
       'allowPlugin',
     ) || hasPermission(myPermissions, [PERMISSION_ENUM.DEVELOP_PLUGIN, PERMISSION_ENUM.MANAGE_PLUGINS]);
-  const hasDataIntegrationAuth = hasPermission(myPermissions, [
-    PERMISSION_ENUM.CREATE_SYNC_TASK,
-    PERMISSION_ENUM.MANAGE_SYNC_TASKS,
-    PERMISSION_ENUM.MANAGE_DATA_SOURCES,
-  ]);
+  const hasDataIntegrationAuth =
+    !_.get(window, 'md.global.SysSettings.hideDataPipeline') &&
+    hasPermission(myPermissions, [
+      PERMISSION_ENUM.CREATE_SYNC_TASK,
+      PERMISSION_ENUM.MANAGE_SYNC_TASKS,
+      PERMISSION_ENUM.MANAGE_DATA_SOURCES,
+    ]);
 
   useEffect(() => {
     privateSource.getSources({ status: 1 }).then(result => {
@@ -438,6 +440,7 @@ export default function SideNav(props) {
                 if (entry.type === 'plugin' && !hasPluginAuth) {
                   return null;
                 }
+
                 return renderModuleItem(entry, index);
               })}
           </ModuleEntries>

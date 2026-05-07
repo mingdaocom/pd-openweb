@@ -57,6 +57,7 @@ export default class SingleFilter extends Component {
       alert(_l('字段不存在'), 3);
       return;
     }
+
     const { from = '' } = this.props;
     const { conditions } = this.state;
     const newCondition = getDefaultCondition(control);
@@ -117,9 +118,11 @@ export default class SingleFilter extends Component {
       dynamicSource: condition.dynamicSource || [],
       isDynamicsource: condition.isDynamicsource,
     }));
+
     if (!_.isUndefined(relationType)) {
       this.setState({ relationType });
     }
+
     onConditionsChange(formatedConditions);
   }
   handleChangeRelationType(value) {
@@ -187,6 +190,7 @@ export default class SingleFilter extends Component {
     const filterWhiteKeys = _.flatten(
       Object.keys(CONTROL_FILTER_WHITELIST).map(key => CONTROL_FILTER_WHITELIST[key].keys),
     );
+
     if (showSystemControls) {
       columns = columns
         .filter(column => !_.find(SYSTEM_CONTROLS, c => c.controlId === column.controlId))

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { HTML5Backend } from 'react-dnd-html5-backend-latest';
@@ -14,6 +14,7 @@ import * as baseAction from 'src/pages/worksheet/redux/actions';
 import * as viewActions from 'src/pages/worksheet/redux/actions/mapView';
 import { browserIsMobile } from 'src/utils/common';
 import { htmlDecodeReg, htmlEncodeReg } from 'src/utils/common';
+import { renderText as renderCellText } from 'src/utils/control';
 
 const Wrapper = styled.div`
   border-radius: 4px;
@@ -94,9 +95,21 @@ const searchResult = (query, queryKey, data) => {
 };
 
 function SearchRecord(props) {
-  const { searchData, view, updateSearchRecord } = props;
-  const data = searchData.data;
-  const queryKey = searchData.queryKey;
+  const { searchData, controls, view, updateSearchRecord } = props;
+  const data = searchData?.data || [];
+  const queryKey = searchData?.queryKey;
+
+  const titleField = controls?.find(m => m.controlId === queryKey);
+
+  const searchRecordData = useMemo(() => {
+    if (!titleField || !data.length) return [];
+
+    return data.map(item => ({
+      ...item,
+      [queryKey]: renderCellText({ ...titleField, value: item[queryKey] }),
+    }));
+  }, [data, queryKey, titleField]);
+
   const [open, setOpen] = useState(false);
   const [options, setOptions] = useState([]);
   const [activeRecord, setSearchRecord] = useState();
@@ -110,11 +123,12 @@ function SearchRecord(props) {
 
   const handleSearch = value => {
     if (value) {
-      setOptions(searchResult(value, queryKey, data));
+      setOptions(searchResult(value, queryKey, searchRecordData));
     } else {
       setOptions([]);
       setSearchRecord(null);
     }
+
     setOpen(true);
   };
 

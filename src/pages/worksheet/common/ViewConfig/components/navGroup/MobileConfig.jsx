@@ -1,14 +1,9 @@
 import React, { Fragment, useState } from 'react';
+import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon, Input } from 'ming-ui';
 import { AREA } from 'src/pages/worksheet/common/Sheet/GroupFilter/constants.js';
-import column from './img/column.png';
-import columnActive from './img/columnActive.png';
-import nav from './img/nav.png';
-import navActive from './img/navActive.png';
-import sideSlip from './img/sideSlip.png';
-import sideSlipActive from './img/sideSlipActive.png';
 
 const MobileConfigWrap = styled.div`
   line-height: normal;
@@ -18,14 +13,26 @@ const MobileConfigWrap = styled.div`
     border-top: 1px solid var(--color-border-primary);
     margin: 30px 0;
   }
-  img {
+  .navTypeIconWrap {
     width: 55px;
     height: 67px;
-    margin-bottom: 10px;
-    background-size: cover !important;
-    transition: box-shadow 0.3s;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition:
+      color 0.2s,
+      background-color 0.2s;
+    color: var(--color-text-secondary);
     &:hover {
-      box-shadow: var(--shadow-sm);
+      color: var(--color-primary);
+    }
+    &.active {
+      color: var(--color-primary);
+    }
+    .ming.Icon {
+      font-size: 70px;
     }
   }
   .iconWrap {
@@ -41,6 +48,9 @@ const MobileConfigWrap = styled.div`
     border-radius: 50%;
     border: 2px solid var(--color-white);
     background-color: var(--color-primary);
+  }
+  .activeTxt {
+    color: var(--color-primary);
   }
   .ming.Radio .Radio-box {
     margin-right: 6px !important;
@@ -59,24 +69,9 @@ const MobileConfigWrap = styled.div`
 `;
 
 const dataList = [
-  {
-    name: _l('侧滑'),
-    value: '2',
-    imgSrc: sideSlip,
-    activeImgSrc: sideSlipActive,
-  },
-  {
-    name: _l('导航'),
-    value: '1',
-    imgSrc: nav,
-    activeImgSrc: navActive,
-  },
-  {
-    name: _l('分栏'),
-    value: '3',
-    imgSrc: column,
-    activeImgSrc: columnActive,
-  },
+  { name: _l('侧滑'), value: '2', icon: 'group_swipe' },
+  { name: _l('导航'), value: '1', icon: 'group_navigation' },
+  { name: _l('分栏'), value: '3', icon: 'grouping_columns' },
 ];
 
 export default function MobileConfig(props) {
@@ -115,11 +110,13 @@ export default function MobileConfig(props) {
               >
                 {value === item.value && (
                   <div className="flexRow valignWrapper activeIcon">
-                    <Icon icon="done" />
+                    <Icon icon="done" className="Font14" />
                   </div>
                 )}
-                <img src={value === item.value ? item.activeImgSrc : item.imgSrc} />
-                <div className="TxtCenter">{item.name}</div>
+                <div className={`navTypeIconWrap flexColumn valignWrapper ${value === item.value ? 'active' : ''}`}>
+                  <Icon icon={item.icon} />
+                </div>
+                <div className={cx('TxtCenter', { activeTxt: value === item.value })}>{item.name}</div>
               </div>
             );
           })}

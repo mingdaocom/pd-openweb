@@ -58,6 +58,7 @@ class AppHome extends React.Component {
     if (window.isWxWork && isAdmin && isMaturity) {
       this.getWebCache();
     }
+
     window.addEventListener('popstate', this.closePage);
     loadSDK();
     window.addEventListener('popstate', this.onQueryChange);
@@ -103,11 +104,13 @@ class AppHome extends React.Component {
     );
     const currentProject = !_.isEmpty(projectObj) ? projectObj : { projectId: 'external', companyName: _l('外部协作') };
     const projectId = currentProject ? currentProject.projectId : null;
+
     if (projectId === 'external') {
       this.props.getMyApp(isPullRefresh);
       this.props.clearAllCollectCharts();
       return;
     }
+
     this.props.myPlatform(projectId, isPullRefresh);
     this.props.getHomePlatformSetting(projectId);
     this.props.getAllFavorites(projectId);
@@ -199,8 +202,10 @@ class AppHome extends React.Component {
                 } else {
                   window.open(value);
                 }
+
                 return;
               }
+
               let searchResult = [
                 ...this.filterSearchResult(apps, value),
                 ...this.filterSearchResult(externalApps, value),
@@ -216,6 +221,7 @@ class AppHome extends React.Component {
   renderSearchResult = () => {
     const { myPlatformLang } = this.props;
     const { searchResult = [] } = this.state;
+
     if (_.isEmpty(searchResult)) {
       return (
         <div className="flexColumn emptyWrap flex alignItemsCenter justifyContentCenter textTertiary">
@@ -224,6 +230,7 @@ class AppHome extends React.Component {
         </div>
       );
     }
+
     return (
       <div className="h100" style={{ overflow: 'auto' }}>
         <div className="appCon flexRow alignItemsCenter">
@@ -237,6 +244,7 @@ class AppHome extends React.Component {
 
   renderGuide() {
     const { guideStep } = this.state;
+
     if (guideStep == 1) {
       return (
         <div className="guideWrapper">

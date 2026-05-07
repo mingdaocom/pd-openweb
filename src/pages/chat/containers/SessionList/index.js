@@ -82,6 +82,7 @@ const getOffsetData = function (rootW, rootH, nativeEvent) {
   if (bottom) {
     offset.y = clientY - rootH - 5;
   }
+
   return offset;
 };
 
@@ -116,10 +117,12 @@ class SessionList extends Component {
   componentWillReceiveProps(nextProps) {
     const { chatCount } = this.state;
     const { sessionList, currentSession } = nextProps;
+
     if (!sessionList.length) {
       this.getChatSessionList(1);
       return;
     }
+
     const currentChatCount = sessionList.reduce((count, item) => {
       if (item.count && 'isSilent' in item) {
         return item.isSilent ? count : (count += item.count);
@@ -135,18 +138,23 @@ class SessionList extends Component {
         chatCount: currentChatCount,
       });
     }
+
     if (this.props.currentSession.id && currentSession.id !== this.props.currentSession.id) {
       const { id } = getRequest();
+
       if (this.isWindowChat && id) {
         history.replaceState(null, '', window.location.pathname);
       }
     }
+
     if (this.props.messageListShowType !== nextProps.messageListShowType) {
       this.props.dispatch(actions.setSessionList(sessionList));
     }
+
     if (this.isWindowChat && sessionList.length && _.isEmpty(currentSession)) {
       const { id, type } = getRequest();
       const target = _.find(sessionList, { value: id });
+
       if (target) {
         this.handleOpenPanel(target);
       } else if (utils.getIsInbox(id)) {
@@ -172,9 +180,11 @@ class SessionList extends Component {
   }
   getChatSessionList(pageIndex) {
     const { loading, isMore } = this.state;
+
     if (this.loading || loading || !isMore) {
       return;
     }
+
     this.loading = true;
     this.setState({
       loading: true,
@@ -190,11 +200,13 @@ class SessionList extends Component {
             isMore: false,
           });
         }
+
         if (pageIndex === 1) {
           this.props.dispatch(actions.setSessionList(sessionList));
         } else {
           this.props.dispatch(actions.addSessionList(sessionList));
         }
+
         this.setState({
           pageIndex: pageIndex + 1,
           loading: false,
@@ -206,6 +218,7 @@ class SessionList extends Component {
             const session = sessionList[i] || {};
             const hasPush = 'isPush' in session ? session.isPush : true;
             const notSilient = 'isSilent' in session ? !session.isSilent || [1, 2].includes(session.showBadge) : true;
+
             if (session && session.count && hasPush && notSilient) {
               utils.flashTitle();
               continue;
@@ -246,6 +259,7 @@ class SessionList extends Component {
       })
       .then(result => {
         let data = {};
+
         if (type == Constant.SESSIONTYPE_USER) {
           data = {
             isGroup: false,
@@ -268,6 +282,7 @@ class SessionList extends Component {
             msg: { con: '' },
           };
         }
+
         this.props.dispatch(actions.addSession(data));
         // this.props.dispatch(actions.addCurrentSession(result));
         this.handleOpenPanel(data);
@@ -294,6 +309,7 @@ class SessionList extends Component {
     if ('showBadge' in item) {
       item.showBadge = 0;
     }
+
     this.props.dispatch(actions.setNewCurrentSession(item));
 
     // 同步窗口
@@ -301,9 +317,11 @@ class SessionList extends Component {
       id: item.value,
       type: item.isGroup ? 2 : 1,
     };
+
     if ('showBadge' in item) {
       param.showBadge = 0;
     }
+
     socket.Contact.recordAction(param);
 
     // 清除计数
@@ -317,6 +335,7 @@ class SessionList extends Component {
         );
       });
     }
+
     // 清除 @
     if (item.atlist && item.atlist.length) {
       this.props.dispatch(
@@ -326,6 +345,7 @@ class SessionList extends Component {
         }),
       );
     }
+
     // 清除回复我
     if (item.refer) {
       this.props.dispatch(
@@ -335,6 +355,7 @@ class SessionList extends Component {
         }),
       );
     }
+
     // 如果不存在其他计数关闭新消息提醒
     this.handleRemoveFlashTitle(item.value);
   }
@@ -383,6 +404,7 @@ class SessionList extends Component {
   }
   handleClickAway() {
     const { menuVisible } = this.state;
+
     if (menuVisible) {
       this.setState({
         menuVisible: false,
@@ -406,15 +428,18 @@ class SessionList extends Component {
   handleOpenFeed() {
     const { hoverItem } = this.state;
     const { type, value } = hoverItem;
+
     if (type === Constant.SESSIONTYPE_USER) {
       window.open(`/user_${value}`);
     } else if (type === Constant.SESSIONTYPE_GROUP) {
       window.open(`/feed?groupId=${value}`);
     }
+
     this.handleClickAway();
   }
   handleClearAllCount(visible) {
     const { chatCount } = this.state;
+
     if (visible) {
       chatCount && socket.Contact.clearAllUnread();
       this.handleClickAway();
@@ -533,6 +558,7 @@ class SessionList extends Component {
   renderClearAllCount() {
     const { chatCount } = this.state;
     const { visible, socketState } = this.props;
+
     if (visible) {
       return (
         <div className="SessionList-clearAll ThemeBGColor9">

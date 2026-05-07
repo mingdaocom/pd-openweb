@@ -45,7 +45,7 @@ const Wrap = styled.div`
       justify-content: center;
       border-radius: 0 4px 4px 0;
       border-left: 1px solid var(--color-border-primary);
-      background-color: var(--color-background-primary);
+      background-color: var(--color-background-input);
     }
     .icon-expand_less,
     .icon-expand_more {
@@ -73,6 +73,7 @@ export default props => {
   const { titleStyles = { ...defaultTitleStyles, textAlign: 'center' } } = config || {};
   const newTitleStyles = pageTitleStyles.index >= titleStyles.index ? pageTitleStyles : titleStyles;
   const { color } = replaceTitleColor(newTitleStyles, iconColor);
+
   const handleChange = data => {
     setSetting({
       config: {
@@ -85,6 +86,7 @@ export default props => {
       },
     });
   };
+
   return (
     <Wrap className="settingItem mTop24">
       <div className="settingTitle">{_l('标题与样式')}</div>
@@ -148,7 +150,7 @@ export default props => {
             />
             <div
               className="colorWrap"
-              style={{ backgroundColor: 'var(--color-background-primary)' }}
+              style={{ backgroundColor: 'var(--color-background-input)' }}
               onClick={() => {
                 handleChange({
                   fontBold: !newTitleStyles.fontBold,
@@ -159,7 +161,7 @@ export default props => {
             </div>
             <div
               className="colorWrap"
-              style={{ backgroundColor: 'var(--color-background-primary)' }}
+              style={{ backgroundColor: 'var(--color-background-input)' }}
               onClick={() => {
                 handleChange({
                   fontItalic: !newTitleStyles.fontItalic,

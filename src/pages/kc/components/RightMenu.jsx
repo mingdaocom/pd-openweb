@@ -64,6 +64,7 @@ export default class RightMenu extends React.Component {
     Object.keys(props).forEach(key => {
       if (typeof props[key] === 'function') {
         const fn = props[key];
+
         props[key] = (...args) => {
           this.props.hideRightMenu();
           fn(...args);
@@ -83,6 +84,7 @@ export default class RightMenu extends React.Component {
     const isAdmin = item.isAdmin;
     const canEdit = item.canEdit;
     const isCreateUser = item.owner.accountId === md.global.Account.accountId;
+
     /* 回收站*/
     if (isRecycle) {
       return (

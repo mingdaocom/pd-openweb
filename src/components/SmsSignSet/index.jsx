@@ -56,6 +56,7 @@ export default function SmsSignSet(props) {
           setSignature(defaultSign);
           onOk(defaultSign);
         }
+
         setLoading(false);
       })
       .catch(() => setLoading(false));
@@ -68,9 +69,11 @@ export default function SmsSignSet(props) {
       ) : (
         <div>
           {sign && <span className="mRight12">{sign}</span>}
-          <span className="ThemeColor3 ThemeHoverColor2 pointer" onClick={() => setVisible(true)}>
-            {sign ? _l('修改') : _l('设置')}
-          </span>
+          {!window.platformENV.isOverseas && (
+            <span className="ThemeColor3 ThemeHoverColor2 pointer" onClick={() => setVisible(true)}>
+              {sign ? _l('修改') : _l('设置')}
+            </span>
+          )}
         </div>
       )}
 
@@ -100,7 +103,7 @@ export default function SmsSignSet(props) {
                 <Fragment>
                   <div className="textSecondary">
                     {_l(
-                      '自定义签名到达率受运营商风控等因素影响，若实际到达率不佳，建议您可以尝试切换到平台默认提供的签名。',
+                      '自定义签名到达率受运营商风控等因素影响，若实际到达率不佳，建议您可以尝试切换到平台默认提供的签名。针对港澳台及国际地区的短信发送，无需额外配置短信签名。',
                     )}
                   </div>
                   <div className="mTop8 textSecondary">

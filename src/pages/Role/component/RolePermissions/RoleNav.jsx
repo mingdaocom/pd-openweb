@@ -18,6 +18,7 @@ export default class Con extends React.Component {
                   alert(_l('请保存当前新增角色'), 3);
                   return;
                 }
+
                 this.props.handleChangePage(() => {
                   this.props.onChange({
                     roleId: '',

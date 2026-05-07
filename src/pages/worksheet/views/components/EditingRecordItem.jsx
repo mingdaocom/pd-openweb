@@ -32,16 +32,20 @@ export default function EditingRecord(props) {
       closeEdit();
       return;
     }
+
     if (type === 'board') {
       updateTitleData({ ...controlItem, value });
       closeEdit();
       return;
     }
+
     let worksheetId = currentView.worksheetId;
+
     if (String(childType) === '2') {
       const currentIndex = stateData.path.length - 1;
       worksheetId = _.get(viewControls[currentIndex], 'worksheetId');
     }
+
     worksheetAjax.updateWorksheetRow({ rowId, worksheetId, newOldControl: [{ ...controlItem, value }] }).then(res => {
       if (res.data && res.resultCode === 1) {
         const nextControl = { [controlItem.controlId]: value };
@@ -65,11 +69,13 @@ export default function EditingRecord(props) {
                 return;
               }
             }
+
             updateRow(titleField, value, needUpdate);
           }}
         />
       );
     }
+
     return (
       <div className="overflow_ellipsis fieldTitle" title={content}>
         {content}

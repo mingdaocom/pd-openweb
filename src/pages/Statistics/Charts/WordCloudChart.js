@@ -33,6 +33,7 @@ export default class extends Component {
   componentWillReceiveProps(nextProps) {
     const { displaySetup } = nextProps.reportData;
     const { displaySetup: oldDisplaySetup } = this.props.reportData;
+
     if (
       displaySetup.showChartType !== oldDisplaySetup.showChartType ||
       displaySetup.ydisplay.minValue !== oldDisplaySetup.ydisplay.minValue ||
@@ -47,6 +48,7 @@ export default class extends Component {
       const WordCloudChartConfig = this.getComponentConfig(nextProps);
       this.WordCloudChart && this.WordCloudChart.update(WordCloudChartConfig);
     }
+
     if (nextProps.isLinkageData !== this.props.isLinkageData) {
       this.WordCloudChart && this.WordCloudChart.destroy();
       this.renderWordCloudChart(nextProps);
@@ -57,6 +59,7 @@ export default class extends Component {
     const { displaySetup, style } = reportData;
     const WordCloudChartConfig = this.getComponentConfig(props);
     const { WordCloud } = this.g2plotComponent;
+
     if (this.chartEl) {
       this.WordCloudChart = new WordCloud(this.chartEl, WordCloudChartConfig);
       this.isViewOriginalData = displaySetup.showRowList && props.isViewOriginalData;
@@ -66,11 +69,13 @@ export default class extends Component {
       if (this.isViewOriginalData || this.isLinkageData) {
         this.WordCloudChart.on('element:click', this.handleClick);
       }
+
       this.WordCloudChart.render();
     }
   }
   handleClick = data => {
-    const { xaxes, appId, reportId, name, reportType, style } = this.props.reportData;
+    const { reportData, isMobile } = this.props;
+    const { xaxes, appId, reportId, name, reportType, style } = reportData;
     const event = data.gEvent;
     const currentData = data.data.data;
     const param = {};
@@ -81,6 +86,7 @@ export default class extends Component {
       reportType,
       filters: [],
     };
+
     if (xaxes.cid) {
       const isNumber = isFormatNumber(xaxes.controlType);
       const value = currentData.datum.originalId;
@@ -95,15 +101,17 @@ export default class extends Component {
         control: xaxes,
       });
     }
+
     if (_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length) {
       linkageMatch.onlyChartIds = style.autoLinkageChartObjectIds;
     }
+
     const isAll = this.isViewOriginalData && this.isLinkageData;
     this.setState(
       {
         dropdownVisible: isAll,
         offset: {
-          x: event.x + 20,
+          x: event.x + (isMobile ? -100 : 20),
           y: event.y,
         },
         match: param,
@@ -113,6 +121,7 @@ export default class extends Component {
         if (!isAll && this.isViewOriginalData) {
           this.handleRequestOriginalData();
         }
+
         if (!isAll && this.isLinkageData) {
           this.handleAutoLinkage();
         }

@@ -29,6 +29,7 @@ const Wrap = styled.div`
     }
   }
 `;
+
 function AddUserDialog(props) {
   const { appId, show, setAddUserDialog, getUserList, changeIsSendMsgs } = props;
   const [isSendMsgs, setIsSend] = useState(props.isSendMsgs);
@@ -56,6 +57,7 @@ function AddUserDialog(props) {
               if (success) {
                 getUserList();
               }
+
               if (existedData.length > 0) {
                 return alert(_l('有%0个用户不能重复邀请', existedData.length), 3);
               } else if (success) {
@@ -63,6 +65,7 @@ function AddUserDialog(props) {
               } else if (!success) {
                 return alert(_l('邀请失败，请稍后再试'), 3);
               }
+
               setLoading(false);
             },
             () => {
@@ -71,6 +74,7 @@ function AddUserDialog(props) {
           );
       });
   };
+
   const downLoadByUrl = url => {
     window
       .mdyAPI(
@@ -91,6 +95,7 @@ function AddUserDialog(props) {
         saveAs(data, filename);
       });
   };
+
   return (
     <Dialog
       className=""
@@ -105,9 +110,11 @@ function AddUserDialog(props) {
         if (loading) {
           return;
         }
+
         if (!fileUrl) {
           return alert(_l('请上传文件'), 3);
         }
+
         update();
       }}
     >
@@ -204,6 +211,7 @@ function AddUserDialog(props) {
     </Dialog>
   );
 }
+
 const mapStateToProps = state => ({
   portal: state.portal,
 });

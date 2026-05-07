@@ -106,9 +106,11 @@ export default class KcAppItem extends React.Component {
     /* 列表视图*/
     let itemType = getClassNameByExt(item.type !== NODE_TYPE.FOLDER && item.ext);
     const isFolderShared = item.type === NODE_TYPE.FOLDER && item.isOpenShare;
+
     if (isFolderShared) {
       itemType = 'fileIcon-folderShared';
     }
+
     if (isList || isRecycle) {
       return (
         <li

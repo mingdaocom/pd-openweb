@@ -31,11 +31,13 @@ const Wrap = styled.div`
         pointer-events: none;
       }
       .content > div {
-        background-color: var(--color-background-secondary);
+        background-color: var(--color-background-input);
       }
     }
   }
 `;
+
+const emptyArray = [];
 
 function FiltersGroupPreview(props) {
   const { appId, projectId, widget, config = {}, className, updateFiltersGroup, updatePageInfo } = props;
@@ -47,6 +49,7 @@ function FiltersGroupPreview(props) {
   const isDisable = className.includes('disableFiltersGroup');
   const translateInfo = getTranslateInfo(appId, null, id);
   const isDark = _.get(config, 'pageStyleType') === 'dark';
+  const requiredcids = _.get(filtersGroup.advancedSetting, 'requiredcids') || emptyArray;
 
   useEffect(() => {
     if (value) {
@@ -109,6 +112,7 @@ function FiltersGroupPreview(props) {
       updatePageInfo({ loadFilterComponentCount: loadFilterComponentCount + 1 });
       setLoading(false);
     }
+
     return () => {
       updateFiltersGroup({
         value,
@@ -131,10 +135,16 @@ function FiltersGroupPreview(props) {
       ) : (
         <Filters
           mode={isDisable ? 'config' : ''}
+          showTextAdvanced={true}
           isDark={isDark}
           projectId={projectId}
           appId={appId}
-          enableBtn={filter.enableBtn}
+          defaultTriggerUpdate={filter.enableBtn ? false : true}
+          advancedSetting={{
+            requiredcids,
+            fastrequired: requiredcids.length ? '1' : '0',
+            enablebtn: filter.enableBtn ? '1' : '0',
+          }}
           filters={formatFilters(filters)}
           updateQuickFilter={filters => {
             updateFiltersGroup({

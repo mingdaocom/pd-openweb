@@ -66,6 +66,7 @@ class InboxHeader extends React.Component {
 
   handleClick = flag => {
     const { inboxFavorite, changeFaviorite } = this.props;
+
     if (inboxFavorite !== flag) {
       changeFaviorite(flag);
     }
@@ -109,6 +110,7 @@ class InboxHeader extends React.Component {
   handleClearUnread = () => {
     const { currentSession, sessionList } = this.props;
     const item = _.find(sessionList, { value: currentSession.value }) || {};
+
     if (item.count || item.weak_count) {
       socket.Contact.clearUnread(Object.assign({}, item)).then(() => {
         this.props.dispatch(
@@ -128,12 +130,18 @@ class InboxHeader extends React.Component {
     const isPushNotice = 'isPush' in currentSession || 'isSilent' in currentSession;
     const isPushNoticeValue = type === 2 ? isPush : !isSilent;
 
+    if (md.global.Account.isPortal && !isPushNotice) {
+      return null;
+    }
+
     return (
       <div className="ChatPanel-addToolbar-menu">
-        <div className="menuItem" onClick={this.handleStick.bind(this)}>
-          <i className="icon-set_top" />
-          <div className="menuItem-text ellipsis">{isTop ? _l('取消置顶') : _l('置顶')}</div>
-        </div>
+        {!md.global.Account.isPortal && (
+          <div className="menuItem" onClick={this.handleStick.bind(this)}>
+            <i className="icon-set_top" />
+            <div className="menuItem-text ellipsis">{isTop ? _l('取消置顶') : _l('置顶')}</div>
+          </div>
+        )}
 
         {isPushNotice && (
           <div className="menuItem" onClick={this.handleUpdatePushNotice.bind(this)}>
@@ -147,6 +155,8 @@ class InboxHeader extends React.Component {
 
   renderSetting() {
     const { settingVisible } = this.state;
+    const menu = this.renderMenu();
+    if (!menu) return null;
 
     return (
       <Trigger
@@ -155,7 +165,7 @@ class InboxHeader extends React.Component {
         popupClassName="ChatPanel-Trigger"
         action={['click']}
         popupPlacement="bottom"
-        popup={this.renderMenu()}
+        popup={menu}
         builtinPlacements={Config.builtinPlacements}
         popupAlign={{ offset: [80, 10] }}
       >
@@ -206,6 +216,7 @@ class InboxHeader extends React.Component {
               } else {
                 this.props.changeUpdateNow();
               }
+
               this.handleClearUnread();
             }}
           />

@@ -10,8 +10,8 @@ import DataBaseImg from '../images/database.png';
 import './DataBase.less';
 
 const MoreOperateMenu = styled.ul`
-  background: var(--color-background-primary);
-  box-shadow: 0px 4px 16px 1px rgba(0, 0, 0, 0.24);
+  background: var(--color-background-card);
+  box-shadow: var(--shadow-sm);
   border-radius: 3px 3px 3px 3px;
   width: 160px;
   font-size: 13px;
@@ -149,10 +149,15 @@ function DataBase(props) {
         <img src={DataBaseImg} />
         <div className="Font22 Bold mBottom24">{_l('数据库')}</div>
         <div className="textCon">
-          {_l(
-            '可将指定应用内的所有工作表数据存储到专属数据库中，免受系统默认数据库的影响，适用于隔离等场景，当前支持最多创建%0个可用专属数据库实例；管理员创建应用时，可选择专属数据库。',
-            limit,
-          )}
+          {window.platformENV.isPlatform && !window.platformENV.isLocal && !window.platformENV.isOverseas
+            ? _l(
+                '可将指定应用内的所有工作表数据存储到专属数据库中，免受系统默认数据库的影响，适用于隔离等场景，系统默认支持最多创建%0个可用专属数据库实例；管理员创建应用时，可选择专属数据库。',
+                limit,
+              )
+            : _l(
+                '可将指定应用内的所有工作表数据存储到专属数据库中，免受系统默认数据库的影响，适用于隔离等场景，当前支持最多创建%0个可用专属数据库实例；管理员创建应用时，可选择专属数据库。',
+                limit,
+              )}
         </div>
         <Button icon="add" radius className="dataBaseCreateButton Font14" onClick={onCreate}>
           {_l('创建')}
@@ -166,10 +171,15 @@ function DataBase(props) {
       <Fragment>
         <div className="dataBaseExplain">
           <span className="textCon flex">
-            {_l(
-              '可将指定应用内的所有工作表数据存储到专属数据库中，免受系统默认数据库的影响，适用于隔离等场景，当前支持最多创建%0个可用专属数据库实例；管理员创建应用时，可选择专属数据库。',
-              limit,
-            )}
+            {window.platformENV.isPlatform && !window.platformENV.isLocal && !window.platformENV.isOverseas
+              ? _l(
+                  '可将指定应用内的所有工作表数据存储到专属数据库中，免受系统默认数据库的影响，适用于隔离等场景，系统默认支持最多创建%0个可用专属数据库实例；管理员创建应用时，可选择专属数据库。',
+                  limit,
+                )
+              : _l(
+                  '可将指定应用内的所有工作表数据存储到专属数据库中，免受系统默认数据库的影响，适用于隔离等场景，当前支持最多创建%0个可用专属数据库实例；管理员创建应用时，可选择专属数据库。',
+                  limit,
+                )}
           </span>
           <span className="createDataBaseButton Hand" onClick={onCreate}>
             <Icon icon="add" className="mRight3" />

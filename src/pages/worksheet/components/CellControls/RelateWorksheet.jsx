@@ -28,6 +28,7 @@ class RelateWorksheet extends Component {
     const { value, dataSource, appId, viewId } = cell;
     const isMobile = browserIsMobile();
     let relateWorksheetData;
+
     if (cell.enumDefault === 1) {
       try {
         relateWorksheetData = JSON.parse(value);
@@ -35,12 +36,14 @@ class RelateWorksheet extends Component {
         console.log(err);
         relateWorksheetData = [];
       }
+
       if (!_.isArray(relateWorksheetData)) {
         relateWorksheetData = [];
       }
     }
 
     let content;
+
     if (cell.enumDefault === 1 && cell.type !== 34) {
       content = relateWorksheetData.slice(0, 6).map((record, index) => (
         <span
@@ -50,6 +53,7 @@ class RelateWorksheet extends Component {
             if (isMobile) {
               return;
             }
+
             this.setState({ activeRecordId: record.sid });
             evt.stopPropagation();
           }}

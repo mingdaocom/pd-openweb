@@ -84,6 +84,7 @@ const Wrap = styled.div`
     }
   }
 `;
+
 export default function Header(props) {
   const { onBack, onChangeTab, tab, flowData = {}, publishTask, isNew, isUpdate, changeTask, updating } = props;
   const { taskStatus } = flowData;
@@ -159,6 +160,7 @@ export default function Header(props) {
                 if (tab === o.type) {
                   return;
                 }
+
                 onChangeTab(o.type);
               }}
             >
@@ -180,6 +182,7 @@ export default function Header(props) {
               if (updating) {
                 return;
               }
+
               publishTask();
             }}
           >
@@ -194,6 +197,7 @@ export default function Header(props) {
                 if (updating) {
                   return;
                 }
+
                 changeTask(taskStatus === 'RUNNING' ? 'STOP' : 'RUNNING');
               }}
             >

@@ -18,6 +18,7 @@ const Content = props => {
     if (!isView && _.isUndefined(data.isEdit)) {
       data.isEdit = true;
     }
+
     if (data.isEdit && getChartData) {
       const chartData = getChartData();
       setChartData({
@@ -29,6 +30,7 @@ const Content = props => {
         },
       });
     }
+
     updateWidget({
       widget,
       config: {
@@ -117,6 +119,7 @@ const Content = props => {
 };
 
 let isEdit = false;
+
 export default props => {
   const { renderItem } = props;
   const [popoverVisible, setPopoverVisible] = useState(false);

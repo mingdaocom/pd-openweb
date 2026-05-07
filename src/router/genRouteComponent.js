@@ -7,6 +7,7 @@ import WithTitleRoute from './withTitle';
 
 function Loading(props) {
   const { error } = props;
+
   if (error) {
     console.error(error);
     return <ErrorPage />;
@@ -23,6 +24,7 @@ const getComponent = component =>
 
 export default () => {
   const components = [];
+
   return (ROUTE_CONFIG, preCallback) => {
     /**
      * 缓存生成的路由组件

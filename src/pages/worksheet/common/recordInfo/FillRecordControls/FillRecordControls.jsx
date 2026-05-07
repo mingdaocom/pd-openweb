@@ -65,14 +65,18 @@ class FillRecordControls extends React.Component {
                   defsource: writeControl.defsource,
                 };
               }
+
               hasDefaultControls.push(newControl);
             }
+
             return newControl;
           });
+
           function controlIsReadOnly(c) {
             const writeControl = _.find(props.writeControls, wc => c.controlId === wc.controlId);
             return writeControl && writeControl.type === 1;
           }
+
           const defaultFormData = hasDefaultControls.length
             ? new DataFormat({
                 forceSync: true,
@@ -95,6 +99,7 @@ class FillRecordControls extends React.Component {
                 projectId,
                 onAsyncChange: ({ controlId, value }) => {
                   const updatedControl = _.find(formData, { controlId });
+
                   if (
                     updatedControl &&
                     _.includes(
@@ -127,9 +132,11 @@ class FillRecordControls extends React.Component {
           formData = formData
             .map(c => {
               const writeControl = _.find(props.writeControls, wc => c.controlId === wc.controlId);
+
               if (_.isUndefined(c.dataSource)) {
                 return undefined;
               }
+
               // 自定义动作异化：标签页不能配置，所以默认都显示
               if (c.type === 52 && !c.fromMaster) return { ...c, controlPermissions: '111', fieldPermission: '111' };
               if (!writeControl || c.fromMaster) {
@@ -138,6 +145,7 @@ class FillRecordControls extends React.Component {
                   controlPermissions: '000',
                 };
               }
+
               if (c.type === 29 && c.enumDefault === 2 && c.advancedSetting.showtype === '2') {
                 return {
                   ...c,
@@ -145,15 +153,18 @@ class FillRecordControls extends React.Component {
                   controlPermissions: '000',
                 };
               }
+
               if (c.type === 29 && c.enumDefault === 2 && c.advancedSetting.showtype === '5') {
                 c.advancedSetting.allowdelete = '0';
               }
+
               c.controlPermissions =
                 c.controlPermissions[0] + (writeControl.type === 1 ? '0' : '1') + c.controlPermissions[2];
               c.required = writeControl.type === 3;
               c.fieldPermission = '111';
               const defaultFormControl = _.find(defaultFormData, dfc => dfc.controlId === c.controlId);
               const needClear = get(safeParse(get(writeControl, 'defsource')), '0.cid') === 'empty';
+
               if (defaultFormControl && !needClear) {
                 if (
                   c.type === 29 &&
@@ -174,6 +185,7 @@ class FillRecordControls extends React.Component {
                     safeParse(defaultFormControl.value, 'array'),
                     r => r.sid || r.sourcevalue,
                   );
+
                   if (!_.isEmpty(defaultRecords)) {
                     c.value = JSON.stringify(defaultRecords);
                     c.count = undefined;
@@ -182,6 +194,7 @@ class FillRecordControls extends React.Component {
                   c.value = defaultFormControl.value;
                 }
               }
+
               if (needClear) {
                 if (isRelateRecordTableControl(c)) {
                   this.needRunFunctionsAfterDataReady.push(() => {
@@ -200,8 +213,10 @@ class FillRecordControls extends React.Component {
                 } else {
                   c.value = '';
                 }
+
                 c.advancedSetting.defsource = '';
               }
+
               return c;
             })
             .filter(c => !!c && (!props.isBatchOperate || !_.includes([34], c.type)));
@@ -226,20 +241,24 @@ class FillRecordControls extends React.Component {
       alert(_l('预览模式下，不能操作'), 3);
       return;
     }
+
     this.setState({ submitLoading: true });
     this.customwidget.current.submitFormData();
   }
   async onSave(error, { data, updateControlIds, handleRuleError, handleServiceError }) {
     const { continueFill } = this.props;
+
     if (error) {
       this.setState({ submitLoading: false });
       return;
     }
+
     const { writeControls, onSubmit, customButtonConfirm } = this.props;
     let hasError;
     const newData = data.filter(
       item => _.find(writeControls, writeControl => writeControl.controlId === item.controlId) && !item.fromMaster,
     );
+
     if (hasError) {
       alert(_l('请正确填写记录'), 3);
       this.setState({
@@ -247,6 +266,7 @@ class FillRecordControls extends React.Component {
       });
       return;
     }
+
     if (customButtonConfirm) {
       try {
         await customButtonConfirm();
@@ -258,9 +278,11 @@ class FillRecordControls extends React.Component {
         return;
       }
     }
+
     if (!continueFill) {
       this.setState({ isSubmitting: true, submitLoading: false });
     }
+
     updateControlIds = _.uniq(updateControlIds.concat(writeControls.filter(c => c.defsource).map(c => c.controlId)));
     onSubmit(
       newData
@@ -279,12 +301,15 @@ class FillRecordControls extends React.Component {
         if (err) {
           this.setState({ isSubmitting: false, submitLoading: false });
         }
+
         if (res && res.resultCode === 22) {
           this.customwidget.current.dataFormat.callStore('setUniqueError', { badData: res.badData });
         }
+
         if (res && res.resultCode === 31) {
           handleServiceError(res.badData);
         }
+
         if (res && res.resultCode === 32) {
           handleRuleError(res.badData);
         }

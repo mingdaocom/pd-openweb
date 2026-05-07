@@ -18,19 +18,24 @@ export const getDataByFilterXSS = url => {
   if (!url) return '/dashboard';
   try {
     const decodedUrl = decodeURIComponent(url);
+
     if (decodedUrl.toLowerCase().indexOf('javascript:') >= 0) {
       return '/dashboard';
     }
+
     const data = new URL(decodedUrl);
     const domain = data.hostname;
+
     // 检查域名是否包含mingdao或者是否与当前域名相同
     if (domain.indexOf('mingdao') < 0 && domain !== location.hostname) {
       return '/dashboard';
     }
+
     // 如果 pathname 只有 '/'，返回 '/dashboard'
     if (data.pathname === '/') {
       return '/dashboard';
     }
+
     return filterXSS(data.href);
   } catch (error) {
     console.error(error);
@@ -43,7 +48,8 @@ export const registerSuc = (registerData, action) => {
   const { emailOrTel, dialCode, password } = registerData;
   let request = getRequest();
   let returnUrl = getDataByFilterXSS(request.ReturnUrl || '');
-  if (returnUrl.indexOf('type=privatekey') > -1) {
+
+  if (returnUrl.indexOf('type=privatekey') > -1 || returnUrl.indexOf('oauth/authorize') > -1) {
     location.href = returnUrl;
   } else {
     toMDPage();
@@ -92,9 +98,11 @@ export const isTel = emailOrTel => {
 export const getEmailOrTel = (str = '') => {
   const iti = initIntlTelInput();
   let emailOrTel = str.indexOf(' ') >= 0 ? str.replace(/\s*/g, '') : str; //去除空格
+
   if (str.indexOf('@') >= 0) {
     return emailOrTel;
   }
+
   return emailOrTel.replace(`+${iti.getSelectedCountryData().dialCode}`, '');
 };
 
@@ -109,12 +117,15 @@ export const getDefaultCountry = () => {
 
 export const getAccountTypes = isLogin => {
   const { enableMobilePhoneRegister, enableEmailRegister, hideRegister } = _.get(md, 'global.SysSettings');
+
   //登录 ｜ 关闭了注册
   if (isLogin || hideRegister) {
     return 'emailOrTel';
   }
+
   return enableMobilePhoneRegister && enableEmailRegister ? 'emailOrTel' : enableEmailRegister ? 'email' : 'tel';
 };
+
 //下载的地址，登录后关闭
 export const checkReturnUrl = url => {
   const returnUrl = decodeURIComponent(url).toLowerCase();
@@ -163,11 +174,13 @@ export const validation = ({ isForSendCode, keys = [], type, info }) => {
       const isEmailRule = emailOrTel => {
         const emailReg =
           /^[\u4e00-\u9fa5\w-]+(\.[\u4e00-\u9fa5\w-]+)*@[\u4e00-\u9fa5\w-]+(\.[\u4e00-\u9fa5\w-]+)*\.[\u4e00-\u9fa5\w-]+$/i;
+
         if (!emailReg.test(emailOrTel.trim())) {
           warnList.push({ tipDom: 'inputAccount', warnTxt: _l('邮箱格式错误') });
           isRight = false;
         }
       };
+
       //手机号验证
       const isTelRule = () => {
         if (!telIsValidNumber(emailOrTel, true)) {
@@ -175,6 +188,7 @@ export const validation = ({ isForSendCode, keys = [], type, info }) => {
           isRight = false;
         }
       };
+
       if (keys.includes('tel')) {
         isTelRule();
       } else if (keys.includes('email')) {
@@ -249,11 +263,13 @@ export const validation = ({ isForSendCode, keys = [], type, info }) => {
         }
       }
     }
+
     //注册 需要勾选 使用条款 与 隐私条款
     if (!hasCheckPrivacy && keys.includes('privacy')) {
       warnList.push({ tipDom: 'privacyText', warnTxt: _l('请勾选同意后注册'), isError: true });
       isRight = false;
     }
   }
+
   return { isRight, warnList };
 };

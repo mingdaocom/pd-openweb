@@ -103,6 +103,7 @@ export default function LoginSet(props) {
       </QiniuUpload>
     );
   };
+
   return (
     <Wrap>
       <div className="content">

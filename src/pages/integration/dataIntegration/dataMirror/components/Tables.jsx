@@ -132,6 +132,7 @@ const dateArr = [
     text: _l('工作表别名'),
   },
 ];
+
 function Controls(props) {
   const { item, dest } = props;
   const [{ data, loading }, setState] = useSetState({
@@ -155,6 +156,7 @@ function Controls(props) {
         });
       });
   };
+
   const renderPopup = data => {
     const columnPopup = [
       {
@@ -268,6 +270,7 @@ function Controls(props) {
       </WrapPopup>
     );
   };
+
   return (
     <Trigger
       action={['click']}
@@ -286,6 +289,7 @@ function Controls(props) {
     </Trigger>
   );
 }
+
 export default function Tables(props) {
   const cache = useRef({});
   const { dest, worksheetInfos = [], onChange } = props;
@@ -328,6 +332,7 @@ export default function Tables(props) {
           if (res.data[o.tableName]) {
             hasErr = true;
           }
+
           return { ...o, isErr: res.data[o.tableName] };
         });
         setState({
@@ -400,9 +405,11 @@ export default function Tables(props) {
                 if (data.filter(o => !o.tableName.trim()).length > 0) {
                   return alert(_l('数据库表名不能为空'), 3);
                 }
+
                 if (data.filter(o => data.filter(a => a.tableName === o.tableName).length > 1).length > 0) {
                   return alert(_l('数据库表名存在相同'), 3);
                 }
+
                 checkTableExists(data);
               }}
             />
@@ -419,6 +426,7 @@ export default function Tables(props) {
                 defaultValue={item.tableName}
                 onBlur={event => {
                   const value = event.target.value.trim();
+
                   if (!value) {
                     setState({
                       showInput: '',
@@ -426,12 +434,14 @@ export default function Tables(props) {
                     });
                     return alert(_l('数据库表名不能为空'), 3);
                   }
+
                   if (value === item.tableName) {
                     setState({
                       showInput: '',
                     });
                     return;
                   }
+
                   if (doubleWriteTables.filter(o => o.tableName === value).length >= 1) {
                     setState({
                       showInput: '',
@@ -439,6 +449,7 @@ export default function Tables(props) {
                     });
                     return alert(_l('存在相同，请重新修改'), 3);
                   }
+
                   let data = doubleWriteTables.map(o =>
                     o.worksheetId === showInput ? { ...o, tableName: value, isErr: false } : o,
                   );
@@ -482,9 +493,11 @@ export default function Tables(props) {
       },
     },
   ];
+
   if (loading) {
     return <LoadDiv />;
   }
+
   return (
     <Wrap>
       <div className="flexColumn h100">

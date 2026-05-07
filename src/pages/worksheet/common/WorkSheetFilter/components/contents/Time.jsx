@@ -42,6 +42,7 @@ export default class Date extends Component {
                 // 手动修复激活面板定位问题，官方有问题
                 if (isOpen) {
                   const $arrow = $('.filterDateRangeInputPopup .ant-picker-range-arrow');
+
                   if ($arrow) {
                     const arrowLeft = $arrow.css('left');
                     $('.filterDateRangeInputPopup .ant-picker-panel-container').css({
@@ -54,6 +55,7 @@ export default class Date extends Component {
                 if (!moments || !_.isArray(moments)) {
                   moments = [];
                 }
+
                 onChange({
                   minValue: moments[0] && moments[0].format(timeFormat),
                   maxValue: moments[1] && moments[1].format(timeFormat),

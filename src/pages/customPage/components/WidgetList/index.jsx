@@ -49,6 +49,7 @@ const WidgetWrap = styled.div`
 
 function WidgetList({ components, activeContainerInfo = {}, addWidget = _.noop, ...rest }) {
   const [createWidget, setWidget] = useState({});
+
   const renderWidget = key => {
     const { icon, name } = { ...widgets, ...containerWidgets }[key];
     return (
@@ -57,6 +58,7 @@ function WidgetList({ components, activeContainerInfo = {}, addWidget = _.noop, 
         onClick={() => {
           if (!componentCountLimit(components)) return;
           const type = getEnumType(key);
+
           if (containerWidgets[key]) {
             const componentConfig =
               key === 'tabs'
@@ -101,6 +103,7 @@ function WidgetList({ components, activeContainerInfo = {}, addWidget = _.noop, 
               tabId: activeContainerInfo.tabId || undefined,
             });
             const containerId = activeContainerInfo.sectionId || activeContainerInfo.tabId;
+
             if (!containerId) {
               setTimeout(() => {
                 const componentsWrap = document.querySelector('#componentsWrap');
@@ -120,6 +123,7 @@ function WidgetList({ components, activeContainerInfo = {}, addWidget = _.noop, 
               tabId: activeContainerInfo.tabId || undefined,
             });
             const containerId = activeContainerInfo.sectionId || activeContainerInfo.tabId;
+
             if (!containerId) {
               setTimeout(() => {
                 const componentsWrap = document.querySelector('#componentsWrap');
@@ -138,6 +142,7 @@ function WidgetList({ components, activeContainerInfo = {}, addWidget = _.noop, 
       </li>
     );
   };
+
   return (
     <WidgetWrap>
       <div className="header">

@@ -266,6 +266,7 @@ function CreateWorksheetOfRelateRecord({
                           worksheetDescription: needCreateWorksheet.description,
                         };
                       }
+
                       return null;
                     });
                 }),
@@ -465,9 +466,11 @@ export default function MingoGeneratedWidgetsSelector({
     if (!content) return;
     let data = parseStreamingJsonlData(content, isStreaming);
     const streamEnd = !!content && !isStreaming;
+
     if (streamEnd) {
       data = changeCodeOfAIGenControl(window?.globalStoreForMingo?.allWidgets || [], data);
     }
+
     const allWidgets = groupWidgetsByType(data, { idCache: cache.current.idCache });
     allWidgets.forEach(item => {
       if (!item.isExist) {
@@ -482,6 +485,7 @@ export default function MingoGeneratedWidgetsSelector({
           .slice(0, isStreaming ? -1 : undefined),
       );
     }
+
     cache.current.allWidgets = allWidgets;
     setAllWidgets(allWidgets);
   }, [content, isStreaming]);
@@ -518,8 +522,10 @@ export default function MingoGeneratedWidgetsSelector({
         if (c.type === WIDGETS_TO_API_TYPE_ENUM.SUB_LIST) {
           return !!c.relationControls?.length;
         }
+
         return true;
       });
+
     if (!isEmpty(needAddWidgets)) {
       emitter.emit(
         'WIDGET_CONFIG_ADD_WIDGETS',
@@ -531,17 +537,20 @@ export default function MingoGeneratedWidgetsSelector({
         },
       );
     }
+
     const needDeleteWidgets = changes.deletedIds
       .map(id => cache.current.allWidgets.find(item => item.id === id))
       .filter(Boolean)
       .map(item => convertAiRecommendControlToControlData(item, { worksheetId }))
       .filter(c => !!c.type);
+
     if (!isEmpty(needDeleteWidgets)) {
       emitter.emit('WIDGET_CONFIG_DELETE_WIDGETS', { needDeleteWidgets }, { layoutOfAllWidgets }, () => {
         window.pendingSaveWidgetConfigFunction?.();
         window.pendingSaveWidgetConfigFunction = undefined;
       });
     }
+
     cache.current.prevSelectWidgets = selectedWidgetIds;
     updateUnsavedControlIds(selectedWidgetIds);
   }, [selectedWidgetIds]);
@@ -640,6 +649,7 @@ export default function MingoGeneratedWidgetsSelector({
                     } catch (e) {}
                   }
                   const hasRelatedTableNoWorksheet = !!relateControlsNoWorksheet.length;
+
                   if (hasRelatedTableNoWorksheet) {
                     setRootComp(
                       <CreateWorksheetOfRelateRecord
@@ -685,6 +695,7 @@ export default function MingoGeneratedWidgetsSelector({
                             window.pendingSaveWidgetConfigFunction = () => {
                               handleTriggerSaveWidgetConfig();
                             };
+
                             return newSelectedWidgetIds;
                           });
                         }}
@@ -695,6 +706,7 @@ export default function MingoGeneratedWidgetsSelector({
                     );
                     return;
                   }
+
                   handleTriggerSaveWidgetConfig();
                   setAddedCount(selectedWidgetIds.length);
                 }}

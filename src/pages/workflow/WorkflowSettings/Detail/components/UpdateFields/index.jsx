@@ -242,7 +242,7 @@ export default class UpdateFields extends Component {
                   filterType={filterType}
                   item={item}
                   i={i}
-                  moreNodesMenuStyle={{ marginLeft: item.nodeId ? 0 : -556, width: 701 }}
+                  moreNodesMenuStyle={{ marginLeft: item.nodeId ? 0 : -565, width: 701 }}
                 />
                 <i className="icon-trash Font16 ThemeColor3 actionItemDel" onClick={() => this.delFields(i)} />
               </div>

@@ -189,6 +189,7 @@ export default {
    * @param {} args.developerType
    * @param {boolean} args.showAll 是否显示所有模型（默认 false，只显示启用且可见的模型）
    * @param {boolean} args.onlyAvailable 是否只显示可用模型
+   * @param {} args.mode
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -238,6 +239,28 @@ export default {
    **/
   autoBindFeatures: function (args, options = {}) {
     return mdyAPI('AIService', 'AutoBindFeatures', args, options);
+  },
+  /**
+   * 修改RAG模型配置
+   * @param {Object} args 请求参数
+   * @param {array} args.bindings 绑定配置列表（必填）
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  editRagFeatureBinding: function (args, options = {}) {
+    return mdyAPI('AIService', 'EditRagFeatureBinding', args, options);
+  },
+  /**
+   * 获取RAG模型配置
+   * @param {Object} args 请求参数
+   * @param {} args.feature
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  getRagFeatureBinding: function (args, options = {}) {
+    return mdyAPI('AIService', 'GetRagFeatureBinding', args, options);
   },
   /**
    * 获取工作流 AIGC 开关
@@ -340,6 +363,7 @@ export default {
   /**
    * 更新排序
    * @param {Object} args 请求参数
+   * @param {} args.mode
    * @param {} args.target
    * @param {array} args.ids 最终 ID 顺序（必填）
    * @param {string} args.developerId 当排序对象为 Model 时必填：所属开发商 ID
@@ -355,6 +379,7 @@ export default {
    * @param {Object} args 请求参数
    * @param {string} args.providerId 厂商Id
    * @param {string} args.providerModel 厂商模型
+   * @param {} args.mode
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -366,6 +391,8 @@ export default {
    * 判断重名
    * @param {Object} args 请求参数
    * @param {string} args.name 名称
+   * @param {} args.mode
+   * @param {integer} args.dimensions 维度
    * @param {} args.nameCheckType
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层

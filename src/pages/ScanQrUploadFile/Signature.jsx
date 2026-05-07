@@ -49,6 +49,7 @@ const SignatureComp = ({ disabled, scanId, scanInfo, onComplete = () => {} }) =>
         setHideCanvas(false);
       }, 0);
     };
+
     window.addEventListener('resize', handleResize);
     return () => {
       window.removeEventListener('resize', handleResize);

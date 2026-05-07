@@ -1,14 +1,26 @@
-import React from 'react';
+import React, { useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dropdown, Icon } from 'ming-ui';
+import { Dropdown, Icon, Radio } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
+import MDMap from 'ming-ui/components/amap/MDMap';
 import { FlexCenter } from 'worksheet/styled';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import { AnimationWrap } from 'src/pages/worksheet/common/ViewConfig/style.jsx';
 import { filterAndFormatterControls } from 'src/pages/worksheet/views/util';
+import { getMapConfig, toFixed } from 'src/utils/control';
 import { SwitchStyle } from '../style';
+
+const VIEW_CENTER_TYPE = [
+  { text: _l('所有位置'), value: 1 },
+  { text: _l('指定位置'), value: 2 },
+];
+
+const CENTER_POSITION_TYPE = [
+  { text: _l('固定位置'), value: 1 },
+  { text: _l('当前位置'), value: 2 },
+];
 
 const MapSettingWrap = styled.div`
   .splitLine {
@@ -28,7 +40,7 @@ const MapSettingWrap = styled.div`
 const DisplayControlOption = styled(FlexCenter)`
   .icon {
     font-size: 16px;
-    color: rgba(0, 0, 0, 0.4);
+    color: var(--color-text-secondary);
     margin-right: 4px;
   }
   span {
@@ -47,10 +59,60 @@ const SelectValue = styled(DisplayControlOption)`
   }
 `;
 
+const RadioBox = styled.div`
+  display: flex;
+  align-items: center;
+  .radioItem {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    .ming.Radio {
+      margin-right: 5px;
+    }
+  }
+`;
+
+const DefaultLocationWrap = styled.div`
+  position: relative;
+  padding-left: 12px;
+  margin-top: 16px;
+  width: 100%;
+  height: 36px;
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border-primary);
+  border-radius: 4px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  ${({ showPlaceholder }) => showPlaceholder && 'color: var(--color-text-placeholder);'}
+  .icon {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 16px;
+    color: var(--color-text-tertiary);
+  }
+  &:hover {
+    .icon {
+      color: var(--color-primary);
+    }
+  }
+`;
+
 export default function MapSetting(props) {
   const { view, columns, updateCurrentView, appId } = props;
   const { advancedSetting, viewControl } = view;
   const tagColorControl = _.find(columns, { controlId: _.get(view, 'advancedSetting.tagcolorid') });
+  const mapLocation = safeParse(_.get(view, 'advancedSetting.maplocation')) || {};
+  const mapLocationValue = safeParse(_.get(mapLocation, 'value')) || {};
+  const isGoogle = !!getMapConfig();
+  const isLocalhost = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+  const isHttps = window.location.protocol === 'https:';
+
+  const [mdMapVisible, setMdMapVisible] = useState(false);
+
   const updateViewTagType = value => {
     updateCurrentView({
       ...view,
@@ -60,6 +122,7 @@ export default function MapSetting(props) {
       editAdKeys: ['tagType'],
     });
   };
+
   const getViewSelectFields = () => {
     return filterAndFormatterControls({
       controls: columns,
@@ -69,6 +132,16 @@ export default function MapSetting(props) {
         value: controlId,
         icon: getIconByType(type, false),
       }),
+    });
+  };
+
+  const updateViewLocation = (key, value) => {
+    updateCurrentView({
+      ...view,
+      appId,
+      advancedSetting: { maplocation: JSON.stringify({ ...mapLocation, [key]: value }) },
+      editAttrs: ['advancedSetting'],
+      editAdKeys: ['maplocation'],
     });
   };
 
@@ -94,6 +167,7 @@ export default function MapSetting(props) {
             if (viewControl === value) {
               return;
             }
+
             updateCurrentView({
               ...view,
               appId,
@@ -188,6 +262,74 @@ export default function MapSetting(props) {
               placeholder={_l('请选择')}
             />
           </React.Fragment>
+        )}
+        <div className="title bold mBottom8 mTop24">{_l('默认视图显示')}</div>
+        <AnimationWrap className="tagColorWrap">
+          {VIEW_CENTER_TYPE.map(({ value, text }) => {
+            return (
+              <div
+                className={cx('animaItem overflow_ellipsis', {
+                  active: Number(mapLocation.type || 1) === value,
+                })}
+                onClick={() => updateViewLocation('type', value)}
+              >
+                {text}
+              </div>
+            );
+          })}
+        </AnimationWrap>
+        {Number(mapLocation.type) === 2 && (
+          <div className="mTop16">
+            <RadioBox>
+              {CENTER_POSITION_TYPE.map(({ value, text }) => {
+                const isDisabled = !isHttps && !isLocalhost && value === 2;
+                return (
+                  <div className="radioItem">
+                    <Radio
+                      disabled={isDisabled}
+                      text={text}
+                      checked={Number(mapLocation.location || 1) === value}
+                      onClick={() => updateViewLocation('location', value)}
+                    />
+                    {isDisabled && (
+                      <Tooltip title={_l('当前位置需要站点使用 HTTPS 才能生效；否则将使用默认城市。')}>
+                        <Icon icon="help" className="textTertiary mLeft5 Font14" />
+                      </Tooltip>
+                    )}
+                  </div>
+                );
+              })}
+            </RadioBox>
+            {(Number(mapLocation.location) || 1) === 1 && (
+              <DefaultLocationWrap showPlaceholder={!mapLocation.value} onClick={() => setMdMapVisible(true)}>
+                {mapLocation.value
+                  ? mapLocationValue.address ||
+                    `${_l('经度')}${toFixed(mapLocationValue.x, 6)}, ${_l('纬度')}${toFixed(mapLocationValue.y, 6)}`
+                  : _l('设置位置')}
+                <Icon icon="edit" />
+              </DefaultLocationWrap>
+            )}
+          </div>
+        )}
+        {mdMapVisible && (
+          <MDMap
+            defaultAddress={null}
+            onAddressChange={({ lng, lat, address, name }) => {
+              console.log(lng, lat, address, name);
+              const value = JSON.stringify({
+                x: lng,
+                y: lat,
+                address,
+                title: name,
+                coordinate: isGoogle ? 'wgs84' : null,
+              });
+              updateViewLocation('value', value);
+              setMdMapVisible(false);
+            }}
+            onClose={() => {
+              setMdMapVisible(false);
+            }}
+          />
         )}
       </div>
     </MapSettingWrap>

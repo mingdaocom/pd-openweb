@@ -83,6 +83,7 @@ export default function ReviewFreeByWorksheetWrap(props) {
       setClear(false);
     });
   };
+
   const renderSearchCom = () => {
     return (
       <React.Fragment>
@@ -91,9 +92,11 @@ export default function ReviewFreeByWorksheetWrap(props) {
       </React.Fragment>
     );
   };
+
   if (loading) {
     return <LoadDiv className="mTop10" />;
   }
+
   return (
     <React.Fragment>
       <SearchWorksheetWrap>

@@ -48,6 +48,7 @@ export default props => {
                       if (tab.id === widget.tabId) {
                         return;
                       }
+
                       handleToolClick('moveIn', {
                         sectionId: _.get(c, 'config.objectId'),
                         tabId: tab.id,

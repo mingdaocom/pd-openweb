@@ -18,9 +18,11 @@ export const formatData = data =>
 const isPlainObject = obj => {
   if (typeof obj !== 'object' || obj === null) return false;
   let proto = obj;
+
   while (Object.getPrototypeOf(proto) !== null) {
     proto = Object.getPrototypeOf(proto);
   }
+
   return Object.getPrototypeOf(obj) === proto;
 };
 
@@ -35,11 +37,14 @@ export const compareProps = (current = {}, next = {}, props = Object.keys(curren
     const prop = props[i];
     const currentVal = current[prop];
     const nextVal = next[prop];
+
     if (isPlainObject(currentVal) && isPlainObject(nextVal)) {
       return compareProps(currentVal, nextVal, Object.keys(currentVal));
     }
+
     if (!Object.is(currentVal, nextVal)) return true;
   }
+
   return false;
 };
 

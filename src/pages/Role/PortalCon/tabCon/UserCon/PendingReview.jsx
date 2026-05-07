@@ -36,7 +36,7 @@ const Wrap = styled.div`
     .reject {
       width: 61px;
       height: 32px;
-      background: rgba(0, 0, 0, 0.05);
+      background: var(--color-background-secondary);
       border-radius: 3px;
       color: var(--color-text-disabled);
       line-height: 32px;
@@ -84,6 +84,7 @@ const WrapRejectBtn = styled.div`
     color: var(--color-error);
   }
 `;
+
 function PendingReview(props) {
   const {
     portal = {},
@@ -111,6 +112,7 @@ function PendingReview(props) {
 
   //controls 信息收集的配置项
   const [columns, setColumns] = useState([]);
+
   //当前免审名单相关信息
   const getInfo = () => {
     noVerifyAjax.get({ appId }).then(res => {
@@ -118,6 +120,7 @@ function PendingReview(props) {
       setData(res);
     });
   };
+
   useEffect(() => {
     getInfo();
     setFilter([]);
@@ -132,6 +135,7 @@ function PendingReview(props) {
   //筛选
   useEffect(() => {
     const prevValues = prevValuesRef.current;
+
     if (prevValues && !_.isEqual(prevValues, { keyWords, filters, telFilters })) {
       prevValuesRef.current = { keyWords, filters, telFilters };
       fetch();
@@ -142,6 +146,7 @@ function PendingReview(props) {
     getList(3);
     setSelectedIds([]);
   };
+
   useEffect(() => {
     let columns = [];
     controls
@@ -265,6 +270,7 @@ function PendingReview(props) {
     if (selectedIds.length <= 0 && (rowIds || []).length <= 0) {
       return;
     }
+
     return Dialog.confirm({
       title: <span className="Red">{_l('你确认拒绝吗？')}</span>,
       buttonType: 'danger',
@@ -356,6 +362,7 @@ function PendingReview(props) {
           ) {
             return;
           }
+
           changePageIndex(pageIndex + 1);
           getList(3);
         }}
@@ -473,6 +480,7 @@ function PendingReview(props) {
     </Wrap>
   );
 }
+
 const mapStateToProps = state => ({
   portal: state.portal,
 });

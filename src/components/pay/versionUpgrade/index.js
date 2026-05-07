@@ -34,6 +34,7 @@ export default class VersionUpgrade extends Component {
     this.getProjectContractInfo();
     window.addEventListener('scroll', this.handleScroll);
     const { select } = getRequest(location.search);
+
     if (select) {
       this.setState({ activeVersion: Number(select) }, this.getProductPrice);
     } else {
@@ -141,10 +142,12 @@ export default class VersionUpgrade extends Component {
     const { orderId, bugMethod, contractInfo = {} } = this.state;
     const { address, companyName, email, mobilePhone, postcode, recipientName } = contractInfo;
     const isContractInfoIntact = address && companyName && email && mobilePhone && postcode && recipientName;
+
     if (!isContractInfoIntact) {
       alert('请完善合同信息', 3);
       return;
     }
+
     if (!orderId) {
       this.addOrderPay();
     } else if (bugMethod === 'alipayPay') {

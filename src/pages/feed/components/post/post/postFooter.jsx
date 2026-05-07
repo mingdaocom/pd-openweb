@@ -10,6 +10,7 @@ function PostFooter(props) {
   const { source, location } = props;
 
   let from;
+
   if (source) {
     if (!source.detailUrl) {
       from = _l('通过 %0', `<a target="_blank" rel="noopener noreferrer" href='${source.appUrl}'>${source.name}</a>`);
@@ -70,6 +71,7 @@ function PostFooter(props) {
     </div>
   );
 }
+
 PostFooter.propTypes = {
   children: PropTypes.any,
   createTime: PropTypes.string.isRequired,

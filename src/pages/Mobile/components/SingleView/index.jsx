@@ -5,8 +5,18 @@ import { configureStore } from 'src/redux/configureStore';
 import ViewComp from './ViewComp';
 
 function SingleView(props, ref) {
-  const { appId, viewId, worksheetId, maxCount, showHeader, headerLeft, headerRight, filtersGroup, showPageTitle } =
-    props;
+  const {
+    appId,
+    viewId,
+    worksheetId,
+    maxCount,
+    showHeader,
+    headerLeft,
+    headerRight,
+    filtersGroup,
+    showPageTitle,
+    config = {},
+  } = props;
 
   const store = useMemo(configureStore, []);
 
@@ -30,6 +40,7 @@ function SingleView(props, ref) {
   return (
     <Provider store={store}>
       <ViewComp
+        config={config}
         showHeader={showHeader}
         headerLeft={headerLeft}
         headerRight={headerRight}

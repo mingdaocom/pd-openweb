@@ -36,6 +36,7 @@ function sanitizeMdTagChunk(chunk) {
   const unClosedLinkPattern = /\[([^\]]+)\]\([^\)]*$/;
 
   const match = chunk.match(unClosedLinkPattern);
+
   if (match) {
     // 提取文字部分，替换成 [文字]()
     const text = match[1];
@@ -54,6 +55,7 @@ export default function ({ className, isStreaming, style = {}, markdown, renderC
     markdown = sanitizeMdTagChunk(markdown);
     markdown = markdown.replace(/<\/?(?:F(?:I(?:N(?:A(?:L(?:_(?:A(?:N(?:S(?:W(?:E(?:R)?)?)?)?)?)?)?)?)?)?)?)?$/, '');
   }
+
   // 使用 remarkable 的原生渲染，只自定义代码块处理
   const content = useMemo(() => {
     // 存储自定义块的映射
@@ -141,12 +143,14 @@ export default function ({ className, isStreaming, style = {}, markdown, renderC
   const handleMarkdownClick = e => {
     let linkTarget = e.target.closest('a');
     const urlObj = linkTarget && linkTarget.href && new URL(linkTarget.href);
+
     if (urlObj && urlObj.pathname.startsWith('/md_tag_record/')) {
       e.preventDefault();
       e.stopPropagation();
       if (!get(window.md, 'global.Account.accountId')) return;
       const [, worksheetId, recordId] = urlObj.pathname.split('/').slice(1);
       const isMobile = browserIsMobile();
+
       if (isMobile) {
         setMobileRowInfo({ recordId, worksheetId });
       } else {
@@ -155,8 +159,10 @@ export default function ({ className, isStreaming, style = {}, markdown, renderC
           recordId: recordId,
         });
       }
+
       return;
     }
+
     if (linkTarget) {
       window.open(linkTarget.href);
       e.preventDefault();

@@ -105,7 +105,7 @@ const SettingWrap = styled.div`
       display: flex;
       border-radius: 3px;
       padding: 3px;
-      background-color: var(--color-border-secondary);
+      background-color: var(--color-background-disabled);
       li {
         display: flex;
         align-items: center;
@@ -130,6 +130,7 @@ const SettingWrap = styled.div`
     }
   }
 `;
+
 export default function BtnGroupSetting(props) {
   const { style = 2, width, setSetting, addBtn, count, config } = props;
   const { btnType = 1, direction = 1 } = config || {};

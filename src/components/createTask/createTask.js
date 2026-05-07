@@ -67,6 +67,7 @@ var CreateTask = function (opts) {
   // 任务中心打开
   if (location.href.indexOf('task') >= 0 || location.href.indexOf('application') >= 0) {
     const $tasks = $('#tasks');
+
     if ($tasks.attr('data-fid')) {
       settings.ProjectID = $tasks.attr('data-pid');
       settings.FolderID = $tasks.attr('data-fid');
@@ -224,6 +225,7 @@ $.extend(CreateTask.prototype, {
         if ($(this).attr('disabled')) {
           return false;
         }
+
         $(this).attr('disabled', 'disabled');
         CreateTask.Motheds.send();
       },
@@ -255,6 +257,7 @@ $.extend(CreateTask.prototype, {
         if ($this.data('bind')) {
           return;
         }
+
         var type = $this.attr('id') === 'taskUserBox' ? 1 : 2;
         var avatar = user && user.accountId === accountId ? user.avatar : $this.find('.imgWidth').attr('src');
         var ext = {};
@@ -313,6 +316,7 @@ $.extend(CreateTask.prototype, {
         $('#createTaskStage').addClass('Hidden');
         $('#folderStage').val('');
       }
+
       $createTaskNetworkList.addClass('Hidden');
     });
   },
@@ -353,11 +357,13 @@ $.extend(CreateTask.prototype, {
           // 隐藏阶段
           $('#createTaskStage').addClass('Hidden');
         }
+
         // 回车
         if (event.keyCode === 13) {
           $('.linkageFolder li.hover').trigger('click');
           event.stopPropagation();
         }
+
         // 上下键
         if (event.keyCode === 38 || event.keyCode === 40) {
           var $linkageFolder = $('.linkageFolder');
@@ -405,6 +411,7 @@ $.extend(CreateTask.prototype, {
           $('#folderStage').val('');
           $('#createTaskStage').addClass('Hidden');
         }
+
         $('.createTaskFolder .createTaskFolderName').text(folderName || '...');
       },
     });
@@ -413,6 +420,7 @@ $.extend(CreateTask.prototype, {
       if (!settings.isMore) {
         return;
       }
+
       var nDivHight = $(this).height();
       var nScrollHight = $(this)[0].scrollHeight;
       var nScrollTop = $(this)[0].scrollTop;
@@ -464,6 +472,7 @@ $.extend(CreateTask.prototype, {
           if (oldUid === uid) {
             return;
           }
+
           var userImg = users[0].avatar;
           var oldImg = $('#taskUserBox img').attr('src');
 
@@ -535,6 +544,7 @@ $.extend(CreateTask.prototype, {
         return false;
       }
     };
+
     for (i = 0; i < memberArr.length; i++) {
       has = false;
       if (newMember.length > 0) {
@@ -600,6 +610,7 @@ $.extend(CreateTask.prototype, {
                   .find('.createTaskMember')
                   .attr({ 'data-id': accountId, src: users[i].avatar });
               }
+
               isExistes = true;
               return false;
             }
@@ -928,6 +939,7 @@ CreateTask.Motheds = {
               content: _l('已转为任务'),
             });
           }
+
           $('.createTaskConfirm').parent().remove();
         });
 
@@ -1014,11 +1026,13 @@ CreateTask.Motheds = {
             if (source.data.limitedCount) {
               alert(_l('有%0位外部用户邀请失败，外部用户短信邀请用量达到上限', source.data.limitedCount));
             }
+
             createShare({
               linkURL: md.global.Config.WebUrl + 'apps/task/task_' + source.data.taskID,
               content: _l('任务创建成功'),
             });
           }
+
           $('.createTaskConfirm').parent().remove();
         }
       })

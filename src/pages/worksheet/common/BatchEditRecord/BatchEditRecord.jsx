@@ -131,24 +131,30 @@ export default function BatchEditRecord(props) {
     const hasAuthRowIds = selectedRows
       .filter(row => (row.allowedit || row.allowEdit) && !row.sys_lock)
       .map(row => row.rowid);
+
     if (!allWorksheetIsSelected && hasAuthRowIds.length === 0) {
       alert(_l('无权限修改选择的%0', worksheetInfo.entityName), 2);
       return false;
     }
+
     if (hasError) {
       alert(_l('请正确填写%0', worksheetInfo.entityName), 3);
       return false;
     }
+
     let ownerIsEmpty = false;
     const needUpdateControls = selectedControls
       .map(item => {
         let newItem;
+
         if (item.type === 'modify') {
           if (item.id === 'ownerid') {
             const ownerValue = get(safeParse(item.value), '0.accountId', '');
+
             if (!ownerValue) {
               ownerIsEmpty = true;
             }
+
             newItem = {
               controlId: item.id,
               type: item.control.type,
@@ -173,22 +179,27 @@ export default function BatchEditRecord(props) {
             value: '',
           };
         }
+
         return newItem;
       })
       .filter(item => item.editType === 'clear' || !checkCellIsEmpty(item.value));
+
     if (ownerIsEmpty) {
       alert(_l('拥有者不能为空'), 3);
       return;
     }
+
     if (!needUpdateControls.length) {
       alert(_l('请至少修改一个字段'), 3);
       return;
     }
+
     setIsUpdating(true);
     if (isFunction(triggerBatchUpdateRecords)) {
       triggerBatchUpdateRecords({ needUpdateControls, onClose });
       return;
     }
+
     handleBatchUpdateRecords({
       appId,
       viewId,
@@ -211,9 +222,11 @@ export default function BatchEditRecord(props) {
       onClose,
       onUpdate: () => {
         const groupControlId = getGroupControlId(view);
+
         if (groupControlId && get(needUpdateControls, '0.controlId') === groupControlId) {
           reloadWorksheet();
         }
+
         onUpdate({ needUpdateControls });
       },
       setIsUpdating,
@@ -309,6 +322,7 @@ export default function BatchEditRecord(props) {
     </Modal>
   );
 }
+
 BatchEditRecord.propTypes = {
   isCharge: PropTypes.bool,
   appId: PropTypes.string,

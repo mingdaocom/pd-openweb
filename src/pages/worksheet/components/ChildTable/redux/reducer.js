@@ -11,6 +11,7 @@ function dataLoading(state = true, action) {
       return state;
   }
 }
+
 function baseLoading(state = true, action) {
   switch (action.type) {
     case 'UPDATE_BASE_LOADING':
@@ -98,17 +99,37 @@ function fillEmptyRows(rows, emptyCount = 0) {
   }
 }
 
+const ROWS_HANDLED_ACTIONS = [
+  'INIT_ROWS',
+  'FORCE_SET_OUT_ROWS',
+  'CLEAR_AND_SET_ROWS',
+  'ADD_ROW',
+  'ADD_ROWS',
+  'UPDATE_ROW',
+  'UPDATE_ROWS',
+  'DELETE_ROW',
+  'DELETE_ROWS',
+  'UPDATE_STATE',
+];
+
 function rows(state = [], action) {
   const emptyCount = action.emptyCount || 0;
+  // 无关 action 不重建空行，避免重新生成 empty rowid 导致在途交互（focus/paste）丢失行引用
+  if (!_.includes(ROWS_HANDLED_ACTIONS, action.type)) {
+    return state.length < emptyCount && !browserIsMobile() ? fillEmptyRows(state, emptyCount) : state;
+  }
+
   let insertIndex;
   let newState = [...state];
   let lastNotEmptyIndex = _.findLastIndex(
     state,
     row => !(row.rowid && _.isFunction(row.rowid.startsWith) && row.rowid.startsWith('empty')),
   );
+
   if (!_.isUndefined(lastNotEmptyIndex) && newState.length <= emptyCount) {
     newState = state.slice(0, lastNotEmptyIndex + 1);
   }
+
   switch (action.type) {
     case 'INIT_ROWS':
     case 'FORCE_SET_OUT_ROWS':
@@ -126,6 +147,7 @@ function rows(state = [], action) {
           newState = newState.concat(action.row);
         }
       }
+
       break;
     case 'ADD_ROWS':
       newState = newState.concat(action.rows);
@@ -155,6 +177,7 @@ function rows(state = [], action) {
     case 'UPDATE_STATE':
       newState = action.state;
   }
+
   return newState.length < emptyCount && !browserIsMobile() ? fillEmptyRows(newState, emptyCount) : newState;
 }
 

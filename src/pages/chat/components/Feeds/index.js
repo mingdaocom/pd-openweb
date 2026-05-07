@@ -34,6 +34,7 @@ export const formatFeeds = attachments => {
     if (item.attachments) {
       item.previewAttachments = classify(item.attachments);
     }
+
     item.content = createLinksForMessage({
       message: item.message,
       rUserList: item.rUserList,
@@ -41,6 +42,7 @@ export const formatFeeds = attachments => {
       categories: item.categories,
       noLink: true,
       filterFace: true,
+      doNotEscapeHTML: true,
     }).slice(0, 300);
     item.content = item.content.length >= 70 ? item.content.slice(0, 70) + '...' : item.content;
     return item;
@@ -138,7 +140,7 @@ export class FeesItem extends Component {
           <div className="feed-creator-info flex ellipsis">{user.userName}</div>
         </div>
         <div className="feed-body">
-          <div className="feed-content">{item.content}</div>
+          <div className="feed-content" dangerouslySetInnerHTML={{ __html: item.content }}></div>
           {imagelist && imagelist.length ? this.renderImage(imagelist) : undefined}
           {filelist && filelist.length ? this.renderFile(filelist) : undefined}
         </div>

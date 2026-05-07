@@ -32,6 +32,7 @@ const getWorksheetList = (list = []) => {
       if (item.childSections && item.childSections.length > 0) {
         item.childSections.forEach(i => total.push(...filterFn(i)));
       }
+
       return total;
     },
     [],
@@ -135,10 +136,12 @@ export default class SetImportExcelCreateWorksheetOrApp extends Component {
               if (m.columnNumber === it.columnNumber) {
                 return { ...m, [action]: visible };
               }
+
               return m;
             }),
           };
         }
+
         return v;
       }),
     };
@@ -169,10 +172,12 @@ export default class SetImportExcelCreateWorksheetOrApp extends Component {
                       if (m.columnNumber === it.columnNumber) {
                         return { ...m, cellActVisible: false, editFieldVisible: true };
                       }
+
                       return m;
                     }),
                   };
                 }
+
                 return v;
               }),
             };
@@ -190,6 +195,7 @@ export default class SetImportExcelCreateWorksheetOrApp extends Component {
                     if (i === it.columnNumber) {
                       return { ...v, attribute: 1 };
                     }
+
                     return { ...v, attribute: 0 };
                   })
                 : [];
@@ -201,10 +207,12 @@ export default class SetImportExcelCreateWorksheetOrApp extends Component {
                       if (m.columnNumber === it.columnNumber) {
                         return { ...m, cellActVisible: false };
                       }
+
                       return m;
                     }),
                   };
                 }
+
                 return v;
               });
               this.props.updateCurrentSheetInfo({
@@ -230,10 +238,12 @@ export default class SetImportExcelCreateWorksheetOrApp extends Component {
                     if (m.columnNumber === it.columnNumber) {
                       return { ...m, cellActVisible: false };
                     }
+
                     return m;
                   }),
                 };
               }
+
               return v;
             });
             const data = {
@@ -312,13 +322,16 @@ export default class SetImportExcelCreateWorksheetOrApp extends Component {
                                     _.find(copyMatchControl, v => v.row === newControl.row),
                                     'controlName',
                                   );
+
                                   if (newControl.row === t.columnNumber) {
                                     return { ...t, value: controlName };
                                   }
+
                                   return t;
                                 }),
                               };
                             }
+
                             return m;
                           });
                           this.props.updateCurrentSheetInfo({

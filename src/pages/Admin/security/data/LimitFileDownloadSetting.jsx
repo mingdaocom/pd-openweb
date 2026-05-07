@@ -2,7 +2,7 @@ import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dropdown, Icon, RadioGroup, Textarea, UserHead } from 'ming-ui';
+import { Button, Dropdown, Icon, RadioGroup, Textarea, UserHead } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import { dialogSelectDept, dialogSelectOrgRole, dialogSelectUser } from 'ming-ui/functions';
 import dataLimitAjax from 'src/api/dataLimit';
@@ -84,7 +84,7 @@ const Wrap = styled.div`
     line-height: 30px;
     text-align: left;
     width: 180px;
-    background: rgba(255, 255, 255, 1) 0% 0% no-repeat padding-box;
+    background: var(--color-background-primary);
     box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.24);
     border-radius: 3px;
     padding: 10px 0;
@@ -92,7 +92,6 @@ const Wrap = styled.div`
 
     li {
       padding: 0 24px;
-
       &:hover {
         background: var(--color-border-secondary);
       }
@@ -133,27 +132,15 @@ const Footer = styled.div`
   height: 66px;
   padding: 15px 0;
   background-color: var(--color-background-primary);
-  .saveBtn,
-  .delBtn {
-    height: 36px;
-    line-height: 36px;
-    padding: 0 30px;
-    border-radius: 4px;
-    font-size: 14px;
-    cursor: pointer;
-    transition:
-      color ease-in 0.2s,
-      border-color ease-in 0.2s,
-      background-color ease-in 0;
-  }
 
-  .saveBtn {
-    margin-right: 20px;
-    background: var(--color-primary);
-    color: var(--color-white);
+  .enableBtn {
+    background: var(--color-success);
     &:hover {
-      background: var(--color-link-hover);
+      background: var(--color-success-hover);
     }
+  }
+  .updateBtn {
+    margin-right: 20px;
     &.disabled {
       color: var(--color-white);
       background: var(--color-primary-transparent);
@@ -163,17 +150,11 @@ const Footer = styled.div`
       }
     }
   }
-  .delBtn {
-    border: 1px solid var(--color-border-secondary);
+  .closeBtn {
+    border-color: var(--color-error);
+    color: var(--color-error);
     &:hover {
-      border: 1px solid var(--color-border-tertiary);
-    }
-    &.disabled {
-      color: var(--color-border-secondary);
-      cursor: not-allowed;
-      &:hover {
-        border: 1px solid var(--color-border-secondary);
-      }
+      background: var(--color-error);
     }
   }
 `;
@@ -249,49 +230,59 @@ export default class LimitFileDownloadSetting extends Component {
     this.setState({ attachmentSettingInfo: { ...attachmentSettingInfo, whiteList: whiteList.concat(addData) } });
   };
 
-  handleSave = () => {
+  handleSave = isClose => {
     const { projectId } = this.props;
     const { attachmentSettingInfo, initialAttachmentSettingInfo, ipContent } = this.state;
     const { whiteList = [], limitType, useType, modelType, ipList } = attachmentSettingInfo;
 
-    if (_.isEqual(attachmentSettingInfo, initialAttachmentSettingInfo)) return;
+    if (!isClose) {
+      if (modelType === 1 && !_.trim(ipContent)) {
+        alert(_l('请输入IP地址'), 2);
+        return;
+      }
 
-    if (modelType === 1 && !_.trim(ipContent)) {
-      alert(_l('请输入IP地址'), 2);
-      return;
+      if (
+        modelType === 1 &&
+        _.find(
+          ipList,
+          item =>
+            !/^((25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(25[0-5]|2[0-4]\d|[01]?\d\d?)(\/([0-9]|[12]\d|3[0-2]))?$/.test(item),
+        )
+      ) {
+        alert(_l('IP地址格式不正确'), 2);
+        return;
+      }
     }
 
-    if (
-      modelType === 1 &&
-      _.find(
-        ipList,
-        item =>
-          !/^((25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(25[0-5]|2[0-4]\d|[01]?\d\d?)(\/([0-9]|[12]\d|3[0-2]))?$/.test(item),
-      )
-    ) {
-      alert(_l('IP地址格式不正确'), 2);
-      return;
-    }
+    let requestArr = [];
 
-    const requestArr =
-      (!_.isEqual(limitType, initialAttachmentSettingInfo.limitType) ||
-        !_.isEqual(useType, initialAttachmentSettingInfo.useType) ||
-        !_.isEqual(modelType, initialAttachmentSettingInfo.modelType) ||
-        !_.isEqual(ipList, initialAttachmentSettingInfo.ipList)) &&
-      !_.isEqual(whiteList, initialAttachmentSettingInfo.whiteList)
-        ? [
-            dataLimitAjax.editAttachmentWhiteList({ projectId, whiteList }),
-            dataLimitAjax.editAttachmentSetting({ projectId, status: 1, limitType, useType, modelType, ipList }),
-          ]
-        : !_.isEqual(whiteList, initialAttachmentSettingInfo.whiteList)
-          ? [dataLimitAjax.editAttachmentWhiteList({ projectId, whiteList })]
-          : [dataLimitAjax.editAttachmentSetting({ projectId, status: 1, limitType, useType, modelType, ipList })];
+    if (isClose) {
+      requestArr = [dataLimitAjax.editAttachmentSetting({ projectId, status: 0, limitType })];
+    } else {
+      requestArr =
+        (!_.isEqual(limitType, initialAttachmentSettingInfo.limitType) ||
+          !_.isEqual(useType, initialAttachmentSettingInfo.useType) ||
+          !_.isEqual(modelType, initialAttachmentSettingInfo.modelType) ||
+          !_.isEqual(ipList, initialAttachmentSettingInfo.ipList)) &&
+        !_.isEqual(whiteList, initialAttachmentSettingInfo.whiteList)
+          ? [
+              dataLimitAjax.editAttachmentWhiteList({ projectId, whiteList }),
+              dataLimitAjax.editAttachmentSetting({ projectId, status: 1, limitType, useType, modelType, ipList }),
+            ]
+          : !_.isEqual(whiteList, initialAttachmentSettingInfo.whiteList)
+            ? [dataLimitAjax.editAttachmentWhiteList({ projectId, whiteList })]
+            : [dataLimitAjax.editAttachmentSetting({ projectId, status: 1, limitType, useType, modelType, ipList })];
+    }
 
     Promise.all(requestArr).then(resArr => {
       if (resArr.every(v => v === true)) {
-        alert(_l('保存成功'));
-        this.setState({ initialAttachmentSettingInfo: { ...attachmentSettingInfo, ipList } });
-        this.props.updateSettingData({ ...attachmentSettingInfo, ipList });
+        alert(_l('操作成功'));
+        const newAttachmentSettingInfo = { ...attachmentSettingInfo, ipList, status: isClose ? 0 : 1 };
+        this.setState({
+          attachmentSettingInfo: newAttachmentSettingInfo,
+          initialAttachmentSettingInfo: newAttachmentSettingInfo,
+        });
+        this.props.updateSettingData(newAttachmentSettingInfo);
       }
     });
   };
@@ -359,7 +350,7 @@ export default class LimitFileDownloadSetting extends Component {
   render() {
     const { onClose = () => {} } = this.props;
     const { attachmentSettingInfo, initialAttachmentSettingInfo, ipContent } = this.state;
-    const { limitType, modelType, useType } = attachmentSettingInfo;
+    const { limitType, modelType, useType, status } = attachmentSettingInfo;
     const disabled = _.isEqual(attachmentSettingInfo, initialAttachmentSettingInfo);
 
     return (
@@ -430,10 +421,12 @@ export default class LimitFileDownloadSetting extends Component {
                   maxHeight={200}
                   onChange={value => {
                     const temp = value.trim().split(',');
+
                     if (temp.length > 50) {
                       alert(_l('最多添加50个地址'), 3);
                       return;
                     }
+
                     this.setState({
                       ipContent: value,
                       attachmentSettingInfo: { ...attachmentSettingInfo, ipList: temp },
@@ -461,15 +454,20 @@ export default class LimitFileDownloadSetting extends Component {
             {this.renderContent()}
           </Content>
           <Footer className="flexRow">
-            <div className={cx('saveBtn', { disabled })} onClick={this.handleSave}>
-              {_l('保存')}
-            </div>
-            <div
-              className={cx('delBtn', { disabled })}
-              onClick={() => this.setState({ attachmentSettingInfo: initialAttachmentSettingInfo })}
-            >
-              {_l('取消')}
-            </div>
+            {status ? (
+              <Fragment>
+                <Button type="primary" className={cx('updateBtn', { disabled })} onClick={() => this.handleSave(false)}>
+                  {_l('更新设置')}
+                </Button>
+                <Button type="ghost" className="closeBtn" onClick={() => this.handleSave(true)}>
+                  {_l('关闭此功能')}
+                </Button>
+              </Fragment>
+            ) : (
+              <Button type="primary" className="enableBtn" onClick={() => this.handleSave(false)}>
+                {_l('启用')}
+              </Button>
+            )}
           </Footer>
         </div>
       </div>

@@ -1,5 +1,4 @@
 import React, { Fragment } from 'react';
-import Clipboard from 'react-clipboard.js';
 import copy from 'copy-to-clipboard';
 import _ from 'lodash';
 import moment from 'moment';
@@ -116,23 +115,30 @@ export default class WorkwxSyncCourse extends React.Component {
           <div className="inputList mTop20">
             <span className="inputTitle">{_l('主页地址：')}</span>
             <input type="text" className="inputBox" readOnly value={homeUrl} />
-            <Clipboard
+            <span
               className="copyBtn"
-              component="span"
-              data-clipboard-text={homeUrl}
-              onSuccess={() => {
+              onClick={() => {
+                copy(homeUrl);
                 alert(_l('已经复制到粘贴板，你可以使用Ctrl+V 贴到需要的地方去了哦'));
               }}
             >
               {_l('复制')}
-            </Clipboard>
+            </span>
           </div>
           <p className="Font14 textSecondary mTop24 LineHeight22">{_l('注：复制上方内容，三处保持一致即可')}</p>
           <img src={require(`./img/${isLark ? 'lark_3' : '3'}.png`)} />
           <img src={require(`./img/${isLark ? 'lark_3_1' : '3_1'}.png`)} />
           <img src={require('./img/lark_3_2.png')} />
           <p className="Font14 textSecondary mTop24 LineHeight22">
-            {_l('2.切换到“机器人”，启用机器人功能，这样在%0消息测就能直接收到内部的流程、应用消息', PlatformName[type])}
+            {window.platformENV.isPlatform && !window.platformENV.isOverseas && !window.platformENV.isLocal
+              ? _l(
+                  '2.切换到“机器人”，启用机器人功能，这样在%0消息测就能直接收到明道云内部的流程、应用消息',
+                  PlatformName[type],
+                )
+              : _l(
+                  '2.切换到“机器人”，启用机器人功能，这样在%0消息测就能直接收到内部的流程、应用消息',
+                  PlatformName[type],
+                )}
           </p>
           <img src={fsImg4} />
           <p className="Font14 textSecondary mTop24 LineHeight22">{_l('3. 前往“权限管理”，开启所需的13个权限')}</p>
@@ -164,7 +170,9 @@ export default class WorkwxSyncCourse extends React.Component {
           <img src={fsImg7} />
           <h3 className="Font18 textPrimary mTop40">{_l('4. 如何获取App ID和App Secret')}</h3>
           <p className="Font14 textSecondary mTop24 LineHeight22">
-            {_l('“凭证与基础信息”可以查看该App的ID和Secret；回到该系统管理后台，下一步录入信息将会用到')}
+            {window.platformENV.isPlatform && !window.platformENV.isOverseas && !window.platformENV.isLocal
+              ? _l('“凭证与基础信息”可以查看该App的ID和Secret；回到明道云管理后台，下一步录入信息将会用到')
+              : _l('“凭证与基础信息”可以查看该App的ID和Secret；回到该系统管理后台，下一步录入信息将会用到')}
           </p>
           <img src={require(`./img/${isLark ? 'lark_8' : '8'}.png`)} />
         </div>
@@ -239,6 +247,7 @@ export default class WorkwxSyncCourse extends React.Component {
         </div>
       );
     }
+
     return (
       <div className="dingSyncCourseWrap">
         <div className="feishuSyncBox card">

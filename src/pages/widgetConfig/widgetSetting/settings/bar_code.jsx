@@ -143,9 +143,11 @@ export default function BarCode({ data, onChange, allControls, from, subListData
             }}
             onBlur={e => {
               let value = e.target.value.trim();
+
               if (!value) {
                 value = width || 160;
               }
+
               setTempWidth(value);
               onChange(handleAdvancedSettingChange(data, { width: value }));
             }}

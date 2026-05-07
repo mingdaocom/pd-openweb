@@ -9,6 +9,7 @@ import { Tooltip } from 'ming-ui/antd-components';
 import * as actions from 'src/pages/chat/redux/actions';
 import GlobalSearch from 'src/pages/PageHeader/components/GlobalSearch';
 import { getAppFeaturesVisible } from 'src/utils/app';
+import errorIcon from '../../SessionList/resource/errorIcon.png';
 import Avatar from '../Avatar';
 import RenderAddressBook from './RenderAddressBook';
 
@@ -20,6 +21,7 @@ const Wrap = styled.div`
     align-items: center;
     justify-content: center;
     border-radius: 4px;
+    position: relative;
     &:hover {
       background-color: var(--color-background-hover);
     }
@@ -45,10 +47,18 @@ const Wrap = styled.div`
     padding: 3px 4px;
     line-height: 1;
   }
+  .errorIcon {
+    position: absolute;
+    right: -2px;
+    bottom: -6px;
+    border-radius: 3px;
+    transform: scale(0.5);
+    background: var(--color-background-card);
+  }
 `;
 
 const Toolbar = props => {
-  const { sessionList } = props;
+  const { sessionList, socketState } = props;
   const { toolbarConfig, setToolbarConfig } = props;
   const { ss, ac } = getAppFeaturesVisible();
   const count = sessionList.reduce((count, item) => {
@@ -104,9 +114,15 @@ const Toolbar = props => {
           )}
           onClick={handleOpenSessionList}
         >
-          <Tooltip title={isShowToolName ? '' : `${_l('消息')}`} shortcut="w" placement="left" mouseLeaveDelay={0.1}>
+          <Tooltip
+            title={socketState === 2 ? _l('连接已断开') : isShowToolName ? '' : `${_l('消息')}`}
+            shortcut={socketState === 2 ? undefined : 'w'}
+            placement="left"
+            mouseLeaveDelay={0.1}
+          >
             <div className={cx('iconWrap', { active: sessionListVisible })}>
               <Icon className="Font22 textSecondary" icon={sessionListVisible ? 'chat-full' : 'chat-line'} />
+              {socketState === 2 && !sessionListVisible && <img src={errorIcon} className="errorIcon" />}
             </div>
           </Tooltip>
           {isShowToolName && <div className="Font12 textSecondary">{_l('消息')}</div>}
@@ -156,6 +172,7 @@ export default connect(
   state => ({
     toolbarConfig: state.chat.toolbarConfig,
     sessionList: state.chat.sessionList,
+    socketState: state.chat.socketState,
   }),
   dispatch => bindActionCreators(_.pick(actions, ['setToolbarConfig']), dispatch),
 )(Toolbar);

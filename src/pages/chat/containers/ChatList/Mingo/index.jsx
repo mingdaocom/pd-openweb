@@ -79,15 +79,19 @@ const Mingo = props => {
     if (aiBrandLogoUrl) {
       return aiBrandLogoUrl;
     }
+
     if (clickNow || isPlaying) {
       return mingoClick;
     }
+
     if (hoverNow) {
       return mingoVisible ? mingoActiveHover : mingoHover;
     }
+
     if (mingoVisible) {
       return mingoActive;
     }
+
     return mingoDefault;
   };
 

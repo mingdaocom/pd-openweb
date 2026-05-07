@@ -8,7 +8,7 @@ import './index.less';
 export default class GroupDept extends Component {
   constructor() {
     super();
-    Config.setPageTitle(_l('群组'));
+    Config.setPageTitle(_l('用户 - 群组'));
     this.state = {
       level: 'index', // index | member
       name: '',

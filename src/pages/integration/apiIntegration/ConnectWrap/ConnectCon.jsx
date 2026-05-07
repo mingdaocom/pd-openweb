@@ -79,6 +79,7 @@ function ConnectCon(props) {
     const { match = {} } = props;
     const { params = {} } = match;
     let propsId = params.id || _.get(props, ['data', 'id']);
+
     if (propsId) {
       getInfoData(propsId);
     } else {
@@ -106,9 +107,11 @@ function ConnectCon(props) {
   const getParam = data => {
     const info = data || nodeInfo;
     let node = info.flowNodeMap && info.startEventId ? info.flowNodeMap[info.startEventId] : null;
+
     if (!info.id) {
       return;
     }
+
     flowNodeAjax
       .getNodeDetail({ processId: info.id, nodeId: node.id, flowNodeType: node.typeId }, { isIntegration: true })
       .then(res => {
@@ -184,11 +187,14 @@ function ConnectCon(props) {
     if (!processId) {
       return;
     }
+
     flowNodeAjax.get({ processId }, { isIntegration: true }).then(res => {
       const flowDts = getNodeList(res).filter(o => o.typeId === 22);
+
       if (flowDts.length > 1) {
         setDefaultFlowNode({ authType: 32, actionId: '523' });
       }
+
       setState({
         nodeInfo: res,
         // loading: false,
@@ -198,10 +204,12 @@ function ConnectCon(props) {
       getApiListFetch({ relationId: res.id });
     });
   };
+
   const getApiListFetch = obj => {
     if (!obj.relationId) {
       return;
     }
+
     packageVersionAjax
       .getApiList(
         {
@@ -218,6 +226,7 @@ function ConnectCon(props) {
         setState({ apiCount: res.length, apiList: res });
       });
   };
+
   // 更新基本信息
   const updateInfo = info => {
     processAjax
@@ -260,6 +269,7 @@ function ConnectCon(props) {
         onScroll={() => {
           if (!WrapRef.current) return;
           let toFix = $(WrapRef.current).offset().top <= 50;
+
           if (toFix !== cache.current.isFix) {
             setState({
               isFix: toFix,
@@ -299,7 +309,7 @@ function ConnectCon(props) {
                         </span>
                       )}
                     {!!nodeInfo.startEventId &&
-                      (connectData.type === 1 || connectData.type === 2) && //自定义的连接或者安装的 安装的连接 不可修改连接LOGO
+                      (connectData.type === 1 || (connectData.type === 2 && _.get(connectData, 'info.allowEdit'))) && // 自定义连接可编辑；安装连接需 info.allowEdit 为 true 才可编辑 LOGO
                       isConnectOwner && (
                         <Icon
                           icon="edit"
@@ -415,6 +425,7 @@ function ConnectCon(props) {
                         //OAuth 2.0 认证（授权码）=>有账户
                         return null;
                       }
+
                       return (
                         <li
                           className={cx('Hand', { isCur: tab === o.tab, disble: !nodeInfo.startEventId })}
@@ -422,6 +433,7 @@ function ConnectCon(props) {
                             if (!nodeInfo.startEventId) {
                               return;
                             }
+
                             setState({ tab: o.tab });
                           }}
                         >

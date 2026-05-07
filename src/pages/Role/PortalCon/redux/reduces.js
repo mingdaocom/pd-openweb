@@ -8,6 +8,7 @@ export const loading = (state = false, action) => {
       return state;
   }
 };
+
 //配置的controls
 export const controls = (state = [], action) => {
   switch (action.type) {
@@ -26,6 +27,7 @@ export const sortControls = (state = [], action) => {
       return state;
   }
 };
+
 //批量搜索手机号
 export const telFilters = (state = ``, action) => {
   switch (action.type) {
@@ -35,6 +37,7 @@ export const telFilters = (state = ``, action) => {
       return state;
   }
 };
+
 export const baseInfo = (state = [], action) => {
   switch (action.type) {
     case 'UPDATE_BASE':
@@ -53,6 +56,7 @@ export const controlsSetting = (state = [], action) => {
       return state;
   }
 };
+
 //成员列表数据
 export const list = (state = [], action) => {
   switch (action.type) {
@@ -121,6 +125,7 @@ export const sortIds = (state = [], action) => {
       return state;
   }
 };
+
 //角色数据
 export const roleList = (state = [], action) => {
   switch (action.type) {
@@ -140,6 +145,7 @@ export const defaultRole = (state = '1', action) => {
       return state;
   }
 };
+
 export const pageIndex = (state = 1, action) => {
   switch (action.type) {
     case 'UPDATE_INDEX':
@@ -157,6 +163,7 @@ export const filters = (state = [], action) => {
       return state;
   }
 };
+
 export const fastFilters = (state = [], action) => {
   switch (action.type) {
     case 'UPDATE_FASTFILTERS':
@@ -165,6 +172,7 @@ export const fastFilters = (state = [], action) => {
       return state;
   }
 };
+
 export const keyWords = (state = '', action) => {
   switch (action.type) {
     case 'UPDATE_KEYWORDS':
@@ -182,6 +190,7 @@ export const quickTag = (state = { tab: '', roleId: '' }, action) => {
       return state;
   }
 };
+
 export const roleId = (state = '', action) => {
   switch (action.type) {
     case 'UPDATE_DEFAULT_ROLEID':
@@ -190,6 +199,7 @@ export const roleId = (state = '', action) => {
       return state;
   }
 };
+
 export default combineReducers({
   roleId,
   controls,

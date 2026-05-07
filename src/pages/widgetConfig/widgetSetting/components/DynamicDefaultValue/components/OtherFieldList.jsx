@@ -13,6 +13,7 @@ const isOnlySelect = (dynamicValue, data) => {
     if (data.enumDefault === 1 && dynamicValue.length < 1) return true;
     return false;
   }
+
   return _.some(dynamicValue, item => !!item.cid);
 };
 
@@ -21,6 +22,7 @@ const getValue = (item, type) => {
   if (_.includes(['cascader', 'relateSheet'], type)) {
     return item.relateSheetName || JSON.parse(item.staticValue);
   }
+
   return typeof item.staticValue === 'string' ? JSON.parse(item.staticValue) : item.staticValue;
 };
 
@@ -32,6 +34,7 @@ const parseValue = value => {
     console.log(error);
     return value;
   }
+
   return value;
 };
 
@@ -70,6 +73,7 @@ export default ({
           {dynamicValue.map(item => {
             if (item.staticValue) {
               const type = getControlType(data);
+
               try {
                 const value = getValue(item, type);
 
@@ -85,6 +89,7 @@ export default ({
                     />
                   );
                 }
+
                 if (type === 'user') {
                   const { accountId, fullname, avatar, name } = value;
 
@@ -118,6 +123,7 @@ export default ({
                     </FieldInfo>
                   );
                 }
+
                 if (type === 'role') {
                   const { organizeId, organizeName } = value;
 
@@ -139,6 +145,7 @@ export default ({
                     </FieldInfo>
                   );
                 }
+
                 if (type === 'department') {
                   const { departmentName, departmentId } = value;
                   return (
@@ -159,14 +166,17 @@ export default ({
                     </FieldInfo>
                   );
                 }
+
                 if (type === 'date' || type === 'time') {
                   const types = getDateType(data);
                   let text = '';
+
                   if (_.includes(['2', '3'], value)) {
                     text = (_.find(types, type => type.value === value) || {}).text;
                   } else {
                     text = moment(value).format(rest.formatMode);
                   }
+
                   return (
                     <OtherField
                       className="timeField"
@@ -178,6 +188,7 @@ export default ({
                     />
                   );
                 }
+
                 if (type === 'switch') {
                   const text = _.get(_.find(getTypeList(data), ct => ct.id === item.staticValue) || {}, 'text');
                   return (
@@ -191,6 +202,7 @@ export default ({
                     />
                   );
                 }
+
                 if (type === 'location') {
                   return (
                     <OtherField
@@ -203,16 +215,20 @@ export default ({
                     />
                   );
                 }
+
                 if (_.includes(['cascader', 'relateSheet'], type)) {
                   const parsedValue = parseValue(value);
                   const removeValue = item.staticValue;
+
                   if (_.isArray(parsedValue)) {
                     return parsedValue.map(item => {
                       let name;
+
                       if (_.isObject(item)) {
                         name = item.fullname || item.name;
                       } else {
                         const record = safeParse(item);
+
                         if (type === 'cascader' && _.get(data, 'advancedSetting.allpath') === '1') {
                           name = safeParse(record.path || '[]').join(' / ');
                         } else {
@@ -228,7 +244,9 @@ export default ({
 
                       return (
                         <RelateControl>
-                          <i className="icon-link-worksheet" />
+                          <i
+                            className={`${type === 'cascader' ? 'icon-cascade_selection' : 'icon-link-worksheet-relate'}`}
+                          />
                           <span className="overflow_ellipsis">{name}</span>
                           <i
                             className="icon-close"
@@ -241,9 +259,12 @@ export default ({
                       );
                     });
                   }
+
                   return (
                     <RelateControl>
-                      <i className="icon-link-worksheet" />
+                      <i
+                        className={`${type === 'cascader' ? 'icon-cascade_selection' : 'icon-link-worksheet-relate'}`}
+                      />
                       <span className="overflow_ellipsis">{value}</span>
                       <i
                         className="icon-close"
@@ -255,6 +276,7 @@ export default ({
                     </RelateControl>
                   );
                 }
+
                 return <OtherField dynamicValue={dynamicValue} data={data} item={item} {...rest} />;
               } catch (error) {
                 console.log(error);

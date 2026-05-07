@@ -67,12 +67,15 @@ export default function WidgetCustom(props) {
             onChange={value => onChange(handleAdvancedSettingChange(data, { height: value }))}
             onBlur={value => {
               let tempValue = value;
+
               if (tempValue < 36) {
                 tempValue = 36;
               }
+
               if (tempValue > 10000) {
                 tempValue = 10000;
               }
+
               onChange(handleAdvancedSettingChange(data, { height: tempValue.toString() }));
             }}
           />

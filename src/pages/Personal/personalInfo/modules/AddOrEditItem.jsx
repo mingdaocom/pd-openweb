@@ -56,9 +56,11 @@ export default class AddOrEditItem extends React.Component {
     if (['name', 'title'].includes(key) && !!content) {
       fixedDataAjax.checkSensitive({ content }).then(res => {
         const sentry = { ...errorSentry, [key]: res };
+
         if (sentry[key]) {
           alert(_l('输入内容包含敏感词，请重新填写'));
         }
+
         this.setState({
           errorSentry: sentry,
           errorList: list,
@@ -85,6 +87,7 @@ export default class AddOrEditItem extends React.Component {
   renderTitleErrorMsg() {
     const { baseInfo } = this.state;
     const { type } = this.props;
+
     if (!baseInfo.title) {
       return type === 1 ? _l('请输入职位') : _l('请输入专业和学历');
     } else if (!/^[A-Za-z0-9\u0391-\uFFE5 .,()，。（）-]+$/.exec((baseInfo.title || '').trim())) {
@@ -95,11 +98,13 @@ export default class AddOrEditItem extends React.Component {
   endDateError() {
     const { baseInfo } = this.state;
     let isError = false;
+
     if (baseInfo.isSoFar) {
       isError = false;
     } else {
       isError = !baseInfo.endDate;
     }
+
     return isError;
   }
 

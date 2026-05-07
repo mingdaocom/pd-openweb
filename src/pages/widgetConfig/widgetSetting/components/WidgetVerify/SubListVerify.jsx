@@ -55,6 +55,7 @@ export default function SubListVerify(props) {
               } else if (max && value > Number(max)) {
                 value = max;
               }
+
               setMin(value);
               onChange(handleAdvancedSettingChange(data, { min: value }));
             }}
@@ -73,6 +74,7 @@ export default function SubListVerify(props) {
               } else if (value === 0) {
                 value = 1;
               }
+
               setMax(value);
               onChange(handleAdvancedSettingChange(data, { max: value }));
             }}

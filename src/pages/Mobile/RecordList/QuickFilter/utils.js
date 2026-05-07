@@ -20,6 +20,7 @@ export function conditionAdapter(condition) {
   if (condition.dataType === 29 && condition.filterType === 2) {
     condition.filterType = 24;
   }
+
   return condition;
 }
 
@@ -27,34 +28,43 @@ export function turnControl(control) {
   if (control.type === WIDGETS_TO_API_TYPE_ENUM.SHEET_FIELD) {
     control.type = control.sourceControlType;
   }
+
   if (control.type === WIDGETS_TO_API_TYPE_ENUM.FORMULA_DATE) {
     control.type = control.enumDefault === 2 ? (control.unit === '3' ? 15 : 16) : 6;
   }
+
   if (control.type === WIDGETS_TO_API_TYPE_ENUM.FORMULA_DATE) {
     control.type = control.enumDefault === 2 ? 15 : 6;
   }
+
   if (control.type === WIDGETS_TO_API_TYPE_ENUM.FORMULA_FUNC) {
     control.type = control.enumDefault2;
   }
+
   return control;
 }
 
 export function getType(control) {
   let { type } = control;
+
   if (type === WIDGETS_TO_API_TYPE_ENUM.SHEET_FIELD && control) {
     type = control.sourceControlType || -10000;
   }
+
   if (type === WIDGETS_TO_API_TYPE_ENUM.SUBTOTAL && control) {
     type = control.enumDefault2 || 6;
   }
+
   if (type === WIDGETS_TO_API_TYPE_ENUM.SEARCH) {
     type = WIDGETS_TO_API_TYPE_ENUM.TEXT;
   }
+
   return type;
 }
 
 export function validate(condition) {
   let dataType = getType({ type: condition.dataType });
+
   if (
     _.includes(
       [
@@ -83,6 +93,7 @@ export function validate(condition) {
   ) {
     return condition.values && condition.values.filter(_.identity).length;
   }
+
   if (
     _.includes(
       [
@@ -96,10 +107,12 @@ export function validate(condition) {
     const isNumberStr = value => {
       return value !== '' && typeof +value === 'number' && !isNaN(+value);
     };
+
     return condition.filterType === FILTER_CONDITION_TYPE.BETWEEN
       ? isNumberStr(condition.minValue) || isNumberStr(condition.maxValue)
       : isNumberStr(condition.value);
   }
+
   if (
     _.includes(
       [
@@ -110,6 +123,7 @@ export function validate(condition) {
   ) {
     return _.includes([FILTER_CONDITION_TYPE.NE, FILTER_CONDITION_TYPE.EQ], condition.filterType);
   }
+
   if (
     _.includes(
       [
@@ -128,6 +142,7 @@ export function validate(condition) {
       return !!condition.dateRange;
     }
   }
+
   return false;
 }
 
@@ -209,6 +224,7 @@ export function handleConditionsDefault(conditions, controls) {
       condition.originalFilterType = condition.filterType;
       condition.filterType = FILTER_CONDITION_TYPE.DATEENUM;
     }
+
     const control = find(controls, { controlId: condition.controlId });
     if (!control) return condition;
     if (!isEmpty(condition.dynamicSource)) {
@@ -218,14 +234,18 @@ export function handleConditionsDefault(conditions, controls) {
         filterType: condition.filterType,
         dateRangeType: condition.dateRangeType,
       });
+
       if (dynamicResult && dynamicResult[0]) {
         condition = assign(condition, dynamicResult[0]);
       }
     }
+
     const values = condition.values;
+
     if (values[0] === 'isEmpty') {
       condition.filterType = 7;
     }
+
     return condition;
   });
 }

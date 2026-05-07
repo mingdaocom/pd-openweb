@@ -10,7 +10,7 @@ const Wrapper = styled.div`
     display: flex;
     align-items: center;
     width: 100%;
-    background-color: var(--color-background-secondary);
+    background-color: var(--color-background-tertiary);
     border-radius: 8px;
     padding: 16px;
     .successColor {

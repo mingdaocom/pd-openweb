@@ -170,6 +170,7 @@ export default class WithdrawalsRecord extends Component {
       buriedUpgradeVersionDialog(projectId, VersionProductType.PAY);
       return;
     }
+
     WithdrawalsDialogFunc({
       type: 'withdrawals',
       title: _l('提现'),

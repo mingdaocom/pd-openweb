@@ -13,12 +13,14 @@ import { v4 as uuidv4 } from 'uuid';
 import { LoadDiv } from 'ming-ui';
 import worksheetAjax from 'src/api/worksheet';
 import NewRecord from 'worksheet/common/newRecord/NewRecord';
+import useButtonStatusOfRows from 'worksheet/hooks/useButtonStatusOfRows';
 import * as hierarchyActions from 'worksheet/redux/actions/hierarchy';
 import * as viewActions from 'worksheet/redux/actions/index';
 import { getDynamicValue } from 'src/components/Form/core/formUtils';
 import { browserIsMobile } from 'src/utils/common';
 import { emitter } from 'src/utils/common';
 import { replaceControlsTranslateInfo } from 'src/utils/translate.js';
+import { filterButtonBySheetSwitchPermit, getSheetOperatesButtons } from 'src/utils/worksheet';
 import { updateWorksheetControls, updateWorksheetInfo } from '../../redux/actions';
 import SelectField from '../components/SelectField';
 import ViewEmpty from '../components/ViewEmpty';
@@ -99,12 +101,32 @@ function Hierarchy(props) {
     navGroupFilters,
     mobileViewType,
     refreshSheet,
+    sheetButtons,
+    printList,
     ...rest
   } = props;
 
   const uniqId = useMemo(() => uuidv4());
   const { scale: configScale, level: configLevel = '' } = safeParse(localStorage.getItem(`hierarchyConfig-${viewId}`));
   const { loading, pageIndex } = hierarchyDataStatus;
+
+  // 获取所有记录 ID
+  const allRecordIds = useMemo(() => {
+    return Object.keys(hierarchyViewData || {}).filter(id => hierarchyViewData[id] && hierarchyViewData[id].rowid);
+  }, [hierarchyViewData]);
+
+  // 获取操作按钮
+  const operateButtons = useMemo(() => {
+    let buttons = getSheetOperatesButtons(view, { buttons: sheetButtons, printList });
+    buttons = filterButtonBySheetSwitchPermit(buttons, sheetSwitchPermit, viewId);
+    return buttons;
+  }, [view, sheetButtons, printList, sheetSwitchPermit, viewId]);
+
+  // 获取按钮 ID
+  const btnIds = useMemo(() => operateButtons.map(b => b.btnId).filter(Boolean), [operateButtons]);
+
+  // 获取按钮状态
+  const { buttonsCheckStatus } = useButtonStatusOfRows(worksheetId, allRecordIds, btnIds);
   const [{ addRecordDefaultValue, level, scale, createRecordVisible, addRecordPath }, setState] = useSetState({
     scale: (!browserIsMobile() && configScale) || 100,
     level: configLevel,
@@ -125,17 +147,21 @@ function Hierarchy(props) {
         if (offset.x < pos.x + SCROLL_LIMIT) {
           $wrap.scrollLeft -= SCROLL_STEP;
         }
+
         // 向右滚动
         if (offset.x + SCROLL_LIMIT > pos.x + pos.width) {
           $wrap.scrollLeft += SCROLL_STEP;
         }
+
         if (offset.y < pos.y + SCROLL_LIMIT) {
           $wrap.scrollTop -= SCROLL_STEP;
         }
+
         if (offset.y + SCROLL_LIMIT > pos.y + pos.height) {
           $wrap.scrollTop += SCROLL_STEP;
         }
       }
+
       _.throttle(scroll)();
     },
   });
@@ -156,14 +182,17 @@ function Hierarchy(props) {
         _.find(controls, item => item.controlId === viewControl) &&
         hierarchyData.map(o => o.value).includes(viewControl)) ||
       !_.isEmpty(viewControls);
+
     if (!isHaveSelectControl) {
       return;
     }
+
     getDefaultHierarchyData();
     const { level } = safeParse(localStorage.getItem(`hierarchyConfig-${viewId}`));
     level && setState({ level: level });
     // 多表关联把所有的关联控件获取到 以便后续展示
     const { viewType, childType } = view;
+
     if (viewType === 2 && childType === 2) {
       const ids = (viewControls || []).slice(1).map(item => item.worksheetId);
       const appId = _.get(props, 'appId');
@@ -208,6 +237,7 @@ function Hierarchy(props) {
     copyDom.style.height = height;
     document.querySelector('body').appendChild(copyDom);
     const name = (view.name || 'scrennshot') + '.png';
+
     try {
       domtoimage.toBlob(copyDom, { bgcolor: '#f5f5f5', width: width, height: height }).then(function (blob) {
         saveAs(blob, name);
@@ -224,11 +254,13 @@ function Hierarchy(props) {
     if (type === 'genScreenshot') {
       genScreenshot();
     }
+
     if (type === 'toOrigin') {
       const $wrap = _.get(this.$wrap, 'current');
       $wrap.scrollLeft = 0;
       $wrap.scrollTop = 0;
     }
+
     if (type === 'adjustScale') {
       setState({ scale: obj.scale });
     }
@@ -260,9 +292,11 @@ function Hierarchy(props) {
     if (level) {
       setState({ level: '' });
     }
+
     // 展开时需要拉数据
     if (visible) {
       const { viewControls, childType } = view;
+
       if (childType === 2) {
         const level = rest.path.length;
         const { controlId, worksheetId: relationWorksheetId } = viewControls[level] || {};
@@ -284,6 +318,7 @@ function Hierarchy(props) {
 
   const createTextTitleTempRecord = ({ pathId, visible, pid, ...rest }) => {
     const rowId = uuidv4();
+
     // 记录不是顶级且子级没有展开则先展开子级
     if (pathId.length > 0 && !visible) {
       toggleChildren({
@@ -306,6 +341,7 @@ function Hierarchy(props) {
 
   const handleAddRecord = obj => {
     const { isTextTitle, value = '', pid, visible, ...rest } = obj;
+
     if (isTextTitle && isAllowQuickSwitch(sheetSwitchPermit, viewId)) {
       createTextTitleTempRecord({ ...rest, visible, pid });
       setState({ addRecordDefaultValue: value, addRecordPath: rest });
@@ -317,8 +353,10 @@ function Hierarchy(props) {
       });
     }
   };
+
   const getNewRecordPara = ({ path, pathId }) => {
     const { viewControls, childType, viewId } = view;
+
     // 兼容错误格式{path: [],pathId: ['12123']},顶级记录
     if (pathId.length > 0 && String(childType) === '2' && viewControls.length > 1) {
       const { worksheetId, worksheetName, controlId } = viewControls[_.isEmpty(path) ? 0 : pathId.length];
@@ -334,11 +372,13 @@ function Hierarchy(props) {
         },
       };
     }
+
     return {
       ..._.pick(worksheetInfo, ['worksheetId', 'entityName', 'projectId']),
       viewId,
     };
   };
+
   const scrollToBottom = () => {
     const $dom = _.get($wrapRef, 'current');
     if (!$dom) return;
@@ -348,6 +388,7 @@ function Hierarchy(props) {
       $dom.scrollTop = $dom.scrollHeight;
     }
   };
+
   const createTextTitleRecord = (value, spliceTempRecord = false) => {
     const idPara = _.pick(props, ['appId', 'viewId']);
     const isTextTitle = item => item.attribute === 1 && item.type === 2;
@@ -387,6 +428,7 @@ function Hierarchy(props) {
             if (_.isEmpty(addRecordPath.path)) {
               getTopLevelHierarchyData({ worksheetId, ...idPara });
             }
+
             toggleChildren({
               ...addRecordPath,
               rowId: _.last(addRecordPath.pathId),
@@ -413,24 +455,30 @@ function Hierarchy(props) {
                 spliceTempRecord,
               });
             }
+
             scrollToBottom();
           }
         });
     }
   };
+
   let pending = false;
+
   const handleScroll = () => {
     const $wrap = $wrapRef.current;
     const $bottom = $wrap.scrollHeight - $wrap.scrollTop - $wrap.clientHeight;
+
     if ($bottom < Math.min(280, $wrap.clientHeight / 2)) {
       const hasMoreData =
         (_.toArray(hierarchyViewData).filter(item => !item.pid) || []).length < hierarchyTopLevelDataCount;
+
       if (hasMoreData && !pending) {
         pending = true;
         getHierarchyRecord({ pageSize: 50, pageIndex: pageIndex + 1 }, () => (pending = false));
       }
     }
   };
+
   // 获取层级数
   const getLayerCount = arr => {
     if (!arr.length) return 0;
@@ -467,6 +515,7 @@ function Hierarchy(props) {
 
   const getDefaultValueInCreate = () => {
     const { viewControl, childType, viewControls } = view;
+
     // 多表关联根据控件id获取默认关联
     if (childType === 2) {
       const index = addRecordPath.path.length;
@@ -477,6 +526,7 @@ function Hierarchy(props) {
         {};
       return { [controlId]: addRecordDefaultValue };
     }
+
     return { [viewControl]: addRecordDefaultValue };
   };
 
@@ -492,6 +542,7 @@ function Hierarchy(props) {
         _.find(controls, item => item.controlId === viewControl) &&
         hierarchyData.map(o => o.value).includes(viewControl)) ||
       !_.isEmpty(viewControls);
+
     if (!isHaveSelectControl) {
       return (
         <SelectField
@@ -572,6 +623,7 @@ function Hierarchy(props) {
                     allowAdd={worksheetInfo.allowAdd}
                     recordInfoId={recordInfoId}
                     createTextTitleRecord={createTextTitleRecord}
+                    buttonsCheckStatus={buttonsCheckStatus}
                   />
                 );
               })
@@ -592,6 +644,7 @@ function Hierarchy(props) {
       </RecordStructureWrap>
     );
   };
+
   return (
     <div ref={drop} className="structureViewWrap">
       {!browserIsMobile() && (
@@ -651,6 +704,7 @@ function Hierarchy(props) {
     </div>
   );
 }
+
 const ConnectedHierarchyView = connect(
   state => ({
     ..._.pick(state.sheet, [

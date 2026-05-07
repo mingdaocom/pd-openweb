@@ -24,7 +24,7 @@ const ContentWrapper = styled.div`
       background-color: var(--color-background-secondary);
       padding: 0 18px 0 40px;
       &:hover {
-        background-color: var(--color-background-disabled);
+        background-color: var(--color-background-hover);
       }
       &:focus {
         background-color: var(--color-background-primary);
@@ -168,6 +168,7 @@ function AddCollectApp(props) {
 
   const renderAppList = () => {
     const appList = getFilterApps(apps, keywords);
+
     if (!appList.length) {
       return keywords ? (
         <div className="emptyText">{_l('无搜索结果')}</div>
@@ -175,6 +176,7 @@ function AddCollectApp(props) {
         <div className="emptyText">{_l('没有可选择的应用')}</div>
       );
     }
+
     return (
       <div className="appList">
         {appList.map((app, index) => {

@@ -9,8 +9,10 @@ export default props => {
   const { iconColor } = store.getState().appPkg;
   const originalName = props.name;
   const originalIcon = props.icon;
+
   const onChange = (newName, newIcon) => {
     const { appItem, workSheetId, appId, groupId, icon } = props;
+
     if (appItem.type === 2) {
       homeAppApi
         .updateAppSection({
@@ -44,6 +46,7 @@ export default props => {
         });
     }
   };
+
   const updateName = newName => {
     const { workSheetId, isActive, appItem, groupId } = props;
     const name = (newName || originalName).slice(0, 100);

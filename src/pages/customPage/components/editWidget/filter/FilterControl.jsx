@@ -16,6 +16,7 @@ import FilterShowItem from './FilterShowItem';
 
 export default function FilterControl(props) {
   const { filter, setFilter } = props;
+  const { filterInfoAdvancedSetting } = props;
   const [sheetList, setSheetList] = useState([]);
   const [initLoading, setInitLoading] = useState(true);
   const [loading, setLoading] = useState(true);
@@ -34,6 +35,7 @@ export default function FilterControl(props) {
           getTemplate: true,
         });
       });
+
     if (request.length) {
       setLoading(true);
       Promise.all(request).then(data => {
@@ -72,15 +74,19 @@ export default function FilterControl(props) {
       WIDGETS_TO_API_TYPE_ENUM.DROP_DOWN,
     ].includes(firstControlData.type);
     const isRelateControl = [WIDGETS_TO_API_TYPE_ENUM.RELATE_SHEET].includes(firstControlData.type);
+
     const notFoundContent = () => {
       if (isOptionControl) {
-        return <div className="valignWrapper">{_l('暂无数据，选项需要用同一个选项集的字段')}</div>;
+        return <div className="valignWrapper textTertiary">{_l('暂无数据，选项需要用同一个选项集的字段')}</div>;
       }
+
       if (isRelateControl) {
-        return <div className="valignWrapper">{_l('暂无数据，关联记录需要使用同关联表的字段')}</div>;
+        return <div className="valignWrapper textTertiary">{_l('暂无数据，关联记录需要使用同关联表的字段')}</div>;
       }
-      return <div className="valignWrapper">{_l('暂无数据')}</div>;
+
+      return <div className="valignWrapper textTertiary">{_l('暂无数据')}</div>;
     };
+
     return (
       <div key={item.worksheetId} className={index === filterObjectControls.length - 1 ? 'mBottom16' : 'mBottom20'}>
         <div className="mBottom12 flexRow">
@@ -110,14 +116,18 @@ export default function FilterControl(props) {
             const { objectControls = [] } = filter;
             const newControls = objectControls.map(f => {
               const data = { ...f };
+
               if (f.worksheetId === item.worksheetId) {
                 data.controlId = value || '';
               } else if (!index) {
                 data.controlId = '';
               }
+
               return data;
             });
             const param = { objectControls: newControls };
+            const otherFilter = {};
+
             if (!index) {
               const firstSheet = _.find(sheetList, { worksheetId: _.get(filterObjectControls[0], 'worksheetId') });
               const control = _.find(_.get(firstSheet, 'template.controls'), { controlId: value }) || {};
@@ -134,9 +144,20 @@ export default function FilterControl(props) {
                 ...advancedSetting,
                 daterange: '[]',
               };
+
+              if (filterInfoAdvancedSetting?.requiredcids) {
+                const list = window.safeParse(filterInfoAdvancedSetting.requiredcids);
+                const cid = objectControls[0].controlId;
+                otherFilter.advancedSetting = {
+                  ...filterInfoAdvancedSetting,
+                  requiredcids: JSON.stringify(list.filter(id => id !== cid)),
+                };
+              }
+
               Object.assign(param, data);
             }
-            setFilter(param);
+
+            setFilter(param, otherFilter);
           }}
         >
           {filterOnlyShowField(templateControls)
@@ -152,6 +173,7 @@ export default function FilterControl(props) {
                 if ([9, 11].includes(c.type) && [9, 11].includes(c.type) === [9, 11].includes(firstControlData.type)) {
                   return true;
                 }
+
                 // 兼容时间控件(日期和日期时间)
                 if (
                   [15, 16].includes(c.type) &&
@@ -159,6 +181,7 @@ export default function FilterControl(props) {
                 ) {
                   return true;
                 }
+
                 return c.type === firstControlData.type;
               } else {
                 return true;
@@ -177,6 +200,7 @@ export default function FilterControl(props) {
                     _.get(c.sourceControl, 'dataSource') === firstControlData.dataSource
                   );
                 }
+
                 if (firstControlData.originType === WIDGETS_TO_API_TYPE_ENUM.SHEET_FIELD && c.dataSource) {
                   return c.dataSource === _.get(firstControlData.sourceControl, 'dataSource');
                 }
@@ -230,10 +254,12 @@ export default function FilterControl(props) {
             onChangeAdvancedSetting={data => {
               const { navshow } = data;
               let values = filter.values;
+
               if ([9, 10, 11].includes(dataType)) {
                 const navfilters = JSON.parse(data.navfilters);
                 values = filter.values.filter(n => navfilters.includes(n));
               }
+
               setFilter({
                 values: navshow === '2' ? [] : values,
                 advancedSetting: {

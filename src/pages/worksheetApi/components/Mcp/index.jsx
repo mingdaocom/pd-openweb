@@ -75,6 +75,7 @@ const Mcp = ({ authorizes = [] }) => {
               let copyData = null;
               const { appKey = 'YOUR_APP_KEY', sign = 'YOUR_SIGN', appName } = appItem;
               let realUrl = `${md.global.Config.MCPUrl}?HAP-Appkey=${appKey}&HAP-Sign=${sign}`;
+
               switch (namespace.length) {
                 case 2:
                   copyData = JSON.stringify({ url: realUrl });
@@ -86,6 +87,7 @@ const Mcp = ({ authorizes = [] }) => {
                   copyData = JSON.stringify({ [`hap-mcp-${appName}`]: { url: realUrl } });
                   break;
               }
+
               copy(copyData);
               alert(_l('已复制'));
             }}

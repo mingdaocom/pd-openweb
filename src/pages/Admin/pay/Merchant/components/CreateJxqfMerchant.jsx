@@ -6,7 +6,7 @@ import styled from 'styled-components';
 import { Button, Checkbox, Icon, LoadDiv, Qr } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import paymentAjax from 'src/api/payment';
-import projectAjax from 'src/api/project';
+import WeChatServiceAccount from 'src/components/WeChatServiceAccountsDialog';
 import { Step, StepsWrap } from 'src/pages/Admin/pay/components/StepsWrap';
 import aliQrCode from 'src/pages/Admin/pay/images/aliQrCode.png';
 import wechatQrCode from 'src/pages/Admin/pay/images/wechatQrCode.png';
@@ -15,18 +15,8 @@ import './createMerchant.less';
 
 const DivideLine = styled.div`
   width: 1px;
-  border-right: 1px solid var(--color-background-disabled);
+  border-right: 1px solid var(--color-border-secondary);
   margin: -24px 34px 0 30px;
-`;
-
-const Prompt = styled.div`
-  width: 409px;
-  line-height: 1;
-  padding: 17px 0;
-  background: var(--color-background-secondary);
-  border-radius: 6px;
-  padding-left: 16px;
-  margin-left: 30px;
 `;
 
 const IconWrap = styled.div`
@@ -84,18 +74,18 @@ export default class CreateJxqfMerchant extends Component {
       merchantStatus: (props.currentMerchantInfo || {}).status,
       loading: false,
       merchant: {},
+      weChatServiceAccounts: [], // 微信服务号列表
+      currentWeChatServiceAccount: { appId: _.get(props, 'currentMerchantInfo.merchantPayConfigInfo.appId') }, // 当前选中的服务号
     };
     this.timeInterval = null;
     this.promise = null;
   }
 
   componentDidMount() {
-    const { createStep } = this.props;
     const { merchantStatus } = this.state;
-    if (createStep === 0) {
-      this.getWeiXinBindingInfo();
-    }
-    if (_.includes([0, 1, 2], merchantStatus)) {
+    const { currentMerchantInfo } = this.props;
+
+    if (!_.isEmpty(currentMerchantInfo)) {
       this.getMerchant({ isPoll: merchantStatus === 0 ? true : false });
     }
   }
@@ -104,13 +94,6 @@ export default class CreateJxqfMerchant extends Component {
     if (nextProps.createStep !== this.props.createStep) {
       this.setState({ step: nextProps.createStep });
     }
-    if (nextProps.currentMerchantInfo !== this.props.currentMerchantInfo) {
-      this.setState({
-        aliPayStatus: nextProps.currentMerchantInfo.aliPayStatus,
-        wechatPayStatus: nextProps.currentMerchantInfo.wechatPayStatus,
-        merchantStatus: nextProps.currentMerchantInfo.status,
-      });
-    }
   }
 
   componentWillUnmount() {
@@ -118,20 +101,6 @@ export default class CreateJxqfMerchant extends Component {
 
     this.props.getDataList();
   }
-
-  // 获取微信服务号是否授权
-  getWeiXinBindingInfo = () => {
-    const { projectId, currentMerchantInfo = {} } = this.props;
-    const { merchant = {} } = this.state;
-
-    projectAjax.getWeiXinBindingInfo({ projectId }).then((res = []) => {
-      this.setState({
-        bindWeixin: !_.isEmpty(res),
-        wechatPayStatus:
-          _.isEmpty(merchant) && _.isEmpty(currentMerchantInfo) ? !_.isEmpty(res) : merchant.wechatPayStatus,
-      });
-    });
-  };
 
   // 获取商户信息
   getMerchant = ({ isPoll, isOpen } = {}) => {
@@ -145,14 +114,24 @@ export default class CreateJxqfMerchant extends Component {
         merchantId,
       })
       .then(res => {
-        this.setState({ merchant: res, loading: false, merchantId: res.id });
+        this.setState({
+          merchant: res,
+          loading: false,
+          merchantId: res.id,
+          aliPayStatus: res.aliPayStatus,
+          wechatPayStatus: res.wechatPayStatus,
+          merchantStatus: res.status,
+          currentWeChatServiceAccount: { appId: _.get(res, 'merchantPayConfigInfo.appId') },
+        });
         if (res.status === 3) {
           this.setState({ step: 3 });
           return;
         }
+
         if (isPoll && res.status === 0) {
           this.pollGetMerchantStatus({ merchantId: res.id, merchantNo: res.merchantNo });
         }
+
         if (isOpen) {
           this.updateMerchantStatus({ merchantId: res.id, merchantNo: res.merchantNo, status: 2 });
         }
@@ -161,7 +140,8 @@ export default class CreateJxqfMerchant extends Component {
 
   // 更新商户状态
   updateMerchantStatus = ({ merchantNo, status } = {}) => {
-    const { projectId, currentMerchantInfo = {}, updateCurrentMerchant = () => {} } = this.props;
+    const { projectId, updateCurrentMerchant = () => {} } = this.props;
+    const { merchant } = this.state;
     paymentAjax
       .editMerchantStatus({
         projectId,
@@ -170,7 +150,7 @@ export default class CreateJxqfMerchant extends Component {
       })
       .then(res => {
         if (res) {
-          updateCurrentMerchant({ ...currentMerchantInfo, status });
+          updateCurrentMerchant({ ...merchant, status });
         }
       });
   };
@@ -195,6 +175,7 @@ export default class CreateJxqfMerchant extends Component {
           if (res === 1) {
             this.getMerchant();
           }
+
           if (res) {
             clearInterval(this.timeInterval);
             this.setState({ merchantStatus: res, step: _.includes([1, 2], res) ? 2 : res === 3 ? res : step });
@@ -205,18 +186,22 @@ export default class CreateJxqfMerchant extends Component {
 
   // 创建商户
   createMerchant = () => {
+    const { projectId, merchantPaymentChannel, updateCurrentMerchant = () => {} } = this.props;
     const {
-      projectId,
-      merchantPaymentChannel,
-      currentMerchantInfo = {},
-      updateCurrentMerchant = () => {},
-    } = this.props;
-    const { aliPayStatus, wechatPayStatus, merchantId, merchantStatus, merchant = {} } = this.state;
-    const isNewCreate = _.isEmpty(currentMerchantInfo);
+      aliPayStatus,
+      wechatPayStatus,
+      merchantId,
+      merchantStatus,
+      merchant = {},
+      currentWeChatServiceAccount,
+    } = this.state;
+    const isNewCreate = _.isEmpty(merchant);
+
     if (!aliPayStatus && !wechatPayStatus) {
       alert(_l('请选择支付渠道'), 2);
       return;
     }
+
     if (isNewCreate) {
       paymentAjax
         .createMerchant({
@@ -224,6 +209,9 @@ export default class CreateJxqfMerchant extends Component {
           aliPayStatus: aliPayStatus ? 1 : 0,
           wechatPayStatus: wechatPayStatus ? 1 : 0,
           merchantPaymentChannel,
+          merchantPayConfigInfo: currentWeChatServiceAccount?.appId
+            ? { appId: currentWeChatServiceAccount?.appId }
+            : undefined,
         })
         .then(res => {
           if (res.merchantNo) {
@@ -239,45 +227,66 @@ export default class CreateJxqfMerchant extends Component {
           }
         });
     } else {
+      const successCallback = () => {
+        this.setState(
+          {
+            step: _.includes([1, 2], merchantStatus) ? 2 : merchantStatus === 3 ? 3 : 1,
+            merchant: {
+              ...merchant,
+              aliPayStatus: aliPayStatus ? 1 : 0,
+              wechatPayStatus: wechatPayStatus ? 1 : 0,
+              merchantPayConfigInfo: { ...merchant?.merchantPayConfigInfo, ...currentWeChatServiceAccount },
+            },
+          },
+          () => this.state.step === 1 && this.pollGetMerchantStatus({ merchantId, merchantNo: merchant.merchantNo }),
+        );
+        updateCurrentMerchant({
+          ...merchant,
+          aliPayStatus: aliPayStatus ? 1 : 0,
+          wechatPayStatus: wechatPayStatus ? 1 : 0,
+        });
+      };
+
+      if (
+        merchantId === merchant?.id &&
+        aliPayStatus === merchant?.aliPayStatus &&
+        wechatPayStatus === merchant?.wechatPayStatus &&
+        currentWeChatServiceAccount?.appId === merchant?.merchantPayConfigInfo?.appId
+      ) {
+        successCallback();
+        return;
+      }
+
       paymentAjax
         .editMerchantPayStatus({
           merchantId,
           projectId,
           aliPayStatus: aliPayStatus ? 1 : 0,
           wechatPayStatus: wechatPayStatus ? 1 : 0,
+          merchantPayConfigInfo: currentWeChatServiceAccount?.appId
+            ? { appId: currentWeChatServiceAccount?.appId }
+            : undefined,
         })
         .then(res => {
           if (res) {
-            this.setState(
-              {
-                step: _.includes([1, 2], merchantStatus) ? 2 : merchantStatus === 3 ? 3 : 1,
-                merchant: { ...merchant, aliPayStatus: aliPayStatus ? 1 : 0, wechatPayStatus: wechatPayStatus ? 1 : 0 },
-              },
-              () =>
-                this.state.step === 1 &&
-                this.pollGetMerchantStatus({ merchantId, merchantNo: currentMerchantInfo.merchantNo }),
-            );
-            updateCurrentMerchant({
-              ...currentMerchantInfo,
-              aliPayStatus: aliPayStatus ? 1 : 0,
-              wechatPayStatus: wechatPayStatus ? 1 : 0,
-            });
+            successCallback();
           }
         });
     }
   };
 
   render() {
-    const { projectId, currentMerchantInfo = {}, createStep, onClose = () => {} } = this.props;
+    const { projectId, createStep, onClose = () => {} } = this.props;
     const {
       step,
-      bindWeixin,
       aliPayStatus,
       wechatPayStatus,
       merchant = {},
       loading,
       merchantId,
       merchantStatus,
+      weChatServiceAccounts,
+      currentWeChatServiceAccount,
     } = this.state;
     const { publicFormUrl, signUrl } = merchant;
     const description = (_.find(STEPS, (item, index) => step === index) || {}).description;
@@ -304,10 +313,10 @@ export default class CreateJxqfMerchant extends Component {
                     merchantStatus == 3 && _.isEmpty(merchant) ? wechatPayStatus : merchant.wechatPayStatus,
                   aliPayStatus: merchantStatus == 3 && _.isEmpty(merchant) ? aliPayStatus : merchant.aliPayStatus,
                 });
-                _.isUndefined(bindWeixin) && this.getWeiXinBindingInfo();
               }
+
               if (current === 1) {
-                this.pollGetMerchantStatus({ merchantId, merchantNo: currentMerchantInfo.merchantNo });
+                this.pollGetMerchantStatus({ merchantId, merchantNo: merchant.merchantNo });
               }
             }}
           >
@@ -377,7 +386,7 @@ export default class CreateJxqfMerchant extends Component {
                   <Checkbox
                     className="mRight6"
                     checked={aliPayStatus}
-                    onClick={checked => this.setState({ aliPayStatus: !checked })}
+                    onClick={checked => this.setState({ aliPayStatus: checked ? 0 : 1 })}
                   />
                   <IconWrap className="aliBgColor">
                     <Icon icon="order-alipay" className="Font24" />
@@ -387,9 +396,9 @@ export default class CreateJxqfMerchant extends Component {
                 <div className="flexRow alignItemsCenter mBottom10">
                   <Checkbox
                     className="mRight6"
-                    disabled={!bindWeixin}
+                    disabled={!currentWeChatServiceAccount?.appId || _.isEmpty(weChatServiceAccounts)}
                     checked={wechatPayStatus}
-                    onClick={checked => this.setState({ wechatPayStatus: !checked })}
+                    onClick={checked => this.setState({ wechatPayStatus: checked ? 0 : 1 })}
                   />
                   <IconWrap className="wechatBgColor">
                     <Icon icon="wechat_pay" className="Font24" />
@@ -399,15 +408,23 @@ export default class CreateJxqfMerchant extends Component {
                     <Icon icon="info" className="textTertiary mLeft6 Font16" />
                   </Tooltip>
                 </div>
-                {!_.isUndefined(bindWeixin) && !bindWeixin && (
-                  <Prompt className="textTertiary">
-                    {_l('暂未绑定认证的服务号，')}
-                    <a href={`/admin/weixin/${projectId}`} className="colorPrimary">
-                      {_l('请前往组织后台')}
-                    </a>
-                    {_l('添加微信服务号')}
-                  </Prompt>
-                )}
+                <div>
+                  <WeChatServiceAccount
+                    className="mLeft30"
+                    projectId={projectId}
+                    noRequest={!!weChatServiceAccounts.length}
+                    selectedServiceAppId={currentWeChatServiceAccount?.appId}
+                    weChatServiceAccounts={weChatServiceAccounts}
+                    updateWeChatServiceInfo={({ weChatServiceAccounts, service = {} }) => {
+                      this.setState({
+                        weChatServiceAccounts,
+                        currentWeChatServiceAccount: { ...currentWeChatServiceAccount, appId: service.appId },
+                        wechatPayStatus: _.isEmpty(merchant) ? !_.isEmpty(service) : merchant.wechatPayStatus,
+                      });
+                    }}
+                  />
+                </div>
+
                 <Button
                   type="primary"
                   className="mTop20"

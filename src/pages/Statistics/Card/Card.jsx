@@ -160,6 +160,7 @@ class Card extends Component {
     const { filterRangeId, rangeType, rangeValue, dynamicFilter, today = false, customRangeValue } = filter;
     const { drillParticleSizeType } = country || {};
     const viewDataType = style ? style.viewDataType || 1 : 1;
+
     if (viewDataType === 2 && filter.viewId && [VIEW_DISPLAY_TYPE.sheet].includes(filter.viewType.toString())) {
       reportApi
         .getReportSingleCacheId({
@@ -244,6 +245,7 @@ class Card extends Component {
         reportTypes.PieChart,
         reportTypes.BidirectionalBarChart,
       ].includes(reportType) && isOptionControl(xaxes.controlType);
+
     if (
       [
         reportTypes.BarChart,
@@ -261,15 +263,19 @@ class Card extends Component {
     ) {
       return map.length || contrastMap.length || isDisplayEmptyData ? this.renderChart() : <WithoutData />;
     }
+
     if ([reportTypes.PieChart].includes(reportType)) {
       return map.length || isDisplayEmptyData ? this.renderChart() : <WithoutData />;
     }
+
     if ([reportTypes.GaugeChart, reportTypes.ProgressChart].includes(reportType)) {
       return this.renderChart();
     }
+
     if ([reportTypes.NumberChart].includes(reportType)) {
       return this.renderChart();
     }
+
     if ([reportTypes.PivotTable].includes(reportType)) {
       return _.isEmpty(data.data) ? <WithoutData /> : this.renderChart();
     }
@@ -323,13 +329,16 @@ class Card extends Component {
     const permissions = sourceType ? permissionType > 0 : ownerId || isCharge;
     const isSheetView = ![reportTypes.PivotTable].includes(reportType) && xaxes?.controlType !== 40;
     const translateInfo = getTranslateInfo(appId, null, report.id);
+
     const getBgColor = () => {
       const hideNumberChartName = [reportTypes.NumberChart].includes(reportType)
         ? (yaxisList.length === 1 && !xaxes.controlId) || !showTitle
         : !showTitle;
+
       if (this.state.loading) {
         return {};
       }
+
       if (titleStyle === 1) {
         return {
           '--title-color': hideNumberChartName ? undefined : '#fff',
@@ -341,6 +350,7 @@ class Card extends Component {
           backgroundColor: themeColor,
         };
       }
+
       if (titleStyle === 2) {
         return {
           '--title-color': hideNumberChartName ? undefined : '#fff',
@@ -352,8 +362,10 @@ class Card extends Component {
           background: `linear-gradient(to right, ${themeColor}, ${pageBgColor})`,
         };
       }
+
       return {};
     };
+
     return (
       <div
         className={cx(`statisticsCard statisticsCard-${report.id} statisticsCard-${reportData.reportType}`, className, {
@@ -436,7 +448,7 @@ class Card extends Component {
             )}
           </div>
           <div className="operateIconWrap valignWrapper Relative">
-            {needEnlarge && !this.isPublicShare && (sourceType ? reportData.status > 0 : true) && (
+            {needEnlarge && (sourceType ? reportData.status > 0 : true) && (
               <Tooltip title={_l('筛选')} placement="bottom">
                 <span
                   className="iconItem textTertiary"
@@ -610,6 +622,7 @@ class Card extends Component {
                   },
                 });
               }
+
               if (isRequest) {
                 this.getData({
                   ...this.props,

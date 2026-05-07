@@ -19,6 +19,7 @@ export default function PublicQuery(props) {
       if (!data.title) {
         data.title = _l('查询%0', worksheetInfo.name);
       }
+
       data.queryControlIds = (data.queryControlIds || []).filter(cid =>
         _.find(worksheetInfo.template.controls, c => c.controlId === cid),
       );

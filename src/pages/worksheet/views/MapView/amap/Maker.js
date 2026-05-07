@@ -91,11 +91,13 @@ class Marker extends React.Component {
         // https://github.com/ElemeFE/react-amap/issues/40
         this.contentWrapper.className = props.className;
       }
+
       if ('render' in props) {
         renderMarkerComponent(props.render, this.marker);
       } else if ('children' in props) {
         const child = props.children;
         const childType = typeof child;
+
         if (childType !== 'undefined' && this.contentWrapper) {
           const root = createRoot(this.contentWrapper);
 
@@ -129,12 +131,14 @@ class Marker extends React.Component {
     if (MarkerAllProps.indexOf(key) === -1) {
       return null;
     }
+
     // if (key === 'position') {
     //   return getAMapPosition(val);
     // }
     if (key === 'offset') {
       return getAMapPixel(val);
     }
+
     return val;
   }
 
@@ -151,12 +155,15 @@ class Marker extends React.Component {
   exposeMarkerInstance(props) {
     if ('events' in props && props.events) {
       const events = props.events;
+
       if (isFun(events.created)) {
         events.created(this.marker);
       }
+
       delete events.created;
       return events;
     }
+
     return false;
   }
 

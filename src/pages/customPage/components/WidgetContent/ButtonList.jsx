@@ -110,15 +110,19 @@ export function ButtonList({
     if (isMobile) {
       customBtnWorkflow();
     }
+
     const { btnItemId } = getRequest();
+
     if (btnItemId) {
       const buttonList = _.get(widget, 'button.buttonList') || [];
       const button = _.find(buttonList, { id: btnItemId });
+
       const removeQueryParam = () => {
         const url = new URL(window.location.href);
         url.searchParams.delete('btnItemId');
         history.replaceState(null, '', url.toString());
       };
+
       if (button) {
         handleClick(button);
         removeQueryParam();
@@ -135,13 +139,17 @@ export function ButtonList({
     let departments = [];
     let organizes = [];
     const isRequestDepartments = _.find(inputs, { value: [{ cid: 'triggerDepartment' }] });
+
     if (isRequestDepartments) {
       departments = await getDepartments(projectId, accountId);
     }
+
     const isRequestOrganizes = _.find(inputs, { value: [{ cid: 'triggerOrg' }] });
+
     if (isRequestOrganizes) {
       organizes = await getOrganize(projectId, accountId);
     }
+
     processApi
       .startProcessByPBC({
         pushUniqueId: window.isMingDaoApp
@@ -162,6 +170,7 @@ export function ButtonList({
                   return md.global.Account.fullname;
                 }
               }
+
               if (item.cid === 'triggerDepartment') {
                 if (input.type === WIDGETS_TO_API_TYPE_ENUM.DEPARTMENT) {
                   return JSON.stringify(departments.map(item => item.id));
@@ -169,6 +178,7 @@ export function ButtonList({
                   return JSON.stringify(departments.map(item => item.name));
                 }
               }
+
               if (item.cid === 'triggerOrg') {
                 if (input.type === WIDGETS_TO_API_TYPE_ENUM.ORG_ROLE) {
                   return JSON.stringify(organizes.map(item => item.id));
@@ -176,12 +186,15 @@ export function ButtonList({
                   return JSON.stringify(organizes.map(item => item.name));
                 }
               }
+
               if (item.cid === 'triggerTime') {
                 return dateConvertToServerZone(moment().format('YYYY-MM-DD HH:mm:ss'));
               }
+
               if (item.cid === 'codeResult') {
                 return scanQRCodeResult;
               }
+
               return item.staticValue;
             });
             return {
@@ -204,6 +217,7 @@ export function ButtonList({
       alert(_l('无权操作'), 3);
       return;
     }
+
     if (action === 1 && value) {
       const { btnId } = item;
       isMobile && Toast.show({ icon: 'loading', content: _l('加载中，请稍后') });
@@ -211,6 +225,7 @@ export function ButtonList({
       const sheetSwitchPermit = await worksheetApi.getSwitchPermit({ appId, worksheetId: value });
       isMobile && Toast.clear();
       const param = { visible: true, value, viewId, appId, name, sheetSwitchPermit };
+
       if (window.isMingDaoApp) {
         const url = `/mobile/addRecord/${appId}/${value}/${viewId}`;
         window.location.href = btnId ? `${url}?btnId=${btnId}` : url;
@@ -226,22 +241,29 @@ export function ButtonList({
         setInfo(param);
       }
     }
+
     if (_.includes([2, 3], action) && value) {
       isMobile && Toast.show({ icon: 'loading', content: _l('加载中，请稍后') });
       const { appId, appSectionId } = await homeAppApi.getAppSimpleInfo({ workSheetId: value });
       isMobile && Toast.clear();
       const getUrl = () => {
         let urlName = '/app';
+
         if (isMobile) {
           urlName = viewId ? '/mobile/recordList' : '/mobile/customPage';
         }
+
         let url = `${window.subPath || ''}${urlName}/${appId}/${appSectionId}/${value}`;
+
         if (viewId) {
           url += `/${viewId}`;
         }
+
         return url;
       };
+
       const url = getUrl();
+
       if (window.isMingDaoApp) {
         window.location.href = url;
       } else if (openMode === 2) {
@@ -254,22 +276,28 @@ export function ButtonList({
         addBehaviorLog('customPage', value); //浏览自定义页面埋点
       }
     }
+
     if (action === 4 && value) {
       const url = genUrl(value, param, info);
+
       if (openMode === 1) {
         location.href = url;
         return;
       }
+
       if (openMode === 2) {
         window.open(url);
         return;
       }
+
       window.open(url, '_blank', 'width=800px,height=600px,left=200px,top=200px');
     }
+
     if (action === 5) {
       if (window.isMingDaoApp) {
         mdAppResponse({ type: 'scan' }).then(data => {
           const { value } = data;
+
           if (value) {
             handleScanQRCodeResult(value, item);
           }
@@ -279,8 +307,10 @@ export function ButtonList({
         scanQRCodeRef.current.handleScanCode();
       } else {
         const { placeholder, text } = item.config || {};
+
         const onOk = ({ eventSource } = {}) => {
           const value = _.get(scanQRCodeRef, 'current.state.value');
+
           if (value) {
             handleScanQRCodeResult(value, item);
             if (eventSource === 'pressEnter' && text === 2) {
@@ -288,11 +318,13 @@ export function ButtonList({
               document.querySelector('.confirmSubmitHint').classList.remove('hide');
               return;
             }
+
             dialogConfirm();
           } else {
             alert(_l('请输入内容'), 3);
           }
         };
+
         const dialogConfirm = Dialog.confirm({
           width: 480,
           title: <span className="bold">{name}</span>,
@@ -331,6 +363,7 @@ export function ButtonList({
         });
       }
     }
+
     if (action === 6) {
       const { processId, config } = item;
       const { clickType, confirmMsg, sureName, cancelName } = config;
@@ -339,6 +372,7 @@ export function ButtonList({
         runStartProcessByPBC(item);
         return;
       }
+
       if (clickType === 2 && processId) {
         if (isMobile) {
           MobileDialog.confirm({
@@ -357,8 +391,10 @@ export function ButtonList({
             cancelText: cancelName,
           });
         }
+
         return;
       }
+
       return;
     }
   }
@@ -381,6 +417,7 @@ export function ButtonList({
             window.open(result);
           }
         };
+
         if (result.includes('worksheetshare') || result.includes('public/record')) {
           const shareId = (result.match(/\/worksheetshare\/(.*)/) || result.match(/\/public\/record\/(.*)/))[1];
           Toast.show({ icon: 'loading', content: _l('加载中，请稍后') });
@@ -391,6 +428,7 @@ export function ButtonList({
           const urlPath = result.split('?')[0];
           const data = urlPath.match(/app\/(.*)\/(.*)\/(.*)\/row\/(.*)/) || [];
           const [, appId, worksheetId, viewId, rowId] = data;
+
           if (appId && worksheetId && viewId && rowId) {
             run({
               appId,
@@ -402,17 +440,21 @@ export function ButtonList({
             run();
           }
         }
+
         return;
       }
+
       if (config.otherLink) {
         if (window.isMingDaoApp) {
           window.location.href = result;
         } else {
           window.open(result);
         }
+
         return;
       }
     }
+
     // 文本，无处理
     if (config.text === 0) {
       if (isMobile) {
@@ -435,6 +477,7 @@ export function ButtonList({
         });
       }
     }
+
     // 文本，搜索打开记录
     if (config.text === 1 && value && viewId) {
       const { isFilter } = config;
@@ -443,8 +486,10 @@ export function ButtonList({
       isMobile && Toast.clear();
       const filterId = isFilter && scanBtn.filterId ? scanBtn.filterId : '';
       const searchId = scanBtn.searchId ? scanBtn.searchId : '';
+
       if (isMobile) {
         const url = `/mobile/searchRecord/${appId}/${value}/${viewId}?keyWords=${encodeURIComponent(result)}&filterId=${filterId}&searchId=${searchId}`;
+
         if (window.mobileNavigateTo) {
           window.mobileNavigateTo(url);
         } else {
@@ -464,6 +509,7 @@ export function ButtonList({
         });
       }
     }
+
     // 文本，调用封装业务流程
     if (config.text === 2) {
       runStartProcessByPBC(scanBtn, result);
@@ -501,7 +547,6 @@ export function ButtonList({
           showFillNext={true}
           needCache={true}
           onAdd={data => {
-            alert(_l('添加成功'));
             addRecord(data);
             refreshComponent();
           }}

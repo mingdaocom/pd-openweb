@@ -95,12 +95,14 @@ export default class DropDownSet extends React.Component {
                 if (value === setDataId) {
                   return;
                 }
+
                 if (value === 'add') {
                   this.setState({
                     visible: true,
                   });
                   return;
                 }
+
                 handleChange(value);
               }}
               notFoundContent={notFoundContent || _l('当前工作表中没有可选字段，请先去添加一个')}

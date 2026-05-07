@@ -46,18 +46,23 @@ function getCellMaxShowNum(texts = [], { width = 100, maxHeight = 34 } = {}) {
   let result = texts.length;
   let needLimit = false;
   let i = 1;
+
   while (i <= texts.length) {
     const cellHeight = getCellHeight(texts.slice(0, i), width);
+
     if (cellHeight > maxHeight) {
       needLimit = true;
       result = i - 1;
       break;
     }
+
     i++;
   }
+
   if (!needLimit) {
     return;
   }
+
   const lastHeight = getCellHeight(texts.slice(0, result).concat('='), width);
   return result < texts.length && lastHeight > maxHeight ? result : result + 1;
 }
@@ -126,6 +131,7 @@ function getDefaultRelateSheetValue({ worksheetId, control, recordId, rowFormDat
         rowid: recordId,
       }),
     };
+
     if (titleControl.type === 29) {
       try {
         const cellData = JSON.parse(titleControl.value);
@@ -135,6 +141,7 @@ function getDefaultRelateSheetValue({ worksheetId, control, recordId, rowFormDat
         defaultRelatedSheetValue.name = '';
       }
     }
+
     return {
       worksheetId,
       relateSheetControlId: controlId,
@@ -192,10 +199,12 @@ export default forwardRef(function RelateRecordTags(props, ref) {
     cache.current.isActive = true;
     onOpenDialog();
   }
+
   function closeDialogCallback() {
     cache.current.isActive = false;
     onCloseDialog();
   }
+
   useEffect(() => {
     setRecords(props.records);
   }, [
@@ -214,6 +223,7 @@ export default forwardRef(function RelateRecordTags(props, ref) {
       onClose: closeDialogCallback,
     });
   }
+
   function handleSearchRecords() {
     openDialogCallback();
     searchRecordInDialog({
@@ -248,10 +258,12 @@ export default forwardRef(function RelateRecordTags(props, ref) {
       onCancel: closeDialogCallback,
     });
   }
+
   function handleSelectRecords() {
     if (!allowSelect || !canAdd) {
       return;
     }
+
     openDialogCallback();
     const needIgnoreRowIds =
       control.unique || control.uniqueInRecord
@@ -288,6 +300,7 @@ export default forwardRef(function RelateRecordTags(props, ref) {
       onClose: closeDialogCallback,
     });
   }
+
   useImperativeHandle(ref, () => ({
     searchRecords: handleSearchRecords,
     selectRecords: handleSelectRecords,
@@ -323,46 +336,47 @@ export default forwardRef(function RelateRecordTags(props, ref) {
         (record, i) => {
           const text = getTitleTextFromRelateControl(control, record);
           return (
-            <ViewHoverRelateRecordCard record={record} {...props} formData={rowFormData}>
-              <Tag
-                className={cx('ellipsis', {
-                  isediting,
-                  allowOpenRecord: allowOpenRecord && record.rowid && !/^temp/.test(record.rowid),
-                  allowRemove,
-                })}
-                style={{ maxWidth: records.length < count ? 'calc(100% - 40px)' : 'calc(100% - 13px)' }}
-                key={i}
-                title={text}
-                onClick={e => {
-                  if (!record.rowid || /^temp/.test(record.rowid) || isMobile) {
-                    return;
-                  }
-                  e.stopPropagation();
-                  if (allowOpenRecord) {
-                    addBehaviorLog('worksheetRecord', control.dataSource, { rowId: record.rowid }); // 埋点
-                    handleOpenRecord({
-                      viewId: _.get(control, 'advancedSetting.openview') || control.viewId,
-                      worksheetId: control.dataSource,
-                      recordId: record.rowid,
-                    });
-                  }
-                }}
-              >
-                {text}
-                {isediting && allowRemove && (
-                  <i
-                    className="icon-close"
-                    onClick={e => {
-                      e.stopPropagation();
-                      setChanged(true);
-                      setRecords(records.filter(r => r.rowid !== record.rowid));
-                      setDeletedIds([...deletedIds, record.rowid]);
-                      setCount(count - 1);
-                    }}
-                  ></i>
-                )}
-              </Tag>
-            </ViewHoverRelateRecordCard>
+            <Tag
+              className={cx('ellipsis', {
+                isediting,
+                allowOpenRecord: allowOpenRecord && record.rowid && !/^temp/.test(record.rowid),
+                allowRemove,
+              })}
+              style={{ maxWidth: records.length < count ? 'calc(100% - 40px)' : 'calc(100% - 13px)' }}
+              key={i}
+              title={text}
+              onClick={e => {
+                if (!record.rowid || /^temp/.test(record.rowid) || isMobile) {
+                  return;
+                }
+
+                e.stopPropagation();
+                if (allowOpenRecord) {
+                  addBehaviorLog('worksheetRecord', control.dataSource, { rowId: record.rowid }); // 埋点
+                  handleOpenRecord({
+                    viewId: _.get(control, 'advancedSetting.openview') || control.viewId,
+                    worksheetId: control.dataSource,
+                    recordId: record.rowid,
+                  });
+                }
+              }}
+            >
+              <ViewHoverRelateRecordCard record={record} {...props} formData={rowFormData}>
+                <span>{text}</span>
+              </ViewHoverRelateRecordCard>
+              {isediting && allowRemove && (
+                <i
+                  className="icon-close"
+                  onClick={e => {
+                    e.stopPropagation();
+                    setChanged(true);
+                    setRecords(records.filter(r => r.rowid !== record.rowid));
+                    setDeletedIds([...deletedIds, record.rowid]);
+                    setCount(count - 1);
+                  }}
+                ></i>
+              )}
+            </Tag>
           );
         },
       )}
@@ -375,6 +389,7 @@ export default forwardRef(function RelateRecordTags(props, ref) {
                 if (isMobile) {
                   return;
                 }
+
                 e.stopPropagation();
                 handleSearchRecords();
               }}

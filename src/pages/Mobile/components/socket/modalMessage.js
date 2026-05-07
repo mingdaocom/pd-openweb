@@ -127,6 +127,7 @@ function MessageComp(props) {
     if (position === 'center') {
       return showModal();
     }
+
     aotoClose();
   }, []);
 
@@ -145,6 +146,7 @@ function MessageComp(props) {
         </div>
       );
     }
+
     return <i className={`Font26 TxtMiddle ${type} icon-${getIconName(type)}`}></i>;
   };
 

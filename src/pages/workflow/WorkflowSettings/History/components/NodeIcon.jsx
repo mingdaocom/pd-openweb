@@ -38,7 +38,7 @@ export default ({ type, appType, actionId, isPlugin, moduleType, isFirst, isLast
   }
 
   // 电子开票
-  if (appType === APP_TYPE.CALENDAR) {
+  if (appType === APP_TYPE.INVOICE) {
     icon = 'Invoice';
     bgColor = '#4c7d9e';
   }

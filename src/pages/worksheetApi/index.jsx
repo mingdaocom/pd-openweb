@@ -109,6 +109,10 @@ class WorksheetApi extends Component {
     return MENU_LIST_MAP[tabIndex] || [];
   }
 
+  get hideMcp() {
+    return _.includes(_.get(md, 'global.Config.DisableModules') || [], 'mcp');
+  }
+
   getAppInfo() {
     const { isSharePage, shareData = {} } = this.props;
 
@@ -197,11 +201,13 @@ class WorksheetApi extends Component {
         item.type = item.dataType;
         item.desc = item.description;
       }
+
       for (const item of getOptionsParams.requestParams || []) {
         item.required = item.isRequired ? _l('是') : _l('否');
         item.type = item.dataType;
         item.desc = item.description;
       }
+
       if (dataApp.appStatus === 20) {
         this.setState({ errorCode: 2 });
       }
@@ -332,9 +338,11 @@ class WorksheetApi extends Component {
 
   getId() {
     const { isSharePage } = this.props;
+
     if (isSharePage) {
       return this.props.appId;
     }
+
     const ids = window.location.pathname.replace(/.*\/worksheetapi\//g, '').split('/');
     return ids[0];
   }
@@ -367,6 +375,7 @@ class WorksheetApi extends Component {
           this.getWorksheetApiInfo(worksheetId);
           return;
         }
+
         if (workflowId) {
           this.getWorkflowApiInfo(workflowId);
           return;
@@ -713,9 +722,11 @@ class WorksheetApi extends Component {
    */
   renderWorksheetInfo() {
     const { data = [] } = this.state;
+
     if (data.length <= 0) {
       return null;
     }
+
     return (
       <Fragment>
         <div className="worksheetApiContent1">
@@ -759,9 +770,11 @@ class WorksheetApi extends Component {
    */
   renderCreateWorksheet() {
     const { data = [], appInfo } = this.state;
+
     if (data.length <= 0) {
       return null;
     }
+
     const sectionIds = _.get(appInfo, 'apiResponse.sections').flatMap(l => {
       let items = l.items.filter(it => it.type === 2);
       if (items.length === 0) return l;
@@ -922,6 +935,7 @@ class WorksheetApi extends Component {
         );
       });
     };
+
     const renderOutputs = source => {
       return source.map(o => {
         if (o.dataSource && _.find(workflowInfo.outputs, item => item.controlId === o.dataSource).type === 10000007) {
@@ -948,6 +962,7 @@ class WorksheetApi extends Component {
     if (workflowInfo.outType === 1) {
       inputExample['callbackURL'] = '';
     }
+
     workflowInfo.inputs
       .filter(item => !item.dataSource)
       .forEach(item => {
@@ -1105,9 +1120,11 @@ class WorksheetApi extends Component {
    */
   getUrl(url = '', data = {}) {
     let curUrl = url + '?';
+
     for (let key in data) {
       curUrl += key + '=' + data[key] + '&';
     }
+
     curUrl = curUrl.substring(0, curUrl.length - 1);
     return { URL: curUrl };
   }
@@ -1287,6 +1304,7 @@ class WorksheetApi extends Component {
                 {this.MENU_LIST[i].fields.map(field => {
                   let type = null;
                   let options = [];
+
                   if (field.key === 'controlType' || field.key === 'desc') {
                     const control = _.find(templateControls, numberType => numberType.controlId === o.controlId) || {};
                     type = control.type;
@@ -1435,7 +1453,7 @@ class WorksheetApi extends Component {
                 </div>
                 <div className="mLeft10 w22">
                   <div className="flexRow alignItemsCenter">
-                    <Avatar src={_.get(o, 'creater.avatar')} size={20} />
+                    <Avatar src={_.get(o, 'creater.avatar')} size={20} className="flex-shrink-0" />
                     <div className="mLeft4">{_.get(o, 'creater.fullname')}</div>
                   </div>
                   <div className="mTop4">{o.createTime}</div>
@@ -1475,9 +1493,11 @@ class WorksheetApi extends Component {
 
   moreOption = data => {
     const { showMoreOption, appKey = '' } = this.state;
+
     if (!showMoreOption || appKey !== data.appKey) {
       return;
     }
+
     return (
       <MoreOption
         getAuthorizes={() => this.getAuthorizes()}
@@ -1587,6 +1607,7 @@ class WorksheetApi extends Component {
     if (this.state.data.length <= 0) {
       return null;
     }
+
     const url = this.state.data[0].apiUrl + this.MENU_LIST[i].apiName;
 
     return (
@@ -1665,6 +1686,7 @@ class WorksheetApi extends Component {
             name={null}
             enableClipboard={({ namespace = [], src }) => {
               let copyData = null;
+
               switch (namespace.length) {
                 case 2:
                   copyData = src;
@@ -1673,6 +1695,7 @@ class WorksheetApi extends Component {
                   copyData = JSON.stringify(src);
                   break;
               }
+
               this.onCopy(copyData);
             }}
           />
@@ -1734,6 +1757,7 @@ class WorksheetApi extends Component {
       controlId: alias || controlId,
       value,
     };
+
     if (
       _.get(
         _.find(templateControls, item => item.controlId === controlId),
@@ -1833,6 +1857,7 @@ class WorksheetApi extends Component {
     if (!this.canScroll) {
       return;
     }
+
     const heightArr = [];
     let totalHeight = 0;
     let isExist = false;
@@ -1914,6 +1939,7 @@ class WorksheetApi extends Component {
       }),
     );
     let targetId = '';
+
     switch (nexTabIndex) {
       case TAB_TYPE.APPLICATION:
         targetId = 'authorizationInstr';
@@ -1924,12 +1950,14 @@ class WorksheetApi extends Component {
       default:
         break;
     }
+
     // 获取目标tab下菜单的位置
     const targetPosition = JSON.parse(sessionStorage.getItem(`ApiTabIndex-${nexTabIndex}`)) || {};
+    const targetSelectId = this.hideMcp && targetPosition.selectId === 'mcpServer' ? targetId : targetPosition.selectId;
     this.setState(
       {
         tabIndex: nexTabIndex,
-        selectId: targetPosition.selectId || targetId,
+        selectId: targetSelectId || targetId,
         expandIds: targetPosition.expandIds || [],
       },
       () => {
@@ -1952,9 +1980,9 @@ class WorksheetApi extends Component {
     } = this.state;
     const { isSharePage } = this.props;
     const appId = this.getId();
-    const sidebarList = SIDEBAR_LIST_MAP[tabIndex] || [];
+    const sidebarList = (SIDEBAR_LIST_MAP[tabIndex] || []).filter(item => !(this.hideMcp && item.key === 'mcpServer'));
     const lang = window.getCurrentLang();
-    const theme = document.body.getAttribute('data-theme') || 'light';
+    const theme = document.documentElement.getAttribute('data-theme') || 'light';
 
     if (errorCode === 2) {
       return (
@@ -2027,7 +2055,7 @@ class WorksheetApi extends Component {
                       <div className="flexRow worksheetApiLi" id="authorizationInstr-content">
                         {this.renderAuthorizationManagement()}
                       </div>
-                      <Mcp authorizes={authorizes} appInfo={appInfo} />
+                      {!this.hideMcp && <Mcp authorizes={authorizes} appInfo={appInfo} />}
                       {/* IP白名单 */}
                       <div className="flexRow worksheetApiLi" id="whiteList-content">
                         {this.renderWhiteList()}

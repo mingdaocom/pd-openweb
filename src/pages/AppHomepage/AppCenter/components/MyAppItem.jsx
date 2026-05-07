@@ -119,9 +119,11 @@ export default class MyAppItem extends Component {
 
   handleModify = obj => {
     const { id: appId, projectId } = this.props;
+
     if (obj.name === '') {
       obj.name = this.dataCache.name;
     }
+
     this.props.handleModify({ ...obj, appId, projectId });
   };
 

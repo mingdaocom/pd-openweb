@@ -23,6 +23,7 @@ const getOptions = effectiveExternalUserCount => {
     },
   ];
 };
+
 const marks = [
   {
     value: 100,
@@ -57,6 +58,11 @@ const marks = [
   },
 ];
 
+const subscribeTypes = [
+  { text: _l('按月订阅'), value: 'monthly' },
+  { text: _l('按年订阅'), value: 'yearly' },
+];
+
 // 获取基础信息
 const getBaseInfo = moveX => {
   if (moveX <= 135) {
@@ -79,6 +85,7 @@ const formatValue = moveX => {
 // 根据使用人数计算距离
 const getMinX = formatCount => {
   let minX = 0;
+
   if (formatCount > 0 && formatCount <= 1000) {
     minX = (formatCount / 100 - 1) * 15;
   } else if (formatCount > 1000 && formatCount <= 10000) {
@@ -86,6 +93,7 @@ const getMinX = formatCount => {
   } else if (formatCount > 10000) {
     minX = 315 + ((formatCount - 10000) / 10000) * 40;
   }
+
   return minX;
 };
 
@@ -127,6 +135,7 @@ export default class PortalProgress extends Component {
 
   onMouseMove = e => {
     const { status, initX, minX } = this.state;
+
     if (status) {
       const moveX = e.clientX - initX;
 
@@ -155,40 +164,72 @@ export default class PortalProgress extends Component {
     const tempMoveX = event.clientX - $div.getBoundingClientRect().left;
     if (this.props.payType === 'portalupgrade' && tempMoveX < this.state.minX) return;
     const { userCount, left } = formatValue(tempMoveX) || {};
-    this.setState(
-      {
-        moveX: left,
-        userCount,
-      },
-      () => {
-        this.props.handleChange('addUserCount', this.state.userCount);
-      },
-    );
+    this.setState({ moveX: left, userCount }, () => {
+      this.props.handleChange('addUserCount', this.state.userCount);
+    });
   };
 
   render() {
-    const { payType, effectiveExternalUserCount, licenseInfo = {}, handleChange } = this.props;
+    const {
+      payType,
+      effectiveExternalUserCount,
+      licenseInfo = {},
+      externalType = 'monthly',
+      handleChange,
+    } = this.props;
     const { userCount, moveX } = this.state;
     const DISPLAY_OPTIONS = getOptions(effectiveExternalUserCount);
     const expandType = Config.params[3];
+    const isMonthly = externalType === 'monthly';
+
+    const getUnitPrice = () => {
+      if (userCount < 1000) {
+        return { price: isMonthly ? 25 : 250, unit: 100 };
+      }
+
+      if (userCount >= 1000 && userCount < 10000) {
+        return { price: isMonthly ? 50 : 500, unit: 1000 };
+      }
+
+      return { price: isMonthly ? 250 : 2500, unit: 10000 };
+    };
+
     return (
       <Fragment>
         <div className="portalProgressContainer">
-          {expandType === 'portalupgrade' && (
-            <div className="flexRow payType">
-              {_l('购买方式')}
-              {DISPLAY_OPTIONS.map(item => {
-                return (
+          {!window.platformENV.isOverseas ? (
+            expandType === 'portalupgrade' && (
+              <div className="flexRow payType">
+                {_l('购买方式')}
+                {DISPLAY_OPTIONS.map(item => {
+                  return (
+                    <Radio
+                      className="mLeft32"
+                      text={item.text}
+                      checked={payType === item.value}
+                      onClick={() => handleChange('payType', item.value)}
+                    />
+                  );
+                })}
+              </div>
+            )
+          ) : (
+            <Fragment>
+              <div className="textSecondary mBottom12">{_l('订阅方式')}</div>
+              <div className="mBottom32">
+                {subscribeTypes.map(item => (
                   <Radio
-                    className="mLeft32"
                     text={item.text}
-                    checked={payType === item.value}
-                    onClick={() => handleChange('payType', item.value)}
+                    checked={externalType === item.value}
+                    onClick={() => handleChange('externalType', item.value)}
                   />
-                );
-              })}
-            </div>
+                ))}
+              </div>
+            </Fragment>
           )}
+
+          {window.platformENV.isOverseas && <div className="textSecondary mBottom12">{_l('选择增补人数')}</div>}
+
           <div className="portal-ant-slider" onMouseUp={this.onMouseUp}>
             <div className="portal-ant-slider-bg" style={{ width: `${moveX}px` }}></div>
             <div className="portal-ant-slider-step" id="portal-ant-slider-step" onClick={this.handleClick}>
@@ -203,26 +244,52 @@ export default class PortalProgress extends Component {
                 onMouseDown={this.onMouseDown}
               />
             </Tooltip>
-            <div className="portal-ant-slider-mark">
-              {marks.map(item => {
-                return (
-                  <span className={cx('portal-ant-slider-mark-text', { InlineBlock: item.value <= userCount })}>
-                    {item.label}
-                  </span>
-                );
-              })}
-            </div>
+            {!window.platformENV.isOverseas && (
+              <div className="portal-ant-slider-mark">
+                {marks.map(item => {
+                  return (
+                    <span className={cx('portal-ant-slider-mark-text', { InlineBlock: item.value <= userCount })}>
+                      {item.label}
+                    </span>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </div>
-        <div className="mBottom16">
-          <span className="textTertiary mRight18">{_l('购买人数：')}</span>
-          <span>{_l('%0人', userCount)}</span>
-        </div>
-        <div className="mBottom16">
-          <span className="textTertiary mRight18">{_l('到期时间：')}</span>
-          <span>{moment(licenseInfo.endDate).format('YYYY年MM月DD日')}</span>
-          <span className="textTertiary">{_l('（计费：%0天）', licenseInfo.expireDays)}</span>
-        </div>
+
+        {!window.platformENV.isOverseas ? (
+          <Fragment>
+            <div className="mBottom16">
+              <span className="textTertiary mRight18">{_l('购买人数：')}</span>
+              <span>{_l('%0人', userCount)}</span>
+            </div>
+            <div className="mBottom16">
+              <span className="textTertiary mRight18">{_l('到期时间：')}</span>
+              <span>{moment(licenseInfo.endDate).format('YYYY年MM月DD日')}</span>
+              <span className="textTertiary">{_l('（计费：%0天）', licenseInfo.expireDays)}</span>
+            </div>
+          </Fragment>
+        ) : (
+          <Fragment>
+            <div className="flexRow">
+              <div>
+                <div className="textTertiary mBottom12">{_l('购买人数')}</div>
+                <div>{_l('%0人', userCount)}</div>
+              </div>
+              <div className="mLeft80">
+                <div className="textTertiary mBottom12">{_l('单位价格')}</div>
+                <div>{`$${getUnitPrice().price}/${getUnitPrice().unit}${_l('人')}`}</div>
+              </div>
+            </div>
+            <div className="mTop36">
+              <span className="textSecondary">{_l('周期性费用')}</span>
+              <span className="bold Font19 mLeft12">
+                {'$' + (userCount / getUnitPrice().unit) * getUnitPrice().price}
+              </span>
+            </div>
+          </Fragment>
+        )}
       </Fragment>
     );
   }

@@ -18,6 +18,7 @@ const Item = ({ onDelete, DragHandle, item }) => {
         <Icon icon={data.icon} style={{ color: data.color }} className={cx('mRight12 Font18 InlineFlex Alpha10')} />
       );
     }
+
     if (key === 'btn') {
       const { color, icon, iconUrl } = data;
       return (
@@ -43,6 +44,7 @@ const Item = ({ onDelete, DragHandle, item }) => {
         </React.Fragment>
       );
     }
+
     return <Icon icon="print" className={cx('mRight12 Font18 textSecondary InlineFlex')} />;
   };
 
@@ -142,6 +144,7 @@ export default function (props) {
   const onDelete = id => {
     onChange(actioncolumn.filter(o => o.id !== id));
   };
+
   if (loading) return '';
 
   return (

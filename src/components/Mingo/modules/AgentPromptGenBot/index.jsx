@@ -23,7 +23,7 @@ const MingoContentWrap = styled.div`
     font-weight: bold;
     margin: 26px 0 6px;
     font-size: 15px;
-    color: var(--color-text-title);
+    color: var(--color-text-primary);
   }
   .sendCon {
     position: relative;
@@ -113,13 +113,25 @@ function AgentPromptGenBot(props, ref) {
       }, timeout);
     }
   }, []);
-  const handleSend = (newMessage, { fromMessageId, messageOptions } = {}) => {
+
+  const handleSend = (
+    newMessage,
+    { fromMessageId, messageOptions, images, fileIds, media, useFileContentFormat } = {},
+  ) => {
     setIsChatting(true);
-    sendMessage(newMessage, { fromMessageId, messageOptions });
+    sendMessage(newMessage, {
+      fromMessageId,
+      messageOptions,
+      images,
+      fileIds,
+      media,
+      useFileContentFormat,
+    });
     setTimeout(() => {
       handleScrollToBottom();
     }, 100);
   };
+
   useImperativeHandle(ref, () => ({
     destroy: () => {
       abortRequest();
@@ -128,6 +140,7 @@ function AgentPromptGenBot(props, ref) {
       if (cache.current.loadAbortController) {
         cache.current.loadAbortController.abort();
       }
+
       setIsChatting(false);
       cache.current = {};
     },
@@ -140,6 +153,7 @@ function AgentPromptGenBot(props, ref) {
       cache.current.params = window.agentPromptGenBotParams;
       window.agentPromptGenBotParams = undefined;
     }
+
     handleSend(_l('开始生成'), { messageOptions: { hidden: true } });
   }, []);
   return (
@@ -177,12 +191,23 @@ function AgentPromptGenBot(props, ref) {
               />
             );
           }
+
           return null;
         }}
       />
       {!disabled && (
         <div className="sendCon" style={{ maxWidth: maxWidth + 16 * 2 }}>
           <Send
+            allowUpload
+            needOcr
+            mingoOcr
+            allowMimeTypes={[
+              { title: 'image', extensions: 'jpg,jpeg,png,heic' },
+              { title: 'office', extensions: 'pdf,doc,docx,xls,xlsx,txt' },
+            ]}
+            uploadFileToolTip={_l(
+              '文件数量：最多5个\n文件大小：单个文件不超过10M\n总字数：所有文档的总字数最多50k，超出自动忽略\n文件格式：PDF / TXT / Word / Excel / 图片',
+            )}
             isChatting={isChatting}
             loading={loading}
             isRequesting={isRequesting}
@@ -190,7 +215,22 @@ function AgentPromptGenBot(props, ref) {
             setAutoPlay={value => {
               cache.current.autoPlay = value;
             }}
-            onSend={handleSend}
+            onSend={(value, { files } = {}) => {
+              if (!files || !files.length) {
+                handleSend(value);
+
+                return;
+              }
+
+              const imageFiles = files.filter(f => f.type.startsWith('image/'));
+              const ocrFiles = files.filter(f => !f.type.startsWith('image/') && f.ocrId);
+              handleSend(value, {
+                images: imageFiles.map(f => f.url).filter(Boolean),
+                fileIds: ocrFiles.map(f => f.ocrId).filter(Boolean),
+                media: ocrFiles.map(f => f.commonAttachment),
+                useFileContentFormat: true,
+              });
+            }}
           />
         </div>
       )}

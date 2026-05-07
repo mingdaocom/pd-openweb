@@ -34,9 +34,11 @@ export default class Members extends Component {
   updateMembers(searchText) {
     const { session } = this.props;
     const { loading, pageIndex, members } = this.state;
+
     if (loading || !pageIndex) {
       return;
     }
+
     this.setState({
       loading: true,
     });

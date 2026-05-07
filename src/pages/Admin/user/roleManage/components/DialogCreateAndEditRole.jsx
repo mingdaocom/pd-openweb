@@ -28,6 +28,7 @@ class DialogCreateAndEditRole extends React.Component {
     let remark = this.state.remark.trim();
 
     const checkSensitive = await fixedDataAjax.checkSensitive({ content: roleName });
+
     if (checkSensitive) {
       this.setState({ submitLoading: false });
       return alert(_l('输入内容包含敏感词，请重新填写'), 3);
@@ -62,6 +63,7 @@ class DialogCreateAndEditRole extends React.Component {
           } else if (res === 2) {
             alert(_l('该角色名称已存在'), 3);
           }
+
           this.props.onCancel();
           this.setState({ submitLoading: false });
         })
@@ -84,6 +86,7 @@ class DialogCreateAndEditRole extends React.Component {
             alert(_l('该角色名称已存在'), 3);
             this.setState({ exsistCurrentName: true });
           }
+
           this.setState({ submitLoading: false });
         })
         .catch(() => {

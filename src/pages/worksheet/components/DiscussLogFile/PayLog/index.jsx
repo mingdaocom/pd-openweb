@@ -23,7 +23,7 @@ const WrapCon = styled.div`
 `;
 const Wrap = styled.div`
   background: var(--color-background-primary);
-  box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-sm);
   border-radius: 8px;
   padding: 20px;
   .payTitle {
@@ -110,7 +110,7 @@ const EmptyWrap = styled.div`
     width: 80px;
     height: 80px;
     border-radius: 80%;
-    background-color: var(--color-background-secondary);
+    background-color: var(--color-background-disabled);
   }
 `;
 
@@ -140,13 +140,13 @@ const SelectPayStatusWrap = styled.span`
   cursor: pointer;
   color: var(--color-text-secondary);
   .icon.icon-arrow-down {
-    color: var(--color-text-secondary);
     font-size: 8px;
     width: 18px;
     display: inline-block;
     text-align: center;
   }
   &:hover {
+    color: var(--color-primary);
     box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.2);
   }
 `;
@@ -329,6 +329,7 @@ export default function PayLog(props) {
   if (loading) {
     return <LoadDiv />;
   }
+
   if (filterPayOrders.length && !!_.get(filterPayOrders[0] || {}, 'msg')) {
     return renderEmpty();
   }
@@ -451,9 +452,11 @@ export default function PayLog(props) {
             //只有已退款才有退款时间
             return;
           }
+
           if (a.key === 'operatorAccountInfo' && !_.get(o, `operatorAccountInfo.accountId`)) {
             return;
           }
+
           return (
             <div className={cx('flexRow alignItemsCenter', { mBottom12: i < refundInfoKeys.length - 1 })}>
               <span className={cx('payTitle textSecondary Bold')}>{a.txt}</span>
@@ -508,6 +511,7 @@ export default function PayLog(props) {
     return filterPayOrders.map(payOrder => {
       const data = statusList.find(o => o.key === payOrder.status) || {};
       let list = infoKeys;
+
       //  退款金额 没有 则不显示
       // 已支付、待支付、支付超时；不展示退款金额字段
       if (!payOrder.refundAmount || [0, 1, 4].includes(payOrder.status)) {

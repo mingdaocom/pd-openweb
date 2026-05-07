@@ -45,6 +45,7 @@ const DISTANCE_CONFIG = [
     text: _l('2000米'),
   },
 ];
+
 export default function Location({ data, onChange }) {
   const { enumDefault2 } = data;
   const strDefault = data.strDefault || '00';
@@ -92,6 +93,7 @@ export default function Location({ data, onChange }) {
                   onChange({ ...handleAdvancedSettingChange(data, { distance: 100 }), enumDefault2: 1 });
                   return;
                 }
+
                 onChange({ enumDefault2: value });
               }}
             />

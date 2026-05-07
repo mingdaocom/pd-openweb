@@ -11,7 +11,7 @@ import { fixedBottomWidgets, putControlByOrder } from '../../util';
 import { deleteSection } from '../../util/data';
 import { batchCopyWidgets } from '../../util/data';
 import { batchRemoveItems, insertNewLine } from '../../util/drag';
-import { getAdvanceSetting } from '../../util/setting';
+import { getAdvanceSetting, getTitleStyle } from '../../util/setting';
 import WidgetStatus from '../components/WidgetStatus';
 
 const TabHeaderItemWrap = styled.div`
@@ -31,6 +31,10 @@ const TabHeaderItemWrap = styled.div`
     line-height: 34px;
     text-align: center;
     cursor: pointer;
+  }
+  .tabHeaderTitle {
+    ${props => props.titleStyle || ''}
+    color: ${props => props.titleColor};
   }
 `;
 
@@ -73,6 +77,8 @@ export function TabHeaderItem(props) {
   const { data, styleInfo, setWidgets } = props;
   const [visible, setVisible] = useState(false);
   const isCollapse = _.get(styleInfo, 'info.sectionshow') === '2';
+  const { titlestyle = '0000', titlecolor = 'var(--color-text-title)' } = getAdvanceSetting(data);
+  const titleStyle = getTitleStyle(titlestyle);
 
   const renderIcon = () => {
     const showIcon = _.get(styleInfo, 'info.showicon') || '1';
@@ -95,9 +101,9 @@ export function TabHeaderItem(props) {
   };
 
   return (
-    <TabHeaderItemWrap>
+    <TabHeaderItemWrap titleStyle={titleStyle} titleColor={titlecolor}>
       {renderIcon()}
-      <span className="Font15 Bold ellipsis">{data.controlName}</span>
+      <span className="Font15 Bold ellipsis tabHeaderTitle">{data.controlName}</span>
       <WidgetStatus data={data} style={{ lineHeight: '16px' }} />
 
       {isCollapse && (
@@ -132,6 +138,7 @@ export function TabHeaderItem(props) {
                     } else {
                       setWidgets(batchRemoveItems(props.widgets, [data]));
                     }
+
                     setVisible(false);
                   }
                 }}

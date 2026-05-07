@@ -115,18 +115,22 @@ function WithdrawReimburseDialog(props) {
           alert(_l(`请输入${type === 'reimburse' ? '退款' : '提现'}金额`), 2);
           return;
         }
+
         if (type === 'reimburse' && Number(amount) <= 0) {
           alert(_l('至少退款0.01元'), 2);
           return;
         }
+
         if (Number(amount) <= 0) {
           alert(_l(`输入的${type === 'reimburse' ? '退款' : '提现'}金额须大于0`), 2);
           return;
         }
+
         if (Number(amount) > max) {
           alert(`金额大于可${type === 'reimburse' ? '退款' : '提现'}额，请重新输入`, 2);
           return;
         }
+
         onCancel();
 
         if (cancelPasswordVerify) {

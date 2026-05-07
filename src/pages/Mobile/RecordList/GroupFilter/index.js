@@ -67,6 +67,7 @@ const GroupFilter = props => {
     batchOptVisible,
     isGroupFilter: true,
   });
+
   const handleOpenDrawer = () => {
     setDrawerVisible(!drawerVisible);
   };
@@ -74,17 +75,20 @@ const GroupFilter = props => {
   const getDefaultValueInCreate = () => {
     if (_.isEmpty(mobileNavGroupFilters)) return;
     let data = mobileNavGroupFilters[0];
+
     if ([9, 10, 11, 28].includes(data.dataType)) {
       return { [data.controlId]: JSON.stringify([data.values[0]]) };
     } else if ([26, 27, 48].includes(data.dataType)) {
       let value = '';
       const id = _.get(data, 'values[0]');
       const name = _.get(data, 'navNames[0]');
+
       if (id && name) {
         value = JSON.stringify([safeParse(name)]);
       } else {
         value = '[]';
       }
+
       return { [data.controlId]: value };
     } else if ([29, 35].includes(data.dataType)) {
       return {
@@ -118,6 +122,7 @@ const GroupFilter = props => {
           if (appnavtype === '1') {
             handlePushState('page', 'groupFilter');
           }
+
           setDrawerVisible(true);
           setCurrentGroup(item);
         }}

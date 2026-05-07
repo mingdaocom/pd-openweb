@@ -6,6 +6,8 @@ import { Icon, Input, intlTelInput, LoadDiv } from 'ming-ui';
 import fixedDataAjax from 'src/api/fixedData.js';
 import userController from 'src/api/user';
 import WorkHandoverDialog from 'src/pages/Admin/components/WorkHandoverDialog';
+import UserCountLimitLink from 'src/pages/Admin/user/membersDepartments/UserCountLimitLink';
+import { getCurrentProject } from 'src/utils/project';
 import { checkForm, getMobilePhoneNumber } from '../../constant';
 import BaseFormInfo from '../BaseFormInfo';
 import DrawerFooterOption from '../DrawerFooterOption';
@@ -34,6 +36,7 @@ export default class EditUser extends Component {
         baseInfo: { ...editCurrentUser, userName: editCurrentUser.fullname, mobile: editCurrentUser.mobilePhone },
       });
     }
+
     if (typeCursor !== 0) {
       const { fullname, mobilePhone, email, status = '' } = editCurrentUser;
       this.setState({
@@ -44,6 +47,7 @@ export default class EditUser extends Component {
         isUploading: false,
       });
     }
+
     setTimeout(() => {
       this.itiFn();
     }, 500);
@@ -68,6 +72,7 @@ export default class EditUser extends Component {
 
       this.mobilePhone.addEventListener('countrychange', () => {
         const { dialCode } = (this.iti && this.iti.getSelectedCountryData()) || {};
+
         if (!this.state.mobilePhone.includes(`+${dialCode}`)) {
           this.setState({ mobilePhone: this.state.mobilePhone.replace('+', '') });
         }
@@ -91,6 +96,7 @@ export default class EditUser extends Component {
           mobile: user.mobilePhone,
           email: user.email,
           mobilePhone: user.mobilePhone || editCurrentUser.mobilePhone,
+          isSuperAdmin: user.isAdmin,
           baseInfo: {
             jobNumber: user.jobNumber || '',
             contactPhone: user.contactPhone || '',
@@ -114,11 +120,13 @@ export default class EditUser extends Component {
   };
   fromatMobilePhoe = mobilePhone => {
     let value = mobilePhone;
+
     if (this.iti) {
       const countryData = this.iti.getSelectedCountryData();
       const dialCode = `+${countryData.dialCode}`;
       value = (value || '').replace(dialCode, '');
     }
+
     return value;
   };
   clearError = field => {
@@ -170,10 +178,11 @@ export default class EditUser extends Component {
           this.props.fetchApproval();
           this.props.clickSave();
         } else if (result === 4) {
-          alert(_l('当前用户数已超出人数限制'), 3);
+          alert(<UserCountLimitLink projectId={projectId} />, 3);
         } else {
           alert(_l('操作失败'), 2);
         }
+
         this.setState({ agreeLoading: false });
       })
       .catch(() => {
@@ -224,6 +233,7 @@ export default class EditUser extends Component {
             } else {
               alert(_l('保存失败'), 2);
             }
+
             this.setState({ isUploading: false });
           },
           () => {
@@ -255,7 +265,9 @@ export default class EditUser extends Component {
         fullname: userName,
         jobIds,
         jobNumber,
-        mobilePhone: getMobilePhoneNumber(this.iti, this.state.mobilePhone),
+        // 先剥离区号再交给 getMobilePhoneNumber，避免 this.state.mobilePhone 自带 +区号 时
+        // 首位 0 的判断失败、走到 iti.getNumber() 把首位 0 吞掉
+        mobilePhone: getMobilePhoneNumber(this.iti, this.fromatMobilePhoe(this.state.mobilePhone)),
         projectId,
         workSiteId,
         contactPhone,
@@ -268,7 +280,15 @@ export default class EditUser extends Component {
       };
 
       this.setState({ isUploading: true });
-      Promise.all([fixedDataAjax.checkSensitive({ content: jobNumber })]).then(results => {
+      // 私有部署不检查companyName
+      Promise.all(
+        !window.platformENV.isOverseas && !window.platformENV.isLocal
+          ? [
+              fixedDataAjax.checkSensitive({ content: companyName }),
+              fixedDataAjax.checkSensitive({ content: jobNumber }),
+            ]
+          : [fixedDataAjax.checkSensitive({ content: jobNumber })],
+      ).then(results => {
         if (!results.find(result => result)) {
           userController
             .updateUser(params)
@@ -276,14 +296,16 @@ export default class EditUser extends Component {
               if (result === 1) {
                 alert(_l('修改成功'), 1);
                 this.props.clickSave();
+                this.setState({ isUploading: false });
               } else {
                 alert(_l('保存失败'), 2);
+                // 接口调用失败：表单会随 isUploading 翻回 false 重新挂载，
+                // 等下一帧 DOM 拿到新 ref 后再重建 iti，避免它仍绑在已卸载的 input 上
+                this.setState({ isUploading: false }, () => this.itiFn());
               }
-              this.setState({ isUploading: false });
             })
             .catch(() => {
-              this.setState({ isUploading: false });
-              this.itiFn();
+              this.setState({ isUploading: false }, () => this.itiFn());
             });
         } else {
           alert(_l('输入内容包含敏感词，请重新填写'), 3);
@@ -293,20 +315,26 @@ export default class EditUser extends Component {
     }
   };
   renderBaseUserInfo = () => {
-    const { typeCursor } = this.props;
-    const { userName, mobile, email, mobilePhone, errors = {}, status } = this.state;
+    const { typeCursor, projectId } = this.props;
+    const { userName, mobile, email, mobilePhone, errors = {}, status, isSuperAdmin } = this.state;
+
+    const currentProject = getCurrentProject(projectId);
+
     if (window.platformENV.isOverseas || window.platformENV.isLocal) {
+      const disabled = !currentProject.isSuperAdmin && isSuperAdmin;
+
       return (
         <Fragment>
-          {window.platformENV.isPlatform || typeCursor === 2 || typeCursor === 3 ? (
+          {window.platformENV.isPlatform || typeCursor === 2 || typeCursor === 3 || disabled ? (
             <TextInput label={_l('姓名')} value={userName} disabled="disabled" />
           ) : (
             <TextInput
               label={_l('姓名')}
               field={'userName'}
               value={userName}
+              disabled={disabled}
               isRequired={true}
-              placeholder={_l('')}
+              placeholder=""
               error={errors['userName'] && !!checkForm['userName'](userName)}
               onChange={e => this.changeFormInfo(e, 'userName')}
               onFocus={() => {
@@ -314,7 +342,7 @@ export default class EditUser extends Component {
               }}
             />
           )}
-          {window.platformENV.isPlatform || typeCursor === 2 || typeCursor === 3 ? (
+          {window.platformENV.isPlatform || typeCursor === 2 || typeCursor === 3 || disabled ? (
             <TextInput label={_l('手机号')} value={mobile} disabled="disabled" />
           ) : (
             <div className="formGroup">
@@ -336,14 +364,14 @@ export default class EditUser extends Component {
               )}
             </div>
           )}
-          {window.platformENV.isPlatform ? (
+          {window.platformENV.isPlatform || disabled ? (
             <TextInput label={_l('邮箱')} value={email} disabled="disabled" />
           ) : typeCursor === 0 || typeCursor === 1 ? (
             <TextInput
               label={_l('邮箱')}
               field={'email'}
               value={email}
-              placeholder={_l('')}
+              placeholder=""
               error={errors['email'] && !!checkForm['email'](email)}
               onChange={e => this.changeFormInfo(e, 'email')}
               onFocus={() => {
@@ -409,8 +437,10 @@ export default class EditUser extends Component {
             </span>
           </div>
 
-          {window.platformENV.isPlatform && (
+          {window.platformENV.isPlatform ? (
             <div className="textTertiary mLeft24">{_l('姓名、手机和邮箱为个人账户信息，组织中无法修改')}</div>
+          ) : (
+            <div className="textTertiary mLeft24">{_l('非组织超级管理员无法修改组织超级管理员姓名/手机号/邮箱')}</div>
           )}
           {isUploading ? (
             <div className="flex flexRow justifyContentCenter alignItemsCenter">

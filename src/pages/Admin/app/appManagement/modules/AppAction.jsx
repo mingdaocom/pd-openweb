@@ -7,6 +7,7 @@ import { Dialog, Icon, UpgradeIcon } from 'ming-ui';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import UpgradeProcess from 'src/pages/AppSettings/components/ImportUpgrade/components/UpgradeProcess';
 import AppTrash from 'src/pages/worksheet/common/Trash/AppTrash';
+import { VersionProductType } from 'src/utils/enum';
 import { getFeatureStatus } from 'src/utils/project';
 import { importAppMode, optionData } from '../constant';
 import AppLog from './AppLog';
@@ -77,17 +78,17 @@ export default function BatchImportApp(props) {
               {optionData.map(item => {
                 const featureType = getFeatureStatus(projectId, item.featureId);
 
+                // 私有部署支持迁移模式、公有云使用应用访问策略指标（用于测试）
+                const isSupportMigrateMode =
+                  window.platformENV.isPlatform && !window.platformENV.isLocal && !window.platformENV.isOverseas
+                    ? getFeatureStatus(projectId, VersionProductType.appAccessPolicy) === '1'
+                    : window.platformENV.isLocal && !window.platformENV.isOverseas && !window.platformENV.isPlatform;
+
                 if (_.includes(['handleExportAll', 'openAppTrash', 'handleUpdateAll'], item.action) && !featureType) {
                   return;
                 }
 
-                if (
-                  item.action === 'handleUpdateAll' &&
-                  featureType !== '2' &&
-                  window.platformENV.isLocal &&
-                  !window.platformENV.isOverseas &&
-                  !window.platformENV.isPlatform
-                ) {
+                if (item.action === 'handleUpdateAll' && featureType !== '2' && isSupportMigrateMode) {
                   // 仅私有部署支持迁移模式
                   return (
                     <Trigger

@@ -16,40 +16,54 @@ const parseShareId = () => {
     window.shareState.isPublicPrint = true;
     window.shareState.shareId = (location.pathname.match(/.*\/public\/print\/(\w{24})/) || '')[1];
   }
+
   if (/\/public\/query/.test(location.pathname)) {
     window.shareState.isPublicQuery = true;
     window.shareState.shareId = (location.pathname.match(/.*\/public\/query\/(\w{24})/) || '')[1];
   }
+
   if (/\/public\/form/.test(location.pathname)) {
     window.shareState.isPublicForm = true;
     window.shareState.shareId = (location.pathname.match(/.*\/public\/form\/(\w{32})/) || '')[1];
   }
+
   if (/\/worksheet\/form\/preview/.test(location.pathname)) {
     window.shareState.isPublicFormPreview = true;
   }
+
   if (/\/public\/view/.test(location.pathname)) {
     window.shareState.isPublicView = true;
     window.shareState.shareId = (location.pathname.match(/.*\/public\/view\/(\w{24})/) || '')[1];
   }
+
   if (/\/public\/record/.test(location.pathname)) {
     window.shareState.isPublicRecord = true;
     window.shareState.shareId = (location.pathname.match(/.*\/public\/record\/(\w{24})/) || '')[1];
   }
+
   if (/\/public\/workflow/.test(location.pathname)) {
     window.shareState.isPublicWorkflowRecord = true;
     window.shareState.shareId = (location.pathname.match(/.*\/public\/workflow\/(\w{24})/) || '')[1];
   }
+
   if (/\/public\/page/.test(location.pathname)) {
     window.shareState.isPublicPage = true;
     window.shareState.shareId = (location.pathname.match(/.*\/public\/page\/(\w{24})/) || '')[1];
   }
+
   if (/\/public\/chart/.test(location.pathname)) {
     window.shareState.isPublicChart = true;
     window.shareState.shareId = (location.pathname.match(/.*\/public\/chart\/(\w{24})/) || '')[1];
   }
+
   if (/\/public\/chatbot/.test(location.pathname)) {
     window.shareState.isPublicChatbot = true;
     window.shareState.shareId = (location.pathname.match(/.*\/public\/chatbot\/(\w{24})/) || '')[1];
+  }
+
+  if (/\/public\/apidoc/.test(location.pathname)) {
+    window.shareState.isPublicApidoc = true;
+    window.shareState.shareId = (location.pathname.match(/.*\/public\/apidoc\/(\w{24})/) || '')[1];
   }
 };
 
@@ -70,16 +84,19 @@ const clearLocalStorage = () => {
 const normalizeUrls = obj => {
   for (const key in obj) {
     const value = obj[key];
+
     // AppFileServer、PluginRuntimeUrl、WebUrl、PlatformUrl 不处理
     // AjaxApiUrl 应用库引用的library中没有斜杠，所以不处理
     if (['AppFileServer', 'PluginRuntimeUrl', 'WebUrl', 'PlatformUrl', 'AjaxApiUrl'].includes(key)) {
       continue;
     }
+
     // 是字符串、以http或https开头、斜杠结尾
     if (typeof value === 'string' && /^https?:\/\/.*?\/$/i.test(value)) {
       obj[key] = value.trim().replace(/\/$/, '');
     }
   }
+
   return obj;
 };
 
@@ -132,6 +149,10 @@ const getGlobalMeta = ({ allowNotLogin, requestParams } = {}) => {
   window.platformENV.isLocal = /(server|server-platform)$/.test(md.global.Config.ProductCode);
   window.platformENV.isPlatform = /(saas|platform)$/.test(md.global.Config.ProductCode);
 
+  if (window.shareState.shareId) {
+    initThemeMode();
+  }
+
   if (allowNotLogin || window.isPublicApp) return;
 
   if (!md.global.Account.accountId) {
@@ -158,15 +179,20 @@ const getGlobalMeta = ({ allowNotLogin, requestParams } = {}) => {
         location.href = `${window.subPath || ''}/portal/${md.global.Account.appId}`;
         return;
       }
+
       location.href = `${md.global.Config.WebUrl}dashboard`;
     }
+
     return;
   }
 
   // 第一次进入
   if (!md.global.Account.langModified) {
     accountSetting.autoEditAccountLangSetting({ langType: getCurrentLangCode(lang) });
-    !md.global.Account.isPortal && navigateTo('/app/my');
+
+    if (!md.global.Account.isPortal && !urlObj.href.includes('oauth/authorize')) {
+      navigateTo('/app/my');
+    }
   } else if (
     md.global.Account.lang !== lang &&
     !urlObj.hash.includes('i18n_reload') &&

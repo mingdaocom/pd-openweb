@@ -103,14 +103,12 @@ const WrapLi = styled.div`
     min-width: 70px !important;
     max-width: 70px !important;
     color: var(--color-text-disabled);
-    // opacity: 0;
   }
   &:hover {
-    // background: var(--color-primary-transparent) !important;
     .wrapTr {
-      background: var(--color-primary-transparent) !important;
+      background: var(--color-background-hover) !important;
       &.checkBoxTr {
-        background: var(--color-primary-transparent) !important;
+        background: var(--color-background-hover) !important;
       }
     }
     .checkBoxTr,
@@ -126,19 +124,17 @@ const WrapLi = styled.div`
     }
   }
   &.checkLi {
-    // background: var(--color-primary-transparent) !important;
     .wrapTr {
-      background: var(--color-primary-transparent) !important;
+      background: var(--color-background-hover) !important;
       &.checkBoxTr {
-        background: var(--color-primary-transparent) !important;
+        background: var(--color-background-hover) !important;
       }
     }
     &:hover {
-      // background: var(--color-primary-transparent) !important;
       .wrapTr {
-        background: var(--color-primary-transparent) !important;
+        background: var(--color-background-hover) !important;
         &.checkBoxTr {
-          background: var(--color-primary-transparent) !important;
+          background: var(--color-background-hover) !important;
         }
       }
     }
@@ -162,6 +158,7 @@ const WrapSort = styled.div`
   }
 `;
 const ascList = ['', 'ascend', 'descend'];
+
 function SortToll(props) {
   const [asc, setAsc] = useState(props.item.sorterType || '');
   useEffect(() => {
@@ -184,6 +181,7 @@ function SortToll(props) {
     </WrapSort>
   );
 }
+
 export default function PorTalTable(props) {
   const { clickRow, showTips } = props;
   const [listCell, setList] = useState(props.list || []);
@@ -307,6 +305,7 @@ export default function PorTalTable(props) {
                   ) {
                     return;
                   }
+
                   clickRow &&
                     clickRow(
                       columnsCell.map(it => {
@@ -330,6 +329,7 @@ export default function PorTalTable(props) {
                         if (props.ownerNoOption && item.isOwner) {
                           return;
                         }
+
                         props.setSelectedIds(
                           isChecked ? props.selectedIds.filter(o => o !== itemId) : props.selectedIds.concat(itemId),
                         );

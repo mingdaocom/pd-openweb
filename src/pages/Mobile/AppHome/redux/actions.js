@@ -43,6 +43,7 @@ export const markedGroup =
                 if (item.id === id) {
                   return { ...item, isMarked };
                 }
+
                 return item;
               })
             : myAppData.personalGroups;
@@ -52,6 +53,7 @@ export const markedGroup =
                 if (item.id === id) {
                   return { ...item, isMarked };
                 }
+
                 return item;
               })
             : myAppData.projectGroups;
@@ -86,6 +88,7 @@ export const getHomePlatformSetting = projectId => dispatch => {
     });
   });
 };
+
 export const myPlatform = (projectId, isPullRefresh) => dispatch => {
   if (!isPullRefresh) {
     dispatch({ type: 'MOBILE_FETCHHOMELIST_START' });

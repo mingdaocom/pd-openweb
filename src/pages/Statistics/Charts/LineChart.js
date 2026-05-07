@@ -57,6 +57,7 @@ export const formatChartData = (data, yaxisList, { isPile, isAccumulate, accumul
   const result = [];
   const cloneData = _.cloneDeep(data);
   const { value } = cloneData[0];
+
   if (isAccumulate) {
     cloneData.map(item => {
       item.value.map((n, index) => {
@@ -67,6 +68,7 @@ export const formatChartData = (data, yaxisList, { isPile, isAccumulate, accumul
       return item;
     });
   }
+
   if (accumulatePerPile) {
     const { ydot = 2 } = yaxisList[0];
     cloneData.map(item => {
@@ -81,6 +83,7 @@ export const formatChartData = (data, yaxisList, { isPile, isAccumulate, accumul
       return item;
     });
   }
+
   value.forEach(item => {
     const name = item.originalX;
     cloneData.forEach((element, index) => {
@@ -90,13 +93,16 @@ export const formatChartData = (data, yaxisList, { isPile, isAccumulate, accumul
         if (isPile && n.originalX === name) {
           n.v = n.v + lastValue;
         }
+
         return n.originalX === name;
       });
+
       if (current.length) {
         const { rename, emptyShowType } = element.c_id
           ? _.find(yaxisList, { controlId: element.c_id }) || {}
           : yaxisList[0];
         const hideEmptyValue = !emptyShowType && current[0].v === null;
+
         if (!hideEmptyValue && element.originalKey) {
           result.push({
             controlId: element.c_id,
@@ -156,6 +162,7 @@ export default class extends Component {
   componentWillReceiveProps(nextProps) {
     const { displaySetup, style } = nextProps.reportData;
     const { displaySetup: oldDisplaySetup, style: oldStyle } = this.props.reportData;
+
     // 显示设置
     if (
       displaySetup.fontStyle !== oldDisplaySetup.fontStyle ||
@@ -186,11 +193,13 @@ export default class extends Component {
       !_.isEqual(nextProps.linkageMatch, this.props.linkageMatch)
     ) {
       const { LineChartConfig } = this.getComponentConfig(nextProps);
+
       if (this.LineChart) {
         this.LineChart.update(LineChartConfig);
         this.LineChart.render();
       }
     }
+
     // 切换图表类型 & 堆叠 & 累计 & 百分比
     if (
       displaySetup.showChartType !== oldDisplaySetup.showChartType ||
@@ -208,6 +217,7 @@ export default class extends Component {
     const { reportData } = props;
     const { displaySetup, style, xaxes, split } = reportData;
     const { LineChartComponent, LineChartConfig } = this.getComponentConfig(props);
+
     if (this.chartEl) {
       this.LineChart = new LineChartComponent(this.chartEl, LineChartConfig);
       this.isViewOriginalData = displaySetup.showRowList && props.isViewOriginalData;
@@ -218,11 +228,13 @@ export default class extends Component {
       if (this.isViewOriginalData || this.isLinkageData) {
         this.LineChart.on('element:click', this.handleClick);
       }
+
       this.LineChart.render();
     }
   }
   handleClick = ({ data, gEvent }) => {
-    const { xaxes, split, displaySetup, appId, reportId, name, reportType, style } = this.props.reportData;
+    const { reportData, isMobile } = this.props;
+    const { xaxes, split, displaySetup, appId, reportId, name, reportType, style } = reportData;
     const { contrastType } = displaySetup;
     const currentData = data.data;
     const param = {};
@@ -233,6 +245,7 @@ export default class extends Component {
       reportType,
       filters: [],
     };
+
     if (xaxes.cid) {
       const isNumber = isFormatNumber(xaxes.controlType);
       const value = currentData.originalId;
@@ -247,6 +260,7 @@ export default class extends Component {
         control: xaxes,
       });
     }
+
     if (split.controlId) {
       const isNumber = isFormatNumber(split.controlType);
       const value = currentData.groupKey;
@@ -254,6 +268,7 @@ export default class extends Component {
       if (!xaxes.cid) {
         linkageMatch.value = currentData.originalId;
       }
+
       linkageMatch.filters.push({
         controlId: split.controlId,
         values: [param[split.cid]],
@@ -263,15 +278,17 @@ export default class extends Component {
         control: split,
       });
     }
+
     if (_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length) {
       linkageMatch.onlyChartIds = style.autoLinkageChartObjectIds;
     }
+
     const isAll = this.isViewOriginalData && this.isLinkageData;
     this.setState(
       {
         dropdownVisible: isAll,
         offset: {
-          x: gEvent.x + 20,
+          x: gEvent.x + (isMobile ? -100 : 20),
           y: gEvent.y,
         },
         contrastType: currentData.isContrast ? contrastType : undefined,
@@ -282,6 +299,7 @@ export default class extends Component {
         if (!isAll && this.isViewOriginalData) {
           this.handleRequestOriginalData();
         }
+
         if (!isAll && this.isLinkageData) {
           this.handleAutoLinkage();
         }
@@ -297,6 +315,7 @@ export default class extends Component {
       contrastType,
       match,
     };
+
     if (isThumbnail) {
       this.props.onOpenChartDialog(data);
     } else {
@@ -421,6 +440,7 @@ export default class extends Component {
                 if (accumulatePerPile) {
                   return `${value}%`;
                 }
+
                 return value ? formatrChartAxisValue(Number(value), isPercentStackedArea, newYaxisList) : null;
               },
               style: {
@@ -470,6 +490,7 @@ export default class extends Component {
         formatter: ({ value, groupName }) => {
           const { name, id } = formatControlInfo(groupName);
           const labelValue = formatrChartValue(value, isPerPile, newYaxisList, value ? undefined : id);
+
           if (isPercentStackedArea) {
             return {
               name,
@@ -519,6 +540,7 @@ export default class extends Component {
                 if (accumulatePerPile) {
                   return `${value}%`;
                 }
+
                 const id = split.controlId ? newYaxisList[0].controlId : controlId;
                 return formatrChartValue(
                   value,
@@ -527,12 +549,15 @@ export default class extends Component {
                   controlId === 'record_count' && value ? undefined : id,
                 );
               };
+
               if (chartShowLabelIds.length && chartShowLabelIds.includes('all')) {
                 return render();
               }
+
               if (chartShowLabelIds.length && !chartShowLabelIds.includes(controlId)) {
                 return;
               }
+
               return render();
             },
             style: {
@@ -542,11 +567,13 @@ export default class extends Component {
         : false,
       annotations: [...getLineValue(LineValue), ...auxiliaryLineConfig],
     };
+
     if ([0, 1].includes(displaySetup.showChartType)) {
       baseConfig.lineStyle = {
         lineWidth: 3,
       };
     }
+
     if (displaySetup.showChartType == 2) {
       baseConfig.isStack = displaySetup.isPerPile;
       baseConfig.isPercent = displaySetup.isPerPile;
@@ -576,10 +603,12 @@ export default class extends Component {
       const isTime = isTimeControl(xaxes.controlType);
       const newData = isTime ? mergeDataTime(sortData, contrastData) : mergeData(sortData, contrastData);
       const data = sortData.length >= contrastData.length ? sortData : contrastData;
+
       baseConfig.meta.originalId.formatter = value => {
         const item = _.find(data, { originalId: value });
         return item ? item.name || _l('空') : value;
       };
+
       return {
         LineChartComponent: ChartComponent,
         LineChartConfig: Object.assign({}, baseConfig, {
@@ -593,6 +622,7 @@ export default class extends Component {
               const { name, id } = formatControlInfo(groupName);
               const { dot } = _.find(yaxisList, { controlId: id }) || {};
               const newValue = _.isNumber(value) ? value.toLocaleString('zh', { minimumFractionDigits: dot }) : '--';
+
               if (name === lastDateText) {
                 const item = _.find(contrastData, { originalId: xName }) || {};
                 const xAxisName = isTime ? item.originalName : item.name;
@@ -635,6 +665,7 @@ export default class extends Component {
   renderCount() {
     const { newYaxisList } = this.state;
     const { summary, yaxisList } = this.props.reportData;
+
     const get = value => {
       const count = formatrChartValue(value, false, newYaxisList);
       const originalCount = value.toLocaleString() == count ? 0 : value.toLocaleString();
@@ -643,6 +674,7 @@ export default class extends Component {
         originalCount,
       };
     };
+
     const renderItem = data => {
       const { count, originalCount } = get(data.sum);
       return (

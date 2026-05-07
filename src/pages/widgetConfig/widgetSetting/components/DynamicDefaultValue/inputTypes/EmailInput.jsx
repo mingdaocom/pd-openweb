@@ -26,9 +26,11 @@ export default function (props) {
     setValue(value);
     withValueChange && onDynamicValueChange(value ? [{ cid: '', rcid: '', staticValue: value }] : []);
   };
+
   const onTriggerClick = () => {
     defaultType && $wrap.current.triggerClick();
   };
+
   return (
     <DynamicValueInputWrap>
       {defaultType ? (
@@ -43,6 +45,7 @@ export default function (props) {
             if (from === DYNAMIC_FROM_MODE.FAST_FILTER) {
               return onDynamicValueChange(value ? [{ cid: '', rcid: '', staticValue: value }] : []);
             }
+
             if (value) {
               setValue(value);
             }

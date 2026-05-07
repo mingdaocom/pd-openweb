@@ -23,6 +23,7 @@ export default function (props) {
   const passwordOnWarn = (txt, changeWarn, info) => {
     if (keys.includes('setPassword') || (changeWarn && keys.includes('password'))) {
       let data = _.filter(warnList, it => !('inputPassword' === it.tipDom));
+
       //设置密码时，提示密码规则 符合验证则不再提示
       if (!RegExpValidator.isPasswordValid(txt) && keys.includes('setPassword')) {
         data = data.concat({
@@ -33,11 +34,13 @@ export default function (props) {
             `${_l('· 密码长度为8-20 字符')}<br/>${_l('· 需包含字母和数字，区分大小写')}`,
         });
       }
+
       onChange({ ...info, warnList: data });
     } else {
       onChange({ ...info });
     }
   };
+
   return (
     <React.Fragment>
       <div

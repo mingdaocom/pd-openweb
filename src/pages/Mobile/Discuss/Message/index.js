@@ -13,6 +13,7 @@ export default class extends Component {
 
   componentDidMount() {
     const { openPersonalInfoPopup } = this.props;
+
     if (this.textRef?.current && openPersonalInfoPopup) {
       this.textRef.current.addEventListener('click', this.handleClick);
     }
@@ -32,6 +33,7 @@ export default class extends Component {
     if (openPersonalInfoPopup && target.tagName === 'A') {
       const href = target.getAttribute('href');
       const text = target.textContent || '';
+
       if (href?.startsWith('/user_') && text.includes('@')) {
         // 阻止 a 标签默认跳转
         e.preventDefault();

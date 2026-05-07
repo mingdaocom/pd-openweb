@@ -50,6 +50,7 @@ const MobileSearch = forwardRef((props, ref) => {
       isFirstRun.current = false;
       return;
     }
+
     debouncedSearch(keywords);
   }, [keywords]);
 

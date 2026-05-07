@@ -23,6 +23,7 @@ import { getSheetListFirstId } from 'src/utils/worksheet';
 export const formatLeftSectionDetail = data => {
   return data.workSheetInfo.map(s => {
     const result = { ...s };
+
     if (s.type === 2) {
       const { workSheetInfo = [], appSectionId } = _.find(data.childSections, { appSectionId: s.workSheetId }) || {};
       result.items = workSheetInfo.map(item => {
@@ -30,6 +31,7 @@ export const formatLeftSectionDetail = data => {
         return item;
       });
     }
+
     return result;
   });
 };
@@ -47,28 +49,34 @@ export function getSheetList(args) {
         console.log(err);
       }
     }
+
     getAppSectionDetailRequest = homeAppApi.getAppSectionDetail(args);
     getAppSectionDetailRequest.then(data => {
       if (_.isEmpty(data)) {
         dispatch({ type: 'WORKSHEET_APP_SECTION_FAILURE' });
         return;
       }
+
       const isCharge = canEditApp(data.appRoleType, data.isLock);
       const list = formatLeftSectionDetail(data);
+
       if (data.workSheetInfo.length) {
         dispatch({
           type: 'SHEET_LIST',
           data: list,
         });
       }
+
       const { worksheetId } = getState().sheet.base;
       const { currentPcNaviStyle } = store.getState().appPkg;
       const sheetInfo = _.find(data.workSheetInfo, { workSheetId: worksheetId }) || {};
       const maturityTime = moment(md.global.Account.createTime).add(7, 'days').format('YYYY-MM-DD');
       const isMaturity = moment().isBefore(maturityTime);
+
       if (isCharge && isMaturity && sheetInfo.type === 0 && currentPcNaviStyle === 0) {
         dispatch(updateGuidanceVisible());
       }
+
       if ([1, 3].includes(currentPcNaviStyle)) {
         const { appSectionDetail } = store.getState().sheetList;
         const { appSectionId } = data;
@@ -84,6 +92,7 @@ export function getSheetList(args) {
         });
         store.dispatch(updateALLSheetList(res));
       }
+
       dispatch({ type: 'SHEET_LIST_UPDATE_LOADING', loading: false });
     });
   };
@@ -155,6 +164,7 @@ export function getAllAppSectionDetail(appId, callBack) {
 export function updateSheetListAppItem(id, args) {
   return function (dispatch, getState) {
     const { data } = getState().sheetList;
+
     const update = list => {
       return list.map(item => {
         if (item.workSheetId === id) {
@@ -170,6 +180,7 @@ export function updateSheetListAppItem(id, args) {
         }
       });
     };
+
     const list = update(data);
     dispatch({ type: 'SHEET_LIST', data: list });
   };
@@ -193,10 +204,12 @@ export function addFirstAppSection() {
       };
     });
     const name = _l('未命名分组');
+
     if (appSectionDetail.length === 1 && _.isEmpty(appSectionDetail[0].name)) {
       dispatch(updateALLSheetList(appSectionDetail.map(data => Object.assign(data, { edit: true, name }))));
       return;
     }
+
     homeAppApi
       .addAppSection({
         appId: appPkg.id,
@@ -265,10 +278,12 @@ export function copySheet(baseArgs, iconArgs) {
       type: 0,
     };
     const { parentGroupId } = iconArgs;
+
     if (parentGroupId) {
       args.appSectionId = parentGroupId;
       delete iconArgs.parentGroupId;
     }
+
     sheetApi.copyWorksheet(args).then(data => {
       if (data) {
         alert(_l('复制成功'));
@@ -280,6 +295,7 @@ export function copySheet(baseArgs, iconArgs) {
           ...iconArgs,
         };
         const sheetList = getState().sheetList.data;
+
         if (parentGroupId) {
           item.parentGroupId = parentGroupId;
           dispatch({
@@ -310,31 +326,37 @@ export function moveSheet(ages) {
     const { workSheetId, parentGroupId } = appItem;
     let newSheetList = null;
     let groupChildren = [];
+
     if (parentGroupId) {
       ages.sourceAppSectionId = parentGroupId;
       newSheetList = sheetList.map(item => {
         if (item.workSheetId === parentGroupId) {
           item.items = item.items.filter(item => item.workSheetId !== workSheetId);
         }
+
         return item;
       });
     } else {
       groupChildren = _.get(_.find(sheetList, { workSheetId }), 'items') || [];
       newSheetList = sheetList.filter(item => item.workSheetId !== workSheetId);
     }
+
     appManagementApi.removeWorkSheetAscription(ages).then(result => {
       if (result) {
         const { sheet, appPkg } = store.getState();
         const { appId, worksheetId: currentSheetId, groupId } = sheet.base;
         const resultAppSection = _.find(newSheetList, { workSheetId: ResultAppSectionId });
+
         if (resultAppSection) {
           appItem.parentGroupId = resultAppSection.workSheetId;
           resultAppSection.items = resultAppSection.items.concat(appItem);
         }
+
         if (groupId === ResultAppSectionId) {
           appItem.parentGroupId = undefined;
           newSheetList.push(appItem);
         }
+
         dispatch({ type: 'SHEET_LIST', data: newSheetList });
         if (workSheetId === currentSheetId || _.find(groupChildren, { workSheetId: currentSheetId })) {
           if (newSheetList.length) {
@@ -344,9 +366,11 @@ export function moveSheet(ages) {
             navigateTo(`/app/${sourceAppId}/${sourceAppSectionId}`);
           }
         }
+
         if (!ResultAppSectionId || [1, 3].includes(appPkg.currentPcNaviStyle)) {
           window.updateAppGroups();
         }
+
         moveSheetCache(appId, sourceAppSectionId);
         alert(_l('移动成功'));
       } else {
@@ -359,14 +383,17 @@ export function moveSheet(ages) {
 export function deleteSheet({ appId, groupId, worksheetId, projectId, type, parentGroupId }) {
   return function (dispatch, getState) {
     const { data: sheetList } = getState().sheetList;
+
     const deleteFun = function (data) {
       if (data) {
         let newSheetList = null;
+
         if (parentGroupId) {
           newSheetList = sheetList.map(item => {
             if (item.workSheetId === parentGroupId) {
               item.items = item.items.filter(item => item.workSheetId !== worksheetId);
             }
+
             return item;
           });
         } else {
@@ -374,8 +401,10 @@ export function deleteSheet({ appId, groupId, worksheetId, projectId, type, pare
           newSheetList = sheetList.filter(item => item.workSheetId !== worksheetId);
           newSheetList = newSheetList.concat(items.map(data => ({ ...data, parentGroupId: undefined })));
         }
+
         dispatch({ type: 'SHEET_LIST', data: newSheetList });
         const { worksheetId: currentSheetId } = store.getState().sheet.base;
+
         if (worksheetId === currentSheetId) {
           if (newSheetList.length) {
             const id = getSheetListFirstId(newSheetList);
@@ -384,11 +413,13 @@ export function deleteSheet({ appId, groupId, worksheetId, projectId, type, pare
             navigateTo(`/app/${appId}/${groupId}`);
           }
         }
+
         alert(_l('删除成功'));
       } else {
         alert(_l('操作失败，请稍后重试'), 2);
       }
     };
+
     if (type === 2) {
       homeAppApi
         .deleteAppSection({
@@ -434,6 +465,7 @@ export function sortSheetList(appId, appSectionId, sheetList) {
 export function updateGuidanceVisible(visible) {
   return function (dispatch) {
     const key = `${md.global.Account.accountId}-guidanceHide`;
+
     if (_.isBoolean(visible)) {
       webCache.add(
         {
@@ -471,6 +503,7 @@ export function addWorkSheet(args, cb) {
       .addWorkSheet(args)
       .then(result => {
         const { pageId, workSheetId, templateId, chatbotId } = result;
+
         if (type === 1 && pageId) {
           cb(result);
           const data = {
@@ -480,6 +513,7 @@ export function addWorkSheet(args, cb) {
             status: 1,
             ...pick(args, ['icon', 'iconColor', 'iconUrl', 'type', 'configuration', 'urlTemplate', 'createType']),
           };
+
           if (firstGroupId) {
             data.parentGroupId = args.appSectionId;
             dispatch({
@@ -495,8 +529,10 @@ export function addWorkSheet(args, cb) {
               data: data,
             });
           }
+
           return;
         }
+
         if (type === 0) {
           if (workSheetId) {
             getCustomWidgetUri({
@@ -514,6 +550,7 @@ export function addWorkSheet(args, cb) {
             cb && cb(result);
           }
         }
+
         if (type === 3) {
           if (chatbotId) {
             const data = {
@@ -539,6 +576,7 @@ export function addWorkSheet(args, cb) {
                 data: data,
               });
             }
+
             cb && cb(result);
           } else {
             alert(_l('创建对话机器人失败'), 2);
@@ -597,6 +635,7 @@ const enumTypeMap = {
   customPage: 1,
   chatbot: 3,
 };
+
 export function createAppItem(args) {
   return function (dispatch) {
     let { appId, firstGroupId, groupId, type, name, remark, configuration, urlTemplate, robotInfo } = args;
@@ -625,8 +664,10 @@ export function createAppItem(args) {
       createType: enumType === 1 ? (urlTemplate ? 1 : 0) : undefined,
       prompt: _.get(robotInfo, 'systemPrompt'),
     };
+
     const callBack = res => {
       const { pageId, chatbotId } = res || {};
+
       if (type === 'customPage' && pageId) {
         navigateTo(`/app/${appId}/${firstGroupId || groupId}/${pageId}`);
         store.dispatch(updatePageInfo({ pageName: name, pageId }));
@@ -634,6 +675,7 @@ export function createAppItem(args) {
           store.dispatch(updateEditPageVisible(true));
         }
       }
+
       if (type === 'chatbot' && chatbotId) {
         if (robotInfo) {
           const { name, greeting, suggestedQuestions = [] } = robotInfo;
@@ -662,10 +704,12 @@ export function createAppItem(args) {
 export function copyCustomPage(para, externalLink) {
   return function (dispatch) {
     const { parentGroupId } = para;
+
     if (parentGroupId) {
       para.appSectionId = parentGroupId;
       delete para.parentGroupId;
     }
+
     appManagementApi.copyCustomPage(para).then(data => {
       if (data) {
         alert(_l('复制成功'));
@@ -679,6 +723,7 @@ export function copyCustomPage(para, externalLink) {
           iconUrl: para.iconUrl,
           ...externalLink,
         };
+
         if (parentGroupId) {
           item.parentGroupId = parentGroupId;
           dispatch({
@@ -705,10 +750,12 @@ export function copyCustomPage(para, externalLink) {
 export function copyChatBot(para) {
   return function (dispatch) {
     const { parentGroupId } = para;
+
     if (parentGroupId) {
       para.appSectionId = parentGroupId;
       delete para.parentGroupId;
     }
+
     appManagementApi.copyChatBot(para).then(data => {
       if (data) {
         alert(_l('复制成功'));
@@ -721,6 +768,7 @@ export function copyChatBot(para) {
           iconColor: para.iconColor || '#616161',
           iconUrl: para.iconUrl,
         };
+
         if (parentGroupId) {
           item.parentGroupId = parentGroupId;
           dispatch({

@@ -57,6 +57,7 @@ export default {
    * @param {object} args.scenes 开票场景
    * @param {string} args.productId 开票商品
    * @param {string} args.remark 说明
+   * @param {string} args.invoiceCustomRemark 开票自定义备注
    * @param {string} args.mapWorksheetId 关联的工作表
    * @param {object} args.fieldMaps 关联的工作表映射字段
    * @param {Object} options 配置参数

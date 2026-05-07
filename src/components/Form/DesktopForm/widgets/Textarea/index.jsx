@@ -67,6 +67,7 @@ const Text = props => {
     formItemId,
     useCallback(data => {
       const { triggerType } = data;
+
       switch (triggerType) {
         case 'trigger_tab_enter':
           setIsEditing(true);
@@ -88,6 +89,7 @@ const Text = props => {
   const syncScroll = useCallback(
     event => {
       const coverLayer = document.querySelector(`#textareaPointEvents-${controlId} .customFormTextareaBox`);
+
       if (coverLayer) {
         coverLayer.scrollTop = event.target.scrollTop;
       }
@@ -136,6 +138,7 @@ const Text = props => {
     if (textRef.current && textRef.current.value !== value) {
       e.target.value = getEditValue();
     }
+
     setOriginValue(e.target.value.trim());
     setIsEditing(true);
     if (_.isFunction(triggerCustomEvent)) {
@@ -149,6 +152,7 @@ const Text = props => {
       // 处理微信webview键盘收起 网页未撑开
       window.scrollTo(0, 0);
     }
+
     onBlur(originValue, newValue);
   };
 
@@ -160,6 +164,7 @@ const Text = props => {
       if (showMaskValue) {
         return dealMaskValue({ ...props, value: currentValue });
       }
+
       return isUnLink ? (
         currentValue
       ) : (
@@ -195,9 +200,11 @@ const Text = props => {
 
   const handleTextareaBlur = event => {
     const trimValue = event.target.value.trim();
+
     if (trimValue !== value) {
       onChange(trimValue);
     }
+
     handleBlur(trimValue);
   };
 
@@ -266,6 +273,7 @@ const TextWidget = props => {
   if (props.enumDefault === 3) {
     return <TextMarkdown {...props} />;
   }
+
   return <Text {...props} />;
 };
 

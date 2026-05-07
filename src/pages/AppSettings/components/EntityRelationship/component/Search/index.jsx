@@ -22,10 +22,10 @@ const Wrap = styled.div`
     width: 180px;
     padding: 6px 0;
     font-size: 13px;
-    background: var(--color-background-primary);
+    background: var(--color-background-card);
     max-height: 189px;
     overflow-y: scroll;
-    box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.16);
+    box-shadow: var(--shadow-lg);
     border-radius: 3px;
     li {
       height: 36px;
@@ -33,8 +33,7 @@ const Wrap = styled.div`
       padding: 0 17px;
       &:hover,
       &.current {
-        background: var(--color-primary);
-        color: var(--color-white) !important;
+        background: var(--color-background-hover);
       }
     }
   }

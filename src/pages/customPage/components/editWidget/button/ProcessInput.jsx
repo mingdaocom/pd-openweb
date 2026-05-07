@@ -14,6 +14,9 @@ const ProcessWrap = styled.div`
     ${props => (props.hideDynamicValue ? 'margin-right: 0;' : '')}
     background: var(--color-background-primary)
   }
+  .CodeMirror {
+    background: var(--color-background-input) !important;
+  }
 `;
 
 export default function ProcessInput(props) {

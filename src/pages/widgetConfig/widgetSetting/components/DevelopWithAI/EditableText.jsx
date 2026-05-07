@@ -36,8 +36,10 @@ export default function EditableText(props) {
                 ref.current.focus();
                 e.preventDefault();
               }
+
               return;
             }
+
             setIsEditing(false);
             onChange(value);
           }}

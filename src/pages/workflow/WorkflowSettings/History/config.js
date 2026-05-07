@@ -170,6 +170,7 @@ export const NODE_TYPE = {
   31: { type: 'aigc', text: _l('AIGC') },
   32: { type: 'plugin', text: _l('插件') },
   33: { type: 'agent', text: _l('Agent') },
+  34: { type: 'vector', text: _l('向量知识库') },
   101: { type: 'tools', text: _l('工具') },
   1000: { type: 'singleInfo', text: _l('获取单条信息') },
   1001: { type: 'moreInfo', text: _l('获取多条信息') },
@@ -427,6 +428,11 @@ export const NODE_ICON = {
   agent: {
     icon: 'AI_Agent',
     text: _l('AI Agent'),
+    bgColor: '#6E09F9',
+  },
+  vector: {
+    icon: 'a-knowledge_search',
+    text: _l('向量知识库'),
     bgColor: '#6E09F9',
   },
   tools: {

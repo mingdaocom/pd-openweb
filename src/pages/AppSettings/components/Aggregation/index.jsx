@@ -42,6 +42,7 @@ const Wrap = styled.div`
     .Dropdown {
       .Dropdown--input {
         padding: 0;
+        background: transparent;
         i {
           line-height: 32px;
           display: inline-block;
@@ -98,6 +99,7 @@ const ArrowDown = styled.span`
 `;
 let ajaxPromise = null;
 const pageSize = 40;
+
 export default function AggregationTables(props) {
   const cache = useRef({});
   const { aggTableId } = getRequest();
@@ -169,6 +171,7 @@ export default function AggregationTables(props) {
         }
       });
   };
+
   const onScrollEnd = () => {
     if (!noMore && !loading) {
       setState({ pageNo: pageNo + 1, loading: true });
@@ -321,6 +324,7 @@ export default function AggregationTables(props) {
                     buriedUpgradeVersionDialog(projectId, VersionProductType.aggregation);
                     return;
                   }
+
                   setState({ showInfo: true, id: item.aggTableId });
                   navigateTo(`/app/${appId}/settings/aggregation/${item.aggTableId}${location.search}`);
                 }}

@@ -41,6 +41,7 @@ export default function AppGlobalVariable(props) {
 
   const onRefreshVarList = (type, updateItem) => {
     let list = [];
+
     if (type === REFRESH_TYPE.ADD) {
       list = varList.concat([updateItem]);
       setVarList(list);

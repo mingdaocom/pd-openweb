@@ -3,43 +3,59 @@ import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dialog, Icon, LoadDiv, Radio } from 'ming-ui';
+import { Dialog, Icon, LoadDiv, Radio, Switch } from 'ming-ui';
 import FunctionWrap from 'ming-ui/components/FunctionWrap';
 import packageVersionAjax from 'src/pages/workflow/api/packageVersion';
 import { hrefReg } from 'src/pages/customPage/components/previewContent/index.jsx';
 import { WrapFooter } from '../apiIntegration/style';
 import APITable from './APITable';
 
+// 表单字段配置
+const FORM_FIELDS = [
+  { key: 'name', txt: _l('连接名称'), required: true },
+  { key: 'explain', txt: _l('说明'), required: true },
+  { key: 'company', txt: _l('API 服务厂商'), required: true },
+  { key: 'docUrl', txt: _l('官网地址'), required: true },
+  { key: 'identity', txt: _l('连接模板作者') },
+  { key: 'allowEdit', txt: _l('是否允许编辑'), required: true },
+];
+
+// 默认表单数据
+const getDefaultInfo = () => ({
+  name: '',
+  explain: '',
+  accountId: md.global.Account.accountId,
+  companyId: '',
+  allowEdit: false, //是否允许编辑暂定allowEdit
+});
+
 const WrapHeader = styled.div`
   .publishInfo {
     height: 72px;
     background: var(--color-background-secondary);
     border: 1px solid var(--color-border-primary);
-    opacity: 1;
     border-radius: 6px;
     line-height: 72px;
     padding: 0 20px;
   }
 `;
+
 const Wrap = styled.div`
   p {
     margin: 0;
   }
-  .desCon {
-    .title {
-      width: 116px;
-      line-height: 36px;
-    }
-    input {
-      width: 100%;
-      height: 36px;
-      line-height: 36px;
-      padding: 0 12px;
-      background: var(--color-background-primary);
-      border: 1px solid var(--color-border-primary);
-      opacity: 1;
-      border-radius: 3px;
-    }
+  .desCon .title {
+    width: 116px;
+    line-height: 36px;
+  }
+  .desCon input {
+    width: 100%;
+    height: 36px;
+    line-height: 36px;
+    padding: 0 12px;
+    background: var(--color-background-primary);
+    border: 1px solid var(--color-border-primary);
+    border-radius: 3px;
   }
   .warnCon {
     padding: 5px 10px;
@@ -48,113 +64,110 @@ const Wrap = styled.div`
     border-radius: 3px;
   }
 `;
+
 function PublishDialog(props) {
   const { onCancel = () => {}, hasManageAuth, currentProjectId: propsCurrentProjectId, id } = props;
+  const currentProjectId = propsCurrentProjectId || localStorage.getItem('currentProjectId');
 
-  const [
-    { info, selectedList, list, isCheckAll, connectInfo, status, loadingList, loadingDetail, currentProjectId },
-    setState,
-  ] = useSetState({
+  const [state, setState] = useSetState({
     connectInfo: null,
-    info: {
-      name: '',
-      explain: '',
-      accountId: md.global.Account.accountId,
-      companyId: '',
-    },
+    info: getDefaultInfo(),
     list: [],
     selectedList: [],
     isCheckAll: true,
     status: null,
     loadingList: true,
     loadingDetail: true,
-    currentProjectId: propsCurrentProjectId || localStorage.getItem('currentProjectId'),
   });
+
+  const { info, selectedList, list, isCheckAll, connectInfo, status, loadingList, loadingDetail } = state;
+
   useEffect(() => {
-    getApiListFetch();
-    getDetailInfo();
+    fetchApiList();
+    fetchDetail();
   }, []);
-  const desList = [
-    { key: 'name', txt: _l('连接名称'), required: true },
-    { key: 'explain', txt: _l('说明'), required: true },
-    { key: 'company', txt: _l('API 服务厂商'), required: true },
-    { key: 'docUrl', txt: _l('官网地址'), required: true },
-    { key: 'identity', txt: _l('连接模板作者') },
-  ];
-  const isDisable = () => {
-    return (
-      selectedList.length <= 0 ||
-      !(info.docUrl || '').trim() ||
-      !(info.explain || '').trim() ||
-      !(info.name || '').trim() ||
-      !(info.company || '').trim()
-    );
-  };
-  const getApiListFetch = () => {
+
+  // 表单是否可提交
+  const canSubmit = () =>
+    selectedList.length > 0 &&
+    (info.docUrl || '').trim() &&
+    (info.explain || '').trim() &&
+    (info.name || '').trim() &&
+    (info.company || '').trim();
+
+  // 获取 API 列表
+  const fetchApiList = () => {
     packageVersionAjax
       .getApiList(
-        {
-          companyId: currentProjectId,
-          pageIndex: 1,
-          pageSize: 100000,
-          keyword: '',
-          relationId: id,
-        },
+        { companyId: currentProjectId, pageIndex: 1, pageSize: 100000, keyword: '', relationId: id },
         { isIntegration: true },
       )
       .then(res => {
+        const enabledList = res.filter(o => o.enabled);
         setState({
-          list: res.filter(o => o.enabled),
-          selectedList: (res.filter(o => o.enabled) || []).map(o => o.id),
+          list: enabledList,
+          selectedList: enabledList.map(o => o.id),
           loadingList: false,
         });
       });
   };
-  // 获取基本详情
-  const getDetailInfo = () => {
+
+  // 获取详情
+  const fetchDetail = () => {
     packageVersionAjax
-      .getDetail(
-        {
-          isPublic: true,
-          id: id,
-        },
-        { isIntegration: true },
-      )
-      .then(
-        res => {
-          let newData = res;
-          if (hasManageAuth || newData.isOwner) {
-            setState({
-              connectInfo: newData,
-              info: newData.info || {
-                name: _.get(newData, 'name'),
-                explain: _.get(newData, 'explain'),
-                accountId: md.global.Account.accountId,
-                companyId: '',
-              },
-              status: newData.status,
-              loadingDetail: false,
-            });
-          } else {
-            setTimeout(() => {
-              location.href = '/integration';
-            }, 500);
-            alert(_l('你暂时没有权限查看该连接！', 3));
-          }
-        },
-        () => {
-          setTimeout(() => {
-            location.href = '/integration';
-          }, 500);
-          alert(_l('你暂时没有权限查看该连接！', 3));
-        },
-      );
+      .getDetail({ isPublic: true, id }, { isIntegration: true })
+      .then(res => {
+        if (!hasManageAuth && !res.isOwner) {
+          handleNoPermission();
+          return;
+        }
+
+        const detailInfo = res.info || {
+          name: _.get(res, 'name'),
+          explain: _.get(res, 'explain'),
+          accountId: md.global.Account.accountId,
+          companyId: '',
+        };
+        setState({
+          connectInfo: res,
+          info: { ...detailInfo, allowEdit: _.get(res, 'info.allowEdit', false) },
+          status: res.status,
+          loadingDetail: false,
+        });
+      })
+      .catch(() => handleNoPermission());
   };
 
-  // 上架连接
-  const upperConnect = info => {
+  const handleNoPermission = () => {
+    alert({
+      msg: _l('你暂时没有权限查看该连接！'),
+      type: 2,
+      duration: 2000,
+      onClose: () => {
+        location.href = '/integration';
+      },
+    });
+  };
+
+  // 提交上架
+  const handleSubmit = () => {
+    if (!canSubmit() || status === 2) return;
+    if (!hrefReg.test(info.docUrl || '')) {
+      return alert(_l('请填入正确的官网地址'), 2);
+    }
+
+    const params = {
+      apis: selectedList,
+      accountId: info.accountId,
+      companyId: info.companyId,
+      docUrl: (info.docUrl || '').trim(),
+      explain: (info.explain || '').trim(),
+      name: (info.name || '').trim(),
+      company: (info.company || '').trim(),
+      allowEdit: info.allowEdit,
+    };
     packageVersionAjax
-      .upper({ ...info, id, companyId: currentProjectId || info.companyId }, { isIntegration: true })
+      .upper({ ...params, id, companyId: currentProjectId || info.companyId }, { isIntegration: true })
       .then(res => {
         if (res) {
           onCancel();
@@ -165,13 +178,61 @@ function PublishDialog(props) {
       });
   };
 
+  const updateInfo = updates => setState({ info: { ...info, ...updates } });
+
+  const renderFormField = field => {
+    if (field.key === 'allowEdit') {
+      return <Switch checked={!!info[field.key]} onClick={() => updateInfo({ [field.key]: !info[field.key] })} />;
+    }
+
+    if (field.key === 'identity') {
+      const displayName = info.accountId
+        ? md.global.Account.fullname
+        : md.global.Account.projects.find(o => o.projectId === currentProjectId)?.companyName || '';
+      return (
+        <div>
+          <div className="mTop12">
+            <Radio
+              text={_l('以企业组织身份')}
+              checked={!!info.companyId}
+              disabled={!hasManageAuth}
+              onClick={() => hasManageAuth && updateInfo({ companyId: currentProjectId, accountId: '' })}
+            />
+            <Radio
+              text={_l('以个人身份')}
+              checked={!!info.accountId}
+              onClick={() => updateInfo({ accountId: md.global.Account.accountId, companyId: '' })}
+            />
+          </div>
+          <input type="text" className="mTop20" value={displayName} readOnly placeholder={_l('请输入')} />
+        </div>
+      );
+    }
+
+    const maxLength = ['name', 'company'].includes(field.key) ? 20 : field.key === 'explain' ? 600 : 200;
+    return (
+      <input
+        type="text"
+        value={info[field.key] || ''}
+        placeholder={_l('请输入')}
+        maxLength={maxLength}
+        onChange={e => updateInfo({ [field.key]: e.target.value })}
+        onBlur={e => updateInfo({ [field.key]: e.target.value.trim() })}
+      />
+    );
+  };
+
+  const isLoading = loadingDetail || loadingList;
+  const isPublished = [2, 3].includes(status);
+  const submitBtnText =
+    status === 2 ? _l('已申请，请等待审核') : status === 3 || status ? _l('申请上架新版本') : _l('申请上架');
+
   return (
     <Dialog
-      className=""
       width="660"
       oneScreen
       oneScreenGap={240}
-      visible={true}
+      visible
       title={<span className="Font17 Bold">{_l('申请上架到API 库')}</span>}
       footer={
         <WrapFooter className="flexRow textSecondary TxtLeft mTop24">
@@ -180,41 +241,24 @@ function PublishDialog(props) {
             {_l('取消')}
           </span>
           <div
-            className={cx('btn Bold Font14', {
-              disable: status === 2 || isDisable(),
-            })}
+            className={cx('btn Bold Font14', { disable: status === 2 || !canSubmit() })}
             onClick={e => {
-              if (status === 2 || isDisable()) {
-                return;
-              }
               e.stopPropagation();
-              if (!hrefReg.test(info.docUrl || '')) {
-                return alert(_l('请填入正确的官网地址'), 2);
-              }
-              upperConnect({
-                apis: selectedList,
-                accountId: info.accountId,
-                companyId: info.companyId, //,
-                docUrl: (info.docUrl || '').trim(),
-                explain: (info.explain || '').trim(),
-                name: (info.name || '').trim(),
-                company: (info.company || '').trim(),
-              });
+              handleSubmit();
             }}
           >
-            {/* 状态 0已删除 1正常 2审核中 3已发布 connectInfo有值证明已发布过 */}
-            {status === 2 ? _l('已申请，请等待审核') : status === 3 || status ? _l('申请上架新版本') : _l('申请上架')}
+            {submitBtnText}
           </div>
         </WrapFooter>
       }
       onCancel={onCancel}
     >
-      {loadingDetail || loadingList ? (
+      {isLoading ? (
         <LoadDiv />
       ) : (
         <Wrap className="flexColumn">
           <WrapHeader>
-            {[2, 3].includes(status) && (
+            {isPublished && (
               <div className="publishInfo flexRow">
                 <span className="textSecondary flex">
                   {_l('上架 API 量')} <span className="Bold textPrimary Font20">{info.apiCount}</span>
@@ -228,99 +272,34 @@ function PublishDialog(props) {
               </div>
             )}
           </WrapHeader>
-          {connectInfo?.hasAuth && (
+
+          {connectInfo?.hasAuth && !info.allowEdit && (
             <div className="warnCon flexRow alignItemsCenter mTop10">
               <Icon type="info" className="Font16 mRight5" />
               {_l('注意：该类型连接上架后，用户需要授权使用，共用一套API配置，且只能查看自己使用的数据')}
             </div>
           )}
+
           <div className="desCon">
-            {desList.map(o => {
-              return (
-                <div className="flexRow mTop10">
-                  <div className="title">
-                    {o.txt} {o.required && <span className="Red">*</span>}
-                  </div>
-                  <div className="flex">
-                    {o.key === 'identity' ? (
-                      <div className="">
-                        <div className="mTop12">
-                          <Radio
-                            className=""
-                            text={_l('以企业组织身份')}
-                            checked={!!info.companyId}
-                            disabled={!hasManageAuth}
-                            onClick={() => {
-                              //只有有管理权限的可以选择「以企业组织身份」
-                              if (!hasManageAuth) {
-                                return;
-                              }
-                              setState({
-                                info: { ...info, companyId: currentProjectId, accountId: '' },
-                              });
-                            }}
-                          />
-                          <Radio
-                            className=""
-                            text={_l('以个人身份')}
-                            checked={!!info.accountId}
-                            onClick={() => {
-                              setState({ info: { ...info, accountId: md.global.Account.accountId, companyId: '' } });
-                            }}
-                          />
-                        </div>
-                        <input
-                          type="text"
-                          className="mTop20"
-                          value={
-                            info.accountId
-                              ? md.global.Account.fullname
-                              : md.global.Account.projects.find(o => o.projectId === currentProjectId).companyName
-                          }
-                          readOnly
-                          placeholder={_l('请输入')}
-                        />
-                      </div>
-                    ) : (
-                      <input
-                        type="text"
-                        value={info[o.key]}
-                        placeholder={_l('请输入')}
-                        maxLength={['name', 'company'].includes(o.key) ? '20' : o.key === 'explain' ? '600' : '200'}
-                        onChange={e => {
-                          setState({ info: { ...info, [o.key]: e.target.value } });
-                        }}
-                        onBlur={e => {
-                          setState({ info: { ...info, [o.key]: e.target.value.trim() } });
-                        }}
-                      />
-                    )}
-                  </div>
+            {FORM_FIELDS.map(field => (
+              <div key={field.key} className={cx('flexRow mTop10', { alignItemsCenter: field.key === 'allowEdit' })}>
+                <div className="title">
+                  {field.txt} {field.required && <span className="Red">*</span>}
                 </div>
-              );
-            })}
+                <div className="flex">{renderFormField(field)}</div>
+              </div>
+            ))}
           </div>
+
           <p className="Bold mTop24">{_l('请选择要上架的 API')}</p>
           <div className="table flex">
             <APITable
               list={list}
               count={list.length}
               selectedList={selectedList}
-              onChange={selectedList => {
-                setState({
-                  selectedList,
-                  isCheckAll: selectedList.length >= list.length,
-                });
-              }}
+              onChange={selectedList => setState({ selectedList, isCheckAll: selectedList.length >= list.length })}
               isCheckAll={isCheckAll}
-              onCheck={checked => {
-                setState({
-                  selectedList: checked ? list.map(o => o.id) : [],
-                  isCheckAll: checked,
-                });
-              }}
-              // maxHeight={$(window).height() - 400}
-              // noDataTxt={_l('所有 API 都已安装')}
+              onCheck={checked => setState({ selectedList: checked ? list.map(o => o.id) : [], isCheckAll: checked })}
             />
           </div>
         </Wrap>

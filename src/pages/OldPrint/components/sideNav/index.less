@@ -1,9 +1,9 @@
 .printTem {
   ::-webkit-scrollbar-track {
-    background-color: #fff;
+    background-color: var(--color-background-primary);
   }
   .sidenavBox {
-    background: #ffffff 0% 0% no-repeat padding-box;
+    background: var(--color-background-card) 0% 0% no-repeat padding-box;
     box-shadow: 0px 3px 6px #00000029;
     overflow-y: auto;
     overflow-x: hidden;
@@ -11,7 +11,7 @@
     .forSizeBox {
       flex: 1;
       height: 36px;
-      background: #f5f5f5;
+      background: var(--color-background-tertiary);
       border-radius: 5px 5px 5px 5px;
       font-size: 13px;
       color: #757575;
@@ -30,14 +30,14 @@
         border-radius: 5px;
         cursor: pointer;
         &.current {
-          background: #fff;
+          background: var(--color-background-hover);
           color: #1677ff;
         }
       }
     }
     .forSizeText {
       width: 90px;
-      border: 1px solid rgb(204, 204, 204);
+      border: 1px solid var(--color-border-secondary);
       border-radius: 2px;
       &.forQrCode {
         width: 100%;
@@ -77,7 +77,7 @@
             padding: 4px 6px;
             line-height: 1;
             &:hover {
-              background: #f5f5f5;
+              background: var(--color-background-tertiary);
               color: #1677ff !important;
             }
           }
@@ -88,7 +88,7 @@
             .expand {
               vertical-align: middle;
               &:hover {
-                background: #f5f5f5;
+                background: var(--color-background-tertiary);
                 color: #1677ff !important;
               }
             }
@@ -115,10 +115,9 @@
         width: 200px;
         height: 36px;
         line-height: 36px;
-        background: #ffffff 0% 0% no-repeat padding-box;
-        border: 1px solid #dddddd;
+        border: 1px solid var(--color-border-secondary);
         border-radius: 4px;
-        color: #151515;
+        color: var(--color-text-primary);
         padding: 0 12px;
         box-sizing: border-box;
         &:focus {
@@ -128,10 +127,9 @@
       textarea {
         margin-top: 10px;
         width: 100%;
-        background: #ffffff 0% 0% no-repeat padding-box;
-        border: 1px solid #dddddd;
+        border: 1px solid var(--color-border-secondary);
         border-radius: 4px;
-        color: #151515;
+        color: var(--color-text-primary);
         padding: 12px 10px;
         box-sizing: border-box;
         resize: none;
@@ -151,7 +149,7 @@
         line-height: 20px;
         &:hover {
           color: #1677ff !important;
-          background: #f5f5f5;
+          background: var(--color-background-tertiary);
         }
       }
       .fileRadio.ming.Radio {
@@ -162,7 +160,7 @@
       }
     }
     .lineBox {
-      border-top: 1px solid #dddddd;
+      border-top: 1px solid var(--color-border-secondary);
       margin: 24px 0;
     }
     .ming.Checkbox.clearselected .Checkbox-box {
@@ -174,7 +172,7 @@
         max-width: none !important;
       }
       .expand:hover {
-        background: #f5f5f5;
+        background: var(--color-background-tertiary);
         color: #1677ff !important;
       }
     }

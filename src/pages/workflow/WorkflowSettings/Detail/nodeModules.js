@@ -28,6 +28,7 @@ import Snapshot from './Snapshot';
 import Start from './Start';
 import SubProcess from './SubProcess';
 import Template from './Template';
+import Vector from './Vector';
 import WebHook from './WebHook';
 import Write from './Write';
 
@@ -64,6 +65,7 @@ export default {
   31: AIGC,
   32: Plugin,
   33: Agent,
+  34: Vector,
   101: Agent,
   1000: FindSystem,
   1001: FindSystem,

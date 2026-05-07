@@ -61,13 +61,16 @@ export function UserSelector(props) {
     hidePortalCurrentUser,
     filterOtherProject,
   };
+
   function loadList({ keywords, pageIndex = 1, clear = true, type } = {}) {
     if (isStatic) {
       return;
     }
+
     if (clear) {
       setList([]);
     }
+
     setLoading(true);
     getUsers({ ...baseArgs, type, keywords: (keywords || '').trim(), pageIndex }).then(data => {
       setList(l => l.concat(data));
@@ -77,9 +80,11 @@ export function UserSelector(props) {
       }
     });
   }
+
   const debounceLoadList = useCallback(_.debounce(loadList, 200), []);
   let prefixUsers = prefixAccounts;
   let users = [];
+
   if (!isStatic && !keywords && !selectRangeOptions && activeTab !== 1) {
     const result = getAccounts({
       list: _.cloneDeep(list),
@@ -95,24 +100,30 @@ export function UserSelector(props) {
   } else {
     users = list;
   }
+
   if (type === 'external' || keywords) {
     prefixUsers = [];
   }
+
   if (!(type === 'external' && md.global.Account.isPortal)) {
     users = staticAccounts.concat(users);
   }
+
   const usersForUserList =
     isStatic && keywords ? users.filter(u => u.fullname.toLowerCase().indexOf(keywords.toLowerCase()) > -1) : users;
+
   function handleSelect(user) {
     const res = [_.pick(user, ['accountId', 'avatar', 'fullname', 'job'])];
     onSelect(res);
     selectCb(res);
     onClose();
   }
+
   useClickAway(conRef, e => {
     if (e.target.closest('.cellUsers, .userCardSite')) {
       return;
     }
+
     onClose(true);
   });
   useEffect(() => {
@@ -155,8 +166,10 @@ export function UserSelector(props) {
           if (!_.includes(['Escape', 'Tab'], e.key)) {
             e.stopPropagation();
           }
+
           let newIndex;
           let selected;
+
           switch (e.key) {
             case 'ArrowUp':
               newIndex = activeIndex - 1;
@@ -171,6 +184,7 @@ export function UserSelector(props) {
               if (selected) {
                 handleSelect(selected);
               }
+
               break;
             case 'Escape':
               onClose(true);
@@ -178,20 +192,28 @@ export function UserSelector(props) {
             default:
               break;
           }
+
           if (newIndex < 0) {
             newIndex = 0;
           }
+
           if (!scrollRef.current) {
             return;
           }
+
           const listLength = scrollRef.current.querySelectorAll('.userItem').length;
+
           if (newIndex >= listLength) {
             newIndex = listLength - 1;
           }
+
           if (!_.isUndefined(newIndex)) {
             setActiveIndex(newIndex);
             const scrollContent = scrollRef.current;
             const item = scrollContent.querySelectorAll(`.userItem`)[newIndex];
+
+            if (!item) return;
+
             if (newIndex > activeIndex) {
               if (item.offsetTop > scrollContent.offsetHeight + scrollContent.scrollTop) {
                 scrollContent.scrollTop = scrollContent.scrollTop + 44;
@@ -211,15 +233,19 @@ export function UserSelector(props) {
           if (loading || type !== 'external' || loadOuted) {
             return;
           }
+
           const isDown = e.deltaY > 0;
           const $container = scrollRef.current;
+
           if (!$container) {
             return;
           }
+
           const containerHeight = $container.offsetHeight;
           const containerScrollHeight = $container.scrollHeight;
           const containerScrollTop = $container.scrollTop;
           const offsetBottom = containerScrollHeight - containerScrollTop - containerHeight;
+
           if (isDown && offsetBottom < 80) {
             setPageIndex(pageIndex + 1);
             setLoading(true);
@@ -314,9 +340,11 @@ export function SelectWrapper(props) {
             if (!force && props.isDynamic) {
               return;
             }
+
             if (_.isFunction(props.onClose)) {
               props.onClose();
             }
+
             setVisible(false);
           }}
         />
@@ -342,6 +370,7 @@ export default function quickSelectUser(target, props = {}) {
   let height = 0;
   const { offset = { top: 0, left: 0 }, zIndex = 1001 } = props;
   const $con = document.createElement('div');
+
   function setPosition() {
     if (_.isFunction(_.get(target, 'getBoundingClientRect'))) {
       const rect = target.getBoundingClientRect();
@@ -353,11 +382,13 @@ export default function quickSelectUser(target, props = {}) {
       if (x + panelWidth > window.innerWidth) {
         x = targetLeft - 10 - panelWidth;
       }
+
       if (y + panelHeight > window.innerHeight) {
         y = targetTop - panelHeight - 4;
         if (y < 0) {
           y = 0;
         }
+
         if (targetTop < panelHeight) {
           x = targetLeft - 10 - panelWidth;
           if (x < panelWidth) {
@@ -365,12 +396,14 @@ export default function quickSelectUser(target, props = {}) {
           }
         }
       }
+
       $con.style.position = 'absolute';
       $con.style.left = x + 'px';
       $con.style.top = y + 'px';
       $con.style.zIndex = zIndex;
     }
   }
+
   setPosition();
   document.body.appendChild($con);
 
@@ -392,9 +425,11 @@ export default function quickSelectUser(target, props = {}) {
             setTimeout(setPosition, 100);
             return;
           }
+
           if (_.isFunction(props.onClose)) {
             props.onClose();
           }
+
           destory();
         }}
       />

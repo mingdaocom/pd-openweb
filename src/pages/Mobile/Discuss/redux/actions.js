@@ -16,11 +16,22 @@ export const getSheetDiscussion =
         entityType,
       })
       .then(result => {
+        if (result.code === 2) {
+          alert(_l('参数错误'), 2);
+          return;
+        }
+
+        if (result.code === 7) {
+          alert(_l('无权限查看讨论'), 2);
+          return;
+        }
+
         if (pageIndex === 1) {
           dispatch({ type: 'MOBILE_SET_SHEET_DISCUSSION', data: result.data });
         } else {
           dispatch({ type: 'MOBILE_ADD_SHEET_DISCUSSION', data: result.data });
         }
+
         if (callback && result && result.data) {
           callback(result.data.length === 10);
         }
@@ -60,6 +71,7 @@ export const getSheetLogs =
         } else {
           dispatch({ type: 'MOBILE_ADD_SHEET_LOG', data: result });
         }
+
         if (callback && result) {
           callback(result.length === 10);
         }

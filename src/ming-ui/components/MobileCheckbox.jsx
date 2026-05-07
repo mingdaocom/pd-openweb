@@ -48,6 +48,7 @@ export default class MobileCheckbox extends Component {
 
   handleSelectAll = (options, isChecked) => {
     const { chooseothertype } = this.props;
+
     if (isChecked) {
       this.setState({ selectChecked: [] });
     } else {

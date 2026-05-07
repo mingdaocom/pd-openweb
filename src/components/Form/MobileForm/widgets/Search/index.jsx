@@ -158,8 +158,14 @@ const SearchBox = props => {
   };
 
   if (type === 49) {
+    const { bordercolor, background } = JSON.parse(advancedSetting.cardstyle || '{}');
+    const style = {};
+    if (bordercolor) style.borderColor = bordercolor;
+    if (background) style.background = background;
+
     return (
       <div
+        style={style}
         className="customFormControlBox customFormButton"
         onClick={() => {
           if (loading) return;

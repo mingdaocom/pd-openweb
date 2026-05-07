@@ -1,6 +1,7 @@
-import React, { Component, Fragment } from 'react';
+﻿import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
+import moment from 'moment';
 import { Dropdown, PriceTip, Radio, Support } from 'ming-ui';
 import SelectOtherWorksheetDialog from 'src/pages/worksheet/components/SelectWorksheet/SelectOtherWorksheetDialog';
 import { APP_TYPE, NODE_TYPE, RELATION_TYPE } from '../../enum';
@@ -65,8 +66,11 @@ export default class CreateRecordAndTask extends Component {
     const invoiceMessage = {
       amount: _l('开票金额不是 0 或者 负数'),
       productId: _l('组织后台上传的商品管理表中的税收服务简称'),
+      price: _l('单价为含税单价'),
       taxPayerNo: _l('发票抬头类型为企业时，税号字段不能为空，否则无法开票'),
+      totalAmount: _l('金额为含税金额'),
       email: _l('接收电子发票的购方邮箱'),
+      remark: _l('设置自定义备注内容'),
     };
 
     return (
@@ -127,7 +131,7 @@ export default class CreateRecordAndTask extends Component {
             value={data.appId}
             renderTitle={
               !data.appId
-                ? () => <span className="textSecondary">{_l('请选择')}</span>
+                ? () => <span className="textPlaceholder">{_l('请选择')}</span>
                 : data.appId && !selectAppItem
                   ? () => (
                       <span className="errorColor">
@@ -230,6 +234,11 @@ export default class CreateRecordAndTask extends Component {
         {fields.map((item, i) => {
           const singleObj = _.find(data.controls, obj => obj.controlId === item.fieldId) || {};
           const { controlName, sourceEntityName } = singleObj;
+          const parentNode = singleObj.dataSource
+            ? _.find(data.fields, o => o.fieldId === singleObj.dataSource) || {}
+            : {};
+
+          if (parentNode.type === 10000008 && (parentNode.fieldValueId || !parentNode.nodeId)) return null;
 
           if (singleObj.type === 10052) {
             return (
@@ -239,8 +248,13 @@ export default class CreateRecordAndTask extends Component {
             );
           }
 
+          if (_.includes(['portal_logintime', 'portal_system_id'], singleObj.controlId)) return null;
+
           return (
-            <div key={item.fieldId} className="relative">
+            <div
+              key={item.fieldId}
+              className={cx('relative', { mLeft24: singleObj.dataSource && data.appType === APP_TYPE.INVOICE })}
+            >
               <div className="flexRow alignItemsCenter mTop15">
                 <div className="ellipsis Font13 flex mRight20">
                   {controlName}
@@ -267,10 +281,10 @@ export default class CreateRecordAndTask extends Component {
                 )}
               </div>
               {item.fieldId === 'portal_mobile' && window.platformENV.isPlatform && (
-                <div className="textSecondary mTop5">{_l('根据此字段发送邀请短信')}</div>
+                <div className="Font13 textSecondary mTop5">{_l('根据此字段发送邀请短信')}</div>
               )}
               {data.appType === APP_TYPE.INVOICE && singleObj.controlId === 'taxNo' && !singleObj.options.length && (
-                <div className="textSecondary mTop5">
+                <div className="Font13 textSecondary mTop5">
                   {_l('开票税号未授权，请')}
                   <span
                     className="ThemeColor3 pointer"
@@ -281,17 +295,21 @@ export default class CreateRecordAndTask extends Component {
                 </div>
               )}
               {data.appType === APP_TYPE.INVOICE && invoiceMessage[singleObj.controlId] && (
-                <div className="textSecondary mTop5">{invoiceMessage[singleObj.controlId]}</div>
+                <div className="Font13 textSecondary mTop5">{invoiceMessage[singleObj.controlId]}</div>
               )}
               <SingleControlValue
                 companyId={this.props.companyId}
                 relationId={this.props.relationId}
                 processId={this.props.processId}
                 selectNodeId={this.props.selectNodeId}
-                sourceNodeId={data.selectNodeId}
+                sourceNodeId={singleObj.dataSource && !isBatch ? parentNode.nodeId : data.selectNodeId}
                 controls={_.cloneDeep(data.controls).map(o => {
-                  // 开票类目根据开票主体过滤
-                  if (data.appType === APP_TYPE.INVOICE && o.controlId === 'productId') {
+                  if (o.type === 10000008) {
+                    o.flowNodeAppDtos = data.batchNodes;
+                  }
+
+                  // 开票类目和项目名称根据开票主体过滤
+                  if (data.appType === APP_TYPE.INVOICE && _.includes(['productId', 'categoryCode'], o.controlId)) {
                     const taxNo = data.fields.find(o => o.fieldId === 'taxNo').fieldValue;
                     const taxNoText =
                       data.controls.find(o => o.controlId === 'taxNo').options?.find(o => o.key === taxNo)?.value || '';
@@ -313,7 +331,17 @@ export default class CreateRecordAndTask extends Component {
                 }
                 hideUserMoreObject={data.appType === APP_TYPE.INVOICE}
                 updateSource={(opts, callback) => {
-                  // 更改开票主体的时候清空开票类目
+                  if (data.appType === APP_TYPE.TASK && opts?.fields) {
+                    opts.fields = opts.fields.map(o => {
+                      if (o.type === 16 && o.fieldValue) {
+                        o.fieldValue = moment(o.fieldValue).format('YYYY-MM-DD HH:00');
+                      }
+
+                      return o;
+                    });
+                  }
+
+                  // 更改开票主体的时候清空开票类目和项目名称
                   if (
                     data.appType === APP_TYPE.INVOICE &&
                     opts.fields &&
@@ -321,8 +349,9 @@ export default class CreateRecordAndTask extends Component {
                       data.fields.find(o => o.fieldId === 'taxNo').fieldValue
                   ) {
                     opts.fields = opts.fields.map(o => {
-                      if (o.fieldId === 'productId') {
+                      if (_.includes(['productId', 'categoryCode'], o.fieldId)) {
                         o.fieldValue = '';
+                        o.fieldValueId = '';
                       }
 
                       return o;

@@ -34,6 +34,7 @@ class DialogSelectUser extends Component {
   getSettings = (dropLists = []) => {
     const { SelectUserSettings: { filterAll, filterFriend } = {} } = this.props;
     let settings = {};
+
     if (filterAll && filterFriend) {
       settings.dataRange = dataRangeTypes.project;
       if (!this.state.projectId) {
@@ -60,6 +61,7 @@ class DialogSelectUser extends Component {
         text: _l('全部联系人'),
       });
     }
+
     if (!SelectUserSettings.filterFriend) {
       list.push({
         value: dataRangeTypes.friend,
@@ -72,6 +74,7 @@ class DialogSelectUser extends Component {
     if (md.global.Account && projects) {
       for (let i = 0, length = projects.length; i < length; i++) {
         const item = projects[i];
+
         // 过滤某个
         if (
           SelectUserSettings.filterProjectId &&
@@ -79,6 +82,7 @@ class DialogSelectUser extends Component {
         ) {
           continue;
         }
+
         // 过滤除某个之外的所有
         if (
           SelectUserSettings.filterOtherProject &&
@@ -158,10 +162,7 @@ class DialogSelectUser extends Component {
       projectId: projectId,
       dataRange: dataRange || 0,
       isSuperWork:
-        projectId &&
-        !_.get(window, 'isPublicApp') &&
-        checkPermission(projectId, PERMISSION_ENUM.MEMBER_MANAGE) &&
-        fromAdmin,
+        projectId && !_.get(window, 'isPublicApp') && checkPermission(projectId, PERMISSION_ENUM.MEMBER) && fromAdmin,
       callback: () => {
         this.props.onCancel();
       },

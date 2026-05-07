@@ -23,6 +23,7 @@ const getValue = (value, type) => {
   if (type === 'start') {
     return value ? `${value} 00:00` : value;
   }
+
   return value ? `${value} 23:59` : value;
 };
 
@@ -68,6 +69,7 @@ export default class PortalList extends Component {
           projectId,
           showOption: res.licenseType === 1,
           loading: true,
+          currentLicense: res.currentLicense || {},
         },
         () => {
           this.getPortalList();
@@ -276,8 +278,10 @@ export default class PortalList extends Component {
       showOption,
       total,
       allCount,
+      currentLicense,
     } = this.state;
     const totalCount = (list || []).length;
+    const isDevelopment = _.get(currentLicense || {}, 'version.versionIdV2') === 'Development';
 
     return (
       <div className="portalManagementList h100 flexColumn">
@@ -304,9 +308,9 @@ export default class PortalList extends Component {
             </span>
           )}
 
-          {showOption && (
+          {showOption && !(window.platformENV.isOverseas && isDevelopment) && (
             <PurchaseExpandPack
-              className={cx('ThemeHoverColor2', { mLeft20: !allowUpgradeExternalPortal })}
+              className={cx('ThemeHoverColor2 NoUnderline', { mLeft20: !allowUpgradeExternalPortal })}
               text={_l('扩充')}
               type="portalexpand"
               projectId={this.props.projectId}

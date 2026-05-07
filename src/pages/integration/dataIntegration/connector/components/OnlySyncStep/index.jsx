@@ -90,7 +90,7 @@ const NoDataContent = styled.div`
   width: 100%;
   min-height: 200px;
   margin-top: 24px;
-  border: 2px solid var(--color-background-disabled);
+  border: 2px solid var(--color-border-secondary);
   border-radius: 5px;
 
   .noContentIcon {
@@ -145,6 +145,7 @@ export default function OnlySyncStep(props) {
    */
   const setFieldsMappingDefaultData = props => {
     const { initMapping, sourceFields, isCreate, noFetchSet, isSetDefaultFields, destFields } = props;
+
     if (noFetchSet) {
       const defaultData = getDefaultData(
         initMapping,
@@ -158,6 +159,7 @@ export default function OnlySyncStep(props) {
       onChangeStateData(fieldsMapping, setFieldsMapping, { fieldsMapping: defaultData });
       return;
     }
+
     //通过接口获取当前源字段对应 目的地字段字段可选的字段类型
     dataSourceApi
       .fieldsDataTypeMatch({
@@ -191,6 +193,7 @@ export default function OnlySyncStep(props) {
         }
       });
     }
+
     if (isSourceAppType) {
       setLoading(false);
     }
@@ -199,6 +202,7 @@ export default function OnlySyncStep(props) {
   //更新提交数据
   useEffect(() => {
     const submitData = [];
+
     for (let db in fieldsMapping) {
       for (let table in fieldsMapping[db]) {
         const isCreate = _.get(sheetData, [db, table, 'sheetCreateType']) !== CREATE_TYPE.SELECT_EXIST;
@@ -212,6 +216,7 @@ export default function OnlySyncStep(props) {
               sourceField: { ...mapping.sourceField, alias: mapping.sourceField.name },
               destField: { ...mapping.destField, alias: mapping.destField.name },
             }; //将alias赋值成name提交
+
             if (isCreate) {
               return isSourceAppType && isDestAppType
                 ? {
@@ -483,7 +488,9 @@ export default function OnlySyncStep(props) {
         initSheetData.writeMode = 'SKIP';
         initSheetData.isCleanDestTableData = false;
       }
+
       const sheetOptionList = _.get(optionList, [currentTab.db, currentTab.table, 'sheetOptionList']) || [];
+
       if (sheetNameValue) {
         initSheetData.sheetName = sheetOptionList.filter(item => item.value === sheetNameValue)[0].workSheetName;
       }
@@ -514,6 +521,7 @@ export default function OnlySyncStep(props) {
       isSourceAppType,
       dest.type,
     );
+
     if (_.isEmpty(initMapping)) {
       onChangeStateData(sheetData, setSheetData, {
         sheetName: sheet.label,
@@ -560,6 +568,7 @@ export default function OnlySyncStep(props) {
       dataSourceApi.getTableFields(params).then(res => {
         if (res) {
           const arr = res.filter(item => item.isPk);
+
           if (arr.length > 0) {
             onChangeStateData(sheetData, setSheetData, {
               sheetName: sheet.label,
@@ -659,10 +668,12 @@ export default function OnlySyncStep(props) {
     const sourcePkCount = (_.get(sourceFields, [currentTab.db, currentTab.table, 'fields']) || []).filter(
       item => item.isPk,
     ).length;
+
     //只有（数据源是库且无主键+表到库）可以设置主键
     if (!((!isSourceAppType && sourcePkCount === 0) || (isSourceAppType && !isDestAppType))) {
       return null;
     }
+
     const sourceOptions = _.get(sourceFields, [currentTab.db, currentTab.table, 'fields']) || [];
     const options = sourceOptions
       .filter(

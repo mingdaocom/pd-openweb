@@ -10,6 +10,7 @@ export default props => {
   const newTitleStyles = pageTitleStyles.index >= titleStyles.index ? pageTitleStyles : titleStyles;
   // eslint-disable-next-line no-unused-vars
   const { color } = replaceTitleColor(newTitleStyles, themeColor);
+
   // eslint-disable-next-line no-unused-vars
   const handleChange = data => {
     onChangeStyle({
@@ -20,6 +21,7 @@ export default props => {
       },
     });
   };
+
   return (
     <div className="mBottom12">
       <div className="mBottom8">{_l('显示标题')}</div>

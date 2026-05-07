@@ -45,6 +45,7 @@ export default function Texts(props) {
                   if (!allowOpenRecord) {
                     return;
                   }
+
                   onOpen(record.rowid);
                 }}
               >

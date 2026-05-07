@@ -133,6 +133,7 @@ export default class MoreOverlay extends Component {
       pageId,
       reportId: report.id,
     };
+
     if (favorite) {
       favoriteApi.addFavorite(params).then(data => {
         if (data) {
@@ -154,9 +155,11 @@ export default class MoreOverlay extends Component {
     const { report } = this.props;
     this.setState({ dropdownVisible });
     const card = document.querySelector(`.statisticsCard-${report.id}`);
+
     if (dropdownVisible) {
       const container = document.querySelector('#componentsWrap');
       const moreIcon = card.querySelector('.chartCardMoreIcon');
+
       if (container && moreIcon) {
         const elementRect = moreIcon.getBoundingClientRect();
         const containerRect = container.getBoundingClientRect();
@@ -167,6 +170,7 @@ export default class MoreOverlay extends Component {
         });
       }
     }
+
     if (dropdownVisible) {
       card.classList.add('active');
     } else {
@@ -278,7 +282,7 @@ export default class MoreOverlay extends Component {
               data-event="export"
               popupClassName="chartMenu chartSubOperate_export"
               title={_l('导出Excel%06002')}
-              icon={<Icon className="textTertiary Font18 mRight5" icon="download" />}
+              icon={<Icon className="textTertiary Font18 mRight5" icon="worksheet_export" />}
               popupOffset={[0, 0]}
             >
               <Menu.Item
@@ -399,6 +403,7 @@ export default class MoreOverlay extends Component {
           return chartExportExcel || onSheetView;
         }
       }
+
       return true;
     })();
     return (

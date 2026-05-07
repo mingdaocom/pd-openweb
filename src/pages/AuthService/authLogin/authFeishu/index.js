@@ -31,6 +31,7 @@ if (code) {
       async: true,
       success: result => {
         const { accountResult, sessionId } = result.data;
+
         if (accountResult === 1) {
           getGlobalMeta().then(() => {
             setPssId(sessionId);
@@ -48,6 +49,7 @@ if (code) {
 } else {
   const otherParamString = formatOtherParam(otherParam);
   const newUrl = addOtherParam(url, otherParamString);
+
   if (checkLogin()) {
     if (checkOriginUrl(newUrl)) {
       location.replace(decodeURIComponent(newUrl));

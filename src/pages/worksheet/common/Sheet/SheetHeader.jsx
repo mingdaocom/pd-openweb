@@ -6,6 +6,7 @@ import { Popover } from 'antd';
 import cx from 'classnames';
 import _, { get } from 'lodash';
 import PropTypes from 'prop-types';
+import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { Icon, RichText } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
@@ -39,6 +40,7 @@ import { getAppFeaturesVisible } from 'src/utils/app';
 import { needHideViewFilters } from 'src/utils/filter';
 import { getHighAuthSheetSwitchPermit } from 'src/utils/worksheet';
 import { findSheet } from 'src/utils/worksheet';
+import ImportMenu from './ImportMenu';
 import SheetMoreOperate from './SheetMoreOperate';
 
 const Con = styled.div`
@@ -91,10 +93,11 @@ const VerticalCenter = styled.div`
 `;
 
 function SheetHeader(props) {
-  const { appPkg, worksheetInfo, controls, sheetSwitchPermit } = props;
+  const { appPkg, worksheetInfo, controls, sheetSwitchPermit, isSingleView = false } = props;
   const { type, appId, groupId, view, viewId, isCharge, views } = props;
   // functions
   const {
+    isDevAndOps,
     onlyBatchOperate,
     chartId,
     updateSheetList,
@@ -141,9 +144,11 @@ function SheetHeader(props) {
   const [sheetDescVisible, setSheetDescVisible] = useState();
   const [statisticsVisible, setStatisticsVisible] = useState();
   const [discussionVisible, setDiscussionVisible] = useState();
+  const [importVisible, setImportVisible] = useState();
   const [descIsEditing, setDescIsEditing] = useState(false);
   const [inFull, setInFull] = useState(false);
   const [resumeInfo, setResumeInfo] = useState({});
+  const [importTooltipVisible, setImportTooltipVisible] = useState(false);
   const sheetList = [1, 3].includes(appPkg.currentPcNaviStyle) ? getAppSectionData(groupId) : props.sheetList;
   const sheet = findSheet(worksheetId, sheetList) || {};
   const lastSheetSwitchPermit =
@@ -153,8 +158,10 @@ function SheetHeader(props) {
   const canNewRecord = isOpenPermit(permitList.createButtonSwitch, lastSheetSwitchPermit) && allowAdd;
   const showPublic = isOpenPermit(permitList.statisticsSwitch, lastSheetSwitchPermit);
   const showSelf = isOpenPermit(permitList.statisticsSelfSwitch, lastSheetSwitchPermit);
+  const canImportSwitch = isOpenPermit(permitList.importSwitch, lastSheetSwitchPermit) && !window.isPublicApp;
   const { rows, count, permission, rowsSummary, pageCountAbnormal } = sheetViewData;
   const { allWorksheetIsSelected, sheetSelectedRows = [] } = sheetViewConfig;
+
   const selectIcon = () => {
     selectIconDialog({
       projectId,
@@ -248,12 +255,13 @@ function SheetHeader(props) {
   if (onlyBatchOperate) {
     return batchOperateComp;
   }
+
   const { ln } = getAppFeaturesVisible();
   return (
     <Fragment>
       <Con className="sheetHeader">
         {batchOperateComp}
-        <div className="flex">
+        <div className="headerLeft flex">
           {!ln && <span className="mLeft10" />}
           <span className={cx('fixed pointer', { hide: !ln })}>
             {appPkg.currentPcNaviStyle === 2 ? (
@@ -342,6 +350,7 @@ function SheetHeader(props) {
               if (!value && resume) {
                 setSheetDescVisible(false);
               }
+
               updateWorksheetInfo({ desc: value, resume });
             }}
           />
@@ -378,7 +387,7 @@ function SheetHeader(props) {
           <VerticalCenter>
             {needHideViewFilters(view) ? null : (
               <Fragment>
-                {String(view.viewType) !== VIEW_DISPLAY_TYPE.map && (
+                {String(view.viewType) !== VIEW_DISPLAY_TYPE.map && !isSingleView && (
                   <SearchInput
                     triggerWhenBlurWithEmpty
                     keyWords={filters.keyWords}
@@ -401,7 +410,7 @@ function SheetHeader(props) {
                 {!(String(get(view, 'viewType')) === '2' && get(view, 'advancedSetting.hierarchyViewType') === '3') && (
                   <Fragment>
                     {chartId ? (
-                      <span className={cx('worksheetFilterBtn ThemeColor3 ThemeBGColor6 active')}>
+                      <span className={cx('worksheetFilterBtn ThemeColor3 ThemeBGColor6 active filterEntry')}>
                         <i className="icon icon-worksheet_filter" />
                         <span className="selectedFilterName ellipsis">{_l('来自统计图的筛选')}</span>
                         <i
@@ -413,7 +422,8 @@ function SheetHeader(props) {
                       </span>
                     ) : (
                       <WorkSheetFilter
-                        className="actionWrap"
+                        className="actionWrap filterEntry"
+                        isSingleView={isSingleView}
                         chartId={chartId}
                         isCharge={isCharge}
                         appPkg={appPkg}
@@ -423,6 +433,7 @@ function SheetHeader(props) {
                         projectId={projectId}
                         worksheetId={worksheetId}
                         columns={controls}
+                        zIndex={1000}
                         filterResigned={false} // 筛选---人员层不显示离职栏
                         onChange={({ searchType, filterControls }) => {
                           updateFiltersWithView({ searchType, filterControls });
@@ -436,7 +447,7 @@ function SheetHeader(props) {
             )}
             {!window.isPublicApp && (showPublic || (showSelf && !md.global.Account.isPortal)) && (
               <Tooltip placement="bottom" title={_l('统计')}>
-                <span className="actionWrap">
+                <span className="actionWrap staticsEntry">
                   <Icon
                     className={cx('openStatisticsBtn textTertiary Font18 actionIcon', {
                       ThemeColor3: statisticsVisible,
@@ -452,7 +463,7 @@ function SheetHeader(props) {
               !md.global.Account.isPortal &&
               !!isOpenPermit(permitList.discussSwitch, lastSheetSwitchPermit) && (
                 <Tooltip placement="bottom" title={_l('讨论')}>
-                  <span className="actionWrap">
+                  <span className="actionWrap discussionEntry">
                     <Icon
                       className="Font18 textTertiary actionIcon"
                       icon="discussion"
@@ -461,6 +472,40 @@ function SheetHeader(props) {
                   </span>
                 </Tooltip>
               )}
+            {/* 导入数据权限 */}
+            {canImportSwitch && (
+              <Trigger
+                popupVisible={importVisible}
+                onPopupVisibleChange={visible => setImportVisible(visible)}
+                action={['click']}
+                popupAlign={{ points: ['tl', 'bl'], offset: [5, 5], overflow: { adjustX: true, adjustY: true } }}
+                popup={
+                  <ImportMenu
+                    className="Relative"
+                    isCharge={isDevAndOps}
+                    allowAdd={allowAdd}
+                    controls={controls}
+                    projectId={projectId}
+                    appId={appId}
+                    worksheetId={worksheetId}
+                    worksheetName={name}
+                    viewId={viewId}
+                    onMenuClick={() => setImportVisible(false)}
+                  />
+                }
+              >
+                <Tooltip
+                  placement="bottom"
+                  title={_l('导入')}
+                  visible={importTooltipVisible}
+                  onVisibleChange={visible => setImportTooltipVisible(visible)}
+                >
+                  <span className="actionWrap importEntry" onClick={() => setImportTooltipVisible(false)}>
+                    <Icon className="Font18 textTertiary actionIcon" icon="worksheet_import" />
+                  </span>
+                </Tooltip>
+              </Trigger>
+            )}
             {/* 草稿箱入口 */}
             {canNewRecord && (
               <WorksheetDraft
@@ -472,7 +517,7 @@ function SheetHeader(props) {
                 sheetSwitchPermit={lastSheetSwitchPermit}
                 isCharge={isCharge}
                 needCache={false}
-                addNewRecord={props.addRecord}
+                addNewRecord={props.addNewRecord}
                 allowAdd={canNewRecord}
                 setHighLightOfRows={setHighLightOfRows}
               />
@@ -481,7 +526,7 @@ function SheetHeader(props) {
             {canNewRecord && !worksheetInfo.isRequestingRelationControls && (
               <span
                 style={{ backgroundColor: appPkg.iconColor || 'var(--color-primary)' }}
-                className="addRow mLeft8 overflow_ellipsis WordBreak"
+                className="addRow mLeft8 overflow_ellipsis WordBreak addRecordEntry"
                 onClick={() => openNewRecord({ allowShowMingoCreate: true })}
               >
                 <span className="Icon icon icon-plus Font13 mRight5 textWhite" />
@@ -491,7 +536,7 @@ function SheetHeader(props) {
           </VerticalCenter>
         )}
       </Con>
-      {resumeInfo.value && (
+      {resumeInfo.value && !isSingleView && (
         <div style={{ padding: '5px 43px' }}>
           <span style={{ color: resumeInfo.color }}>{resumeInfo.value}</span>
           {desc && (

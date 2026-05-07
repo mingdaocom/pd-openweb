@@ -92,6 +92,7 @@ export default function RoleItem(props) {
               })
               .then(res => {
                 const { message, deleteSuccess } = res;
+
                 if (deleteSuccess) {
                   alert(_l('操作成功'));
                   onRefreshRoleList();

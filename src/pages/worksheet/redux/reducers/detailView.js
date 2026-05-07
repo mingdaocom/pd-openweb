@@ -1,5 +1,6 @@
 export function detailViewRows(state = [], action) {
   const { type } = action;
+
   switch (type) {
     case 'CHANGE_DETAIL_VIEW_ROWS':
       return action.list;
@@ -10,6 +11,7 @@ export function detailViewRows(state = [], action) {
 
 export function detailViewRowsCount(state = 0, action) {
   const { type } = action;
+
   switch (type) {
     case 'CHANGE_DETAIL_VIEW_ROWS_COUNT':
       return action.count;
@@ -20,6 +22,7 @@ export function detailViewRowsCount(state = 0, action) {
 
 export function noMoreRows(state = false, action) {
   const { type } = action;
+
   switch (type) {
     case 'CHANGE_DETAIL_VIEW_NO_MORE_ROWS':
       return action.noMore;
@@ -39,6 +42,7 @@ export function detailViewLoading(state = false, action) {
 
 export function detailPageIndex(state = 1, action) {
   const { type } = action;
+
   switch (type) {
     case 'CHANGE_DETAIL_VIEW_PAGE_INDEX':
       return action.pageIndex;
@@ -49,6 +53,7 @@ export function detailPageIndex(state = 1, action) {
 
 export function detailKeyWords(state = '', action) {
   const { type } = action;
+
   switch (type) {
     case 'CHANGE_DETAIL_VIEW_KEYWORDS':
       return action.keyWords || '';

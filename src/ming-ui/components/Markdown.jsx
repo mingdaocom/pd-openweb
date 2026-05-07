@@ -42,6 +42,7 @@ const Markdown = forwardRef((props, ref) => {
   const [value, setValue] = useState(props.value);
   // Initialize a markdown parser
   const mdParser = new MarkdownIt({ linkify: editProps.linkify });
+
   const handleChange = ({ text }) => {
     setValue(text);
     onSave(text);
@@ -108,6 +109,7 @@ const Markdown = forwardRef((props, ref) => {
     'full-screen',
     'tab-insert',
   ];
+
   const handleImageUpload = file => {
     return new Promise((resolve, reject) => {
       const data = new FormData();
@@ -134,18 +136,22 @@ const Markdown = forwardRef((props, ref) => {
         xhr.onerror = function () {
           reject(new Error('Network Error'));
         };
+
         xhr.send(data);
         xhr.addEventListener('load', () => {
           const response = xhr.response;
+
           if (!response || response.error) {
             const genericErrorText = "Couldn't upload file:" + ` ${file.name}.`;
             return reject(response && response.error ? response.error.message : genericErrorText);
           }
+
           resolve(urlImg);
         });
       });
     });
   };
+
   return (
     <Wrap className={cx({ Hide: disabled })}>
       <MdEditor

@@ -102,6 +102,7 @@ const ConfigItem = styled.div(
   .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled) {
     border-color: var(--color-primary) !important;
     color: var(--color-primary) !important;
+    background-color: var(--color-background-hover);
   }
   .ant-radio-button-wrapper {
     font-size: 13px;
@@ -110,6 +111,12 @@ const ConfigItem = styled.div(
     text-align: center;
     height: 36px;
     line-height: 34px;
+    border-color: var(--color-border-primary);
+    color: var(--color-text-primary);
+    background-color: var(--color-background-card);
+    &:first-child {
+      border-color: var(--color-border-primary);
+    }
   }
 `,
 );
@@ -143,10 +150,12 @@ function setHr(list, indexList = []) {
   if (!_.isArray(indexList)) {
     indexList = [indexList];
   }
+
   indexList.forEach(i => {
     if (i < 0) {
       i = list.length - 1 + i;
     }
+
     if (list[i] && !_.isArray(list[i])) {
       list[i] = [list[i]];
     }
@@ -161,9 +170,11 @@ function numberFilter(value) {
 
 function OptionsSlider(props) {
   const { options = [], value, onChange } = props;
+
   if (!options.length) {
     return null;
   }
+
   const selectedIndex = _.findIndex(options, { value }) || 0;
   return (
     <Fragment>
@@ -205,38 +216,46 @@ function LabeSizeConfig(props) {
   }, [width, height]);
   function handleWidthChange(e) {
     let newValue = Number(numberFilter(e.target.value) || 0);
+
     if (newValue < LABEL_MIN_WIDTH) {
       alert(_l('宽度不能小于%0', LABEL_MIN_WIDTH), 3);
       setSize({ ...size, width });
       return;
     }
+
     if (newValue > LABEL_MAX_WIDTH) {
       alert(_l('宽度不能大于%0', LABEL_MAX_WIDTH), 3);
       setSize({ ...size, width });
       return;
     }
+
     onChange({
       type,
       width: newValue,
     });
   }
+
   function handleHeightChange(e) {
     let newValue = Number(numberFilter(e.target.value) || 0);
+
     if (newValue < LABEL_MIN_WIDTH) {
       alert(_l('高度不能小于%0', LABEL_MIN_HEIGHT), 3);
       setSize({ ...size, height });
       return;
     }
+
     if (newValue > LABEL_MAX_HEIGHT) {
       alert(_l('高度不能大于%0', LABEL_MAX_HEIGHT), 3);
       setSize({ ...size, height });
       return;
     }
+
     onChange({
       type,
       height: newValue,
     });
   }
+
   return (
     <Fragment>
       <ConfigItem label={_l('尺寸')}>
@@ -249,10 +268,12 @@ function LabeSizeConfig(props) {
           data={setHr(QR_LABEL_SIZE_LIST, -1)}
           onChange={value => {
             const changes = { type: value };
+
             if (value === QR_LABEL_SIZE.CUSTOM) {
               changes.labelCustomWidth = 30;
               changes.labelCustomHeight = 70;
             }
+
             onChange(changes);
           }}
         />
@@ -346,10 +367,13 @@ export default function Sider(props) {
             if (sourceType === value) {
               return;
             }
+
             let newSourceControlId;
+
             if (value === SOURCE_TYPE.CONTROL) {
               newSourceControlId = controls.filter(FILTER[2])[0].controlId;
             }
+
             const defaultShowText = getDefaultText({
               printType,
               sourceType: value,
@@ -357,9 +381,11 @@ export default function Sider(props) {
               controls,
             });
             const newShowTexts = [...showTexts];
+
             if (defaultShowText) {
               newShowTexts[0] = defaultShowText;
             }
+
             onUpdate({
               sourceType: value,
               ...(value === SOURCE_TYPE.CONTROL ? { sourceControlId: newSourceControlId } : {}),
@@ -398,9 +424,11 @@ export default function Sider(props) {
               controls,
             });
             const newShowTexts = [...showTexts];
+
             if (defaultShowText) {
               newShowTexts[0] = defaultShowText;
             }
+
             changes.showTexts = newShowTexts;
             onUpdate(changes);
           }}
@@ -418,6 +446,7 @@ export default function Sider(props) {
               if (printType === value) {
                 return;
               }
+
               onUpdate({ printType: value });
             }}
           />
@@ -456,6 +485,7 @@ export default function Sider(props) {
                 ) {
                   changes.position = QR_POSITION.TOP;
                 }
+
                 if (
                   changes.layout === QR_LAYOUT.LANDSCAPE &&
                   !_.includes([QR_POSITION.LEFT, QR_POSITION.RIGHT], position)
@@ -463,6 +493,7 @@ export default function Sider(props) {
                   changes.position = QR_POSITION.LEFT;
                 }
               }
+
               onUpdate(changes);
             }}
           />
@@ -538,6 +569,7 @@ export default function Sider(props) {
                 changes.layout =
                   changes.labelCustomHeight > changes.labelCustomWidth ? BAR_LAYOUT.PORTRAIT : BAR_LAYOUT.LANDSCAPE;
               }
+
               onUpdate(changes);
             }}
           />

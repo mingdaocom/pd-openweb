@@ -8,17 +8,22 @@ function getSelectedOptionKeys(text = '', options, isMultiple) {
   if (!text.trim()) {
     return '';
   }
+
   if (isMultiple) {
     text = text.split(',');
   }
+
   let result = [];
   const canImportOptions = options.filter(o => !o.isDeleted);
+
   for (let i = 0; i < canImportOptions.length; i++) {
     const option = canImportOptions[i];
+
     if (isMultiple ? _.includes(text, option.value) : option.value === text) {
       result.push(option.key);
     }
   }
+
   return JSON.stringify(result);
 }
 
@@ -43,14 +48,17 @@ const localHandleTypes = [
 
 function getDateStringValue(dateString) {
   let showFormat;
+
   if (/^\d{4}年\d{1,2}月\d{1,2}日/.test(dateString)) {
     showFormat = 'YYYY年M月D日 HH:mm:ss';
   }
+
   dateString = dateString.replace(/(凌晨|早上|上午)$/, 'AM');
   dateString = dateString.replace(/(中午|下午|晚上)$/, 'PM');
   if (new Date(moment(dateString, showFormat).valueOf()).toString() !== 'Invalid Date') {
     return moment(dateString, showFormat).format();
   }
+
   return;
 }
 
@@ -62,10 +70,12 @@ async function convert({ projectId, worksheetId, controlId, mapConfig = [], cont
     Object.keys(mapConfig).forEach(key => {
       if (mapConfig[key]) {
         const control = _.find(controls, { controlId: mapConfig[key] });
+
         if (control) {
           if (_.includes(localHandleTypes, control.type)) {
             let temp = '';
             let value = '';
+
             switch (control.type) {
               case WIDGETS_TO_API_TYPE_ENUM.DROP_DOWN:
               case WIDGETS_TO_API_TYPE_ENUM.FLAT_MENU:
@@ -73,12 +83,14 @@ async function convert({ projectId, worksheetId, controlId, mapConfig = [], cont
                 if (temp && temp !== '[]') {
                   value = temp;
                 }
+
                 break;
               case WIDGETS_TO_API_TYPE_ENUM.MULTI_SELECT:
                 temp = getSelectedOptionKeys(item[key], control.options, true);
                 if (temp && temp !== '[]') {
                   value = temp;
                 }
+
                 break;
               case WIDGETS_TO_API_TYPE_ENUM.MONEY:
               case WIDGETS_TO_API_TYPE_ENUM.NUMBER:
@@ -86,6 +98,7 @@ async function convert({ projectId, worksheetId, controlId, mapConfig = [], cont
                 if (!_.isNaN(temp)) {
                   value = temp;
                 }
+
                 break;
               case WIDGETS_TO_API_TYPE_ENUM.DATE:
               case WIDGETS_TO_API_TYPE_ENUM.DATE_TIME:
@@ -95,6 +108,7 @@ async function convert({ projectId, worksheetId, controlId, mapConfig = [], cont
                 if (/^\w\w:\w\w(:\w\w)?$/.test(trim(item[key]))) {
                   value = item[key];
                 }
+
                 break;
               case WIDGETS_TO_API_TYPE_ENUM.EMAIL:
               case WIDGETS_TO_API_TYPE_ENUM.CRED:
@@ -103,6 +117,7 @@ async function convert({ projectId, worksheetId, controlId, mapConfig = [], cont
                 if (!onValidator({ item: { ...control, value: item[key] } }).errorType) {
                   value = item[key];
                 }
+
                 break;
               case WIDGETS_TO_API_TYPE_ENUM.SWITCH:
                 value = _.includes(['✓', '开启', '是'], (item[key] || '').trim()) ? '1' : '0';
@@ -110,6 +125,7 @@ async function convert({ projectId, worksheetId, controlId, mapConfig = [], cont
               default:
                 value = item[key];
             }
+
             row[control.controlId] = value;
           } else {
             serverHandleControls.push(control.controlId);
@@ -120,6 +136,7 @@ async function convert({ projectId, worksheetId, controlId, mapConfig = [], cont
     rows[rowIndex] = row;
   });
   const serverHandleControlValueCache = {};
+
   if (serverHandleControls.length) {
     const needHandleRows = data
       .map((row = [], rowIndex) => ({
@@ -128,6 +145,7 @@ async function convert({ projectId, worksheetId, controlId, mapConfig = [], cont
           .map(key => {
             if (mapConfig[key]) {
               const control = _.find(controls, { controlId: mapConfig[key] });
+
               if (control && _.includes(serverHandleControls, control.controlId) && !_.isUndefined(row[key])) {
                 serverHandleControlValueCache[`${mapConfig[key]}-${rowIndex}`] = row[key];
                 return {
@@ -136,11 +154,13 @@ async function convert({ projectId, worksheetId, controlId, mapConfig = [], cont
                 };
               }
             }
+
             return undefined;
           })
           .filter(_.identity),
       }))
       .filter(item => item && item.cells && !_.isEmpty(item.cells));
+
     if (needHandleRows.length) {
       const resData = await postWithToken(
         `${md.global.Config.WorksheetDownUrl}/Import/HandlerPreview`,
@@ -152,14 +172,17 @@ async function convert({ projectId, worksheetId, controlId, mapConfig = [], cont
           rows: needHandleRows,
         },
       );
+
       if (_.isArray(resData)) {
         resData.forEach(item => {
           const index = Number(item.rowIndex);
           item.cells.forEach(cell => {
             const control = _.find(controls, { controlId: cell.controlId });
+
             if (!control) {
               return;
             }
+
             switch (control.type) {
               case WIDGETS_TO_API_TYPE_ENUM.AREA_PROVINCE:
               case WIDGETS_TO_API_TYPE_ENUM.AREA_CITY:
@@ -170,6 +193,7 @@ async function convert({ projectId, worksheetId, controlId, mapConfig = [], cont
                     name: serverHandleControlValueCache[`${control.controlId}-${item.rowIndex}`],
                   });
                 }
+
                 break;
               case WIDGETS_TO_API_TYPE_ENUM.USER_PICKER:
                 if (cell.value && cell.value !== '[]') {
@@ -181,6 +205,7 @@ async function convert({ projectId, worksheetId, controlId, mapConfig = [], cont
                     })),
                   );
                 }
+
                 break;
               case WIDGETS_TO_API_TYPE_ENUM.DEPARTMENT:
                 if (cell.value && cell.value !== '[]') {
@@ -191,6 +216,7 @@ async function convert({ projectId, worksheetId, controlId, mapConfig = [], cont
                     })),
                   );
                 }
+
                 break;
               case WIDGETS_TO_API_TYPE_ENUM.ORG_ROLE:
                 if (cell.value && cell.value !== '[]') {
@@ -201,6 +227,7 @@ async function convert({ projectId, worksheetId, controlId, mapConfig = [], cont
                     })),
                   );
                 }
+
                 break;
               case WIDGETS_TO_API_TYPE_ENUM.RELATE_SHEET:
                 if (cell.value && cell.value !== '[]') {
@@ -212,6 +239,7 @@ async function convert({ projectId, worksheetId, controlId, mapConfig = [], cont
                     })),
                   );
                 }
+
                 break;
               default:
                 break;
@@ -221,6 +249,7 @@ async function convert({ projectId, worksheetId, controlId, mapConfig = [], cont
       }
     }
   }
+
   return rows;
 }
 

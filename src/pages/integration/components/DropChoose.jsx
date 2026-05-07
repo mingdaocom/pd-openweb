@@ -39,6 +39,7 @@ const WrapChoose = styled.div`
     color: var(--color-text-tertiary);
   }
 `;
+
 export default function DropChoose(props) {
   const [{ keywords, list, visible }, setState] = useSetState({
     keywords: '',
@@ -89,6 +90,7 @@ export default function DropChoose(props) {
                         if (o.disabled) {
                           return;
                         }
+
                         props.onChange(o);
                         setState({ visible: false, keywords: '' });
                       }}

@@ -246,11 +246,7 @@ export default class Api extends Component {
         )}
 
         {data.appId && (
-          <FindResult
-            nodeType={selectNodeType}
-            executeType={data.executeType}
-            switchExecuteType={executeType => this.updateSource({ executeType })}
-          />
+          <FindResult nodeType={selectNodeType} executeType={data.executeType} updateSource={this.updateSource} />
         )}
       </Fragment>
     );

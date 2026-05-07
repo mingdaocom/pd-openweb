@@ -20,8 +20,8 @@ const CustomFormControlPhone = styled.div`
     max-width: 390px !important;
     width: ${props => `${props.mobileWidth || 100}px !important`};
   }
-  .phoneDisabled {
-    background: transparent !important;
+  .customFormControlBox.phoneDisabled {
+    background: var(--color-background-primary) !important;
     border-color: transparent !important;
   }
   .phoneEditReadonly {
@@ -86,6 +86,7 @@ const MobilePhone = props => {
       const iti = initIntlTelInput();
       iti.setNumber(value);
       const dialCode = _.get(iti.getSelectedCountryData(), 'dialCode');
+
       if (dialCode) {
         const reg = new RegExp(`^\\+${dialCode}\\s?`);
         return value.replace(reg, '');
@@ -93,6 +94,7 @@ const MobilePhone = props => {
         return value;
       }
     }
+
     return value;
   };
 
@@ -115,6 +117,7 @@ const MobilePhone = props => {
   const onChange = _.debounce(props => {
     const countryData = iti.current.getSelectedCountryData();
     let currentValue;
+
     if (!_.keys(countryData).length) {
       currentValue = inputRef.current.value.replace(/ /g, '');
     } else {
@@ -144,10 +147,12 @@ const MobilePhone = props => {
         setHideCountry(!_.keys(iti.current.getSelectedCountryData()).length);
         setItiWidth($(inputRef.current).css('padding-left'));
       }
+
       // 有些国外号码在插件格式化时会被自动补些数字，导致跟客户录入的数据有出入
       // 手动取值更新，避开控件本身行为
       const currentValue = getItiInputValue(value);
       const inputValue = inputRef.current.value;
+
       if (currentValue !== inputValue) {
         inputRef.current.value = currentValue;
       }

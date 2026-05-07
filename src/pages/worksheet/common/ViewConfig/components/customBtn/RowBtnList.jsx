@@ -23,6 +23,7 @@ class RowBtnList extends React.Component {
       if (key === 'sys') {
         return <Icon icon={data.icon} style={{ color: data.color }} className={cx('mRight12 Font18 InlineFlex')} />;
       }
+
       if (key === 'btn') {
         const { color, icon, iconUrl } = data;
         return (
@@ -48,6 +49,7 @@ class RowBtnList extends React.Component {
           </React.Fragment>
         );
       }
+
       return <Icon icon="print" className={cx('mRight12 Font18 textSecondary InlineFlex')} />;
     };
 
@@ -60,6 +62,7 @@ class RowBtnList extends React.Component {
       const ids = actioncolumn.filter(o => o.type === 'print').map(o => o.id);
       return tempList.filter(o => !(ids || []).includes(o.id));
     };
+
     const getSys = () => {
       return SYS_BTN_LIST.filter(a => !(actioncolumn || []).find(o => o.type === a.key));
     };

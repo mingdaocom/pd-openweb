@@ -45,6 +45,7 @@ export default function ApplyInvoiceBtn(props) {
           navigateTo(`/invoice/${orderId}`);
           return;
         }
+
         InvoiceApplyDialog({
           orderId,
           onApplySuccess: resId => {

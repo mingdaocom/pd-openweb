@@ -35,13 +35,16 @@ class List extends Component {
   render() {
     const items = this.props.data.map(item => {
       const classList = [];
+
       if (item.disabled) {
         classList.push('disabled');
       }
+
       if (item.current) {
         classList.push('current');
         classList.push('ThemeBGColor3');
       }
+
       const classNames = classList.join(' ');
 
       return (

@@ -16,6 +16,7 @@ const AppItem = props => {
   const { iconColor } = appPkg;
   const { workSheetId, iconUrl, status, parentStatus, configuration = {}, urlTemplate } = appItem;
   const isNewOpen = configuration.openType == '2';
+
   const getNavigateUrl = () => {
     const storage = JSON.parse(localStorage.getItem(`mdAppCache_${md.global.Account.accountId}_${appId}`)) || {};
     const viewId =
@@ -24,7 +25,9 @@ const AppItem = props => {
     let url = `/app/${appId}/${groupId}/${workSheetId}${viewId ? `/${viewId}` : ''}`;
     return url;
   };
+
   const url = getNavigateUrl();
+
   const handleNewOpen = () => {
     const dataSource = transferValue(urlTemplate);
     const urlList = [];
@@ -47,16 +50,20 @@ const AppItem = props => {
     });
     window.open(urlList.join(''));
   };
+
   const isEditApp = canEditApp(_.get(appPkg, ['permissionType']), _.get(appPkg, ['isLock']));
 
   const renderIcon = () => {
     let icon = 'visibility_off';
+
     if (status === 3 || parentStatus === 3) {
       icon = 'desktop_off';
     }
+
     if (status === 4 || parentStatus === 4) {
       icon = 'mobile_off';
     }
+
     return (
       ([2, 3, 4].includes(status) || [2, 3, 4].includes(parentStatus)) && (
         <Tooltip placement="bottom" title={_l('仅系统角色可见（包含管理员、开发者）')}>

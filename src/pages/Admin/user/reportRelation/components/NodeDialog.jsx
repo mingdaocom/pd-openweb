@@ -117,6 +117,7 @@ function NodeDialogWrap(props) {
         setData([]);
         return;
       }
+
       let projectInfo = getCurrentProject(Config.projectId, true);
       let users = {
         '': {
@@ -190,6 +191,7 @@ function NodeDialogWrap(props) {
 
   const onChangeData = param => {
     const { type, value, id } = param;
+
     switch (type) {
       case 'EXPEND':
         const item = data[id];

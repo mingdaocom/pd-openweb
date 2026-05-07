@@ -29,6 +29,7 @@ const CreateRecordWrap = styled.div`
     }
   }
 `;
+
 export default function CreateRecord(props) {
   const {
     index,
@@ -59,6 +60,7 @@ export default function CreateRecord(props) {
     if (!pid) return;
     const $svgWrap = document.getElementById(uniqId ? `svg-${pathId.join('-')}-${uniqId}` : `svg-${pathId.join('-')}`);
     const $ele = _.get($itemWrap, ['current']);
+
     if ($ele) {
       const $parent = document.getElementById(
         uniqId ? `${data.pathId.join('-')}-${uniqId}` : `${data.pathId.join('-')}`,
@@ -80,10 +82,13 @@ export default function CreateRecord(props) {
 
       // 获取控制点
       const controlPoint = [controlPointX, end[1]];
+
       if ($svgWrap.childElementCount > 0) {
         $svgWrap.childNodes.forEach(child => $svgWrap.removeChild(child));
       }
+
       const draw = SVG(uniqId ? `svg-${pathId.join('-')}-${uniqId}` : `svg-${pathId.join('-')}`).size('100%', '100%');
+
       if (advancedSetting.hierarchyViewConnectLine === '1' || isStraightLine) {
         draw.polyline([start, straightLineInflection, end]).stroke({ width: 2, color: '#d3d3d3' }).fill('none');
       } else {
@@ -102,6 +107,7 @@ export default function CreateRecord(props) {
     setValue('');
     removeHierarchyTempItem({ rowId, path: data.path });
   };
+
   return (
     <div className="sortableTreeNodeWrap" id={pathId.join('-')} ref={$itemWrap}>
       <div
@@ -131,6 +137,7 @@ export default function CreateRecord(props) {
             autoFocus
             onPressEnter={() => {
               const _value = value.trim();
+
               if (_value) {
                 createTextTitleRecord(_value, true);
                 setValue('');
@@ -142,6 +149,7 @@ export default function CreateRecord(props) {
             value={value}
             onBlur={() => {
               const _value = value.trim();
+
               if (_value) {
                 createTextTitleRecord(_value);
                 setValue('');

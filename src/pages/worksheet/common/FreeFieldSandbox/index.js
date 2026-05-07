@@ -19,6 +19,7 @@ function FreeFieldSandbox() {
   }, []);
   const handleEmitterEvent = useCallback((payload = {}) => {
     const { event } = payload;
+
     if (event === 'set-code') {
       setCode(payload.code);
     } else if (event === 'update-params') {

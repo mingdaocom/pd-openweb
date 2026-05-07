@@ -79,6 +79,7 @@ export default class PivotTableFieldColor extends Component {
     const { displaySetup } = currentReport;
     const { colorRules = [] } = displaySetup;
     const colorRule = _.find(colorRules, { controlId: editControlId });
+
     const onCancel = () => {
       this.setState({
         applyType: null,
@@ -86,6 +87,7 @@ export default class PivotTableFieldColor extends Component {
         dataBarColorModalVisible: false,
       });
     };
+
     return (
       <DataBarColor
         visible={dataBarColorModalVisible}
@@ -95,6 +97,7 @@ export default class PivotTableFieldColor extends Component {
             if (rule.controlId === editControlId) {
               rule[applyType] = data;
             }
+
             return rule;
           });
           onChangeDisplayValue('colorRules', rules);
@@ -110,6 +113,7 @@ export default class PivotTableFieldColor extends Component {
     const { yaxisList, displaySetup, reportType } = currentReport;
     const { colorRules = [] } = displaySetup;
     const colorRule = _.find(colorRules, { controlId: editControlId });
+
     const onCancel = () => {
       this.setState({
         applyType: null,
@@ -117,6 +121,7 @@ export default class PivotTableFieldColor extends Component {
         ruleColorModalVisible: false,
       });
     };
+
     return (
       <RuleColor
         visible={ruleColorModalVisible}
@@ -129,6 +134,7 @@ export default class PivotTableFieldColor extends Component {
             if (rule.controlId === editControlId) {
               rule[applyType] = data;
             }
+
             return rule;
           });
           onChangeDisplayValue('colorRules', rules);
@@ -144,6 +150,7 @@ export default class PivotTableFieldColor extends Component {
     const { colorRules = [] } = displaySetup;
     const selectIds = colorRules.map(data => data.controlId);
     const data = yaxisList.filter(data => !selectIds.includes(data.controlId)).filter(data => data.normType !== 7);
+
     if (data.length) {
       return (
         <Dropdown
@@ -214,6 +221,7 @@ export default class PivotTableFieldColor extends Component {
                   if (item.controlId === data.controlId) {
                     item.controlId = value;
                   }
+
                   return item;
                 });
                 onChangeDisplayValue('colorRules', rules);
@@ -255,6 +263,7 @@ export default class PivotTableFieldColor extends Component {
                         if (item.controlId === data.controlId) {
                           item.textColorRule = undefined;
                         }
+
                         return item;
                       });
                       onChangeDisplayValue('colorRules', rules);
@@ -288,6 +297,7 @@ export default class PivotTableFieldColor extends Component {
                         if (item.controlId === data.controlId) {
                           item.bgColorRule = undefined;
                         }
+
                         return item;
                       });
                       onChangeDisplayValue('colorRules', rules);
@@ -318,6 +328,7 @@ export default class PivotTableFieldColor extends Component {
                         if (item.controlId === data.controlId) {
                           item.dataBarRule = undefined;
                         }
+
                         return item;
                       });
                       onChangeDisplayValue('colorRules', rules);

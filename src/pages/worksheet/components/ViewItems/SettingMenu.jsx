@@ -60,6 +60,7 @@ function SettingMenu(props) {
     if (isDelCustomize()) {
       return false;
     }
+
     return isOpenPermit(permitList.viewExportSwitch, sheetSwitchPermit, item.viewId);
   };
 
@@ -68,6 +69,7 @@ function SettingMenu(props) {
       alert(_l('预览模式下，不能操作'), 3);
       return;
     }
+
     if (it.exportType === 1) {
       onExport(item);
       setExportVisible(false);
@@ -77,13 +79,16 @@ function SettingMenu(props) {
       handleClose();
       const allowDownload = isOpenPermit(permitList.recordAttachmentSwitch, sheetSwitchPermit, item.viewId);
       const featureType = window.isPublicApp ? '' : getFeatureStatus(projectId, VersionProductType.batchDownloadFiles);
+
       if (it.exportType === 2 && !allowDownload) {
         return alert(_l('无附件下载权限，无法导出'), 2);
       }
+
       if (featureType === '2') {
         buriedUpgradeVersionDialog(projectId, VersionProductType.batchDownloadFiles);
         return;
       }
+
       onExportAttachment();
     }
   };
@@ -125,11 +130,14 @@ function SettingMenu(props) {
       if (advancedSetting.navshow && _.get(item, 'navGroup[0].controlId')) {
         let control = controls.find(o => o.controlId === _.get(item, 'navGroup[0].controlId')) || {};
         let type = control.type;
+
         if (type === 30) {
           type = control.sourceControlType;
         }
+
         advancedSetting.navshow = [26, 27, 48].includes(type) ? '1' : '0';
       }
+
       changeViewDisplayType(
         getDefaultViewSet({
           ..._.omit(item, ['fastFilters', 'navGroup']),
@@ -144,6 +152,7 @@ function SettingMenu(props) {
         onOpenView(item);
       }
     }
+
     setChangeViewDisplayTypeVisible(false);
     handleClose();
   };
@@ -234,6 +243,7 @@ function SettingMenu(props) {
                   alert(_l('预览模式下，不能操作'), 3);
                   return;
                 }
+
                 onShare(item);
                 handleClose();
               }}
@@ -284,7 +294,7 @@ function SettingMenu(props) {
               }
               popupAlign={{ offset: [0, -20] }}
             >
-              <MenuItem data-event="export" icon={<Icon icon="download" className="Font18" />}>
+              <MenuItem data-event="export" icon={<Icon icon="worksheet_export" className="Font18" />}>
                 <span className="text">{_l('导出%05020')}</span>
                 <Icon icon="arrow-right-tip Font15" style={{ fontSize: '16px', right: '10px', left: 'initial' }} />
               </MenuItem>

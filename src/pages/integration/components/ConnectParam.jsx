@@ -136,6 +136,7 @@ const Wrap = styled.div`
     }
   }
 `;
+
 const getDefaultParameters = () => {
   return {
     controlId: uuidv4(),
@@ -178,6 +179,7 @@ function ConnectParam(props) {
         });
       });
   };
+
   //保存参数
   const update = () => {
     let controlData = controls
@@ -185,10 +187,12 @@ function ConnectParam(props) {
       .map(o => {
         return { ...o, alias: o.controlName };
       });
+
     if (controlData.filter(o => !o.value && o.required).length > 0) {
       alert(_l('存在必填参数未填'), 3);
       return;
     }
+
     flowNodeAjax
       .saveNode(
         {
@@ -209,6 +213,9 @@ function ConnectParam(props) {
       });
   };
 
+  // 安装连接且未开放结构编辑时：仅可填参数值、设置隐藏，不可改名称/说明/必填或增删参数
+  const isParamSchemaLocked = props.connectType === 2 && !props.allowEdit;
+
   const inputRender = (o, key) => {
     if (isEdit) {
       return (
@@ -218,7 +225,7 @@ function ConnectParam(props) {
           placeholder={_l('请输入')}
           defaultValue={o[key]}
           key={JSON.stringify(o)}
-          readOnly={props.connectType === 2 && key !== 'value'}
+          readOnly={isParamSchemaLocked && key !== 'value'}
           onBlur={e => {
             setState({
               controls: controls.map(item => {
@@ -233,6 +240,7 @@ function ConnectParam(props) {
         />
       );
     }
+
     return (
       <span className="WordBreak InlineBlock">
         {o.hide && !!o[key] && key === 'value'
@@ -244,18 +252,12 @@ function ConnectParam(props) {
       </span>
     );
   };
-  //安装的连接 只能填写参数值和设置隐藏 props.connectType === 2
+
   return (
     <Wrap className={props.className}>
       <CardTopWrap className="flexRow">
         <div className={cx('iconCon', { isEdit })}>
-          {!isEdit
-            ? controls.length > 0 && (
-                <Icon icon="check_circle" className="Green_right tip" />
-                // ) : (
-                //   <Icon icon="error1" className="Red tip" />
-              )
-            : ''}
+          {!isEdit ? controls.length > 0 && <Icon icon="check_circle" className="Green_right tip" /> : ''}
           <Icon icon="parameter" className="iconParam Font24" />
         </div>
         <div className="flex pLeft16">
@@ -272,12 +274,13 @@ function ConnectParam(props) {
         {!isEdit && props.canEdit && (
           <div
             className={cx('btn Hand', {
-              disable: props.connectType === 2 && controls.length <= 0,
+              disable: isParamSchemaLocked && controls.length <= 0,
             })}
             onClick={() => {
-              if (props.connectType === 2 && controls.length <= 0) {
+              if (isParamSchemaLocked && controls.length <= 0) {
                 return;
               }
+
               setState({
                 isEdit: true,
                 controls:
@@ -324,20 +327,18 @@ function ConnectParam(props) {
             const disabled = (nodeControls.find(it => o.controlId === it.controlId) || {}).hide;
             return (
               <div className="par conTr flexRow">
-                <div className={cx('name WordBreak', { disable: props.connectType === 2 })}>
+                <div className={cx('name WordBreak', { disable: isParamSchemaLocked })}>
                   {inputRender(o, 'controlName')}
                 </div>
                 <div className="param WordBreak">{inputRender(o, 'value')}</div>
-                <div className={cx('des WordBreak', { disable: props.connectType === 2 })}>
-                  {inputRender(o, 'desc')}
-                </div>
+                <div className={cx('des WordBreak', { disable: isParamSchemaLocked })}>{inputRender(o, 'desc')}</div>
                 <div className="option required">
                   {isEdit ? (
                     <Checkbox
                       className="mLeft5 flex TxtMiddle"
                       size="small"
                       checked={o.required}
-                      disabled={props.connectType === 2}
+                      disabled={isParamSchemaLocked}
                       onClick={() => {
                         setState({
                           controls: controls.map(item => {
@@ -375,7 +376,7 @@ function ConnectParam(props) {
                         });
                       }}
                     />
-                    {props.connectType !== 2 && (
+                    {!isParamSchemaLocked && (
                       <Icon
                         className="flex Font18 Hand LineHeight36 InlineBlock textTertiary del"
                         icon="trash"
@@ -393,7 +394,7 @@ function ConnectParam(props) {
           })}
           {isEdit && props.canEdit && (
             <React.Fragment>
-              {props.connectType !== 2 && (
+              {!isParamSchemaLocked && (
                 <div className="">
                   <span
                     className="Hand ThemeColor3 mTop12 Bold400"

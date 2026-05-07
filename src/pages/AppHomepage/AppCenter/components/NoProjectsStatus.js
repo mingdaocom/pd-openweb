@@ -43,6 +43,7 @@ const JoinGroupCon = styled.div`
 
 export default function NoProjectsStatus(props) {
   const { hasExternalApps } = props;
+
   if (hasExternalApps) {
     return (
       <JoinGroupCon>
@@ -54,6 +55,7 @@ export default function NoProjectsStatus(props) {
       </JoinGroupCon>
     );
   }
+
   const canCreateProject = md.global.Account.superAdmin || md.global.SysSettings.enableCreateProject;
 
   return (

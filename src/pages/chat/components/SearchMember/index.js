@@ -86,7 +86,9 @@ class SearchMember extends Component {
     if (!viewport || currentIndex === -1) {
       return;
     }
+
     const position = $currentEl.position() || {};
+
     if (direction === 'up') {
       if (position.top < 0 || position.top + $currentEl.height() >= $scrollViewEl.height()) {
         this.scrollView.scrollToElement($currentEl[0]);
@@ -117,6 +119,7 @@ class SearchMember extends Component {
   handleKeyDown = event => {
     const { flattenResult, currentIndex } = this.state;
     const { which } = event;
+
     if (which === 38 && flattenResult.length) {
       this.setState(
         {
@@ -143,6 +146,7 @@ class SearchMember extends Component {
   };
   handleOpenSession(data) {
     const { groupId, accountId } = data;
+
     if (groupId) {
       const msg = {
         to: groupId,
@@ -159,6 +163,7 @@ class SearchMember extends Component {
       };
       this.props.addUserSession(accountId, msg);
     }
+
     this.setState({ value: '' });
   }
   renderAccount(account, currentResult) {

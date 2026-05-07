@@ -81,6 +81,7 @@ Toolbar.Event = function () {
     } else {
       $calendarTypeList.show();
     }
+
     event.stopPropagation();
   });
 
@@ -184,6 +185,7 @@ Toolbar.Event = function () {
               $colorBlockMain.show();
             }
           }
+
           event.stopPropagation();
         })
         .on('click', '.colorBlockList', function () {
@@ -255,6 +257,7 @@ Toolbar.Event = function () {
       $filterTaskTypeList.find('.filterTaskTypeListIcon[data-tasktype=' + oldTaskType + ']').addClass('icon-ok');
       $filterTaskTypeList.show();
     }
+
     event.stopPropagation();
   });
 
@@ -283,6 +286,7 @@ Toolbar.Event = function () {
   if (!md.global.Account.projects || !md.global.Account.projects.length) {
     $('#others').hide();
   }
+
   $('#others').on('click', function () {
     const calendarLastPId = localStorage.getItem('calendarLastPId');
     dialogSelectUser({
@@ -530,6 +534,7 @@ Toolbar.Method = {
                 Toolbar.Comm.settings.categorys.splice(_.indexOf(Toolbar.Comm.settings.categorys, catId), 1);
                 safeLocalStorageSetItem('categorys', Toolbar.Comm.settings.categorys);
               }
+
               $('.calendarTypeList li[catid=' + catId + ']').remove();
               _this.parent().remove();
               Toolbar.Calendar.rememberClickRefresh();
@@ -570,6 +575,7 @@ Toolbar.Method = {
               }
             }
           }
+
           safeLocalStorageSetItem('categorys', Toolbar.Comm.settings.categorys);
           Toolbar.Calendar.rememberClickRefresh();
 
@@ -623,6 +629,7 @@ Toolbar.Method = {
             if (!calendar.isRecur) {
               continue;
             }
+
             data.calendars[i].repeat = formatRecur(calendar);
           }
 
@@ -838,6 +845,7 @@ Toolbar.inviteCalendarMethod = {
     if (startYear == endYear && startMon == endMon && startDay == endDay) {
       flag = 1;
     }
+
     // 如果是全天
     if (isAllDay) {
       // 今天 明天
@@ -867,6 +875,7 @@ Toolbar.inviteCalendarMethod = {
         }
       }
     }
+
     return calendarTime;
   },
   // 周 set

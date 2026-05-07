@@ -24,9 +24,7 @@ const Con = styled.div`
   line-height: 48px;
   padding: 0 10px 0 24px;
   z-index: 9;
-  box-shadow:
-    0px 6px 24px rgba(0, 0, 0, 0.12),
-    0 2px 4px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-sm);
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -50,11 +48,10 @@ const Button = styled.div`
   border-radius: 28px;
 `;
 const OkButton = styled(Button)`
-  background-color: #fff;
+  background-color: var(--color-text-inverse);
   font-weight: 600;
   user-select: none;
   &:not(.disabled):hover {
-    background-color: rgba(255, 255, 255, 0.9);
   }
   &.disabled {
     color: var(--color-border-primary);
@@ -88,6 +85,7 @@ export default function EditingBar(props) {
     onOkMouseDown = () => {},
   } = props;
   const cache = useRef({ saveShortCut, okDisabled });
+
   const handleSave = e => {
     if (!cache.current.saveShortCut || !(window.isMacOs ? e.metaKey : e.ctrlKey)) return;
     if (window.richTextDialogIsActive) {
@@ -95,19 +93,23 @@ export default function EditingBar(props) {
       e.preventDefault();
       return;
     }
+
     const latestCreateTimestamp = getLatestCreateTimestampOfWithSaveShortcut();
     e.stopPropagation();
     e.preventDefault();
     if (latestCreateTimestamp !== didMountTimestamp) {
       return;
     }
+
     if (cache.current.okDisabled) return;
     if (includes(['input', 'textarea'], document.activeElement.tagName.toLowerCase())) {
       document.activeElement.blur();
       document.querySelector('.recordInfoForm').dispatchEvent(new MouseEvent('mousedown'));
     }
+
     onUpdate();
   };
+
   useKey('s', handleSave);
   useKey('S', handleSave);
   useEffect(() => {
@@ -136,7 +138,7 @@ export default function EditingBar(props) {
           onClick={e => e.stopPropagation()}
           className="editingBar"
         >
-          <Con style={{ background: isBlack ? 'var(--color-text-title)' : 'var(--color-primary)' }}>
+          <Con style={{ background: isBlack ? 'var(--color-background-inverse)' : 'var(--color-primary)' }}>
             <span className="flex bold">{title}</span>
             {loading && <Loading className="icon icon-loading_button" />}
             {!loading && cancelText && (
@@ -150,7 +152,7 @@ export default function EditingBar(props) {
                 shortcut={saveShortCut && !okDisabled ? (window.isMacOs ? '⌘S' : 'Ctrl+S') : ''}
               >
                 <OkButton
-                  className={cx({ disabled: okDisabled }, isBlack ? 'textPrimary' : 'ThemeColor3')}
+                  className={cx({ disabled: okDisabled }, isBlack ? 'textBlack' : 'ThemeColor3')}
                   onMouseDown={onOkMouseDown}
                   onClick={okDisabled ? () => {} : onUpdate}
                 >

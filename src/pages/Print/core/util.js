@@ -17,6 +17,7 @@ export const sortByShowControls = list => {
   let controls = [];
   list.showControls.map(id => {
     let l = list.relationControls.find(it => id === it.controlId);
+
     if (l) {
       controls.push(l);
     }
@@ -48,20 +49,23 @@ export const getControlsForPrint = ({ receiveControls, relationMaps = {}, needVi
     .filter(c => isSupportedPrintControl({ control: c, needVisible }))
     .map(control => {
       const extendAttr = {};
+
       // 关联记录、子表、查询记录 数据处理
       if (isRelationControl(control.type)) {
         const originalCheckedMap = Object.fromEntries(control.relationControls.map(rc => [rc.controlId, rc.checked]));
         const relationData = relationMaps[control.controlId] || {};
         const relationControls = (_.get(relationData, 'template.controls') || [])
-          .filter(c =>
-            isSupportedPrintControl({
-              control: c,
-              needVisible,
-              showControls: control.showControls,
-              isRelationControl: true,
-            }),
-          )
-          .map(c => ({ ...c, checked: originalCheckedMap[c.controlId] }))
+          .map(c => ({
+            ...c,
+            checked:
+              originalCheckedMap[c.controlId] &&
+              isSupportedPrintControl({
+                control: c,
+                needVisible,
+                showControls: control.showControls,
+                isRelationControl: true,
+              }),
+          }))
           .sort((a, b) => (a.row === b.row ? a.col - b.col : a.row - b.row));
 
         extendAttr.relationControls = replaceControlsTranslateInfo(

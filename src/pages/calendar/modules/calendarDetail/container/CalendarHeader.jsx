@@ -39,6 +39,7 @@ export default class CalendarHeader extends Component {
 
   componentDidUpdate() {
     const { isShowCategory, isCategoryReady } = this.state;
+
     // 首次在打开时去加载 日程分类
     if (isShowCategory && !isCategoryReady) {
       getUserAllCalCategories().then(data => {
@@ -56,6 +57,7 @@ export default class CalendarHeader extends Component {
 
   handleChangeCategory(item) {
     const { changeCategory } = this.props;
+
     return () => {
       changeCategory(item);
       this.setState({ isShowCategory: false });

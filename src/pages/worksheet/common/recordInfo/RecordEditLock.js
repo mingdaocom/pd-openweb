@@ -51,6 +51,7 @@ export default class RecordEditLock {
         clearInterval(this.lockStatusInterval);
         this.lockStatusInterval = null;
       }
+
       this.pollGetLockStatus();
     }
   }
@@ -72,14 +73,17 @@ export default class RecordEditLock {
   updateTimeoutDialog = locked => {
     //更新超时弹层的description文本
     const descDom = document.getElementById('timeoutDesc');
+
     if (descDom) {
       descDom.innerText = locked
         ? _l('正在被其他人编辑，无法继续编辑。点击获取最新记录')
         : _l('记录已被修改，无法继续编辑。点击获取最新记录');
       descDom.setAttribute('style', 'color: var(--color-error) !important');
     }
+
     //disabled按钮
     const continueBtn = document.querySelector('.editTimeoutConfirmClass [data-id="confirmBtn"]');
+
     if (continueBtn) {
       continueBtn.disabled = true;
       continueBtn.classList.add(browserIsMobile() ? 'adm-button-disabled' : 'Button--disabled');
@@ -119,6 +123,7 @@ export default class RecordEditLock {
       if ([EDIT_LOCK_STATUS.UNLOCK, EDIT_LOCK_STATUS.CURRENT_USER_LOCK].includes(res.status)) {
         this.resetLockTimers();
       }
+
       return true;
     },
     60 * 1000,
@@ -198,6 +203,7 @@ const CountDownDialog = props => {
           openTimeoutDialog({ rowEditLock, onRefreshRecord, checkAndLock, clearThrottle, updateTimeoutTime });
           return 0;
         }
+
         return prev - 1;
       });
     }, 1000);

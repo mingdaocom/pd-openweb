@@ -4,17 +4,17 @@ import update from 'immutability-helper';
 import { assign, find, findIndex, flatten, get, isEmpty, isEqual, isFunction, pick } from 'lodash';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dialog, FunctionWrap, LoadDiv } from 'ming-ui';
+import { Dialog, LoadDiv } from 'ming-ui';
 import externalPortalAjax from 'src/api/externalPortal';
 import projectEncryptAjax from 'src/api/projectEncrypt';
 import worksheetAjax from 'src/api/worksheet';
 import { useGlobalStore } from 'src/common/GlobalStore';
-import { GlobalStoreProvider } from 'src/common/GlobalStore';
 import ErrorState from 'src/components/errorPage/errorState';
 import { navigateTo } from 'src/router/navigateTo';
 import { emitter, updateGlobalStoreForMingo } from 'src/utils/common';
 import { dateConvertToUserZone } from 'src/utils/project';
 import { WHOLE_SIZE } from './config/Drag';
+import { ALL_SYS } from './config/widget';
 import Content from './content';
 import Header from './Header';
 import { useSheetInfo } from './hooks';
@@ -72,12 +72,12 @@ export default function Container({ isDialog, ...props }) {
   const [batchDrag, setBatchDrag] = useState(false);
   // 查询工作表配置
   const [queryConfigs, setQueryConfigs] = useState([]);
-  // 外部门户开启状态
-  const [enableState, setEnableState] = useState(false);
 
   // 缓存的各种信息
   const [settingConfig, setConfig] = useSetState({
-    encryData: [],
+    enableState: undefined, // 外部门户开启状态
+    encryData: undefined, // 加密规则
+    ruleList: undefined, // 业务规则
   });
   // 表单样式
   const [styleInfo, setStyle] = useState({
@@ -107,7 +107,11 @@ export default function Container({ isDialog, ...props }) {
 
   const {
     data: { info: globalInfo, noAuth },
-  } = useSheetInfo({ worksheetId: sourceId, getSwitchPermit: true, setConfigLoading: setLoading });
+  } = useSheetInfo({
+    worksheetId: sourceId,
+    getSwitchPermit: true,
+    setConfigLoading: setLoading,
+  });
 
   const [worksheetName, setWorksheetName] = useState();
 
@@ -130,12 +134,14 @@ export default function Container({ isDialog, ...props }) {
       if (relateToTabList || tabListToRelate) {
         let targetIndex = getBoundRowByTab(widgets);
         let newData = { ...data, size: 12 };
+
         // 标签页内
         if (relateToTabList && data.sectionId) {
           const childrenList = getChildWidgetsBySection(genControlsByWidgets(widgets), newData.sectionId);
           targetIndex = _.head(getPathById(widgets, newData.sectionId)) + childrenList.length + 1;
           newData.sectionId = '';
         }
+
         setActiveWidget(newData);
         setTimeout(() => {
           scrollToVisibleRange(newData, { activeWidget: newData });
@@ -154,7 +160,9 @@ export default function Container({ isDialog, ...props }) {
       setActiveWidget(data);
       return update(widgets, { [row]: { $splice: [[col, 1]] }, $splice: [[row + 1, 0, [data]]] });
     }
+
     const nextWidgets = update(widgets, { [row]: { [col]: { $set: data } } });
+
     // 如果当前行的size大小大于整行 重新排列
     if (getCurrentRowSize(nextWidgets[row]) > WHOLE_SIZE) {
       const nextSize = WHOLE_SIZE / widgets[row].length;
@@ -163,6 +171,7 @@ export default function Container({ isDialog, ...props }) {
         [row]: { $apply: items => items.map(item => ({ ...item, size: nextSize })) },
       });
     }
+
     setActiveWidget(data);
     return nextWidgets;
   };
@@ -195,6 +204,7 @@ export default function Container({ isDialog, ...props }) {
     // 如果是从关联记录点过来 url参数会带有targetControl参数 自动选中
     let paras = new URLSearchParams(location.href);
     const targetControlId = paras.get('targetControl');
+
     if (targetControlId) {
       const activeControl = flattenControls.find(item => item.controlId === targetControlId) || {};
       setActiveWidget(activeControl);
@@ -202,12 +212,14 @@ export default function Container({ isDialog, ...props }) {
       // 滚动到激活控件
       setTimeout(() => {
         const $ele = document.getElementById(`widget-${targetControlId}`);
+
         if ($ele) {
           $ele.scrollIntoView();
         }
       }, 0);
       return;
     }
+
     if (isFunction(window.pendingTaskForEditWorksheet)) {
       window.pendingTaskForEditWorksheet();
       delete window.pendingTaskForEditWorksheet;
@@ -245,6 +257,7 @@ export default function Container({ isDialog, ...props }) {
           let widgets = genWidgetsByControls(controls);
 
           const savedWidgets = safeParse(localStorage.getItem(`worksheetConfig-${sourceId}`));
+
           if (savedWidgets) {
             // 未被保存过的更改 可以恢复
             if (savedWidgets.version === version) {
@@ -264,9 +277,11 @@ export default function Container({ isDialog, ...props }) {
               localStorage.removeItem(`worksheetConfig-${sourceId}`);
             }
           }
+
           initData({ widgets, version });
           return;
         }
+
         alert(_l('获取控件错误'));
       })
       .finally(() => {
@@ -280,17 +295,6 @@ export default function Container({ isDialog, ...props }) {
     });
     $originStyle.current = _.get(globalInfo, 'advancedSetting') || {};
     getQueryConfigs(globalInfo.isWorksheetQuery);
-    if (globalInfo.appId) {
-      externalPortalAjax.getPortalEnableState({ appId: globalInfo.appId }).then(res => {
-        setEnableState(res.isEnable);
-      });
-    }
-    if (globalInfo.projectId) {
-      // 加密规则
-      projectEncryptAjax.getProjectEncryptRules({ projectId: globalInfo.projectId }).then(res => {
-        setConfig({ encryData: res.encryptRules });
-      });
-    }
     updateGlobalStoreForMingo(
       {
         activeModule: 'worksheetControlsEdit',
@@ -304,8 +308,52 @@ export default function Container({ isDialog, ...props }) {
     );
   }, [globalInfo]);
 
+  const getPortalState = () => {
+    const appId = _.get(globalInfo, 'appId');
+
+    if (appId) {
+      externalPortalAjax.getPortalEnableState({ appId }).then(res => {
+        setConfig({ enableState: res.isEnable });
+      });
+    }
+  };
+
+  const getEncryptData = () => {
+    const projectId = _.get(globalInfo, 'projectId');
+
+    if (projectId) {
+      projectEncryptAjax.getProjectEncryptRules({ projectId }).then(res => {
+        setConfig({ encryData: res.encryptRules });
+      });
+    }
+  };
+
+  const getRulesData = () => {
+    if (sourceId) {
+      worksheetAjax.getControlRules({ worksheetId: sourceId, type: 1 }).then(res => {
+        setConfig({ ruleList: res });
+      });
+    }
+  };
+
+  useEffect(() => {
+    if (_.isEmpty(activeWidget)) return;
+    if (_.isUndefined(settingConfig.ruleList)) {
+      getRulesData();
+    }
+
+    if (_.isUndefined(settingConfig.encryData)) {
+      getEncryptData();
+    }
+
+    if (_.isUndefined(settingConfig.enableState)) {
+      getPortalState();
+    }
+  }, [activeWidget]);
+
   const saveControls = ({ actualWidgets, callback, newVersion } = {}) => {
     const saveControls = genControlsByWidgets(actualWidgets || widgets);
+
     if (!saveControls.some(item => item.attribute === 1)) {
       setStatus({ noTitleControl: true });
       return;
@@ -347,6 +395,7 @@ export default function Container({ isDialog, ...props }) {
           updateConflictDialog(data);
           return;
         }
+
         let error = getMsgByCode({ code, data, controls: saveControls });
         if (error) return;
         const { controls, version } = data;
@@ -510,9 +559,9 @@ export default function Container({ isDialog, ...props }) {
     getLoading,
     queryConfigs,
     ...settingConfig,
+    setConfig,
     updateQueryConfigs,
     allControls: genControlsByWidgets(widgets),
-    enableState,
     styleInfo,
     setStyleInfo,
     relateToNewPage,
@@ -535,6 +584,7 @@ export default function Container({ isDialog, ...props }) {
         'switches',
       ]),
       worksheetName ? { name: worksheetName } : {},
+      { systemControls: (_.get(globalInfo, 'template.controls') || []).filter(i => _.includes(ALL_SYS, i.controlId)) },
     ),
   };
 
@@ -653,26 +703,3 @@ export default function Container({ isDialog, ...props }) {
     </Fragment>
   );
 }
-
-export const dialogEditWorksheet = props => {
-  const width = window.innerWidth - 32 * 2 > 1600 ? 1600 : window.innerWidth - 32 * 2;
-  const Content = props => {
-    return (
-      <Dialog
-        width={width}
-        className="DialogWidgetConfig"
-        overlayClosable={false}
-        visible
-        type="fixed"
-        title={null}
-        footer={null}
-      >
-        <GlobalStoreProvider>
-          <Container {...props} isDialog handleClose={() => props.onClose()} />
-        </GlobalStoreProvider>
-      </Dialog>
-    );
-  };
-
-  FunctionWrap(Content, { ...props });
-};

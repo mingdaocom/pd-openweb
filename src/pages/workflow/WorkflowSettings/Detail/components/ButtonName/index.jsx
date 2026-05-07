@@ -19,6 +19,7 @@ export default ({ buttons = [], data, updateSource }) => {
   const [visible, setVisible] = useState(false);
   const [cacheData, setCacheData] = useState({});
   const buttonNames = buttons.map(o => data[o.key]).filter(o => o);
+
   const generateData = (isEmpty = false) => {
     const obj = {};
 

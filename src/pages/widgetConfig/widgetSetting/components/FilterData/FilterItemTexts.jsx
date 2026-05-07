@@ -107,11 +107,13 @@ export default class FilterItemTexts extends React.Component {
         {item.value && item.value.type === 'dynamicSource' ? (
           item.value.data.map(it => {
             const isParam = _.includes(['url'], it.rName);
+
             if (!it.name) {
               return (
                 <span className="isWrong dynamicsourceSpan">{isParam ? _l('该参数已删除') : _l('该字段已删除')}</span>
               );
             }
+
             return (
               <span className="dynamicsourceSpan breakAll">
                 {it.name}
@@ -140,6 +142,7 @@ export default class FilterItemTexts extends React.Component {
     } = this.props;
     const filters = this.props.filters || getAdvanceSetting(data, 'filters');
     let filterItemTexts;
+
     if (this.props.filterItemTexts) {
       filterItemTexts = this.props.filterItemTexts;
     } else {
@@ -161,6 +164,7 @@ export default class FilterItemTexts extends React.Component {
           if (_.isFunction(editFn)) {
             editFn(e);
           }
+
           e.stopPropagation();
         }}
       >
@@ -190,6 +194,7 @@ export default class FilterItemTexts extends React.Component {
                   </div>
                 );
               }
+
               return this.renderFilterItem({
                 item,
                 index,

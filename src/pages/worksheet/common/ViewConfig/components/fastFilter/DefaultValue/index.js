@@ -16,6 +16,7 @@ const Wrap = styled.div`
     }
   }
 `;
+
 export default function Input(props) {
   const { hideDynamic } = props;
   // [1, 2, 5].includes(type); //文本、邮箱
@@ -34,11 +35,13 @@ export default function Input(props) {
     const { data = {} } = props;
     let { advancedSetting = {} } = data;
     let { defsource = '' } = advancedSetting;
+
     try {
       defsource = !defsource ? '' : JSON.parse(defsource);
     } catch (error) {
       console.log(error);
     }
+
     if (data.type === 34 && defsource.length <= 0) {
       //子表 默认值清空呈现异化
       return { ...advancedSetting, defaulttype: '' };
@@ -46,6 +49,7 @@ export default function Input(props) {
       return advancedSetting;
     }
   };
+
   return (
     <Wrap className={cx({ hideDynamic })}>
       <DynamicDefaultValue

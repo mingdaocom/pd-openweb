@@ -89,6 +89,7 @@ class TaskStage extends Component {
 
     let withoutTag = false;
     const tagIDs = _.filter(filterSettings.tags, tagId => tagId !== 'null');
+
     if (_.findIndex(filterSettings.tags, tagId => tagId === 'null') >= 0) {
       withoutTag = true;
     }
@@ -153,12 +154,14 @@ class TaskStage extends Component {
       const folderId = taskConfig.folderId;
       let projectId = taskConfig.projectId;
       let taskId;
+
       if (folderId) {
         taskId = $ele.closest('li').data('taskid');
       } else {
         taskId = $ele.closest('tr').data('taskid');
         projectId = $ele.closest('tr').data('projectid');
       }
+
       const accountId = params ? _.get(params.data, 'data.charge.accountID') : $ele.data('id');
       const avatar = params ? _.get(params.data, 'data.charge.avatar') : $ele.data('src');
       const auth = params ? _.get(params.data, 'data.auth') : $ele.data('auth');
@@ -241,6 +244,7 @@ class TaskStage extends Component {
         event.preventDefault();
 
         const delta = event.originalEvent.deltaY;
+
         // up
         if (delta < 0) {
           $ul.scrollLeft(scrollLeft - wheelDelta > 0 ? scrollLeft - wheelDelta : 0);
@@ -258,6 +262,7 @@ class TaskStage extends Component {
       // 阶段下拉操作
       const $listStageDownOperator = $('#taskList .listStageDownOperator');
       let left = -15;
+
       // 第二次点击隐藏
       if ($(this).find('.listStageDownOperator').length && $listStageDownOperator.is(':visible')) {
         $listStageDownOperator.hide();
@@ -410,6 +415,7 @@ class TaskStage extends Component {
       } else {
         that.addStageCharge($li, $li.find('.icon-arrow-down-border'));
       }
+
       $('.listStageDownOperator').hide();
       event.stopPropagation();
     });
@@ -430,6 +436,7 @@ class TaskStage extends Component {
           if (taskStageSettings.isBlur) {
             return;
           }
+
           taskStageSettings.isBlur = true;
           that.updateStageName($(this));
         },
@@ -548,6 +555,7 @@ class TaskStage extends Component {
           if (taskStageSettings.isBlur) {
             return;
           }
+
           taskStageSettings.isBlur = true;
           const stageName = $(this).val().trim();
 
@@ -591,9 +599,11 @@ class TaskStage extends Component {
     // 创建任务确定
     $taskList.on('click', '.addNewTask .btnStagCreateTask', function () {
       const _this = $(this);
+
       if (_this.data('create')) {
         return;
       }
+
       _this.text(_l('创建中…')).data('create', 1);
       that.addNewTaskEnter(_this);
     });
@@ -601,6 +611,7 @@ class TaskStage extends Component {
     // 创建任务改负责人
     $taskList.on('click', '.addNewTask .chargeHeaderAvatar', function () {
       const _this = $(this);
+
       const callback = function (users) {
         const user = users[0];
         _this.attr({ 'data-id': user.accountId, src: user.avatar }).data('id', user.accountId);
@@ -633,8 +644,10 @@ class TaskStage extends Component {
         if ($(this).val().trim()) {
           that.addNewTaskEnter($(this).closest('li').find('.btnStagCreateTask'), true);
         }
+
         return false;
       }
+
       event.stopPropagation();
     });
 
@@ -761,6 +774,7 @@ class TaskStage extends Component {
         const { folderId, listSort, listStatus, completeTime, filterSettings, searchKeyWords } = that.props.taskConfig;
         let withoutTag = false;
         const tagIDs = _.filter(filterSettings.tags, tagId => tagId !== 'null');
+
         if (_.findIndex(filterSettings.tags, tagId => tagId === 'null') >= 0) {
           withoutTag = true;
         }
@@ -891,12 +905,14 @@ class TaskStage extends Component {
     const stageName = $el.val().trim();
     const $spanStage = $el.siblings('.listStageName');
     const oldStageName = $spanStage.text().trim();
+
     const breakEditState = () => {
       $el.remove();
       $spanStage.show();
       if ($spanStage.closest('.singleStage').data('chargeid')) {
         $spanStage.siblings('.stageChargeAvatar').removeClass('Hidden');
       }
+
       $spanStage.siblings('.icon-arrow-down-border, .listStageTaskCount').show();
     };
 
@@ -1027,6 +1043,7 @@ class TaskStage extends Component {
           } else {
             _this.after($('#insertVirtualStage').addClass('mLeft5').removeClass('mRight5'));
           }
+
           return false;
         }
       });
@@ -1123,6 +1140,7 @@ class TaskStage extends Component {
   updateStageSort($li) {
     const stageId = $li.data('stageid');
     let sort = $li.index();
+
     if (taskStageSettings.oldValue == sort) {
       return;
     }
@@ -1231,6 +1249,7 @@ class TaskStage extends Component {
         .hide();
 
       const $stageDate = $li.find('.stageDate');
+
       const bindDate = () => {
         const { start: defaultStart, end: defaultEnd } = $stageDate.data();
         const root = createRoot($stageDate[0]);
@@ -1404,6 +1423,7 @@ class TaskStage extends Component {
               if ($currentElem.is('#insertVirtual')) {
                 return false;
               }
+
               if ($currentElem.offset().top - $(window).scrollTop() + $currentElem.height() / 2 > eventY) {
                 $currentElem.before($('#insertVirtual'));
               } else {
@@ -1471,6 +1491,7 @@ class TaskStage extends Component {
           const nDivHight = $stageContentBox.height();
           const nScrollHight = $stageContentBox[0].scrollHeight;
           const nScrollTop = $stageContentBox[0].scrollTop;
+
           // 是否到底部
           if (nScrollTop + nDivHight < nScrollHight) {
             if (!$stageContentBox.is(':animated')) {
@@ -1518,6 +1539,7 @@ class TaskStage extends Component {
   updateTaskStage($li) {
     const taskId = $li.data('taskid');
     const stageId = $li.closest('li.singleStage').data('stageid');
+
     // 相同不修改
     if (stageId == taskStageSettings.oldValue) {
       return;
@@ -1613,10 +1635,13 @@ class TaskStage extends Component {
       $parent.find('.btnStagCreateTask ').data('create', 0).text(_l('确认'));
       return;
     }
+
     let $listStageContent;
+
     if (isEnter) {
       $listStageContent = $el.closest('.singleStage').find('.btnBottomNew');
     }
+
     // 阶段id
     const stageId = $el.closest('li.singleStage').data('stageid');
     const start = $el.siblings('.stageDate').data('start');
@@ -1685,6 +1710,7 @@ class TaskStage extends Component {
     }
 
     const $taskCount = $li.find('.stageHeader .taskCount');
+
     if ($taskCount.length) {
       $taskCount.html(parseInt($taskCount.html(), 10) + 1);
     } else {

@@ -8,6 +8,7 @@ export function getControlTypeInfo(type) {
 
 export function isBothWayRelate(control, sourceWorksheet) {
   const sourceControls = sourceWorksheet.controls || [];
+
   if (
     !control.dataSource ||
     !control.sourceControlId ||
@@ -16,6 +17,7 @@ export function isBothWayRelate(control, sourceWorksheet) {
   ) {
     return false;
   }
+
   return true;
 }
 

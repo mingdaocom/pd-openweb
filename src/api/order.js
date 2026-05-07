@@ -412,6 +412,34 @@ export default {
     return mdyAPI('Order', 'AddAggregationTableOrder', args, options);
   },
   /**
+   * 获取向量知识库分块订单总价
+   * @param {Object} args 请求参数
+   * @param {string} args.projectId 网络id
+   * @param {string} args.productId 产品规格ID
+   * @param {string} args.orderId 续费订单ID
+   * @param {integer} args.num 数量
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  getVectorKnowledgeChunkOrderPrice: function (args, options = {}) {
+    return mdyAPI('Order', 'GetVectorKnowledgeChunkOrderPrice', args, options);
+  },
+  /**
+   * 添加向量知识库分块订单
+   * @param {Object} args 请求参数
+   * @param {string} args.projectId 网络id
+   * @param {string} args.productId 产品规格ID
+   * @param {integer} args.num 数量
+   * @param {boolean} args.needSalesAssistance 是否需要明道云顾问
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  addVectorKnowledgeChunkOrder: function (args, options = {}) {
+    return mdyAPI('Order', 'AddVectorKnowledgeChunkOrder', args, options);
+  },
+  /**
    * 其他方式付款（记录用户操作日志）
    * @param {Object} args 请求参数
    * @param {string} args.projectId 网络id

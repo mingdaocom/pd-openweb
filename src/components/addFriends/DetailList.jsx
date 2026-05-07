@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import ClipboardButton from 'react-clipboard.js';
+import copy from 'copy-to-clipboard';
 import _ from 'lodash';
 import moment from 'moment';
 import { Icon, LoadDiv, ScrollView } from 'ming-ui';
@@ -32,6 +32,7 @@ export default class DetailList extends Component {
 
   getInviteList = () => {
     const { pageIndex, pageSize, loading, isMore, list } = this.state;
+
     if (pageIndex > 1 && ((loading && isMore) || !isMore)) {
       return;
     }
@@ -80,10 +81,6 @@ export default class DetailList extends Component {
     }
   };
 
-  handleCopyTextSuccess = () => {
-    alert(_l('复制成功'));
-  };
-
   handleRemove = item => {
     if (!item.token || this.state.subLoading) return;
 
@@ -117,14 +114,15 @@ export default class DetailList extends Component {
         </div>
         <div className="flexRow flexCenter mTop10 mBottom10">
           <div className="linkInput Font12">
-            <ClipboardButton
+            <div
               className="ellipsis"
-              component="div"
-              data-clipboard-text={item.inviteUrl}
-              onSuccess={this.handleCopyTextSuccess}
+              onClick={() => {
+                copy(item.inviteUrl);
+                alert(_l('复制成功'));
+              }}
             >
               {item.inviteUrl}
-            </ClipboardButton>
+            </div>
           </div>
           <div className="trashBox">
             <Icon className="Font14" icon="trash" onClick={() => this.handleRemove(item)} />

@@ -49,7 +49,7 @@ export const Wrap = styled.div`
     width: calc(100% - 24px);
     max-width: unset !important;
     &:hover {
-      background-color: var(--color-border-primary);
+      box-shadow: var(--shadow-md);
     }
   }
   .shortcutKey {

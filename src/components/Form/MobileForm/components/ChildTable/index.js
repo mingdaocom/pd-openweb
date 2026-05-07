@@ -13,6 +13,7 @@ const ChildTableComp = connect(state => ({
   lastAction: state.lastAction,
 }))(props => {
   const { baseLoading } = props;
+
   if (baseLoading) {
     return (
       <div
@@ -23,6 +24,7 @@ const ChildTableComp = connect(state => ({
       ></div>
     );
   }
+
   return <ChildTable {...props} />;
 });
 export default class extends React.Component {
@@ -44,12 +46,15 @@ export default class extends React.Component {
 
   componentWillReceiveProps(nextProps) {
     const { onChange } = nextProps;
+
     if (nextProps.control.store && nextProps.control.store !== this.store) {
       this.store = nextProps.control.store;
       this.store.init();
       this.bindSubscribe();
     }
+
     const state = this.store.getState() || {};
+
     if (nextProps.from === 21 && !_.isEqual(this.props.flag, nextProps.flag) && !_.isEmpty(state.rows)) {
       // h5草稿箱已有子表值时编辑赋值
       onChange({
@@ -70,11 +75,13 @@ export default class extends React.Component {
     const { onChange = () => {} } = this.props;
     this.unsubscribe = this.store.subscribe(() => {
       const state = this.store.getState();
+
       if (_.get(state, 'lastAction.type') === 'LOAD_ROWS_COMPLETE') {
         this.store.waitListForLoadRows.forEach(fn => fn());
         this.store.waitListForLoadRows = [];
         return;
       }
+
       const value = _.get(this.props, 'control.value');
       onChange(
         {

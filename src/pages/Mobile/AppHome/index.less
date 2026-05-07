@@ -1,6 +1,4 @@
 .appHomeMobile {
-  background: var(--color-background-primary);
-
   #containerBg {
     background: var(--color-background-primary);
   }
@@ -71,8 +69,6 @@
   }
 
   body {
-    background: var(--color-background-primary);
-
     #app {
       .listConBox {
         display: flex;
@@ -132,12 +128,11 @@
           height: 36px;
           line-height: 36px;
           border-radius: 36px;
-          background-color: var(--color-background-secondary);
           padding: 11px 13px;
           height: 36px;
           line-height: 36px;
           border-radius: 36px;
-          background-color: var(--color-background-secondary);
+          background-color: var(--color-background-input);
           padding: 0px 13px;
           display: flex;
           font-size: 14px;
@@ -149,7 +144,7 @@
             }
           }
           input {
-            background-color: var(--color-background-secondary);
+            background-color: var(--color-background-input);
           }
         }
         .textScanQRCodeWrap {
@@ -159,6 +154,7 @@
           border-radius: 50%;
           margin-right: 16px;
           position: relative;
+          overflow: hidden;
           > div {
             display: flex;
             justify-content: center;

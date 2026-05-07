@@ -45,6 +45,7 @@ export default class EmbedPage extends Component {
             window[`langData-${appId}`] = lang.items;
             window[`langVersion-${appId}`] = langInfo.version;
           }
+
           this.setState({ loading: false, status });
           window[`timeZone_${this.appId}`] = data.timeZone;
           document.body.style.setProperty('--app-primary-color', data.iconColor);
@@ -59,9 +60,11 @@ export default class EmbedPage extends Component {
   }
   renderPage() {
     const { status } = this.state;
+
     if (status !== 1) {
       return <UnusualContent status={status} appId={this.appId} />;
     }
+
     if (isMobile) {
       const params = {
         appId: this.appId,

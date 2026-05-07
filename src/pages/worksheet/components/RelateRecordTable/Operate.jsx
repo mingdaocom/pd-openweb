@@ -137,9 +137,11 @@ function getCount({ control, count, direction, searchMaxCount } = {}) {
   if (direction === 'vertical') {
     return count > 50 ? 50 : count;
   }
+
   if (control.type === 51 && !isUndefined(searchMaxCount) && count > searchMaxCount) {
     return searchMaxCount;
   }
+
   return count;
 }
 
@@ -267,6 +269,7 @@ function Operate(props) {
     batchUpdateRecords,
     isDraft,
     controls,
+    formItemId,
   } = props;
   const { addedRecords } = changes;
   const {
@@ -333,6 +336,7 @@ function Operate(props) {
         worksheetFilterRef.current.reset();
       }
     }
+
     cacheStore.current.oldFilterControls = filterControls;
   }, [filterControls]);
   useEffect(() => {
@@ -345,6 +349,7 @@ function Operate(props) {
     <Con className={className} style={style} smallMode={smallMode} ref={workSheetFilterContainerRef}>
       {(addVisible || selectVisible || allowBatchEdit) && (
         <RelateRecordBtn
+          formItemId={formItemId}
           records={records}
           view={view}
           isCharge={isCharge}
@@ -441,6 +446,7 @@ function Operate(props) {
           }}
           onBatchOperate={({ action }) => {
             let allowDeleteRowIds;
+
             switch (action) {
               case 'enterBatchEditing':
                 cache.current.lastSelectRowIndex = undefined;
@@ -467,6 +473,7 @@ function Operate(props) {
                   alert(_l('没有有权限删除的记录'), 3);
                   return;
                 }
+
                 if (allowRemoveRelation) {
                   Dialog.confirm({
                     onlyClose: true,
@@ -498,6 +505,7 @@ function Operate(props) {
                     },
                   });
                 }
+
                 break;
               case 'exportRecords':
                 exportRelateRecordRecords({
@@ -590,6 +598,7 @@ function Operate(props) {
                     alert(_l('数据为空，暂不支持导出！'), 3);
                     return;
                   }
+
                   return exportRelateRecordRecords({
                     worksheetId,
                     rowId: recordId,

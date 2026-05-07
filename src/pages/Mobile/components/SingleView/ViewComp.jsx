@@ -155,6 +155,7 @@ function ViewComp(props) {
         updateFiltersGroup(filtersGroup, view);
         return;
       }
+
       if ([0, 1, 3, 4, 6].includes(view.viewType)) {
         updateFiltersGroup(filtersGroup, view);
       } else {
@@ -173,10 +174,12 @@ function ViewComp(props) {
 
   const addRecord = () => {
     const { appId, worksheetId } = worksheetInfo;
+
     if (window.isMingDaoApp && window.APP_OPEN_NEW_PAGE) {
       window.location.href = `/mobile/addRecord/${appId}/${worksheetId}/${view.viewId}`;
       return;
     }
+
     const addRecord = data => {
       if (view.viewType) {
         props.addNewRecord(data, view);
@@ -184,6 +187,7 @@ function ViewComp(props) {
         props.unshiftSheetRow(data);
       }
     };
+
     if (window.isMingDaoApp) {
       mdAppResponse({
         type: 'native',
@@ -195,6 +199,7 @@ function ViewComp(props) {
         },
       }).then(data => {
         const { value } = data;
+
         if (value) {
           const res = JSON.parse(value);
           res.forEach(data => {
@@ -235,7 +240,7 @@ function ViewComp(props) {
         <Fragment>
           {hasGroupFilter && <SlideGroupFilter {...props} view={view} />}
           <ViewCon className="flexRow SingleViewBody">
-            <View view={view} viewFlag={Date.now()} />
+            <View view={view} viewFlag={Date.now()} config={config} />
           </ViewCon>
         </Fragment>
 

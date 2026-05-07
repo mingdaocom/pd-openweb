@@ -108,6 +108,7 @@ export default function WidgetSection(props) {
     let changeControls = [];
     let triggerType = '';
     const preControls = _.get($sectionControls, 'current') || [];
+
     if (preControls.length > tabControls.length) {
       // 卸载
       changeControls = _.differenceBy(preControls, tabControls, 'controlId');
@@ -117,6 +118,7 @@ export default function WidgetSection(props) {
       changeControls = _.differenceBy(tabControls, preControls, 'controlId');
       triggerType = ADD_EVENT_ENUM.SHOW;
     }
+
     if (_.isFunction(props.triggerCustomEvent) && changeControls.length && triggerType) {
       changeControls.forEach(itemControl => {
         setTimeout(() => {
@@ -124,6 +126,7 @@ export default function WidgetSection(props) {
         }, 500);
       });
     }
+
     $sectionControls.current = tabControls;
   };
 
@@ -142,6 +145,7 @@ export default function WidgetSection(props) {
         </div>
       );
     }
+
     if (_.includes([29, 51], activeControl.type)) {
       // 列表多条
       return (
@@ -173,6 +177,7 @@ export default function WidgetSection(props) {
             if (changed) {
               props.triggerCustomEvent({ ...activeControl, triggerType: ADD_EVENT_ENUM.CHANGE });
             }
+
             setVersion(Math.random());
           }}
           onUpdateCell={() => {

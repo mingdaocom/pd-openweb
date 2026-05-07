@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import _ from 'lodash';
@@ -39,6 +39,7 @@ class CreateBtn extends Component {
 
   componentDidMount() {
     const { autoShow, updateAutoShow = () => {} } = this.props;
+
     if (autoShow) {
       setTimeout(() => {
         this.handleClick();
@@ -51,6 +52,7 @@ class CreateBtn extends Component {
     if (e) {
       e.stopPropagation();
     }
+
     const { projectId, getFullTree } = this.props;
     createEditDeptDialog({
       type: 'create',
@@ -88,6 +90,7 @@ class CreateBtn extends Component {
       updateShowExport = () => {},
       updateImportType = () => {},
       handleShowDisabledDepartment = () => {},
+      hasDepartmentAuth,
     } = this.props;
 
     const { popupVisible } = this.state;
@@ -105,42 +108,46 @@ class CreateBtn extends Component {
         >
           <Icon className="Font16 textDisabled Hand mLeft4" icon="info_outline" />
         </Tooltip>
-        <div className="flex"></div>
-        <span className="Hand colorPrimary mRight12" onClick={this.handleClick}>
-          <i className="mRight3 icon-add Font18 TxtMiddle" />
-          {_l('添加')}
-        </span>
-        <Trigger
-          action={['click']}
-          popupAlign={{
-            points: ['tl', 'bl'],
-            offset: [0, 0],
-            overflow: { adjustX: true, adjustY: true },
-          }}
-          popupVisible={popupVisible}
-          onPopupVisibleChange={popupVisible => this.setState({ popupVisible })}
-          popup={
-            <MenuWrap>
-              <MenuItem onClick={() => handleShowDisabledDepartment(!showDisabledDepartment)}>
-                <Checkbox text={_l('显示停用部门')} checked={showDisabledDepartment} />
-              </MenuItem>
-              <MenuItem
-                key="0"
-                onClick={() => {
-                  updateShowExport(true);
-                  updateImportType('importDepartment');
-                }}
-              >
-                {_l('导入部门')}
-              </MenuItem>
-              <MenuItem key="1" disabled={_.isEmpty(newDepartments)} onClick={this.exportDepartmentList}>
-                {_l('导出部门')}
-              </MenuItem>
-            </MenuWrap>
-          }
-        >
-          <Icon icon="moreop" className="textTertiary Hand Font20 iconHover mRight12" />
-        </Trigger>
+        {hasDepartmentAuth && (
+          <Fragment>
+            <div className="flex"></div>
+            <span className="Hand colorPrimary mRight12" onClick={this.handleClick}>
+              <i className="mRight3 icon-add Font18 TxtMiddle" />
+              {_l('添加')}
+            </span>
+            <Trigger
+              action={['click']}
+              popupAlign={{
+                points: ['tl', 'bl'],
+                offset: [0, 0],
+                overflow: { adjustX: true, adjustY: true },
+              }}
+              popupVisible={popupVisible}
+              onPopupVisibleChange={popupVisible => this.setState({ popupVisible })}
+              popup={
+                <MenuWrap>
+                  <MenuItem onClick={() => handleShowDisabledDepartment(!showDisabledDepartment)}>
+                    <Checkbox text={_l('显示停用部门')} checked={showDisabledDepartment} />
+                  </MenuItem>
+                  <MenuItem
+                    key="0"
+                    onClick={() => {
+                      updateShowExport(true);
+                      updateImportType('importDepartment');
+                    }}
+                  >
+                    {_l('导入部门')}
+                  </MenuItem>
+                  <MenuItem key="1" disabled={_.isEmpty(newDepartments)} onClick={this.exportDepartmentList}>
+                    {_l('导出部门')}
+                  </MenuItem>
+                </MenuWrap>
+              }
+            >
+              <Icon icon="moreop" className="textTertiary Hand Font20 iconHover mRight12" />
+            </Trigger>
+          </Fragment>
+        )}
       </Wrap>
     );
   }

@@ -47,6 +47,7 @@ export default class DragMast extends React.Component {
 
   componentDidMount() {
     const { min = 280, max = 800, direction } = this.props;
+
     if (this.mask) {
       setTimeout(() => {
         this.mask.addEventListener('mousemove', e => {

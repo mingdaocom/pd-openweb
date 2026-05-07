@@ -59,6 +59,7 @@ export default class Delay extends Component {
    */
   onSave = () => {
     const { data, saveRequest } = this.state;
+
     if (data.actionId === '300' && !data.fieldValue && !data.fieldNodeId) {
       alert(_l('日期不能为空'), 2);
       return;

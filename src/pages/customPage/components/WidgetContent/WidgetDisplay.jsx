@@ -123,10 +123,12 @@ const WidgetDisplay = forwardRef((props, $cardRef) => {
       const { newTab = false, reload = false } = config;
       return <PreviewWraper reload={reload} newTab={newTab} value={value} param={param} />;
     }
+
     if (componentType === 'richText') {
       const translateInfo = getTranslateInfo(ids.appId, null, widget.id);
       return <RichText editable={editable} widget={widget} value={translateInfo.description || value || ''} />;
     }
+
     if (componentType === 'button') {
       return (
         <ButtonList
@@ -140,6 +142,7 @@ const WidgetDisplay = forwardRef((props, $cardRef) => {
         />
       );
     }
+
     if (componentType === 'analysis') {
       return (
         <ChartDisplay
@@ -167,6 +170,7 @@ const WidgetDisplay = forwardRef((props, $cardRef) => {
         />
       );
     }
+
     if (componentType === 'view') {
       if (browserIsMobile()) {
         return <MobileView appId={ids.appId} setting={widget} />;
@@ -191,6 +195,7 @@ const WidgetDisplay = forwardRef((props, $cardRef) => {
         )
       );
     }
+
     if (componentType === 'tabs' || componentType === 'card') {
       return (
         <Tabs
@@ -210,11 +215,13 @@ const WidgetDisplay = forwardRef((props, $cardRef) => {
         />
       );
     }
+
     if (componentType === 'image') {
       return (
         <Image themeColor={props.themeColor} widget={widget} editable={editable} customPageConfig={rest.config || {}} />
       );
     }
+
     if (componentType === 'carousel') {
       const { config, componentConfig } = widget;
       return (
@@ -226,6 +233,7 @@ const WidgetDisplay = forwardRef((props, $cardRef) => {
         />
       );
     }
+
     if (componentType === 'filter') {
       if (layoutType === 'mobile') {
         return <MobileFilter ids={ids} widget={widget} className={cx({ disableFiltersGroup: editable })} />;

@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { ActionSheet, Button, Popup } from 'antd-mobile';
 import cx from 'classnames';
 import _ from 'lodash';
@@ -24,6 +24,7 @@ export default function RowDetailModal(props) {
     widgetStyle,
     deleteRow = () => {},
   } = props;
+  const [errorConfirmVisible, setErrorConfirmVisible] = useState(false);
   const formContent = useRef(null);
   const rowId = data.rowid || '';
   const type = mobileIsEdit
@@ -79,6 +80,7 @@ export default function RowDetailModal(props) {
               onClick={() => {
                 closeConfirmFunc.close();
                 const hasError = formContent.current.handleSave(false, false, false);
+
                 if (!(!_.isUndefined(hasError) && !hasError)) {
                   onClose();
                 }
@@ -110,20 +112,24 @@ export default function RowDetailModal(props) {
         <div className="flex"></div>
         {type === 'edit' && !disabled ? (
           <span
-            className="colorPrimary Font16 bold"
+            className="icon icon-cancel textTertiary Font22"
             onClick={() => {
               if ($('.mobileChildTableRowDetailDialog').find('.fileUpdateLoading').length) {
                 alert(_l('附件正在上传，请稍后'), 3);
                 return;
               }
-              const hasError = formContent.current.handleSave(false, false, false);
+
+              const hasError = formContent.current.handleSave(false, false, true, false, {
+                ignoreHiddenRequired: true,
+              });
+
               if (!(!_.isUndefined(hasError) && !hasError)) {
                 onClose();
+              } else {
+                setErrorConfirmVisible(true);
               }
             }}
-          >
-            {_l('保存')}
-          </span>
+          />
         ) : (
           <i className="headerBtn icon icon-cancel textTertiary Font20" onClick={() => handleClose(data.rowid)}></i>
         )}
@@ -172,6 +178,32 @@ export default function RowDetailModal(props) {
             {_l('下一条')}
           </Button>
         </div>
+      )}
+
+      {errorConfirmVisible && (
+        <Popup
+          className="errorConfirmPopup mobileModal topRadius"
+          bodyStyle={{ padding: '15px 15px 0px' }}
+          visible={errorConfirmVisible}
+          onCancel={() => setErrorConfirmVisible(false)}
+        >
+          <div className="Font16 bold mBottom10">{_l('确认退出？')}</div>
+          <div className="Font13 textTertiary mBottom10">{_l('当前内容校验未通过，确认是否退出。')}</div>
+          <div className="flexRow mBottom10">
+            <Button className="flex mRight6 Font13 bold textSecondary" onClick={() => setErrorConfirmVisible(false)}>
+              {_l('取消')}
+            </Button>
+            <Button
+              className="flex mLeft6 Font13 bold textWhite deleteBtn"
+              onClick={() => {
+                setErrorConfirmVisible(false);
+                onClose();
+              }}
+            >
+              {_l('退出')}
+            </Button>
+          </div>
+        </Popup>
       )}
     </div>
   );

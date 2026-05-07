@@ -47,6 +47,7 @@ export const Abnormal = props => {
       <div className="textTertiary Font16">{_l('数据量过大，请添加时间范围或添加筛选条件减少数据量')}</div>
     </div>
   );
+
   if (isEdit) {
     if (status === -1) {
       return withoutPermission;

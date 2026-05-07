@@ -365,6 +365,7 @@ class UserCard extends React.Component {
           </BusinessCardWrap>
         );
       }
+
       const portalValues = (data.portalValues || []).filter(l => l.value);
       const flag =
         isPortal || data.status === USER_STATUS.INACTIVE || type !== 1 || md.global.Account.isPortal || notContact;

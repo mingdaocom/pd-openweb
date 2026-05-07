@@ -21,6 +21,7 @@ export default function ColorSelectWrap({ color: activeColor, handleChange }) {
           <li className={cx({ addActive: addColor })}>
             <div className="colorItem">
               <ColorPicker
+                dynamicColor
                 value={addColor || 'var(--color-text-primary)'}
                 onChange={value => {
                   setAddColor(value);

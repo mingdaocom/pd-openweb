@@ -43,12 +43,15 @@ export const isIn = (flowData, control, parentControl, workSheetId, isGroup) => 
   if (isGroup) {
     return hs.length > 0;
   }
+
   const aggHs = (_.get(aggregateDt, 'nodeConfig.config.aggregateFields') || []).find(
     (a = {}) => !a.isCalculateField && isEqualControl(parentControl, control, a, workSheetId),
   );
+
   if (aggHs) {
     hs = hs.concat(aggHs);
   }
+
   return hs.length > 0;
 };
 
@@ -76,6 +79,7 @@ export const canAgg = (control, parentControl, flowData, workSheetId) => {
 
 export const getCanSelectControls = (sourceInfos, flowData, workSheetId, forAggregation) => {
   let list = (sourceInfos.find(it => it.worksheetId === workSheetId) || {}).controls || [];
+
   if (forAggregation) {
     list = list.filter(
       o =>
@@ -97,6 +101,7 @@ export const getCanSelectControls = (sourceInfos, flowData, workSheetId, forAggr
         )
       );
     };
+
     const isInGroup = o => {
       if ([34, 35, 29].includes(o.type)) {
         return (
@@ -107,14 +112,18 @@ export const getCanSelectControls = (sourceInfos, flowData, workSheetId, forAggr
         return isIn(flowData, o, null, workSheetId, true);
       }
     };
+
     list = list.map(oo => {
       let o = { ...oo, disableChoose: false };
+
       if (o.controlId === 'rowscount') {
         if (isIn(flowData, o, null, workSheetId, false)) {
           return { ...o, disableChoose: true };
         }
+
         return o;
       }
+
       if ([34, 35, 29].includes(o.type)) {
         //聚合中的字段，聚合方式不能重复
         if (
@@ -124,15 +133,18 @@ export const getCanSelectControls = (sourceInfos, flowData, workSheetId, forAggr
         ) {
           return o;
         }
+
         return { ...o, disableChoose: true };
       } else {
         if (isInGroup(o)) {
           //归组的字段，聚合不可选
           return { ...o, disableChoose: true };
         }
+
         if (isIn(flowData, o, null, workSheetId, false)) {
           return { ...o, disableChoose: !canAgg(o, null, flowData, workSheetId) };
         }
+
         return { ...o, disableChoose: false };
       }
     });
@@ -143,8 +155,10 @@ export const getCanSelectControls = (sourceInfos, flowData, workSheetId, forAggr
     const onFilter = it => {
       return ![34, 35, 29, 31, 37, 6, 8].includes(it.type);
     };
+
     list = list.map(oo => {
       let o = { ...oo, disableChoose: false };
+
       if ([34, 35, 29].includes(o.type)) {
         const relationControls = formatControls(o.relationControls).filter(
           it => !isIn(flowData, it, o, workSheetId, false) && onFilter(it),
@@ -157,12 +171,15 @@ export const getCanSelectControls = (sourceInfos, flowData, workSheetId, forAggr
         if (isIn(flowData, o, null, workSheetId, false)) {
           return { ...o, disableChoose: true };
         }
+
         return o;
       }
     });
   }
+
   return list;
 };
+
 //聚合方式
 export const getDefaultOperationDatas = item => {
   return OPERATION_TYPE_DATA.filter(o => {
@@ -240,6 +257,7 @@ export const getAggFuncTypes = (aggregateFields, parentControl, control, workshe
   let hs = false;
   let aggFuncType = 'COUNT';
   let aggFuncName = _l('计数');
+
   if (control.controlId === 'rowscount') {
     hs = !!aggregateFields.find(o => o.oid === `${worksheetId}_rowscount`);
   } else {
@@ -248,6 +266,7 @@ export const getAggFuncTypes = (aggregateFields, parentControl, control, workshe
       .filter(o => isEqualControl(parentControl, control, o, worksheetId))
       .map(o => o.aggFuncType);
     const others = list.filter(o => !(aggFuncTypes || []).includes(o.value));
+
     if (others.length <= 0) {
       hs = true;
     } else {
@@ -264,6 +283,7 @@ export const extractBetweenDollars = str => {
     // 处理错误情况，比如返回空数组或抛出异常
     return [];
   }
+
   // 正则表达式匹配两个"$"符号之间的内容
   const regex = /\$([^$]*)\$/g;
   // 执行匹配操作
@@ -291,9 +311,11 @@ export const getRuleAlias = (alias, flowData, isRule, getLen) => {
   if (getLen) {
     return aliasList.filter(o => o.alias === alias);
   }
+
   if (isRule) {
     return !aliasList.find(o => o.alias === alias);
   }
+
   const addUniqueItemWithName = newName => {
     if (!aliasList.find(o => o.alias === newName)) {
       return newName;
@@ -301,13 +323,16 @@ export const getRuleAlias = (alias, flowData, isRule, getLen) => {
       // 如果有重复，添加后缀并检查新名称是否仍然重复
       let suffix = 1;
       let uniqueName = newName + suffix;
+
       while (aliasList.some(item => item.alias === uniqueName)) {
         suffix++;
         uniqueName = newName + suffix;
       }
+
       return uniqueName;
     }
   };
+
   return addUniqueItemWithName(alias);
 };
 
@@ -332,18 +357,22 @@ export const canSelectTypes = (data, item) => {
     const onFilter = it => {
       return ![34, 35, 29, 31, 37, 6, 8].includes(it.type);
     };
+
     const relationControls = formatControls(item.relationControls).filter(
       it => onFilter(it) && canSelectTypes(data, it),
     );
     return relationControls.length > 0;
   }
+
   if ([9, 10, 11].includes(data.mdType)) {
     //选项集且dataSource一致
     return item.dataSource === _.get(data, 'controlSetting.dataSource') && [9, 10, 11].includes(item.type);
   }
+
   if ([29].includes(data.mdType)) {
     return data.controlSetting.dataSource === item.dataSource && [29].includes(item.type); //相同的关联表
   }
+
   switch (data.type) {
     case API_ENUM_TO_TYPE.NEW_FORMULA_38:
     case API_ENUM_TO_TYPE.NEW_FORMULA_31:
@@ -359,6 +388,7 @@ export const canSelectTypes = (data, item) => {
           (item.type === API_ENUM_TO_TYPE.NEW_FORMULA_38 && isFormulaResultAsTime(item))
         );
       }
+
       // 日期时间类
       if (
         (data.type === API_ENUM_TO_TYPE.NEW_FORMULA_38 &&
@@ -399,6 +429,7 @@ export const canSelectTypes = (data, item) => {
           isFormulaResultAsSubtotal(item)
         );
       }
+
     case API_ENUM_TO_TYPE.TIME:
       return (
         API_ENUM_TO_TYPE.TIME === item.type ||
@@ -473,6 +504,7 @@ export function useInterval(callback, delay) {
     if (!delay && delay !== 0) {
       return;
     }
+
     const id = setInterval(() => savedCallback.current(), delay);
     return () => clearInterval(id);
   }, [delay]);
@@ -520,20 +552,24 @@ export const isHasChange = flowData => {
     isDisPreview: groupFields.length <= 0 || aggregateFields.length <= 0,
   };
 };
+
 //多源归组ResultField及配置处理
 export const getResultField = (fields = [], flowData, aggFuncType) => {
   if (fields.length <= 0) {
     return undefined;
   }
+
   let data = {
     ...fields[0],
     ...getGroupInfo({ fields }, flowData),
     controlSetting: formatGroupConfig(fields),
     mdType: formatGroupConfig(fields).type,
   };
+
   if (aggFuncType) {
     data.aggFuncType = aggFuncType;
   }
+
   const getShowtype = () => {
     let list = [];
     fields.forEach(o => {
@@ -562,6 +598,7 @@ export const getResultField = (fields = [], flowData, aggFuncType) => {
       return _.max(list);
     }
   };
+
   if (data.aggFuncType) {
     data = setResultFieldSettingByAggFuncType(data);
   } else {
@@ -571,6 +608,7 @@ export const getResultField = (fields = [], flowData, aggFuncType) => {
       [15, 16, 17, 18].includes(_.get(data, 'controlSetting.type'))
     ) {
       const datatype = getShowtype();
+
       if (isFormulaResultAsDate(data.controlSetting) || isFormulaResultAsDateTime(data.controlSetting)) {
         //公式字段 配置在unit
         data.controlSetting.unit = datatype;
@@ -579,11 +617,13 @@ export const getResultField = (fields = [], flowData, aggFuncType) => {
         data.controlSetting.advancedSetting.showtype = datatype;
       }
     }
+
     if (isFormulaResultAsTime(data.controlSetting) || [46].includes(_.get(data, 'controlSetting.type'))) {
       const datatype = getShowtype();
       data.controlSetting.unit = datatype;
     }
   }
+
   return data;
 };
 
@@ -666,6 +706,7 @@ export const getDefaultOperationForGroup = item => {
 //计数归组字段的alias和aggFuncType
 export const getGroupInfo = (data, flowData) => {
   let newDt = {};
+
   if (
     isDateTimeGroup(data) //|| isTimeGroup(data)
   ) {
@@ -677,8 +718,10 @@ export const getGroupInfo = (data, flowData) => {
       newDt.controlSetting.advancedSetting.showformat = '0'; //日期时间 ---
     }
   }
+
   return newDt;
 };
+
 //获取数据源节点需要展示的数据 包含源节点 以及关联的字段
 export const getAllSourceList = (flowData, source) => {
   const sourceDt = getNodeInfo(flowData, 'DATASOURCE');
@@ -713,6 +756,7 @@ export const getAllSourceList = (flowData, source) => {
 //判断当前字段是否已删除
 export const isDelStatus = (item, source) => {
   let isDelete = false;
+
   if (_.get(item, 'parentFieldInfo.controlSetting.controlId') && _.get(item, 'parentFieldInfo.oid')) {
     const dataControls =
       (source.find(it => (_.get(item, 'parentFieldInfo.oid') || '').split('_')[0] === it.sourceId) || {}).controls ||
@@ -722,16 +766,19 @@ export const isDelStatus = (item, source) => {
         o.controlId === _.get(item, 'parentFieldInfo.controlSetting.controlId') &&
         _.get(o, 'advancedSetting.hide') !== '1',
     );
+
     if (!data || ([29, 34, 35].includes(data.type) && 29 === data.type && !isRuleRelative(data))) {
       isDelete = true;
     }
   }
+
   if (
     !_.get(item, 'parentFieldInfo.controlSetting.controlId') &&
     !source.find(it => item.oid && item.oid.indexOf(it.sourceId) >= 0)
   ) {
     isDelete = true;
   }
+
   return isDelete;
 };
 
@@ -741,6 +788,7 @@ export const setGroupFields = (groupDt, sourceInfos, flowData) => {
     let fields = o.fields.map((it = {}, i) => {
       let controlSetting = {};
       let parentFieldInfo = it.parentFieldInfo || {};
+
       if (_.get(parentFieldInfo, 'controlSetting.controlId')) {
         parentFieldInfo.controlSetting =
           (_.get(sourceInfos, `[${i}]controls`) || []).find(
@@ -756,6 +804,7 @@ export const setGroupFields = (groupDt, sourceInfos, flowData) => {
           a => a.controlId === _.get(it, 'controlSetting.controlId'),
         );
       }
+
       return {
         ...it,
         parentFieldInfo,
@@ -815,6 +864,7 @@ export const formatGroupConfig = fields => {
   if (fields.length <= 1) {
     return _.get(fields, '[0].controlSetting');
   }
+
   //符合文本可互相映射的类型
   const isInTxtType =
     [
@@ -836,12 +886,14 @@ export const formatGroupConfig = fields => {
     (isFormulaResultAsSubtotal(_.get(fields, '[0].controlSetting')) &&
       (!!fields.find(o => [API_ENUM_TO_TYPE.TEXTAREA_INPUT_1, API_ENUM_TO_TYPE.TEXTAREA_INPUT_2].includes(o.type)) ||
         _.uniq(fields.map(o => o.type)).length > 1));
+
   if (isInTxtType) {
     return {
       ..._.get(fields, '[0].controlSetting'),
       type: 2,
     };
   }
+
   return _.get(fields, '[0].controlSetting');
 };
 
@@ -849,12 +901,15 @@ export const setResultFieldSettingByAggFuncType = data => {
   if ([15, 16, 17, 18].includes(_.get(data, 'controlSetting.type'))) {
     const DATE_VALUE = { CUR_YEAR: '5', CUR_MONTH: '4', TODAY: '3', CUR_HOUR: '2', CUR_MINUTE: '1' };
     let datatype = DATE_VALUE[data.aggFuncType];
+
     if (!_.get(data, 'controlSetting.advancedSetting')) {
       data.controlSetting.advancedSetting = {};
     }
+
     data.controlSetting.advancedSetting.showtype = datatype;
     data.controlSetting.advancedSetting.showformat = '0';
   }
+
   if (
     (isFormulaResultAsTime(data.controlSetting) || [46].includes(_.get(data, 'controlSetting.type'))) &&
     data.aggFuncType
@@ -867,8 +922,10 @@ export const setResultFieldSettingByAggFuncType = data => {
     if (!_.get(data, 'controlSetting.advancedSetting')) {
       data.controlSetting.advancedSetting = {};
     }
+
     data.controlSetting.advancedSetting.showformat = '0';
   }
+
   return data;
 };
 
@@ -895,6 +952,7 @@ export const getSourceMaxCountByVersion = projectId => {
   if (window.platformENV.isOverseas || window.platformENV.isLocal) return 10; //私有部署10个
   const { version = { versionIdV2: '-1' } } = getSyncLicenseInfo(projectId);
   const { versionIdV2 } = version;
+
   switch (versionIdV2) {
     case '1': //标准版 5 个
       return 5;
@@ -909,6 +967,7 @@ export const getSourceMaxCountByVersion = projectId => {
 //数据源达到上限提示
 export const sourceIsMax = projectId => {
   const project = getSyncLicenseInfo(projectId);
+
   if (
     !['2', '3'].includes(_.get(project, 'version.versionIdV2')) &&
     !window.platformENV.isOverseas &&

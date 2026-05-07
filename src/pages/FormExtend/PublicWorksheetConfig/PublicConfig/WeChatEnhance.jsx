@@ -1,5 +1,4 @@
-import React, { forwardRef, useEffect, useState } from 'react';
-import appManagementApi from 'src/api/appManagement';
+import React, { forwardRef, useState } from 'react';
 import { SHARECARDTYPS } from 'src/components/ShareCardConfig/config';
 import ShareCardSetting from 'src/pages/FormSet/containers/Share/ShareCardSet';
 import SectionTitle from './SectionTitle';
@@ -7,29 +6,28 @@ import WeChatSettings from './WeChatSettings';
 
 const WeChatEnhance = forwardRef((props, ref) => {
   const { worksheetInfo = {}, data, setState, addWorksheetControl, handleSettingChanged } = props;
-  const [weChatBind, setWeChatBind] = useState({ isBind: false });
+  const [weChatBind, setWeChatBind] = useState({
+    isBind: false,
+    appId: data?.weChatSetting?.appId || '',
+  });
   const [expandKeys, setExpandKeys] = useState({ share: false });
-
-  useEffect(() => {
-    getWeiXinBindingInfo();
-  }, []);
-
-  const getWeiXinBindingInfo = () => {
-    appManagementApi.getWeiXinBindingInfo({ appId: worksheetInfo.appId }).then(res => {
-      const value = { isBind: res && res.length, name: (res[0] || {}).nickName };
-      setWeChatBind(value);
-      setState({ weChatBind: value }, false);
-    });
-  };
 
   return (
     <div>
       <WeChatSettings
         projectId={worksheetInfo.projectId}
+        appId={worksheetInfo.appId}
         data={data}
         weChatBind={weChatBind}
         setState={setState}
         addWorksheetControl={addWorksheetControl}
+        updateCurrentWeChatServiceAccount={({ weChatServiceAccounts, service }) => {
+          service.name = service.nickName;
+          service.isBind = weChatServiceAccounts.length;
+
+          setWeChatBind(service);
+          setState({ weChatBind: service });
+        }}
       />
       <SectionTitle
         title={_l('分享卡片')}

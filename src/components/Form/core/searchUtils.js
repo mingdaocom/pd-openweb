@@ -8,7 +8,17 @@ import { isEmptyValue } from 'src/utils/control';
 import { getDynamicValue } from './formUtils';
 import { getAttachmentData } from './formUtils/helper';
 
-const getRelateValue = control => {
+const getRelateValue = (control = {}, controlState, recordId) => {
+  if (!_.isEmpty(controlState)) {
+    const records = _.get(controlState, 'records') || [];
+
+    if (recordId) {
+      return records.concat(_.get(controlState, 'changes.addedRecords') || []);
+    }
+
+    return records;
+  }
+
   const value = safeParse(control.value || '[]');
   if (_.isEmpty(value)) return [];
   return value.map(i => {
@@ -19,11 +29,13 @@ const getRelateValue = control => {
 const getValue = (control = {}, type) => {
   if (!control.value) return '';
   const effectiveType = control.type === 30 ? control.sourceControlType : control.type;
+
   switch (effectiveType) {
     case 2:
       if (type === 10000007) {
         return (control.value || '').replace(/，/g, ',').split(',');
       }
+
       return control.value;
     // 单选、多选
     case 9:
@@ -40,9 +52,11 @@ const getValue = (control = {}, type) => {
             return total + cur;
           }, 0);
       }
+
       if (type === 10000007) {
         return noDelControls.map(i => i.value);
       }
+
       return noDelControls.map(i => i.value).join('、');
     case 14:
       const attachmentData = getAttachmentData(control);
@@ -61,6 +75,7 @@ const getValue = (control = {}, type) => {
           .map(i => (i.accountId === md.global.Account.accountId ? md.global.Account.fullname : i.fullname))
           .join('、');
       }
+
       return safeParse(control.value || '[]').map(i => i.accountId);
     // 部门
     case 27:
@@ -69,6 +84,7 @@ const getValue = (control = {}, type) => {
           .map(i => i.departmentName)
           .join('、');
       }
+
       return safeParse(control.value || '[]').map(i => i.departmentId);
     //地区
     case 19:
@@ -88,19 +104,22 @@ const getValue = (control = {}, type) => {
   }
 };
 
-const getApiDynamicValue = (item, formData, keywords) => {
+const getApiDynamicValue = (item, formData, keywords, recordId = '') => {
   const tempValues = safeParse(item.defsource || '[]').map(source => {
     // 动态值
     if (source.cid) {
       if (source.cid === 'search-keyword') return keywords;
+      if (source.cid === 'rowid') return recordId;
 
       if (source.cid === 'ocr-file-url' && item.type === 2) {
         return keywords ? `${_.get(keywords, 'url')}` : '';
       }
+
       if (source.cid === 'ocr-file' && item.type === 14) {
         const fileId = _.get(keywords, 'fileId');
         return keywords ? (/\w{8}(-\w{4}){3}-\w{12}/.test(fileId) ? [fileId] : [JSON.stringify(keywords)]) : '';
       }
+
       const control = _.find(formData, i => i.controlId === source.cid);
       return getValue(control, item.type);
     }
@@ -111,6 +130,7 @@ const getApiDynamicValue = (item, formData, keywords) => {
       if (_.includes([2, 6, 9, 36], item.type)) {
         return source.staticValue;
       }
+
       // 日期时间
       if (item.type === 16) {
         const { formatMode } = getDatePickerConfigs(item);
@@ -141,6 +161,7 @@ const getApiDynamicValue = (item, formData, keywords) => {
       }
     }
   });
+
   if (_.includes([2, 6, 9, 16, 36], item.type)) {
     return tempValues.join('');
   }
@@ -161,11 +182,7 @@ export const getParamsByConfigs = (recordId, requestMap = [], formData = [], key
       // 对象数组或子表值
       const controlState = curControl.store ? curControl.store.getState() : {};
       const rows = (
-        curControl.type === 29
-          ? recordId
-            ? (controlState.records || []).concat(_.get(controlState, 'changes.addedRecords') || [])
-            : _.get(controlState, 'records') || getRelateValue(curControl)
-          : _.get(controlState, 'rows') || []
+        curControl.type === 29 ? getRelateValue(curControl, controlState, recordId) : _.get(controlState, 'rows') || []
       ).filter(r => !(r.rowid || '').includes('empty'));
 
       params[item.id] = '';
@@ -190,16 +207,17 @@ export const getParamsByConfigs = (recordId, requestMap = [], formData = [], key
                       value: _.get(row, [cid]) || '',
                     };
                   }
+
                   return i;
                 })
               : formData;
-            rowItem[c.id] = childControl || !cid ? getApiDynamicValue(c, controlValues, keywords) : '';
+            rowItem[c.id] = childControl || !cid ? getApiDynamicValue(c, controlValues, keywords, recordId) : '';
           });
           return rowItem;
         });
       }
     } else {
-      params[item.id] = getApiDynamicValue(item, formData, keywords);
+      params[item.id] = getApiDynamicValue(item, formData, keywords, recordId);
     }
   });
   return params;
@@ -208,6 +226,7 @@ export const getParamsByConfigs = (recordId, requestMap = [], formData = [], key
 export const getShowValue = (control, value = '') => {
   if (control) {
     let curValue = [];
+
     if (_.includes([9, 10, 11], control.type)) {
       curValue = safeParse(value || '[]').map(
         i =>
@@ -225,8 +244,10 @@ export const getShowValue = (control, value = '') => {
     } else {
       return clearValue(value);
     }
+
     return curValue.length > 0 ? curValue.join('') : '';
   }
+
   return clearValue(value);
 };
 
@@ -240,6 +261,7 @@ export const clearValue = (value = '') => {
   if (_.includes(['{}', '[]', 'null'], curValue)) {
     curValue = '';
   }
+
   return curValue;
 };
 
@@ -249,6 +271,7 @@ export const handleUpdateApi = (props, itemData = {}, isDefault = false, callbac
   const responseMap = safeParse(responsemap || '[]');
   responseMap.map(item => {
     const control = _.find(formData, i => i.controlId === item.cid);
+
     if (control && !_.isUndefined(itemData[item.cid])) {
       // 子表直接赋值
       if (control.type === 34 && _.includes([10000007, 10000008], item.type)) {
@@ -270,13 +293,16 @@ export const handleUpdateApi = (props, itemData = {}, isDefault = false, callbac
       } else if (!item.subid) {
         // 普通数组特殊处理
         let itemVal = itemData[item.cid];
+
         if (item.type === 10000007 && itemData[item.cid] && _.isArray(safeParse(itemData[item.cid]))) {
           if (!_.includes([26], control.type)) {
             itemVal = safeParse(itemData[item.cid]).join(',');
           }
         }
+
         onChange(itemVal, control.controlId, false);
       }
+
       if (_.isFunction(callback)) {
         callback();
       }
@@ -287,6 +313,7 @@ export const handleUpdateApi = (props, itemData = {}, isDefault = false, callbac
 // authAccount处理
 export const dealAuthAccount = (authaccount = '', formData) => {
   const parseAccount = safeParse(authaccount, 'object');
+
   if (parseAccount.authIdAccounts) {
     const { authIdAccounts = [], authIdKeywords } = parseAccount;
     return JSON.stringify({
@@ -297,5 +324,6 @@ export const dealAuthAccount = (authaccount = '', formData) => {
       }),
     });
   }
+
   return authaccount || '';
 };

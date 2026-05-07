@@ -39,6 +39,7 @@ export default function RoleHeader(props) {
       buriedUpgradeVersionDialog(projectId, 11);
       return;
     }
+
     if (openLoading) return;
 
     setOpenLoading(true);
@@ -111,11 +112,13 @@ export default function RoleHeader(props) {
                           buriedUpgradeVersionDialog(projectId, VersionProductType.externalPortal);
                           return;
                         }
+
                         navigateTo(`/app/${appId}/role/external`);
                         //获取外部门户的角色信息
                       } else {
                         navigateTo(`/app/${appId}/role`);
                       }
+
                       onChangeStates({ editType: o });
                     });
                   }}

@@ -7,6 +7,7 @@ export default ({ controls, sorts, updateSource }) => {
   const renderTitle = controlId => {
     return <span>{_.find(controls, item => item.controlId === controlId).controlName}</span>;
   };
+
   let ruleSort = [];
   let ruleControls = (controls || [])
     .filter(

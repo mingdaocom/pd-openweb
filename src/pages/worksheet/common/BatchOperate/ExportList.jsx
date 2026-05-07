@@ -74,7 +74,7 @@ export default function ExportList(props) {
     <Con>
       <IconText
         dataEvent="export"
-        icon="download"
+        icon="worksheet_export"
         textCmp={() => {
           return (
             <Fragment>
@@ -105,7 +105,9 @@ export default function ExportList(props) {
                     alert(_l('预览模式下，不能操作'), 3);
                     return;
                   }
+
                   const hasCharge = isCharge || canEditData(permissionType);
+
                   if (item.exportType === 1) {
                     exportSheet({
                       allCount: count,
@@ -144,13 +146,16 @@ export default function ExportList(props) {
                       sheetSwitchPermit,
                       view.viewId,
                     );
+
                     if (!allowDownload) {
                       return alert(_l('无附件下载权限，无法导出'), 2);
                     }
+
                     if (featureType === '2') {
                       buriedUpgradeVersionDialog(projectId, VersionProductType.batchDownloadFiles);
                       return;
                     }
+
                     exportAttachment({
                       appId,
                       worksheetId,

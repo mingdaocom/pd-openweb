@@ -52,6 +52,7 @@ export default function MobileMyStatus() {
           if (defaultStatusInfo[item.statusId]) {
             return { ...item, ...defaultStatusInfo[item.statusId] };
           }
+
           return item;
         });
         const onStatusOption = _.get(res, 'onStatusOption') || {};

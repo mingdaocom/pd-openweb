@@ -48,6 +48,7 @@ const Icon = styled.i`
 const Empty = styled.span`
   color: var(--color-text-disabled);
 `;
+
 export default function Departments(props) {
   const { values = [], projectId, isMultiple, onChange = () => {} } = props;
   const [active, setActive] = useState();
@@ -66,6 +67,7 @@ export default function Departments(props) {
           alert(_l('您不是该组织成员，无法获取其成员列表，请联系组织管理员'), 3);
           return;
         }
+
         setActive(true);
         quickSelectRole(e.target, {
           projectId,

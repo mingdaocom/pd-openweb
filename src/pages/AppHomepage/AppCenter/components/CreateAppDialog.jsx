@@ -61,11 +61,13 @@ const CreateAppDialog = props => {
       })
       .then(data => {
         const { isSuccess, content, errorMsg } = data;
+
         if (isSuccess) {
           setAppInfo(values => ({ ...values, sourceAi: true, shortdesc: content.value }));
         } else {
           alert(errorMsg, 3);
         }
+
         setLoading(false);
       })
       .catch(() => {
@@ -82,6 +84,7 @@ const CreateAppDialog = props => {
         </div>
       );
     }
+
     if (appInfo.shortdesc && appInfo.sourceAi && !loading) {
       return (
         <div
@@ -95,6 +98,7 @@ const CreateAppDialog = props => {
         </div>
       );
     }
+
     if (!appInfo.name) return null;
     return (
       <div
@@ -120,13 +124,16 @@ const CreateAppDialog = props => {
           name: appInfo.name || _l('未命名应用'),
           shortdesc: appInfo.shortdesc,
         };
+
         if (loading) {
           return;
         }
+
         if (_.get(data, 'shortdesc.length') > remarkMaxLength) {
           alert(_l('描述文字超出上限'), 2);
           return;
         }
+
         onSave(data);
       }}
       onCancel={onCancel}

@@ -37,6 +37,7 @@ export default class SelectFields extends Component {
     return _.filter(controls, item => {
       try {
         const defaultValue = JSON.parse(_.get(item, ['advancedSetting', 'defsource']) || '[]');
+
         // 去除循环引用
         if (_.some(defaultValue, item => _.includes([data.controlId], item.cid))) {
           return false;
@@ -45,6 +46,7 @@ export default class SelectFields extends Component {
         console.log(error);
         return false;
       }
+
       return item.controlId !== data.controlId;
     });
   };
@@ -119,6 +121,7 @@ export default class SelectFields extends Component {
       const relateSheetControl = _.find(subListControls, ({ controlId }) => controlId === id) || {};
 
       let relationControls = _.get(relateSheetControl, 'relationControls') || [];
+
       // 如果relationControl没有返回系统字段， 则手动添加上
       if (!relationControls.some(item => item.controlId === 'ctime')) {
         relationControls = relationControls

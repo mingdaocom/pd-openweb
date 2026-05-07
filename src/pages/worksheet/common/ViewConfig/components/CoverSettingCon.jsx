@@ -120,10 +120,12 @@ export default class CoverSetting extends React.Component {
       ) || 'notDisplay';
     let isDelete = false;
     const coverControl = _.find(coverColumns, item => item.controlId === coverCid);
+
     if (coverCid && !coverControl) {
       isDelete = true;
       coverValue = '';
     }
+
     // 画廊视图且封面为嵌入iframe(只支持上、填满)
     const isGalleryIframe = VIEW_DISPLAY_TYPE.gallery === String(viewType) && isIframeControl(coverControl || {});
     //扫码字段 只有完整显示
@@ -157,12 +159,15 @@ export default class CoverSetting extends React.Component {
               style={{ width: '100%' }}
               onChange={value => {
                 let coverControl = _.find(coverColumns, item => item.controlId === value) || {};
+
                 if (isIframeControl(coverControl)) {
                   handleChangeCoverStyle(JSON.stringify({ position: '2', style: 0, type: 0 }));
                 }
+
                 if ((coverControl || {}).type === 47) {
                   handleChangeCoverStyle(JSON.stringify({ position: coverPositiondata, style: 0, type: 1 }));
                 }
+
                 if (coverValue !== value || isDelete) {
                   handleChangeIsCover(value);
                 }

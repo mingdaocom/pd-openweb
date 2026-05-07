@@ -20,12 +20,14 @@ const Wrap = styled.div`
   .wrapTr:not(.checkBoxTr) {
     width: 30%;
   }
-  .wrapTr {
-    height: auto !important;
-  }
   .wrapTr.optionWrapTr {
     min-width: 150px !important;
     max-width: 150px !important;
+  }
+  .applyAction {
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
   }
 `;
 const WrapBar = styled.div`
@@ -131,10 +133,12 @@ function Apply(props) {
       },
     },
   ];
+
   const changeApplyStatus = ({ targetRoleIds, userIds }) => {
     if (targetRoleIds.length <= 0) {
       return alert(_l('请选择角色'), 3);
     }
+
     //2=通过，3=拒绝
     appManagementAjax.editAppApplyStatus({ appId, ids: userIds, status: 2, roleId: targetRoleIds[0] }).then(res => {
       if (res) {
@@ -149,6 +153,7 @@ function Apply(props) {
       }
     });
   };
+
   const renderAction = ({ id, appId }) => {
     const { appDetail = {} } = props;
     return (
@@ -271,11 +276,13 @@ function Apply(props) {
         handleChangeSortHeader={sorter => {
           const { field, order } = sorter;
           let data = appRolePagingModel.sort.filter(o => o.fieldType !== (field === 'operateTime' ? 10 : 20));
+
           if (field === 'operateTime') {
             data = [...data, { fieldType: 10, isASC: order === 'ascend' }];
           } else {
             data = [...data, { fieldType: 20, isASC: order === 'ascend' }];
           }
+
           SetAppRolePagingModel({
             ...appRolePagingModel,
             pageIndex: 1,
@@ -313,6 +320,7 @@ function Apply(props) {
     </Wrap>
   );
 }
+
 const mapStateToProps = state => ({
   portal: state.portal,
 });

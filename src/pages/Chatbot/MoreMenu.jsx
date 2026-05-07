@@ -55,6 +55,7 @@ const MoreMenu = props => {
           worksheetId: data.chatbotId,
           parentGroupId: data.parentGroupId,
         };
+
         if ([1, 3].includes(currentPcNaviStyle)) {
           const singleRef = getAppSectionRef(groupId);
           singleRef.dispatch(actions.deleteSheet(param));

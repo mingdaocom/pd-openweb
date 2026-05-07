@@ -30,6 +30,7 @@ export default class UserDetail extends React.Component {
 
   componentDidMount() {
     const { accountId } = this.props;
+
     if (accountId) {
       this.fetchUserDetail(accountId);
     }
@@ -215,6 +216,7 @@ export default class UserDetail extends React.Component {
     const { isLoading, data } = this.state;
     const { userCards = [] } = data || {};
     const { accountId, projectId, hideBackBtn } = this.props;
+
     if (isLoading) {
       return (
         <div className="pTop20">
@@ -222,10 +224,12 @@ export default class UserDetail extends React.Component {
         </div>
       );
     }
+
     if (data === null) return null;
     if (!isLoading && data === undefined) {
       return <AddFriend accountId={accountId} />;
     }
+
     return (
       <ScrollView className="h100">
         <div className="contacts-detail-wrapper">

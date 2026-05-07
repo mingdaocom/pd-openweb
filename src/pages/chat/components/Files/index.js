@@ -21,6 +21,7 @@ export const splitFiles = list => {
     if (file.type === 2) {
       file.previewUrl = `${file.url}&imageView2/0/w/100/h/100/q/90`;
     }
+
     file.$date = utils.formatMsgDate(dateConvertToUserZone(file.time));
     file.$size = utils.formatFileSize(file.size);
     file.iconClass = getClassNameByExt(`.${RegExpValidator.getExtOfFileName(file.name)}`);
@@ -28,20 +29,24 @@ export const splitFiles = list => {
     let i;
     let sTime;
     const keys = Object.keys(ranges);
+
     for (i = 0; i < keys.length; i++) {
       if (fileTime.isAfter(ranges[keys[i]][0]) && fileTime.isBefore(ranges[keys[i]][1])) {
         if (!oSplit[keys[i]]) {
           file.splitTime = keys[i];
           oSplit[keys[i]] = true;
         }
+
         return;
       }
     }
+
     if (fileTime.isAfter(moment().startOf('year'))) {
       sTime = fileTime.format('M月');
     } else {
       sTime = fileTime.format('YYYY年M月');
     }
+
     if (!oSplit[sTime]) {
       file.splitTime = sTime;
       oSplit[sTime] = true;
@@ -100,6 +105,7 @@ export class FileItem extends Component {
   }
   render() {
     const { fileType, item } = this.props;
+
     if (fileType === 2) {
       return [
         item.splitTime ? (

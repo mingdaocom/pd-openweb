@@ -10,9 +10,11 @@ import './SheetMove.less';
 const formatApps = function (validProject, projectId) {
   const appList = [];
   const project = validProject.filter(item => item.projectId === projectId)[0];
+
   if (project && project.projectApps && project.projectApps.length) {
     project.projectApps.forEach(app => {
       const isCharge = canEditApp(app.permissionType, app.isLock);
+
       if (isCharge) {
         appList.push({
           text: app.name,
@@ -21,6 +23,7 @@ const formatApps = function (validProject, projectId) {
       }
     });
   }
+
   return appList;
 };
 
@@ -131,6 +134,7 @@ export default class SheetMove extends Component {
                   if (data.appSectionId === id) {
                     data.subVisible = !subVisible;
                   }
+
                   return data;
                 }),
               });

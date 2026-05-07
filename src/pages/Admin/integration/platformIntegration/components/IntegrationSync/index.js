@@ -24,6 +24,7 @@ export default class IntegrationSync extends Component {
       })
       .then(res => {
         const { item1, item2, item3 = {} } = res;
+
         if (!item1) {
           alert(_l(item2 || '同步失败'), 2);
           this.setState({ loading: false });
@@ -33,6 +34,7 @@ export default class IntegrationSync extends Component {
         const { logDetailItems = [], mingDaoUserInfos = [], tpTotalCount } = item3;
         let itemArr = logDetailItems.filter(item => item.type === 7);
         let overLimitLength = (itemArr && !_.isEmpty(itemArr) && itemArr[0].items.length) || 0;
+
         if (overLimitLength) {
           this.setState({ overLimitLength, dialogOverLimit: true, loading: false });
           return;
@@ -41,6 +43,7 @@ export default class IntegrationSync extends Component {
             const { wxUserInfo = {}, tpUserInfo = {} } = item;
             item.userInfo = integrationType === 3 ? wxUserInfo : tpUserInfo;
             let isSame = false;
+
             for (let i = 0; i < mingDaoUserInfos.length; i++) {
               if (
                 item.userInfo &&
@@ -52,6 +55,7 @@ export default class IntegrationSync extends Component {
                 break;
               }
             }
+
             if (isSame) {
               return { ...item, userInfo: {} };
             } else {
@@ -122,7 +126,10 @@ export default class IntegrationSync extends Component {
         <h3 className="stepTitle Font16 textPrimary">{_l('%0数据同步', step)}</h3>
         <div className="mTop16 syncBox">
           <span className="Font14 syncTxt textSecondary">
-            {_l('从%0通讯录同步到系统。', text)}
+            {window.platformENV.isPlatform && !window.platformENV.isOverseas && !window.platformENV.isLocal
+              ? _l('从%0通讯录同步到明道云。', text)
+              : _l('从%0通讯录同步到该系统。', text)}
+
             <span
               className="colorPrimary Hand"
               onClick={() => {

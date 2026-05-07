@@ -82,6 +82,7 @@ const ScrollView = forwardRef((props, ref) => {
     const osInstance = osRef.current.osInstance();
     if (!osInstance) return;
     const viewport = osInstance?.elements()?.viewport;
+
     if (viewport) {
       viewport.scrollTo({ ...scrollOptions, behavior });
     }
@@ -132,10 +133,12 @@ const ScrollView = forwardRef((props, ref) => {
     if (deltaY > threshold) {
       const reachedBottom = scrollTop + clientHeight >= scrollHeight - allowance;
       const reachedTop = scrollTop <= allowance;
+
       // 触发底部边界事件
       if (onScrollEnd && reachedBottom) {
         onScrollEnd({ scrollTop, scrollLeft, clientHeight });
       }
+
       // 触发顶部 或 底部
       if (onReachVerticalEdge) {
         if (reachedBottom) {
@@ -150,6 +153,7 @@ const ScrollView = forwardRef((props, ref) => {
     if (deltaX > threshold) {
       const reachedRight = scrollLeft + clientWidth >= scrollWidth - allowance;
       const reachedLeft = scrollLeft <= allowance;
+
       if (onReachHorizontalEdge) {
         if (reachedRight) {
           onReachHorizontalEdge({ direction: 'right' });
@@ -168,6 +172,7 @@ const ScrollView = forwardRef((props, ref) => {
       const osInstance = osRef.current.osInstance();
       if (!osInstance) return;
       const viewport = osInstance?.elements()?.viewport;
+
       if (viewport) {
         setViewPortRef(viewport);
       }

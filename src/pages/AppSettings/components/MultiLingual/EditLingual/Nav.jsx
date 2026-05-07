@@ -150,6 +150,7 @@ const getTreeData = (appId, { sections, collections, workflows, searchValue }) =
       });
       return appItem.workSheetName.toLocaleLowerCase().includes(searchValue) ? res : [];
     }
+
     if (appItem.type === 1 && !appItem.urlTemplate) {
       const res = customPageConfig.map(item => {
         return {
@@ -160,6 +161,7 @@ const getTreeData = (appId, { sections, collections, workflows, searchValue }) =
       });
       return appItem.workSheetName.toLocaleLowerCase().includes(searchValue) ? res : [];
     }
+
     if (appItem.type === 2) {
       const subChildren = _.get(_.find(childSections, { appSectionId: appItem.workSheetId }), 'workSheetInfo') || [];
       return subChildren
@@ -188,8 +190,10 @@ const getTreeData = (appId, { sections, collections, workflows, searchValue }) =
           searchValue ? (n.title.toLocaleLowerCase().includes(searchValue) ? true : n.children.length) : true,
         );
     }
+
     return [];
   };
+
   const appChildren = sections
     .map(gourup => {
       return {

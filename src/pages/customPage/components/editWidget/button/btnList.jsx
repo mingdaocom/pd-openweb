@@ -83,7 +83,7 @@ const BtnWrap = styled.div`
 
   .adjustText {
     button {
-      background-color: var(--color-background-secondary);
+      background-color: var(--color-background-tertiary);
       color: ${props => props.color};
       &:hover {
         background-color: var(--color-background-hover);
@@ -128,10 +128,12 @@ export default function BtnList({
   const pageTitleStyles = customPageConfig.titleStyles || {};
   const newTitleStyles = pageTitleStyles.index >= titleStyles.index ? pageTitleStyles : titleStyles;
   const isFullWidth = btnType === 2 ? true : width === 1;
+
   const getWidth = () => {
     if (isFullWidth) return { width: `${100 / (buttonList.length > count ? count : buttonList.length)}%` };
     return {};
   };
+
   const newList = _.chunk(buttonList, count);
   return (
     <SortableButtonListWrap>

@@ -25,10 +25,12 @@ const handleDialogCallback = (dispatch, payload) => {
       dispatch(loadUsers(departmentId, pageIndex));
       break;
     }
+
     default:
       break;
   }
 };
+
 @withClickAway
 class DiaActionTree extends React.Component {
   constructor(props) {
@@ -87,6 +89,7 @@ class DiaActionTree extends React.Component {
       dispatch(deleteDepartment(department.departmentId));
       return;
     }
+
     Dialog.confirm({
       className: 'disabledDepartmentDialog',
       okText: _l('删除'),
@@ -130,16 +133,33 @@ class DiaActionTree extends React.Component {
     if (department.disabled) {
       const allParentIds = getParentsId(newDepartments, departmentId).filter(id => id !== departmentId);
       const existDisabledDepartment = allParentIds.some(id => departments[id]?.disabled);
+
       if (existDisabledDepartment) {
         alert(_l('存在未恢复的上级部门，请先恢复'), 3);
         return;
       }
     }
+
     dispatch(disabledAndEnabledDepartments(departmentId, department.disabled, parentData.departmentId));
   };
 
   render() {
-    const { item } = this.props;
+    const { item, hasDepartmentAuth, departmentId } = this.props;
+
+    if (!hasDepartmentAuth) {
+      return (
+        <Menu>
+          <MenuItem
+            onClick={() => {
+              copy(departmentId);
+              alert(_l('复制成功'));
+            }}
+          >
+            {_l('复制 ID')}
+          </MenuItem>
+        </Menu>
+      );
+    }
 
     return (
       <Menu className="Static">
@@ -151,11 +171,11 @@ class DiaActionTree extends React.Component {
         )}
         <MenuItem
           onClick={() => {
-            copy(this.props.departmentId);
+            copy(departmentId);
             alert(_l('复制成功'));
           }}
         >
-          {_l('复制ID')}
+          {_l('复制 ID')}
         </MenuItem>
         <MenuItem
           onClick={() =>

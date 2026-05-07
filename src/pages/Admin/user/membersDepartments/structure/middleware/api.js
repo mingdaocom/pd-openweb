@@ -15,6 +15,7 @@ const promiseList = [
   ACTIONS.APPROVAL_USER_REQUEST,
   ACTIONS.USER_REQUEST,
 ];
+
 const getApiByRequestType = (type, { departmentId }) => {
   if (type === ACTIONS.USER_REQUEST) {
     return departmentId ? departmentController.getProjectDepartmentUsers : departmentController.getNoDepartmentUsers;
@@ -44,6 +45,7 @@ export default () => next => action => {
   }
 
   const { types } = callAPI;
+
   if (!Array.isArray(types) || types.length !== 3) {
     throw new Error('Expected an array of three action types.');
   }
@@ -64,9 +66,11 @@ export default () => next => action => {
   );
   const { params, afterRequest } = callAPI;
   const requestFunc = getApiByRequestType(requestType, params);
+
   if (promise && promiseList.includes(requestType) && promiseList.includes(prePromiseType)) {
     promise.abort();
   }
+
   promise = requestFunc(Object.assign({}, params, { projectId: Config.projectId }));
   prePromiseType = requestType;
   promise.then(
@@ -74,6 +78,7 @@ export default () => next => action => {
       if (promise && promise.state && promise.state() === 'abort') {
         return false;
       }
+
       next(
         actionWith({
           response: response,
@@ -89,6 +94,7 @@ export default () => next => action => {
           }),
         );
       }
+
       if (successType === 'APPROVAL_USER_SUCCESS' && !_.isUndefined(response.users.allCount)) {
         next(
           actionWith({
@@ -97,6 +103,7 @@ export default () => next => action => {
           }),
         );
       }
+
       if (_.isFunction(afterRequest)) {
         // callback
         afterRequest.call(null);

@@ -258,7 +258,7 @@ export default class FindSystem extends Component {
         {_.includes([ACTION_ID.FROM_RECORD, ACTION_ID.RELATION], data.actionId) && (
           <Fragment>
             <div className="mTop20 bold">{_l('选择查找对象')}</div>
-            <div className="textSecondary mTop5">{_l('当前流程中的节点对象')}</div>
+            <div className="Font13 textSecondary mTop5">{_l('当前流程中的节点对象')}</div>
             <SelectNodeObject
               appList={data.flowNodeList}
               selectNodeId={data.selectNodeId}
@@ -278,7 +278,7 @@ export default class FindSystem extends Component {
         )}
 
         <div className="mTop20 bold">{_l('筛选条件')}</div>
-        <div className="textSecondary mTop5">{TEXT[data.appType][data.actionId].filterText}</div>
+        <div className="Font13 textSecondary mTop5">{TEXT[data.appType][data.actionId].filterText}</div>
         {!data.conditions.length ? (
           this.renderConditionBtn()
         ) : (
@@ -326,10 +326,7 @@ export default class FindSystem extends Component {
         )}
 
         {selectNodeType === NODE_TYPE.FIND_SINGLE_MESSAGE && (
-          <FindResult
-            executeType={data.executeType}
-            switchExecuteType={executeType => this.updateSource({ executeType })}
-          />
+          <FindResult executeType={data.executeType} updateSource={this.updateSource} />
         )}
       </Fragment>
     );

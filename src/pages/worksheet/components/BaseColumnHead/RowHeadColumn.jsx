@@ -6,10 +6,10 @@ const Con = styled.div`
   flex-direction: row;
   align-items: center;
   justify-content: start;
-  background-color: #fafafa !important;
+  background-color: var(--color-background-tertiary) !important;
   .number {
     font-size: 13px;
-    color: #888;
+    color: var(--color-text-tertiary);
     margin-right: 8px;
   }
   .requiredStatus {
@@ -19,7 +19,7 @@ const Con = styled.div`
   .controlName {
     font-weight: bold;
     font-size: 13px;
-    color: #151515;
+    color: var(--color-text-title);
   }
   &.cell:not(.columnHead) {
     padding: 0 12px !important;

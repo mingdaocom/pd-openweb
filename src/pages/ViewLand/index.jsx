@@ -52,6 +52,7 @@ export default function ViewLand() {
     });
 
     const { langInfo } = data;
+
     if (langInfo && langInfo.appLangId && langInfo.version !== window[`langVersion-${appId}`]) {
       const lang = await appManagementApi.getAppLangDetail({
         projectId: data.projectId,

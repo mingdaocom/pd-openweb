@@ -103,6 +103,7 @@ export default class SelectApp extends React.Component {
   renderSelectList() {
     const { selectList } = this.state;
     const _this = this;
+
     if (!selectList.length) {
       return (
         <div className="selectBox scrollBox">

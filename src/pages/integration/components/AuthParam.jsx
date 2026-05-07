@@ -41,6 +41,7 @@ const info = {
   },
 };
 const taps = ['authorization_back', 'authorization_address', 'authorization_code', 'refresh_token'];
+
 //授权回调
 function AuthParam(props) {
   const cache = useRef({});
@@ -69,11 +70,13 @@ function AuthParam(props) {
         });
       });
   };
+
   // 获取连接详情
   const getInfo = () => {
     if (!node || !node.id) {
       return;
     }
+
     Promise.all([
       flowNodeAjax.get({ processId: props.connectId }, { isIntegration: true }),
       flowNodeAjax.getNodeDetail(
@@ -111,11 +114,13 @@ function AuthParam(props) {
 
   const renderBtn = () => {
     let str = '';
+
     if (node.appType !== 33) {
       str = !node.controls ? _l('开始配置') : _l('编辑');
     } else {
       str = (node.fields || []).filter(o => !!o.fieldValue).length <= 0 ? _l('开始配置') : _l('编辑');
     }
+
     return (
       <div
         className="btn Hand"
@@ -134,6 +139,7 @@ function AuthParam(props) {
     if ((node.webHookNodes || []).length <= 0) {
       return '';
     }
+
     return (
       <div className="flexRow mBottom20 pLeft20 pRight20 breakAll">
         {renderValue(_.get(node, 'webHookNodes[0].url'), node)}

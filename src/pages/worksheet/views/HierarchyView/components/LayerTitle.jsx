@@ -63,19 +63,23 @@ export default function LayerTitle({
                   // 将生成数组里面的empty填充为空字符串
                   const startIndex = _.findIndex(titles, item => !item);
                   const endIndex = _.findIndex(titles, item => item);
+
                   if (startIndex !== endIndex) {
                     const filledTitles = _.fill(titles, '', startIndex, endIndex);
                     setNames({ titles: update(filledTitles, { [index]: { $set: value } }) });
                     return;
                   }
+
                   setNames({ titles: update(titles, { [index]: { $set: value } }) });
                 }}
                 onBlur={() => {
                   setIndex(-1);
                   let names = [];
+
                   for (let i = 0; i < titles.length; i++) {
                     names = [...names, titles[i] || ''];
                   }
+
                   updateLayersName(names);
                 }}
               />

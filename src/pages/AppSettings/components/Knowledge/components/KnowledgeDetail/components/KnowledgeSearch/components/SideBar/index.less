@@ -1,0 +1,106 @@
+.SideBarContainer {
+  padding: 20px;
+  width: 100%;
+  min-height: 100%;
+  .filterTitle {
+    margin-bottom: 10px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--color-text-primary);
+  }
+  .filterSubTitle {
+    margin-bottom: 10px;
+    font-size: 13px;
+    color: var(--color-text-primary);
+  }
+  .filterDesc {
+    margin-bottom: 10px;
+    height: 88px;
+  }
+  .searchBtn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 16px;
+    width: 100%;
+    height: 34px;
+    border-radius: 3px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--color-white);
+    background-color: var(--color-primary);
+    cursor: pointer;
+    &:hover {
+      background-color: var(--color-primary-light);
+    }
+    &:active {
+      background-color: var(--color-primary-dark);
+    }
+    .icon {
+      font-size: 16px;
+    }
+  }
+  .filterSelect {
+    margin-bottom: 14px;
+    width: 100%;
+  }
+  .modeList {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    .modeItem {
+      padding: 0 12px;
+      width: 100%;
+      height: 44px;
+      line-height: 44px;
+      border-radius: 3px;
+      border: 1px solid var(--color-border-tertiary);
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--color-text-primary);
+      background-color: var(--color-background-primary);
+      cursor: pointer;
+      &.active {
+        color: var(--color-primary);
+        background-color: var(--color-primary-transparent);
+        border-color: var(--color-primary);
+      }
+    }
+  }
+  .sliderBox {
+    margin: 20px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    .sliderItem {
+      .sliderItemInput {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        .label {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          font-size: 13px;
+          color: var(--color-text-primary);
+          .icon {
+            font-size: 16px;
+            color: var(--color-text-tertiary);
+          }
+        }
+        .ant-input-number-focused {
+          box-shadow: none !important;
+          border-color: var(--color-primary) !important;
+        }
+      }
+      .ant-slider {
+        margin: 10px 0 !important;
+      }
+      .ant-slider-track,
+      .ant-slider-handle {
+        background-color: var(--color-primary) !important;
+      }
+    }
+  }
+}

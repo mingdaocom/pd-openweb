@@ -128,8 +128,9 @@ export default class AppManagement extends Component {
 
   async getDBInstances(importApp) {
     const { requested, dataDBInstances } = this.state;
-    const { projectId } = this.prop;
+    const { projectId } = this.props;
     let res = dataDBInstances;
+
     if (!requested) {
       res = await projectAjax.getDBInstances({ projectId });
       let list = res.map(l => {
@@ -331,6 +332,7 @@ export default class AppManagement extends Component {
                     buriedUpgradeVersionDialog(projectId, VersionProductType.analysis);
                     return;
                   }
+
                   window.open(`/app/${item.appId}/analytics/${projectId}`, '__blank');
                 }}
               ></span>
@@ -357,6 +359,7 @@ export default class AppManagement extends Component {
                           buriedUpgradeVersionDialog(projectId, VersionProductType.appImportExport);
                           return;
                         }
+
                         this.handleExport([item]);
                         this.handleChangeVisible('rowVisible', item.appId);
                       }}
@@ -458,6 +461,7 @@ export default class AppManagement extends Component {
   editAppStatus(appId, status) {
     const { projectId } = this.props;
     let list = _.cloneDeep(this.state.list);
+
     const editAppStatusFun = () => {
       ajaxRequest.editAppStatus({ projectId, appId, status }).then(result => {
         if (result) {
@@ -466,6 +470,7 @@ export default class AppManagement extends Component {
               if (o.appId === appId) {
                 o.status = status;
               }
+
               return o;
             });
           }
@@ -519,6 +524,7 @@ export default class AppManagement extends Component {
     if (this.state.transferLoading) {
       return;
     }
+
     this.setState({ transferLoading: true });
 
     dialogSelectUser({
@@ -651,7 +657,8 @@ export default class AppManagement extends Component {
               </span>
 
               {((!window.platformENV.isOverseas && !window.platformENV.isLocal) ||
-                ((window.platformENV.isOverseas || window.platformENV.isLocal) &&
+                (window.platformENV.isLocal &&
+                  !window.platformENV.isOverseas &&
                   (_.isEmpty(version) || version.versionIdV2 === '1'))) && (
                 <Fragment>
                   {licenseType === 1 ? (

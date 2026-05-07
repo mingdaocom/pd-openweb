@@ -20,6 +20,7 @@ export default class EditVoteEndTimeDialog extends React.Component {
     document.body.appendChild(div);
 
     const root = createRoot(div);
+
     const dispose = () => {
       setTimeout(() => {
         root.unmount();
@@ -45,6 +46,7 @@ export default class EditVoteEndTimeDialog extends React.Component {
           if (this.props.callback) {
             this.props.callback(this.state.deadline.format('YYYY-MM-DD HH:mm'));
           }
+
           this.props.dispose();
         } else {
           alert(_l('修改失败'), 2);

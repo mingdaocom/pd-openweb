@@ -33,10 +33,12 @@ class RangeFooter extends Component {
       if (endValue.isBefore(startValue, 'hour')) {
         return true;
       }
+
       if (endValue.isSame(startValue, 'hour')) {
         return endValue.isBefore(startValue, 'minute');
       }
     }
+
     return false;
   };
 
@@ -67,6 +69,7 @@ class RangeFooter extends Component {
     // 任务模式特殊参数
     let startExtraOptions = {};
     let endExtraOptions = {};
+
     if (this.props.mode === 'task') {
       const extraOptions = {
         showMinute: false,

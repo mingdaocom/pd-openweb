@@ -56,6 +56,7 @@ export default function DrawerFooterOption(props) {
                 if (isUploading) {
                   return;
                 }
+
                 saveFn();
               }}
             >

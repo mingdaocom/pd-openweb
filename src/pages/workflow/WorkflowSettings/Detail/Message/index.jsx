@@ -2,9 +2,10 @@ import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { LoadDiv, PriceTip, Radio, ScrollView, Support, TagTextarea } from 'ming-ui';
+import { Button, Icon, LoadDiv, PriceTip, Radio, ScrollView, Support, TagTextarea } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import flowNode from '../../../api/flowNode';
+import smsApi from 'src/api/sms';
 import SmsSignSet from 'src/components/SmsSignSet';
 import { RELATION_TYPE } from '../../enum';
 import { getControlTypeName, handleGlobalVariableName } from '../../utils';
@@ -38,6 +39,15 @@ const TagBox = styled.div`
   }
 `;
 
+const SmsServiceTipsCard = styled.div`
+  width: 340px;
+  padding: 20px;
+  border: 1px solid var(--color-border-secondary);
+  .icon {
+    color: var(--color-warning);
+  }
+`;
+
 export default class Message extends Component {
   constructor(props) {
     super(props);
@@ -61,6 +71,9 @@ export default class Message extends Component {
 
       showTestDialog: false,
       testArray: [],
+
+      twilioLoading: true,
+      twilioBaseInfo: {},
     };
   }
 
@@ -69,6 +82,7 @@ export default class Message extends Component {
 
   componentDidMount() {
     this.getNodeDetail(this.props);
+    this.getTwilioBaseInfo();
   }
 
   componentWillReceiveProps(nextProps) {
@@ -96,6 +110,17 @@ export default class Message extends Component {
       this.tagBox.setValue(this.state.data.messageTemplate.messageContent.replace(/\$\(.*?\)/g, '$-$'));
     }
   }
+
+  getTwilioBaseInfo = () => {
+    if (window.platformENV.isOverseas && window.platformENV.isPlatform) {
+      smsApi
+        .getTwilioProviderBaseInfo({ projectId: this.props.companyId })
+        .then(res => {
+          this.setState({ twilioBaseInfo: res });
+        })
+        .finally(() => this.setState({ twilioLoading: false }));
+    }
+  };
 
   /**
    * 获取节点详情
@@ -161,34 +186,41 @@ export default class Message extends Component {
    * 渲染内容
    */
   renderContent() {
-    const { data, showSelectUserDialog } = this.state;
+    const { data, showSelectUserDialog, twilioLoading, twilioBaseInfo } = this.state;
 
     return (
       <Fragment>
         {window.platformENV.isPlatform && (
-          <div className="textSecondary workflowDetailDesc">
-            <span className="TxtMiddle">
-              <PriceTip text={_l('短信费用自动从组织信用点中扣除')} />
-              {!window.platformENV.isOverseas && !window.platformENV.isLocal && (
-                <span className="mLeft5">{_l('目前仅支持中国大陆手机号。')}</span>
-              )}
-            </span>
-            <Support
-              type={3}
-              href="https://help.mingdao.com/workflow/sms-failure"
-              text={<span className="ThemeColor3 ThemeHoverColor2">{_l('收不到短信？')}</span>}
-            />
-          </div>
+          <Fragment>
+            <div className="textSecondary workflowDetailDesc">
+              <span className="TxtMiddle">
+                <PriceTip text={_l('发送至中国大陆地区的短信服务由平台提供，费用自动从组织信用点中扣除')} />
+              </span>
+              <span>{_l('；发送港澳台/国际短信，需组织集成国际短信服务。')}</span>
+              <Support
+                type={3}
+                href="https://help.mingdao.com/workflow/sms-failure"
+                text={<span className="ThemeColor3 ThemeHoverColor2">{_l('收不到短信？')}</span>}
+              />
+            </div>
+            {window.platformENV.isOverseas && twilioBaseInfo?.name && (
+              <div className="mTop20 flexRow alignItemsCenter">
+                <Icon icon="check_circle1" className="Font16 Green" />
+                <span className="textTertiary mLeft4">{_l('已接入国际短信')}</span>
+                <span className="textTertiary mLeft4 bold">{twilioBaseInfo?.name}</span>
+              </div>
+            )}
+          </Fragment>
         )}
-        <div className="mTop20 bold">{_l('发送给')}</div>
 
+        <div className="mTop20 bold">{_l('发送给')}</div>
+        <div className="Font13 textSecondary mTop5">{_l('使用文本类型字段必须包含手机区号，否则无法发送。')}</div>
         <Member
           companyId={this.props.companyId}
           appId={this.props.relationType === RELATION_TYPE.APP ? this.props.relationId : ''}
           accounts={data.accounts}
           updateSource={this.updateSource}
         />
-
         <div
           className="flexRow mTop15 ThemeColor3 workflowDetailAddBtn"
           onClick={() => this.setState({ showSelectUserDialog: true })}
@@ -209,8 +241,32 @@ export default class Message extends Component {
           />
         </div>
 
-        {data.messageTemplate.companySignature && this.renderTemplateContent()}
-        {!data.messageTemplate.companySignature && this.renderTemplateList()}
+        {window.platformENV.isOverseas && window.platformENV.isPlatform && !twilioBaseInfo?.name ? (
+          twilioLoading ? (
+            <LoadDiv />
+          ) : (
+            <div className="flex flexRow alignItemsCenter justifyContentCenter">
+              <SmsServiceTipsCard>
+                <div className="flexRow alignItemsCenter">
+                  <Icon icon="info" className="Font20" />
+                  <span className="Font16 mLeft4 bold">{_l('提示:')}</span>
+                </div>
+                <div className="mTop25 mBottom50">
+                  {_l('发送港澳台或国际短信需先配置服务商，否则将无法送达。请前往组织后台完成配置。')}
+                </div>
+                <div className="TxtRight">
+                  <Button type="primary" onClick={() => (location.href = `/admin/weixin/${this.props.companyId}`)}>
+                    {_l('前往配置')}
+                  </Button>
+                </div>
+              </SmsServiceTipsCard>
+            </div>
+          )
+        ) : data.messageTemplate.companySignature ? (
+          this.renderTemplateContent()
+        ) : (
+          this.renderTemplateList()
+        )}
       </Fragment>
     );
   }
@@ -468,6 +524,7 @@ export default class Message extends Component {
               if (isSelectNewTpl) {
                 this.delTemplate();
               }
+
               this.setState({ addNewTemplate: false, isSelectNewTpl: false, sign: '', messageContent: '' });
             }}
           >
@@ -477,8 +534,20 @@ export default class Message extends Component {
         </div>
 
         <div className="Font18 bold mTop20">{isSelectNewTpl ? _l('修改模板内容') : _l('创建新模板')}</div>
-        <div className="bold mTop20">{_l('短信签名')}</div>
 
+        <div className="mTop20">
+          <div className="flexRow alignItemsCenter">
+            <span className="bold">{_l('短信签名')}</span>
+            <Tooltip
+              title={_l(
+                '短信签名是附加在短信内容前面的标识，仅适用于中国大陆区，默认跟随平台签名；发送港澳台/国际短信无需配置短信签名',
+              )}
+            >
+              <Icon icon="info" className="Font16 mLeft4 textTertiary Hand" />
+            </Tooltip>
+          </div>
+          <div className="textTertiary">{_l('(仅用于中国大陆地区)')}</div>
+        </div>
         <div className="mTop10 flexRow alignItemsCenter">
           <SmsSignSet projectId={companyId} sign={sign} onOk={value => this.setState({ sign: value })} />
         </div>
@@ -503,7 +572,9 @@ export default class Message extends Component {
         ))}
 
         <div className="bold mTop20">{_l('短信内容')}</div>
-        <div className="textSecondary mTop10">{_l('多于70字（含签名）的短信按67字每条计费')}</div>
+        <div className="textSecondary mTop10">
+          {_l('标点、空格及字母均计为 1 个字。发送至中国大陆地区的短信超 70 字（含签名）按 67 字/条计费。')}
+        </div>
         <CustomTextarea
           className="minH100"
           projectId={this.props.companyId}
@@ -806,7 +877,7 @@ export default class Message extends Component {
         />
         <div className="flex overflowHidden">
           <ScrollView>
-            <div className="workflowDetailBox">
+            <div className="workflowDetailBox flexColumn h100">
               {!addNewTemplate && !showSetTemplate && this.renderContent()}
               {addNewTemplate && this.renderNewTemplate()}
               {showSetTemplate && this.renderSetTemplate()}

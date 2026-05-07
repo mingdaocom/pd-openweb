@@ -23,8 +23,10 @@ export default class SheetDesc extends Component {
     const value = this.state.desc || '';
     const desc = value.trim();
     const { resume, remark } = this.state;
+
     if (desc !== this.props.desc || resume !== this.props.resume || remark !== this.props.remark) {
       const { worksheetId } = this.props;
+
       if (worksheetId) {
         sheetApi
           .updateWorksheetDec({

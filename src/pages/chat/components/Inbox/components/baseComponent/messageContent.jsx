@@ -49,6 +49,7 @@ export default class BaseMessageComponent extends React.Component {
     const { message } = props;
     const partMsg = cutStringWithHtml(message, 600, 12);
     const remainingMsg = message.replace(partMsg, '');
+
     if (remainingMsg.length) {
       this.state = {
         showBtn: true,
@@ -114,6 +115,7 @@ export default class BaseMessageComponent extends React.Component {
   renderMessage() {
     const { message } = this.props;
     const { showBtn, expanded, partMsg } = this.state;
+
     if (showBtn) {
       return expanded ? (
         <span className="LineHeight25 WordBreak">

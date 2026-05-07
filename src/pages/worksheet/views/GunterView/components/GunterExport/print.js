@@ -7,9 +7,11 @@ const printImage = el => {
       .toPng(el)
       .then(dataUrl => {
         let img = new Image();
+
         img.onload = () => {
           resolve(img);
         };
+
         img.src = dataUrl;
       })
       .catch(error => {

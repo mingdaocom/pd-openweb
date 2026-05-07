@@ -13,6 +13,7 @@ export default function SetHiddenControls(props) {
 
   useEffect(() => {
     const isChecked = additionalids.length > 0;
+
     if (isChecked !== checked) {
       setChecked(isChecked);
     }
@@ -41,6 +42,7 @@ export default function SetHiddenControls(props) {
               onChange(handleAdvancedSettingChange(data, { additionalids: '' }));
               return;
             }
+
             setChecked(true);
           }}
         />

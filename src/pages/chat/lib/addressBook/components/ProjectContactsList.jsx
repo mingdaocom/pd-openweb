@@ -51,6 +51,7 @@ export default class ProjectContactList extends React.Component {
     if (!_.isEqual(this.props.departmentsList, nextProps.departmentsList)) {
       this.setState({ department: nextProps.departmentsList, selects: [nextProps.projectId] });
     }
+
     if (!_.isEqual(this.props.departmentLoading, nextProps.departmentLoading)) {
       this.setState({ departmentLoading: nextProps.departmentLoading });
     }
@@ -67,9 +68,11 @@ export default class ProjectContactList extends React.Component {
       if (node.departmentId === key) {
         return { ...node, subs };
       }
+
       if (node.subs) {
         return { ...node, subs: this.updateTreeData(node.subs, key, subs) };
       }
+
       return node;
     });
   };
@@ -110,6 +113,7 @@ export default class ProjectContactList extends React.Component {
               event.stopPropagation();
               this.expandNext(item.departmentId);
               const { selects } = this.state;
+
               if (selects.includes(item.departmentId)) {
                 this.setState({
                   selects: selects.filter(id => id !== item.departmentId),

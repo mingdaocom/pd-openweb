@@ -44,6 +44,7 @@ const formatUser = function (props) {
     default:
       break;
   }
+
   return {
     accountId,
     fullname,
@@ -77,11 +78,13 @@ export default class Avatar extends React.Component {
       );
     } else {
       let param = {};
+
       if (!(md.global.Account.isPortal || (accountId || '').indexOf('a#') > -1)) {
         param = {
           href: '/user_' + accountId,
         };
       }
+
       return (
         <UserCard sourceId={accountId} appId={appId}>
           <a

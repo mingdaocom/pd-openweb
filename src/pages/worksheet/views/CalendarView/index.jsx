@@ -1,4 +1,4 @@
-﻿import React, { Component } from 'react';
+import React, { Component, useMemo } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import FullCalendar from '@fullcalendar/react';
@@ -12,6 +12,7 @@ import moment from 'moment';
 import { Icon, LoadDiv } from 'ming-ui';
 import autoSize from 'ming-ui/decorators/autoSize';
 import worksheetAjax from 'src/api/worksheet';
+import useButtonStatusOfRows from 'worksheet/hooks/useButtonStatusOfRows';
 import { permitList } from 'src/pages/FormSet/config';
 import { isOpenPermit } from 'src/pages/FormSet/util';
 import { SYS_CONTROLS_WORKFLOW } from 'src/pages/widgetConfig/config/widget.js';
@@ -19,9 +20,9 @@ import RecordInfoWrapper from 'src/pages/worksheet/common/recordInfo/RecordInfoW
 import { saveView, updateWorksheetControls } from 'src/pages/worksheet/redux/actions';
 import * as Actions from 'src/pages/worksheet/redux/actions/calendarview';
 import { getAdvanceSetting, isTimeStyle } from 'src/utils/control';
-import { isLightColor } from 'src/utils/control';
 import { addBehaviorLog } from 'src/utils/project';
 import { handleRecordClick } from 'src/utils/record';
+import { filterButtonBySheetSwitchPermit, getSheetOperatesButtons } from 'src/utils/worksheet';
 import SelectField from '../components/SelectField';
 import SelectFieldForStartOrEnd from '../components/SelectFieldForStartOrEnd';
 import { eventDidMount } from './CalendarEvent';
@@ -29,10 +30,11 @@ import CalendarIds from './CalendarIds';
 import { CALENDAR_BUTTON_TEXT, CALENDAR_VIEW_FORMATS, TAB_LIST } from './constants';
 import External from './External';
 import { Wrap, WrapNum } from './styles';
-import { getCalendartypeData, getHoverColor, getRows, getShowExternalData, isIllegalFormat } from './util';
+import { getCalendartypeData, getRows, getShowExternalData, isIllegalFormat } from './util';
 import {
   changeEndStr,
   formatTimeForSave,
+  getCanCreateRecord,
   getCurrentView,
   getTimeControls,
   renderLine,
@@ -44,10 +46,6 @@ import './index.less';
 let time;
 let clickData = null;
 
-const getCanNew = props => {
-  const { worksheetInfo = {}, allowAddNewRecord = true, sheetSwitchPermit } = props;
-  return isOpenPermit(permitList.createButtonSwitch, sheetSwitchPermit) && worksheetInfo.allowAdd && allowAddNewRecord;
-};
 @autoSize
 class RecordCalendar extends Component {
   constructor(props) {
@@ -61,7 +59,7 @@ class RecordCalendar extends Component {
       isSearch: false,
       isLoading: false,
       height: props.height,
-      canNew: getCanNew(props),
+      canNew: getCanCreateRecord(props),
       calendarFormatData: [],
       showChoose: false,
       selectTimeInfo: {},
@@ -75,7 +73,7 @@ class RecordCalendar extends Component {
   }
   componentDidMount() {
     this.setState({
-      canNew: getCanNew(this.props),
+      canNew: getCanCreateRecord(this.props),
     });
     this.getFormatData(this.props);
     this.props.getCalendarData();
@@ -85,26 +83,31 @@ class RecordCalendar extends Component {
 
   componentWillReceiveProps(nextProps) {
     const { base, calendarview = {}, height, sheetSwitchPermit } = nextProps;
+
     if (
       !_.isEqual(sheetSwitchPermit, this.props.sheetSwitchPermit) ||
       _.get(nextProps, 'worksheetInfo.allowAdd') !== _.get(this.props, 'worksheetInfo.allowAdd')
     ) {
       this.setState({
-        canNew: getCanNew(nextProps),
+        canNew: getCanCreateRecord(nextProps),
       });
     }
+
     const { calendarData = {}, calendarFormatData } = calendarview;
     const { viewId } = base;
     const currentView = getCurrentView(nextProps);
     const preView = getCurrentView(this.props);
     const { initialView } = calendarData;
+
     if (nextProps.height !== this.props.height) {
       $('.boxCalendar,.calendarCon,.fc-daygrid-body,.fc-scrollgrid-sync-table,.fc-col-header ').width('100%');
       this.setState({ height });
     }
+
     if (!_.isEqual(calendarFormatData, (this.props.calendarview || {}).calendarFormatData)) {
       this.getFormatData(nextProps);
     }
+
     if (viewId !== this.props.base.viewId || !_.isEqual(currentView, preView)) {
       nextProps.getCalendarData();
       this.calendarComponentRef.current && this.calendarComponentRef.current.getApi().changeView(initialView); // 更改视图类型
@@ -112,10 +115,12 @@ class RecordCalendar extends Component {
       this.getEventsFn();
       this.setState({ fullCalendarKey: JSON.stringify(Math.random()) });
     }
+
     if (
       viewId !== this.props.base.viewId ||
       getAdvanceSetting(currentView).begindate !== getAdvanceSetting(preView).begindate ||
       getAdvanceSetting(currentView).colorid !== getAdvanceSetting(preView).colorid ||
+      getAdvanceSetting(currentView).colortype !== getAdvanceSetting(preView).colortype ||
       getAdvanceSetting(currentView).calendarcids !== getAdvanceSetting(preView).calendarcids ||
       getAdvanceSetting(currentView).viewtitle !== getAdvanceSetting(preView).viewtitle
     ) {
@@ -124,6 +129,7 @@ class RecordCalendar extends Component {
       nextProps.fetchExternal();
       this.setState({ isSearch: false });
     }
+
     if (
       !_.isEqual(initialView, this.props.calendarview.calendarData.initialView) &&
       this.calendarComponentRef.current
@@ -152,19 +158,23 @@ class RecordCalendar extends Component {
   calendarActionOff = () => {
     const { random } = this.state;
     const $el = document.querySelector(`.boxCalendar_${random} .fc-view-harness-active`);
+
     if ($el) {
       $el.removeEventListener('dblclick', this.dbClickDay);
     }
+
     $(`.boxCalendar_${random} .fc-toolbar-chunk`).off('click');
   };
 
   calendarActionFn = () => {
     const { random } = this.state;
+
     if (!window.isSafari) {
       document
         .querySelector(`.boxCalendar_${random} .fc-view-harness-active`)
         .addEventListener('dblclick', this.dbClickDay, true);
     }
+
     $(`.boxCalendar_${random} .fc-toolbar-chunk`)
       .last()
       .on('click', () => {
@@ -177,6 +187,7 @@ class RecordCalendar extends Component {
       if (!this.calendarComponentRef.current) {
         return;
       }
+
       const { filters } = this.props;
       let view = this.calendarComponentRef.current.getApi().view;
       let beginTime = moment(view.activeStart).format('YYYY-MM-DD HH:mm');
@@ -219,6 +230,7 @@ class RecordCalendar extends Component {
           if (cb) {
             cb(data);
           }
+
           clickData = null;
           this.setState({
             changeData: null,
@@ -230,9 +242,11 @@ class RecordCalendar extends Component {
   // 显示农历
   getLunar = item => {
     const { unlunar } = getAdvanceSetting(getCurrentView(this.props)); // 默认显示农历
+
     if (unlunar !== '0') {
       return '';
     }
+
     let data = LunarCalendar.solarToLunar(item.date.getFullYear(), item.date.getMonth() + 1, item.date.getDate());
     return (
       <React.Fragment>
@@ -254,6 +268,7 @@ class RecordCalendar extends Component {
     let dateStr = info.dateStr;
     let startTime;
     const { rowId, calendar = {} } = info;
+
     if (info.allDay) {
       // YYYY-MM-DD
       let str = calendar.start
@@ -264,6 +279,7 @@ class RecordCalendar extends Component {
       // 'YYYY-MM-DD HH:mm'
       startTime = moment(dateStr).format(_.get(info, ['data', 'startFormat']));
     }
+
     let control = [
       {
         controlId: startData.controlId,
@@ -272,6 +288,7 @@ class RecordCalendar extends Component {
         value: formatTimeForSave(new Date(startTime), startData, appId),
       },
     ];
+
     if (endData && calendar.end) {
       // 开始时间与拖拽时间的时间差
       let l = moment(startTime).valueOf() - moment(calendar.start).valueOf();
@@ -283,6 +300,7 @@ class RecordCalendar extends Component {
         value: formatTimeForSave(new Date(endTime), endData, appId),
       });
     }
+
     this.updateData(control, rowId, data => {
       this.props.updateEventData(rowId, data, startTime);
     });
@@ -299,11 +317,13 @@ class RecordCalendar extends Component {
       },
       () => {
         let endDivStr = info.endStr;
+
         if (!info.allDay) {
           endDivStr = moment(info.endStr).format('YYYY-MM-DD');
         } else {
           endDivStr = moment(endDivStr).subtract(1, 'day').format('YYYY-MM-DD');
         }
+
         this.showChooseTrigger(endDivStr, info.view.type);
       },
     );
@@ -313,6 +333,7 @@ class RecordCalendar extends Component {
   dbClickFn = () => {
     // 需要手动实现双击事件
     let date = +new Date();
+
     if (!time) {
       time = date;
     } else {
@@ -323,15 +344,18 @@ class RecordCalendar extends Component {
         time = date;
       }
     }
+
     return false;
   };
 
   showChooseTrigger = data => {
     setTimeout(() => {
       const { random, canNew } = this.state;
+
       if (!canNew) {
         return;
       }
+
       let date = moment(data).format('YYYY-MM-DD');
       $(`span[data-date=${date}-${random}]`)[0].click();
     }, 500);
@@ -391,30 +415,35 @@ class RecordCalendar extends Component {
       weekbegin,
       showall = '0',
     } = getAdvanceSetting(currentView);
+
     try {
       calendarcids = JSON.parse(calendarcids);
     } catch (error) {
       calendarcids = [];
       console.log(error);
     }
+
     if (calendarcids.length <= 0) {
       calendarcids = [{ begin: begindate, end: enddate }]; //兼容老数据
     }
+
     const { recordInfoVisible, recordId, isLoading, rows = [], showPrevNext = false, random } = this.state;
     const typeEvent = this.props.getInitType();
     const eventData = calenderEventList[`${typeEvent}Dt`] || [];
-    const { startFormat, calendarInfo = [], unweekday = '', btnList, initialView } = calendarData;
+    const { calendarInfo = [], unweekday = '', btnList, initialView } = calendarData;
     const { height, calendarFormatData } = this.state;
     let isDelete =
       calendarcids[0].begin &&
       calendarInfo.length > 0 &&
       (!calendarInfo[0].startData || !calendarInfo[0].startData.controlId);
+
     if (
       !isOpenPermit(permitList.sysControlSwitch, sheetSwitchPermit) &&
       SYS_CONTROLS_WORKFLOW.includes(_.get(calendarInfo[0], 'startData.controlId'))
     ) {
       isDelete = true;
     }
+
     let isHaveSelectControl = !calendarcids[0].begin || isDelete; // 是否选中了开始时间 //开始时间字段已删除
 
     if (isHaveSelectControl || isIllegalFormat(calendarInfo)) {
@@ -430,6 +459,7 @@ class RecordCalendar extends Component {
                 saveView={(data, viewNew) => {
                   let viewData = {};
                   const { moreSort } = currentView;
+
                   // 第一次创建Calendar时，配置排序数据
                   if (!moreSort) {
                     viewData = {
@@ -438,6 +468,7 @@ class RecordCalendar extends Component {
                       sortType: 2,
                     };
                   }
+
                   this.props.saveView(data, { ...viewNew, ...viewData });
                   setViewConfigVisible(true);
                 }}
@@ -453,7 +484,9 @@ class RecordCalendar extends Component {
         </Wrap>
       );
     }
+
     let others = {};
+
     if (_.get(currentView, 'advancedSetting.showtime')) {
       const times = _.get(currentView, 'advancedSetting.showtime').split('-');
       others.slotMinTime = times[0];
@@ -515,11 +548,13 @@ class RecordCalendar extends Component {
             className={cx('scheduleBtn Hand', { show: this.state.showExternal })}
             onClick={() => {
               let showExternalData = getShowExternalData() || [];
+
               if (!this.state.showExternal) {
                 showExternalData.push(`${worksheetId}-${viewId}`);
               } else {
                 showExternalData = showExternalData.filter(o => o !== `${worksheetId}-${viewId}`);
               }
+
               safeLocalStorageSetItem('CalendarShowExternal', JSON.stringify(showExternalData));
               this.setState(
                 {
@@ -573,6 +608,7 @@ class RecordCalendar extends Component {
                 if (!this.state.canNew) {
                   return;
                 }
+
                 $(item.el).on({
                   mousemove: event => {
                     if ($('.fc-more-popover').length > 0) return;
@@ -663,6 +699,7 @@ class RecordCalendar extends Component {
                   this.props,
                   () => eventClick(info),
                   this.state.isMove,
+                  () => this.props.buttonsCheckStatus,
                 )
               }
               eventDrop={info => {
@@ -683,6 +720,7 @@ class RecordCalendar extends Component {
                 const rowEnd = item?.row?.[endData?.controlId];
                 const needEnd =
                   !!endData?.controlId && !!rowStart && !!rowEnd && !moment(rowEnd).isBefore(moment(rowStart));
+
                 if (item && needEnd) {
                   const endTime = moment(info.event.start)
                     .add(moment(rowEnd).diff(moment(rowStart)), 'ms')
@@ -694,17 +732,20 @@ class RecordCalendar extends Component {
                     value: formatTimeForSave(endTime, endData, appId),
                   });
                 }
+
                 this.updateData(control, info.event.extendedProps.rowid, data => {
                   this.props.updateEventData(info.event._def.extendedProps.rowid, data, info.event.start);
                 });
               }}
               eventResize={info => {
                 let endData = _.get(info, ['event', 'extendedProps', 'endData']) || {};
+
                 if (!endData.controlId) {
                   alert(_l('请配置结束控件'), 3);
                   this.getEventsFn();
                   return;
                 }
+
                 this.updateData(
                   [
                     {
@@ -731,12 +772,15 @@ class RecordCalendar extends Component {
                     let h = $('.fc-more-popover').height();
                     let top = $('.fc-more-popover').position().top;
                     let mH = $('.fc-scroller-harness-liquid').height();
+
                     if (h + top > mH) {
                       $('.fc-more-popover').css({ bottom: 10, top: 'initial' });
                     }
+
                     $('.fc-more-popover').addClass('show');
                   }
                 };
+
                 if ($('.fc-more-popover').length > 0) {
                   setMorePoper();
                 } else {
@@ -752,11 +796,13 @@ class RecordCalendar extends Component {
                 if (!this.state.canNew) {
                   return;
                 }
+
                 // isSafari 且 双击
                 if (window.isSafari && this.dbClickFn()) {
                   this.selectFn({ ...info });
                   return;
                 }
+
                 clickData = info;
                 // 全天事件
                 if (info.allDay) {
@@ -776,19 +822,26 @@ class RecordCalendar extends Component {
               drop={info => {
                 // 排期列表 =>拖拽到日历
                 let rowId = $(info.draggedEl).attr('rowid');
+
                 if (!rowId) {
                   return;
                 }
+
                 let keyId = $(info.draggedEl).attr('keyId');
                 let data = eventScheduled.filter(o => o.keyIds === keyId);
+
                 if (data.length && data.length === 1) {
+                  const hasEnd = !!data[0].end;
+                  const calendarEnd = !hasEnd
+                    ? ''
+                    : !data[0].allDay
+                      ? data[0].end
+                      : `${moment(data[0].end).subtract(1, 'day').format('YYYY-MM-DD')} 23:59:59`;
                   this.changeEventFn({
                     ...info,
                     calendar: {
                       start: data[0].start,
-                      end: !data[0].allDay
-                        ? data[0].end
-                        : `${moment(data[0].end).subtract(1, 'day').format('YYYY-MM-DD')} 23:59:59`,
+                      end: calendarEnd,
                     },
                     data: {
                       ...data[0],
@@ -807,49 +860,8 @@ class RecordCalendar extends Component {
                   );
                 }
               }}
-              eventMouseEnter={item => {
+              eventMouseEnter={() => {
                 this.showTip(null, false);
-                let { startData } = calendarInfo[0] || {};
-                let colorHover = getHoverColor(item.event.backgroundColor);
-                if (
-                  (!isTimeStyle(startData) && !item.event.allDay) ||
-                  (!item.event.allDay && item.view.type === 'dayGridMonth')
-                ) {
-                  $(item.el).find('.fc-daygrid-event-dot').css({
-                    'border-color': item.event.backgroundColor,
-                  });
-                } else {
-                  $(item.el).css({
-                    'background-color': colorHover,
-                    'border-color': colorHover,
-                  });
-                  $(item.el)
-                    .find('.fc-event-title,.fc-event-time')
-                    .css({
-                      color: !isLightColor(colorHover) ? '#fff' : 'var(--color-text-title)',
-                    });
-                }
-              }}
-              eventMouseLeave={item => {
-                let { startData } = calendarInfo[0] || {};
-                if (
-                  (!isTimeStyle(startData) && !item.event.allDay) ||
-                  (!item.event.allDay && item.view.type === 'dayGridMonth')
-                ) {
-                  // $(item.el).find('.fc-daygrid-event-dot').css({
-                  //   'border-color': item.event.backgroundColor,
-                  // });
-                } else {
-                  $(item.el).css({
-                    'background-color': item.event.backgroundColor,
-                    'border-color': item.event.backgroundColor,
-                  });
-                  $(item.el)
-                    .find('.fc-event-title,.fc-event-time')
-                    .css({
-                      color: !isLightColor(item.event.backgroundColor) ? '#fff' : 'var(--color-text-title)',
-                    });
-                }
               }}
               {...others}
             />
@@ -879,6 +891,7 @@ class RecordCalendar extends Component {
             rules={worksheetInfo.rules}
             updateSuccess={(ids, updated) => {
               let attribute = controls.find(o => o.attribute === 1);
+
               // 更改了 开始时间/结束时间/标题字段/颜色 =>更新日历视图数据
               if (
                 updated[begindate] ||
@@ -916,6 +929,36 @@ class RecordCalendar extends Component {
     );
   }
 }
+
+// 包装组件，用于在日历视图中获取记录卡片按钮状态
+const RecordCalendarWrapper = props => {
+  const { base = {}, views = [], calendarview = {}, sheetButtons, printList, sheetSwitchPermit } = props;
+  const { viewId, worksheetId } = base;
+  const currentView = views.find(o => o.viewId === viewId) || {};
+  const { calendarFormatData = [] } = calendarview;
+
+  // 获取所有记录 ID
+  const allRecordIds = useMemo(
+    () => calendarFormatData.map(item => _.get(item, 'extendedProps.rowid')).filter(Boolean),
+    [calendarFormatData],
+  );
+
+  // 获取操作按钮
+  const operateButtons = useMemo(() => {
+    let buttons = getSheetOperatesButtons(currentView, { buttons: sheetButtons, printList });
+    buttons = filterButtonBySheetSwitchPermit(buttons, sheetSwitchPermit, viewId);
+    return buttons;
+  }, [currentView, sheetButtons, printList, sheetSwitchPermit, viewId]);
+
+  // 获取按钮 ID
+  const btnIds = useMemo(() => operateButtons.map(b => b.btnId).filter(Boolean), [operateButtons]);
+
+  // 获取按钮状态
+  const { buttonsCheckStatus } = useButtonStatusOfRows(worksheetId, allRecordIds, btnIds);
+
+  return <RecordCalendar {...props} buttonsCheckStatus={buttonsCheckStatus} />;
+};
+
 export default connect(
   state => ({
     ...state.sheet,
@@ -925,4 +968,4 @@ export default connect(
     printList: state.sheet.printList,
   }),
   dispatch => bindActionCreators({ ...Actions, saveView, updateWorksheetControls }, dispatch),
-)(RecordCalendar);
+)(RecordCalendarWrapper);

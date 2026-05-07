@@ -14,9 +14,11 @@ export default function BaseChart(props) {
     const { controlList = [] } = summary;
     const rightYSummary = _.get(config, 'summary') || {};
     const rightYControlList = _.get(config, 'summary.controlList') || [];
+
     if ([reportTypes.GaugeChart, reportTypes.ProgressChart].includes(item.reportType)) {
       return null;
     }
+
     if (item.reportType === reportTypes.PivotTable) {
       const { lineSummary = {}, columnSummary = {} } = config;
       const lineSummaryControlList = lineSummary.controlList.filter(n => n.name);
@@ -75,6 +77,7 @@ export default function BaseChart(props) {
         </div>
       );
     }
+
     if ([reportTypes.ScatterChart, reportTypes.FunnelChart].includes(item.reportType)) {
       return (
         <div className="flexRow alignItemsCenter nodeItem">
@@ -88,6 +91,7 @@ export default function BaseChart(props) {
         </div>
       );
     }
+
     return (
       <div className="flexRow nodeItem">
         <div className="Font13 mRight20 label">{_l('总计')}</div>
@@ -141,6 +145,7 @@ export default function BaseChart(props) {
     if ([reportTypes.GaugeChart, reportTypes.ProgressChart].includes(item.reportType)) {
       return null;
     }
+
     if (item.reportType === reportTypes.PivotTable) {
       const { config = {} } = reportInfo;
       const lines = config.lines.filter(item => item.rename);
@@ -178,7 +183,9 @@ export default function BaseChart(props) {
         </div>
       );
     }
+
     const { xaxes = {} } = reportInfo;
+
     if (xaxes.rename) {
       return (
         <div className="flexRow alignItemsCenter nodeItem">
@@ -355,6 +362,7 @@ export default function BaseChart(props) {
   const renderYAxisShowTitleConfig = () => {
     const { displaySetup = {} } = reportInfo;
     const { ydisplay } = displaySetup;
+
     if (
       [reportTypes.BarChart, reportTypes.LineChart, reportTypes.DualAxes, reportTypes.ScatterChart].includes(
         item.reportType,
@@ -379,6 +387,7 @@ export default function BaseChart(props) {
 
   const renderRightYAxisShowTitleConfig = () => {
     const { ydisplay } = _.get(reportInfo, 'config.display') || {};
+
     if ([reportTypes.DualAxes].includes(item.reportType) && ydisplay.title) {
       return (
         <div className="flexRow alignItemsCenter nodeItem">

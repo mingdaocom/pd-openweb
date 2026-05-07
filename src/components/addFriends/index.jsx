@@ -35,7 +35,7 @@ class AddFriends extends Component {
     const { projectId } = this.props;
     const { Account: { projects = [] } = {} } = md.global;
     const myPermissions = projectId ? getMyPermissions(projectId) : [];
-    const hasMemberManageAuth = hasPermission(myPermissions, PERMISSION_ENUM.MEMBER_MANAGE);
+    const hasMemberManageAuth = hasPermission(myPermissions, PERMISSION_ENUM.MEMBER);
     const licenseType = getCurrentProject(projectId).licenseType;
 
     this.setState(
@@ -59,6 +59,7 @@ class AddFriends extends Component {
   get showCertification() {
     const { fromType } = this.props;
     const { isPayUsers, authType } = this.state;
+
     // 非付费用户
     if (!isPayUsers) {
       // 个人邀请、群组邀请
@@ -66,6 +67,7 @@ class AddFriends extends Component {
         return authType === 0;
       }
     }
+
     return false;
   }
 
@@ -121,7 +123,7 @@ class AddFriends extends Component {
     const { selectTab, myPermissions = [] } = this.state;
     const { fromType, projectId } = this.props;
     const isPersonal = fromType === FROM_TYPE.PERSONAL;
-    const hasMemberManageAuth = hasPermission(myPermissions, PERMISSION_ENUM.MEMBER_MANAGE);
+    const hasMemberManageAuth = hasPermission(myPermissions, PERMISSION_ENUM.MEMBER);
 
     return (
       <ul className="AddFriends-head-navbar">
@@ -129,9 +131,15 @@ class AddFriends extends Component {
           if (tab.value === TAB_MODE.PUBLIC_LINK && !hasMemberManageAuth) {
             return null;
           }
+
           if ((isPersonal || fromType === FROM_TYPE.GROUPS) && tab.value === TAB_MODE.ADDRESS_BOOK) {
             return null;
           }
+
+          const tabText =
+            tab.value === TAB_MODE.MOBILE_EMAIL && !md.global.SysSettings?.enableSmsCustomContent
+              ? _l('邮箱邀请')
+              : tab.text;
           return (
             <li
               key={tab.value}
@@ -144,7 +152,7 @@ class AddFriends extends Component {
                 'AddFriends-head-navbar__item--active': selectTab === tab.value,
               })}
             >
-              {isPersonal ? tab.subText : tab.text}
+              {isPersonal ? tab.subText : tabText}
             </li>
           );
         })}
@@ -163,6 +171,7 @@ class AddFriends extends Component {
       setDetailMode: this.setDetailMode,
       showInviteRules,
     };
+
     if (selectTab === TAB_MODE.PUBLIC_LINK) {
       return <PublicLink {...options} {...{ url, code, tokens, setInfo: this.setInfo }} />;
     } else if (selectTab === TAB_MODE.MOBILE_EMAIL) {

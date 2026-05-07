@@ -35,6 +35,7 @@ const CheckWidgets = props => {
     formItemId,
     useCallback(data => {
       const { triggerType } = data;
+
       switch (triggerType) {
         case 'Enter':
           const newValue = checkRef.current ? '0' : '1';
@@ -48,6 +49,7 @@ const CheckWidgets = props => {
 
   const renderContent = () => {
     const itemnames = getSwitchItemNames(props);
+
     if (advancedSetting.showtype === '1') {
       const text = isChecked ? _.get(itemnames[0], 'value') : _.get(itemnames[1], 'value');
       return (

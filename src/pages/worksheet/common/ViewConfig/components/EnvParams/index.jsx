@@ -40,6 +40,7 @@ const Wrap = styled.div`
     font-weight: bold;
   }
 `;
+
 export default function (props) {
   const tagtextarea = useRef(null);
   const { view, updateCurrentView } = props;
@@ -50,6 +51,7 @@ export default function (props) {
 
   const saveConfig = () => {
     let value = {};
+
     if (_.get(tagtextarea, 'current.props.defaultValue')) {
       try {
         value = JSON.parse(_.get(tagtextarea, 'current.props.defaultValue'));
@@ -57,10 +59,12 @@ export default function (props) {
         console.log(error);
         return alert(_l('请输入正确的格式'), 3);
       }
+
       if (!(_.isObject(value) && !_.isArray(value))) {
         return alert(_l('请输入正确的格式'), 3);
       }
     }
+
     updateAdvancedSetting(
       {
         environmentparams: JSON.stringify(value),
@@ -70,6 +74,7 @@ export default function (props) {
       },
     );
   };
+
   const updateAdvancedSetting = (data, cb) => {
     updateCurrentView(
       Object.assign(view, {

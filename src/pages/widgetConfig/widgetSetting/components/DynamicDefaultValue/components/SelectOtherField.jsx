@@ -65,6 +65,7 @@ export default class SelectOtherField extends Component {
     const { data = {}, onDynamicValueChange } = this.props;
     const { advancedSetting = {} } = data;
     const isText = _.includes([1, 2, 41, 45], data.type);
+
     const isAsync = () => {
       // 部门选成员 | 成员选部门 需要异步获取数据 isAsync设为true
       if ((_.includes([27, 48], data.type) && type === 26) || (data.type === 26 && _.includes([27, 48], type)))
@@ -81,6 +82,7 @@ export default class SelectOtherField extends Component {
 
   triggerClick = () => {
     const { defaultType } = this.props;
+
     if (defaultType === 'dynamicsrc') {
       this.handleAction({ key: OTHER_FIELD_TYPE.SEARCH });
     } else if (defaultType === 'defaultfunc') {
@@ -90,6 +92,7 @@ export default class SelectOtherField extends Component {
 
   handleAction = data => {
     const { onDynamicValueChange } = this.props;
+
     switch (data.key) {
       case OTHER_FIELD_TYPE.FIELD:
         this.setState({ filedVisible: true });
@@ -178,6 +181,7 @@ export default class SelectOtherField extends Component {
     if (this.props.from === DYNAMIC_FROM_MODE.FAST_FILTER && [26, 27, 48].includes(data.type)) {
       return CURRENT_TYPES[data.type];
     }
+
     // 自定义默认值
     if (this.props.from === DYNAMIC_FROM_MODE.CREATE_CUSTOM) {
       let customTypes =
@@ -189,20 +193,24 @@ export default class SelectOtherField extends Component {
       customTypes = this.props.showEmpty ? CUR_EMPTY_TYPES.concat(customTypes) : customTypes;
       return customTypes.filter(c => !_.includes(['keyword'], c.key));
     }
+
     // 自定义页面---封装业务流程
     if (this.props.from === DYNAMIC_FROM_MODE.CUSTOM_PHP) {
       return data.type === 2 ? _.flatten(Object.values(CUSTOM_PHP_TYPES)) : CUSTOM_PHP_TYPES[data.type];
     }
 
     let types = OTHER_FIELD_LIST;
+
     // 没有函数的控件
     if (!_.includes(CAN_AS_FX_DYNAMIC_FIELD, data.type)) {
       types = types.filter(item => item.key !== OTHER_FIELD_TYPE.FX);
     }
+
     // 没有动态值的控件
     if (_.includes(CAN_NOT_AS_FIELD_DYNAMIC_FIELD, data.type) || isSheetDisplay(data)) {
       types = types.filter(item => item.key !== OTHER_FIELD_TYPE.FIELD);
     }
+
     // 有其他字段的控件 ｜ api查询其他字段
     if (
       _.includes(CAN_AS_OTHER_DYNAMIC_FIELD, data.type) ||
@@ -211,41 +219,51 @@ export default class SelectOtherField extends Component {
     ) {
       types = (CURRENT_TYPES[data.type] || []).concat(types);
     }
+
     // ocr其他字段控件
     if (_.includes([2, 14], data.type) && DYNAMIC_FROM_MODE.OCR_PARAMS === this.props.from) {
       types = (data.type === 2 ? CUR_OCR_URL_TYPES : CUR_OCR_TYPES).concat(types);
     }
+
     // 附件水印其他字段控件
     if (this.props.from === DYNAMIC_FROM_MODE.WATER_MASK) {
       types = types.concat(WATER_MASK_TYPES);
     }
+
     if (this.props.from === DYNAMIC_FROM_MODE.H5_WATER_MASK) {
       types = types.concat(H5_WATER_MASK_TYPES);
     }
+
     // 打印模板导出文件名
     if (this.props.from === DYNAMIC_FROM_MODE.PRINT_TEMP) {
       types = types.concat(PRINT_TEMP_TYPES);
     }
+
     if (this.props.hideSearchAndFun) {
       //子表里的字段默认值没有查询和函数配置
       types = types.filter(item => !_.includes([OTHER_FIELD_TYPE.SEARCH, OTHER_FIELD_TYPE.FX], item.key));
     }
+
     //自定义事件、业务规则没有部门和角色,需要掉接口
     if (this.props.from === DYNAMIC_FROM_MODE.CUSTOM_EVENT || this.props.from === DYNAMIC_FROM_MODE.RULES) {
       types = types.filter(item => !_.includes([OTHER_FIELD_TYPE.DEPT, OTHER_FIELD_TYPE.ROLE], item.key));
     }
+
     if (this.props.fromRange) {
       // 成员范围补充当前用户所在部门
       types.splice(1, 0, _.head(CURRENT_TYPES[27]));
     }
+
     // 包含清空操作
     if (this.props.showEmpty) {
       types = CUR_EMPTY_TYPES.concat(types);
     }
+
     // 未保存子表不支持查询工作表
     if (this.props.from === 'subList' && this.props.subListSheetId.includes('-')) {
       types = types.filter(item => !_.includes([OTHER_FIELD_TYPE.SEARCH], item.key));
     }
+
     return types;
   };
 
@@ -354,6 +372,7 @@ export default class SelectOtherField extends Component {
       if (from === DYNAMIC_FROM_MODE.FAST_FILTER && (withLinkParams || withDY)) {
         return renderPopupForQuickFilter();
       }
+
       return propFiledVisible || filedVisible ? (
         <SelectFields
           onClickAway={() => this.setState({ isDynamic: false, filedVisible: false })}
@@ -378,6 +397,7 @@ export default class SelectOtherField extends Component {
         </Menu>
       );
     };
+
     return (
       <Fragment>
         <div ref={this.$wrap} className="selectOtherFieldContainer">
@@ -405,10 +425,12 @@ export default class SelectOtherField extends Component {
                     this.setState({ searchVisible: true });
                     return;
                   }
+
                   if (from === DYNAMIC_FROM_MODE.FAST_FILTER) {
                     this.setState({ isDynamic: true, showPopupType: withDY ? '' : 'DY_LINK' });
                     return;
                   }
+
                   this.setState({ isDynamic: true });
                 }}
               >

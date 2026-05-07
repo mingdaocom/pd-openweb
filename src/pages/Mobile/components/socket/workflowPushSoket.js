@@ -15,6 +15,7 @@ const playAudio = audioSrc => {
     const audio = document.createElement('audio');
     window.workflowAudioPlayer = audio;
   }
+
   window.workflowAudioPlayer.src = audioSrc;
   window.workflowAudioPlayer.play();
 };
@@ -37,6 +38,7 @@ export default () => {
         promptSound,
         accountId,
       } = result[pushType];
+
       const actionFun = (data, pushType) => {
         const { appId: worksheetId, content, rowId, viewId, code } = data;
 

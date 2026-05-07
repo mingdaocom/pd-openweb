@@ -166,9 +166,11 @@ export default class LimitAttachmentUpload extends Component {
   }
 
   componentDidMount() {
-    if (this.props.businessType === 2) {
+    // 【私有部署】管理额度工作表行记录数上限通过接口获取，超过上限保存拦截
+    if ((window.platformENV.isLocal || window.platformENV.isOverseas) && this.props.businessType === 2) {
       this.getLimitRowTotal();
     }
+
     this.getLimits();
   }
 
@@ -181,6 +183,7 @@ export default class LimitAttachmentUpload extends Component {
       });
     });
   };
+
   getLimits = () => {
     const { projectId, businessType = 1 } = this.props;
     const { appIds, worksheetIds, pageIndex, limits, initialLimits } = this.state;
@@ -242,10 +245,12 @@ export default class LimitAttachmentUpload extends Component {
 
   showAddAppList = () => {
     const { projectId, businessType } = this.props;
+
     if (businessType == 2) {
       dialogSelectWorksheet({ projectId, title: _l('添加工作表'), onOk: this.handleAddWorksheetList });
       return;
     }
+
     dialogSelectApp({
       projectId,
       title: _l('添加应用'),
@@ -308,14 +313,17 @@ export default class LimitAttachmentUpload extends Component {
   getAppList = () => {
     const { projectId } = this.props;
     const { appPageIndex, isMoreApp, loadingApp, appList, keyword = '' } = this.state;
+
     // 加载更多
     if (appPageIndex > 1 && ((loadingApp && isMoreApp) || !isMoreApp)) {
       return;
     }
+
     this.setState({ loadingApp: true });
     if (this.appPromise) {
       this.appPromise.abort();
     }
+
     this.appPromise = appManagementAjax.getAppsByProject({
       projectId,
       status: '',
@@ -446,7 +454,9 @@ export default class LimitAttachmentUpload extends Component {
       businessType === 1
         ? md.global.SysSettings.fileUploadLimitSize || 4 * 1024
         : businessType === 2
-          ? limitRowTotal * 10
+          ? window.platformENV.isLocal || window.platformENV.isOverseas
+            ? limitRowTotal * 10
+            : 1000
           : 0;
 
     if (loading || (_.isEqual(initialLimits, limits) && _.isEqual(size, initialSize))) return;
@@ -473,6 +483,7 @@ export default class LimitAttachmentUpload extends Component {
     if (this.savePromise) {
       this.savePromise.abort();
     }
+
     this.savePromise =
       businessType === 4 ? workflowDataLimitAjax.EditUageLimit(params) : dataLimitAjax.editUageLimit(params);
 
@@ -488,6 +499,7 @@ export default class LimitAttachmentUpload extends Component {
         } else {
           alert(_l('保存失败'), 2);
         }
+
         this.setState({ saveLoading: false });
       })
       .catch(() => {
@@ -513,6 +525,9 @@ export default class LimitAttachmentUpload extends Component {
     const { limitRowTotal } = this.state;
     let text = '';
     const { businessType } = this.props;
+
+    const limitSize = md.global.SysSettings.fileUploadLimitSize || 4 * 1024;
+
     switch (businessType) {
       case 1:
         const limitSize = md.global.SysSettings.fileUploadLimitSize || 4 * 1024;
@@ -522,12 +537,13 @@ export default class LimitAttachmentUpload extends Component {
         );
         break;
       case 2:
-        text = limitRowTotal
-          ? _l(
-              '设置每个工作表行记录数量上限。可为所有工作表全局配置，也可以为特殊的工作表单独设置。组织可设置最大上限为 %0万行 / 每个表',
-              limitRowTotal,
-            )
-          : _l('设置每个工作表行记录数量上限。可为所有工作表全局配置，也可以为特殊的工作表单独设置');
+        text =
+          limitRowTotal || !(window.platformENV.isLocal || window.platformENV.isOverseas)
+            ? _l(
+                '设置每个工作表行记录数量上限。可为所有工作表全局配置，也可以为特殊的工作表单独设置。组织可设置最大上限为 %0万行 / 每个表',
+                window.platformENV.isLocal || window.platformENV.isOverseas ? limitRowTotal : 100,
+              )
+            : _l('设置每个工作表行记录数量上限。可为所有工作表全局配置，也可以为特殊的工作表单独设置');
 
         break;
       case 3:
@@ -596,7 +612,9 @@ export default class LimitAttachmentUpload extends Component {
       businessType === 1
         ? md.global.SysSettings.fileUploadLimitSize || 4 * 1024
         : businessType === 2
-          ? limitRowTotal * 10
+          ? window.platformENV.isLocal || window.platformENV.isOverseas
+            ? limitRowTotal * 10
+            : 1000
           : 0;
 
     switch (col.dataIndex) {
@@ -659,7 +677,8 @@ export default class LimitAttachmentUpload extends Component {
       case 'action':
         return (
           <Fragment>
-            {!!createTime && app.appName && (
+            {/* 仅附件上传总量可重置，重置应用的累积用量 */}
+            {businessType === 3 && !!createTime && app.appName && (
               <div
                 className="textDisabled Hand hoverColorPrimary mRight10"
                 onClick={() => this.handleReset(app, projectId)}
@@ -743,6 +762,7 @@ export default class LimitAttachmentUpload extends Component {
                   onPopupScroll={e => {
                     e.persist();
                     const { scrollTop, offsetHeight, scrollHeight } = e.target;
+
                     if (scrollTop + offsetHeight === scrollHeight && isMoreApp) {
                       this.getAppList();
                     }
@@ -805,6 +825,7 @@ export default class LimitAttachmentUpload extends Component {
                         alert(_l('请选择查询的工作表'), 3);
                         return;
                       }
+
                       this.getLimits();
                     }}
                   >

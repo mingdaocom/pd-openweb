@@ -72,16 +72,20 @@ export default class RecordCard extends Component {
   get cover() {
     const { view, data } = this.props;
     const { coverCid } = view;
+
     if (!coverCid) {
       return null;
     }
+
     let coverControlData;
+
     try {
       coverControlData = getCoverControlData(data[coverCid] ? JSON.parse(data[coverCid]) : []);
     } catch (err) {
       console.log(err);
       return null;
     }
+
     return coverControlData;
   }
   get cardControls() {
@@ -106,14 +110,19 @@ export default class RecordCard extends Component {
           ? cover.previewUrl.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, imageView2)
           : `${cover.previewUrl}&${imageView2}`
         : null;
+
     if (url && !coverError) {
       const image = new Image();
+
       image.onload = () => {};
+
       image.onerror = () => {
         this.setState({ coverError: true });
       };
+
       image.src = url;
     }
+
     return url;
   }
   previewAttachment(attachments, index) {
@@ -121,9 +130,11 @@ export default class RecordCard extends Component {
     const coverCidControl = _.find(controls, { controlId: view.coverCid }) || {};
     const hideFunctions = ['editFileName'];
     const { allowdownload = '1' } = coverCidControl.advancedSetting;
+
     if (allowdownload === '0') {
       hideFunctions.push('download');
     }
+
     const attachmentsData = attachments.map(attachment => {
       if (attachment.fileId.slice(0, 2) === 'o_') {
         return Object.assign({}, attachment, {
@@ -132,6 +143,7 @@ export default class RecordCard extends Component {
           name: (attachment.originalFilename || _l('图片')) + attachment.ext,
         });
       }
+
       return Object.assign({}, attachment, {
         previewAttachmentType: attachment.refId ? 'KC_ID' : 'COMMON_ID',
       });
@@ -168,12 +180,14 @@ export default class RecordCard extends Component {
     if (opencover === '2') return;
     const { cover } = this;
     let coverControlData;
+
     try {
       coverControlData = JSON.parse(data[view.coverCid]);
     } catch (err) {
       console.log(err);
       return;
     }
+
     this.previewAttachment(
       coverControlData,
       _.findIndex(coverControlData, attachment => attachment.fileID === cover.fileID) || 0,
@@ -420,6 +434,7 @@ export default class RecordCard extends Component {
     e.stopPropagation();
     const { changeBatchOptData, batchOptCheckedData } = this.props;
     let copyBatchOptCheckedData = batchOptCheckedData ? [...batchOptCheckedData] : [];
+
     if (batchOptCheckedData.includes(data.rowid)) {
       changeBatchOptData(copyBatchOptCheckedData.filter(item => item !== data.rowid));
     } else {

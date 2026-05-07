@@ -118,6 +118,7 @@ function TodoEntrustList(props) {
       setMobileConfigVisble(true);
       return;
     }
+
     setModalVisible(true);
   };
 
@@ -271,6 +272,7 @@ function TodoEntrustList(props) {
                   setMobileConfigVisble(true);
                   return;
                 }
+
                 setModalVisible(true);
               }}
             >

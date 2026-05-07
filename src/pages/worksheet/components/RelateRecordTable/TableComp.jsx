@@ -53,11 +53,13 @@ const ColumnPopupOperateCon = styled.div`
 
 function getCellWidths(control, controls) {
   let widths = [];
+
   try {
     widths = safeParse(control.advancedSetting.widths);
   } catch (err) {
     console.log(err);
   }
+
   if (isArray(widths)) {
     const result = {};
     control.showControls
@@ -68,6 +70,7 @@ function getCellWidths(control, controls) {
       });
     return result;
   }
+
   return widths;
 }
 
@@ -96,6 +99,7 @@ function getPageRecords({ records = [], pageSize = PAGE_SIZE, pageIndex = 1, isT
   if (pageIndex !== 1) {
     return records.slice(0, pageSize);
   }
+
   const newRecords = records.filter(record => record.isNew);
   const savedRecords = records.filter(record => !record.isNew);
   return newRecords.concat(savedRecords.slice(0, isTreeTableView ? undefined : pageSize));
@@ -176,6 +180,7 @@ function TableComp(props) {
   const dataCache = useRef({});
   const columns = useMemo(() => {
     const visibleControls = getVisibleControls(control, controls, sheetHiddenColumnIds, disableMaskDataControls);
+
     if (isTreeTableView && visibleControls[0]) {
       const appendWidth = getTreeExpandCellWidth(treeTableViewData.maxLevel, records.length);
       dataCache.current.expandCellAppendWidth = appendWidth;
@@ -183,6 +188,7 @@ function TableComp(props) {
       visibleControls[0].hideFrozen = true;
       visibleControls[0].isTreeExpandCell = true;
     }
+
     return visibleControls;
   }, [controls, control, sheetHiddenColumnIds, records, treeTableViewData.maxLevel]);
   const isRelationRecord = control.type === 51;
@@ -190,9 +196,11 @@ function TableComp(props) {
   const tableConfig = getTableConfig(control);
   const { showQuickFromSetting, allowOpenRecord, allowDeleteFromSetting } = tableConfig;
   const emptyRowCount = isTab ? 3 : 1;
+
   if (recordId && !base.saveSync && pageIndex === 1) {
     records = addedRecords.concat(records.filter(r => !find(addedRecords, { rowid: r.rowid })));
   }
+
   const isNewRecord = !recordId;
   const pageSize = tableState.pageSize || PAGE_SIZE;
   const rowHeight = Number((control.advancedSetting || {}).rowheight || 0);
@@ -235,13 +243,16 @@ function TableComp(props) {
   );
   let tableData = recordId ? addHiddenTip(getPageRecords({ records, pageIndex, pageSize, isTreeTableView })) : records;
   let rowCount = records.length > emptyRowCount ? records.length : emptyRowCount;
+
   if (isTreeTableView) {
     tableData = getSheetViewRows({ rows: records }, { treeMap: treeTableViewData.treeMap });
     rowCount = tableData.length > emptyRowCount ? tableData.length : emptyRowCount;
   }
+
   if (recordId && base.saveSync && rowCount > pageSize && !isTreeTableView) {
     rowCount = pageSize;
   }
+
   const renderRowHead = ({ className, style, rowIndex, row, isColumnPopup = false }) => {
     const isSavedRecord = !!find(originalRecords, { rowid: row.rowid });
     const canRemoveRelation = allowRemoveRelation || !isSavedRecord;
@@ -312,6 +323,7 @@ function TableComp(props) {
         }}
         onSelect={({ action } = {}) => {
           let isSelect, selectRowIndex, selectedRecords;
+
           switch (action) {
             case 'toggleSelectRow':
               selectRowIndex = findIndex(records, { rowid: row.rowid });
@@ -331,9 +343,11 @@ function TableComp(props) {
                     : selectedRowIds.filter(rowid => rowid !== row.rowid),
                 });
               }
+
               if (selectRowIndex >= 0) {
                 cache.current.lastSelectRowIndex = selectRowIndex;
               }
+
               break;
             case 'selectAll':
               updateTableState({
@@ -351,6 +365,7 @@ function TableComp(props) {
       />
     );
   };
+
   useClickAway({ current: get(worksheetTableRef, 'current.con') }, e => {
     if (window.activeTableId === tableId && !e.target.closest(`.sheetViewTable.id-${tableId}-id`)) {
       window.activeTableId = undefined;
@@ -359,6 +374,7 @@ function TableComp(props) {
   if (isEmpty(columns)) {
     return <div className="TxtCenter textTertiary mAll30">{_l('没有可见字段')}</div>;
   }
+
   return (
     <WorksheetTable
       showControlStyle
@@ -401,7 +417,7 @@ function TableComp(props) {
       viewId={control.viewId}
       sheetSwitchPermit={sheetSwitchPermit}
       lineEditable={
-        tableConfig.allowLineEdit &&
+        (tableConfig.allowLineEdit || control.type === 51) &&
         !control.disabled &&
         allowEdit &&
         controlPermission.editable &&
@@ -423,9 +439,11 @@ function TableComp(props) {
       renderRowHead={renderRowHead}
       renderColumnHead={({ ...rest }) => {
         const { control } = rest;
+
         if (direction === 'vertical') {
           return <RowHeadColumn columnIndex={rest.rowIndex} control={control} showNumber={showNumber} {...rest} />;
         }
+
         return (
           <ColumnHead
             {...rest}
@@ -453,14 +471,17 @@ function TableComp(props) {
             isDraft={isDraft}
             changeSort={newIsAsc => {
               let newDefaultScrollLeft;
+
               try {
                 const scrollX = worksheetTableRef.current.con.querySelector(`.sheetViewTable .scroll-x`);
+
                 if (scrollX) {
                   newDefaultScrollLeft = scrollX.scrollLeft;
                 }
               } catch (err) {
                 console.error(err);
               }
+
               updateSort({
                 newIsAsc,
                 controlId: rest.control.controlId,

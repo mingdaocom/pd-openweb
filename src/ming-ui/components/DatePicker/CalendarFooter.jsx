@@ -9,6 +9,7 @@ class CalendarFooter extends Component {
    */
   back = () => {
     let toView = 'month';
+
     if (this.props.mode === 'date' || this.props.mode === 'datetime') {
       toView = 'date';
     }
@@ -24,6 +25,7 @@ class CalendarFooter extends Component {
 
     let footerBtns = [];
     let clearBtn = null;
+
     if (this.props.allowClear) {
       clearBtn = (
         <a onClick={() => props.onClear()} className={`${prefixCls}-clear-btn`} role="button">
@@ -51,12 +53,14 @@ class CalendarFooter extends Component {
     );
 
     let needBack = false;
+
     if (
       (this.props.view === 'year' && this.props.mode !== 'year') ||
       (this.props.view === 'month' && (this.props.mode === 'date' || this.props.mode === 'datetime'))
     ) {
       needBack = true;
     }
+
     if (needBack) {
       footerBtns = (
         <div className={`${prefixCls}-footer-back`}>

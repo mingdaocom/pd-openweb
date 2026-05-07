@@ -9,10 +9,11 @@ const Password = styled(Input.Password)`
   box-shadow: none !important;
   line-height: 28px !important;
   border-radius: 3px !important;
-  border: 1px solid var(--color-border-tertiary) !important;
+  border: 1px solid var(--color-border-primary) !important;
   margin-bottom: 10px;
+  transition: none !important;
   &.ant-input-affix-wrapper-focused {
-    border-color: var(--color-primary);
+    border-color: var(--color-primary) !important;
   }
 `;
 

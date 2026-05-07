@@ -17,20 +17,24 @@ const splitFeeds = list => {
     let i;
     let sTime;
     const keys = Object.keys(ranges);
+
     for (i = 0; i < keys.length; i++) {
       if (feedTime.isAfter(ranges[keys[i]][0]) && feedTime.isBefore(ranges[keys[i]][1])) {
         if (!oSplit[keys[i]]) {
           feed.splitTime = keys[i];
           oSplit[keys[i]] = true;
         }
+
         return;
       }
     }
+
     if (feedTime.isAfter(moment().startOf('year'))) {
       sTime = feedTime.format('M月');
     } else {
       sTime = feedTime.format('YYYY年M月');
     }
+
     if (!oSplit[sTime]) {
       feed.splitTime = sTime;
       oSplit[sTime] = true;
@@ -57,9 +61,11 @@ export default class FeedsPanel extends Component {
   getFeed() {
     const { feeds, loading, pageIndex } = this.state;
     const { session } = this.props;
+
     if (loading || !pageIndex) {
       return;
     }
+
     this.setState({
       loading: true,
     });

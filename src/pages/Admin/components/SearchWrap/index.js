@@ -85,6 +85,7 @@ const Input = styled.input`
 const { RangePicker } = DatePicker;
 
 let resizeObserver = null;
+
 export default function SearchWrap(props) {
   const {
     wrapClassName,
@@ -107,6 +108,7 @@ export default function SearchWrap(props) {
 
   const renderSearchCon = item => {
     const { key, type, options = [], className, ...extra } = item;
+
     switch (type) {
       case 'selectUser':
         return (
@@ -135,6 +137,7 @@ export default function SearchWrap(props) {
         return (
           <Select
             className={`w100 mdAntSelect ${className}`}
+            notFoundContent={<span className="textTertiary">{_l('暂无数据')}</span>}
             {...extra}
             onChange={value => onChange({ ...searchValues, [key]: value })}
           >
@@ -156,10 +159,12 @@ export default function SearchWrap(props) {
             onChange={e => setValues({ [key]: e.target.value })}
             onBlur={e => {
               const val = _.trim(e.target.value);
+
               if (!val && !searchValues[key]) {
                 setValues({ [key]: '' });
                 return;
               }
+
               onChange({ ...searchValues, [key]: val ? val : '' });
             }}
             onKeyDown={e => {

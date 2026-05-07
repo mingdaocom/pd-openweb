@@ -8,7 +8,7 @@ import { formatValue, getValue } from '../utils';
 
 // 组织管理首页-用户信息卡片
 export default function UserCard(props) {
-  const { projectId, data, isLocal, isTrial, isFree } = props;
+  const { projectId, data, isMingdaoSaas, isTrial, isFree } = props;
   const isShowInviteUser = (md.global.Account.projects || []).some(it => it.licenseType === 1);
 
   return (
@@ -16,7 +16,7 @@ export default function UserCard(props) {
       <div>
         <div className="Font16 bold textPrimary mBottom6 valignWrapper mBottom6">
           {_l('用户')}
-          {!isLocal && (
+          {isMingdaoSaas && (
             <Support
               className="mLeft6 helpIcon hoverColorPrimary"
               type={1}
@@ -31,7 +31,7 @@ export default function UserCard(props) {
           </span>
           <span className="mLeft6 textPrimary Font13">{_l('人')}</span>
         </div>
-        {(!isTrial || isLocal) && !data.basicLoading && (
+        {(!isTrial || !isMingdaoSaas) && !data.basicLoading && (
           <div className="Font14">
             <span className="textSecondary">{_l('上限 %0 人', getValue(data.limitUserCount || 0))}</span>
             {!isFree && !_.isUndefined(data.limitUserCount) && (

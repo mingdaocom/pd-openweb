@@ -101,9 +101,11 @@ export default function CellWithPopupOperate({
       e.preventDefault();
       const columnWidth = style.width;
       const tableElement = dragRef.current && $(dragRef.current).parents('.sheetViewTable')[0];
+
       if (!tableElement) {
         return;
       }
+
       const tableId = (tableElement.className.match(/id-([\w-]+)-id/) || [])[1];
       const defaultLeft = e.clientX - tableElement.getBoundingClientRect().left;
       emitter.emit('TRIGGER_CHANGE_COLUMN_WIDTH_MASK_' + tableId, {
@@ -144,6 +146,7 @@ export default function CellWithPopupOperate({
   if (isFunction(renderColumnPopupContent) && !customPopupContent) {
     return null;
   }
+
   return (
     <Trigger
       action={['']}
@@ -158,6 +161,7 @@ export default function CellWithPopupOperate({
             if (document.querySelector('.relateRecordDropdownPopup')) {
               return;
             }
+
             if (e.nativeEvent.target?.checkVisibility?.()) {
               setPopupVisible(false);
             }

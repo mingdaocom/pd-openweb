@@ -123,6 +123,7 @@ function ChartComponent(props) {
       ].filter(_ => _),
       ...getFilledRequestParams({}),
     };
+
     if (param) {
       Object.assign(
         requestParam,
@@ -136,10 +137,12 @@ function ChartComponent(props) {
         param,
       );
     }
+
     setLoading(true);
     if (request.current && request.current.abort) {
       request.current.abort();
     }
+
     request.current = report.getData(requestParam);
     request.current.then(data => {
       data.reportId = reportId;
@@ -149,6 +152,7 @@ function ChartComponent(props) {
       if (_.isEmpty(defaultData)) {
         setDefaultData(data);
       }
+
       setLoading(false);
       onLoad && onLoad(data);
     });
@@ -166,6 +170,7 @@ function ChartComponent(props) {
       ].filter(_ => _),
       ...getFilledRequestParams({}),
     };
+
     if (param) {
       Object.assign(
         requestParam,
@@ -179,6 +184,7 @@ function ChartComponent(props) {
         param,
       );
     }
+
     setLoading(true);
     report
       .getData(requestParam)
@@ -327,16 +333,20 @@ function ChartContent(props) {
 
   useEffect(() => {
     const customPageContent = document.querySelector('#componentsWrap');
+
     if (!customPageContent) {
       setVisible(true);
       return;
     }
+
     const chart = customPageContent.querySelector(`.widgetContent .analysis-${widget.id}`);
+
     const checkVisible = () => {
       if (!chart) {
         setVisible(true);
         return;
       }
+
       if (!visible) {
         const pageRect = customPageContent.getBoundingClientRect();
         const rect = chart.getBoundingClientRect();
@@ -344,17 +354,20 @@ function ChartContent(props) {
         value && setVisible(true);
       }
     };
+
     customPageContent.addEventListener('scroll', checkVisible, false);
     checkVisible();
     if (columnWidthConfig) {
       sessionStorage.setItem(`pivotTableColumnWidthConfig-${widget.value}`, columnWidthConfig);
     }
+
     window[`refresh-${objectId}`] = () => {
       setVisible(false);
       setTimeout(() => {
         setVisible(true);
       }, 100);
     };
+
     return () => {
       customPageContent.removeEventListener('scroll', checkVisible, false);
       delete window[`refresh-${objectId}`];

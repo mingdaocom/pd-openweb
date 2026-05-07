@@ -3,9 +3,11 @@ import organizeAjax from 'src/api/organize.js';
 
 const PAGE_SIZE = 50;
 let ajaxRequest = null;
+
 export const updateProjectId = projectId => dispatch => {
   dispatch({ type: 'CHANGE_PROJECT_ID', projectId });
 };
+
 export const getRoleList =
   (isAdd, orgRoleGroupId = '') =>
   (dispatch, getState) => {
@@ -18,9 +20,11 @@ export const getRoleList =
       currentRole,
     } = getState().orgManagePage.roleManage;
     const { pageIndex } = rolePageInfo;
+
     if (ajaxRequest && ajaxRequest.abort) {
       ajaxRequest.abort();
     }
+
     ajaxRequest = organizeAjax.getOrganizes({
       pageIndex: pageIndex || 1,
       pageSize: PAGE_SIZE,
@@ -54,27 +58,34 @@ export const getRoleList =
       }
     });
   };
+
 export const updateRoleList = list => dispatch => {
   dispatch({ type: 'UPDATE_ROLE_LIST_DATA', roleList: list });
 };
+
 export const updateRolePageInfo = data => dispatch => {
   dispatch({ type: 'UPDATE_ROLE_PAGE_INFO', data });
 };
+
 export const updateCurrentRole = currentRole => dispatch => {
   if (!currentRole.organizeId) {
     updateUserPageIndex(1);
     dispatch({ type: 'UPDATE_USER_LIST', userList: [] });
     dispatch({ type: 'UPDATE_USER_COUNT', allUserCount: 0 });
   }
+
   dispatch({ type: 'UPDATE_CURRENT_ROLE', currentRole });
 };
+
 export const updateSearchValue = searchValue => dispatch => {
   dispatch({ type: 'UPDATE_SEARCH_VALUE', searchValue });
   dispatch({ type: 'UPDATE_ROLE_PAGE_INFO', data: { pageIndex: 1, isMore: false } });
 };
+
 export const updateUserPageIndex = userPageIndex => dispatch => {
   dispatch({ type: 'UPDATE_USER_PAGE_INDEX', userPageIndex });
 };
+
 export const getUserList = params => (dispatch, getState) => {
   const { roleId } = params || {};
   const { projectId, userPageIndex } = getState().orgManagePage.roleManage;
@@ -94,15 +105,19 @@ export const getUserList = params => (dispatch, getState) => {
       dispatch({ type: 'UPDATE_USER_COUNT', allUserCount: allCount });
     });
 };
+
 export const updateUserLoading = userLoading => dispatch => {
   dispatch({ type: 'UPDATE_USER_LOADING', userLoading });
 };
+
 export const updateSelectUserIds = selectUserIds => dispatch => {
   dispatch({ type: 'UPDATE_SELECT_USER_IDS', selectUserIds });
 };
+
 export const updateIsImportRole = data => dispatch => {
   dispatch({ type: 'UPDATE_IS_IMPORT_ROLE', data });
 };
+
 export const updateIsRequestList = data => dispatch => {
   dispatch({ type: 'UPDATE_IS_REQUEST_LIST', data });
 };

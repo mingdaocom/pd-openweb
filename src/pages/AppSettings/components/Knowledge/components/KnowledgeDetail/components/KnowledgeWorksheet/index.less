@@ -1,0 +1,240 @@
+.KnowledgeDetailContainer {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  .KnowledgeDetailHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    .left {
+      flex: 1;
+      overflow: hidden;
+      .knowledgeInfo {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        .icon-backspace {
+          font-size: 22px;
+          color: var(--color-text-tertiary);
+          cursor: pointer;
+        }
+        .knowledgeName {
+          max-width: 500px;
+          font-size: 18px;
+          font-weight: 700;
+          color: var(--color-text-primary);
+          white-space: nowrap;
+        }
+        .knowledgeDesc {
+          font-size: 16px;
+          color: var(--color-text-tertiary);
+        }
+        .totalChunkCount {
+          font-size: 13px;
+          color: var(--color-text-secondary);
+        }
+      }
+    }
+    .right {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      .retrieveBtn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 12px;
+        min-width: 116px;
+        height: 36px;
+        border-radius: 36px;
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--color-primary);
+        border: 1px solid var(--color-primary);
+        cursor: pointer;
+        &:hover {
+          background-color: var(--color-primary);
+          color: var(--color-white);
+        }
+        .icon {
+          margin-right: 10px;
+          font-size: 18px;
+        }
+      }
+    }
+  }
+  .KnowledgeDetailContent {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    margin-top: 20px;
+    .emptyPlaceholder {
+      font-size: 13px;
+      color: var(--color-text-secondary);
+    }
+    .worksheetName {
+      flex: 2;
+      display: flex;
+      flex-wrap: wrap;
+      word-break: break-all;
+    }
+    .fields {
+      flex: 4;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      .fieldItem {
+        display: flex;
+        align-items: center;
+        padding: 3px 6px;
+        max-width: 250px;
+        height: 24px;
+        border-radius: 3px;
+        font-size: 13px;
+        color: var(--color-text-secondary);
+        background-color: var(--color-background-tertiary);
+        .icon {
+          margin-right: 4px;
+          font-size: 14px;
+          color: var(--color-text-secondary);
+        }
+      }
+    }
+    .dataFilter {
+      margin-right: 30px;
+      width: 60px;
+      .icon {
+        margin-right: 4px;
+        font-size: 13px;
+        color: var(--color-text-disabled);
+      }
+      &.active {
+        color: var(--color-text-primary);
+        .icon {
+          color: var(--color-link);
+        }
+      }
+    }
+    .parseEnhance {
+      width: 70px;
+      color: var(--color-text-secondary);
+      .icon {
+        margin-right: 4px;
+        font-size: 14px;
+        color: var(--color-text-disabled);
+      }
+      &.active {
+        color: var(--color-text-primary);
+        .icon {
+          color: var(--color-mingo);
+        }
+      }
+    }
+    .attachmentParseEnhanced {
+      width: 100px;
+      color: var(--color-text-secondary);
+      .icon {
+        margin-right: 4px;
+      }
+      &.active {
+        color: var(--color-text-primary);
+        .icon {
+          color: var(--color-mingo);
+        }
+      }
+    }
+    .updateInfo {
+      margin-right: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 180px;
+      word-break: break-all;
+    }
+    .status {
+      width: 120px;
+    }
+    .action {
+      width: 40px;
+      .moreIconWrap {
+        padding: 4px;
+        margin-left: 8px;
+        cursor: pointer;
+        color: var(--color-text-secondary);
+        .moreIcon {
+          font-size: 16px;
+        }
+      }
+    }
+    .contentHeader,
+    .worksheetItem {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .contentHeader {
+      padding: 8px 10px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--color-text-secondary);
+      border-bottom: 1px solid var(--color-border-primary);
+    }
+    .contentBox {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      margin: 0 -40px;
+      .contentBody {
+        padding: 0 40px;
+      }
+    }
+    .worksheetItem {
+      padding: 16px 10px;
+      font-size: 13px;
+      border-bottom: 1px solid var(--color-border-secondary);
+      cursor: pointer;
+      &:hover {
+        background-color: var(--color-background-secondary);
+      }
+    }
+  }
+}
+
+.updateCollectionScope {
+  min-height: 400px;
+  .addCollectionInfo {
+    margin-bottom: 20px;
+    font-size: 13px;
+    color: var(--color-text-tertiary);
+    .link {
+      color: var(--color-primary);
+      cursor: pointer;
+      &:hover {
+        color: var(--color-primary-dark);
+      }
+    }
+  }
+}
+
+.collectionScope {
+  margin-top: 10px;
+  height: 100px;
+  font-size: 13px;
+  .collectionScopeSwitch {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+    .switchText {
+      font-weight: 700;
+      color: var(--color-text-primary);
+    }
+  }
+}
+
+.deleteKnowledge {
+  margin-bottom: 20px;
+  color: var(--color-text-primary);
+}

@@ -141,6 +141,7 @@ const Embed = props => {
   const setValue = () => {
     const { enumDefault, value, formData, recordId } = latestProps.current;
     const _resultData = latestResultData.current;
+
     if (enumDefault === 1) {
       if (value && value !== _resultData) {
         setState({ resultData: value });

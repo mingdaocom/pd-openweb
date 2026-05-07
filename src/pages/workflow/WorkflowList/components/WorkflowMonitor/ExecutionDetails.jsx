@@ -40,6 +40,7 @@ export default class ExecutionDetails extends Component {
       .then(res => {
         if (res) {
           let copyDetailList = [];
+
           if (isPause) {
             copyDetailList = detailList.map(item => {
               if (_.includes(checkedIds, item.id)) {
@@ -52,6 +53,7 @@ export default class ExecutionDetails extends Component {
                     .format('YYYY-MM-DD HH:mm:ss'),
                 };
               }
+
               return item;
             });
           } else {
@@ -59,9 +61,11 @@ export default class ExecutionDetails extends Component {
               if (_.includes(checkedIds, item.id)) {
                 return { ...item, waiting: false };
               }
+
               return item;
             });
           }
+
           alert(_l('操作成功'));
           this.setState({ checkedIds: [], detailList: copyDetailList });
         } else {
@@ -123,6 +127,7 @@ export default class ExecutionDetails extends Component {
       .map(t => Number(t))
       .filter(v => v !== item.routerIndex);
     const routerIndex = isSingle ? (temp.length ? Number(temp[0]) : item.routerIndex) : Number(item);
+
     if (isSingle) {
       params = {
         hours: item.hours,
@@ -136,6 +141,7 @@ export default class ExecutionDetails extends Component {
         routerIndex,
       };
     }
+
     flowMonitor.updateRouterIndex(params).then(res => {
       if (res) {
         let copyDetailList = this.props.detailList.map(it => {
@@ -245,6 +251,7 @@ export default class ExecutionDetails extends Component {
   renderListContent = () => {
     let { checkedIds = [], routerList = {}, queueTime } = this.state;
     const { detailList, loading, pageIndex, showHistoryDetail } = this.props;
+
     if (loading && pageIndex === 1 && _.isEmpty(detailList)) {
       return <LoadDiv className="mTop15" size="small" />;
     }
@@ -259,6 +266,7 @@ export default class ExecutionDetails extends Component {
         </div>
       );
     }
+
     return (
       <Fragment>
         {detailList.map((item, index) => {
@@ -356,6 +364,7 @@ export default class ExecutionDetails extends Component {
                                   }
                                 }
                               }
+
                               this.setState({ queueTime: tempQueueTime });
                             });
                         }}
@@ -447,9 +456,11 @@ export default class ExecutionDetails extends Component {
     const { dateStr } = this.props;
     let dayStr = _l('昨天'),
       time = moment(dateStr).format('HH:mm');
+
     if (moment(dateStr).get('date') === moment().get('date')) {
       dayStr = _l('今天');
     }
+
     return <span>{_l(`正在查看历史执行详情（${dayStr} ${time}），本月新增与本月消费为截至此时的累计值`)}</span>;
   };
 

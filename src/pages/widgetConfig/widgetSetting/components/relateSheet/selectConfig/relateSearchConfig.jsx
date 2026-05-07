@@ -105,6 +105,7 @@ export default function RelateSearchConfig(props) {
 
   const handleDelete = id => {
     const index = searchfilters.findIndex(item => item.controlId === id);
+
     if (index > -1) {
       const newValue = update(searchfilters, { $splice: [[index, 1]] });
       handleChange(
@@ -233,6 +234,7 @@ export default function RelateSearchConfig(props) {
                     );
                     return;
                   }
+
                   handleChange(handleAdvancedSettingChange(data, { fastfilterstype: value, fastfiltersview: '' }));
                 }}
               />

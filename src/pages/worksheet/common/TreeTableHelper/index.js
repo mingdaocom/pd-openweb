@@ -21,9 +21,11 @@ export function getSheetViewRows(sheetViewData = {}, treeTableViewData = {}) {
           if (!row) {
             return false;
           }
+
           if (_.intersection(get(treeMap, `${row.key}.parentKeys`), foldedList).length) {
             return false;
           }
+
           return true;
         })
     : rows;
@@ -32,10 +34,12 @@ export function getSheetViewRows(sheetViewData = {}, treeTableViewData = {}) {
 export function getTreeExpandCellWidth(index, rowsLength) {
   rowsLength = rowsLength || 1;
   let strLength = String(rowsLength).length;
+
   if (strLength < 2) {
     strLength = 2;
   }
-  return index * (strLength * 14) + 34;
+
+  return index * (strLength * 14) + 27;
 }
 
 export function treeDataUpdater(
@@ -54,6 +58,7 @@ export function treeDataUpdater(
   } = {},
 ) {
   let maxLevel = defaultIndex;
+
   function parseChildren(
     row,
     { index, parentKeys, keyPrefix = '', defaultLevelList = [], notSetKey = false, doNotContinue, hideExpand },
@@ -76,11 +81,14 @@ export function treeDataUpdater(
         });
       });
     }
+
     const childrenIds = _.uniq(safeParse(row.childrenids, 'array').concat(filteredRows.map(r => r.rowid)));
+
     if (!notSetKey) {
       if (typeof pageIndexStart === 'number' && defaultLevelList.length) {
         defaultLevelList[0] = pageIndexStart + defaultLevelList[0];
       }
+
       treeMap[key] = {
         index,
         rowid: row.rowid,
@@ -94,6 +102,7 @@ export function treeDataUpdater(
       };
     }
   }
+
   rootRows.forEach((row, i) => {
     parseChildren(row, {
       index: defaultIndex,
@@ -196,10 +205,12 @@ export const handleUpdateTreeNodeExpansion =
     const treeMapKey = row.key;
     let { folded, loaded = false, loading = false } = treeMap[treeMapKey] || {};
     let needDeleteKeys = {};
+
     if (forceUpdate) {
       loaded = false;
       folded = true;
     }
+
     if (loaded) {
       dispatch({
         type: 'UPDATED_TREE_NODE_EXPANSION',
@@ -223,6 +234,7 @@ export const handleUpdateTreeNodeExpansion =
       const newChildrenIds = isAddsSubTree
         ? row.childrenids
         : JSON.stringify(_.uniq(safeParse(row.childrenids, 'array').concat(childRows.map(r => r.rowid))));
+
       if (forceUpdate) {
         (updateRows([recordId], {
           childrenids: newChildrenIds,
@@ -233,6 +245,7 @@ export const handleUpdateTreeNodeExpansion =
             }
           }));
       }
+
       const currentTreeNode = treeMap[treeMapKey] || {};
       const treeDataUpdaterResult = isAddsSubTree
         ? treeDataUpdater({}, { rootRows: newRows.filter(r => !r.pid), rows: newRows })
@@ -296,6 +309,7 @@ export const handleUpdateTreeNodeExpansion =
 
 export function handleTreeNodeRow(row, deletedRecordId) {
   let newChildrenIds;
+
   if (typeof deletedRecordId === 'object') {
     row.childrenids && intersection(safeParse(row.childrenids, 'array'), deletedRecordId).length
       ? JSON.stringify(difference(safeParse(row.childrenids, 'array'), deletedRecordId))
@@ -306,6 +320,7 @@ export function handleTreeNodeRow(row, deletedRecordId) {
         ? JSON.stringify(safeParse(row.childrenids, 'array').filter(id => id !== deletedRecordId))
         : row.childrenids;
   }
+
   return {
     ...row,
     pid: deletedRecordId === row.pid ? '' : row.pid,

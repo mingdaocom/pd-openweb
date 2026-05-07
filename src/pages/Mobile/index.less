@@ -4,6 +4,7 @@ body {
   height: 100%;
   padding-bottom: calc(~'constant(safe-area-inset-bottom) - 20px');
   padding-bottom: calc(~'env(safe-area-inset-bottom) - 20px');
+  background: var(--color-background-secondary) !important;
 }
 
 :root:root {
@@ -126,6 +127,7 @@ input::placeholder {
   .adm-popup-body-position-bottom {
     padding-bottom: calc(~'constant(safe-area-inset-bottom) - 20px') !important;
     padding-bottom: calc(~'env(safe-area-inset-bottom) - 20px') !important;
+    background-color: var(--color-background-card);
   }
   .header {
     justify-content: space-between;
@@ -139,6 +141,12 @@ input::placeholder {
       display: flex;
       align-items: center;
       justify-content: center;
+    }
+  }
+  &.RecordInfoModal,
+  &.processRecordInfoModal {
+    .adm-popup-body-position-bottom {
+      background-color: var(--color-background-primary) !important;
     }
   }
 }
@@ -166,4 +174,9 @@ input::placeholder {
       word-break: break-word;
     }
   }
+}
+
+// 取消等按钮背景色与页面背景色一致
+.adm-button-default {
+  background-color: transparent !important;
 }

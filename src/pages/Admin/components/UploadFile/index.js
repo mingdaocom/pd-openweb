@@ -45,6 +45,7 @@ export default class UploadFile extends Component {
             up.removeFile(file);
             return false;
           }
+
           // 开始上传
           isUploading = true;
         },

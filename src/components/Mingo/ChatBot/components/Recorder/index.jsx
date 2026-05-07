@@ -75,14 +75,17 @@ const RecorderContent = styled.div`
 
 export function getRecorderAuthConfig() {
   const authConfig = localStorage.getItem('RECORDER_AUTH_CONFIG');
+
   if (authConfig) {
     const authConfigObj = safeParse(authConfig);
+
     if (authConfigObj.expiredTime > Date.now()) {
       return Promise.resolve(authConfigObj);
     } else {
       localStorage.removeItem('RECORDER_AUTH_CONFIG');
     }
   }
+
   return mingoAjax
     .getFederationToken()
     .then(data => {
@@ -129,6 +132,7 @@ const Recorder = forwardRef(({ onRecognize = () => {}, onStart = () => {}, onSto
     if (!_.isEmpty(authConfig)) {
       return;
     }
+
     getRecorderAuthConfig()
       .then(data => {
         setAuthConfig(data);

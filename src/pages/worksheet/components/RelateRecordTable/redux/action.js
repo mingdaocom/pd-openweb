@@ -48,6 +48,7 @@ export function updateTreeNodeExpansion(row = {}, { expandAll, forceUpdate, getN
     const allRecords = recordId ? records.concat(addedRecords) : records;
     const { treeMap, maxLevel } = treeTableViewData;
     let controlIdForGetRelationRows;
+
     try {
       controlIdForGetRelationRows = control.relationControls.filter(
         c => c.sourceControlId === control.advancedSetting.layercontrolid,
@@ -92,9 +93,11 @@ export const updateTreeTableViewData =
   (dispatch, getState) => {
     const { base, changes = {}, records } = getState();
     const { addedRecords = [] } = changes;
+
     if (!base.isTreeTableView) {
       return;
     }
+
     const allRecords = base.recordId ? records.concat(addedRecords) : records;
     const { treeMap, maxLevel } = treeDataUpdater(
       {},
@@ -118,9 +121,11 @@ export function loadRecords({ pageIndex, pageSize, keywords, getRules, getWorksh
     if (!isTab) {
       pageSize = 30;
     }
+
     if (direction === 'vertical') {
       pageSize = 50;
     }
+
     keywords = !isUndefined(keywords) ? keywords : tableState.keywords;
     dispatch({
       type: 'UPDATE_TABLE_STATE',
@@ -145,6 +150,7 @@ export function loadRecords({ pageIndex, pageSize, keywords, getRules, getWorksh
       workId,
       ...args,
     });
+
     if (res.resultCode !== 1) {
       dispatch({
         type: 'UPDATE_TABLE_STATE',
@@ -152,6 +158,7 @@ export function loadRecords({ pageIndex, pageSize, keywords, getRules, getWorksh
       });
       return;
     }
+
     const records =
       !base.isTab && recordId
         ? res.data.filter(r => !includes(deletedRecordIds.concat(addedRecords), r.rowid))
@@ -202,6 +209,7 @@ export function updatePageSize(pageSize) {
     dispatch(loadRecords({ pageIndex: 1, pageSize }));
   };
 }
+
 function getTableConfigFromControl(control, { allowEdit, relateWorksheetInfo, recordId } = {}) {
   const controlPermission = controlState(control, recordId ? 3 : 2);
   const allowRemoveRelation =
@@ -209,11 +217,13 @@ function getTableConfigFromControl(control, { allowEdit, relateWorksheetInfo, re
   const [isHiddenOtherViewRecord, , onlyRelateByScanCode] = (control.strDefault || '').split('').map(b => !!+b);
   const disabledManualWrite = onlyRelateByScanCode && control.advancedSetting.dismanual === '1';
   let fixedColumnCount;
+
   if (typeof control.advancedSetting.freezeids !== 'undefined') {
     fixedColumnCount = Number(safeParse(control.advancedSetting.freezeids, 'array')[0] || '0');
   } else if (typeof control.advancedSetting.fixedcolumncount !== 'undefined') {
     fixedColumnCount = Number(control.advancedSetting.fixedcolumncount) || 0;
   }
+
   const showNumber = control.advancedSetting.hidenumber !== '1';
   const editable = !control.disabled && allowEdit && controlPermission.editable;
   const addVisible =
@@ -257,9 +267,11 @@ export function updateTableConfigByControl(control) {
     const state = getState();
     const { base = {} } = state;
     const { from, allowEdit, relateWorksheetInfo, recordId } = base;
+
     if (typeof control === 'undefined') {
       control = base.control;
     }
+
     if (!control) return;
     const tableConfig = getTableConfigFromControl(control, { from, allowEdit, relateWorksheetInfo, recordId });
     dispatch({
@@ -291,14 +303,18 @@ export function init() {
     const isTab = [String(RELATE_RECORD_SHOW_TYPE.LIST), String(RELATE_RECORD_SHOW_TYPE.TAB_TABLE)].includes(
       get(control, 'advancedSetting.showtype'),
     );
+
     if (!isTab) {
       pageSize = 30;
     }
+
     if (direction === 'vertical') {
       pageSize = 50;
     }
+
     const isNewRecord = !recordId;
     let relateWorksheetInfo;
+
     if (isNewRecord || control.type === 51) {
       relateWorksheetInfo = await worksheetAjax
         .getWorksheetInfo({
@@ -351,8 +367,10 @@ export function init() {
         });
         return;
       }
+
       relateWorksheetInfo = res.worksheet;
       const { addedRecordIds, deletedRecordIds, isDeleteAll } = get(getState(), 'changes');
+
       if (isEmpty(addedRecordIds) && isEmpty(deletedRecordIds) && !isDeleteAll) {
         dispatch({
           type: 'UPDATE_RECORDS',
@@ -380,12 +398,14 @@ export function init() {
             value: { maxLevel, treeMap },
           });
         }
+
         dispatch({
           type: 'UPDATE_TABLE_STATE',
           value: { count: res.count, pageSize },
         });
       }
     }
+
     const translateInfo = getTranslateInfo(base.appId, null, relateWorksheetInfo.worksheetId);
     relateWorksheetInfo.entityName = translateInfo.recordName || relateWorksheetInfo.entityName;
     relateWorksheetInfo.advancedSetting = replaceAdvancedSettingTranslateInfo(
@@ -400,6 +420,7 @@ export function init() {
         relateWorksheetInfo.template.controls,
       );
     }
+
     const sheetSwitchPermit = await worksheetAjax.getSwitchPermit({ worksheetId: control.dataSource });
     const sheetQuery = await worksheetAjax.getQueryBySheetId({ worksheetId: control.dataSource });
     const searchConfig = formatSearchConfigs(sheetQuery);
@@ -427,6 +448,7 @@ export function init() {
     if (control.type === 51) {
       dispatch(updateFilter());
     }
+
     dispatch({
       type: 'UPDATE_TABLE_STATE',
       value: { fixedColumnCount: tableConfig.fixedColumnCount },
@@ -473,6 +495,7 @@ export function refresh({ doNotResetPageIndex, doNotClearKeywords } = {}) {
         return;
       }
     }
+
     dispatch(loadRecords(doNotResetPageIndex ? { pageIndex } : {}));
   };
 }
@@ -493,6 +516,7 @@ export function updateRecord(newRecord) {
     newRecord,
   };
 }
+
 export function updateRecordByRecordId(recordId, changes = {}) {
   return {
     type: 'UPDATE_RECORD_BY_RECORD_ID',
@@ -541,6 +565,7 @@ export function updateCell({ cell, row }, options = {}) {
     const state = getState();
     const { base = {}, controls } = state;
     const { relateWorksheetInfo, searchConfig } = base;
+
     function handleUpdateCell(cells) {
       updateRecordControl({
         appId: relateWorksheetInfo.appId,
@@ -553,8 +578,10 @@ export function updateCell({ cell, row }, options = {}) {
         if (isFunction(options.updateSuccessCb)) {
           options.updateSuccessCb(updatedRow);
         }
+
         // 处理新增自定义选项
         const updatedControl = find(controls, { controlId: cell.controlId });
+
         if (
           updatedControl &&
           includes([WIDGETS_TO_API_TYPE_ENUM.MULTI_SELECT, WIDGETS_TO_API_TYPE_ENUM.DROP_DOWN], cell.type) &&
@@ -573,6 +600,7 @@ export function updateCell({ cell, row }, options = {}) {
             ),
           });
         }
+
         dispatch(updateRecord({ ...updatedRow, allowedit: true, allowdelete: true }));
       });
     }
@@ -586,6 +614,7 @@ export function updateCell({ cell, row }, options = {}) {
       rules: relateWorksheetInfo.rules || [],
       onAsyncChange: changes => {
         let needUpdateCells = [];
+
         if (!isEmpty(changes.controlIds)) {
           changes.controlIds.forEach(cid => {
             needUpdateCells.push({
@@ -597,14 +626,18 @@ export function updateCell({ cell, row }, options = {}) {
           const control = _.find(get(relateWorksheetInfo, 'template.controls') || controls, {
             controlId: changes.controlId,
           });
+
           if (control && control.type === 34) {
             return;
           }
+
           if (changes.value === 'deleteRowIds: all') {
             changes.value = '';
           }
+
           needUpdateCells.push(changes);
         }
+
         handleUpdateCell(needUpdateCells);
       },
     });
@@ -672,6 +705,7 @@ export function getDefaultRelatedSheetValue(formData = [], recordId) {
     }),
   };
 }
+
 export function handleRecreateRecord(record, { openRecord = () => {}, isDraft } = {}) {
   return (dispatch, getState) => {
     const state = getState();
@@ -720,6 +754,7 @@ export function handleSaveSheetLayout({ updateWorksheetControls, columns, column
     const { worksheetId } = base;
     const { sheetColumnWidths, fixedColumnCount, sheetHiddenColumnIds } = tableState;
     const newControl = omit(base.control, ['relationControls']);
+
     if (!isEmpty(sheetColumnWidths)) {
       const newWidths = JSON.stringify(
         pick(
@@ -729,13 +764,16 @@ export function handleSaveSheetLayout({ updateWorksheetControls, columns, column
       );
       newControl.advancedSetting.widths = newWidths;
     }
+
     if (!isUndefined(fixedColumnCount)) {
       newControl.advancedSetting.freezeids = JSON.stringify([String(fixedColumnCount)]);
       delete newControl.advancedSetting['fixedcolumncount'];
     }
+
     if (!isEmpty(sheetHiddenColumnIds)) {
       newControl.showControls = newControl.showControls.filter(id => !includes(sheetHiddenColumnIds, id));
     }
+
     // 筛选条件保存时values处理一下;
     if (get(newControl, 'advancedSetting.resultfilters')) {
       const tempResultFilters = safeParse(get(newControl, 'advancedSetting.resultfilters'), 'array');
@@ -743,6 +781,7 @@ export function handleSaveSheetLayout({ updateWorksheetControls, columns, column
         ? ''
         : JSON.stringify(tempResultFilters.map(formatValuesOfCondition));
     }
+
     worksheetAjax
       .editWorksheetControls({
         worksheetId,
@@ -752,6 +791,7 @@ export function handleSaveSheetLayout({ updateWorksheetControls, columns, column
         if (isFunction(updateWorksheetControls)) {
           updateWorksheetControls([omit(newControl, ['value', 'store'])]);
         }
+
         dispatch(updateTableState({ layoutChanged: false }));
       });
   };
@@ -761,9 +801,11 @@ export function handleRemoveRelation(recordIds) {
   return async (dispatch, getState) => {
     const { base = {}, records = [] } = getState();
     const { from, saveSync, recordId, appId, viewId, worksheetId, control, instanceId, workId } = base;
+
     if (recordIds && !isArray(recordIds)) {
       recordIds = [recordIds];
     }
+
     if (recordId && saveSync) {
       try {
         await updateRelateRecords({
@@ -787,6 +829,7 @@ export function handleRemoveRelation(recordIds) {
     } else {
       dispatch(deleteRecords(recordIds));
     }
+
     dispatch({
       type: 'UPDATE_TABLE_STATE',
       value: {
@@ -802,9 +845,11 @@ export function handleAddRelation(records) {
   return async (dispatch, getState) => {
     const { base = {} } = getState();
     const { from, saveSync, recordId, appId, viewId, worksheetId, control, instanceId, workId } = base;
+
     if (records && !isArray(records)) {
       records = [records];
     }
+
     if (recordId && saveSync) {
       try {
         await updateRelateRecords({
@@ -841,10 +886,12 @@ export function deleteOriginalRecords({ recordIds = [] } = {}) {
       const selectedRow = find(records, { rowid: rowId });
       return selectedRow && selectedRow.allowdelete;
     });
+
     if (!allowDeleteRowIds.length) {
       alert(_l('没有有权限删除的记录'), 3);
       return;
     }
+
     deleteRecord({
       worksheetId: get(relateWorksheetInfo, 'worksheetId'),
       recordIds: allowDeleteRowIds,
@@ -854,6 +901,7 @@ export function deleteOriginalRecords({ recordIds = [] } = {}) {
         if (allowDeleteRowIds.length < recordIds.length) {
           alert(_l('存在无权限删除的记录，有权限的已删除'), 3);
         }
+
         dispatch(
           updateTableState({
             selectedRowIds: [],
@@ -902,16 +950,20 @@ export function batchUpdateRecords({ selectedRowIds = [], records = [], activeCo
     const state = getState();
     const { isCharge, base = {}, controls } = state;
     const { control, relateWorksheetInfo } = base;
+
     if (!selectedRowIds.length) {
       return;
     }
+
     const selectedRows = selectedRowIds
       .map(rowId => find(records, { rowid: rowId }))
       .filter(_.identity)
       .filter(row => row.allowedit);
+
     if (!selectedRows.length) {
       return;
     }
+
     const columns = getVisibleControls(control, controls);
     batchEditRecord({
       appId: relateWorksheetInfo.appId,

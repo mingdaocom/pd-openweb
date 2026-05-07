@@ -30,6 +30,7 @@ const Item = data => {
     } else {
       $ref.current.value = '';
     }
+
     if (fieldId && $refFieldId.current) {
       $refFieldId.current.value = fieldId;
     }
@@ -63,9 +64,11 @@ const Item = data => {
         placeholder={_l('请输入')}
         onBlur={e => {
           let value = e.target.value.trim();
+
           if (controlName !== value) {
             onEdit({ controlName: value }, num);
           }
+
           e.stopPropagation();
         }}
         manualRef={ref => {
@@ -83,17 +86,20 @@ const Item = data => {
           }}
           onBlur={e => {
             let newFieldId = e.target.value.trim();
+
             if (list.find((o, n) => o.fieldId === newFieldId && n !== num)) {
               $refFieldId.current.value = fieldId;
               alert(_l('变量id重复'), 3);
               return;
             }
+
             if (!newFieldId) {
               $refFieldId.current.value = fieldId;
               // alert(_l('变量id必填'), 3);
             } else {
               onEdit({ fieldId: newFieldId }, num);
             }
+
             e.stopPropagation();
           }}
         />
@@ -137,4 +143,5 @@ function SettingList(props) {
     />
   );
 }
+
 export default errorBoundary(SettingList);

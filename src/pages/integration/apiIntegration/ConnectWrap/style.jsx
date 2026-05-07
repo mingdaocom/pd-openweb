@@ -60,7 +60,7 @@ export const ConnetWrap = styled.div`
     .node {
     }
     padding: 20px 20px 0 37px;
-    border-bottom: 1px solid rgb(235, 235, 235);
+    border-bottom: 1px solid var(--color-border-primary);
     background: var(--color-background-primary);
     .logo {
       width: 64px;

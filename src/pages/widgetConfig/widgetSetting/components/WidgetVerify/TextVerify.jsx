@@ -216,10 +216,12 @@ export default function TextVerify(props) {
     } else {
       setData({});
     }
+
     setTestValue('');
   }, [activeIndex]);
 
   let reg;
+
   try {
     reg = new RegExp(itemData.value);
   } catch (error) {
@@ -375,6 +377,7 @@ export default function TextVerify(props) {
               setData({});
               return;
             }
+
             setIndex(0);
           }}
           text={data.type === 14 ? _l('验证文件名') : _l('限定输入格式')}

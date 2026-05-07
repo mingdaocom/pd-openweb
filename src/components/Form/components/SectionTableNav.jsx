@@ -6,6 +6,7 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Icon, SvgIcon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
+import { getTitleStyle } from 'src/pages/widgetConfig/util/setting';
 
 const Con = styled.div`
   display: flex;
@@ -57,6 +58,10 @@ const Tab = styled.div`
     background-color: var(--color-primary);
     bottom: 0px;
   }
+  .tabName {
+    ${props => props.titleColor && `color: ${props.titleColor};`};
+    ${props => props.titleStyle && `${props.titleStyle};`};
+  }
 `;
 const Num = styled.div`
   display: inline-block;
@@ -98,6 +103,7 @@ export function renderTabs(props) {
 
     if (_.includes([51, 52], control.type)) {
       const icon = _.get(control, 'advancedSetting.icon');
+
       if (!icon) {
         const defaultIcon = control.type === 51 ? 'Worksheet_query' : 'subheader';
         return (
@@ -106,6 +112,7 @@ export function renderTabs(props) {
           </IconCon>
         );
       }
+
       iconUrl = safeParse(icon).iconUrl;
     }
 
@@ -132,13 +139,18 @@ export function renderTabs(props) {
           !_.isNaN(Number(control.value)) &&
           Number(control.value) !== 0;
         let num = control.value || 0;
+
         if (control.type === 29 && control.store && !control.store.getState().loading) {
           num = control.store.getState().tableState.count;
         }
+
+        const titleStyle = getTitleStyle(control.advancedSetting.titlestyle);
         return (
           <Tooltip placement="right" title={!showTip ? '' : control.controlName}>
             <Tab
               key={i}
+              titleStyle={titleStyle}
+              titleColor={control.advancedSetting.titlecolor}
               title={control.controlName}
               className={cx('ellipsis sectionTabItem', activeControlId === control.controlId ? 'active' : '')}
               onClick={() => {
@@ -148,7 +160,7 @@ export function renderTabs(props) {
               }}
             >
               {renderIcon(control)}
-              <span className="ellipsis">{control.controlName}</span>
+              <span className="ellipsis tabName">{control.controlName}</span>
               {showNum && !!num && <Num>{isFixedLeft ? num : `（${num}）`}</Num>}
             </Tab>
           </Tooltip>
@@ -165,20 +177,25 @@ export default function SectionTableNav(props) {
   const [scrollWidth = 0, setScrollWidth] = useState();
   const [scrollBtnVisible, setScrollBtnVisible] = useState();
   const [scrollLeft, setScrollLeft] = useState(0);
+
   function scroll(type) {
     let newScrollLeft;
     const stepWidth = clientWidth / 2;
+
     if (type === 'prev') {
       newScrollLeft = scrollLeft - stepWidth < 0 ? 0 : scrollLeft - stepWidth;
     } else {
       newScrollLeft =
         scrollLeft + stepWidth > scrollWidth - clientWidth ? scrollWidth - clientWidth : scrollLeft + stepWidth;
     }
+
     setScrollLeft(newScrollLeft);
   }
+
   useEffect(() => {
     // setScrollWidth(tabConRef.current.scrollWidth);
     const newScrollWidth = _.sum([...tabConRef.current.children].map(a => a.offsetWidth));
+
     if (newScrollWidth) {
       setScrollWidth(newScrollWidth);
       if (tabConRef.current.clientWidth < newScrollWidth) {

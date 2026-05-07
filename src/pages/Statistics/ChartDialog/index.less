@@ -16,7 +16,7 @@
     box-sizing: border-box;
     padding: 0 24px !important;
     border-radius: 0 !important;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.24);
+    box-shadow: var(--shadow-md);
     position: relative;
     z-index: 9;
 
@@ -43,14 +43,15 @@
   .buttonSave {
     font-weight: bold;
     width: 72px !important;
+    border-color: var(--color-primary);
+    background-color: var(--color-primary);
     &:hover,
     &:focus {
-      color: var(--color-white);
-      background: var(--color-primary-focus);
-      border-color: var(--color-primary-focus);
+      background: var(--color-primary-light);
+      border-color: var(--color-primary-light);
     }
     .MdLoader-path {
-      stroke: #fff;
+      stroke: var(--color-white);
     }
   }
 
@@ -128,6 +129,7 @@
       segoe ui symbol;
   }
   .g2-tooltip {
+    background-color: var(--color-background-card) !important;
     .g2-tooltip-list {
       padding-bottom: 5px !important;
     }
@@ -184,7 +186,7 @@
           color: var(--color-primary);
           border: 1px solid var(--color-primary);
           border-radius: 3px;
-          background-color: var(--color-background-primary);
+          background-color: var(--color-background-card);
         }
       }
     }

@@ -2,7 +2,7 @@
 .DS_Store
 #ignore thumbnails created by windows
 Thumbs.db
-
+.env
 *.orig
 *.BASE
 *.LOCAL

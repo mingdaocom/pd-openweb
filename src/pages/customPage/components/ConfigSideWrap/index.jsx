@@ -15,6 +15,7 @@ const SideWrapper = styled(SideWrap)`
     position: absolute;
     header {
       padding: 0 24px 0 24px;
+      box-shadow: none;
     }
     .mask {
       background-color: transparent !important;
@@ -231,7 +232,10 @@ const Wrap = styled.div`
 export const defaultConfig = {
   pageStyleType: 'light',
   pageBgColor: '#f5f6f7',
-  chartColor: '',
+  chartColor: {
+    colorGroupId: 'adaptThemeColor',
+    colorType: 1,
+  },
   chartColorIndex: 1,
   numberChartColor: '',
   numberChartColorIndex: 1,
@@ -263,9 +267,11 @@ export default props => {
         ...data,
       },
     };
+
     if (data.autoLinkage === false) {
       params.linkageFiltersGroup = {};
     }
+
     updatePageInfo(params);
   };
 

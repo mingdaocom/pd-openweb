@@ -11,6 +11,7 @@ import moment from 'moment';
 import { Icon } from 'ming-ui';
 import { RecordInfoModal } from 'mobile/Record';
 import * as actions from 'mobile/RecordList/redux/actions';
+import { RECORD_COLOR_SHOW_TYPE } from 'worksheet/constants/enum';
 import { getAdvanceSetting } from 'src/utils/control';
 import RegExpValidator from 'src/utils/expression';
 import { handlePushState, handleReplaceState } from 'src/utils/project';
@@ -60,6 +61,7 @@ const Calendar = memo(
     const { unweekday = '' } = calendarData;
     const { weekbegin, showall = '0', unlunar, hour24 = '0' } = getAdvanceSetting(props.view);
     const weekBegin = weekbegin ? Number(weekbegin) % 7 : 1;
+    const colortype = getAdvanceSetting(props.view).colortype || RECORD_COLOR_SHOW_TYPE.BG;
 
     const calendarRef = useRef(null);
     const lastRangeRef = useRef('');
@@ -124,6 +126,7 @@ const Calendar = memo(
       if (unlunar !== '0') {
         return '';
       }
+
       let data = LunarCalendar.solarToLunar(item.date.getFullYear(), item.date.getMonth() + 1, item.date.getDate());
       return data.lunarDayName;
     };
@@ -147,6 +150,7 @@ const Calendar = memo(
             calendarApi.today();
             break;
         }
+
         return;
       }
 
@@ -181,6 +185,7 @@ const Calendar = memo(
         updateCalendarNotScheduled(rowid, rowData);
         return;
       }
+
       refreshCalendarViewData();
     };
 
@@ -189,6 +194,7 @@ const Calendar = memo(
         deleteCalendarNotScheduled(rowid);
         return;
       }
+
       refreshCalendarViewData();
     };
 
@@ -198,11 +204,13 @@ const Calendar = memo(
       } else {
         weeklyCalendarRef.current?.refreshOneDayCalendarData();
       }
+
       getNotScheduledEventList({ onlyGetCount: true });
     };
 
     const handleMoreClick = info => {
       const now = Date.now();
+
       // 模拟双击
       if (now - lastClickTimeRef.current < 300) {
         clearTimeout(clickTimerRef.current);
@@ -222,9 +230,11 @@ const Calendar = memo(
       if (clicktype === '2') return;
       if (clicktype === '1') {
         let value = item[clickcid];
+
         if (RegExpValidator.isURL(value)) {
           window.open(value);
         }
+
         return;
       }
 
@@ -234,6 +244,7 @@ const Calendar = memo(
         }`;
         return;
       }
+
       handlePushState('page', 'recordDetail');
       updatePreviewRecordId(item.rowid);
     };
@@ -397,7 +408,7 @@ const Calendar = memo(
                 getEventsFn(info);
               }}
               // 任务日程的背景及文字颜色
-              eventContent={arg => <EventContent eventArg={arg} />}
+              eventContent={arg => <EventContent eventArg={arg} colortype={colortype} />}
               eventDidMount={info => {
                 // 让dateClick可以穿透任务条
                 info.el.style.pointerEvents = 'none';

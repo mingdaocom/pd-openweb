@@ -13,6 +13,7 @@ import orderAjax from 'src/api/order';
 import projectAjax from 'src/api/project';
 import DatePickerFilter from 'src/pages/Admin/common/datePickerFilter';
 import { AccountIdOperation, BillInfoWrap } from 'src/pages/Admin/common/styled';
+import PurchaseExpandPack from 'src/pages/Admin/components/PurchaseExpandPack';
 import { navigateTo } from 'src/router/navigateTo';
 import { formatNumberThousand } from 'src/utils/control';
 import { getCurrentProject } from 'src/utils/project';
@@ -151,7 +152,7 @@ export default function BillInfo({ match }) {
   };
 
   useEffect(() => {
-    document.title = _l('组织管理 - 账务 - %0', companyName);
+    document.title = _l('组织管理 - 组织 - 账务 - %0', companyName);
   }, []);
 
   useEffect(() => {
@@ -166,6 +167,7 @@ export default function BillInfo({ match }) {
 
   const renderPay = ({ status, payAccountInfo = {}, orderId, recordType }) => {
     const { accountId, avatar, fullname } = payAccountInfo;
+
     if (status === 1) {
       return (
         <div
@@ -180,6 +182,7 @@ export default function BillInfo({ match }) {
         </div>
       );
     }
+
     if (_.includes([3, 4, 5], status)) return null;
     return accountId ? (
       <Fragment>
@@ -349,14 +352,16 @@ export default function BillInfo({ match }) {
     <BillInfoWrap>
       <div className="billInfoHeader orgManagementHeader">
         <div className="title">{_l('账务%15000')}</div>
-        <div
-          className="invoiceSetting pointer adminHoverColor"
-          onClick={() => {
-            setVisible({ invoiceVisible: true });
-          }}
-        >
-          {_l('发票设置')}
-        </div>
+        {!window.platformENV.isOverseas && (
+          <div
+            className="invoiceSetting pointer adminHoverColor"
+            onClick={() => {
+              setVisible({ invoiceVisible: true });
+            }}
+          >
+            {_l('发票设置')}
+          </div>
+        )}
       </div>
       <div className="orgManagementContent flexColumn">
         <div className="accountInfo">
@@ -370,11 +375,15 @@ export default function BillInfo({ match }) {
             className="textTertiary eyeIcon Hand mRight8 mBottom10"
             onClick={() => setVisible({ hideBalance: !hideBalance })}
           />
-          {!window.platformENV.isOverseas && !window.platformENV.isLocal && isPaid && (
-            <span className="recharge pointer bold" onClick={() => handleClick('recharge')}>
-              {_l('充值')}
-            </span>
-          )}
+          {!window.platformENV.isLocal &&
+            isPaid &&
+            (!window.platformENV.isOverseas ? (
+              <span className="recharge pointer bold" onClick={() => handleClick('recharge')}>
+                {_l('充值')}
+              </span>
+            ) : (
+              <PurchaseExpandPack className="mLeft10 nowrap" text={_l('充值')} type="recharge" projectId={projectId} />
+            ))}
         </div>
         <div className="listHeader">
           <ul className="recordType">

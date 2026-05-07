@@ -1,5 +1,5 @@
 import React from 'react';
-import Clipboard from 'react-clipboard.js';
+import copy from 'copy-to-clipboard';
 import moment from 'moment';
 import { compareProps } from 'pages/PageHeader/util.js';
 import { LoadDiv } from 'ming-ui';
@@ -40,9 +40,11 @@ export default class WorkwxSyncCourse extends React.Component {
 
   componentDidMount() {
     let match = this.props.match;
+
     if (!match.params.projectId) {
       return;
     }
+
     Ajax.getWorkWXSsoUrlInfo({
       projectId: match.params.projectId,
       apkId: match.params.apkId,
@@ -54,6 +56,7 @@ export default class WorkwxSyncCourse extends React.Component {
           scanUrl: result.item5,
         });
         const hash = location.hash.replace('#', '');
+
         if (['scanWorkwx', 'syncField'].includes(hash)) {
           setTimeout(() => {
             const el = document.querySelector(`.${hash}`) || {};
@@ -88,16 +91,15 @@ export default class WorkwxSyncCourse extends React.Component {
         <div className="inputList mTop20">
           <span className="inputTitle">{_l('回调域名：')}</span>
           <input type="text" className="inputBox" readOnly value={scanUrl} />
-          <Clipboard
+          <span
             className="copyBtn"
-            component="span"
-            data-clipboard-text={scanUrl}
-            onSuccess={() => {
+            onClick={() => {
+              copy(scanUrl);
               alert(_l('已经复制到粘贴板，你可以使用Ctrl+V 贴到需要的地方去了哦'));
             }}
           >
             {_l('复制')}
-          </Clipboard>
+          </span>
         </div>
         <img src={scan3} />
         <p className="Font14 textSecondary mTop24 LineHeight22">{_l('3.启用该功能')}</p>
@@ -148,7 +150,9 @@ export default class WorkwxSyncCourse extends React.Component {
           <img src={wxPng2} alt={_l('选择“自建-创建应用”进入新建应用页面')} />
           <h3 className="Font18 textPrimary mTop40">{_l('3. 填写应用信息')}</h3>
           <p className="Font14 textSecondary mTop24 LineHeight22">
-            {_l('填入应用名称')}
+            {window.platformENV.isPlatform && !window.platformENV.isOverseas && !window.platformENV.isLocal
+              ? _l('填入应用名称（建议名称为：明道云）、应用简介')
+              : _l('填入应用名称')}
             <br />
             {_l('应用Logo建议：')}
             <a
@@ -170,16 +174,15 @@ export default class WorkwxSyncCourse extends React.Component {
           <div className="inputList mTop20">
             <span className="inputTitle">{_l('可信域名：')}</span>
             <input type="text" className="inputBox" readOnly value={domainName} />
-            <Clipboard
+            <span
               className="copyBtn"
-              component="span"
-              data-clipboard-text={domainName}
-              onSuccess={() => {
+              onClick={() => {
+                copy(domainName);
                 alert(_l('已经复制到粘贴板，你可以使用Ctrl+V 贴到需要的地方去了哦'));
               }}
             >
               {_l('复制')}
-            </Clipboard>
+            </span>
           </div>
           <p className="Font14 textSecondary mTop24 LineHeight22">
             {_l('注：设置的可信域名，不能包含协议头，不支持IP地址及短链域名')}
@@ -223,6 +226,7 @@ export default class WorkwxSyncCourse extends React.Component {
         </div>
       );
     }
+
     return (
       <div className="dingSyncCourseWrap">
         <div className="workwxSyncBox card">

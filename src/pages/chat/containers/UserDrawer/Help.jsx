@@ -2,6 +2,7 @@ import React from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Icon } from 'ming-ui';
+import { emitter } from 'src/utils/common';
 import { PopoverWrap } from '../ChatList/Avatar/styled';
 
 const collections = () => {
@@ -15,7 +16,7 @@ const collections = () => {
         { id: 'video', text: _l('学习视频'), icon: 'play_circle_outline', href: 'https://learn.mingdao.com/' },
         { id: 'communityQuestions', text: _l('社区提问'), icon: 'forum', href: 'https://bbs.mingdao.net/' },
         { id: 'helpDoc', text: _l('寻找伙伴支持'), icon: 'partner', href: 'https://www.mingdao.com/partnerlist' },
-        { id: 'partnerSupport', text: _l('人工客服'), icon: 'support_agent' },
+        { id: 'partnerSupport', text: _l('智能客服'), icon: 'support_agent' },
       ],
     },
     {
@@ -46,7 +47,7 @@ const collections = () => {
   ];
 };
 
-const renderProjectsPopover = () => {
+const renderProjectsPopover = ({ onClose = () => {}, onCloseHelpPopover = () => {} }) => {
   return (
     <PopoverWrap>
       {collections().map(item => {
@@ -61,6 +62,7 @@ const renderProjectsPopover = () => {
               ) {
                 return null;
               }
+
               if (_.includes(['partnerSupport'], v.id)) {
                 return (
                   <div
@@ -68,7 +70,13 @@ const renderProjectsPopover = () => {
                     key={v.id}
                     onClick={() => {
                       if (v.id === 'partnerSupport') {
-                        window.mdCustomerServiceOpen && window.mdCustomerServiceOpen();
+                        // window.mdCustomerServiceOpen && window.mdCustomerServiceOpen();
+                        onCloseHelpPopover(); // 先关闭帮助浮层
+                        onClose(); // 再关闭侧边抽屉
+                        setTimeout(() => {
+                          window.mingoPendingStartTask = { callFromHelp: true };
+                          emitter.emit('SET_MINGO_VISIBLE');
+                        }, 20);
                       }
                     }}
                   >

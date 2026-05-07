@@ -14,7 +14,7 @@ import SelectWorkflow from '../../components/SelectWorkflow';
 import { updatePublishState } from '../../redux/actions';
 import { ProcessVariables } from '../Detail/components';
 import { CustomTextarea, Member, SelectNodeObject, SelectUserDropDown } from '../Detail/components';
-import { APP_TYPE, USER_TYPE } from '../enum';
+import { APP_TYPE, EXPIRE_LIST, USER_TYPE } from '../enum';
 import SetControlName from './components/SetControlName';
 import './index.less';
 
@@ -55,28 +55,7 @@ class ProcessConfig extends Component {
     const { flowInfo } = this.props;
     const { data, saveRequest, errorItems } = this.state;
     let objArrError = 0;
-    const {
-      executeType,
-      allowRevoke,
-      revokeNodeIds,
-      errorNotifiers,
-      errorInterval,
-      triggerType,
-      processNames,
-      startEventPass,
-      userTaskPass,
-      userTaskNullPass,
-      sendTaskPass,
-      processVariables,
-      allowUrge,
-      pbcConfig,
-      responseContentType,
-      value,
-      triggerView,
-      required,
-      agents,
-      dateShowType,
-    } = data;
+    const { revokeNodeIds, processNames, processVariables, value } = data;
 
     if (_.find(errorItems, o => o)) {
       alert(_l('有参数配置错误'), 2);
@@ -107,26 +86,10 @@ class ProcessConfig extends Component {
       .saveProcessConfig({
         ...data,
         processId: flowInfo.id,
-        executeType,
-        allowRevoke,
-        revokeNodeIds: allowRevoke ? revokeNodeIds : [],
-        errorNotifiers,
-        errorInterval,
-        triggerType,
+        revokeNodeIds: data.allowRevoke ? revokeNodeIds : [],
         processIds: data.triggerType === TRIGGER_TYPE.ONLY_WORKFLOW ? processNames.map(item => item.id) : [],
-        startEventPass,
-        userTaskPass,
-        userTaskNullPass,
-        sendTaskPass,
         processVariables,
-        allowUrge,
-        pbcConfig,
-        responseContentType,
         value: value.trim(),
-        triggerView,
-        required,
-        agents,
-        dateShowType,
       })
       .then(result => {
         if (result) {
@@ -136,6 +99,7 @@ class ProcessConfig extends Component {
             this.props.dispatch(updatePublishState({ publishStatus: 1, pending: true }));
           }
         }
+
         this.updateSource({ processVariables: result });
         this.setState({ saveRequest: false });
       });
@@ -243,6 +207,7 @@ class ProcessConfig extends Component {
       { text: _l('按字段配置中的小数位数，如：3.14159 配置了4位小数，则取 3.1416'), value: 1 },
     ];
     const openDebug = _.includes(data.debugEvents, 0);
+
     const Notice_Accounts = () => {
       return (
         <Fragment>
@@ -290,6 +255,9 @@ class ProcessConfig extends Component {
         </Fragment>
       );
     };
+
+    const autoClear = !!data.expireType;
+    const featureType = getFeatureStatus(flowInfo.companyId, VersionProductType.workflowLog);
 
     if (flowInfo.moduleType === 1) {
       return Notice_Accounts();
@@ -367,8 +335,47 @@ class ProcessConfig extends Component {
           </div>
         ))}
 
+        {featureType && (
+          <Fragment>
+            <div className="processConfigLine" />
+            <div className="bold Font16 mTop28">{_l('自动清理执行历史')}</div>
+            <div className="textSecondary mTop5">
+              {_l('启用后，超过保留周期的执行历史将自动删除且不可找回（不包含审批流程执行历史），请谨慎使用。')}
+            </div>
+            <div className="mTop10">
+              <Switch
+                checked={autoClear}
+                text={autoClear ? _l('开启') : _l('关闭%03087')}
+                onClick={() => {
+                  if (featureType === '2') {
+                    buriedUpgradeVersionDialog(flowInfo.companyId, VersionProductType.workflowLog);
+                    return;
+                  }
+
+                  this.updateSource({ expireType: autoClear ? 0 : 1 });
+                }}
+              />
+            </div>
+            {autoClear && (
+              <div className="mTop10 flexRow alignItemsCenter">
+                <div>{_l('执行后')}</div>
+                <Dropdown
+                  className="mLeft10 mRight10"
+                  style={{ width: 100 }}
+                  menuStyle={{ width: '100%' }}
+                  data={EXPIRE_LIST}
+                  value={data.expireType}
+                  border
+                  onChange={expireType => this.updateSource({ expireType })}
+                />
+                <div>{_l('自动删除')}</div>
+              </div>
+            )}
+          </Fragment>
+        )}
+
         <div className="processConfigLine" />
-        <div className="bold Font16 mTop28">{_l('节点日志')}</div>
+        <div className="bold Font16 mTop28">{_l('保存节点输入、输出参数')}</div>
         <div className="textSecondary mTop5">
           {_l('启用后，可以在历史日志中查看单个节点在流程执行时的输入、输出数据。日志保留最近90天的数据')}
         </div>
@@ -752,6 +759,7 @@ class ProcessConfig extends Component {
                 buriedUpgradeVersionDialog(flowInfo.companyId, VersionProductType.encapsulatingBusinessProcess);
                 return;
               }
+
               this.updateSource({
                 pbcConfig: Object.assign({}, data.pbcConfig, { outType }),
                 responseContentType: _.includes([1, 2, 4], outType) ? 2 : 3,

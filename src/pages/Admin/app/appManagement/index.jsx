@@ -31,6 +31,7 @@ export default class AppManagement extends Component {
   componentDidUpdate(prevProps) {
     const { type: prevType } = _.get(prevProps, 'match.params');
     const { type } = _.get(this.props, 'match.params');
+
     if (prevType !== type) {
       this.setState({ currentTab: type || 'list' });
     }
@@ -42,7 +43,7 @@ export default class AppManagement extends Component {
 
     return (
       <div className="orgManagementWrap appManagementList flex">
-        <AdminTitle prefix={_l('应用')} />
+        <AdminTitle prefix={_l('应用管理 - 应用')} />
         <div className="orgManagementHeader">
           <div className="tabBox">
             {window.platformENV.isLocal && !window.platformENV.isOverseas && !window.platformENV.isPlatform

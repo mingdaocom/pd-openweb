@@ -34,18 +34,23 @@ export default class ColorEntrance extends Component {
   getRuleVisible() {
     const { currentReport } = this.props;
     const { reportType, yaxisList, split, yreportType, displaySetup } = currentReport;
+
     if ([reportTypes.BarChart].includes(reportType)) {
       return yaxisList.length === 1 && _.isEmpty(split.controlId);
     }
+
     if ([reportTypes.DualAxes].includes(reportType)) {
       return yaxisList.length === 1 && _.isEmpty(split.controlId) && yreportType === reportTypes.BarChart;
     }
+
     if ([reportTypes.ScatterChart].includes(reportType)) {
       return _.isEmpty(split.controlId);
     }
+
     if ([reportTypes.CountryLayer].includes(reportType)) {
       return displaySetup.showChartType !== 2;
     }
+
     return [reportTypes.FunnelChart, reportTypes.GaugeChart, reportTypes.ProgressChart].includes(reportType);
   }
   getColorName() {
@@ -55,17 +60,20 @@ export default class ColorEntrance extends Component {
     const defaultColorName = `${colorGroup[0].name}${_l('配色')}`;
     const isAlienationColor =
       getIsAlienationColor(this.props.currentReport) || (isBarChart && _.get(split, 'options.length'));
+
     if (_.isUndefined(style.colorType)) {
       return defaultColorName;
     } else {
       const { chartColor, chartColorIndex = 1 } = this.props.customPageConfig;
       const newStyle = chartColorIndex >= (style.chartColorIndex || 0) ? { ...style, ...chartColor } : style;
       const { colorType, colorGroupIndex, colorGroupId } = newStyle;
+
       if (colorType === 0) {
         return isAlienationColor ? _l('选项配色') : defaultColorName;
       } else if (colorType === 1) {
         let name = null;
         const chartColors = getPorjectChartColors(projectId);
+
         if (colorGroupId === 'adaptThemeColor') {
           name = _l('适应主题');
         } else if (colorGroupId && colorGroupId.includes('personColor')) {
@@ -78,6 +86,7 @@ export default class ColorEntrance extends Component {
         } else {
           name = chartColors[0].name;
         }
+
         return `${name}${_l('配色')}`;
       } else {
         return _l('自定义配色');
@@ -102,6 +111,7 @@ export default class ColorEntrance extends Component {
           if (chartColor) {
             data.style.chartColorIndex = chartColorIndex + 1;
           }
+
           onChangeCurrentReport(data, true);
           this.setState({
             baseColorModalVisible: false,
@@ -119,11 +129,13 @@ export default class ColorEntrance extends Component {
     const { currentReport, onChangeDisplayValue } = this.props;
     const { ruleColorModalVisible } = this.state;
     const { colorRules } = currentReport.displaySetup;
+
     const onCancel = () => {
       this.setState({
         ruleColorModalVisible: false,
       });
     };
+
     return (
       <RuleColor
         visible={ruleColorModalVisible}

@@ -15,7 +15,9 @@ export function getSelectedOptions(options, value, control) {
   if (!value || value === '[]') {
     return [];
   }
+
   let selectedKeys = [];
+
   try {
     selectedKeys = JSON.parse(value);
     return (
@@ -27,6 +29,7 @@ export function getSelectedOptions(options, value, control) {
                 if (selectedKey.indexOf('other') > -1 || selectedKey.indexOf('add_') > -1) {
                   return selectedKey.indexOf(option.key) > -1;
                 }
+
                 return selectedKey === option.key;
               }) && !option.isDeleted,
           ).map(option => option.key)
@@ -37,6 +40,7 @@ export function getSelectedOptions(options, value, control) {
           if (key.indexOf('other') > -1 || key.indexOf('add_') > -1) {
             return key.indexOf(option.key) > -1;
           }
+
           return key === option.key;
         }),
       )
@@ -88,22 +92,28 @@ export function calcDate(date, expression) {
   if (!date) {
     return { error: true };
   }
+
   if (!/^[+-]/.test(expression)) {
     expression = '+' + expression;
   }
+
   try {
     let result = dayjs(date);
     const regexp = /([/+/-]){1}(\d+(\.\d+)?)+([YQMwdhms]){1}/g;
     let match = regexp.exec(expression);
+
     while (match) {
       const operator = match[1];
       const number = Number(match[2]);
       const unit = match[4];
+
       if (/^[+-]$/.test(operator) && number && typeof number === 'number' && /^[YQMwdhms]$/.test(unit)) {
         result = result[operator === '+' ? 'add' : 'subtract'](Math.round(number), unit.replace(/Y/, 'y'));
       }
+
       match = regexp.exec(expression);
     }
+
     return { result };
   } catch (err) {
     return { error: err };
@@ -114,6 +124,7 @@ export function countChar(str = '', char) {
   if (!str || !char) {
     return 0;
   }
+
   try {
     return str.match(new RegExp(char, 'g')).length;
   } catch (err) {
@@ -126,14 +137,16 @@ export function countChar(str = '', char) {
  * 对将复杂字段数据处理成简单数据 用来呈现或参与计算
  * return undefined string number bool [string] [number]
  */
-export function formatControlValue(cell) {
+export function formatControlValue(cell, nullzero = '0') {
   try {
     if (!cell) {
       return;
     }
+
     let newPos = [];
     let { type, value } = cell;
     let parsedData, selectedOptions;
+
     if (type === 37) {
       if (cell.advancedSetting && cell.advancedSetting.summaryresult === '1') {
         type = 2;
@@ -142,12 +155,19 @@ export function formatControlValue(cell) {
         type = cell.enumDefault2 || 6;
       }
     }
+
+    if (type === 53) {
+      type = cell.enumDefault2;
+    }
+
     switch (type) {
       case 6: // NUMBER 数值
       case 8: // MONEY 金额
         return String(value).trim() !== '' && _.isNumber(Number(value)) && !_.isNaN(Number(value))
           ? Number(value)
-          : undefined;
+          : nullzero === '1'
+            ? 0
+            : undefined;
       case 19: // AREA_INPUT 地区
       case 23: // AREA_INPUT 地区
       case 24: // AREA_INPUT 地区
@@ -157,12 +177,14 @@ export function formatControlValue(cell) {
         if (value === '' || value === '["",""]') {
           return;
         }
+
         return JSON.parse(value);
       case 40: // LOCATION 定位
         parsedData = JSON.parse(value) || {};
         if (!_.isObject(parsedData)) {
           return undefined;
         }
+
         if ((parsedData.coordinate || '').toLowerCase() === 'wgs84') {
           newPos = wgs84togcj02(parsedData.x, parsedData.y);
           return {
@@ -171,6 +193,7 @@ export function formatControlValue(cell) {
             y: newPos[1],
           };
         }
+
         return parsedData;
       // 组件
       case 9: // OPTIONS 单选 平铺
@@ -182,6 +205,7 @@ export function formatControlValue(cell) {
             const matchText = safeParse(cell.value || '[]').find(i => i.indexOf('other:') > -1);
             return matchText ? matchText.replace('other:', '') : option.value;
           }
+
           return option.value;
         });
       case 26: // USER_PICKER 成员
@@ -189,12 +213,14 @@ export function formatControlValue(cell) {
         if (!_.isArray(parsedData)) {
           parsedData = [parsedData];
         }
+
         return parsedData.filter(user => !!user).map(user => (typeof user === 'string' ? user : user.fullname));
       case 27: // GROUP_PICKER 部门
         return JSON.parse(cell.value).map(department => {
           if (typeof department === 'string') {
             return department;
           }
+
           if (isArray(department.departmentPath)) {
             return department.departmentPath
               .reverse()
@@ -202,6 +228,7 @@ export function formatControlValue(cell) {
               .concat([department.departmentName])
               .join('/');
           }
+
           return department.departmentName ? department.departmentName : _l('该部门已删除');
         });
       case 48: // ORG_ROLE 组织角色
@@ -209,6 +236,7 @@ export function formatControlValue(cell) {
           if (typeof organization === 'string') {
             return organization;
           }
+
           return organization.organizeName ? organization.organizeName : _l('该组织已删除');
         });
       case 36: // SWITCH 检查框
@@ -231,6 +259,7 @@ export function formatControlValue(cell) {
               )
               .filter(_.identity);
         }
+
         return cell.enumDefault === 1 ? parsedData.slice(0, 1) : parsedData;
       case 34: // SUBLIST 子表
         if (_.isObject(value)) {
@@ -240,6 +269,7 @@ export function formatControlValue(cell) {
         } else {
           return [...new Array(value ? Number(value) : 0)];
         }
+
       case 30: // SHEETFIELD 他表字段
         return formatControlValue(
           _.assign({}, cell, {
@@ -251,6 +281,7 @@ export function formatControlValue(cell) {
         if (_.isEmpty(value)) {
           return '';
         }
+
         return dayjs(value, countChar(value, ':') === 2 ? 'HH:mm:ss' : 'HH:mm').format(
           cell.unit === '6' || cell.unit === '9' ? 'HH:mm:ss' : 'HH:mm',
         );
@@ -261,6 +292,7 @@ export function formatControlValue(cell) {
     if (typeof console !== 'undefined') {
       console.log(err);
     }
+
     return;
   }
 }

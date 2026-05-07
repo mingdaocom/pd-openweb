@@ -12,6 +12,7 @@ function formatSearchFilters(filters = [], controls = []) {
     if (control && _.includes([6, 8], control.type)) {
       f.filterType = 11;
     }
+
     if (
       control &&
       _.includes(
@@ -29,9 +30,11 @@ function formatSearchFilters(filters = [], controls = []) {
     ) {
       f.filterType = 1;
     }
+
     if (control && _.includes([10], control.type)) {
       f.advancedSetting.allowitem = '2';
     }
+
     return f;
   });
 }

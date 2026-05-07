@@ -1,4 +1,4 @@
-﻿import React, { Fragment, useEffect, useRef, useState } from 'react';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
 import _ from 'lodash';
 import { LoadDiv, ScrollView } from 'ming-ui';
 import { isRelationControl } from '../../core/util';
@@ -19,10 +19,14 @@ const PrintContentBox = props => {
     signature,
     ...rest
   } = props;
+  const advanceMap = _.keyBy(printData.advanceSettings, 'key');
+  const enableEmptyPlaceholder = !!Number(advanceMap.enableEmptyPlaceholder?.value);
+  const emptyPlaceholderMode = advanceMap.emptyPlaceholderMode?.value;
 
   const scrollViewRef = useRef(null);
   const lastPageRef = useRef(0);
   const rowsValuesMapRef = useRef({});
+  const relationRowsValuesMapRef = useRef({});
   const allControlsMapRef = useRef({});
   const [loading, setLoading] = useState(true);
   const [controlProcessedMap, setControlProcessedMap] = useState({});
@@ -92,10 +96,12 @@ const PrintContentBox = props => {
     }
 
     // 统一获取并合并关联记录
+    relationRowsValuesMapRef.current = {};
     getAllRelationRows({ params: props.params, relationControls, controlProcessedMap: nextControlMap })
       .then(res => {
         // 遍历所有记录
         Object.entries(res).forEach(([rowId, rowData]) => {
+          relationRowsValuesMapRef.current[rowId] = new Map();
           nextControlMap[rowId] = nextControlMap[rowId]?.map(control => {
             const data = rowData?.[control.controlId];
             if (!data) return control;
@@ -103,11 +109,11 @@ const PrintContentBox = props => {
             const value = data.data?.length ? JSON.stringify(data.data) : '';
 
             // 同步缓存
-            rowsValuesMapRef.current[rowId]?.set(control.controlId, value);
+            relationRowsValuesMapRef.current[rowId]?.set(control.controlId, value);
 
             return {
               ...control,
-              value,
+              // value,
               relationsData: data,
             };
           });
@@ -131,11 +137,13 @@ const PrintContentBox = props => {
 
     setSignatureProcessedMap(prev => {
       const next = {};
+
       for (const rowId in prev) {
         next[rowId] = prev[rowId].map(control => {
           return { ...control, checked: signatureControlCheckedMap[control.controlId] };
         });
       }
+
       return next;
     });
 
@@ -191,9 +199,12 @@ const PrintContentBox = props => {
                 shareUrl={shareShortUrls[rowValue.rowId]}
                 printData={{
                   ...printData,
+                  enableEmptyPlaceholder,
+                  emptyPlaceholderMode,
                   allControls: allControlsMapRef.current[rowValue.rowId],
                 }}
                 receiveControls={controlProcessedMap[rowValue.rowId]}
+                relationRowsValues={relationRowsValuesMapRef.current[rowValue.rowId]}
                 controls={controls}
                 flagUpdate={flagUpdate}
                 updateFlagType={updateFlagType}

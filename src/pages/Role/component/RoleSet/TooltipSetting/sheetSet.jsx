@@ -52,6 +52,7 @@ const WrapTip = styled.div`
     top: -7px;
   }
 `;
+
 function TipsRender(props) {
   const {
     sheet,
@@ -67,6 +68,7 @@ function TipsRender(props) {
   if (![20, 30].includes(props.value) || props.disable) {
     return '';
   }
+
   const str = userFileds
     .filter(o => (type === 'look' ? true : o.userPermission === 2)) //查看=>显示全部；操作=>拥有的
     .map(o => getTranslateInfo(props.appId, null, o.id).name || o.name)
@@ -172,6 +174,7 @@ function TipsRender(props) {
     </React.Fragment>
   );
 }
+
 export default function SheetSet(props) {
   const [list, setState] = useState([]);
   const { onChange } = props;

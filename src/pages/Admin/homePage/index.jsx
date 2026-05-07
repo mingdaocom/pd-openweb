@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
 import _ from 'lodash';
+import { Dialog, Icon } from 'ming-ui';
 import projectAjax from 'src/api/project';
 import projectSettingAjax from 'src/api/projectSetting';
 import processVersionAjax from 'src/pages/workflow/api/processVersion';
@@ -19,14 +20,15 @@ export default function HomePage({ match, location: routerLocation, authority })
   const [data, setData] = useSetState({ basicLoading: true, hideBalance: true });
   const isTrial = data.licenseType === 2;
   const isFree = data.licenseType === 0;
-  const isLocal = window.platformENV.isOverseas || window.platformENV.isLocal;
-  const trialAuthenticate = !isLocal && isTrial && !data.authType;
+  const isMingdaoSaas = !window.platformENV.isOverseas && !window.platformENV.isLocal;
+  const trialAuthenticate = isMingdaoSaas && isTrial && !data.authType;
 
   useEffect(() => {
     document.title = _l('组织管理 - 首页 - %0', companyName);
     getBaseData();
     getUsageData();
     getVersionInfo();
+    window.platformENV.isOverseas && !window.platformENV.isLocal && displayPaySuccess();
     getBalanceLimitNoticeSettings();
   }, []);
 
@@ -43,6 +45,7 @@ export default function HomePage({ match, location: routerLocation, authority })
       if (!res.currentLicense.version) {
         res.currentLicense.version = { name: _l('免费版') };
       }
+
       const resData = _.omit(res, [
         'effectiveApkCount',
         'effectiveApkStorageCount',
@@ -72,6 +75,8 @@ export default function HomePage({ match, location: routerLocation, authority })
         effectiveDataPipelineEtlJobCount,
         effectiveDataPipelineRowCount,
         effectiveAggregationTableCount,
+        effectiveVectorKnowledgeCount,
+        effectiveVectorKnowledgeChunkCount,
       } = res;
       setData({
         effectiveApkCount,
@@ -83,6 +88,8 @@ export default function HomePage({ match, location: routerLocation, authority })
         effectiveDataPipelineEtlJobCount,
         effectiveDataPipelineRowCount,
         effectiveAggregationTableCount,
+        effectiveVectorKnowledgeCount: effectiveVectorKnowledgeCount || 0,
+        effectiveVectorKnowledgeChunkCount: effectiveVectorKnowledgeChunkCount || 0,
       });
     });
   };
@@ -94,10 +101,36 @@ export default function HomePage({ match, location: routerLocation, authority })
     });
   };
 
+  const displayPaySuccess = () => {
+    const onClose = () => {
+      location.replace(location.href.split('#')[0]);
+    };
+
+    if (_.includes(routerLocation.hash, 'paySuccess')) {
+      Dialog.confirm({
+        width: 420,
+        dialogClasses: 'paySuccessDialog',
+        removeCancelBtn: true,
+        okText: _l('好的'),
+        onOk: onClose,
+        onCancel: onClose,
+        children: (
+          <div className="TxtCenter">
+            <Icon icon="Finish" className="Font40 Green" />
+            <div className="Font17 bold mTop24 mBottom12">{_l('您已支付成功')}</div>
+            <div className="Gray_75">
+              {_l('我们正在为您的组织进行授权，预计需要约1分钟。授权完成后，您将收到系统消息通知。')}
+            </div>
+          </div>
+        ),
+      });
+    }
+  };
+
   const params = {
     projectId,
     data,
-    isLocal,
+    isMingdaoSaas,
     isTrial,
     isFree,
     routerLocation,

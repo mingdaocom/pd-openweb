@@ -35,6 +35,7 @@ class FeedLeftNav extends React.Component {
       .push('');
     let foldedProjects;
     const storedFoldedProjectsStr = localStorage.getItem('foldedProjects_' + md.global.Account.accountId + '_feed');
+
     if (storedFoldedProjectsStr) {
       foldedProjects = Immutable.Set(
         _.union(
@@ -50,6 +51,7 @@ class FeedLeftNav extends React.Component {
 
     const noneProjects = !(_.get(md.global, 'Account.projects') || []).length;
     let loadingProjects, groups;
+
     if (props.defaultGroups) {
       loadingProjects = Immutable.Set();
       groups = Immutable.List(props.defaultGroups);
@@ -59,6 +61,7 @@ class FeedLeftNav extends React.Component {
         foldedProjects = Immutable.Set([]);
         loadingProjects = Immutable.Set(['']);
       }
+
       groups = Immutable.List();
     }
 
@@ -106,6 +109,7 @@ class FeedLeftNav extends React.Component {
       $('.groupListContainer .scroll-viewport').scrollTop($('.avatarList .Item.ThemeBGColor8').position().top);
       this.locatedDefaultGroup = true;
     }
+
     const key = 'foldedProjects_' + md.global.Account.accountId + '_feed';
     safeLocalStorageSetItem(key, this.state.foldedProjects.join(','));
   }
@@ -122,12 +126,16 @@ class FeedLeftNav extends React.Component {
     if (!this.state.loadingProjects.includes(projectId)) {
       const loadingProjects = this.state.loadingProjects.add(projectId);
       let foldedProjects = this.state.foldedProjects;
+
       if (openProject) {
         foldedProjects = foldedProjects.delete(projectId);
       }
+
       this.setState({ loadingProjects, foldedProjects });
     }
+
     const query = {};
+
     if (projectId) {
       query.projectId = projectId;
     } else {
@@ -138,6 +146,7 @@ class FeedLeftNav extends React.Component {
         .value()
         .join(',');
     }
+
     return groupController.getGroupsNameAndIsVerified(query).then(result => {
       const groups = result.list;
       this.setState({
@@ -175,12 +184,14 @@ class FeedLeftNav extends React.Component {
     const isLoading = this.state.loadingProjects.includes(projectId);
     const project = _.find(md.global.Account.projects, p => p.projectId === projectId);
     let projectGroups;
+
     if (projectId) {
       projectGroups = this.state.groups.filter(group => group.projectId === projectId);
     } else {
       const projectIds = _.map(md.global.Account.projects, p => p.projectId);
       projectGroups = this.state.groups.filter(group => projectIds.indexOf(group.projectId || '') === -1);
     }
+
     projectGroups = projectGroups.toArray();
     const companyNameComp = (
       <div

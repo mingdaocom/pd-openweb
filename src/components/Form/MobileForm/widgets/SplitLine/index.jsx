@@ -23,20 +23,24 @@ const SplitLine = props => {
     // 不折叠不能点击
     if (enumDefault2 === 0) return;
     const currentVisible = _.isUndefined(tempVisible) ? !visible : tempVisible;
+
     if (expandWidgetIds.length > 0) {
       setVisible(currentVisible);
       const tempIds = currentVisible ? expandWidgetIds : expandWidgetIds.reverse();
+
       for (let i = 0; i < expandWidgetIds.length; i++) {
         const timer = setTimeout(() => {
           const listItem = ($($ref.current)
             .closest('.customMobileFormContainer')
             .find(`.customFormItem#formItem-${worksheetId}-${tempIds[i]}`) || [])[0];
+
           if (listItem) {
             if (currentVisible) {
               $(listItem).slideDown(80, 'swing', () => (listItem.style.overflow = 'unset'));
             } else {
               $(listItem).slideUp(80, 'swing', () => (listItem.style.overflow = 'unset'));
             }
+
             clearTimeout(timer);
             if (listItem.nextElementSibling && listItem.nextElementSibling.className === 'customFormLine') {
               listItem.nextElementSibling.style.display = currentVisible ? 'flex' : 'none';
@@ -72,6 +76,7 @@ const SplitLine = props => {
       const { iconUrl } = safeParse(icon || '{}');
       return <SvgIcon url={iconUrl} fill={theme} size={18} className="svgIcon" />;
     }
+
     return null;
   };
 

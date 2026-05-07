@@ -9,6 +9,7 @@ import PropTypes from 'prop-types';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { Dropdown } from 'ming-ui';
+import { getColorValue } from 'src/utils/control';
 import '../less/ColorPicker.less';
 
 const TYPES = ['HEX', 'RGB'];
@@ -23,6 +24,18 @@ const DEFAULT_COLORS_ROW_1 = [
   '#ddddddff',
   '#f5f5f5ff',
   '#ffffffff',
+];
+
+const DEFAULT_DYNAMIC_COLORS_ROW_1 = [
+  'var(--color-picker-dynamic-default)',
+  'var(--color-text-primary)',
+  'var(--color-text-title)',
+  'var(--color-text-secondary)',
+  'var(--color-text-tertiary)',
+  'var(--color-border-hover)',
+  'var(--color-border-primary)',
+  'var(--color-background-tertiary)',
+  'var(--color-background-card)',
 ];
 
 const DEFAULT_COLORS_ROW_2 = [
@@ -50,8 +63,8 @@ const DEFAULT_COLORS_ROW_3 = [
 ];
 
 const DEFAULT_COLORS2 = [
-  '#151515ff',
-  '#757575ff',
+  'var(--color-text-primary)',
+  'var(--color-text-secondary)',
   '#1677ffff',
   '#08c9c9ff',
   '#00c345ff',
@@ -90,11 +103,12 @@ const COLOR_BOX = styled.span(
 );
 
 const isSameColor = (propsColor, stateColor) => {
+  propsColor = getColorValue(propsColor);
   return new TinyColor(propsColor).toHex8String() === new TinyColor(stateColor).toHex8String();
 };
 
 const isColorString = value => {
-  return value.startsWith('#') || value.startsWith('rgb');
+  return value.startsWith('#') || value.startsWith('rgb') || value.includes('-');
 };
 
 class ColorPicker extends Component {
@@ -112,6 +126,7 @@ class ColorPicker extends Component {
     themeColor: PropTypes.string, // 主题色
     lightBefore: false, // 是否浅色在前
     disabled: false, //是否禁用
+    dynamicColor: false, // 是否包含颜色变量
   };
 
   static defaultProps = {
@@ -155,6 +170,7 @@ class ColorPicker extends Component {
     if (recentColors.find(l => isSameColor(l, color))) return;
 
     let newRecentColors = [];
+
     if (recentColors.length === 5) {
       newRecentColors = _.slice(recentColors, 1, 5).concat(color);
     } else {
@@ -166,10 +182,10 @@ class ColorPicker extends Component {
   };
 
   initValue = value => {
-    let isHex = value.startsWith('#');
+    const isHex = value.startsWith('#');
 
     return {
-      color: new TinyColor(value),
+      color: new TinyColor(getColorValue(value)),
       type: TYPES[isHex ? 0 : 1],
     };
   };
@@ -186,6 +202,17 @@ class ColorPicker extends Component {
       () => {
         const stringColor = this.state.color.toHex8String();
         this.props.onChange(themeValue || stringColor);
+      },
+    );
+  };
+
+  setDynamicColor = value => {
+    this.setState(
+      {
+        color: new TinyColor(getColorValue(value)),
+      },
+      () => {
+        this.props.onChange(value);
       },
     );
   };
@@ -217,6 +244,11 @@ class ColorPicker extends Component {
             className="commonColorItem"
             style={{ background: colorItem }}
             onClick={() => {
+              if (colorItem.includes('-')) {
+                this.setDynamicColor(colorItem);
+                return;
+              }
+
               this.setColor({ color: new TinyColor(colorItem) }, isTheme ? THEME_COLOR_VALUE[index] : undefined);
             }}
           >
@@ -249,12 +281,14 @@ class ColorPicker extends Component {
       defaultColors,
       lightBefore,
       disabled,
+      dynamicColor = false,
     } = this.props;
     const { color, visible, type, defaultExpand, recentExpand, recentColors, themeExpand } = this.state;
     const themeColors = [themeColor, generate(themeColor)[0]];
+    const CURRENT_COLORS_ROW_1 = dynamicColor ? DEFAULT_DYNAMIC_COLORS_ROW_1 : DEFAULT_COLORS_ROW_1;
     const DEFAULT_COLORS = lightBefore
-      ? DEFAULT_COLORS_ROW_3.concat(DEFAULT_COLORS_ROW_2, DEFAULT_COLORS_ROW_1)
-      : DEFAULT_COLORS_ROW_1.concat(DEFAULT_COLORS_ROW_2, DEFAULT_COLORS_ROW_3);
+      ? DEFAULT_COLORS_ROW_3.concat(DEFAULT_COLORS_ROW_2, CURRENT_COLORS_ROW_1)
+      : CURRENT_COLORS_ROW_1.concat(DEFAULT_COLORS_ROW_2, DEFAULT_COLORS_ROW_3);
 
     const Comp = TYPE_COMP[type];
     const triggerClass = sysColor ? 'ColorPickerPanelTriggerMax' : 'ColorPickerPanelTriggerMin';

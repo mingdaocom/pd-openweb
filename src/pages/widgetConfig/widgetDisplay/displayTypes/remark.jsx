@@ -7,6 +7,7 @@ const Text = styled.div`
   font-size: 12px;
   margin-top: ${props => (props.displayRow ? '7px' : '3px')};
 `;
+
 export default function Remark({ data, displayRow }) {
   return data.dataSource ? (
     <RichText isRemark maxHeight={600} data={data.dataSource} disabled={true} />

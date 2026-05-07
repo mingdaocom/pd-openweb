@@ -81,11 +81,13 @@ export default function Info(props) {
       initState({});
     } else {
       let data = {};
+
       try {
         data = await AggTableAjax.getAggTable({ projectId, appId, aggTableId: id }, { isAggTable: true });
       } catch (error) {
         console.log(error);
       }
+
       initState(data);
     }
   };
@@ -144,6 +146,7 @@ export default function Info(props) {
               }),
             };
           });
+
           if (res) {
             const flowData = res;
             const groupDt = getNodeInfo(flowData, 'GROUP');
@@ -193,6 +196,7 @@ export default function Info(props) {
         hasChange: true,
       });
     }
+
     AggTableAjax.updateNode(
       {
         projectId,
@@ -203,14 +207,17 @@ export default function Info(props) {
       { isAggTable: true },
     ).then(res => {
       const clearAll = !!res.nodeConfigs.find(o => o.clearAll);
+
       if (clearAll) {
         const groupDt = getNodeInfo(flowData, 'GROUP');
         const aggregateDt = getNodeInfo(flowData, 'AGGREGATE');
         const node = nodes[0];
         let param = {};
+
         if (flowData.aggTableTaskStatus === 0) {
           param = { sourceHasChange: true };
         }
+
         setState({
           ...param,
           updateLoading: false,
@@ -260,12 +267,15 @@ export default function Info(props) {
       okText: _l('关闭'),
     });
   };
+
   const publishTask = () => {
     if (updating) {
       return;
     }
+
     publishTaskAction();
   };
+
   const publishTaskAction = () => {
     const hasC = hasChange;
     setState({
@@ -288,6 +298,7 @@ export default function Info(props) {
           hasChange: false,
         });
         const { errorMsgList = [], isSucceeded } = res;
+
         if (isSucceeded) {
           onClose();
         } else {
@@ -336,6 +347,7 @@ export default function Info(props) {
         }
       });
     };
+
     if (!flowData.id) {
       const data = await initAggretion();
       changeUrl(data.id);
@@ -348,12 +360,15 @@ export default function Info(props) {
   if (loading) {
     return <LoadDiv />;
   }
+
   if (isErr && errorMsg) {
     return <div className="Font17 textSecondary mTop90 pTop100 TxtCenter">{errorMsg}</div>;
   }
+
   if (id && !flowData.id) {
     return <div className="Font17 textSecondary mTop90 pTop100 TxtCenter">{_l('无相关聚合表')}</div>;
   }
+
   const sourceDt = getNodeInfo(flowData, 'DATASOURCE');
   const groupDt = getNodeInfo(flowData, 'GROUP');
   const aggregateDt = getNodeInfo(flowData, 'AGGREGATE');
@@ -433,6 +448,7 @@ export default function Info(props) {
                 if (updating) {
                   return;
                 }
+
                 if (flowData.aggTableTaskStatus === 0 || hasChange) {
                   publishTask();
                 } else {

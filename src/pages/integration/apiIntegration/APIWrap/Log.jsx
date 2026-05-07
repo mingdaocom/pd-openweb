@@ -160,6 +160,7 @@ const Wrap = styled.div`
     width: 94px;
   }
 `;
+
 export default function Log(props) {
   const [{ list, id, show, loading, pageIndex, isAll, keyWord, type, status, time, user }, setState] = useSetState({
     list: [],
@@ -179,17 +180,22 @@ export default function Log(props) {
     if (isAll || loading) {
       return;
     }
+
     setState({ loading: true });
     let obj = {};
+
     if (time[0]) {
       obj.startDate = time[0].format('YYYY/MM/DD HH:mm');
     }
+
     if (time[1]) {
       obj.endDate = time[1].format('YYYY/MM/DD HH:mm');
     }
+
     if (status) {
       obj.status = status;
     }
+
     packageVersionAjax
       .getHistoryList(
         {
@@ -211,6 +217,7 @@ export default function Log(props) {
         });
       });
   };
+
   useEffect(() => {
     getHistoryListInfo();
   }, [pageIndex, keyWord, type, status, time, user]);
@@ -231,6 +238,7 @@ export default function Log(props) {
       },
     });
   };
+
   const columns = [
     {
       title: _l('来源'),
@@ -305,6 +313,7 @@ export default function Log(props) {
         if (!record.completeDate) {
           return '';
         }
+
         const time = moment(record.completeDate).diff(moment(record.createDate), 'seconds');
         return `${time < 1 ? 1 : time} 秒`;
       },
@@ -325,6 +334,7 @@ export default function Log(props) {
         ) {
           return '';
         }
+
         return (
           <div className="optionCon">
             <span
@@ -343,6 +353,7 @@ export default function Log(props) {
       },
     },
   ];
+
   const noDataRender = () => {
     return (
       <div className="noData TxtCenter">
@@ -353,10 +364,12 @@ export default function Log(props) {
       </div>
     );
   };
+
   const renderCon = () => {
     if (loading && pageIndex === 1) {
       return <LoadDiv />;
     }
+
     if (list.length <= 0) {
       return noDataRender();
     } else {

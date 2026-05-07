@@ -56,6 +56,7 @@ export function fireWhenViewLoaded(view = {}, { forceUpdate, controls } = {}) {
       controls || get(getState(), 'sheet.controls') || [],
     );
     const fastFiltersHasDefaultValue = some(newFastFilters, validate);
+
     if ((fastFiltersHasDefaultValue || forceUpdate) && !chartId) {
       if (get(view, 'advancedSetting.enablebtn') !== '1') {
         dispatch(
@@ -75,6 +76,7 @@ export function fireWhenViewLoaded(view = {}, { forceUpdate, controls } = {}) {
           ),
         );
       }
+
       dispatch(updateQuickFilterWithDefault(newFastFilters));
     } else {
       dispatch(updateQuickFilterWithDefault(view.fastFilters));
@@ -89,16 +91,19 @@ export function handleLoadOperateButtons({ worksheetInfo }) {
     );
     const needLoadCustomButtons = !get(window, 'shareState.shareId') && find(actionColumn, c => c.type === 'btn');
     const needLoadPrintList = !get(window, 'shareState.shareId') && find(actionColumn, c => c.type === 'print');
+
     if (!needLoadCustomButtons && !needLoadPrintList) {
       dispatch({
         type: 'WORKSHEET_UPDATE_OPERATE_BUTTON_LOADING',
         loading: false,
       });
     }
+
     const loadingStatus = {
       customButtons: !!needLoadCustomButtons,
       printList: !!needLoadPrintList,
     };
+
     function handleUpdateOperateButtonLoading() {
       if (values(loadingStatus).every(v => !v)) {
         dispatch({
@@ -107,6 +112,7 @@ export function handleLoadOperateButtons({ worksheetInfo }) {
         });
       }
     }
+
     if (needLoadCustomButtons) {
       dispatch(
         loadCustomButtons(
@@ -121,6 +127,7 @@ export function handleLoadOperateButtons({ worksheetInfo }) {
         ),
       );
     }
+
     if (needLoadPrintList) {
       worksheetAjax.getPrintList({ worksheetId: worksheetInfo.worksheetId }).then(data => {
         dispatch({
@@ -138,16 +145,20 @@ export const updateBase = base => {
   return (dispatch, getState) => {
     const sheet = getState().sheet;
     const viewChanged = _.get(sheet, 'base.viewId') && base.viewId && _.get(sheet, 'base.viewId') !== base.viewId;
+
     if (viewChanged) {
       const view = _.find(sheet.views, v => v.viewId === base.viewId);
+
       if (view && needHideViewFilters(view)) {
         dispatch(clearFilters());
       }
+
       // 层级视图切换视图时清空数据，避免显示上一视图的旧数据
       if (view?.viewType === 2) {
         dispatch(resetHierarchyViewData());
       }
     }
+
     dispatch({
       type: 'WORKSHEET_UPDATE_BASE',
       base: Object.assign({}, base, {
@@ -218,6 +229,7 @@ export function loadWorksheet(worksheetId, setRequest) {
     if (_.isFunction(setRequest)) {
       setRequest(worksheetRequest);
     }
+
     worksheetRequest
       .then(async res => {
         const translateInfo = getTranslateInfo(appId, null, worksheetId);
@@ -233,6 +245,7 @@ export function loadWorksheet(worksheetId, setRequest) {
           });
           return;
         }
+
         const addBehaviorLogInfo = sessionStorage.getItem('addBehaviorLogInfo')
           ? JSON.parse(sessionStorage.getItem('addBehaviorLogInfo'))
           : {};
@@ -276,15 +289,18 @@ export function loadWorksheet(worksheetId, setRequest) {
           if (infoRes.isWorksheetQuery) {
             queryRes = await worksheetAjax.getQueryBySheetId({ worksheetId }, { silent: true });
           }
+
           if (_.get(window, 'shareState.isPublicView') || _.get(window, 'shareState.isPublicPage')) {
             infoRes.allowAdd = false;
           }
+
           if (queryRes) {
             dispatch({
               type: 'WORKSHEET_SEARCH_CONFIG_INIT',
               value: formatSearchConfigs(queryRes),
             });
           }
+
           window[`timeZone_${appId}`] = infoRes.appTimeZone;
           const newControls = replaceControlsTranslateInfo(appId, worksheetId, _.get(infoRes, 'template.controls'));
           infoRes.entityName = translateInfo.recordName || infoRes.entityName;
@@ -295,9 +311,11 @@ export function loadWorksheet(worksheetId, setRequest) {
               res.advancedSetting || {},
             );
           }
+
           if (infoRes.rules && infoRes.rules.length) {
             infoRes.rules = replaceRulesTranslateInfo(appId, worksheetId, res.rules);
           }
+
           if (infoRes.views) {
             infoRes.views.forEach(view => {
               (view.viewControls || []).forEach(item => {
@@ -305,9 +323,11 @@ export function loadWorksheet(worksheetId, setRequest) {
               });
             });
           }
+
           if (_.isEmpty(newControls)) {
             return;
           }
+
           dispatch({
             type: 'WORKSHEET_UPDATE_VIEWS',
             views: infoRes.views,
@@ -328,9 +348,11 @@ export function loadWorksheet(worksheetId, setRequest) {
           });
           dispatch(handleLoadOperateButtons({ worksheetInfo: infoRes }));
           const currentView = find(infoRes.views, { viewId });
+
           if (currentView) {
             dispatch(fireWhenViewLoaded(currentView, { controls: infoRes.template.controls }));
           }
+
           dispatch(setViewLayout(viewId));
           if (worksheetId) {
             dispatch({
@@ -338,6 +360,7 @@ export function loadWorksheet(worksheetId, setRequest) {
               value: infoRes.switches,
             });
           }
+
           dispatch({
             type: 'WORKSHEET_UPDATE_IS_REQUESTING_RELATION_CONTROLS',
             value: false,
@@ -364,6 +387,7 @@ export function loadCustomButtons({ appId, viewId, rowId, worksheetId }, cb = ()
     if (!worksheetId || _.get(window, 'shareState.isPublicView') || _.get(window, 'shareState.isPublicPage')) {
       return;
     }
+
     worksheetAjax
       .getWorksheetBtns({
         appId,
@@ -373,6 +397,7 @@ export function loadCustomButtons({ appId, viewId, rowId, worksheetId }, cb = ()
       })
       .then(newButtons => {
         const buttons = replaceBtnsTranslateInfo(appId, newButtons);
+
         if (!viewId) {
           dispatch({
             type: 'WORKSHEET_UPDATE_SHEETBUTTONS',
@@ -384,6 +409,7 @@ export function loadCustomButtons({ appId, viewId, rowId, worksheetId }, cb = ()
             buttons,
           });
         }
+
         cb();
       });
   };
@@ -393,6 +419,7 @@ export function updateCustomButtons(btns, isAdd) {
   return (dispatch, getState) => {
     const sheet = getState().sheet;
     let { buttons = [], sheetButtons = [] } = sheet;
+
     if (isAdd) {
       const sheet = getState().sheet;
       const { base } = sheet;
@@ -435,19 +462,23 @@ export function saveView(viewId, newConfig, cb) {
     const view = _.find(views, v => v.viewId === viewId);
     const saveParams = { ...newConfig };
     const editAttrs = Object.keys(saveParams).filter(o => 'editAdKeys' !== o);
+
     if (!view) {
       console.error('can not find view');
       return;
     }
+
     // 筛选需要在保存成功后再触发界面更新
     const updateAfterSave =
       _.some(['filters', 'moreSort', 'viewControl', 'fastFilters'].map(k => editAttrs.includes(k))) ||
       (editAttrs.includes('advancedSetting') &&
         (!!_.get(saveParams, ['advancedSetting', 'navfilters']) ||
           !!_.get(saveParams, ['advancedSetting', 'colorid'])));
+
     if (saveParams.filters) {
       saveParams.filters = saveParams.filters.map(formatValuesOfCondition);
     }
+
     dispatch({ type: 'VIEW_UPDATE_VIEW_SET_LOADING', saveViewSetLoading: true });
     worksheetAjax
       .saveWorksheetView({
@@ -464,6 +495,7 @@ export function saveView(viewId, newConfig, cb) {
           },
           { ...view, ...newConfig },
         );
+
         if (
           _.get(newConfig, 'advancedSetting.shownullitem') !== _.get(view, 'advancedSetting.shownullitem') &&
           _.get(newConfig, 'advancedSetting.shownullitem') === '' &&
@@ -474,10 +506,12 @@ export function saveView(viewId, newConfig, cb) {
             dispatch(updateGroupFilter([]));
           }
         }
+
         if (editAttrs.includes('navGroup')) {
           dispatch(updateGroupFilter([], nextView));
           dispatch(getNavGroupCount());
         }
+
         if (includes(saveParams.editAdKeys, 'actioncolumn')) {
           dispatch(
             handleLoadOperateButtons({
@@ -488,6 +522,7 @@ export function saveView(viewId, newConfig, cb) {
             }),
           );
         }
+
         dispatch({
           type: 'WORKSHEET_UPDATE_VIEW',
           view: data,
@@ -500,9 +535,11 @@ export function saveView(viewId, newConfig, cb) {
             dispatch(refreshSheet(nextView));
           }
         }
+
         if (typeof cb === 'function') {
           cb(nextView);
         }
+
         dispatch({ type: 'VIEW_UPDATE_VIEW_SET_LOADING', saveViewSetLoading: false });
       })
       .catch(() => {
@@ -609,6 +646,7 @@ export function openNewRecord({ isDraft, allowShowMingoCreate } = {}) {
         ],
         String(view.viewType),
       );
+
     function handleAdd(param = {}) {
       const publicShare =
         isOpenPermit(permitList.recordShareSwitch, lastSheetSwitchPermit, viewId) && !md.global.Account.isPortal;
@@ -654,9 +692,11 @@ export function openNewRecord({ isDraft, allowShowMingoCreate } = {}) {
         },
       });
     }
+
     if (hasGroupFilter && !_.isEmpty(navGroupFilters) && navGroupFilters.length > 0) {
       let defaultFormData;
       let data = navGroupFilters[0];
+
       if (AREA.includes(data.dataType)) {
         defaultFormData = { [data.controlId]: data.navNames };
         handleAdd({
@@ -675,11 +715,13 @@ export function openNewRecord({ isDraft, allowShowMingoCreate } = {}) {
         let value = '';
         const id = _.get(data, 'values[0]');
         const name = _.get(data, 'navNames[0]');
+
         if (id && name) {
           value = JSON.stringify([safeParse(name)]);
         } else {
           value = '[]';
         }
+
         defaultFormData = { [data.controlId]: value };
         handleAdd({
           defaultFormData,
@@ -687,9 +729,11 @@ export function openNewRecord({ isDraft, allowShowMingoCreate } = {}) {
         });
       } else if ([29, 35].includes(data.dataType)) {
         const targetWorksheetId = _.find(worksheetInfo.template.controls, { controlId: data.controlId }).dataSource;
+
         if (!targetWorksheetId) {
           return;
         }
+
         worksheetAjax
           .getRowDetail({
             worksheetId: targetWorksheetId,
@@ -787,9 +831,11 @@ export function updateQuickFilterWithDefault(filter = []) {
 export function resetQuickFilter(view) {
   return (dispatch, getState) => {
     const { quickFilter } = getState().sheet;
+
     if (_.isEmpty(quickFilter)) {
       return;
     }
+
     dispatch({
       type: 'WORKSHEET_RESET_QUICK_FILTER',
     });
@@ -895,11 +941,13 @@ export function updateViewShowcount(showcount) {
   return (dispatch, getState) => {
     const { base } = getState().sheet;
     const { viewId } = base;
+
     if (!showcount) {
       window.localStorage.removeItem('showcount_' + viewId);
     } else {
       safeLocalStorageSetItem('showcount_' + viewId, showcount);
     }
+
     dispatch({
       type: 'VIEW_UPDATE_SHOW_COUNT',
       showcount,

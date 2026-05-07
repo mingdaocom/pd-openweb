@@ -105,6 +105,7 @@ function APICard(props) {
             if (!props.isConnectOwner) {
               return;
             }
+
             props.switchEnabled(props.item);
           }}
         />
@@ -141,6 +142,7 @@ function APICard(props) {
                   if (!props.canEdit) {
                     return;
                   }
+
                   props.onCopyProcess(props.item);
                 }}
               />
@@ -155,6 +157,7 @@ function APICard(props) {
                   if (!props.canEdit) {
                     return;
                   }
+
                   props.onDel && props.onDel(props.item);
                 }}
               />

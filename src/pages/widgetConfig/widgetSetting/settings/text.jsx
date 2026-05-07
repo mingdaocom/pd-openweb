@@ -81,6 +81,7 @@ export default function Text(props) {
                       onChange({ ...handleAdvancedSettingChange(data, { datamask: '0' }), enumDefault: item.value });
                       return;
                     }
+
                     // markdown
                     if (item.value === 3) {
                       onChange({
@@ -95,6 +96,7 @@ export default function Text(props) {
                       });
                       return;
                     }
+
                     onChange({ enumDefault: item.value });
                   }}
                 >

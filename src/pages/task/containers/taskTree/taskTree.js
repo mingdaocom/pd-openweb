@@ -105,6 +105,7 @@ class TaskTree extends Component {
     $taskList.on('click', '.nodeSwitch.on', function (event) {
       const $li = $(this).closest('li');
       const $children = $li.children('ul');
+
       if ($children.length > 0) {
         const $singleTreeTask = $li.children('.singleTreeTask');
         $singleTreeTask.find('.nodeSwitch').removeClass('on').addClass('off').end().find('.joinLine').show();
@@ -113,8 +114,10 @@ class TaskTree extends Component {
         if ($li.find('.treeLoadingSingleTask').length > 0) {
           return;
         }
+
         that.getNodeTask($li);
       }
+
       event.stopPropagation();
     });
 
@@ -283,12 +286,14 @@ class TaskTree extends Component {
     const folderId = this.props.taskConfig.folderId;
     let projectId = this.props.taskConfig.projectId;
     let taskId;
+
     if (folderId) {
       taskId = item.closest('li').data('taskid');
     } else {
       taskId = item.closest('tr').data('taskid');
       projectId = item.closest('tr').data('projectid');
     }
+
     item.data('hasbusinesscard', true);
 
     const root = createRoot(ele);
@@ -340,15 +345,18 @@ class TaskTree extends Component {
     listLoadingContent(taskTreeSettings.pageIndex);
 
     let stageId = '';
+
     if (listStatus == 1) {
       stageId = 1;
     }
+
     if (listStatus == -1 && taskTreeSettings.pageIndex > 1) {
       stageId = 1;
     }
 
     let withoutTag = false;
     const tagIDs = _.filter(filterSettings.tags, tagId => tagId !== 'null');
+
     if (_.findIndex(filterSettings.tags, tagId => tagId === 'null') >= 0) {
       withoutTag = true;
     }
@@ -397,6 +405,7 @@ class TaskTree extends Component {
         }
 
         let stages = source.data.stages;
+
         // 分页
         if (taskTreeSettings.pageIndex > 1) {
           const index = source.data.stages.length;
@@ -476,6 +485,7 @@ class TaskTree extends Component {
             } else {
               $('#taskList .singleFolderTask:first').append(allTasks);
             }
+
             $('#taskList .chargeImgWrap').each((index, ele) => {
               this.renderUserCard(ele);
             });
@@ -580,6 +590,7 @@ class TaskTree extends Component {
       .then(source => {
         if (source.status) {
           const tasks = source.data;
+
           if (tasks.length <= 0) {
             $li.find('.treeLoadingSingleTask').remove();
             // 顶级
@@ -595,12 +606,14 @@ class TaskTree extends Component {
                   '<span class="subJoinLine"></span><span class="InlineBlockTop subNoneNode"></span><span class="nodeCircleSmall circle "></span>',
                 );
             }
+
             return;
           }
 
           // 肯定只有一个  展开节点
           const $parentTask = $li.children('.singleTreeTask');
           let pLeft = 20;
+
           if (deep != 1) {
             pLeft = deep * 20;
           }
@@ -632,6 +645,7 @@ class TaskTree extends Component {
   quickCreateTaskCallback = source => {
     const data = source.data;
     const { folderId, projectId, filterUserId } = this.props.taskConfig;
+
     // 当前页面任务
     if (data.folderID === folderId || (data.projectId === projectId && folderId === 1)) {
       // 子任务
@@ -688,12 +702,14 @@ class TaskTree extends Component {
           $li = $($stage[1]);
 
           const $createNewSingle = $('#taskList .createNewSingle');
+
           // 包裹创建任务
           if (!$createNewSingle.parent().is('.createNewTask')) {
             $stage.eq(1).prepend($createNewSingle);
             $createNewSingle.wrap('<div class="createNewTask"></div>');
             $createNewSingle.find('input').focus();
           }
+
           // 快速创建任务 已经有任务了
           $('.listCreateNew, #taskSearchNullTask').remove();
         }
@@ -731,8 +747,10 @@ class TaskTree extends Component {
         if (!hasSubTask) {
           folders.isNew = false;
         }
+
         folders.data = [data];
       }
+
       const allTasks = doT.template(treeMaster)(folders);
       const $singleTreeTask = $li.children('.singleTreeTask');
 
@@ -763,6 +781,7 @@ class TaskTree extends Component {
       } else {
         let pLeft = 20;
         const deep = folders.deep;
+
         if (deep != 1) {
           pLeft = deep * 20;
         }
@@ -789,6 +808,7 @@ class TaskTree extends Component {
           $sumCount.text(parseInt($sumCount.text() || 0, 10) + 1);
         }
       }
+
       $('#taskList .chargeImgWrap').each((index, ele) => {
         this.renderUserCard(ele);
       });

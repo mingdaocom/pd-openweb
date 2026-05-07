@@ -74,11 +74,13 @@ class PositionInfo extends Component {
   handleSearch = _.throttle(value => {
     const { projectId, positionPageInfo = {}, positionList = [] } = this.props;
     const { pageIndex = 1 } = positionPageInfo;
+
     if (!value) {
       this.props.updatePositionPageInfo({ ...positionPageInfo, pageIndex: 1 });
       this.props.getPositionList();
       return;
     }
+
     this.props.updateSearchValue(value);
     this.ajaxObj = jobAjax.getJobs({ projectId, keywords: value, pageIndex, pageSize: 50 });
     this.ajaxObj.then(res => {
@@ -116,9 +118,11 @@ class PositionInfo extends Component {
   render() {
     const { positionList = [], isLoading = false, currentPosition, projectId, isImportRole, searchValue } = this.props;
     let { showRoleDialog, filed } = this.state;
+
     if (isImportRole) {
       return this.renderImportInfo();
     }
+
     return (
       <div className="orgManagementWrap">
         <div className="orgManagementHeader justifyContentLeft">
@@ -143,6 +147,7 @@ class PositionInfo extends Component {
                       this.ajaxObj.abort();
                       this.ajaxObj = null;
                     }
+
                     this.props.updateIsLoading(true);
                     this.handleSearch(e.target.value);
                   }}

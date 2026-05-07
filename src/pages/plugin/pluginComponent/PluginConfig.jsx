@@ -252,6 +252,7 @@ function PluginConfig(props) {
     if (!_.includes([pluginConfigType.debugEnv, pluginConfigType.paramSetting], currentTab)) {
       setFetchListState({ loading: true, pageIndex, keywords });
     }
+
     switch (currentTab) {
       case pluginConfigType.commit:
         pluginApi
@@ -339,10 +340,12 @@ function PluginConfig(props) {
       alert(_l('请选择应用'), 3);
       return;
     }
+
     if (!detailData.debugEnvironments[0].worksheetId) {
       alert(_l('请选择工作表'), 3);
       return;
     }
+
     pluginApi
       .create(
         {
@@ -386,14 +389,20 @@ function PluginConfig(props) {
       if (configType === pluginConfigType.create) {
         onCreate();
       } else {
+        const configStr =
+          typeof detailData.configuration === 'string'
+            ? detailData.configuration
+            : JSON.stringify(detailData.configuration ?? {});
+
         if (
-          !!detailData.configuration.replace(/\s/g, '') &&
-          detailData.configuration.replace(/\s/g, '') !== '{}' &&
+          !!configStr.replace(/\s/g, '') &&
+          configStr.replace(/\s/g, '') !== '{}' &&
           _.isEmpty(safeParse(detailData.configuration))
         ) {
           alert(_l('配置格式不正确,请输入JSON格式'), 3);
           return;
         }
+
         const updateObj = { configuration: safeParse(detailData.configuration) };
         onUpdate(
           updateObj,
@@ -627,6 +636,7 @@ function PluginConfig(props) {
                       onChange={name => setDetailData({ ...detailData, name })}
                       onBlur={e => {
                         const updateObj = { name: !e.target.value.trim() ? _l('未命名插件') : e.target.value.trim() };
+
                         if (configType !== pluginConfigType.create) {
                           onUpdate(updateObj, () => {
                             setDetailData({ ...detailData, ...updateObj });

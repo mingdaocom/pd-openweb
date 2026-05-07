@@ -66,7 +66,9 @@ export default function QuickFilterSearch(props) {
     updateFilters = () => {},
     updateActiveSavedFilter = () => {},
     base = {},
+    config = {},
   } = props;
+  const { allowFilter = true } = config;
   const showSavedFilter = !_.get(window, 'shareState.shareId') && base.type !== 'single';
 
   const filtersControl = quickFilterWithDefault
@@ -89,6 +91,7 @@ export default function QuickFilterSearch(props) {
         worksheetId={worksheetInfo.worksheetId}
         worksheetInfo={worksheetInfo}
         view={view}
+        allowFilter={allowFilter}
         filters={filtersControl}
         controls={sheetControls}
         savedFilters={savedFilters}
@@ -105,7 +108,9 @@ export default function QuickFilterSearch(props) {
       {showSearch && (
         <Search inputPlaceholder={groupControlId ? _l('搜索') : ''} textFilters={[]} viewType={view.viewType} />
       )}
-      {(window.isMingDaoApp || !_.isEmpty(filtersControl) || (showSavedFilter && !_.isEmpty(savedFilters))) && (
+      {((window.isMingDaoApp ? allowFilter : false) ||
+        !_.isEmpty(filtersControl) ||
+        (showSavedFilter && !_.isEmpty(savedFilters))) && (
         <FilterWrapper>
           <Icon
             icon="filter"

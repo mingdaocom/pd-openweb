@@ -10,9 +10,11 @@ const formatContactsData = (store, list) => {
   _.each(list, item => {
     const { firstCode } = item;
     const title = /[A-Z]/.test(firstCode.toUpperCase()) ? firstCode.toUpperCase() : '#';
+
     if (!result[title]) {
       result[title] = [];
     }
+
     result[title].push(item);
     // result[title] = _.uniqBy(result[title], (item) => item.accountId);
   });
@@ -81,6 +83,7 @@ export default class Others extends React.Component {
     this.promise = API.fetchOthers({ pageIndex, keywords });
     return this.promise.then(data => {
       const { listData } = this.state;
+
       if (keywords) {
         this.setState({
           listData: (listData || []).concat(data.list),
@@ -91,6 +94,7 @@ export default class Others extends React.Component {
           listData: formatContactsData(listData, data.list),
         });
       }
+
       // has more data to load
       return data.list && data.list.length;
     });

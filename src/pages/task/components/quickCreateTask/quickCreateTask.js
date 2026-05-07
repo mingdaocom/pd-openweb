@@ -28,9 +28,11 @@ class QuickCreateTask {
       $('.listCreateNew, #taskSearchNullTask').hide();
       if ($('#taskList .listStageTaskContent').length) {
         const $listStageTaskContent = $('#taskList .listStageTaskContent:first');
+
         if (!$listStageTaskContent.is(':visible')) {
           $('#taskList .taskListStageName:first').click();
         }
+
         $listStageTaskContent.prepend(doT.template(quickCreateTask)());
       } else {
         $('#taskList').append(doT.template(quickCreateTask)());
@@ -112,6 +114,7 @@ class QuickCreateTask {
     });
 
     const $createSingleDate = $('.createNewSingle .createSingleDate');
+
     const bindDate = () => {
       const { start: defaultStart, end: defaultEnd } = $createSingleDate.data();
       const root = createRoot($createSingleDate[0]);
@@ -167,6 +170,7 @@ class QuickCreateTask {
         const top = $(this).offset().top;
         const stageDropHeight = $stageDrop.height();
         const winBottomGap = 30;
+
         if (top + stageDropHeight + winBottomGap > WINHEIGHT) {
           $stageDrop.css('top', -stageDropHeight - 3);
         } else {
@@ -182,10 +186,12 @@ class QuickCreateTask {
 
         // 移动阶段
         const $stage = $("#taskList span[data-stageid='" + _this.settings.stageId + "']").parent();
+
         if ($stage.next().is('.listStageTaskContent')) {
           if (!$stage.next().is(':visible')) {
             $stage.find('.listFolderNameText').trigger('click');
           }
+
           $stage.next().prepend($('.createNewSingle'));
         } else {
           $stage.after($('.createNewSingle'));
@@ -194,6 +200,7 @@ class QuickCreateTask {
         const $taskList = $('#taskList');
         const taskListHeight = $taskList.height();
         const scrollHeight = $taskList[0].scrollHeight;
+
         // 移动滚动条 有滚动条
         if (scrollHeight > taskListHeight) {
           const top = $('.createNewSingle').offset().top;
@@ -207,6 +214,7 @@ class QuickCreateTask {
     // 点击切换负责人
     $('.createNewSingle .chargeImgWrapQuick').on('click', function () {
       const $this = $(this);
+
       const callback = function (users) {
         _this.updateCharge(users[0].accountId, users[0].avatar);
       };
@@ -253,16 +261,19 @@ class QuickCreateTask {
         if ($('.md_dialog:visible').length > 0) {
           return;
         }
+
         // 日历层
         if ($target.closest('.PositionContainer-wrapper').length > 0) {
           return;
         }
+
         // 提示层
         if ($target.closest('#alertDialog').length > 0) {
           return;
         }
 
         const $createNewSingle = $('.createNewSingle ');
+
         // 存在快速创建
         if (
           ($('.listCreateNew, #taskSearchNullTask').length > 0 && $createNewSingle.length > 0) ||
@@ -272,6 +283,7 @@ class QuickCreateTask {
           if ($target.closest('.messageDiv').length > 0) {
             return;
           }
+
           if ($target.closest('.createNewSingle').length <= 0) {
             _this.quickCreateTask(false);
           }
@@ -280,6 +292,7 @@ class QuickCreateTask {
         // 阶段下拉
         if ($target.closest('.stageBox').length <= 0) {
           const $stageDrop = $('ul.stageDrop');
+
           if ($stageDrop.length > 0) {
             $('ul.stageDrop').hide();
           }
@@ -302,6 +315,7 @@ class QuickCreateTask {
           let stage;
           let spanShow;
           let contentHtml = '';
+
           for (let i = 0; i < stageCount; i++) {
             stage = stages[i];
             contentHtml =
@@ -319,6 +333,7 @@ class QuickCreateTask {
               spanShow = '<span class="showStage boderRadAll_3 icon-task-quick-stage"></span>';
             }
           }
+
           const sb = `
           <ul class="stageDrop boderRadAll_3 boxShadow5">
           ${contentHtml}
@@ -353,6 +368,7 @@ class QuickCreateTask {
     const settings = _this.settings;
     // 任务名称
     const taskName = $('.createNewSingle .txtSingleName').val().trim();
+
     if (taskName) {
       const start = $('.createNewSingle .createSingleDate').data('start');
       const end = $('.createNewSingle .createSingleDate').data('end');

@@ -51,7 +51,7 @@ const SyncTaskWrapper = styled.div`
   .tabNav {
     height: 32px;
     width: fit-content;
-    border: 2px solid var(--color-background-disabled);
+    border: 2px solid var(--color-border-secondary);
     border-radius: 12px;
     padding: 0 16px;
     cursor: pointer;
@@ -97,7 +97,7 @@ const CardWrapper = styled.div`
   width: 800px;
   height: 200px;
   background: var(--color-background-primary);
-  border: 2px solid var(--color-background-disabled);
+  border: 2px solid var(--color-border-secondary);
   border-radius: 12px;
   padding: 32px;
   margin-top: 16px;
@@ -159,6 +159,7 @@ export default function CreateSyncTask(props) {
       }
     });
   };
+
   const featureType = getFeatureStatus(currentProjectId, VersionProductType.dataIntegrationETL);
 
   return (
@@ -182,6 +183,7 @@ export default function CreateSyncTask(props) {
                   buriedUpgradeVersionDialog(currentProjectId, VersionProductType.dataIntegrationETL);
                   return;
                 }
+
                 onInitTaskFlow();
               }}
             >

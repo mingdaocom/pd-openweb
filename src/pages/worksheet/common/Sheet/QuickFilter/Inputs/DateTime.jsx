@@ -17,6 +17,7 @@ function getPicker(type) {
     5: 'year',
   }[type];
 }
+
 const Con = styled.div`
   position: relative;
   display: flex;
@@ -44,6 +45,7 @@ const Con = styled.div`
       display: none;
     }
     .ant-picker-input input {
+      color: var(--color-text-primary) !important;
       font-size: 13px;
     }
   }
@@ -77,6 +79,7 @@ const Content = styled.div`
     width: 100%;
     .Dropdown--input {
       padding: 0 10px !important;
+      background: transparent !important;
     }
     .Icon.ming {
       position: absolute;
@@ -125,6 +128,7 @@ function removeDateLimit(control) {
   control.advancedSetting.allowtime = undefined;
   control.advancedSetting.timeinterval = undefined;
 }
+
 export default function DateTime(props) {
   const {
     control,
@@ -141,20 +145,24 @@ export default function DateTime(props) {
   let dateOptions = DATE_TYPE.concat([[{ text: _l('指定时间'), value: 18 }]]);
   const [active, setActive] = useState();
   const [pickerVisible, setPickerVisible] = useState();
+
   if (dateRangeType) {
     control.advancedSetting.showtype = String(dateRangeType);
     if (includes(['3', '4', '5'], String(dateRangeType))) {
       control.type = 15;
     }
   }
+
   removeDateLimit(control);
   const showType = _.get(control, 'advancedSetting.showtype');
   let allowedDateRange = [];
+
   try {
     allowedDateRange = JSON.parse(advancedSetting.daterange);
   } catch (err) {
     console.log(err);
   }
+
   const showDatePicker = dateRange === 18 || (_.isEmpty(allowedDateRange) && dateRange === 0);
   const isEmpty =
     dateRange === 18
@@ -165,6 +173,7 @@ export default function DateTime(props) {
   const showValueFormat = getShowFormat(control);
   const valueFormat = getDatePickerConfigs(control).formatMode;
   const timeFormat = showValueFormat.split(' ')[1];
+
   if (_.includes(['4', '5'], showType)) {
     dateOptions = dateOptions
       .map(options =>
@@ -174,8 +183,10 @@ export default function DateTime(props) {
       )
       .filter(options => options.length);
   }
+
   const dropdownData = dateOptions.map(os => os.filter(o => _.includes(allowedDateRange.concat(18), o.value)));
   let pickerComp = null;
+
   if (showDatePicker) {
     if (filterType === FILTER_CONDITION_TYPE.DATE_BETWEEN) {
       pickerComp = (
@@ -200,6 +211,7 @@ export default function DateTime(props) {
               if (!moments || !_.isArray(moments)) {
                 moments = [];
               }
+
               onChange({
                 dateRange: 18,
                 filterType: 31,
@@ -241,6 +253,7 @@ export default function DateTime(props) {
       );
     }
   }
+
   return (
     <Con className={cx({ active, isEmpty })}>
       <Content className={cx({ isEmpty })}>
@@ -258,9 +271,11 @@ export default function DateTime(props) {
                   maxValue: undefined,
                   dateRangeType,
                 };
+
                 if (newValue === 18) {
                   setPickerVisible(true);
                 }
+
                 onChange(change);
               }}
               onVisibleChange={setActive}

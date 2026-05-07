@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+﻿import React, { Fragment } from 'react';
 import { Popover } from 'antd';
 import copy from 'copy-to-clipboard';
 import { saveAs } from 'file-saver';
@@ -179,6 +179,7 @@ export default class ShareUrl extends React.Component {
       customBtns = [],
       className = '',
       theme = 'default',
+      copyText,
       copyShowText,
       allowSendToChat = false,
       qrVisible = true,
@@ -190,8 +191,10 @@ export default class ShareUrl extends React.Component {
       refreshShareUrl,
     } = this.props;
     const { showinput, chatVisible } = this.state;
-    const qrurl = md.global.Config.AjaxApiUrl + `code/CreateQrCodeImage?url=${url}`;
-    const qrurlDownload = md.global.Config.AjaxApiUrl + `code/CreateQrCodeImage?url=${url}&size=20&download=true`;
+    const encodeUrl = encodeURIComponent(url);
+    const qrurl = md.global.Config.AjaxApiUrl + `code/CreateQrCodeImage?url=${encodeUrl}`;
+    const qrurlDownload = md.global.Config.AjaxApiUrl + `code/CreateQrCodeImage?url=${encodeUrl}&size=20&download=true`;
+
     const renderButtons = (btn, index) =>
       btn.showCompletely ? (
         <SeparateDisplayButton style={btn.style} theme={theme} onClick={btn.onClick}>
@@ -205,15 +208,17 @@ export default class ShareUrl extends React.Component {
           </Icon>
         </Tooltip>
       );
+
     const renderCopy = () => {
       const renderCopyDom = () => {
         return (
           <SeparateDisplayButton theme={theme} onClick={() => this.handleCopy(url)} style={showCompletely.style}>
             <i className="icon-content-copy" style={showCompletely.iconStyle}></i>
-            <span className="text">{_l('复制')}</span>
+            <span className="text">{copyText || _l('复制')}</span>
           </SeparateDisplayButton>
         );
       };
+
       return !copyTip ? (
         renderCopyDom()
       ) : (
@@ -222,6 +227,7 @@ export default class ShareUrl extends React.Component {
         </Tooltip>
       );
     };
+
     return (
       <Fragment>
         <div className={`flexRow ${className}`} style={style}>
@@ -285,12 +291,12 @@ export default class ShareUrl extends React.Component {
             ) : copyShowText ? (
               !copyTip ? (
                 <TextIcon theme={theme} className="copy" onClick={() => this.handleCopy(url)}>
-                  <span className="text">{_l('复制')}</span>
+                  <span className="text">{copyText || _l('复制')}</span>
                 </TextIcon>
               ) : (
                 <Tooltip placement="bottom" title={copyTip}>
                   <TextIcon theme={theme} className="copy" onClick={() => this.handleCopy(url)}>
-                    <span className="text">{_l('复制')}</span>
+                    <span className="text">{copyText || _l('复制')}</span>
                   </TextIcon>
                 </Tooltip>
               )

@@ -16,6 +16,7 @@ const Abnormal = styled.div`
     color: var(--color-warning);
   }
 `;
+
 export default function createPermissionCheckWrapper(Comp) {
   return function (props) {
     const [loading, setLoading] = useState(true);

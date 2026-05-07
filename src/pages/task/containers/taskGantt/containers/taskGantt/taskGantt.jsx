@@ -108,6 +108,7 @@ class TaskGantt extends Component {
               isDateUpdate = true;
               config.minStartTime = item.startTime;
             }
+
             // 截止时间大于最大时间
             if (item.deadline && moment(item.deadline) > moment(config.maxEndTime)) {
               isDateUpdate = true;

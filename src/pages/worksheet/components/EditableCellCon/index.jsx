@@ -19,6 +19,7 @@ const Con = styled.div`
     align-items: center;
   }
 `;
+
 function EditableCellCon(props) {
   const {
     className,

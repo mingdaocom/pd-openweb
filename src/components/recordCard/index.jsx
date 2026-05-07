@@ -47,9 +47,11 @@ export default class RecordCard extends Component {
     const { from = 1, disableDownload } = this.props;
     const { cover } = this;
     const isMobile = from === FROMS.MOBILE;
+
     if (isMobile) {
       return;
     }
+
     previewAttachments(
       transformQiniuUrl(cover.previewUrl.replace(/\|imageView2\/1\/w\/\d+\/h\/\d+/, ''), {
         disableDownload,
@@ -60,16 +62,20 @@ export default class RecordCard extends Component {
   };
   get cover() {
     const { coverCid, data } = this.props;
+
     if (!coverCid) {
       return null;
     }
+
     let coverControlData;
+
     try {
       coverControlData = getCoverControlData(JSON.parse(data[coverCid]) || []);
     } catch (err) {
       console.log(err);
       return null;
     }
+
     return coverControlData;
   }
   get cardControls() {

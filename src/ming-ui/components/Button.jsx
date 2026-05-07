@@ -82,6 +82,7 @@ export default class Button extends Component {
     if (!this.props.loading && !this.state.loading) {
       setTimeout(() => this.computeWidth(), 0);
     }
+
     this.mounted = true;
   }
 
@@ -107,6 +108,7 @@ export default class Button extends Component {
 
   handleClick(...args) {
     const { action, onClick } = this.props;
+
     if (action) {
       try {
         this.promise = action.apply(this, args);
@@ -114,11 +116,13 @@ export default class Button extends Component {
         const stopLoading = () => {
           if (this.mounted) this.setState({ loading: false });
         };
+
         this.promise && this.promise.then(stopLoading, stopLoading);
       } catch (e) {
         console.error(e);
       }
     }
+
     if (onClick) onClick.apply(this, args);
   }
 

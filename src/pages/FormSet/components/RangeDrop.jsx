@@ -19,8 +19,8 @@ const RangeBox = styled.div`
   position: absolute;
   z-index: 10;
   width: 320px;
-  background: var(--color-background-primary) 0% 0% no-repeat padding-box;
-  box-shadow: 0px 12px 24px #0000003d;
+  background: var(--color-background-card) 0% 0% no-repeat padding-box;
+  box-shadow: var(--shadow-lg);
   box-sizing: border-box;
   line-height: 1;
   font-size: 14px;

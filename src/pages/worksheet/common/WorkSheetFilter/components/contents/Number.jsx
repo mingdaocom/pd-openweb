@@ -39,13 +39,17 @@ export default class Number extends Component {
   handleChange = () => {
     const { onChange } = this.props;
     let { value, maxValue, minValue } = this.state;
+
     function isEmpty(v) {
       return _.isUndefined(v) || v === '';
     }
+
     const changes = {};
+
     if (isEmpty(value) && isEmpty(minValue) && isEmpty(maxValue)) {
       return;
     }
+
     if (minValue && maxValue && parseFloat(maxValue) < parseFloat(minValue)) {
       changes.minValue = maxValue;
       changes.maxValue = minValue;
@@ -58,6 +62,7 @@ export default class Number extends Component {
       changes.minValue = minValue;
       changes.value = value;
     }
+
     if (value !== this.props.value || minValue !== this.props.minValue || maxValue !== this.props.maxValue) {
       onChange(changes);
     }

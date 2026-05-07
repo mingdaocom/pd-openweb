@@ -24,6 +24,7 @@ export default class SystemMessage extends Component {
   }
   handleClick(event) {
     const { target } = event;
+
     if (target.tagName === 'SPAN') {
       target.classList.contains('addFriend') && this.addFriend();
       target.classList.contains('invite') && this.invite();
@@ -34,11 +35,13 @@ export default class SystemMessage extends Component {
     const textarea = $(`#ChatPanel-${session.id}`).find('.ChatPanel-Textarea .Textarea');
     const currentValue = textarea.val();
     const onChangeChatValue = window[`onChangeChatValue-${session.id}`] || _.noop;
+
     if (currentValue) {
       onChangeChatValue(`${currentValue} ${message.msg.oldCon}`);
     } else {
       onChangeChatValue(message.msg.oldCon);
     }
+
     setTimeout(() => {
       textarea.focus();
     }, 0);

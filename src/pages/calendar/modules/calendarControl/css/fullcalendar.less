@@ -1,3 +1,7 @@
+[data-theme='dark'] & {
+  --color-error-bg: rgba(255, 255, 255, 0.08);
+}
+
 /* FullCalendar v2.1.0 Stylesheet */
 .AppCalendar {
   .fcOld {
@@ -370,13 +374,20 @@
     text-decoration: none;
   }
 
+  .fc-agendaDay-view,
+  .fc-agendaWeek-view {
+    .fc-event.fc-draggable {
+      color: #151515 !important;
+    }
+  }
+
   .fc-event[href],
   .fc-event.fc-draggable {
     cursor: pointer;
     color: var(--color-text-primary) !important;
   }
   .fc-event:not(.fc-draggable) {
-    color: var(--color-text-secondary) !important;
+    color: #757575 !important;
   }
 
   .fc-day-grid-event {

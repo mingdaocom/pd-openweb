@@ -60,6 +60,7 @@ export default class Condition extends Component {
   setIsDynamicsourceFn = () => {
     const { condition = [], from } = this.props;
     let { dynamicSource, isDynamicsource } = condition;
+
     if (dynamicSource && dynamicSource.length > 0) {
       if (isDynamicsource === undefined) {
         isDynamicsource = true;
@@ -71,15 +72,18 @@ export default class Condition extends Component {
           _.includes(['relateSheet'], from) && _.isUndefined(dynamicSource) && this.getIsDynamicValue() ? true : false;
       }
     }
+
     return isDynamicsource;
   };
 
   isCanDynamicsource = data => {
     const { condition = [], from = '' } = data;
     const { type = '', controlType = '' } = condition;
+
     {
       /* // 附件 检查框 地区 地区 地区 为空 不为空  在范围内 不在范围内没有动态筛选 */
     }
+
     return (
       from === 'relateSheet' &&
       !(!_.includes([27], condition.controlType) && _.includes(listType, type)) &&
@@ -157,6 +161,7 @@ export default class Condition extends Component {
     // 单选下拉menu隐藏【等于】、【不等于】
     const hiddenValue =
       control && _.includes([9, 11], control.type) ? [FILTER_CONDITION_TYPE.ARREQ, FILTER_CONDITION_TYPE.ARRNE] : [];
+
     if (isRules && control) {
       if (control.type === 35 || control.type === 27) {
         conditionFilterTypes = conditionFilterTypes.filter(
@@ -164,11 +169,13 @@ export default class Condition extends Component {
         );
       }
     }
+
     if (filterDept && control && control.type === 27) {
       conditionFilterTypes = conditionFilterTypes.filter(
         type => !_.includes([FILTER_CONDITION_TYPE.BETWEEN, FILTER_CONDITION_TYPE.NBETWEEN], type.value),
       );
     }
+
     if (from === 'subTotal' && control && _.includes([19, 23, 24, 27, 35], control.type)) {
       conditionFilterTypes = conditionFilterTypes.filter(
         type =>
@@ -183,6 +190,7 @@ export default class Condition extends Component {
           ),
       );
     }
+
     const isDynamicStyle = from === 'relateSheet'; // 动态值选择的特定样式
     const isDynamicValue = this.getIsDynamicValue();
     return (

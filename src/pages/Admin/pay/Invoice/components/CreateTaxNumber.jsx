@@ -20,7 +20,7 @@ import { STEPS } from '../config';
 
 const DivideLine = styled.div`
   width: 1px;
-  border-right: 1px solid var(--color-background-disabled);
+  border-right: 1px solid var(--color-border-secondary);
   margin: -24px 34px 0 30px;
 `;
 
@@ -73,26 +73,10 @@ const StepContentWrap = styled.div`
   }
   .taxNoInput {
     height: 36px;
-    background: var(--color-background-secondary);
+    background: var(--color-background-disabled);
     border-radius: 3px;
     line-height: 36px;
     padding: 0 10px;
-  }
-  input {
-    font-size: 13px !important;
-    border-color: var(--color-border-primary) !important;
-    &::placeholder {
-      color: var(--color-text-disabled) !important;
-    }
-    &:hover {
-      border-color: var(--color-text-disabled) !important;
-    }
-    &:focus {
-      border-color: var(--color-primary) !important;
-    }
-    &:disabled {
-      background-color: var(--color-background-secondary);
-    }
   }
   .line {
     height: 1px;
@@ -198,6 +182,7 @@ export default function CreateTaxNumber(props) {
           const firstOption = optionList[0]?.options[0];
           setData({ certId: firstOption?.value, taxNo: firstOption?.taxNo, certSource: firstOption?.source });
         }
+
         setLoading(false);
       },
     );
@@ -250,6 +235,7 @@ export default function CreateTaxNumber(props) {
             } else {
               alert(_l('验证码发送失败'), 2);
             }
+
             setCodeSending(false);
             setSendCodeText(_l('获取验证码'));
           }

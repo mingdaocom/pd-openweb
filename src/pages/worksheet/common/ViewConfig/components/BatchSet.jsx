@@ -22,7 +22,6 @@ const WrapCon = styled.div`
   .headerCon {
     position: sticky;
     top: 0;
-    background: var(--color-background-primary);
     z-index: 1;
   }
 `;
@@ -128,6 +127,7 @@ export default function BatchSetDialog(props) {
       list
         .map(o => {
           const sheetcolumnwidths = safeParse(_.get(view, 'advancedSetting.sheetcolumnwidths'));
+
           if (sheetcolumnwidths[o.controlId]) {
             return { cid: o.controlId, width: sheetcolumnwidths[o.controlId] };
           }
@@ -143,6 +143,7 @@ export default function BatchSetDialog(props) {
       });
       return;
     }
+
     const newStyles = styles.map(o => {
       if (data.cid === o.cid) {
         return { ...o, ...data };
@@ -318,6 +319,7 @@ export default function BatchSetDialog(props) {
       advancedSetting: { liststyle },
       editAdKeys: ['liststyle'],
     };
+
     if (applyToAll) {
       worksheetAjax.editWorksheetSetting({ worksheetId, appId, ...data }).then(() => {
         updateWorksheetInfo({
@@ -338,9 +340,11 @@ export default function BatchSetDialog(props) {
     let batchStyles = [];
     allList.forEach(o => {
       let direction = data;
+
       if ('sys' === direction || (2 === direction && !canSetDirection(o))) {
         direction = controlIsNumber(o) ? 2 : 0;
       }
+
       const info = styles.find(a => o.controlId === a.cid);
       batchStyles = batchStyles.concat({ ...info, cid: o.controlId, direction });
     });

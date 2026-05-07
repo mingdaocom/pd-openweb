@@ -38,10 +38,12 @@ export default class MajorAxisLabel extends Component {
   }
   componentDidMount() {
     const { chartScroll } = this.props;
+
     if (!isGunterExport) {
       chartScroll.on('scroll', this.onScroll);
       this.setState({ reset: true });
     }
+
     this.yearLabelWidth = (_.get(this.$yearRef, 'current.offsetWidth') || 52) - paddingLeft;
   }
   componentWillUnmount() {
@@ -55,6 +57,7 @@ export default class MajorAxisLabel extends Component {
     const scrollLeft = Math.abs(chartScroll.x - paddingLeft) + (yearVisible ? this.yearLabelWidth : 0);
     const currentEl = this.$axisRef.current;
     const { offsetLeft, offsetWidth } = currentEl;
+
     if (scrollLeft >= offsetLeft && scrollLeft <= offsetLeft + offsetWidth) {
       this.setState({ reset: true, isyear: false });
       const value = scrollLeft - offsetLeft;
@@ -83,9 +86,11 @@ export default class MajorAxisLabel extends Component {
   renderName() {
     const { item, periodType } = this.props;
     const [, m] = item.time.split('-');
+
     if (this.state.isyear || ![PERIOD_TYPE.day, PERIOD_TYPE.week].includes(periodType) || isGunterExport) {
       return item.time;
     }
+
     return m;
   }
   render() {

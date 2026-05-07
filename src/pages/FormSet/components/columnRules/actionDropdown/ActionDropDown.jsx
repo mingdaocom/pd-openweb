@@ -15,6 +15,7 @@ import {
   TAB_TYPES,
 } from '../config';
 import openSettingDialog from './SettingDialog';
+import openStyleSettingDialog from './StyleSettingDialog';
 import './ActionDropDown.less';
 
 export default class DropDownItem extends Component {
@@ -50,6 +51,7 @@ export default class DropDownItem extends Component {
 
   componentWillReceiveProps(nextProps) {
     const { dropDownData = [], actionType } = nextProps;
+
     if (nextProps.actionType !== this.props.actionType) {
       const newDropDownData = getNewDropDownData(dropDownData, actionType);
       this.setState({
@@ -71,6 +73,7 @@ export default class DropDownItem extends Component {
       const filterData = [];
       originData.forEach(item => {
         let newRelationData = [];
+
         if (!_.isEmpty(item.relationControls)) {
           const childFilter = item.relationControls
             .map(re => ({ ...re, relationControls: (re.relationControls || []).filter(i => filterFn(i)) }))
@@ -87,6 +90,7 @@ export default class DropDownItem extends Component {
             extendId.push(item.controlId);
           }
         }
+
         if (filterFn(item) || !_.isEmpty(newRelationData)) {
           filterData.push(item.relationControls ? { ...item, relationControls: newRelationData } : item);
         }
@@ -116,6 +120,7 @@ export default class DropDownItem extends Component {
     // 更新主字段
     if (!parentId) {
       const currentItem = deepSearch(dropDownData, controlId);
+
       // 子表可编辑主动全选
       if (_.includes([1, 2, 3, 4, 5], actionType) && ruleTable(currentItem) && from === 'rule') {
         if (!_.find(newValues, val => val.controlId === controlId && _.isEmpty(val.childControlIds))) {
@@ -132,12 +137,6 @@ export default class DropDownItem extends Component {
                 : {}),
             },
           ]);
-          if (!_.isEmpty(currentItem.relationControls)) {
-            newValues = newValues.concat({
-              controlId: currentItem.controlId,
-              childControlIds: (currentItem.relationControls || []).map(i => i.controlId),
-            });
-          }
         } else {
           newValues = newValues.filter(n => n.controlId !== controlId);
         }
@@ -153,6 +152,7 @@ export default class DropDownItem extends Component {
       }
     } else {
       const currentValue = _.find(newValues, val => val.controlId === parentId && !_.isEmpty(val.childControlIds));
+
       if (currentValue) {
         const newChildControlIds = _.includes(currentValue.childControlIds || [], controlId)
           ? (currentValue.childControlIds || []).filter(i => i !== controlId)
@@ -172,13 +172,15 @@ export default class DropDownItem extends Component {
         });
       }
     }
+
     onChange('controls', newValues);
   }
 
   hasSet(item) {
-    const { values = [] } = this.props;
+    const { values = [], actionType } = this.props;
     const settingValues = values.filter(
-      v => v.controlId === item.controlId && (!_.isEmpty(v.childControlIds) || v.isCustom),
+      v =>
+        v.controlId === item.controlId && (actionType === 11 ? v.value : !_.isEmpty(v.childControlIds) || v.isCustom),
     );
     return !!settingValues.length;
   }
@@ -199,6 +201,16 @@ export default class DropDownItem extends Component {
                   className={cx('settingIcon', { active: this.hasSet(item) })}
                   onClick={e => {
                     e.stopPropagation();
+                    if (actionType === 11) {
+                      openStyleSettingDialog({
+                        data: this.props.originData,
+                        values,
+                        id: item.controlId,
+                        onChange,
+                      });
+                      return;
+                    }
+
                     openSettingDialog({
                       data: this.state.originData,
                       values,
@@ -270,6 +282,7 @@ export default class DropDownItem extends Component {
     const ids = (item.relationControls || []).map(i => i.controlId);
     let newControls = values.filter(v => !_.includes(ids, v.controlId));
     const addValues = ids.map(i => ({ controlId: i, childControlIds: [] }));
+
     if (isChecked) {
       if (index > -1) {
         newControls.splice(index + 1, 0, ...addValues);
@@ -299,6 +312,7 @@ export default class DropDownItem extends Component {
             this.updateExtendId(item);
             return;
           }
+
           this.updateValues(parentId, item.controlId);
         }}
       >
@@ -376,6 +390,7 @@ export default class DropDownItem extends Component {
           ...(ruleTable(item) && this.props.actionType === 3 ? { isCustom: false, permission: [] } : {}),
         });
       }
+
       if (item.relationControls && item.relationControls.length > 0) {
         if (_.includes([29, 34], item.type)) {
           newValue.push({

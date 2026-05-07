@@ -26,10 +26,12 @@ export function changeFolder(path) {
   return (dispatch, getState) => {
     const kcState = getState().kc;
     const root = getRootByPath(path);
+
     if (root.type === -9999) {
       navigateTo(kcState.baseUrl + '/my');
       return;
     }
+
     dispatch({ type: 'KC_CLEAR_KC' });
     dispatch({
       type: 'KC_UPDATE_PATH',
@@ -77,6 +79,7 @@ export function fetchKcNodes(path, id, cb) {
       if (location.pathname.indexOf('recycled') > -1) {
         status = NODE_STATUS.RECYCLED;
       }
+
       if (location.pathname.indexOf('my') > -1) {
         type = PICK_TYPE.MY;
       } else {
@@ -89,16 +92,19 @@ export function fetchKcNodes(path, id, cb) {
       if (root.isRecycle) {
         status = NODE_STATUS.RECYCLED;
       }
+
       if (type === PICK_TYPE.MY) {
         getNodeIdPromise = queryPath ? kcService.getNodeByPath('/' + md.global.Account.accountId + queryPath) : {};
       } else if (type === PICK_TYPE.ROOT) {
         getNodeIdPromise = queryPath.indexOf('/') > 0 ? kcService.getNodeByPath('/' + path) : { id: queryPath };
       }
     }
+
     Promise.all([getNodeIdPromise]).then(([node]) => {
       if (!node) {
         return;
       }
+
       dispatch({
         type: 'KC_UPDATE_FOLDER',
         value: node && node.id && node.name && node.owner ? node : {},
@@ -167,10 +173,13 @@ export function triggerLoadMoreNodes() {
   return (dispatch, getState) => {
     const kcState = getState().kc;
     const { kcListElement, list, totalCount } = kcState;
+
     if (!kcListElement) {
       return;
     }
+
     const el = kcListElement.querySelector('.kclistScrollContent .scroll-viewport');
+
     if (list.size < totalCount && el && el.scrollTop + $(el).height() + 40 > el.scrollHeight) {
       dispatch(loadMoreKcNodes());
     }
@@ -265,6 +274,7 @@ export function updateRoot(path) {
         });
         return;
       }
+
       kcService.getRootDetail(queryPath.slice(0, 24)).then(node => {
         dispatch({
           type: 'KC_UPDATE_ROOT',
@@ -287,11 +297,13 @@ export function changeSortBy(newSortBy) {
     let newSortType;
     const kcState = getState().kc;
     const { sortBy, sortType } = kcState.params.toObject();
+
     if (newSortBy === sortBy) {
       newSortType = sortType === NODE_SORT_TYPE.ASC ? NODE_SORT_TYPE.DESC : NODE_SORT_TYPE.ASC;
     } else {
       newSortType = getDefaultSortType(newSortBy);
     }
+
     dispatch({ type: 'KC_CLEAR_KC' });
     dispatch({
       type: 'KC_UPDATE_PARAMS',
@@ -337,6 +349,7 @@ export function handleAddUsage(fsize) {
           !md.global.Account.projects.filter(p => {
             return p.projectId === currentRoot.projectId;
           }).length));
+
     if (kcUsage && isUsage) {
       kcUsage.used += fsize;
       dispatch({
@@ -391,6 +404,7 @@ export function addNewFolder(folderName, cb = () => {}) {
     const kcState = getState().kc;
     const { currentRoot, currentFolder } = kcState;
     const validateOut = {};
+
     if (validateFileName(folderName, true, validateOut)) {
       kcService
         .addFolder({
@@ -402,6 +416,7 @@ export function addNewFolder(folderName, cb = () => {}) {
           if (!newFolder) {
             throw new Error();
           }
+
           alert(_l('新建成功'));
           dispatch({
             type: 'KC_ADD_NEWFOLDER_SUCCESS',
@@ -427,12 +442,14 @@ export function updateNodeItem(item) {
     const { list, selectedItems } = kcState;
     const selectedItem = selectedItems.find(i => i.id === item.id);
     const index = list.findIndex(i => i.id === item.id);
+
     if (selectedItem) {
       dispatch({
         type: 'KC_UPDATE_SELECTED_ITEMS',
         value: selectedItems.remove(selectedItem).add(item),
       });
     }
+
     if (index > -1) {
       dispatch({
         type: 'KC_REPLACE_NODES',
@@ -448,10 +465,12 @@ export function removeNodeItem(ids) {
     const kcState = getState().kc;
     let { list, selectedItems } = kcState;
     const compareId = id => item => item && item.id === id;
+
     for (let i = 0; i < ids.length; i++) {
       list = list.remove(list.findIndex(compareId(ids[i])));
       selectedItems = selectedItems.remove(list.find(compareId(ids[i])));
     }
+
     dispatch({
       type: 'KC_UPDATE_SELECTED_ITEMS',
       value: selectedItems,
@@ -507,6 +526,7 @@ export function starNode(item) {
         if (!result) {
           throw new Error();
         }
+
         alert(isStared ? '标星成功' : '取消标星成功');
         item.isStared = isStared;
         dispatch(updateNodeItem(item));

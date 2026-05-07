@@ -2,10 +2,12 @@ import React from 'react';
 import styled from 'styled-components';
 
 const TableWrap = styled.div`
+  .mHeight200 {
+    min-height: 200px;
+  }
   .editableTable {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 16px;
     border-radius: 4px;
     border: 1px solid var(--color-border-secondary);
     table-layout: fixed;

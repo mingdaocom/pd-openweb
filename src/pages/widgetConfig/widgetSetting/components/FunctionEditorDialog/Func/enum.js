@@ -37,8 +37,8 @@ function escapeRegExpForFind(str) {
 export const functions = {
   // 两个日期间的工作日
   NETWORKDAY: function (start, end, excludeDate = [], workDays = [1, 2, 3, 4, 5]) {
-    if (!start && !end) {
-      return;
+    if (!start || !end) {
+      return 0;
     }
     excludeDate = excludeDate.filter(_.identity);
     if (!isDateStr(start)) {

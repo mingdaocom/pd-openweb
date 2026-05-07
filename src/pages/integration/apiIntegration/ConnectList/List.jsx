@@ -252,6 +252,7 @@ function List(props) {
             </div>
             {props.list.map(item => {
               const isCharge = item.isOwner || props.hasManageAuth; //只有超级管理员或拥有者可以查看详情 isOwner拥有者
+
               if (!isCharge && !item.hasAuth) {
                 return (
                   <div className="conTr Hand">

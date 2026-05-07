@@ -147,12 +147,14 @@ export default function SearchRelateRecords(props) {
       if (from === 21) {
         args.getType = 21;
       }
+
       sheetAjax.getRowRelationRows(args).then(res => {
         setLoading(false);
         if (res.resultCode !== 1) {
           setAbnormal(true);
           return;
         }
+
         setTotal(res.count);
         setList(old => _.uniqBy([...old, ...(res.data || [])], 'rowid'));
         cb(res.data || []);
@@ -160,11 +162,13 @@ export default function SearchRelateRecords(props) {
     }, 200),
     [],
   );
+
   function initLoad() {
     load({ ...queryArgs, pageIndex: 1 }, data => {
       if (data.length < 20) {
         return;
       }
+
       setQueryArgs(old => ({
         ...old,
         pageIndex: 2,
@@ -172,6 +176,7 @@ export default function SearchRelateRecords(props) {
       load({ ...queryArgs, pageIndex: 2 });
     });
   }
+
   useEffect(() => {
     if (!onlySearchLoad) {
       initLoad();
@@ -202,6 +207,7 @@ export default function SearchRelateRecords(props) {
                 return;
               }
             }
+
             setLoading(true);
             load({
               ...queryArgs,

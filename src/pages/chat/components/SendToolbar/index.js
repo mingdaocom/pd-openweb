@@ -21,6 +21,7 @@ const recurShowFileConfirm = (up, files, i, length, cb) => {
     up.start();
     return false;
   }
+
   const file = files[i];
 
   fileConfirm(file, {
@@ -32,6 +33,7 @@ const recurShowFileConfirm = (up, files, i, length, cb) => {
           clearTimeout(timer);
         }, 300);
       }
+
       const message = {
         type: Constant.MSGTYPE_FILE,
         file,
@@ -111,7 +113,7 @@ export default class SendToolbar extends Component {
     });
   }
   initUpload() {
-    const { session } = this.props;
+    const { session, socketState = 0 } = this.props;
     const _this = this;
     const { fileUploadLimitSize } = _.get(md, 'global.SysSettings') || {};
 
@@ -129,12 +131,14 @@ export default class SendToolbar extends Component {
           let count = 0;
           const emptyFile = 0;
           const tokenFiles = [];
+
           for (let j = 0; j < files.length; j++) {
             if (RegExpValidator.validateFileExt('.' + RegExpValidator.getExtOfFileName(files[j].name))) {
               count++;
             } else {
               uploader.removeFile(files[j]);
             }
+
             let fileExt = `.${RegExpValidator.getExtOfFileName(files[j].name)}`;
 
             tokenFiles.push({ bucket: 1, ext: fileExt }); //chat 上传都用 bucket: 1
@@ -145,6 +149,11 @@ export default class SendToolbar extends Component {
               uploader.removeFile(item);
             });
           };
+
+          if (socketState) {
+            emptyFiles(files);
+            return false;
+          }
 
           if (count != files.length) {
             alert(_l('含有不支持格式的文件'), 3);
@@ -286,6 +295,7 @@ export default class SendToolbar extends Component {
     const $textarea = $(`#ChatPanel-${session.id}`).find('.ChatPanel-textarea textarea');
     const $target = $(at);
     const $container = $(`#ChatPanel-${session.id}`).find('.mentionsAutocompleteList');
+
     if (!$target.data('open') || !$container.is(':visible')) {
       onChangeValue($textarea.val() + '@');
       setTimeout(() => {
@@ -303,6 +313,10 @@ export default class SendToolbar extends Component {
     });
   }
   handleKnowledgeFile() {
+    if (this.props.socketState) {
+      return;
+    }
+
     import('src/components/kc/folderSelectDialog/folderSelectDialog').then(selectNode => {
       selectNode
         .default({
@@ -314,6 +328,7 @@ export default class SendToolbar extends Component {
           if (!result || !result.node) {
             throw new Error();
           }
+
           result.node.forEach(item => {
             this.handleSendCardToChat(item);
           });

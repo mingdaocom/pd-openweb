@@ -140,6 +140,7 @@ export default class InterfaceLicense extends Component {
   // 申请下单
   applyPayOrder = isRenewal => {
     const { projectId } = this.props;
+
     if (isRenewal) {
       // 申请续费
     } else {
@@ -171,9 +172,13 @@ export default class InterfaceLicense extends Component {
     return (
       <div className="pLeft24 pRight24">
         <div className="Font15 bold mBottom18">
-          {_l(
-            '为确保首次集成90天后正常使用，需向企业微信购买接口许可，由组织自己支付接口许可的费用，平台收到付费后在企微服务商后台代为缴费',
-          )}
+          {window.platformENV.isPlatform && !window.platformENV.isOverseas && !window.platformENV.isLocal
+            ? _l(
+                '为确保首次集成90天后正常使用，需向企业微信购买接口许可，由组织自己支付接口许可的费用，明道云收到付费后在企微服务商后台代为缴费',
+              )
+            : _l(
+                '为确保首次集成90天后正常使用，需向企业微信购买接口许可，由组织自己支付接口许可的费用，平台收到付费后在企微服务商后台代为缴费',
+              )}
         </div>
         <div className="Font13 mBottom5">{_l('已同步账号：%0个', licenseDetail.allAccountCount)}</div>
         <div className="Font13 mBottom40">{_l('已购买许可：%0个', licenseDetail.boughtAccountCount)}</div>
@@ -186,6 +191,7 @@ export default class InterfaceLicense extends Component {
 
   renderOrderInfo = () => {
     const { loading, orderInfo = {}, isRenewal, buyMore, orderList = [] } = this.state;
+
     if (loading) {
       return (
         <div className="w100 h100 flexColumn justifyContentCenter alignItemsCenter">
@@ -193,6 +199,7 @@ export default class InterfaceLicense extends Component {
         </div>
       );
     }
+
     return (
       <OrderInfo>
         <div className="titleInfo">
@@ -245,7 +252,12 @@ export default class InterfaceLicense extends Component {
           >
             {isRenewal ? _l('申请续期') : _l('申请下单')}
           </Button>
-          <div className="textTertiary mTop20">{_l('购买费用由平台支付，您只需申请下单即可')}</div>
+
+          <div className="textTertiary mTop20">
+            {window.platformENV.isPlatform && !window.platformENV.isOverseas && !window.platformENV.isLocal
+              ? _l('申请下单后，尽快联系顾问协助完成订单付款')
+              : _l('购买费用由平台支付，您只需申请下单即可')}
+          </div>
         </div>
       </OrderInfo>
     );
@@ -256,9 +268,13 @@ export default class InterfaceLicense extends Component {
     return (
       <OrderDetail>
         <div className="Font15 bold mBottom20">
-          {_l(
-            '为确保首次集成90天后正常使用，需向企业微信购买接口许可，由组织自己支付接口许可的费用，平台收到付费后在企微服务商后台代为缴费',
-          )}
+          {window.platformENV.isPlatform && !window.platformENV.isOverseas && !window.platformENV.isLocal
+            ? _l(
+                '为确保首次集成90天后正常使用，需向企业微信购买接口许可，由组织自己支付接口许可的费用，明道云收到付费后在企微服务商后台代为缴费',
+              )
+            : _l(
+                '为确保首次集成90天后正常使用，需向企业微信购买接口许可，由组织自己支付接口许可的费用，平台收到付费后在企微服务商后台代为缴费',
+              )}
         </div>
         <div className="Font14">
           {_l('已同步账号：')}
@@ -323,6 +339,7 @@ export default class InterfaceLicense extends Component {
         </div>
       );
     }
+
     switch (this.state.step) {
       case 1:
         return this.renderFirstBuy();

@@ -17,6 +17,7 @@ class MobileHierarchyView extends Component {
   }
   componentDidMount() {
     const hierarchyViewType = _.get(this.props, 'view.advancedSetting.hierarchyViewType');
+
     if (hierarchyViewType === '1') {
       import('src/pages/worksheet/views/HierarchyVerticalView').then(component => {
         this.setState({ Component: component.default });
@@ -39,6 +40,7 @@ class MobileHierarchyView extends Component {
       viewControl === 'create' ||
       (viewControl && _.find(controls, item => item.controlId === viewControl)) ||
       !_.isEmpty(viewControls);
+
     // 视图配置错误
     if (!isHaveSelectControl) {
       return <ViewErrorPage icon="hierarchy" viewName={_l('层级视图')} color="var(--color-mingo)" />;

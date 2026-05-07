@@ -15,7 +15,7 @@ import { getTranslateInfo } from 'src/utils/app';
 
 const HeaderWrap = styled.div`
   height: 50px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.24);
+  box-shadow: var(--shadow-md);
   z-index: 15;
   background-color: var(--color-background-primary);
   padding: 0 24px 0 16px;
@@ -54,6 +54,7 @@ function AppPkgSimpleHeader(props) {
   const getAppDetail = () => {
     homeApp.getApp({ appId, getLang: true }).then(appDetail => {
       const { langInfo } = appDetail;
+
       if (langInfo && langInfo.appLangId && langInfo.version !== window[`langVersion-${appId}`]) {
         appManagementApi
           .getAppLangDetail({

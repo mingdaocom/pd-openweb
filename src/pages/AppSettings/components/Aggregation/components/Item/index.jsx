@@ -49,6 +49,7 @@ const ReSyncDialog = ({ aggTableId, onClose, onChange, items, projectId, appId }
     ).then(res => {
       let isSucceeded = (res || {}).isSucceeded;
       const { errorMsg, errorMsgList } = res;
+
       if (isSucceeded) {
         onChange(
           items.map(o => {
@@ -63,6 +64,7 @@ const ReSyncDialog = ({ aggTableId, onClose, onChange, items, projectId, appId }
       } else {
         alert(errorMsg ? errorMsg : errorMsgList ? errorMsgList[0] : _l('重新同步失败，请稍后再试'), 2);
       }
+
       onClose();
     });
   };
@@ -124,6 +126,7 @@ export default function ItemCard(props) {
       }
     });
   };
+
   const onCopy = () => {
     AggTableAjax.copy(
       {
@@ -137,10 +140,12 @@ export default function ItemCard(props) {
       onRefresh();
     });
   };
+
   const changeTask = taskStatus => {
     if (updating) {
       return;
     }
+
     let Ajax = null;
     setState({
       updating: true,
@@ -150,6 +155,7 @@ export default function ItemCard(props) {
     } else {
       Ajax = SyncTask.startTask({ projectId, taskId: item.id }, { isAggTable: true });
     }
+
     Ajax.then(
       res => {
         setState({
@@ -157,6 +163,7 @@ export default function ItemCard(props) {
         });
         let isSucceeded = taskStatus === TASK_STATUS_TYPE.RUNNING ? res : (res || {}).isSucceeded;
         const { errorMsg, errorMsgList, worksheetId } = res;
+
         if (isSucceeded) {
           onChange(null, {
             ...item,
@@ -176,6 +183,7 @@ export default function ItemCard(props) {
       },
     );
   };
+
   const checkItem = () => {
     const deleteDia = () => {
       Dialog.confirm({
@@ -186,15 +194,16 @@ export default function ItemCard(props) {
         ),
         buttonType: 'danger',
         anim: false,
-        okText: _l('删除'),
+        okText: _l('确定'),
         description: (
           <div className="pBottom6 pTop8">
-            <span className="textPrimary">{_l('聚合表删除后不可恢复，确认删除吗？')}</span>
+            <span className="textPrimary">{_l('该聚合表未被引用，删除后不可恢复，请确认是否继续删除？')}</span>
           </div>
         ),
         onOk: onDeleteItem,
       });
     };
+
     if (item.worksheetId) {
       Promise.all([
         workflowAjax.getWorksheetReferences({
@@ -206,23 +215,23 @@ export default function ItemCard(props) {
           worksheetId: item.worksheetId,
         }),
       ]).then(([referencesRes, reportsRes]) => {
-        const hasGet = reportsRes.length > 0 || referencesRes?.data?.length > 0; //被引用，无法直接删除
+        const hasGet = reportsRes.length > 0 || referencesRes?.data?.length > 0;
+
         if (hasGet) {
           Dialog.confirm({
             title: (
               <span style={{ color: 'var(--color-error)' }} className="WordBreak">
-                {_l('无法直接删除聚合表"%0"', item.name)}
+                {_l('删除聚合表“%0”', item.name)}
               </span>
             ),
             buttonType: 'danger',
             anim: false,
-            okText: _l('关闭'),
-            removeCancelBtn: true,
+            okText: _l('确定'),
             type: 'scroll',
             description: (
               <WrapDialog>
                 <span className="textPrimary">
-                  {_l('此聚合表正在被引用，无法直接删除。请先解除引用关系后再删除聚合表。')}
+                  {_l('该聚合表当前仍被以下流程引用，删除后可能导致相关流程异常或数据不可用，请确认是否继续删除？')}
                 </span>
                 {/* 统计图表引用 */}
                 {reportsRes?.map((app, i) => (
@@ -261,7 +270,7 @@ export default function ItemCard(props) {
                 ))}
               </WrapDialog>
             ),
-            onOk: () => {},
+            onOk: onDeleteItem,
           });
         } else {
           deleteDia();
@@ -271,6 +280,7 @@ export default function ItemCard(props) {
       deleteDia();
     }
   };
+
   const onDeleteItem = () => {
     SyncTask.deleteTask({ projectId, taskId: item.id }, { isAggTable: true }).then(res => {
       if (res) {
@@ -286,6 +296,7 @@ export default function ItemCard(props) {
     if (o.isDelete) {
       return _l('已删除');
     }
+
     const tbName = o.tableName ? getTranslateInfo(o.appId, null, o.workSheetId).name || o.tableName : '';
     const appName = o.appName ? getTranslateInfo(o.appId, null, o.appId).name || o.appName : '';
     return appName ? `${tbName}(${appName})` : tbName;
@@ -398,6 +409,7 @@ export default function ItemCard(props) {
           if (item.aggTableTaskStatus === 0 || !canEdit) {
             return;
           }
+
           window.open(`/aggregation/${item.worksheetId}`);
         }}
       >

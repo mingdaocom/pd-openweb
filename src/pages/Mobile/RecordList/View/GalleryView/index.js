@@ -28,6 +28,7 @@ class MobileGalleryView extends Component {
       hasGroupFilter,
       mobileNavGroupFilters,
     } = this.props;
+
     const handlePullToRefresh = () => {
       this.props.updateIsPullRefreshing(true);
       this.props.changePageIndex(1);

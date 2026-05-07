@@ -50,8 +50,10 @@ const getProps = (props, type = 'success') => {
         </div>
       );
     }
+
     return <i className={`${type} icon-${getIconName(type)}`} style={{ color }}></i>;
   };
+
   // 如果使用默认样式，传入按钮文字, 否则传入自定义按钮
   return {
     ...defaultProps,

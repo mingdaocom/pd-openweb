@@ -85,6 +85,7 @@ const getValidHours = (startTime, endTime, filterWeekend) => {
     // 统计周末总天数
     for (let i = 0; i < timeDiff; i++) {
       const day = moment(startTime.split(' ')[0]).add(i, 'd').day();
+
       if (_.includes(filterWeekendDay, day)) {
         weekendCount++;
       }
@@ -113,6 +114,7 @@ const checkTime = (startTime, endTime, filterWeekend) => {
     let startHours = moment(startTime).format('HH:00');
     // 开始时间周几
     let startDay = moment(startTime).day();
+
     // 处理开始时间
     const updateStartTime = () => {
       for (let i = 0; i < workingTimes.length; i++) {
@@ -161,6 +163,7 @@ const checkTime = (startTime, endTime, filterWeekend) => {
         if (startDay === 0) {
           startDay = 7;
         }
+
         startDay--;
         addStartDay--;
       }
@@ -177,6 +180,7 @@ const checkTime = (startTime, endTime, filterWeekend) => {
     let endHours = moment(endTime).format('HH:00');
     // 结束时间周几
     let endDay = moment(endTime).day();
+
     // 处理结束时间
     const updateEndTime = () => {
       for (let i = 0; i < workingTimes.length; i++) {
@@ -308,6 +312,7 @@ const taskTimeBars = (source, viewType, filterWeekend) => {
      */
     const getMaxEndTime = item => {
       let maxEndTime = item.showEndTime;
+
       // 已完成
       if (item.status && moment(maxEndTime) < moment(item.completeTime)) {
         maxEndTime = checkTime(item.showStartTime, item.completeTime, filterWeekend).showEndTime;
@@ -615,11 +620,13 @@ const getWeeksTime = filterWeekend => {
     const year = firstDate.isoWeekYear();
     const month = firstDate.month() + 1;
     const key = `${year}-${month}`;
+
     if (!obj[key]) {
       obj[key] = [result[item]];
     } else {
       obj[key].push(result[item]);
     }
+
     return obj;
   }, {});
 
@@ -737,6 +744,7 @@ const singleTableWidth = (viewType, filterWeekend, month) => {
     if (filterWeekend) {
       return singleDayWidth(viewType) * (7 - filterWeekendDay.length);
     }
+
     return singleDayWidth(viewType) * 7;
   }
 
@@ -806,9 +814,11 @@ const getViewSumWidth = (viewType, timeAxisSource, filterWeekend) => {
  */
 const getScrollIndex = (value, lefts) => {
   let index = 0;
+
   while (lefts[index] <= value) {
     index++;
   }
+
   return index;
 };
 
@@ -827,9 +837,11 @@ const syncUpdateScroll = () => {
     return el.offsetLeft;
   });
   const index = getScrollIndex(value, monthsLeft);
+
   if (value > monthsLeft[index] - textWith) {
     return;
   }
+
   monthsEls.eq(index + 1).css('padding-left', value - monthsLeft[index + 1]);
   monthsEls.eq(index).css('padding-left', 0);
   monthsEls.eq(index - 1).css('padding-left', value - monthsLeft[index - 1]);
@@ -848,10 +860,12 @@ const getTimePosition = (minStartTime, time, viewType, filterWeekend) => {
   if (viewType === VIEWTYPE.WEEK) {
     minStartTime = minStartTime[0];
   }
+
   // 月视图算出开始第一天
   if (viewType === VIEWTYPE.MONTH) {
     minStartTime = minStartTime + '-01';
   }
+
   const timeDate = moment(time).format('YYYY-MM-DD');
   // 差多少天
   let timeDiff = (moment(timeDate) - moment(minStartTime)) / 24 / 60 / 60 / 1000;
@@ -887,6 +901,7 @@ const getTimePosition = (minStartTime, time, viewType, filterWeekend) => {
   }
 
   let hour = 0;
+
   // 特殊情况：因为时间已经在上面处理成合法的了，所以时间等于工作的开始时间  那就算计算开始时间的位置
   if (moment(time).format('HH:mm') !== workingTimes[0][0]) {
     hour = checkTime(timeDate + ' 00:00', time).showHourLong;
@@ -973,6 +988,7 @@ const offsetStartPositiveHour = (currentTime, hour) => {
  */
 const offsetStartNegativeHour = (currentTime, hour) => {
   let day = 0;
+
   for (let i = 0; i < hour; i++) {
     currentTime = currentTime.add(-1, 'h');
     for (let j = 0; j < workingTimes.length; j++) {
@@ -1006,6 +1022,7 @@ const offsetStartNegativeHour = (currentTime, hour) => {
  */
 const offsetEndPositiveHour = (currentTime, hour) => {
   let day = 0;
+
   for (let i = 0; i < hour; i++) {
     currentTime = currentTime.add(1, 'h');
 
@@ -1040,6 +1057,7 @@ const offsetEndPositiveHour = (currentTime, hour) => {
  */
 const offsetEndNegativeHour = (currentTime, hour) => {
   let day = 0;
+
   for (let i = 0; i < hour; i++) {
     currentTime = currentTime.add(-1, 'h');
 
@@ -1092,11 +1110,13 @@ const offsetTime = (start, end, filterWeekend, offsetTime, minStartTime, maxEndT
     minStartTime = minStartTime + ' ' + workingStart;
     maxEndTime = maxEndTime + ' ' + workingEnd;
   }
+
   // 周视图
   if (viewType === VIEWTYPE.WEEK) {
     minStartTime = minStartTime[0] + ' ' + workingStart;
     maxEndTime = maxEndTime[maxEndTime.length - 1] + ' ' + workingEnd;
   }
+
   // 月视图
   if (viewType === VIEWTYPE.MONTH) {
     minStartTime = minStartTime + '-01 ' + workingStart;
@@ -1148,10 +1168,12 @@ const offsetTime = (start, end, filterWeekend, offsetTime, minStartTime, maxEndT
         if (viewType === VIEWTYPE.DAY && moment(end) > moment(maxEndTime).add(-1, 'd')) {
           config.isHiddenLastTips = true;
         }
+
         // 周视图
         if (viewType === VIEWTYPE.WEEK && moment(end) > moment(maxEndTime).add(-2, 'd')) {
           config.isHiddenLastTips = true;
         }
+
         // 月视图
         if (viewType === VIEWTYPE.MONTH && moment(end) > moment(maxEndTime).add(-10, 'd')) {
           config.isHiddenLastTips = true;

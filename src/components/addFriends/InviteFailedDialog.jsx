@@ -76,6 +76,7 @@ function InviteFailedDialog(props) {
                           if (removedAccountInfos.length === 1 && failedTotal === 1) {
                             onClose();
                           }
+
                           setRemovedAccountInfos(removedAccountInfos.filter(v => v.accountId !== user.accountId));
                         },
                       })
@@ -86,6 +87,7 @@ function InviteFailedDialog(props) {
                 </div>
               );
             }
+
             return <UserItem {...user} key={user.accountId} />;
           })}
         </div>

@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import addFriends from 'src/components/addFriends';
+import { hasPermission } from 'src/components/checkPermission';
+import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 import { QUICK_ENTRY_CONFIG } from '../config';
 import InstallDialog from './InstallDialog';
 
 // 租住管理首页-快捷入口
 export default function QuickEntrance(props) {
-  const { projectId } = props;
+  const { projectId, authority } = props;
   const [installType, setType] = useState('');
 
   const handleActionClick = action => {
@@ -42,19 +44,32 @@ export default function QuickEntrance(props) {
       <div className="title bold">{_l('快捷入口')}</div>
       <div className="content">
         <ul>
-          {QUICK_ENTRY_CONFIG.map(({ icon, color, title, explain, action }) => (
-            <li key={action} onClick={() => handleActionClick(action)}>
-              <div className="wrap">
-                <div className="iconWrap" style={{ backgroundColor: color }}>
-                  <i className={`icon-${icon}`} />
+          {QUICK_ENTRY_CONFIG.map(({ icon, color, title, explain, action }) => {
+            if (
+              (window.platformENV.isLocal || window.platformENV.isOverseas) &&
+              ['installDesktop', 'installApp'].includes(action)
+            ) {
+              return null;
+            }
+
+            if (action === 'createDepartment' && !hasPermission(authority, PERMISSION_ENUM.DEPARTMENT)) {
+              return null;
+            }
+
+            return (
+              <li key={action} onClick={() => handleActionClick(action)}>
+                <div className="wrap">
+                  <div className="iconWrap" style={{ backgroundColor: color }}>
+                    <i className={`icon-${icon}`} />
+                  </div>
+                  <div className="text">
+                    <div className="entryTitle Font14 Bold">{title}</div>
+                    <div className="explain">{explain}</div>
+                  </div>
                 </div>
-                <div className="text">
-                  <div className="entryTitle Font14 Bold">{title}</div>
-                  <div className="explain">{explain}</div>
-                </div>
-              </div>
-            </li>
-          ))}
+              </li>
+            );
+          })}
         </ul>
       </div>
       <InstallDialog type={installType} projectId={projectId} onClose={() => setType('')} />

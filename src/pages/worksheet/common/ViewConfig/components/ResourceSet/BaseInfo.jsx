@@ -121,6 +121,7 @@ export default function BaseInfo(props) {
                 if (o.value === '1') {
                   return [9, 10, 11, 29, 28].includes(type);
                 }
+
                 if ([9, 10, 11, 28].includes(type)) {
                   return o.value !== '3';
                 } else {

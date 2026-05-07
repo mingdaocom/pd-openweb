@@ -14,9 +14,11 @@ const formatGroupsData = (store, list) => {
   _.each(list, item => {
     const { firstCode } = item;
     const title = /[A-Z]/.test(firstCode.toUpperCase()) ? firstCode.toUpperCase() : '#';
+
     if (!result[title]) {
       result[title] = [];
     }
+
     result[title].push(item);
   });
 
@@ -83,6 +85,7 @@ export default class ProjectGroups extends React.Component {
     this.promise = API.fetchAllGroups(keywords ? { ...params } : { ...params, groupStatus });
     return this.promise.then(data => {
       const { listData } = this.state;
+
       if (keywords) {
         this.setState({
           listData: (listData || []).concat(data.list),
@@ -92,6 +95,7 @@ export default class ProjectGroups extends React.Component {
           listData: formatGroupsData(listData, data.list),
         });
       }
+
       // has more data to load
       return data.list && data.list.length;
     });
@@ -137,6 +141,7 @@ export default class ProjectGroups extends React.Component {
   getGroupModel(groupId) {
     const { listData, keywords } = this.state;
     let result = null;
+
     if (keywords) {
       result = _.find(listData, group => group.groupId === groupId);
     } else {
@@ -149,6 +154,7 @@ export default class ProjectGroups extends React.Component {
         if (result) return false;
       });
     }
+
     return result;
   }
 
@@ -256,9 +262,11 @@ export default class ProjectGroups extends React.Component {
   renderDetail() {
     const { selectedGroupId, groupStatus } = this.state;
     const selectedGroup = this.getGroupModel(selectedGroupId);
+
     if (selectedGroupId && selectedGroup && !selectedGroup.isMember) {
       return <JoinGroup groupId={selectedGroupId} />;
     }
+
     return <GroupDetail group={selectedGroup} groupStatus={groupStatus} updateGroupModel={this.updateGroupModel} />;
   }
 

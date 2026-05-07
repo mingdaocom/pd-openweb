@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+﻿import React, { Component, Fragment } from 'react';
 import { Drawer } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
@@ -8,11 +8,11 @@ import { dialogSelectIntegrationApi } from 'ming-ui/functions';
 import pluginAPI from '../../../api/Plugin';
 import { checkCertification } from 'src/components/checkCertification';
 import { checkPermission } from 'src/components/checkPermission';
-import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
+import { buriedUpgradeVersionDialog, upgradeVersionDialog } from 'src/components/upgradeVersion';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 import pluginBG from 'src/pages/worksheet/components/ViewItems/img/customview.png';
 import { VersionProductType } from 'src/utils/enum';
-import { getFeatureStatus } from 'src/utils/project';
+import { getCurrentProject, getFeatureStatus } from 'src/utils/project';
 import CodeSnippet from '../../../components/CodeSnippet';
 import SelectProcess from '../../../components/SelectProcess';
 import { ACTION_ID, APP_TYPE, NODE_TYPE, TRIGGER_ID } from '../../enum';
@@ -22,7 +22,7 @@ export default class CreateNodeDialog extends Component {
   constructor(props) {
     super(props);
 
-    const isDisabled = !checkPermission(props.flowInfo.companyId, PERMISSION_ENUM.MEMBER_MANAGE);
+    const isDisabled = !checkPermission(props.flowInfo.companyId, PERMISSION_ENUM.WORKFLOW_OBTAIN);
 
     this.state = {
       list: [
@@ -214,7 +214,7 @@ export default class CreateNodeDialog extends Component {
               name: _l('运算%03035'),
               iconColor: '#01CA83',
               iconName: 'icon-workflow_function',
-              describe: _l(' 对数值、日期、文本进行数学或函数运算'),
+              describe: _l('对数值、日期、文本进行数学或函数运算'),
               typeText: _l('运算对象'),
               secondList: [
                 {
@@ -326,6 +326,16 @@ export default class CreateNodeDialog extends Component {
               iconColor: '#6E09F9',
               iconName: 'icon-AI_Agent',
               describe: _l('基于指令理解，自动调用工具完成任务'),
+            },
+            {
+              type: 34,
+              featureId: VersionProductType.vectorKnowledgeBase,
+              name: _l('知识库检索'),
+              appType: 52,
+              actionId: '535',
+              iconColor: '#6E09F9',
+              iconName: 'icon-a-knowledge_search',
+              describe: _l('查询向量知识库'),
             },
             {
               type: 31,
@@ -896,10 +906,32 @@ export default class CreateNodeDialog extends Component {
               name: _l('电子开票'),
               appType: 50,
               appId: props.flowInfo.id,
+              featureId: VersionProductType.invoice,
               actionId: '1',
               iconColor: '#4C7D9E',
               iconName: 'icon-Invoice',
               describe: _l('为记录自动开具电子发票'),
+              typeText: _l('开票内容'),
+              secondList: [
+                {
+                  type: 6,
+                  appType: 50,
+                  appId: props.flowInfo.id,
+                  featureId: VersionProductType.invoice,
+                  actionId: '1',
+                  name: _l('类目开票'),
+                  describe: _l('按“开票类目”合并汇总，每个类目生成一条发票明细行，开票更快捷，适合汇总开票场景。'),
+                },
+                {
+                  type: 6,
+                  appType: 50,
+                  appId: props.flowInfo.id,
+                  featureId: VersionProductType.invoice,
+                  actionId: '4',
+                  name: _l('明细开票'),
+                  describe: _l('按订单/商品明细逐条生成发票明细行，便于与订单——对账。'),
+                },
+              ],
             },
           ],
         },
@@ -1103,7 +1135,21 @@ export default class CreateNodeDialog extends Component {
       });
     }
 
-    // 埋点授权过滤： API集成工作流节点、代码块节点、获取打印文件节点、获取页面快照、界面推送、全局变量、循环、支付、智能体
+    // 隐藏获取页面快照
+    if (_.includes(_.get(md, 'global.Config.DisableModules') || [], 'workflow_puppeteer')) {
+      this.state.list.forEach(o => {
+        _.remove(o.items, item => item.type === NODE_TYPE.SNAPSHOT);
+      });
+    }
+
+    // 隐藏向量知识库
+    if (md.global.SysSettings.hideRagEmbedFun) {
+      this.state.list.forEach(o => {
+        _.remove(o.items, item => _.includes([NODE_TYPE.VECTOR], item.type));
+      });
+    }
+
+    // 埋点授权过滤： API集成工作流节点、代码块节点、获取打印文件节点、获取页面快照、界面推送、全局变量、循环、支付、智能体、向量知识库、电子发票
     [
       { featureId: VersionProductType.apiIntergrationNode, type: [NODE_TYPE.API_PACKAGE, NODE_TYPE.API] },
       { featureId: VersionProductType.codeBlockNode, type: [NODE_TYPE.CODE] },
@@ -1113,6 +1159,8 @@ export default class CreateNodeDialog extends Component {
       { featureId: VersionProductType.WFLP, type: [NODE_TYPE.LOOP] },
       { featureId: VersionProductType.PAY, type: [NODE_TYPE.LINK], actionId: ACTION_ID.RECORD_LINK_PAY },
       { featureId: VersionProductType.workflowAgent, type: [NODE_TYPE.AGENT] },
+      { featureId: VersionProductType.vectorKnowledgeBase, type: [NODE_TYPE.VECTOR] },
+      { featureId: VersionProductType.invoice, type: [NODE_TYPE.ACTION], appType: APP_TYPE.INVOICE },
     ].forEach(obj => {
       if (!_.includes(['1', '2'], getFeatureStatus(props.flowInfo.companyId, obj.featureId))) {
         this.state.list.forEach(o => {
@@ -1182,41 +1230,8 @@ export default class CreateNodeDialog extends Component {
 
     // 审批流程过滤节点
     if ((nextProps.selectProcessId && nextProps.flowInfo.id !== nextProps.selectProcessId) || nextProps.isApproval) {
-      _.remove(this.state.list, o => _.includes(['artificial', 'collaborate', 'external'], o.id));
       this.state.list.forEach(o => {
-        _.remove(
-          o.items,
-          item =>
-            !(
-              _.includes(
-                [
-                  NODE_TYPE.SEARCH,
-                  NODE_TYPE.WEBHOOK,
-                  NODE_TYPE.FORMULA,
-                  NODE_TYPE.MESSAGE,
-                  NODE_TYPE.EMAIL,
-                  NODE_TYPE.DELAY,
-                  NODE_TYPE.GET_MORE_RECORD,
-                  NODE_TYPE.CODE,
-                  NODE_TYPE.TEMPLATE,
-                  NODE_TYPE.JSON_PARSE,
-                  NODE_TYPE.API_PACKAGE,
-                  NODE_TYPE.API,
-                  NODE_TYPE.NOTICE,
-                  NODE_TYPE.FIND_SINGLE_MESSAGE,
-                  NODE_TYPE.FIND_MORE_MESSAGE,
-                  NODE_TYPE.AIGC,
-                ],
-                item.type,
-              ) ||
-              (item.type === NODE_TYPE.ACTION && item.actionId === ACTION_ID.EDIT && item.appType !== APP_TYPE.PROCESS)
-            ),
-        );
-
-        // 去除多条新增
-        o.items.forEach(obj => {
-          _.remove(obj.secondList || [], item => item.actionId === ACTION_ID.FROM_ADD);
-        });
+        _.remove(o.items, item => _.includes([NODE_TYPE.APPROVAL_PROCESS, NODE_TYPE.PUSH], item.type));
       });
     }
 
@@ -1251,6 +1266,7 @@ export default class CreateNodeDialog extends Component {
    */
   getPluginList = () => {
     const { flowInfo } = this.props;
+
     const getList = data => {
       return data.map(o => {
         return {
@@ -1289,8 +1305,19 @@ export default class CreateNodeDialog extends Component {
    * 判断是否是条件分支
    */
   isConditionalBranch() {
-    const { nodeId, flowNodeMap } = this.props;
-    const { typeId, actionId } = flowNodeMap[nodeId] || {};
+    const { nodeId, flowNodeMap, flowInfo, selectProcessId } = this.props;
+    let approvalFlowNodeMap = {};
+
+    if (selectProcessId && flowInfo.id !== selectProcessId) {
+      Object.keys(flowNodeMap).forEach(key => {
+        if (flowNodeMap[key].typeId === NODE_TYPE.APPROVAL_PROCESS) {
+          approvalFlowNodeMap = { ...approvalFlowNodeMap, ...flowNodeMap[key].processNode.flowNodeMap };
+        }
+      });
+    }
+
+    this.cacheFlowNodeMap = selectProcessId && flowInfo.id !== selectProcessId ? approvalFlowNodeMap : flowNodeMap;
+    const { typeId, actionId } = this.cacheFlowNodeMap[nodeId] || {};
 
     return (
       _.includes([NODE_TYPE.APPROVAL, NODE_TYPE.SEARCH, NODE_TYPE.FIND_SINGLE_MESSAGE], typeId) ||
@@ -1306,6 +1333,21 @@ export default class CreateNodeDialog extends Component {
     const { selectItem } = this.state;
     const featureId = selectItem && selectItem.featureId ? selectItem.featureId : item.featureId;
     const featureType = getFeatureStatus(flowInfo.companyId, featureId);
+    const { licenseType } = getCurrentProject(flowInfo.companyId);
+
+    if (
+      !window.platformENV.isLocal &&
+      !window.platformENV.isOverseas &&
+      licenseType === 0 &&
+      item.type === NODE_TYPE.MESSAGE
+    ) {
+      upgradeVersionDialog({
+        projectId: flowInfo.companyId,
+        isFree: true,
+        explainText: _l('请升级至付费版解锁开启'),
+      });
+      return;
+    }
 
     // 二级创建
     if (item.secondList) {
@@ -1340,13 +1382,15 @@ export default class CreateNodeDialog extends Component {
           NODE_TYPE.LOOP,
           NODE_TYPE.PLUGIN,
           NODE_TYPE.AGENT,
+          NODE_TYPE.VECTOR,
         ],
         item.type,
       ) ||
-        (item.type === NODE_TYPE.ACTION && item.appType === APP_TYPE.GLOBAL_VARIABLE)) &&
+        (item.type === NODE_TYPE.ACTION && item.appType === APP_TYPE.GLOBAL_VARIABLE) ||
+        item.appType === APP_TYPE.INVOICE) &&
       featureType === '2'
     ) {
-      // 代码块、界面推送、Word打印模板、API连接与认证、调用已集成的API、获取页面快照、更新全局变量、循环
+      // 代码块、界面推送、Word打印模板、API连接与认证、调用已集成的API、获取页面快照、更新全局变量、循环、知识库检索、电子发票
       buriedUpgradeVersionDialog(flowInfo.companyId, featureId);
     } else if (_.includes([NODE_TYPE.APPROVAL_PROCESS, NODE_TYPE.LOOP], item.type) && !item.isNew) {
       this.setState({ showProcessDialog: true, selectItemType: item.type });
@@ -1367,6 +1411,7 @@ export default class CreateNodeDialog extends Component {
 
   onCreateNode(item) {
     const { flowInfo } = this.props;
+
     item.type === NODE_TYPE.LINK
       ? checkCertification({
           projectId: flowInfo.companyId,
@@ -1467,7 +1512,7 @@ export default class CreateNodeDialog extends Component {
                             className={cx({ disabled: o.disabled })}
                             onClick={() => {
                               if (o.disabled) {
-                                alert(_l('拥有成员管理权限才可以添加'), 3);
+                                alert(_l('需要”工作流获取组织信息”权限才可以添加'), 3);
                                 return;
                               }
 
@@ -1804,6 +1849,7 @@ export default class CreateNodeDialog extends Component {
           {!!branchDialogModel && (
             <BranchDialog
               {...this.props}
+              flowNodeMap={this.cacheFlowNodeMap}
               isConditionalBranch={branchDialogModel === 2}
               onSave={({ isOrdinary, moveType }) => this.createBranchNode({ isOrdinary, moveType })}
               onClose={() => this.setState({ branchDialogModel: 0 })}

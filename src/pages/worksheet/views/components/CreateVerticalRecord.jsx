@@ -49,6 +49,7 @@ const CreateVerticalRecordWrap = styled.div`
     }
   }
 `;
+
 export default function CreateVerticalRecord(props) {
   const { itemData, data, removeHierarchyTempItem, createTextTitleRecord, handleAddRecord } = props;
   const { rowId, pathId } = itemData;
@@ -62,6 +63,7 @@ export default function CreateVerticalRecord(props) {
     setValue('');
     removeHierarchyTempItem({ rowId, path: data.path });
   };
+
   return (
     <CreateVerticalRecordWrap>
       <div className="sortableVerticalTreeNodeWrap" id={pathId.join('-')} ref={$itemWrap}>

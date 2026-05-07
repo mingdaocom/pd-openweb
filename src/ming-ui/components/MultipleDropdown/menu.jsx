@@ -49,11 +49,13 @@ class MultipleDropdownMenu extends Component {
     const value = props.value || null;
     const checkedItems = {};
     let values = [];
+
     if (!props.multipleSelect) {
       values.push(value);
     } else {
       values = value;
     }
+
     if (values && values.length) {
       for (const i in values) {
         if (values[i]) {
@@ -104,9 +106,11 @@ class MultipleDropdownMenu extends Component {
     if (nextProps.value !== this.props.value) {
       this.initValue(nextProps);
     }
+
     if (nextProps.options !== this.props.options) {
       this.initOptions(nextProps);
     }
+
     if (nextProps.openMenu && nextProps.filter && !this.props.openMenu) {
       setTimeout(() => {
         this.search.focus();
@@ -121,11 +125,14 @@ class MultipleDropdownMenu extends Component {
     for (const i in items) {
       if (items[i]) {
         const item = items[i];
+
         if (item.value === value) {
           return item;
         }
+
         if (item.items) {
           const result = this.getItem(item.items, value);
+
           if (result) {
             return result;
           }
@@ -201,12 +208,14 @@ class MultipleDropdownMenu extends Component {
       autoHide = false;
 
       const checkedItems = {};
+
       for (const key in this.state.checkedItems) {
         if (this.state.checkedItems[key]) {
           const checkedItem = this.state.checkedItems[key];
           checkedItems[key] = checkedItem;
         }
       }
+
       if (checkedItems[item.value]) {
         checkedItems[item.value] = null;
       } else {
@@ -215,11 +224,19 @@ class MultipleDropdownMenu extends Component {
 
       const values = [];
       const labels = [];
+
       for (const key in checkedItems) {
         if (checkedItems[key]) {
           const checkedItem = checkedItems[key];
           values.push(checkedItem.value);
           labels.push(checkedItem.label);
+        }
+      }
+
+      if (this.props.maxSelectNum) {
+        if (values.length > this.props.maxSelectNum) {
+          alert(_l('最多只能选择 %0 个选项', this.props.maxSelectNum), 3);
+          return;
         }
       }
 
@@ -243,6 +260,7 @@ class MultipleDropdownMenu extends Component {
     for (const key in this.state.checkedItems) {
       if (this.state.checkedItems[key]) {
         const _item = this.state.checkedItems[key];
+
         if (key !== item.value) {
           checkedItems[key] = _item;
         }
@@ -251,6 +269,7 @@ class MultipleDropdownMenu extends Component {
 
     const values = [];
     const labels = [];
+
     for (const key in checkedItems) {
       if (checkedItems[key]) {
         const checkedItem = checkedItems[key];
@@ -291,6 +310,7 @@ class MultipleDropdownMenu extends Component {
     list.pop();
 
     let options = [];
+
     if (list.length > 0) {
       options = list[list.length - 1].items;
     } else {
@@ -356,6 +376,7 @@ class MultipleDropdownMenu extends Component {
      * 已选中的项目列表
      */
     let pills = null;
+
     if (this.props.multipleLevel && this.props.multipleSelect) {
       const pillItems = [];
 
@@ -399,6 +420,7 @@ class MultipleDropdownMenu extends Component {
      */
     let menuNav = null;
     let filterBox = null;
+
     if (this.props.filter) {
       filterBox = (
         <div
@@ -426,10 +448,12 @@ class MultipleDropdownMenu extends Component {
         </div>
       );
     }
+
     /**
      * 标题下方的分隔线
      */
     let divider = null;
+
     if (this.props.multipleLevel || this.props.multipleSelect) {
       divider = <div className="li divider" key="divider-0" />;
       if (this.state.list.length < 1) {
@@ -475,6 +499,7 @@ class MultipleDropdownMenu extends Component {
       } else {
         // 普通选项
         const classList = [];
+
         if (
           (!this.props.multipleSelect && item.value === this.state.value) ||
           (this.props.multipleSelect && this.state.checkedItems[item.value])
@@ -482,6 +507,7 @@ class MultipleDropdownMenu extends Component {
           // 已选中
           classList.push('checked');
         }
+
         if (item.disabled) {
           // 已禁用
           classList.push('disabled');
@@ -491,6 +517,7 @@ class MultipleDropdownMenu extends Component {
 
         // 多选选项的 checkbox
         let checkIcon = null;
+
         if (this.props.multipleSelect) {
           const checked = !!this.state.checkedItems[item.value];
 
@@ -514,6 +541,7 @@ class MultipleDropdownMenu extends Component {
         // 多级数据子选项箭头
         let arrowIcon = null;
         let className = '';
+
         if (this.props.multipleLevel && item.items && item.items.length) {
           arrowIcon = (
             <Icon

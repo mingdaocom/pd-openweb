@@ -1,25 +1,30 @@
 @import 'src/pages/worksheet/views/ResourceView/index.less';
 
+@DEFAULT_COLOR: var(--color-primary-transparent);
+@DEFAULT_BORDER_COLOR: rgba(0, 0, 0, 0.12);
+
+[data-theme='dark'] {
+  @DEFAULT_BORDER_COLOR: rgba(255, 255, 255, 0.12);
+}
+
 .boxCalendar {
   .fc-event-main {
     position: initial !important;
   }
-  .fc-daygrid-dot-event {
-    border: 1px solid var(--color-border-primary);
-    background: var(--color-background-primary);
-    padding: 0;
-    &:hover {
-      background: #0000001a;
-    }
+  .fc-h-event {
+    border-color: @DEFAULT_BORDER_COLOR;
+  }
+  .fc-event-time {
+    padding-left: 5px;
+    color: var(--color-text-primary);
   }
   .fc-daygrid-event-dot {
-    border-radius: 3px 0px 0px 3px;
-    margin: 0 4px 0 0;
-    border-left: 2px solid rgb(201, 230, 252);
-    border-right: none;
-    border-bottom: none;
-    border-top: none;
-    height: 16px;
+    display: none !important;
+  }
+  .fc-daygrid-dot-event {
+    border: 1px solid @DEFAULT_BORDER_COLOR;
+    background: @DEFAULT_COLOR;
+    padding: 0;
   }
   .fc-daygrid-day-bottom {
     line-height: 14px;
@@ -31,9 +36,6 @@
   .calendarCon.boldEvent {
     .fc-daygrid-day-frame {
       min-height: 70px !important;
-    }
-    .fc-daygrid-event-dot {
-      height: 38px;
     }
     .fc-more-popover {
       .fc-event {
@@ -115,15 +117,13 @@
   overflow: hidden;
   background: var(--color-background-primary);
   color: var(--color-text-title);
+  /* 保持与 FullCalendar 默认叠放一致；hover 时勿提高 harness 的 z-index，否则重叠事件里后渲染的卡片会被整块盖住 */
   .fc-daygrid-event-harness,
   .fc-timegrid-event-harness,
   .fc-scroller-harness,
   .fc-scrollgrid-section,
   .fc-timegrid-col-events {
     z-index: 9 !important;
-    &:hover {
-      z-index: 10 !important;
-    }
   }
   .fc-daygrid-event {
     .titleTxt {
@@ -137,7 +137,7 @@
     text-decoration: none;
   }
   .fc .fc-highlight {
-    background: var(--color-primary-transparent);
+    background: @DEFAULT_COLOR;
   }
   .fc-v-event .fc-event-main-frame {
     display: block;
@@ -270,9 +270,6 @@
     top: 50%;
     transform: translate(-50%, -50%);
     font-weight: bold;
-  }
-  .fc-daygrid-day-frame {
-    // min-height: 104px;
   }
   .fc-toolbar.fc-header-toolbar {
     height: 42px;

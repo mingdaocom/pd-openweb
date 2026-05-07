@@ -47,6 +47,7 @@ class GlobalSearch extends Component {
 
   handleMaskClick = e => {
     const { classList } = e.target;
+
     if (classList.contains('globalSearchWrap')) {
       this.props.onClose();
     }

@@ -17,6 +17,7 @@ const TelPhone = props => {
     handleMaskClick = () => {},
     showMaskValue = false,
   } = props;
+
   const getEditValue = () => {
     return value.replace(/ /g, '');
   };
@@ -42,9 +43,11 @@ const TelPhone = props => {
 
   const onBlur = event => {
     const trimValue = event.target.value.trim();
+
     if (trimValue !== value) {
       props.onChange(trimValue);
     }
+
     setIsEditing(false);
     props.onBlur(originValue);
   };

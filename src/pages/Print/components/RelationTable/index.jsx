@@ -45,7 +45,8 @@ export default class RelationTable extends React.Component {
       nextProps.showData !== this.props.showData ||
       !_.isEqual(nextProps.orderNumberCheck, this.props.orderNumberCheck) ||
       !_.isEqual(nextProps.fileStyle, this.props.fileStyle) ||
-      !_.isEqual(nextProps.user_info, this.props.user_info)
+      !_.isEqual(nextProps.user_info, this.props.user_info) ||
+      !_.isEqual(nextProps.printData, this.props.printData)
     ) {
       this.setData(nextProps);
     }
@@ -68,7 +69,14 @@ export default class RelationTable extends React.Component {
       user_info,
       dataInfo,
       tableList,
+      printData,
     } = props;
+    const { realShowData, enableEmptyPlaceholder, emptyPlaceholderMode } = printData;
+    const contentShowParams = {
+      realShowData,
+      enableEmptyPlaceholder,
+      emptyPlaceholderMode,
+    };
     let list = [];
 
     if (orderNumberCheck) {
@@ -110,6 +118,7 @@ export default class RelationTable extends React.Component {
               noUnit: true,
               controls: getFormData(controls, o),
               allControls: getFormData(allControls, o),
+              ...contentShowParams,
             }),
             true,
           )
@@ -174,6 +183,7 @@ export default class RelationTable extends React.Component {
                 : { dataSource: id }),
               controls: getFormData(controls, record),
               allControls: getFormData(allControls, record),
+              ...contentShowParams,
             });
           },
         });
@@ -197,12 +207,14 @@ export default class RelationTable extends React.Component {
     let has = false;
     dataSource.map(it => {
       let attachments;
+
       try {
         attachments = JSON.parse(it[id]);
       } catch (err) {
         console.log(err);
         return;
       }
+
       const pictureAttachments = attachments.filter(attachment => RegExpValidator.fileIsPicture(attachment.ext));
       const otherAttachments = attachments.filter(attachment => !RegExpValidator.fileIsPicture(attachment.ext));
       has = pictureAttachments.length > 0 || otherAttachments.length > 0;
@@ -264,11 +276,14 @@ export default class RelationTable extends React.Component {
     const { printData, id } = this.props;
     let { controlStyles = [] } = printData;
     let data = [];
+
     if (dataList) {
       controlStyles = dataList;
     }
+
     //存的时候 `${controlId}-${id}`
     let isData = controlStyles.map(it => it.controlId).includes(`${controlId}-${id}`);
+
     if (isData) {
       controlStyles.map(it => {
         if (it.controlId === `${controlId}-${id}`) {
@@ -287,6 +302,7 @@ export default class RelationTable extends React.Component {
         width: w,
       });
     }
+
     return data;
   };
 
@@ -362,11 +378,16 @@ export default class RelationTable extends React.Component {
   };
 
   render() {
-    const { dataSource, orderNumberCheck, id, style = {}, relationStyleNum } = this.props;
+    const { dataSource, orderNumberCheck, id, style = {}, relationStyleNum, printData } = this.props;
+    const { realShowData, enableEmptyPlaceholder, emptyPlaceholderMode } = printData;
+    const placeholderMode =
+      realShowData && !!Number(enableEmptyPlaceholder) && emptyPlaceholderMode ? emptyPlaceholderMode : '';
     const { list, columnWidthChangeMaskVisible, maskLeft, maskMaxLeft, maskMinLeft, maskOnChange } = this.state;
+
     if (list.length <= 0 && !orderNumberCheck) {
       return '';
     }
+
     const TableComponent = relationStyleNum.type === 3 ? TableRToC : TableCommon;
     const tableProps = {
       style: {
@@ -388,6 +409,7 @@ export default class RelationTable extends React.Component {
           dataSource={dataSource}
           id={id}
           tableProps={tableProps}
+          placeholderMode={placeholderMode}
           resizeWidth={this.resizeWidth}
         />
       </div>

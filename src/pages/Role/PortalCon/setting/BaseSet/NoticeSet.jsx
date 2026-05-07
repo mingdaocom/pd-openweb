@@ -11,10 +11,12 @@ export default function (props) {
   const { admin, exAccountSmsNotice, epDiscussWorkFlow, portalSetModel, onChangePortalSet, appId } = props;
   const { noticeScope = {} } = portalSetModel;
   const [{ showWorkflowDialog }, setCommonState] = useSetState({ showWorkflowDialog: false });
+
   const createWorkFlow = callback => {
     if (ajaxRequest) {
       ajaxRequest.abort();
     }
+
     ajaxRequest = externalPortalAjax.createEPDiscussWorkFlow({
       appId,
     });
@@ -32,6 +34,7 @@ export default function (props) {
       callback && callback(res);
     });
   };
+
   return (
     <>
       <h6 className="Font16 textPrimary Bold mBottom0 mTop24">{_l('通知设置')}</h6>

@@ -210,9 +210,11 @@ export function DeptSelect(props) {
   const getSearchDepartmentTree = data => {
     return data.map(item => {
       let { departmentId, departmentName, userCount, haveSubDepartment, subDepartments = [] } = item;
+
       if (subDepartments.length) {
         subDepartments = getSearchDepartmentTree(subDepartments);
       }
+
       return {
         departmentId,
         departmentName,
@@ -226,11 +228,14 @@ export function DeptSelect(props) {
 
   const fetchData = () => {
     setState({ loading: true });
-    const isAdmin = projectId && checkPermission(projectId, PERMISSION_ENUM.MEMBER_MANAGE) && fromAdmin;
+    const isAdmin = projectId && checkPermission(projectId, PERMISSION_ENUM.DEPARTMENT) && fromAdmin;
+
     if (promiseFn) {
       promiseFn.abort();
     }
+
     let getTree;
+
     if (keywords) {
       getTree = getSearchDepartmentTree;
     } else {
@@ -321,10 +326,12 @@ export function DeptSelect(props) {
   const getDepartmentById = (departmentTree, id) => {
     for (let i = 0; i < departmentTree.length; i++) {
       let department = departmentTree[i];
+
       if (department.departmentId === id) {
         return department;
       } else if (department.subDepartments.length) {
         let oDepartment = getDepartmentById(department.subDepartments, id);
+
         if (oDepartment) {
           return getDepartmentById(department.subDepartments, id);
         }
@@ -336,10 +343,13 @@ export function DeptSelect(props) {
     let departmentTree = [...list];
     let department = getDepartmentById(departmentTree, id);
     const { subDepartments = [] } = department;
+
     if (!department.haveSubDepartment) {
       return false;
     }
+
     let isForMore = !!localStorage.getItem('parentId');
+
     if (!department.open || isForMore) {
       if (subDepartments.length && !isForMore) {
         department.open = true;
@@ -391,6 +401,7 @@ export function DeptSelect(props) {
     } else {
       department.open = false;
     }
+
     setState({
       list: departmentTree,
     });
@@ -398,6 +409,7 @@ export function DeptSelect(props) {
 
   const setMoreList = (departmentId, isDelete) => {
     let moreData = departmentMoreIds.find(o => o.departmentId === departmentId);
+
     if (isDelete) {
       setState({
         departmentMoreIds: departmentMoreIds.filter(o => o.departmentId !== departmentId),
@@ -426,8 +438,10 @@ export function DeptSelect(props) {
       if (list[i].departmentId == id) {
         return [list[i]];
       }
+
       if (list[i].subDepartments) {
         let node = getParentId(list[i].subDepartments, id);
+
         if (node !== undefined) {
           return node.concat(list[i]);
         }
@@ -437,12 +451,14 @@ export function DeptSelect(props) {
 
   const toggle = (department, notIncludeChilren) => {
     const departmentIndex = _.findIndex(list, { departmentId: department.departmentId });
+
     if (!_.isUndefined(departmentIndex)) {
       setState({
         activeIndex: departmentIndex,
         activeIds: [department.departmentId],
       });
     }
+
     department = checkIncludeChilren
       ? {
           ...department,
@@ -470,6 +486,7 @@ export function DeptSelect(props) {
         onClose(true);
       } else {
         let selectedDepartments = _.cloneDeep(selectedDepartment);
+
         if (checkIncludeChilren) {
           if (department.departmentId === 'orgs_' + projectInfo.projectId) {
             //选中的是组织
@@ -484,6 +501,7 @@ export function DeptSelect(props) {
             });
           }
         }
+
         immediate && onSelect([department]);
         setState({
           selectedDepartment: selectedDepartments.concat([department]),
@@ -659,6 +677,7 @@ export default function quickSelectDept(target, props = {}) {
   let height = 0;
   const { offset = { top: 0, left: 0 }, zIndex = 1001 } = props;
   const $con = document.createElement('div');
+
   function setPosition() {
     if (_.isFunction(_.get(target, 'getBoundingClientRect'))) {
       const rect = target.getBoundingClientRect();
@@ -670,11 +689,13 @@ export default function quickSelectDept(target, props = {}) {
       if (x + panelWidth > window.innerWidth) {
         x = targetLeft - 10 - panelWidth;
       }
+
       if (y + panelHeight > window.innerHeight) {
         y = targetTop - panelHeight - 4;
         if (y < 0) {
           y = 0;
         }
+
         if (targetTop < panelHeight) {
           x = targetLeft - 10 - panelWidth;
           if (x < panelWidth) {
@@ -682,12 +703,14 @@ export default function quickSelectDept(target, props = {}) {
           }
         }
       }
+
       $con.style.position = 'absolute';
       $con.style.left = x + 'px';
       $con.style.top = y + 'px';
       $con.style.zIndex = zIndex;
     }
   }
+
   setPosition();
   document.body.appendChild($con);
   const root = createRoot($con);
@@ -707,9 +730,11 @@ export default function quickSelectDept(target, props = {}) {
           setTimeout(setPosition, 100);
           return;
         }
+
         if (_.isFunction(props.onClose)) {
           props.onClose();
         }
+
         destory();
       }}
     />,

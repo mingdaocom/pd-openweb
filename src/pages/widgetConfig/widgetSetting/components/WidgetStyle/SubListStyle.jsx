@@ -145,9 +145,11 @@ export default function SubListStyle(props) {
             minCount={0}
             onChange={value => {
               let tempRow = getAdvanceSetting(value, 'blankrow');
+
               if (tempRow > Number(rownum)) {
                 tempRow = Number(rownum) || 0;
               }
+
               onChange(handleAdvancedSettingChange(data, { blankrow: tempRow.toString() }));
             }}
           />
@@ -165,9 +167,11 @@ export default function SubListStyle(props) {
             maxNum={200}
             onChange={value => {
               let tempRowNum = getAdvanceSetting(value, 'rownum');
+
               if (tempRowNum < Number(blankrow)) {
                 tempRowNum = Number(blankrow) || 15;
               }
+
               onChange(handleAdvancedSettingChange(data, { rownum: tempRowNum.toString() }));
             }}
           />

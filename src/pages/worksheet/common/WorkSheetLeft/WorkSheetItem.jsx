@@ -31,6 +31,7 @@ export default class WorkSheetItem extends Component {
   svgColor(isActive) {
     const { iconColor, currentPcNaviStyle, themeType } = this.props.appPkg;
     const darkColor = [1, 3].includes(currentPcNaviStyle) && !['light'].includes(themeType);
+
     if (darkColor) {
       return `rgba(255, 255, 255, ${isActive ? 1 : 0.9})`;
     } else if ([1, 3].includes(currentPcNaviStyle)) {
@@ -46,6 +47,7 @@ export default class WorkSheetItem extends Component {
   }
   bgColor() {
     const { iconColor, currentPcNaviStyle, themeType } = this.props.appPkg;
+
     if ([1, 3].includes(currentPcNaviStyle) && !['light'].includes(themeType)) {
       return themeType === 'theme' ? 'rgba(0, 0, 0, 0.15)' : 'rgba(255, 255, 255, 0.15)';
     } else {
@@ -60,9 +62,11 @@ export default class WorkSheetItem extends Component {
       (_.find(storage.worksheets || [], item => item.groupId === groupId && item.worksheetId === workSheetId) || {})
         .viewId || '';
     let url = `/app/${appId}/${groupId}/${workSheetId}${viewId ? `/${viewId}` : ''}`;
+
     if (isActive) {
       url += `?flag=${this.state.flag || Date.now()}`;
     }
+
     return url;
   }
   render() {
@@ -89,6 +93,7 @@ export default class WorkSheetItem extends Component {
     const isNewOpen = configuration.openType == '2';
     const url = this.getNavigateUrl(isActive);
     const isEditApp = canEditApp(_.get(appPkg, ['permissionType']), _.get(appPkg, ['isLock']));
+
     const handleNewOpen = () => {
       const dataSource = transferValue(urlTemplate);
       const urlList = [];
@@ -111,14 +116,18 @@ export default class WorkSheetItem extends Component {
       });
       window.open(urlList.join(''));
     };
+
     const renderHideIcon = () => {
       let icon = 'visibility_off';
+
       if (status === 3 || parentStatus === 3) {
         icon = 'desktop_off';
       }
+
       if (status === 4 || parentStatus === 4) {
         icon = 'mobile_off';
       }
+
       return (
         ([2, 3, 4].includes(status) || [2, 3, 4].includes(parentStatus)) && (
           <Tooltip
@@ -136,6 +145,7 @@ export default class WorkSheetItem extends Component {
         )
       );
     };
+
     const Content = (
       <Fragment>
         {showIcon && (
@@ -193,14 +203,17 @@ export default class WorkSheetItem extends Component {
                     //浏览工作表埋点
                     addBehaviorLog('worksheet', workSheetId);
                   }
+
                   if (type == 1) {
                     //浏览自定义页面埋点
                     addBehaviorLog('customPage', workSheetId);
                   }
+
                   if (type == 3) {
                     // 对话机器人
                     addBehaviorLog('robot', workSheetId);
                   }
+
                   this.setState({ flag: Date.now() });
                 }}
               >

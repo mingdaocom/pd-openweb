@@ -9,11 +9,13 @@ export const changeSearchSheetRows =
     if (request) {
       request.abort();
     }
+
     if (!keyWords) {
       dispatch({ type: 'MOBILE_CHANGE_SEARCH_SHEET_ROWS', data: [] });
       callback && callback(true);
       return;
     }
+
     request = sheetAjax.getFilterRows({
       worksheetId,
       appId,

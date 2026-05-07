@@ -15,6 +15,7 @@ const CopyDialogWrap = styled.div`
     padding: 6px;
   }
 `;
+
 export default function CopyRoleDialog(props) {
   const { copyData, setCopyData, updataRoleData, appId, editType } = props;
   const { name, roleId } = copyData || {};
@@ -38,6 +39,7 @@ export default function CopyRoleDialog(props) {
         if (!roleName.trim()) {
           return alert(_l('请输入角色名称！'), 3);
         }
+
         AppAjax.copyRole({
           appId,
           roleId,

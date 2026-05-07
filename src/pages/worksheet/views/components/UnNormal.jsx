@@ -79,6 +79,7 @@ const UnNormal = props => {
     renderRefresh: true,
     text: _l('服务出错，请刷新重试'),
   };
+
   if (errorText) {
     text = errorText;
   }

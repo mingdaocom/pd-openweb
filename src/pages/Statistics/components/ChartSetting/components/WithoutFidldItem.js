@@ -15,6 +15,7 @@ const WithoutFidldItem = props => {
         alert(_l('暂不支持统计'), 2);
         return undefined;
       }
+
       props.onAddControl(item.data);
       return undefined;
     },
@@ -23,6 +24,7 @@ const WithoutFidldItem = props => {
         const state = item.data.type === WIDGETS_TO_API_TYPE_ENUM.RICH_TEXT ? false : props.onVerification(item.data);
         setState(state);
       }
+
       return undefined;
     },
     collect: monitor => ({
@@ -31,14 +33,17 @@ const WithoutFidldItem = props => {
     }),
   });
   const stateClassName = collectProps.isOver ? (state ? 'succeeFidldItem' : 'errorFidldItem') : '';
+
   const handleSave = e => {
     let { value } = e.target;
+
     if (value !== '') {
       value = Number(value);
       value = isNaN(value) ? 0 : value;
     } else {
       value = '';
     }
+
     onChnageInputValue(value, inputValue === value ? false : true);
     setInputVisible(_.isNumber(value) ? true : false);
   };

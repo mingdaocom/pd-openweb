@@ -112,7 +112,7 @@ class DialogImportExcelCreate extends Component {
         this.props.changeDialogUploadVisible(false);
         const { data: sheetList, id, versionLimitSheetCount, currentSheetCount, freeRowCount } = res.data || {};
         const overImportLength = versionLimitSheetCount - currentSheetCount;
-        let data = sheetList.map(item => {
+        let data = (sheetList || []).map(item => {
           const temp =
             item.matchControl &&
             Object.values(item.matchControl).map(it => {
@@ -123,12 +123,15 @@ class DialogImportExcelCreate extends Component {
                 'value',
               );
               let defaultData = _.omit(DEFAULT_DATA[enumWidgetType[item.type]], ['controlName']);
+
               if (item.advancedSetting) {
                 defaultData.advancedSetting = _.defaults(item.advancedSetting, defaultData.advancedSetting || {});
               }
+
               if (controlName) {
                 defaultData.controlName = controlName;
               }
+
               return { ...it, ...defaultData };
             });
           return {
@@ -152,6 +155,7 @@ class DialogImportExcelCreate extends Component {
               if (index < overImportLength) {
                 selectedSheetIds.push(current.sheetId);
               }
+
               return result + current.total;
             },
             0,
@@ -166,12 +170,14 @@ class DialogImportExcelCreate extends Component {
             0,
           );
         }
+
         data =
           versionLimitSheetCount !== 0
             ? data.map(it => {
                 if (!_.includes(selectedSheetIds, it.sheetId)) {
                   return { ...it, disabled: true };
                 }
+
                 return it;
               })
             : data;
@@ -259,6 +265,7 @@ class DialogImportExcelCreate extends Component {
       alert(_l('超过导入上限(上限 50000 行)，请调整导入数据'), 3);
       return;
     }
+
     // 最多20个Sheet，单个Sheet最多20000行，最多200列、免费版本总行数不得超过5w行
     if (importSheets.length > 20) {
       alert(_l('当前版本最多支持20个Sheet'), 3);
@@ -272,6 +279,7 @@ class DialogImportExcelCreate extends Component {
     } else if (noRowNum || hasEmptyRows || hasEmptyCells) {
       return alert(_l('表头第一列不得为空'), 3);
     }
+
     const sheetList = importSheets.map(item => {
       return {
         sheetNumber: item.sheetNumber,
@@ -303,6 +311,7 @@ class DialogImportExcelCreate extends Component {
     const { createType, excelDetailData = [], selectedImportSheetIds, refreshPage = () => {} } = this.props;
     const importSheets = excelDetailData.filter(it => _.includes(selectedImportSheetIds, it.sheetId));
     const isMore = importSheets.length > 10;
+
     if (createType === 'worksheet') {
       antNotification.info({
         key: this.state.socketId,
@@ -410,6 +419,7 @@ class DialogImportExcelCreate extends Component {
         });
       return;
     }
+
     this.createApp();
   };
 

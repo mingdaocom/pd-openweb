@@ -70,12 +70,15 @@ export default function (props) {
       onChangeSetting({ reservecontrols: JSON.stringify([]) });
       return;
     }
+
     let data = safeParse(advancedSetting.reservecontrols);
+
     if (data.includes(value)) {
       data = data.filter(o => o !== value);
     } else {
       data = [...data, value];
     }
+
     onChangeSetting({ reservecontrols: JSON.stringify(data) });
   };
 
@@ -234,10 +237,12 @@ export default function (props) {
               checked={advancedSetting.enableconfirm === '1'}
               onClick={() => {
                 let info;
+
                 if (advancedSetting.enableconfirm !== '1' && !_.get(advancedSetting, 'doubleconfirm')) {
                   info = { doubleconfirm: JSON.stringify(defaultDoubleConfirm) };
                   setState({ showDoubleConfirm: true });
                 }
+
                 onChangeSetting({
                   enableconfirm: advancedSetting.enableconfirm === '1' ? '0' : '1',
                   ...info,

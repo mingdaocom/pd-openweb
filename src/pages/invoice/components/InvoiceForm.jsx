@@ -99,6 +99,7 @@ export default function InvoiceForm(props) {
   const [showTitleList, setShowTitleList] = useState(false);
   const [titleList, setTitleList] = useState([]);
   const [listLoading, setListLoading] = useState(false);
+  const [isExpand, setIsExpand] = useState(false);
 
   const isConfirmOrTest = ['confirm', 'test'].includes(type);
 
@@ -216,23 +217,27 @@ export default function InvoiceForm(props) {
             )}
           </div>
         );
-      case 'taxPayerNo':
-      case 'email':
+      default:
         return (
           <div className="flex">
             <Input
               className="w100"
-              placeholder={key === 'taxPayerNo' ? '' : _l('请输入邮箱')}
+              placeholder={key === 'taxPayerNo' ? '' : _l('请输入')}
               value={formData[key]}
               disabled={key === 'taxPayerNo'}
               onChange={value => setFormData({ [key]: value })}
             />
           </div>
         );
-      default:
-        return null;
     }
   };
+
+  const optionalFields = [
+    { key: 'bankName', label: _l('开户行') },
+    { key: 'bankCode', label: _l('开户行账号') },
+    { key: 'address', label: _l('地址') },
+    { key: 'phoneNumber', label: _l('电话') },
+  ];
 
   return (
     <Wrapper className="InvoiceFormContainer">
@@ -291,11 +296,29 @@ export default function InvoiceForm(props) {
           {renderFieldComponent('email')}
         </div>
 
-        {isConfirmOrTest && (
+        {(isExpand || isConfirmOrTest) &&
+          formData.invoiceOutputType === 1 &&
+          optionalFields.map(item => (
+            <div className="formItem">
+              <div className="label">{item.label}</div>
+              {renderFieldComponent(item.key)}
+            </div>
+          ))}
+
+        {isConfirmOrTest ? (
           <div className="formItem">
             <div className="label">{_l('开票类目')}</div>
             {renderFieldComponent('productId')}
           </div>
+        ) : (
+          formData.invoiceOutputType === 1 && (
+            <div
+              className="textSecondary TxtCenter pointer mTop10 hoverColorPrimary"
+              onClick={() => setIsExpand(!isExpand)}
+            >
+              {isExpand ? _l('收起') : _l('展开更多')}
+            </div>
+          )
         )}
       </div>
     </Wrapper>

@@ -132,6 +132,7 @@ export default class JSONParse extends Component {
         if (result.selectNodeId && !result.outputs.length && (!result.appId || sId)) {
           result.outputs = [getDefaultParameters()];
         }
+
         this.setState({ data: !sId ? result : { ...result, name: data.name }, foldIds: [], selectFiledId: '' });
       });
   }
@@ -303,7 +304,7 @@ export default class JSONParse extends Component {
                   <FindResult
                     nodeType={selectNodeType}
                     executeType={data.executeType}
-                    switchExecuteType={executeType => this.updateSource({ executeType })}
+                    updateSource={this.updateSource}
                   />
                 )}
               </Fragment>
@@ -408,6 +409,7 @@ export default class JSONParse extends Component {
                 } else {
                   foldIds.push(item.jsonPath);
                 }
+
                 this.setState({ foldIds });
               }
             }}

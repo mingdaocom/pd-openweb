@@ -28,11 +28,13 @@ export const wsexcelSocketInit = () => {
         const formatNum = num => {
           return num.toString().replace(/(\d{1,3})(?=(?:\d{3})+$)/g, '$1,');
         };
+
         const aCount = addCount;
         const eCount = errorCount;
         const rCount = repeatCount;
         const sCount = skipCount;
         const uCount = updateCount;
+
         const title = () => {
           const txt1 = [
             repeated !== 3 ? _l('新增%0行', formatNum(aCount)) : '',
@@ -108,6 +110,7 @@ export default class ImportDataFromExcel extends Component {
     } = this.props;
     const { showImportConfigDialog, showConfigControl, fileList, fileInfo, fileKey, importSheetInfo, selectRow } =
       this.state;
+
     if (showImportConfigDialog) {
       return (
         <ImportConfig

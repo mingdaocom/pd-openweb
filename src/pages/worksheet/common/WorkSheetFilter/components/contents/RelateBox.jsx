@@ -69,10 +69,12 @@ export default class RelateBox extends Component {
     } = this.props;
     const dynamicControls = isGlobal ? globalSheetControls : columns;
     let avaControls = relateDy(conditionType, dynamicControls, control, defaultValue, from);
+
     // 当前记录支持rowid
     if (showCustom && control.type === 2 && !isGlobal) {
       avaControls = avaControls.concat(ROW_ID_CONTROL);
     }
+
     const { globalSheetId, dataSource, controlId } = widgetControlData;
 
     if (isGlobal && _.isUndefined(globalSheetControls)) return avaControls;
@@ -93,6 +95,7 @@ export default class RelateBox extends Component {
         ),
       );
     }
+
     // 关联记录字段关联本表，支持rowid
     if (
       from === 'relateSheet' &&
@@ -102,6 +105,7 @@ export default class RelateBox extends Component {
     ) {
       avaControls = avaControls.concat(ROW_ID_CONTROL);
     }
+
     return avaControls;
   };
 

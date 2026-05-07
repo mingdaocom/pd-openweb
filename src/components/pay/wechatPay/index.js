@@ -135,6 +135,7 @@ export default class WechatPay extends Component {
         this.setState({ disabledScan: true });
         return;
       }
+
       if (res.tradeStatus === 'SUCCESS') {
         // 支付成功
         clearInterval(this.timeInterval);

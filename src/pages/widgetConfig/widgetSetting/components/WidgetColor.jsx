@@ -83,6 +83,7 @@ const NormalIconStyle = styled.div`
 export default function WidgetColor({ handleChange, color, text, isNormal = true, fromWidget }) {
   return (
     <ColorPicker
+      dynamicColor
       sysColor
       isPopupBody
       lightBefore

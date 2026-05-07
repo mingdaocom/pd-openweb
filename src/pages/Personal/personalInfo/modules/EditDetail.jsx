@@ -28,9 +28,11 @@ export default class EditDetail extends React.Component {
 
   saveBaseInfo = () => {
     const { isError, baseInfo, errTxtInfo } = this.state;
+
     if (isError || errTxtInfo.length > 0) {
       return;
     }
+
     Promise.all([
       fixedDataAjax.checkSensitive({ content: baseInfo.fullname }),
       fixedDataAjax.checkSensitive({ content: baseInfo.companyName }),

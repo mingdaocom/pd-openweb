@@ -24,6 +24,7 @@ function EditWidget(props) {
   const { components, widget, onClose, mode, activeContainerInfo = {}, addWidget, updateWidget } = props;
   const type = getEnumType(widget.type);
   const Comp = TYPE_TO_COMPONENTS[type];
+
   const handleEdit = obj => {
     if (mode === 'add') {
       if (!componentCountLimit(components)) return;
@@ -31,6 +32,7 @@ function EditWidget(props) {
         obj.sectionId = activeContainerInfo.sectionId;
         obj.tabId = activeContainerInfo.tabId;
       }
+
       addWidget({
         type,
         ...obj,
@@ -38,11 +40,14 @@ function EditWidget(props) {
     } else {
       updateWidget({ widget, needUpdate: !widget.needUpdate, ...obj });
     }
+
     onClose();
   };
+
   const handleUpdate = obj => {
     updateWidget({ widget, ...obj });
   };
+
   return <Comp {...props} onEdit={handleEdit} onUpdate={handleUpdate} updateWidget={updateWidget} />;
 }
 

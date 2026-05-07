@@ -9,12 +9,29 @@ import { downloadFile, emitter } from 'src/utils/common';
 
 const integrationParams = match('/integrationConnect/:id?/:tab?');
 
+function addWebUrlForWorksheetHref(content = '') {
+  const webUrl = _.get(md, 'global.Config.WebUrl', '');
+
+  if (!content || !webUrl) return content;
+
+  return content.replace(/href=(['"])(\/worksheet\/[^'"]*?)\1/gi, (matched, quote, href = '') => {
+    if (/^https?:\/\//i.test(href)) {
+      return matched;
+    }
+
+    const baseUrl = webUrl.replace(/\/$/, '');
+    return `href=${quote}${baseUrl}${href}${quote}`;
+  });
+}
+
 export default function customNotice() {
   const { socket } = window.IM || {};
+
   if (socket) {
     $('body').on('click', 'a', function (evt) {
       if ($(evt.target).closest('.customNotification').length) {
         const href = ($(evt.target).closest('a').attr('href') || '').toLocaleLowerCase();
+
         const stop = () => {
           evt.preventDefault();
           evt.stopImmediatePropagation();
@@ -47,6 +64,13 @@ export default function customNotice() {
           stop();
           return;
         }
+
+        if (href.indexOf('importattachmentserrorpage') > -1) {
+          const arr = href.split('/');
+
+          new ErrorDialog({ fileKey: arr[arr.length - 1], isAttachment: true });
+          stop();
+        }
       }
     });
 
@@ -54,6 +78,7 @@ export default function customNotice() {
       const { id, status, title, msg, link, linkText, color, type } = data;
       const { params } = integrationParams(location.pathname) || {};
       let action = '';
+      const formatMsg = addWebUrlForWorksheetHref(msg);
       const linkBtn = {
         text: linkText || _l('查看详情'),
         onClick: () => window.open(link),
@@ -89,7 +114,7 @@ export default function customNotice() {
         closeIcon: <Icon icon="close" className="Font20 textTertiary ThemeHoverColor3" />,
         duration: 5,
         message: title,
-        description: <div dangerouslySetInnerHTML={{ __html: msg }} />,
+        description: <div dangerouslySetInnerHTML={{ __html: formatMsg }} />,
         loading: status === 1,
         btn: link ? renderBtnList([linkBtn]) : undefined,
         color,

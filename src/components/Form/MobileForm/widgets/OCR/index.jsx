@@ -49,6 +49,7 @@ const OCR = props => {
       up && up.disableBrowse(false);
       return alert(_l('模版为空或已删除'), 3);
     }
+
     const requestMap = safeParse(requestmap || '[]');
 
     // 有配置api和请求参数
@@ -120,6 +121,7 @@ const OCR = props => {
           advancedSetting.ocroriginal,
         );
       }
+
       handleSearch(up, newVal);
       return;
     }
@@ -131,11 +133,13 @@ const OCR = props => {
       if (_.get(up, 'files.length') !== cacheFile.current.length) return;
       // 子表数量达到上限
       const subControl = formData.find(f => f.controlId === advancedSetting.ocrcid);
+
       if (_.get(subControl, 'advancedSetting.enablelimit') === '1') {
         const maxCount = _.get(subControl, 'advancedSetting.max');
         const subNum = _.isNumber(subControl.value)
           ? subControl.value
           : _.get(subControl, 'value.rows.length') || _.get(subControl, 'value.num');
+
         if ((subNum || 0) + cacheFile.current.length > parseInt(maxCount || 0)) {
           alert(_l('子表数量达到上限'), 3);
           handleClear(up);
@@ -150,10 +154,12 @@ const OCR = props => {
 
     ajax.ocr({ worksheetId, controlId, data, type: 1 }).then(result => {
       const ocrmap = JSON.parse(advancedSetting.ocrmap || '{}');
+
       // 批量映射子表
       if (advancedSetting.ocrmaptype === '2') {
         const rows = _.get(result, 'data');
         const errorCount = cacheFile.current.length - rows.length;
+
         if (errorCount) {
           alert(_l(`${errorCount}个文件识别错误`), 3);
         }
@@ -163,6 +169,7 @@ const OCR = props => {
           let newRow = {};
           (row.data || []).map(i => {
             const currentItem = ocrmap.find(o => o.cid === i.controlId);
+
             // 附件
             if (_.includes([1, 1001, 2001], parseInt(currentItem.type))) {
               newRow[i.controlId] = JSON.stringify({
@@ -209,6 +216,7 @@ const OCR = props => {
           } else {
             newValue = item.value;
           }
+
           setMingDaoAppUploading(false);
           onChange(newValue, item.controlId);
         });

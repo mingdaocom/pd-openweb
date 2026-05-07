@@ -184,6 +184,7 @@ export const Tabs = props => {
   useEffect(() => {
     if (isTabs) {
       const filterComponents = components.filter(c => c.type === 6);
+
       if (isMobile) {
         props.updateLoadFilterComponentCount(filterComponents.length);
       } else {
@@ -200,10 +201,13 @@ export const Tabs = props => {
         setWidth(elementRef.current.offsetWidth);
       }
     };
+
     const resizeObserver = new ResizeObserver(handleResize);
+
     if (elementRef.current) {
       resizeObserver.observe(elementRef.current);
     }
+
     return () => {
       if (elementRef.current) {
         resizeObserver.unobserve(elementRef.current);
@@ -226,6 +230,7 @@ export const Tabs = props => {
       ...config,
       width: width || (wrap ? wrap.clientWidth : undefined),
     };
+
     if (adjustScreen) {
       const maxH = _.max(tabComponents.map(item => _.get(item, ['web', 'layout'])).map(layout => layout.h + layout.y));
       return {
@@ -233,6 +238,7 @@ export const Tabs = props => {
         rowHeight: wrap ? (wrap.offsetHeight - 20) / maxH - 10 : undefined,
       };
     }
+
     return data;
   };
 
@@ -247,6 +253,7 @@ export const Tabs = props => {
         },
       };
     });
+
     const getThresholdValue = () => {
       if (layoutType === 'web') {
         if (isTabs) {
@@ -258,23 +265,27 @@ export const Tabs = props => {
         return 2;
       }
     };
+
     const maxH =
       _.max(res.map(item => _.get(item, [layoutType, 'layout'])).map(layout => layout.h + layout.y)) +
       getThresholdValue();
     const newComponents = components.map(c => {
       const idKey = widget.id ? 'id' : 'uuid';
+
       if (c[idKey] === widget[idKey] && [9, 10, 'tabs', 'card'].includes(c.type) && maxH) {
         if (layoutType === 'web' && c.web && c.web.layout) {
           c.web.layout.h = maxH;
           c.web.layout.minH = maxH;
           c.web.layout.maxH = maxH;
         }
+
         if (layoutType === 'mobile' && c.mobile && c.mobile.layout) {
           c.mobile.layout.h = maxH;
           c.mobile.layout.minH = maxH;
           c.mobile.layout.maxH = maxH;
         }
       }
+
       return (
         _.find(
           res,
@@ -287,6 +298,7 @@ export const Tabs = props => {
 
   const renderGrid = () => {
     const el = _.get(elementRef, 'current') ? elementRef.current.querySelector('.bodyContent') : null;
+
     if (el) {
       const clientWidth = el.clientWidth - 10;
       const cols = 48;
@@ -382,6 +394,7 @@ export const Tabs = props => {
               elementRef.current.classList.remove('cardNoSelect');
               const index = _.findIndex(layout, { i: oldItem.i });
               const getData = _.get(displayRefs[index], ['getData']);
+
               if (getData && typeof getData === 'function') {
                 getData();
               }
@@ -416,6 +429,7 @@ export const Tabs = props => {
                     }}
                     setChartData={data => {
                       const chartRef = displayRefs[index];
+
                       if (chartRef) {
                         chartRef.handleChangeReportData(data);
                       }

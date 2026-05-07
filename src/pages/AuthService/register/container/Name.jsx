@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import fixedDataAjax from 'src/api/fixedData.js';
 import RegisterController from 'src/api/register';
 import { AccountNextActions } from 'src/pages/AuthService/config.js';
-import { registerSuc } from 'src/pages/AuthService/util.js';
+import { getDataByFilterXSS, registerSuc } from 'src/pages/AuthService/util.js';
 import { getRequest } from 'src/utils/common';
 import RegExpValidator from 'src/utils/expression';
 
@@ -13,6 +13,7 @@ let request = getRequest();
 const Wrap = styled.div`
   min-height: 460px;
 `;
+
 export default function (props) {
   let { onChange, fullName = '', onlyReadName, email, emailOrTel } = props;
   const [{ createAccountLoading, warnList, focusDiv }, setState] = useSetState({
@@ -45,6 +46,7 @@ export default function (props) {
                 location.href = request.ReturnUrl;
                 return;
               }
+
               if (isLink) {
                 if (nextAction == AccountNextActions.createProject) {
                   onChange({ step: 'create' });
@@ -56,8 +58,15 @@ export default function (props) {
                   callback && callback();
                 }
               } else {
-                if ((request.ReturnUrl || '').indexOf('type=privatekey') > -1) {
+                let returnUrl = getDataByFilterXSS(request.ReturnUrl || '');
+
+                if (returnUrl.indexOf('type=privatekey') > -1) {
                   registerSuc(props);
+                } else if (returnUrl.indexOf('oauth/authorize') > -1) {
+                  window.open(returnUrl, '_blank');
+                  // 打开新页面后，当前页去掉 ReturnUrl
+                  window.history.replaceState(null, '', location.href.replace(/([?&])ReturnUrl=[^&]*/gi, ''));
+                  callback && callback();
                 } else {
                   callback && callback();
                 }
@@ -82,6 +91,7 @@ export default function (props) {
     // 企业网络名称
     let isRight = true;
     let warnList = [];
+
     if (!fullName.trim()) {
       warnList.push({ tipDom: 'fullName', warnTxt: _l('请填写姓名') });
       isRight = false;
@@ -93,12 +103,14 @@ export default function (props) {
         }
       });
     }
+
     if (!(emailOrTel && RegExpValidator.isEmail(emailOrTel))) {
       if (!RegExpValidator.isEmail(email) && !!email) {
         warnList.push({ tipDom: 'email', warnTxt: _l('邮箱格式错误') });
         isRight = false;
       }
     }
+
     setState({ warnList });
     return isRight;
   };
@@ -109,6 +121,7 @@ export default function (props) {
     if (!warn) return;
     return <div className={cx('warnTips')}>{warn.warnTxt}</div>;
   };
+
   const renderClassName = (key, value) => {
     const warn = warnList.find(o => o.tipDom === key);
     return {
@@ -118,6 +131,7 @@ export default function (props) {
       errorDivCu: !!focusDiv && focusDiv === key,
     };
   };
+
   return (
     <Wrap>
       {createAccountLoading && <div className="loadingLine"></div>}

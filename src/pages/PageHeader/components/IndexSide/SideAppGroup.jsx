@@ -56,6 +56,7 @@ export default class SideAppGroup extends Component {
     if (items.length <= 0) {
       return '';
     }
+
     return (
       <div className="sideAppGroupWrap">
         <div className="sideAppGroupTitleWrap pointer" onClick={() => onExpandCollapse(`${type}/${projectId}`)}>

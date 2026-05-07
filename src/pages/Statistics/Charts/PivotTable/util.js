@@ -18,6 +18,7 @@ export const uniqMerge = (data, config) => {
   for (let i = data.length - 1; i >= 0; i--) {
     let current = data[i];
     let last = data[i - 1];
+
     if (mergeCell && current == last && (pageSize ? i % pageSize : true)) {
       data[i] = null;
       data[i - 1] = {
@@ -25,6 +26,7 @@ export const uniqMerge = (data, config) => {
         length: 2,
       };
     }
+
     if (_.isObject(current) && mergeCell && current.value === last && (pageSize ? i % pageSize : true)) {
       data[i - 1] = {
         value: last,
@@ -33,6 +35,7 @@ export const uniqMerge = (data, config) => {
       data[i] = null;
     }
   }
+
   return data;
 };
 
@@ -43,12 +46,14 @@ export const mergeTableCell = (list, pageSize, mergeCell) => {
   list.map((item, index) => {
     const last = list[index - 1];
     const defaultEmpty = item.xaxisEmptyType ? '--' : ' ';
+
     if (last) {
       let data = last.data.map((n, i) => {
         if (_.isObject(n)) {
           if (n.sum) {
             return item.data[i];
           }
+
           let end = i + n.length;
           return uniqMerge(item.data.slice(i, end), { pageSize, defaultEmpty, mergeCell });
         } else if (_.isString(n)) {
@@ -61,6 +66,7 @@ export const mergeTableCell = (list, pageSize, mergeCell) => {
     } else {
       item.data = uniqMerge(item.data, { pageSize, defaultEmpty, mergeCell });
     }
+
     return item;
   });
   return list;
@@ -130,6 +136,7 @@ export const mergeLinesCell = (data, lines, valueMap, config) => {
           const freezeData = isFreeze && freezeIndex ? data.slice(0, index <= freezeIndex ? fIndex : index) : data;
           const rightLength = getTotalCount(freezeData.slice(index + 1, freezeData.length), valueIndex).length + 1;
           const leftLength = getTotalCount(freezeData.slice(0, index), valueIndex).length;
+
           if (!leftLength && rightLength) {
             const showLine = data[data.length - rightLength];
             const showId = Object.keys(showLine)[0];
@@ -143,9 +150,11 @@ export const mergeLinesCell = (data, lines, valueMap, config) => {
             if (isFreeze && freezeIndex) {
               return index <= freezeIndex ? `subTotalEmpty-${valueIndex}` : `subTotalFreezeEmpty-${valueIndex}`;
             }
+
             return `subTotalEmpty-${valueIndex}`;
           }
         }
+
         return value;
       });
       const target = _.find(lines, { cid: key }) || {};
@@ -190,17 +199,21 @@ export const mergeLinesCell = (data, lines, valueMap, config) => {
 
   const parse = value => {
     let result = value;
+
     try {
       let res = JSON.parse(value);
+
       if (_.isArray(res)) {
         res = res.map(item => {
           return parse(item);
         });
       }
+
       result = res;
     } catch (err) {
       console.log(err);
     }
+
     return result;
   };
 
@@ -217,6 +230,7 @@ export const mergeLinesCell = (data, lines, valueMap, config) => {
         advancedSetting.showtype === '0'
           ? {}
           : valueMap[item.key];
+
       if (_.isObject(n)) {
         const defaultValue = n.value.includes('subTotal') ? n.value : defaultEmpty;
         return {
@@ -279,11 +293,13 @@ export const getControlMinAndMax = (yaxisList, data) => {
 
   const get = id => {
     let values = [];
+
     for (let i = 0; i < data.length; i++) {
       if (data[i].t_id === id && !data[i].summary_col) {
         values.push(data[i].data);
       }
     }
+
     values = _.flatten(values);
     const min = _.min(values) || 0;
     const max = _.max(values);
@@ -307,22 +323,29 @@ export const getBarStyleColor = ({ value, controlMinAndMax = {}, rule }) => {
   const barStyle = {};
   const minValue = _.isNumber(min) ? min : controlMinAndMax.min || 0;
   const maxValue = _.isNumber(max) ? max : controlMinAndMax.max || 0;
+
   if (direction === 1) {
     barStyle.left = 0;
   }
+
   if (direction === 2) {
     barStyle.right = 0;
   }
+
   let percent = parseInt(((value - minValue) / (maxValue - minValue)) * 100);
+
   if (percent >= 100) {
     percent = 100;
   }
+
   if (percent <= 0) {
     percent = 0;
   }
+
   if (value < minValue) {
     percent = 0;
   }
+
   barStyle.width = `${percent}%`;
   barStyle.backgroundColor = value >= 0 ? positiveNumberColor : negativeNumberColor;
   return barStyle;
@@ -330,11 +353,13 @@ export const getBarStyleColor = ({ value, controlMinAndMax = {}, rule }) => {
 
 export const getLineSubTotal = (data = [], index) => {
   let count = '';
+
   for (let i = index; i < data.length; i++) {
     if (data[i] && _.isString(data[i]) && data[i].includes('subTotal')) {
       count = data[i];
       break;
     }
   }
+
   return count;
 };

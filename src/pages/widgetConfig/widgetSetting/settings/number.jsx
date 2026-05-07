@@ -52,9 +52,11 @@ export default function Number(props) {
     if (data.unit) {
       onChange(handleAdvancedSettingChange({ ...data, unit: '' }, { suffix: data.unit }));
     }
+
     if (_.isUndefined(thousandth)) {
       onChange(handleAdvancedSettingChange(data, { thousandth: data.enumDefault === 1 ? '1' : '0' }));
     }
+
     setNumValue(numinterval);
   }, [data.controlId]);
 
@@ -62,17 +64,22 @@ export default function Number(props) {
     function isEmpty(v) {
       return _.isUndefined(v) || v === '';
     }
+
     let changes = {};
+
     if (isEmpty(min)) {
       onChange(handleAdvancedSettingChange(data, { min: '0' }));
       return;
     }
+
     if (isEmpty(max)) {
       onChange(handleAdvancedSettingChange(data, { max: '100' }));
       return;
     }
+
     let minValue = parseFloat(min) || 0;
     let maxValue = typeof parseFloat(max) === 'number' ? parseFloat(max) : numshow === '1' ? 1 : 100;
+
     if (maxValue < minValue) {
       changes.minValue = maxValue;
       changes.maxValue = minValue;
@@ -80,6 +87,7 @@ export default function Number(props) {
       changes.maxValue = maxValue;
       changes.minValue = minValue;
     }
+
     if (minValue !== min || maxValue !== max) {
       onChange(handleAdvancedSettingChange(data, { min: `${changes.minValue}`, max: `${changes.maxValue}` }));
     }
@@ -124,12 +132,15 @@ export default function Number(props) {
               }}
               onBlur={() => {
                 let tempValue = numValue || '1';
+
                 if (numValue && parseFloat(numValue) > parseFloat(max)) {
                   tempValue = numinterval;
                 }
+
                 if (!parseFloat(tempValue)) {
                   tempValue = '1';
                 }
+
                 setNumValue(tempValue);
                 const pointIndex = String(tempValue).indexOf('.') + 1;
                 onChange({
@@ -202,6 +213,7 @@ export default function Number(props) {
           value={showtype}
           onChange={type => {
             let newOptions = { showtype: type };
+
             if (type === '2') {
               newOptions.numinterval = '1';
               newOptions.min = min || '0';
@@ -214,12 +226,14 @@ export default function Number(props) {
               onChange({ ...handleAdvancedSettingChange(data, newOptions), dot: 0 });
               return;
             }
+
             if (type === '3') {
               newOptions.numinterval = '1';
               newOptions.min = '';
               newOptions.max = '';
               setNumValue(newOptions.numinterval);
             }
+
             onChange(handleAdvancedSettingChange(data, newOptions));
           }}
         />

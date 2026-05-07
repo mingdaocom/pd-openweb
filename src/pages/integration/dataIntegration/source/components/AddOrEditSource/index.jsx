@@ -33,7 +33,7 @@ const HeaderWrapper = styled.div`
   justify-content: space-between;
   align-items: center;
   background-color: var(--color-background-primary);
-  box-shadow: 0 1px 2px rgb(0 0 0 / 0.16);
+  box-shadow: var(--shadow-sm);
 
   .headerLeft {
     display: flex;
@@ -44,7 +44,6 @@ const HeaderWrapper = styled.div`
 
   .headerMiddle {
     box-sizing: border-box;
-    border-bottom: 1px solid var(--color-border-primary);
 
     ul {
       /* text-align: center; */
@@ -111,6 +110,7 @@ const ContentWrapper = styled.div`
 `;
 
 let postParams;
+
 export default function AddOrEditSource(props) {
   const { source, onRefresh, isCreateDialog, onClose } = props;
   const { sourceId, type } = (props.match || {}).params || {};

@@ -242,6 +242,7 @@ export function getFilterTypeLabel(typeKey, type, control) {
   const isArea = control && _.includes([19, 23, 24], control.type);
   const isRelateRecordMultiple = control && control.type === 29 && control.enumDefault === 2;
   const { isSingle, isMultiple } = getControlSelectType(control);
+
   switch (type) {
     case FILTER_CONDITION_TYPE.LIKE:
       if (isDepartment || isArea) return _l('下级包含%25024');
@@ -253,9 +254,11 @@ export function getFilterTypeLabel(typeKey, type, control) {
       if (isSingle || isArea || isLevel) {
         return _l('是其中一个%25017');
       }
+
       if (isMultiple) {
         return _l('包含其中一个%25021');
       }
+
       return _l('等于%25001');
     case FILTER_CONDITION_TYPE.START:
       return _l('开头是%25005');
@@ -273,9 +276,11 @@ export function getFilterTypeLabel(typeKey, type, control) {
       if (isSingle || isArea || isLevel) {
         return _l('不是任何一个%25018');
       }
+
       if (isMultiple) {
         return _l('不包含任何一个%25022');
       }
+
       return _l('不等于%25002');
     case FILTER_CONDITION_TYPE.ISNULL:
       return _l('为空%25009');

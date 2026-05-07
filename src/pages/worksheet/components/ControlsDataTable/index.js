@@ -78,12 +78,15 @@ export default function ControlsDataTable(props) {
   const getType = control => {
     const { type, sourceControlType } = control;
     let itemType = type;
+
     if (type === 30) {
       itemType = sourceControlType;
     }
+
     if (itemType === 38) {
       itemType = 6;
     }
+
     return itemType;
   };
 
@@ -94,6 +97,7 @@ export default function ControlsDataTable(props) {
       return <i className="icon icon-score-down sortIcon" />;
     }
   };
+
   return (
     <WorksheetTable
       watchHeight
@@ -119,12 +123,15 @@ export default function ControlsDataTable(props) {
             if (!control.controlId || !canSort) {
               return;
             }
+
             let newSortType;
+
             if (controlId !== control.controlId || _.isUndefined(isAsc)) {
               newSortType = true;
             } else if (isAsc === true) {
               newSortType = false;
             }
+
             let sortControl = {
               controlId: control.controlId,
               datatype: getType(control),

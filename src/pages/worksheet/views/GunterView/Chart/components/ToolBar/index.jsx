@@ -22,12 +22,12 @@ const ToolBarWrap = styled.div(
   bottom: 20px;
   left: ${isMobile ? '16px' : 'auto'};
   right:  ${isMobile ? 'auto' : '20px'};
-  background-color: var(--color-background-primary);
+  background-color: var(--color-background-card);
   border-radius: 26px;
   height: ${isMobile ? '40px' : '44px'}
   padding:${isMobile ? '0 18px' : '0 22px 0 16px'};
   z-index: 10;
-  box-shadow: rgba(0, 0, 0, 0.24) 0px 1px 6px;
+  box-shadow: var(--shadow-lg);
   .ant-select-selector {
     border: none !important;
   }

@@ -35,12 +35,14 @@ const succeed = () => {
   wx.invoke('getContext', {}, function (res) {
     if (res.err_msg == 'getContext:ok') {
       const entry = res.entry;
+
       if (entry === 'group_chat_tools') {
         getCurExternalChat().then(chatId => {
           const targetUrl = addOtherParam(url, `chat_id=${chatId}&pc_slide=true`);
           location.replace(targetUrl);
         });
       }
+
       if (entry === 'contact_profile' || entry === 'single_chat_tools') {
         getCurExternalContact().then(userId => {
           const targetUrl = addOtherParam(url, `external_userid=${userId}&pc_slide=true`);

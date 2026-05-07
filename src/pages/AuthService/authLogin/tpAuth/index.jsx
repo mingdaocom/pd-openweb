@@ -20,6 +20,7 @@ const TPTYPES = {
   sso: 5,
   haers: 7,
 };
+
 function Container() {
   const [{ account, password, unionId, state, tpType, returnUrl, autoLogin, bindSuc, loading }, setState] = useSetState(
     {
@@ -38,6 +39,7 @@ function Container() {
   useEffect(() => {
     if ((unionId && state && tpType) || (account && password)) {
       const isApp = window.isDingTalk || window.isWxWork || window.isWeLink || window.isFeiShu;
+
       if (isApp && checkLogin()) {
         const redirectUrl = returnUrl ? getDataByFilterXSS(returnUrl) : '/dashboard';
         window.location.replace(redirectUrl);
@@ -51,6 +53,7 @@ function Container() {
 
   const login = () => {
     let loginAjax = null;
+
     if (account && password) {
       loginAjax = loginController.tPMDAccountLogin({
         account: decodeURIComponent(account),
@@ -63,6 +66,7 @@ function Container() {
         tpType,
       });
     }
+
     loginAjax.then(data => {
       if (!data) {
         // 没有对应的unionid记录
@@ -92,6 +96,7 @@ function Container() {
                   } else {
                     window.close();
                   }
+
                   if (window.opener) {
                     window.opener.location.replace(window.opener.location.href);
                   }
@@ -109,6 +114,7 @@ function Container() {
       }
     });
   };
+
   return (
     <Wrap>
       <div class="main">

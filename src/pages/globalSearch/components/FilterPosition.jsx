@@ -134,6 +134,7 @@ export default function FilterPosition(props) {
         alert(_l('成功'));
         getFilterList();
         const _count = filterCount - 1;
+
         if (projectId === dialogProjectId) {
           setFilterCount(_count);
           onChangeCount(_count);

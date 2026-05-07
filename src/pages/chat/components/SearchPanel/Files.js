@@ -15,6 +15,7 @@ const format = res => {
     if (file.type === 2) {
       file.previewUrl = `${file.url}&imageView2/0/w/100/h/100/q/90`;
     }
+
     return file;
   });
 };
@@ -49,9 +50,11 @@ export default class Files extends Component {
   updateFiles(searchText) {
     const { session } = this.props;
     const { loading, pageIndex, files } = this.state;
+
     if (loading || !pageIndex) {
       return;
     }
+
     this.setState({
       loading: true,
     });

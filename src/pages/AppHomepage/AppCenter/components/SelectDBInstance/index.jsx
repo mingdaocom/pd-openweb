@@ -41,6 +41,7 @@ function SelectDBInstance(props) {
       alert(_l('请选择数据库'), 3);
       return;
     }
+
     onOk(dbInstance.value);
     onCancel();
   };

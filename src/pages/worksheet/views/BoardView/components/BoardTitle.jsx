@@ -106,6 +106,7 @@ export default class BoardTitle extends Component {
         </div>
       );
     }
+
     if (type === 26) {
       const { accountId, avatar: userHead, fullname } = JSON.parse(name) || {};
       return (
@@ -115,12 +116,15 @@ export default class BoardTitle extends Component {
         </div>
       );
     }
+
     if (type === 27) {
       return <div className="relationSheetType boardTitle">{(JSON.parse(name) || {}).departmentName}</div>;
     }
+
     if (type === 48) {
       return <div className="relationSheetType boardTitle">{(JSON.parse(name) || {}).organizeName}</div>;
     }
+
     if (_.includes([28], type)) {
       const itemnames = JSON.parse(advancedSetting.itemnames || '[]');
       const currentName =
@@ -130,6 +134,7 @@ export default class BoardTitle extends Component {
         ) || name;
       return <div className="gradeType">{currentName}</div>;
     }
+
     return (
       <div className="relationSheetType boardTitle">
         <Icon icon="link-worksheet" />

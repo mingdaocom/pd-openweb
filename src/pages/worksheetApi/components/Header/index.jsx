@@ -109,7 +109,7 @@ const getIconColor = ({ iconColor, navColor }) => {
 const CommonHeader = props => {
   const { data, dataApp, appId, isSharePage, appInfo, tabIndex, updateTabIndex, getId = () => {} } = props;
   const { backgroundColor, fillColor } = getIconColor(dataApp);
-  const theme = document.body.getAttribute('data-theme') || 'light';
+  const theme = document.documentElement.getAttribute('data-theme') || 'light';
   const [shareVisible, setShareVisible] = useState(false);
 
   const externalLink = e => {

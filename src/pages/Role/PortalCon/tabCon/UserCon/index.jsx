@@ -106,12 +106,15 @@ class Con extends React.Component {
   componentWillReceiveProps(nextProps) {
     const { portal = {} } = this.props;
     const { roleList = [] } = portal;
+
     if (!_.isEqual(nextProps.portal.roleList, roleList)) {
       this.setState({
         navList: nextProps.portal.roleList,
       });
     }
+
     const listType = _.get(nextProps, ['match', 'params', 'listType']);
+
     if (listType === 'pending' && !_.isEqual(listType, _.get(this.props, ['match', 'params', 'listType']))) {
       this.setState({
         roleId: 'pendingReview',
@@ -123,6 +126,7 @@ class Con extends React.Component {
     const { roleId } = this.state;
     const { portal = {} } = this.props;
     const { commonCount = 0, count = 0 } = portal;
+
     switch (roleId) {
       case 'pendingReview':
         return <PendingReview {...this.props} roleId={roleId} title={_l('待审核')} />;
@@ -239,6 +243,7 @@ class Con extends React.Component {
                 if (o.isDefault) {
                   optList = optList.filter(it => it.value !== 2);
                 }
+
                 let num = (roleCountList.find(it => it.roleId === o.roleId) || {}).count;
                 return (
                   <li

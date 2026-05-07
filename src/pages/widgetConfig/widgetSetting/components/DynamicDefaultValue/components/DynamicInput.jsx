@@ -49,8 +49,10 @@ export default function DynamicInput({
       onChange(handleAdvancedSettingChange(data, { defaultfunc: '', defaulttype: '', defsource: '' }));
     }
   };
+
   const isLinkParams = (getAdvanceSetting(data, 'defsource') || []).filter(o => o.rcid === 'url').length > 0;
   const isDYDateTime = (getAdvanceSetting(data, 'defsource') || []).filter(o => o.rcid === 'dateRange').length > 0;
+
   if (isLinkParams || isDYDateTime) {
     return (
       <DynamicInputStyle className="">
@@ -59,6 +61,7 @@ export default function DynamicInput({
             const isDel = !(linkParams || []).includes(o.cid);
             return <span className={isDel ? 'Red' : ''}>{!isDel ? o.cid : _l('该参数已删除')}</span>;
           }
+
           if (isDYDateTime) {
             const info = _.flattenDeep(DATE_TYPE).find(it => it.value == o.cid);
             const isDel = !info || !getDaterange(data.advancedSetting || {}).includes(o.cid);
@@ -78,6 +81,7 @@ export default function DynamicInput({
       </DynamicInputStyle>
     );
   }
+
   return (
     <DynamicInputStyle onClick={onTriggerClick}>
       <div className={`text ${dynamicData && dynamicData.status === -1 ? 'error' : ''}`}>

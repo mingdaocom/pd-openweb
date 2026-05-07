@@ -115,6 +115,7 @@ function Authenticator(props) {
       handleVerify();
       return;
     }
+
     getAccountTotpScanUrl();
   }, []);
 
@@ -246,10 +247,12 @@ export default function StepsVerifyDialog(props) {
       editAccountTwoAuthenticationSetting(1, twoAuthenticationMobilePhoneEnabled ? 0 : 1);
       return;
     }
+
     if (bindEmail) {
       editAccountTwoAuthenticationSetting(2, twoAuthenticationEmailEnabled ? 0 : 1);
       return;
     }
+
     if (!bindMobilePhone || !bindEmail) {
       validateFunc({
         title: email && !isVerify ? _l('修改邮箱') : item.value === 'email' ? _l('绑定邮箱') : _l('绑定手机号码'),

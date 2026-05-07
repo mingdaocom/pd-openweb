@@ -46,9 +46,11 @@ export default class extends Component {
     super();
     const key = `filterReportId-${props.id}`;
     const { filter = {}, xaxes = {} } = props.currentReport;
+
     if (_.isUndefined(window[key])) {
       window[key] = filter.rangeType;
     }
+
     const rangeType = _.isUndefined(window[key]) ? filter.rangeType : window[key];
     this.state = {
       currentRangeType: rangeType,
@@ -295,6 +297,7 @@ export default class extends Component {
   renderDynamicFilter() {
     const { dynamicFilter } = this.state;
     const unitValues = [1, 3, 4];
+
     const changeDynamicFilter = data => {
       this.setState(
         {
@@ -306,6 +309,7 @@ export default class extends Component {
         this.handleSave,
       );
     };
+
     return (
       <Fragment>
         <div className="flexRow valignWrapper mTop20">
@@ -410,9 +414,11 @@ export default class extends Component {
       if (xaxes.controlType === 16) {
         return timeDataParticle;
       }
+
       if (xaxes.controlType === 46) {
         return timeDataParticle.filter(item => [6, 7, 13].includes(item.value));
       }
+
       return timeDataParticle.filter(item => ![6, 7].includes(item.value));
     })();
     const timeDataIndex = _.findIndex(timeData, { value: particleSizeType });
@@ -473,6 +479,7 @@ export default class extends Component {
     const filterWhiteKeys = _.flatten(
       Object.keys(CONTROL_FILTER_WHITELIST).map(key => CONTROL_FILTER_WHITELIST[key].keys),
     );
+    const isPublicShare = window.shareAuthor || _.get(window, 'shareState.shareId');
     // eslint-disable-next-line no-unused-vars
     const controls = (worksheetInfo.columns || [])
       .filter(c => (c.controlPermissions || '111')[0] === '1')
@@ -504,42 +511,46 @@ export default class extends Component {
                 </Fragment>
               )}
               {xAxisisTime && this.renderGroup()}
-              <div
-                className="Font12 Bold mBottom10 mTop20 pTop10 flexRow"
-                style={{ borderTop: '1px solid var(--color-border-secondary)' }}
-              >
-                <span className="flex">{_l('筛选')}</span>
-              </div>
-              {showFilterConditions.length ? (
-                <FilterItemTexts
-                  className="bgPrimary"
-                  loading={false}
-                  filterItemTexts={filterData(worksheetInfo.columns, showFilterConditions)}
-                  onClear={() => {
-                    this.setState({
-                      filterConditions: [],
-                      showFilterConditions: [],
-                    });
-                    this.props.changeCurrentReport(
-                      {
-                        filter: {
-                          ...filter,
-                          filterControls: [],
-                        },
-                      },
-                      true,
-                    );
-                    this.getTableData();
-                  }}
-                  editFn={() => this.setState({ visible: true })}
-                />
-              ) : (
-                <div
-                  className="filterWrapper flexRow alignItemsCenter textDisabled Font13 hoverColorPrimary"
-                  onClick={() => this.setState({ visible: true })}
-                >
-                  {_l('添加筛选字段')}
-                </div>
+              {!isPublicShare && (
+                <Fragment>
+                  <div
+                    className="Font12 Bold mBottom10 mTop20 pTop10 flexRow"
+                    style={{ borderTop: '1px solid var(--color-border-secondary)' }}
+                  >
+                    <span className="flex">{_l('筛选')}</span>
+                  </div>
+                  {showFilterConditions.length ? (
+                    <FilterItemTexts
+                      className="bgPrimary"
+                      loading={false}
+                      filterItemTexts={filterData(worksheetInfo.columns, showFilterConditions)}
+                      onClear={() => {
+                        this.setState({
+                          filterConditions: [],
+                          showFilterConditions: [],
+                        });
+                        this.props.changeCurrentReport(
+                          {
+                            filter: {
+                              ...filter,
+                              filterControls: [],
+                            },
+                          },
+                          true,
+                        );
+                        this.getTableData();
+                      }}
+                      editFn={() => this.setState({ visible: true })}
+                    />
+                  ) : (
+                    <div
+                      className="filterWrapper flexRow alignItemsCenter textDisabled Font13 hoverColorPrimary"
+                      onClick={() => this.setState({ visible: true })}
+                    >
+                      {_l('添加筛选字段')}
+                    </div>
+                  )}
+                </Fragment>
               )}
             </div>
           </div>
@@ -558,6 +569,7 @@ export default class extends Component {
             const conditions = this.state.filterConditions.map(item => {
               const isTime = isTimeControl(item.dataType);
               const isMoment = moment.isMoment(item.value);
+
               if (isTime && isMoment) {
                 return {
                   ...item,

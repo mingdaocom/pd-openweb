@@ -116,6 +116,7 @@ export const formatDate = date => {
 export const formatStr = str => {
   if (!str) return;
   let newStr;
+
   if (str.length === 5) {
     newStr = str.substr(0, 4) + '*';
   } else if (str.length > 5) {
@@ -123,6 +124,7 @@ export const formatStr = str => {
   } else {
     newStr = str;
   }
+
   return newStr;
 };
 

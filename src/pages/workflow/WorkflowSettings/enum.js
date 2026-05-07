@@ -33,6 +33,7 @@ export const NODE_TYPE = {
   AIGC: 31,
   PLUGIN: 32,
   AGENT: 33,
+  VECTOR: 34,
   SYSTEM: 100,
   TOOLS: 101,
   FIND_SINGLE_MESSAGE: 1000,
@@ -96,6 +97,7 @@ export const ACTION_ID = {
   PBC_OUT: '502',
   JSON_PARSE: '510',
   FROM_JSON_PARSE_ARRAY: '511',
+  FROM_VECTOR_ARRAY: '512',
   NO_AUTH: '520',
   BASIC_AUTH: '521',
   AUTH_CODE: '522',
@@ -104,6 +106,8 @@ export const ACTION_ID = {
   AIGC_TEXT: '531',
   AIGC_OBJECT: '532',
   AGENT: '533',
+  CHAT_BOT: '534',
+  VECTOR: '535',
 };
 
 export const APP_TYPE = {
@@ -145,6 +149,7 @@ export const APP_TYPE = {
   CHATBOT: 49,
   INVOICE: 50,
   REFUND: 51,
+  VECTOR: 52,
   SYSTEM: 100,
   VARIABLE: 101,
   PROCESS: 102,
@@ -164,10 +169,12 @@ export const APP_TYPE_TEXT = {
   45: _l('循环'),
   46: _l('AIGC'),
   47: _l('插件'),
+  52: _l('知识库检索'),
   405: _l('人工节点'),
 };
 
 export const OPERATION_TYPE = {
+  SUSPEND: -1,
   REVOKE: 3,
   PASS: 4,
   OVERRULE: 5,
@@ -724,4 +731,37 @@ export const AGENT_TOOLS = {
     name: 'wf_email_',
     displayName: _l('发送邮件'),
   },
+  9: {
+    icon: 'icon-a-knowledge_search',
+    name: 'wf_knowledge_search_',
+    displayName: _l('知识库检索'),
+    range: true,
+    specificRange: _l('查询选中的知识库'),
+  },
+};
+
+export const EXPIRE_LIST = [
+  {
+    text: _l('1 小时'),
+    value: 1,
+  },
+  {
+    text: _l('1 天'),
+    value: 2,
+  },
+  {
+    text: _l('1 个月'),
+    value: 3,
+  },
+  {
+    text: _l('3 个月'),
+    value: 4,
+  },
+];
+
+export const SEARCH_MODE_MAP = {
+  auto: _l('AI 智能选择'),
+  vector: _l('混合检索'),
+  keyword: _l('语义检索'),
+  hybrid: _l('关键词检索'),
 };

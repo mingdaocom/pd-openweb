@@ -131,9 +131,6 @@ const PluginListBox = styled.div`
       .name {
         color: var(--color-primary);
       }
-      .operateIcon {
-        background: rgba(247, 247, 247, 1);
-      }
     }
 
     .ant-switch-checked {
@@ -436,6 +433,7 @@ export default function PluginComponent(props) {
                       if (currentTab === item.value) {
                         return;
                       }
+
                       safeLocalStorageSetItem(`viewPluginTab`, item.value);
                       setCurrentTab(item.value);
                       setFetchState({ loading: true, pageIndex: 1, keyWords: '', state: 2 });

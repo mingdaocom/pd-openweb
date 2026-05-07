@@ -15,6 +15,7 @@ const CreateLinkDialog = props => {
       alert(_l('url 格式不正确'), 3);
       return;
     }
+
     if (isWX) {
       const url = `${baseUrl.split('?')[0]}?p=${projectId}&url=${encodeURIComponent(appLink)}`;
       setSsoLink(url);

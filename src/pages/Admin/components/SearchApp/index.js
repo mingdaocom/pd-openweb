@@ -67,6 +67,7 @@ export default function SearchApp({ projectId, className, onChange = () => {} })
   const handleScroll = useCallback(
     e => {
       const { scrollTop, scrollHeight, offsetHeight } = e.target;
+
       if (scrollTop + offsetHeight >= scrollHeight - 5 && isMoreApp && !loadingApp) {
         getAppList();
       }

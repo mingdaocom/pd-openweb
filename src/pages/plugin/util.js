@@ -26,6 +26,7 @@ export const getMarkdownContent = text => {
 
 export const getPluginOperateText = (recentOperation = {}) => {
   let operateText = '';
+
   switch (recentOperation.type) {
     case 1:
       operateText = _l('提交于');
@@ -40,5 +41,6 @@ export const getPluginOperateText = (recentOperation = {}) => {
       operateText = _l('安装于');
       break;
   }
+
   return [_.get(recentOperation, 'account.fullname'), operateText, createTimeSpan(recentOperation.time)].join(' ');
 };

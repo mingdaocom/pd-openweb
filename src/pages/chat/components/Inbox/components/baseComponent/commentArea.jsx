@@ -47,6 +47,7 @@ const removeTopic = function (props) {
       })
       .then(function (data) {
         const { success } = data;
+
         if (success) {
           alert(_l('删除成功'));
           props.removeCallback(props.discussionId);
@@ -209,6 +210,7 @@ class CommentItem extends React.Component {
 
   renderTopic() {
     const { sourceType, createAccount, replyAccount, sourceId, replyId } = this.props;
+
     if (replyId) {
       return (
         <div className="mBottom10 mTop3 LineHeight25">
@@ -247,6 +249,7 @@ class CommentItem extends React.Component {
   renderBottomBar() {
     const { canDelete, sourceId, sourceType } = this.props;
     const createTime = dateConvertToUserZone(this.props.createTime);
+
     const buildLink = () => {
       switch (sourceType) {
         case SOURCE_TYPE.POST:
@@ -450,6 +453,7 @@ export default class CommentArea extends React.Component {
 
   renderComments() {
     const { showComments } = this.state;
+
     if (showComments) {
       return (
         <div className="pTop5">
@@ -492,6 +496,7 @@ export default class CommentArea extends React.Component {
     const { comments } = this.state;
     const hasMore = comments && commentsCount && comments.length < commentsCount;
     const { loadAllComments } = this.state;
+
     if (hasMore && !loadAllComments) {
       return (
         <div className="TxtCenter">

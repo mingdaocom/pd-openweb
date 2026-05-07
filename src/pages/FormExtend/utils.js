@@ -9,6 +9,7 @@ export function getNewControlColRow(controls, halfOfNewControl = true) {
   if (!controls.length) {
     return { col: 0, row: 0 };
   }
+
   const maxRow = Math.max(...controls.map(c => c.row));
   const lastRowWidgets = controls.filter(c => c.row === maxRow);
   const lastRowFirstWidget = _.find(controls, c => c.row === maxRow && c.col === 0) || { half: true };
@@ -74,10 +75,12 @@ export function overridePos(controls = [], newPosControls = []) {
       const hiddenIds = control.relationControls
         .filter(c => _.includes(defaultHidedControlTypes, c.type))
         .map(c => c.controlId);
+
       if (hiddenIds.length) {
         control.showControls = control.showControls.filter(id => !_.includes(hiddenIds, id));
       }
     }
+
     if (control.col === -1 && control.row === -1) {
       newControls[index] = {
         ...control,
@@ -90,6 +93,7 @@ export function overridePos(controls = [], newPosControls = []) {
 
 export function getLimitWriteTimeDisplayText(type, limitWriteTime) {
   const setting = limitWriteTime[`${type}Setting`];
+
   if (type === TIME_TYPE.MONTH) {
     switch (setting.monthType) {
       case TIME_PERIOD_TYPE.MONTHLY:

@@ -15,16 +15,20 @@ function ViewContent(props) {
 
   useEffect(() => {
     const customPageContent = document.querySelector('#componentsWrap');
+
     if (!customPageContent) {
       setVisible(true);
       return;
     }
+
     const view = customPageContent.querySelector(`.widgetContent .view-${setting.id}`);
+
     const checkVisible = () => {
       if (!view) {
         setVisible(true);
         return;
       }
+
       if (!visible) {
         const pageRect = customPageContent.getBoundingClientRect();
         const rect = view.getBoundingClientRect();
@@ -32,6 +36,7 @@ function ViewContent(props) {
         value && setVisible(true);
       }
     };
+
     customPageContent.addEventListener('scroll', checkVisible, false);
     checkVisible();
     window[`refresh-${objectId}`] = () => {
@@ -40,6 +45,7 @@ function ViewContent(props) {
         setVisible(true);
       }, 100);
     };
+
     return () => {
       customPageContent.removeEventListener('scroll', checkVisible, false);
       delete window[`refresh-${objectId}`];

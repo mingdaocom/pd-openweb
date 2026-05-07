@@ -74,24 +74,30 @@ export function assembleNewLogListData(data) {
 export function getShowWfstatusValue(option) {
   if (!option) return null;
   let value = _.startsWith(option, '[') ? safeParse(option, 'array')[0] : option;
+
   if (!value && option) {
     value = option;
   }
+
   if (_.startsWith(value, 'other')) {
     return value === 'other' ? _l('其他') : _.replace(value, 'other:', '') || _l('其他');
   }
+
   if (_.startsWith(value, '其他')) {
     return value === '其他' ? _l('其他') : _.replace(value, '其他:', '') || _l('其他');
   }
+
   if (_.has(WF_STATUS, value)) {
     return WF_STATUS[value];
   }
+
   return WFSTATUS_OPTIONS.find(l => l.key === value) ? WFSTATUS_OPTIONS.find(l => l.key === value).value : value;
 }
 
 export const numberControlHandle = (list, control, type) => {
   return list.map(l => {
     let number = renderText({ ...control, value: l }, { noMask: true });
+
     if ((control || {}).dot === 0 && type === 6 && _.endsWith(number, '.0')) {
       return number.replace('.0', '');
     } else {
@@ -153,6 +159,7 @@ export function handleSelectTagsValue(param) {
       if (newList.length === 0 && newObj.x && newObj.y) {
         newList = [`${_l('经度')}：${_.round(newObj.x, 6)} ${_l('纬度')}：${_.round(newObj.y, 6)}`];
       }
+
       break;
     case 16:
     case 19:
@@ -198,6 +205,7 @@ export function handleSelectTagsValue(param) {
         oldList = oldValue ? [getShowWfstatusValue(oldValue)].filter(l => l) : [];
         newList = newValue ? [getShowWfstatusValue(newValue)].filter(l => l) : [];
       }
+
       break;
   }
 

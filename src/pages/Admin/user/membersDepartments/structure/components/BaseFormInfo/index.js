@@ -70,10 +70,12 @@ export default class BaseFormInfo extends Component {
   }
   componentDidMount() {
     const { typeCursor, editCurrentUser = {}, actType } = this.props;
+
     if (typeCursor === 2 || actType === 'add') {
       this.getJobList();
       this.getWorksiteList(typeCursor === 2 ? editCurrentUser.workSite : undefined);
     }
+
     actType === 'edit' && this.updateBaseInfo(this.props);
   }
 
@@ -197,6 +199,7 @@ export default class BaseFormInfo extends Component {
             this.setState({ departmentInfos: newDepartmentInfos });
             return;
           }
+
           const data = _.uniqBy((this.state.departmentInfos || []).concat(departments), 'departmentId');
           const ids = data.map(it => it.departmentId);
           this.getDepartmentFullName(ids, 'all', data);
@@ -242,6 +245,7 @@ export default class BaseFormInfo extends Component {
         );
         this.setState({ departmentInfos: newDepartmentInfos });
       }
+
       return;
     }
 
@@ -251,6 +255,7 @@ export default class BaseFormInfo extends Component {
         this.setState({ departmentInfos: newDepartmentInfos });
         return;
       }
+
       res.forEach(it => (fullDepartmentInfo[it.id] = it.name));
       this.setState({ fullDepartmentInfo });
     });
@@ -260,12 +265,15 @@ export default class BaseFormInfo extends Component {
   getJobList = jobName => {
     const { projectId } = this.props;
     const { keywords } = this.state;
+
     if (!jobName && this.props.actType !== 'add') {
       this.setState({ jobLoading: true });
     }
+
     if (this.ajaxRequest) {
       this.ajaxRequest.abort();
     }
+
     this.ajaxRequest = jobAjax.getJobs({ projectId, keywords, pageIndex: 1, pageSize: 1000 });
     this.ajaxRequest.then(res => {
       let newJobInfo = (jobName && _.find(res.list, item => item.jobName === jobName)) || {};
@@ -297,12 +305,15 @@ export default class BaseFormInfo extends Component {
   getWorksiteList = workSiteName => {
     const { projectId } = this.props;
     const { worksiteKeywords } = this.state;
+
     if (!workSiteName && this.props.actType !== 'add') {
       this.setState({ worksiteLoading: true });
     }
+
     if (this.worksiteRequest) {
       this.worksiteRequest.abort();
     }
+
     this.worksiteRequest = workSiteController.getWorkSites({
       projectId,
       sortField: 1,
@@ -375,6 +386,7 @@ export default class BaseFormInfo extends Component {
         default:
           break;
       }
+
       this.setState({ [useMultiJobs ? 'departmentJobInfos' : 'departmentInfos']: list, visible: false });
     };
 
@@ -455,9 +467,11 @@ export default class BaseFormInfo extends Component {
     } = this.state;
 
     let jobResult = [...jobList];
+
     if (keywords) {
       jobResult = jobResult.filter(item => item.jobName.indexOf(keywords) > -1);
     }
+
     jobIds.forEach(item => {
       if ((item || '').toString().indexOf('add_') > -1) {
         jobResult.push({ jobId: '', jobName: item.split('add_')[1] });
@@ -466,6 +480,7 @@ export default class BaseFormInfo extends Component {
 
     const onJobsChange = idValues => {
       let newJob = idValues.find(item => item.indexOf('add_') > -1);
+
       if (newJob) {
         let jobName = newJob.split('add_')[1];
         this.setState({ keywords: '' }, () => this.handleAddJob(jobName));
@@ -610,6 +625,7 @@ export default class BaseFormInfo extends Component {
     } = this.state;
 
     let worksiteResult = [...worksiteList];
+
     if (worksiteKeywords) {
       worksiteResult = worksiteResult.filter(item => item.workSiteName.indexOf(worksiteKeywords) > -1);
     }
@@ -732,7 +748,7 @@ export default class BaseFormInfo extends Component {
           label={_l('工号')}
           value={jobNumber}
           disabled={typeCursor === 2}
-          placeholder={_l('')}
+          placeholder=""
           onChange={e => this.changeFormInfo(e, 'jobNumber')}
         />
         <TextInput

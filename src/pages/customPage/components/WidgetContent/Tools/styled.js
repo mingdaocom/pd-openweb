@@ -13,7 +13,7 @@ export const TabsSettingPopover = styled.div`
     border-radius: 3px;
     width: max-content;
     padding: 3px;
-    background-color: var(--color-background-tertiary);
+    background-color: var(--color-background-secondary);
     > div {
       height: 25px;
       line-height: 25px;

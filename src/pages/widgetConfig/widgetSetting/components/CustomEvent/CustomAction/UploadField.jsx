@@ -121,10 +121,12 @@ export default class UploadFile extends Component {
             file: { name },
             code,
           } = err;
+
           if (RegExpValidator.getExtOfFileName(name) != 'mp3') {
             alert(_l('文件类型错误，仅支持mp3文件'), 3);
             return;
           }
+
           if (code === window.plupload.FILE_SIZE_ERROR) {
             alert(_l('文件过大，仅支持 10MB 以内的文件'), 3);
             return;
@@ -157,6 +159,7 @@ export default class UploadFile extends Component {
 
   render() {
     const { files = [], dragOver } = this.state;
+
     if (files.length) {
       return (
         <UploadListWrap>

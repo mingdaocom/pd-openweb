@@ -88,6 +88,7 @@ export default class DepartmentUsers extends Component {
     if (!_.isEqual(this.props.groupId, nextProps.groupId)) {
       this.setState({ showDetail: false });
     }
+
     if (nextProps.selectedAccountId && !_.isEqual(this.props.selectedAccountId, nextProps.selectedAccountId)) {
       this.setState({ selectedAccountId: nextProps.selectedAccountId, showDetail: true });
     }
@@ -96,6 +97,7 @@ export default class DepartmentUsers extends Component {
   handleScrollEnd = () => {
     const { groupId, isMoreUsers, projectId } = this.props;
     const project = _.find(md.global.Account.projects, { projectId });
+
     if (isMoreUsers) {
       if (project.projectId === groupId) {
         this.props.handleLoadAll();

@@ -148,6 +148,7 @@ const Wrap = styled.div`
     overflow-y: auto;
   }
 `;
+
 export default function Log(props) {
   const { logId } = props;
   const [{ list, show, loading, pageIndex, isAll, keyWord, type, status, time, user, logInfo }, setState] = useSetState(
@@ -171,17 +172,22 @@ export default function Log(props) {
     if (isAll || loading) {
       return;
     }
+
     setState({ loading: true });
     let obj = {};
+
     if (time[0]) {
       obj.startDate = time[0].format('YYYY-MM-DD HH:mm:ss');
     }
+
     if (time[1]) {
       obj.endDate = time[1].format('YYYY-MM-DD HH:mm:ss');
     }
+
     if (status) {
       obj.status = status;
     }
+
     oauth2Ajax
       .getRefreshTokenLogs(
         {
@@ -201,6 +207,7 @@ export default function Log(props) {
         });
       });
   };
+
   useEffect(() => {
     getHistoryListInfo();
   }, [pageIndex, keyWord, type, status, time, user]);
@@ -243,6 +250,7 @@ export default function Log(props) {
         if (!record.completeDate) {
           return '';
         }
+
         return `${moment(record.completeDate).diff(moment(record.createdDate), 'seconds')} 秒`;
       },
     },
@@ -268,6 +276,7 @@ export default function Log(props) {
       },
     },
   ];
+
   const noDataRender = () => {
     return (
       <div className="noData TxtCenter">
@@ -278,10 +287,12 @@ export default function Log(props) {
       </div>
     );
   };
+
   const renderCon = () => {
     if (loading && pageIndex === 1) {
       return <LoadDiv />;
     }
+
     if (list.length <= 0) {
       return noDataRender();
     } else {

@@ -8,13 +8,17 @@ import { Icon } from 'ming-ui';
 
 const Tag = styled.div`
   font-size: 12px;
-  background-color: var(--color-background-secondary);
+  background-color: var(--tag-bg);
+  border: 1px solid var(--color-border-tertiary);
   padding: 6px 10px;
   border-radius: 12px;
   max-width: 360px;
   height: 24px;
   display: flex;
   align-items: center;
+  span {
+    color: var(--color-text-primary);
+  }
   .remove {
     margin-left: 8px;
   }

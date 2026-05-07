@@ -100,10 +100,12 @@ export function getDefaultValue({ control, groupKey, name } = {}) {
   if (String(groupKey) === '-1') {
     return {};
   }
+
   const isOptions = includes(
     [WIDGETS_TO_API_TYPE_ENUM.FLAT_MENU, WIDGETS_TO_API_TYPE_ENUM.MULTI_SELECT, WIDGETS_TO_API_TYPE_ENUM.DROP_DOWN],
     control.type,
   );
+
   if (isOptions) {
     return { [control.controlId]: JSON.stringify([groupKey]) };
   } else if (control.type === WIDGETS_TO_API_TYPE_ENUM.SCORE) {
@@ -111,11 +113,13 @@ export function getDefaultValue({ control, groupKey, name } = {}) {
   } else if (control.type === WIDGETS_TO_API_TYPE_ENUM.RELATE_SHEET) {
     return { [control.controlId]: JSON.stringify([{ sid: groupKey, name }]) };
   }
+
   return { [control.controlId]: `[${name}]` };
 }
 
 export function ControlContent(props) {
   const { projectId, control = {}, groupKey, name, groupEmptyName, appId } = props;
+
   if (String(groupKey) === '-1') {
     return (
       <div className="controlContent">
@@ -123,10 +127,12 @@ export function ControlContent(props) {
       </div>
     );
   }
+
   const isOptions = includes(
     [WIDGETS_TO_API_TYPE_ENUM.FLAT_MENU, WIDGETS_TO_API_TYPE_ENUM.MULTI_SELECT, WIDGETS_TO_API_TYPE_ENUM.DROP_DOWN],
     control.type,
   );
+
   if (isOptions && control.enumDefault2 === 1) {
     return (
       <div className="controlContent">
@@ -166,12 +172,15 @@ export function ControlContent(props) {
       )
     );
   }
+
   let showText = name;
+
   if (control.type === WIDGETS_TO_API_TYPE_ENUM.ORG_ROLE) {
     showText = safeParse(name).organizeName;
   } else if (control.type === WIDGETS_TO_API_TYPE_ENUM.DEPARTMENT) {
     showText = safeParse(name).departmentName;
   }
+
   return (
     <div className="controlContent">
       <div className="controlText ellipsis"> {showText} </div>

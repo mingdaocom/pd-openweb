@@ -4,6 +4,7 @@ import { Dropdown } from 'ming-ui';
 
 export default function RefreshTime(props) {
   const { appId, view, updateCurrentView } = props;
+
   const handleChange = (obj, editAttrs) => {
     if (editAttrs) {
       updateCurrentView({

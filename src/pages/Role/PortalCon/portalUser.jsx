@@ -90,6 +90,7 @@ export default function User(props) {
               });
               return;
             }
+
             let data = _.get(res, 'template.controls').map(it => {
               return { ...it, value: (_.get(res, 'data').find(item => item.rowid === id) || {})[it.controlId] };
             });
@@ -115,6 +116,7 @@ export default function User(props) {
         setState({ disable: true });
       });
   };
+
   const rejectDialog = rowIds => {
     return Dialog.confirm({
       title: <span className="Red">{_l('你确认拒绝吗？')}</span>,
@@ -126,9 +128,11 @@ export default function User(props) {
       style: { width: '90%' },
     });
   };
+
   if (loading) {
     return <LoadDiv />;
   }
+
   if (hasPending) {
     return (
       <WrapHasPend>
@@ -141,6 +145,7 @@ export default function User(props) {
       </WrapHasPend>
     );
   }
+
   return (
     <Wrap>
       <UserInfoWrap
@@ -193,6 +198,7 @@ export default function User(props) {
                 if (disable) {
                   return;
                 }
+
                 rejectDialog([id]);
               }}
             >

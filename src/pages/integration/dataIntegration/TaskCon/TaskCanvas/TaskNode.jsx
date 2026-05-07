@@ -38,7 +38,7 @@ const Wrap = styled.div`
     height: ${tH}px;
     border-radius: 6px;
     background: var(--color-background-primary);
-    box-shadow: 0px 1px 3px rgba(51, 51, 51, 0.08);
+    box-shadow: var(--shadow-sm);
     transition: box-shadow 0.2s ease-out;
     overflow: hidden;
     padding: 0 12px 0 0;
@@ -70,7 +70,7 @@ const Wrap = styled.div`
 export const AddNode = styled(Circle)`
   background-color: var(--color-background-primary);
   justify-content: center;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.24);
+  box-shadow: var(--shadow-md);
   cursor: pointer;
   margin-left: 4px;
   z-index: 1;
@@ -117,7 +117,7 @@ const MoreOperate = styled.span`
   color: var(--color-text-tertiary);
   font-size: 18px;
   &:hover {
-    background-color: rgba(0, 0, 0, 0.03);
+    background-color: var(--color-background-secondary);
     color: var(--color-primary);
   }
 `;
@@ -226,6 +226,7 @@ class TaskNode extends Component {
         this.setState({ visible: false });
         return;
       }
+
       onAddNodes(res);
       this.setState({ visible: false });
     });
@@ -234,9 +235,11 @@ class TaskNode extends Component {
   renderPopup = () => {
     const { nodeData, currentProjectId } = this.props;
     const { pathIds = [], nodeId, y } = nodeData;
+
     if (pathIds.length <= 0) {
       return;
     }
+
     const featureType = getFeatureStatus(currentProjectId, VersionProductType.dataIntegrationETL);
 
     return (
@@ -253,6 +256,7 @@ class TaskNode extends Component {
                       buriedUpgradeVersionDialog(currentProjectId, VersionProductType.dataIntegrationETL);
                       return;
                     }
+
                     this.onAddNode({
                       name: NODE_TYPE_LIST.find(a => a.nodeType === o.type).name,
                       nodeType: o.type,
@@ -278,15 +282,19 @@ class TaskNode extends Component {
     const { nodeData } = nextProps || this.props;
     const { pathIds } = nodeData;
     let yN = 0;
+
     if (pathIds.length > 0) {
       yN = pathIds[0].fromDt.y - pathIds[0].toDt.y;
       const id = `svg-${pathIds[0].fromDt.nodeId}-${pathIds[0].toDt.nodeId}`;
       const $svgWrap = document.getElementById(id);
+
       if ($svgWrap && $svgWrap.childElementCount > 0) {
         $svgWrap.childNodes.forEach(child => $svgWrap.removeChild(child));
       }
+
       const draw = SVG(id).size('100%', '100%');
       let linePath = [];
+
       if (yN === 0) {
         linePath = ['M', 0, tH / 2, 'L', $($svgWrap).width(), tH / 2].join(' ');
       } else {
@@ -299,6 +307,7 @@ class TaskNode extends Component {
         let mT = yN > 0 ? $($svgWrap).height() - tH / 2 : 0;
         linePath = ['M', fL, fT, 'S', mL, mT, tL, tT].join(' ');
       }
+
       draw.path(linePath).stroke({ width: 2, color: '#d3d3d3' }).fill('none');
     }
   };
@@ -347,6 +356,7 @@ class TaskNode extends Component {
     let yN = 0;
     let svgH = 0;
     let svgW = 0;
+
     if (nodeData.pathIds.length > 0) {
       yN = nodeData.pathIds[0].fromDt.y - nodeData.pathIds[0].toDt.y;
       svgH = Math.abs(yN) * (tBottom + tH) + tH;
@@ -354,6 +364,7 @@ class TaskNode extends Component {
         Math.abs(nodeData.pathIds[0].fromDt.x - nodeData.pathIds[0].toDt.x) * tLine +
         (Math.abs(nodeData.pathIds[0].fromDt.x - nodeData.pathIds[0].toDt.x) - 1) * tW;
     }
+
     const isAct = ACTION_LIST.map(o => o.type).includes(nodeData.nodeType);
     const featureType = getFeatureStatus(currentProjectId, VersionProductType.dataIntegrationETL);
 

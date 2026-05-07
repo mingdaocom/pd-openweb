@@ -35,6 +35,7 @@ export default class extends Component {
     const { projectId, currentAppId } = this.props;
     homeAppAjax.getAllHomeApp().then(data => {
       let apps = [];
+
       if (projectId) {
         apps = _.flatten(
           data.validProject.filter(project => project.projectId === projectId).map(project => project.projectApps),
@@ -42,6 +43,7 @@ export default class extends Component {
       } else {
         apps = data.aloneApps;
       }
+
       this.setState({
         myApps: apps
           .filter(app => canEditApp(app.permissionType) && !app.isLock)

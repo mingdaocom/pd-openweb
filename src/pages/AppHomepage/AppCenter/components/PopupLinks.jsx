@@ -61,6 +61,7 @@ export default function PopupLinks(props) {
     </Con>
   );
 }
+
 PopupLinks.propTypes = {
   openInNew: bool,
   items: arrayOf(shape({})),

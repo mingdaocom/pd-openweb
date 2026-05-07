@@ -29,9 +29,11 @@ class TopPostList extends React.Component {
     comp.nextItem = _.debounce(() => {
       if (!comp._isMounted) return;
       const el = ReactDom.findDOMNode(comp);
+
       if (!el || !comp.props.topPostIds) {
         return;
       }
+
       if (comp.state.focus || !this.isElementInViewport(el)) return;
       let nextIndex = comp.state.pageIndex + 1;
       nextIndex = nextIndex >= comp.props.topPostIds.length ? 0 : nextIndex;
@@ -49,6 +51,7 @@ class TopPostList extends React.Component {
     if (topPostIds.some((id, i) => id !== nextTopPostIds[i] || postsById[id] !== nextPostsById[nextTopPostIds[i]])) {
       return true;
     }
+
     return false;
   }
   componentWillUnmount() {
@@ -59,6 +62,7 @@ class TopPostList extends React.Component {
     if (typeof window.jQuery === 'function' && el instanceof window.jQuery) {
       el = el[0];
     }
+
     var rect = el.getBoundingClientRect();
     return (
       rect.top >= 0 &&

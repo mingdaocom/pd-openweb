@@ -66,9 +66,8 @@ export default class Signature extends Component {
     canvas.width = canvas.offsetWidth;
     canvas.height = canvas.offsetHeight;
     canvas.getContext('2d');
-    const penColor = getComputedStyle(document.body).getPropertyValue('--color-text-primary');
     this.signaturePad = new SignaturePad.default(canvas, {
-      penColor,
+      penColor: '#9e9e9e',
       onBegin: () => {
         this.setState({ isEdit: true });
         if (isFunction(onBegin)) {
@@ -123,6 +122,7 @@ export default class Signature extends Component {
             if (get(window, 'md.global.Account.accountId')) {
               accountSettingAjax.editSign({ url: res[0].url });
             }
+
             callback({ bucket: 4, key, url: res[0].url });
             this.isComplete = true;
           });

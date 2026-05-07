@@ -20,7 +20,7 @@ const ColorBox = styled.div(
   height: 36px;
   background: var(--color-background-primary);
   border: 1px solid;
-  border-color: ${select ? 'var(--color-border-primary)' : '#fff'};
+  border-color: ${select ? 'var(--color-border-primary)' : 'transparent'};
   border-radius: 4px;
   padding: 3px;
   position: relative;
@@ -137,6 +137,7 @@ export default class CustomColor extends Component {
           if (typeof res !== 'boolean' && res[0]) {
             value[value.length - 1].id = res[0];
           }
+
           this.setState({ [key]: value });
           md.global.PorjectColor[mdProjectColorIndex][group === 'chart' ? 'chartColor' : 'themeColor'][
             key.split('_')[0]
@@ -297,6 +298,7 @@ export default class CustomColor extends Component {
                   alert(_l('最多添加十个自定义图标配色'), 3);
                   return;
                 }
+
                 this.setColorSetting(
                   'custom_char',
                   custom_char.concat({ ...item, themeColors: [], enable: false, id: null }),
@@ -366,6 +368,7 @@ export default class CustomColor extends Component {
                     alert(_l('最多添加十个自定义图标配色'), 3);
                     return;
                   }
+
                   this.setState({ customChartDialog: { visible: true, data: null, editable: true } });
                 }}
               >

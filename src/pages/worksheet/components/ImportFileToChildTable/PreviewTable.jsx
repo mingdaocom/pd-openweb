@@ -24,9 +24,8 @@ const StyledFixedTable = styled(FixedTable)`
     border-top: none !important;
     padding: 7px 8px;
     overflow: hidden;
-    background-color: var(--color-cyan-blue);
     &.oddRow {
-      background-color: var(--color-background-primary);
+      background-color: var(--color-background-secondary);
     }
   }
   .controlHead {
@@ -88,18 +87,23 @@ function checkCellFullVisible(element) {
   const leftVisible = left >= scrollLeft;
   const topVisible = top >= scrollTop;
   const bottomVisible = top + height <= scrollTop + gridHeight;
+
   if (!leftVisible) {
     newLeft = left;
   }
+
   if (!rightVisible) {
     newLeft = left + width - gridWidth;
   }
+
   if (!topVisible) {
     newTop = top;
   }
+
   if (!bottomVisible) {
     newTop = top + height - gridHeight;
   }
+
   return {
     fullvisible: rightVisible && leftVisible && topVisible && bottomVisible,
     newLeft,
@@ -109,9 +113,11 @@ function checkCellFullVisible(element) {
 
 function ControlTooltip(props) {
   const { control } = props;
+
   if (!includes([WIDGETS_TO_API_TYPE_ENUM.DEPARTMENT, WIDGETS_TO_API_TYPE_ENUM.USER_PICKER], control.type)) {
     return null;
   }
+
   const tipText = {
     [WIDGETS_TO_API_TYPE_ENUM.DEPARTMENT]: _l('支持导入名称、部门系统ID'),
     [WIDGETS_TO_API_TYPE_ENUM.USER_PICKER]: _l(
@@ -171,21 +177,28 @@ function PreviewTable(props) {
     onUpdateMapConfig = () => {},
   } = props;
   let columnCount = mode === 'paste' ? controls.length : Object.keys(mapConfig).length;
+
   if (props.columnCount && props.columnCount > columnCount) {
     columnCount = props.columnCount;
   }
+
   if (showNumber) {
     columnCount = columnCount + 1;
   }
+
   const tableRef = useRef();
   useEffect(() => {
     const tableDom = _.get(tableRef, 'current.dom.current');
+
     if (!tableDom) {
       return;
     }
+
     const activeCell = tableDom.querySelector('.cell.active');
+
     if (activeCell) {
       const result = checkCellFullVisible(activeCell);
+
       if (!result.fullvisible) {
         tableRef.current.setScroll(result.newLeft, result.newTop);
       }
@@ -220,6 +233,7 @@ function PreviewTable(props) {
           ...(data.grid || {}),
         });
         const index = rowIndex * columnCount + columnIndex;
+
         if ((_.get(data, 'grid.id') || '').startsWith('top')) {
           if (showNumber && columnIndex === 0) {
             return typeof rowStartIndex === 'undefined' ? (
@@ -230,6 +244,7 @@ function PreviewTable(props) {
               </div>
             );
           }
+
           if (mode === 'paste') {
             return renderNormalHead({
               controls,
@@ -238,6 +253,7 @@ function PreviewTable(props) {
               columnIndex,
             });
           }
+
           const controlId = mapConfig[columnIndex - 1];
           const control = controlId && _.find(controls, { controlId });
           return (
@@ -292,6 +308,7 @@ function PreviewTable(props) {
             </Trigger>
           );
         }
+
         return (
           <div
             key={key}

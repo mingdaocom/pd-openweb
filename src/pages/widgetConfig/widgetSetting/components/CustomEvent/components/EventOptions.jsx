@@ -53,6 +53,7 @@ export default function EventOptions(props) {
                   $splice: isDelete ? [[childIndex, 1]] : [[childIndex, 1, newValue]],
                 },
               });
+
               if (item[index]) {
                 return update(item, { $splice: [[index, 1, newItem]] });
               } else {
@@ -62,6 +63,7 @@ export default function EventOptions(props) {
           },
         });
       }
+
       return i;
     });
     onChange(handleAdvancedSettingChange(data, { custom_event: JSON.stringify(newCustomEvent) }));
@@ -184,5 +186,6 @@ export default function EventOptions(props) {
       </Trigger>
     );
   }
+
   return null;
 }

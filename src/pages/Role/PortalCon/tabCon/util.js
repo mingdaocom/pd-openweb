@@ -36,6 +36,7 @@ export const renderContent = data => {
   const { showtype } = advancedSetting;
   const itemnames = getSwitchItemNames(data);
   const isChecked = '1' === value + '';
+
   if (showtype === '1') {
     const text = isChecked ? _.get(itemnames[0], 'value') : _.get(itemnames[1], 'value');
     return (
@@ -45,6 +46,7 @@ export const renderContent = data => {
       </div>
     );
   }
+
   if (showtype === '2') {
     return (
       <div className="ming RadioGroup">
@@ -54,6 +56,7 @@ export const renderContent = data => {
       </div>
     );
   }
+
   return <Checkbox className="TxtCenter InlineBlock Hand" text={''} checked={isChecked} />;
 };
 
@@ -79,6 +82,7 @@ export const formatPortalData = currentData => {
           row: i,
           fieldPermission: '',
         };
+
         if ('portal_status' === o.controlId) {
           return {
             ...da,
@@ -101,6 +105,7 @@ export const formatDataForPortalControl = data => {
       if (o.type == 29 && o.editType === 9) {
         return { ...o, editType: 0, value: '[]' };
       }
+
       return o;
     });
 };

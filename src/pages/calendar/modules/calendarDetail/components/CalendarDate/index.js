@@ -25,10 +25,12 @@ class EditBlock extends Component {
       change,
     } = this.props;
     const [startTime, endTime] = selectValue;
+
     if (allDay) {
       startTime.startOf('day');
       endTime.endOf('day');
     }
+
     this.setState(
       {
         unSelected: false,
@@ -44,6 +46,7 @@ class EditBlock extends Component {
 
   renderResult() {
     const { unSelected } = this.state;
+
     if (unSelected) {
       return <span className="editWrapper">{_l('请选择')}</span>;
     } else {
@@ -147,10 +150,12 @@ export default class CalendarDate extends Component {
     const {
       calendar: { editable },
     } = this.props;
+
     if (typeof window.getSelection === 'function') {
       const selectText = window.getSelection().toString();
       if (selectText) return false;
     }
+
     if (editable && !this.state.isEditing) {
       this.setState({
         isEditing: true,

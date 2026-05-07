@@ -73,6 +73,7 @@ function OptionsSteps(props, ref) {
   useImperativeHandle(ref, () => ({
     handleTableKeyDown(e) {
       const selectedIndex = _.findIndex(options, { key: safeParse(value)[0] });
+
       if (e.key === 'Escape') {
         updateEditingStatus(false);
       } else if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
@@ -84,12 +85,15 @@ function OptionsSteps(props, ref) {
         if (!filterOptions.length) return;
 
         let nextIndex = selectedIndex + (e.key === 'ArrowUp' ? -1 : 1);
+
         if (nextIndex < 0) {
           nextIndex = 0;
         }
+
         if (nextIndex > options.length - 1) {
           nextIndex = options.length - 1;
         }
+
         if (options[nextIndex]) {
           updateCell({ value: JSON.stringify([options[nextIndex].key]) });
         }
@@ -133,6 +137,7 @@ function OptionsSteps(props, ref) {
       }}
     />
   );
+
   if (isediting) {
     return (
       <Trigger
@@ -157,6 +162,7 @@ function OptionsSteps(props, ref) {
       </Trigger>
     );
   }
+
   return (
     <Con
       className={cx(className, 'cellControl flexRow', {

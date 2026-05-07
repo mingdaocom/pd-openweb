@@ -50,6 +50,7 @@ export const generateParamsForPrompt = ({ envControls, isRefValue, control } = {
   \`\`\`
   </response>
 </example>`;
+
   if (!get(md, 'global.Account.lang', '').toLowerCase() !== 'zh-hans') {
     defaultControlDataFormat += `
 <response_lang>
@@ -58,6 +59,7 @@ please return as language ${get(md, 'global.Account.lang')}
 </response_lang>
 `;
   }
+
   return [
     defaultExample,
     isRefValue ? _l('引用类型') : _l('存储类型'),

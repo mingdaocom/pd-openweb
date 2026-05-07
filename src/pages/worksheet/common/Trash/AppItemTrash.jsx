@@ -143,6 +143,7 @@ export default function AppItemTrash(props) {
   function setPendingCache(key, value) {
     cache.current['pending_' + key] = value;
   }
+
   function load(args = {}) {
     setLoading(true);
     if (!_.isUndefined(args.keyword)) {
@@ -151,9 +152,11 @@ export default function AppItemTrash(props) {
       setLoadOuted(false);
       setKeyword(args.keyword);
     }
+
     if (args.pageIndex) {
       setPageIndex(args.pageIndex);
     }
+
     appManagementAjax
       .getAppItemRecoveryList({
         keyword: _.isUndefined(args.keyword) ? keyword : args.keyword,
@@ -168,16 +171,20 @@ export default function AppItemTrash(props) {
         } else {
           setLoadOuted(true);
         }
+
         setLoading(false);
       });
   }
+
   function onRestore(itemIndex) {
     const appItem = appItems[itemIndex];
+
     if (cache.current['pending_' + appItem.id]) {
       return;
     } else {
       setPendingCache(appItem.id, true);
     }
+
     appManagementAjax
       .appItemRecovery({
         id: appItem.id,
@@ -201,6 +208,7 @@ export default function AppItemTrash(props) {
         setPendingCache(appItem.id, false);
       });
   }
+
   function onDelete(itemIndex) {
     const needDeleteItem = appItems[itemIndex];
     Dialog.confirm({
@@ -232,9 +240,11 @@ export default function AppItemTrash(props) {
       },
     });
   }
+
   function onKeyWordChange(newKeyword) {
     load({ pageIndex: 1, keyword: newKeyword });
   }
+
   function onScrollEnd() {
     if (!loading && !loadOuted) {
       load({
@@ -242,6 +252,7 @@ export default function AppItemTrash(props) {
       });
     }
   }
+
   useEffect(load, []);
 
   const debounceOnKeyWordChange = useCallback(_.debounce(onKeyWordChange, 300), []);

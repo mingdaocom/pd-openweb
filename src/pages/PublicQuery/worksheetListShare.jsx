@@ -51,6 +51,7 @@ class WorksheetListShare extends React.Component {
   //根据showControls排序
   getSortAndVisible = (showControls, controls) => {
     let list = [];
+
     if (showControls.length > 0) {
       list = showControls.map(scid => _.find(controls, c => c.controlId === scid));
     } else {
@@ -58,10 +59,12 @@ class WorksheetListShare extends React.Component {
       let noSys = controls.filter(it => !SYS.includes(it.controlId));
       list = noSys.sort((a, b) => (a.row * 10 + a.col > b.row * 10 + b.col ? 1 : -1)).concat(sys);
     }
+
     list = list.filter(c => c && controlState(c).visible);
     if (!list.find(o => o.attribute === 1)) {
       list = list.concat({ ...controls.find(o => o.attribute === 1), noShowForShare: true });
     }
+
     return list;
   };
 

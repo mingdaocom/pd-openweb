@@ -40,6 +40,7 @@ export default class ImportConfig extends Component {
     this.props.fileList[0].rows.forEach(rowItem => {
       if (rowItem.rowNumber < 10) {
         let validCells = rowItem.cells;
+
         if (_.findIndex(rowItem.cells, item => !item.value) > -1) {
           validCells = _.slice(
             rowItem.cells,
@@ -47,6 +48,7 @@ export default class ImportConfig extends Component {
             _.findIndex(rowItem.cells, item => !item.value),
           );
         }
+
         if (rowItem.cells[0].value && validCells.length > maxValidColumn) {
           maxValidColumn = validCells.length;
           maxColumnNumber = rowItem.rowNumber;
@@ -98,6 +100,7 @@ export default class ImportConfig extends Component {
     selectSheet.rows.forEach(rowItem => {
       if (rowItem.rowNumber < 10) {
         let validCells = rowItem.cells;
+
         if (_.findIndex(rowItem.cells, item => !item.value) > -1) {
           validCells = _.slice(
             rowItem.cells,
@@ -105,6 +108,7 @@ export default class ImportConfig extends Component {
             _.findIndex(rowItem.cells, item => !item.value),
           );
         }
+
         if (rowItem.cells[0].value && validCells.length > maxValidColumn) {
           maxValidColumn = validCells.length;
           maxColumnNumber = rowItem.rowNumber;
@@ -137,6 +141,7 @@ export default class ImportConfig extends Component {
             onClick={() => {
               const rowItem = selectSheet.rows[item - 1];
               let selectCells = Object.assign({}, rowItem).cells;
+
               if (_.findIndex(rowItem.cells, item => !item.value) > -1) {
                 selectCells = _.slice(
                   rowItem.cells,
@@ -144,6 +149,7 @@ export default class ImportConfig extends Component {
                   _.findIndex(rowItem.cells, item => !item.value),
                 );
               }
+
               const selectRow = {
                 ...rowItem,
                 cells: selectCells,
@@ -160,6 +166,7 @@ export default class ImportConfig extends Component {
 
   selectLine(rowItem, rowIndex) {
     let selectCells = Object.assign({}, rowItem).cells;
+
     if (_.findIndex(rowItem.cells, item => !item.value) > -1) {
       selectCells = _.slice(
         rowItem.cells,
@@ -167,6 +174,7 @@ export default class ImportConfig extends Component {
         _.findIndex(rowItem.cells, item => !item.value),
       );
     }
+
     const selectRow = {
       ...rowItem,
       cells: selectCells,

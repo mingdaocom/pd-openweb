@@ -64,6 +64,7 @@ class Task extends Component {
   validatePermission = projectId => {
     const hasTaskAuth =
       projectId && checkPermission(projectId, [PERMISSION_ENUM.CREATE_SYNC_TASK, PERMISSION_ENUM.MANAGE_SYNC_TASKS]);
+
     if (!hasTaskAuth) {
       alert(_l('该同步任务无权限查看或已删除'), 3);
       navigateTo('/integration');
@@ -116,6 +117,7 @@ class Task extends Component {
       flowId,
     }).then(res => {
       let flowData = res || {};
+
       if (errIds) {
         errIds.map(o => {
           flowData = {
@@ -124,6 +126,7 @@ class Task extends Component {
           };
         });
       }
+
       this.validatePermission(flowData.projectId);
       this.getDatasourcesList(flowData, flowData.projectId, datasources => {
         this.setState({
@@ -191,9 +194,11 @@ class Task extends Component {
   changeTask = taskStatus => {
     const { currentProjectId: projectId } = this.state;
     const { taskId = '', flowData, updating } = this.state;
+
     if (updating) {
       return;
     }
+
     let Ajax = null;
     this.setState({
       updating: true,
@@ -203,6 +208,7 @@ class Task extends Component {
     } else {
       Ajax = SyncTask.startTask({ projectId, taskId: taskId });
     }
+
     Ajax.then(
       res => {
         this.setState({
@@ -215,6 +221,7 @@ class Task extends Component {
           },
           isNew: false,
         };
+
         if (taskStatus !== 'RUNNING') {
           if (res) {
             this.setState({
@@ -225,6 +232,7 @@ class Task extends Component {
           }
         } else {
           const { isSucceeded, errorMsg } = res;
+
           if (isSucceeded) {
             this.setState({
               ...info,
@@ -245,11 +253,14 @@ class Task extends Component {
   };
   publishTask = () => {
     const { updating, flowData = {}, isNew } = this.state;
+
     if (updating) {
       return;
     }
+
     const destData = _.values(flowData.flowNodes).find(o => _.get(o, 'nodeType') === 'DEST_TABLE') || {};
     const isDestMDType = _.get(destData, 'nodeConfig.config.dsType') === DATABASE_TYPE.APPLICATION_WORKSHEET;
+
     if (isDestMDType && !_.get(destData, 'nodeConfig.config.createTable') && !isNew) {
       //目的地是表 且选择已有表
       this.setState({
@@ -277,6 +288,7 @@ class Task extends Component {
           updating: false,
         });
         const { jobId, errorMsgList = [], isSucceeded, errorNodeIds = [], errorType } = res;
+
         if (isSucceeded) {
           this.setState({
             isNew: false,
@@ -320,6 +332,7 @@ class Task extends Component {
             },
           );
         }
+
         this.getSynsTask(errorNodeIds);
       },
       () => {
@@ -332,6 +345,7 @@ class Task extends Component {
 
   renderCon = () => {
     const { tab, flowData, curId, jobId } = this.state;
+
     switch (tab) {
       case 'task':
         return (
@@ -389,9 +403,11 @@ class Task extends Component {
     } = this.state;
     const destData = _.values(flowData.flowNodes).find(o => _.get(o, 'nodeType') === 'DEST_TABLE') || {};
     const { writeMode, isCleanDestTableData, fieldForIdentifyDuplicate } = _.get(destData, 'nodeConfig.config') || {};
+
     if (loading) {
       return <LoadDiv />;
     }
+
     return (
       <FullScreenCurtain>
         <Wrap className="flexColumn">

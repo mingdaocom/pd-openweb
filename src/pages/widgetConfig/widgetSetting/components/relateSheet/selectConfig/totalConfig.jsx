@@ -136,6 +136,7 @@ export default function ReportConfig(props) {
                 alert('最多添加10个', 3);
                 return;
               }
+
               const newSettings = reportsetting.concat([
                 { controlId: item.controlId, type: _.get(getTypeList(item.controlId), '0.value') },
               ]);

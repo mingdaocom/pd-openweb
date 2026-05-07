@@ -10,9 +10,9 @@ import { ALL_OPERATION_TYPE_DATA, TYPE_DATA } from '../config';
 import { WrapL } from './style';
 
 const PopupWrap = styled.ul`
-  background: var(--color-background-primary);
+  background: var(--color-background-card);
   border: 1px solid var(--color-border-secondary);
-  box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.16);
+  box-shadow: var(--shadow-sm);
   border-radius: 6px;
   li {
     width: 80px;
@@ -108,9 +108,11 @@ export default function Join(props) {
     if (!nodeId) {
       return [];
     }
+
     const data = flowNodes[nodeId] || {};
     return (_.get(data, 'nodeConfig.fields') || []).filter(o => !!o.isCheck);
   };
+
   const renderPopup = () => {
     return (
       <PopupWrap className="flexRow alignItemsCenter">
@@ -150,6 +152,7 @@ export default function Join(props) {
       </PopupWrap>
     );
   };
+
   const updateData = (key, i, data) => {
     let dat = {
       ...node,
@@ -172,11 +175,14 @@ export default function Join(props) {
     };
     onUpdate(dat);
   };
+
   const renderTitle = data => {
     const { dataType, alias, name, aggFuncType } = data || {};
+
     if (!name && !dataType) {
       return <span className="Red">{_l('该字段已删除')}</span>;
     }
+
     return (
       <div>
         {dataType && <span className="textSecondary pRight5">[{dataType}]</span>}
@@ -187,6 +193,7 @@ export default function Join(props) {
       </div>
     );
   };
+
   const renderItem = a => {
     return (
       <div className="">
@@ -197,6 +204,7 @@ export default function Join(props) {
       </div>
     );
   };
+
   return (
     <WrapL>
       <div className="title Bold">{_l('多表连接')}</div>

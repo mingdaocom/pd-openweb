@@ -15,12 +15,15 @@ const RedMenuItemWrap = styled(MenuItemWrap)`
     }
   }
 `;
+
 export default function DropOption(props) {
   const { key, dataList = [] } = props;
   const [optionShow, setOptionShow] = useState(false);
+
   if (dataList.length <= 0) {
     return null;
   }
+
   return (
     <Trigger
       popupVisible={optionShow}
@@ -46,6 +49,7 @@ export default function DropOption(props) {
                 </RedMenuItemWrap>
               );
             }
+
             return (
               <React.Fragment>
                 {o.showLine && (

@@ -68,6 +68,7 @@ export default function InvoiceConfirm(props) {
         } else {
           alert(isTest ? _l('开票失败') : _l('审核失败'), 2);
         }
+
         setSubmitting(false);
       })
       .catch(() => {

@@ -16,12 +16,14 @@ export const generateRecord = ({
   setType('parse');
   const { worksheetInfo = {}, worksheetId } = propsRef.current;
   let content = [];
+
   if (text) {
     content.push({
       type: 'text',
-      text,
+      text: _l('【当前用户正在使用语音输入，文本内容与选项内容无需完全匹配，可以进行模糊匹配】') + text,
     });
   }
+
   if (filesList?.length) {
     content.push(
       ...filesList.map(file => ({
@@ -37,6 +39,7 @@ export const generateRecord = ({
       text: `[用户上传的图片链接] ${filesList.map(file => file.url).join('、')}`,
     });
   }
+
   aiParseRef.current = mingoAjax.generateRecordByMobile({
     projectId: worksheetInfo?.projectId || projectId,
     worksheetId: worksheetInfo?.worksheetId || worksheetId,
@@ -56,14 +59,17 @@ export const generateRecord = ({
             alert(_l('未识别到有效信息'), 3);
             return;
           }
+
           const match = data.match(/```custom_block_mingo_generate_record_jsonl([\s\S]*?)```/);
           const jsonlStr = match[1].trim();
           const fieldsData = jsonlStr.split('\n').filter(Boolean);
           const parsedArray = fieldsData.map(line => safeParse(line));
+
           if (!parsedArray?.length) {
             alert(_l('未识别到有效信息'), 3);
             return;
           }
+
           const controls = _.get(worksheetInfo, 'template.controls');
           const aiValue = parsedArray.reduce((acc, cur) => {
             const control = _.find(controls, { controlId: cur.controlId });

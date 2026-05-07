@@ -32,6 +32,7 @@ export default function (props) {
   const { list, pageIndex, keyWords, baseInfo = {}, fastFilters = [], filters } = portal;
 
   const [popupVisible, setPopupVisible] = useState(false);
+
   //批量删除用户
   const deleteRows = () => {
     externalPortalAjax.removeUsers({ appId, rowIds: selectedIds }).then(() => {
@@ -40,6 +41,7 @@ export default function (props) {
       getList(); //重新获取当前页面数据
     });
   };
+
   const deleteRowsDialog = () => {
     return Dialog.confirm({
       title: <span className="Red">{_l('注销%0个成员', selectedIds.length || 1)}</span>,
@@ -49,6 +51,7 @@ export default function (props) {
       onOk: () => deleteRows(),
     });
   };
+
   //导出
   const down = isAll => {
     const { worksheetId, appId, projectId } = baseInfo;
@@ -110,9 +113,11 @@ export default function (props) {
               className={cx('download InlineBlock Hand mLeft10')}
               onClick={() => {
                 let NoList = list.filter(o => safeParse(o.portal_status, 'array')[0] === '5').map(o => o.rowid);
+
                 if (_.intersection(NoList, selectedIds).length > 0) {
                   return alert(_l('未激活的用户不能启用'), 2);
                 }
+
                 Dialog.confirm({
                   title: <span className="">{_l('启用%0个用户', selectedIds.length || 1)}</span>,
                   buttonType: '',
@@ -136,9 +141,11 @@ export default function (props) {
               className={cx('del InlineBlock Hand mLeft10')}
               onClick={() => {
                 let NoList = list.filter(o => safeParse(o.portal_status, 'array')[0] === '5').map(o => o.rowid);
+
                 if (_.intersection(NoList, selectedIds).length > 0) {
                   return alert(_l('未激活的用户不能停用'), 2);
                 }
+
                 Dialog.confirm({
                   title: <span className="Red">{_l('停用%0个用户', selectedIds.length || 1)}</span>,
                   buttonType: 'danger',

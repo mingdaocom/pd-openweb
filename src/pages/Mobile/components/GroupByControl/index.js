@@ -83,10 +83,12 @@ function ControlContent(props) {
       </div>
     );
   }
+
   const isOptions = includes(
     [WIDGETS_TO_API_TYPE_ENUM.FLAT_MENU, WIDGETS_TO_API_TYPE_ENUM.MULTI_SELECT, WIDGETS_TO_API_TYPE_ENUM.DROP_DOWN],
     control.type,
   );
+
   if (isOptions && control.enumDefault2 === 1) {
     const color = (find(control.options || [], v => v.key === groupKey) || {}).color;
 
@@ -120,12 +122,15 @@ function ControlContent(props) {
       )
     );
   }
+
   let showText = name;
+
   if (control.type === WIDGETS_TO_API_TYPE_ENUM.ORG_ROLE) {
     showText = safeParse(name).organizeName;
   } else if (control.type === WIDGETS_TO_API_TYPE_ENUM.DEPARTMENT) {
     showText = safeParse(name).departmentName;
   }
+
   return (
     <div className="controlContent ellipsis">
       <div className="controlText ellipsis bold"> {showText} </div>

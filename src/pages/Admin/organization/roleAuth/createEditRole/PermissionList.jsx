@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import { Checkbox, Icon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
+import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 import { VersionProductType } from 'src/utils/enum';
 import { getFeatureStatus } from 'src/utils/project';
 
@@ -59,11 +60,13 @@ export default function PermissionList(props) {
         const newParents = [...parents, item];
         // 递归搜索子节点
         const found = findParentsByPermissionId(item.subPermission, targetPermissionId, newParents);
+
         if (found) {
           return found; // 找到目标节点的父节点列表，返回
         }
       }
     }
+
     return null; // 未找到目标节点
   };
 
@@ -107,13 +110,25 @@ export default function PermissionList(props) {
         let newIds = selectedIds;
 
         if (checked) {
-          newIds = selectedIds.filter(id => !parentIds.concat(childIds.concat(item.permissionId)).includes(id));
+          newIds = selectedIds.filter(
+            id =>
+              ![...parentIds, ...childIds, item.permissionId]
+                .concat(item.permissionId === PERMISSION_ENUM.MEMBER ? PERMISSION_ENUM.DEPARTMENT : [])
+                .includes(id),
+          );
         } else {
-          newIds = selectedIds.concat(childIds.concat(item.permissionId));
+          newIds = selectedIds
+            .concat(childIds.concat(item.permissionId))
+            .concat(
+              item.permissionId === PERMISSION_ENUM.DEPARTMENT && !selectedIds.includes(PERMISSION_ENUM.MEMBER)
+                ? [PERMISSION_ENUM.MEMBER]
+                : [],
+            );
 
           _.reverse(parents).forEach(parentPermission => {
             const parentChildIds = getAllChildIds(parentPermission);
             const selectCount = parentChildIds.filter(subId => newIds.includes(subId)).length;
+
             if (parentChildIds.length === selectCount) {
               newIds.push(parentPermission.permissionId);
             }

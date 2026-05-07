@@ -45,10 +45,12 @@ export default class ChatCount extends Component {
   getDiscussionsCount = () => {
     const { worksheetId, rowId, allowExAccountDiscuss, exAccountDiscussEnum } = this.props;
     let entityType = 0;
+
     //外部用户且未开启讨论 不能内部讨论
     if (md.global.Account.isPortal && allowExAccountDiscuss && exAccountDiscussEnum === 1) {
       entityType = 2;
     }
+
     discussionAjax
       .getDiscussionsCount({
         sourceId: worksheetId + '|' + rowId,

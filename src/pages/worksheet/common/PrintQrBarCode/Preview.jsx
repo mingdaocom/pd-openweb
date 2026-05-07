@@ -61,6 +61,7 @@ function getPreviewSize(width, height) {
   let previewWidth, previewHeight;
   const maxHeight = (window.innerHeight - 50) * 0.9;
   const maxWidth = (window.innerWidth - 320) * 0.9;
+
   if (width > height) {
     previewHeight = 300;
     previewWidth = (width / height) * previewHeight;
@@ -76,6 +77,7 @@ function getPreviewSize(width, height) {
       previewWidth = (previewHeight / height) * width;
     }
   }
+
   return {
     width: previewWidth,
     height: previewHeight,

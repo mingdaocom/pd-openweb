@@ -5,6 +5,7 @@ function Header(props) {
   const { lineLoading, logo, hasGetLogo, isDefaultLogo, loading } = props;
 
   let brandLogo = '';
+
   if (!window.platformENV.isOverseas && !window.platformENV.isLocal) {
     if (hasGetLogo) {
       brandLogo = isDefaultLogo ? '' : logo;
@@ -17,9 +18,11 @@ function Header(props) {
 
   const brandLogoRedirectUrl =
     window.platformENV.isOverseas || window.platformENV.isLocal ? md.global.SysSettings.brandLogoRedirectUrl : '/';
+
   const renderLogo = () => {
     return <img src={brandLogo} height={_.get(md, 'global.SysSettings.brandLogoHeight') || 40} />;
   };
+
   return (
     <React.Fragment>
       {lineLoading && <div className="loadingLine"></div>}

@@ -10,11 +10,9 @@
   margin: 2px 0 12px;
   min-height: 0 !important;
   .operates {
-    position: absolute;
-    right: 0px;
-    top: -34px;
     display: flex;
     align-items: center;
+    margin-bottom: 6px;
     .operateBtnBox {
       display: flex;
       align-items: center;
@@ -80,7 +78,7 @@
       font-weight: bold;
       border-radius: 4px;
       margin-right: 8px;
-      color: var(--color-text-title);
+      color: var(--color-text-primary);
       cursor: pointer;
       padding: 0 16px;
       font-size: 13px;
@@ -126,7 +124,11 @@
   }
 }
 
-.mobileChildTableRowDetailDialog {
+.mobileChildTableRowDetailDialog,
+.errorConfirmPopup {
+  .adm-popup-body {
+    background-color: var(--color-background-primary) !important;
+  }
   .forCon {
     overflow-y: auto;
     overflow-x: hidden;
@@ -138,7 +140,6 @@
   .btnsWrapper {
     height: 50px;
     border-top: 1px solid var(--color-background-secondary);
-    background-color: var(--color-background-primary);
     padding: 0 10px;
     box-sizing: border-box;
 
@@ -151,6 +152,9 @@
   }
   .customFormLine {
     display: none !important;
+  }
+  .deleteBtn {
+    background-color: var(--color-error) !important;
   }
 }
 
@@ -197,7 +201,7 @@
     }
   }
   .expandChildTableHeader {
-    padding: 16px 0;
+    padding: 16px 0 0;
     align-items: center;
     padding-right: 20px;
   }

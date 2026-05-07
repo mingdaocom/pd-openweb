@@ -22,6 +22,7 @@ export default class EditCardInfo extends Component {
   renderResult(item) {
     const { userInfo } = this.props;
     const currentItem = userInfo[item.key];
+
     switch (item.key) {
       case 'departmentInfos':
         return !currentItem.length ? _l('未填写') : this.getItems(currentItem, 'departmentName');
@@ -39,10 +40,12 @@ export default class EditCardInfo extends Component {
 
   handleSubmit() {
     const { userInfo, updateData = () => {} } = this.props;
+
     if (!this.state.contactPhone) {
       alert(_l('工作电话不能为空'), 2);
       return;
     }
+
     account
       .editUserCardContactPhone({
         projectId: this.props.userInfo.projectId,

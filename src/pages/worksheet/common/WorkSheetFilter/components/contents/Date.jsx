@@ -14,6 +14,7 @@ function getPicker(type) {
     5: 'year',
   }[type];
 }
+
 export default function Date(props) {
   const {
     control = {},
@@ -51,18 +52,22 @@ export default function Date(props) {
   let controlFormat = { ...control };
   let showTime;
   let showType = String(_.get(control, 'advancedSetting.showtype') || 3);
+
   if (includes(['ctime', 'utime'], control.controlId)) {
     showType = '6';
   }
+
   if (control.type === 16 && dateRangeType == DATE_RANGE_TYPE.DAY && dateRange === 18) {
     controlFormat.advancedSetting = _.assign({}, controlFormat.advancedSetting, { showtype: '3' });
     showTime = false;
   } else if (!includes(['5', '4'], showType)) {
     controlFormat.advancedSetting = _.assign({}, controlFormat.advancedSetting, { showtype: String(dateRangeType) });
   }
+
   const showValueFormat = getShowFormat(controlFormat);
   let timeFormat = showValueFormat.split(' ')[1];
   const valueFormat = getDatePickerConfigs(controlFormat).formatMode;
+
   // 5: 年 4: 年月
   if (showType === '2') {
     dateOptions = dateOptions.map(options => options.filter(o => o.value !== 18.1)).filter(options => options.length);
@@ -79,9 +84,11 @@ export default function Date(props) {
       )
       .filter(options => options.length);
   }
+
   if (!includes([FILTER_CONDITION_TYPE.DATE_EQ, FILTER_CONDITION_TYPE.DATE_NE], type)) {
     dateOptions = dateOptions.map(options => options.filter(o => !(o.value > 18 && o.value < 19)));
   }
+
   useEffect(() => {
     setDayNum(value);
   }, [value]);
@@ -99,6 +106,7 @@ export default function Date(props) {
               if (!moments || !_.isArray(moments)) {
                 moments = [];
               }
+
               onChange({
                 minValue: moments[0] && moments[0].format(valueFormat === 'YYYY-MM-DD HH' ? undefined : valueFormat),
                 maxValue: moments[1] && moments[1].format(valueFormat === 'YYYY-MM-DD HH' ? undefined : valueFormat),
@@ -128,11 +136,13 @@ export default function Date(props) {
                   const item = find(flatten(dateOptions), o => o.value === newDateRange);
                   if (!item) return;
                   let changes = { value: undefined, values: [] };
+
                   if (newDateRange === 10 || newDateRange === 11) {
                     changes = {
                       value: 1,
                     };
                   }
+
                   if (newDateRange === 18) {
                     changes.dateRangeType =
                       type === 15 || !includes([FILTER_CONDITION_TYPE.DATE_EQ, FILTER_CONDITION_TYPE.DATE_NE], type)
@@ -144,6 +154,7 @@ export default function Date(props) {
                   } else {
                     changes.dateRangeType = undefined;
                   }
+
                   onChange(Object.assign({ dateRange: newDateRange }, changes));
                 }}
               />
@@ -159,10 +170,12 @@ export default function Date(props) {
                 disabled={disabled}
                 onBlur={() => {
                   let dayNumToChange = dayNum;
+
                   if (dateRangeType === DATE_RANGE_TYPE.YEAR && Number(dayNum) > 100) {
                     setDayNum(100);
                     dayNumToChange = 100;
                   }
+
                   if (dayNum !== '0') {
                     onChange({ value: dayNumToChange, dateRangeType });
                   }
@@ -178,10 +191,12 @@ export default function Date(props) {
                   menuStyle={{ width: 80, marginLeft: -1, marginTop: 6 }}
                   onChange={newDateRangeType => {
                     const changes = { dateRangeType: newDateRangeType };
+
                     if (newDateRangeType === DATE_RANGE_TYPE.YEAR && Number(dayNum) > 100) {
                       setDayNum(100);
                       changes.value = 100;
                     }
+
                     onChange(changes);
                   }}
                 />
@@ -238,6 +253,7 @@ export default function Date(props) {
                 dropdownClassName="scrollInTable"
                 onChange={date => {
                   let formattedDate;
+
                   if (date) {
                     if (dateRangeType === DATE_RANGE_TYPE.MINUTE) {
                       formattedDate = moment(date).format('YYYY-MM-DD HH:mm');
@@ -249,6 +265,7 @@ export default function Date(props) {
                       formattedDate = moment(date).format(valueFormat);
                     }
                   }
+
                   onChange({
                     value: formattedDate,
                   });

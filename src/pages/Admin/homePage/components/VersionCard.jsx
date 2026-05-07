@@ -3,11 +3,13 @@ import { Button, Modal } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
-import { Dialog, Icon } from 'ming-ui';
+import { Dialog, Icon, LoadDiv } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import projectAjax from 'src/api/project';
 import addFriends from 'src/components/addFriends';
 import { purchaseMethodFunc } from 'src/components/pay/versionUpgrade/PurchaseMethodModal';
+import { versionUpgradeModal } from 'src/components/pay/versionUpgrade/VersionUpgradeModal';
+import PurchaseExpandPack from 'src/pages/Admin/components/PurchaseExpandPack.jsx';
 import PurchaseIcon from '../image/purchaseIcon.png';
 import TimeIcon from '../image/time.png';
 import { FreeTrialWrap } from '../styled';
@@ -15,7 +17,7 @@ import { getValue } from '../utils';
 
 // 组织管理首页-版本卡片
 export default function VersionCard(props) {
-  const { projectId, data, isTrial, isFree, isLocal, routerLocation, updateData = () => {} } = props;
+  const { projectId, data, isTrial, isFree, isMingdaoSaas, routerLocation, updateData = () => {} } = props;
   const { currentLicense = {}, nextLicense = {} } = data;
   const { endDate, expireDays, version = {} } = currentLicense;
   const versionIdV2 = parseInt(version.versionIdV2);
@@ -23,6 +25,8 @@ export default function VersionCard(props) {
   const surplus = getValue(expireDays || 0);
   const { version: nextVersion } = nextLicense;
   const [freeTrialVisible, setVisible] = useState(_.includes(routerLocation.pathname, 'showInvite'));
+  const [versionInfo, setVersionInfo] = useState({ loading: true });
+  const isNocolySaas = window.platformENV.isOverseas && !window.platformENV.isLocal;
 
   const handleClick = type => {
     switch (type) {
@@ -33,10 +37,11 @@ export default function VersionCard(props) {
         purchaseMethodFunc({ projectId, isTrial });
         break;
       case 'toast':
-        if (isLocal) {
+        if (!isMingdaoSaas) {
           alert(_l('单应用版暂不支持线上续费，请联系顾问进行续费'), 3);
           return;
         }
+
         Dialog.confirm({
           width: 510,
           title: _l('续费'),
@@ -57,6 +62,12 @@ export default function VersionCard(props) {
       updateData(res);
     });
   }, [freeTrialVisible]);
+
+  useEffect(() => {
+    isNocolySaas && data.licenseType !== 0 && projectAjax?.getCurrentLicense
+      ? projectAjax.getCurrentLicense({ projectId }).then(res => res && setVersionInfo({ ...res, loading: false }))
+      : setVersionInfo({ loading: false });
+  }, [data]);
 
   return (
     <div className="infoCard row1">
@@ -82,7 +93,7 @@ export default function VersionCard(props) {
             {isTrial && (
               <div className="Font14 bold">
                 <span className="mRight8 Yellow_de9">{_l('免费试用剩余 %0 天', surplus)}</span>
-                {!hasNextLicense && !isLocal && (
+                {!hasNextLicense && isMingdaoSaas && (
                   <span className="colorPrimary Hand" onClick={() => setVisible(true)}>
                     {_l('延长试用')}
                   </span>
@@ -91,14 +102,21 @@ export default function VersionCard(props) {
             )}
             {!isFree && !isTrial && (
               <Fragment>
-                <div className="Font14">
-                  {hasNextLicense ? (
-                    <span className="textSecondary mRight5">{_l('当前授权')}</span>
-                  ) : surplus < 31 ? (
-                    <span className="Red_f00 bold mRight5">{_l('剩余 %0 天', surplus)}</span>
-                  ) : null}
-                  <span className="textSecondary">{_l('%0到期', getValue(createTimeSpan(endDate, 4)))}</span>
-                </div>
+                {versionInfo.loading ? (
+                  <LoadDiv size="small" />
+                ) : isNocolySaas && versionInfo.id && !versionInfo.cancelAtPeriodEnd && !versionInfo.isOffLine ? (
+                  <div className="Font14 Gray_75">{_l('订阅中')}</div>
+                ) : (
+                  <div className="Font14">
+                    {hasNextLicense ? (
+                      <span className="textSecondary mRight5">{_l('当前授权')}</span>
+                    ) : surplus < 31 ? (
+                      <span className="Red_f00 bold mRight5">{_l('剩余 %0 天', surplus)}</span>
+                    ) : null}
+                    <span className="textSecondary">{_l('%0到期', getValue(createTimeSpan(endDate, 4)))}</span>
+                  </div>
+                )}
+
                 {hasNextLicense && (
                   <div className="Font14 textSecondary">
                     <span className="mRight5">{_l('下个授权')}</span>
@@ -123,28 +141,46 @@ export default function VersionCard(props) {
           </Fragment>
         )}
       </div>
-      {!data.basicLoading && !isLocal && (
-        <div className="buttons">
-          {!isFree && _.isEmpty(nextLicense) && (
-            <div
-              className={cx('Bold', isTrial ? 'greenBtn' : 'blueBtn')}
-              onClick={() => handleClick(versionIdV2 === 0 ? 'toast' : 'renew')}
-            >
-              <img src={isTrial ? PurchaseIcon : TimeIcon} />
-              {isTrial ? _l('购买') : _l('续费')}
-            </div>
-          )}
-          {(isFree || (versionIdV2 !== 3 && !isTrial)) && (
-            <div
-              className={cx('Bold', isFree ? 'greenBtn' : 'whiteBtn')}
-              onClick={() => handleClick(isFree ? 'renew' : 'upgrade')}
-            >
+
+      {!data.basicLoading &&
+        !window.platformENV.isLocal &&
+        (!window.platformENV.isOverseas ? (
+          <div className="buttons">
+            {!isFree && _.isEmpty(nextLicense) && (
+              <div
+                className={cx('Bold', isTrial ? 'greenBtn' : 'blueBtn')}
+                onClick={() => handleClick(versionIdV2 === 0 ? 'toast' : 'renew')}
+              >
+                <img src={isTrial ? PurchaseIcon : TimeIcon} />
+                {isTrial ? _l('购买') : _l('续费')}
+              </div>
+            )}
+            {(isFree || (versionIdV2 !== 3 && !isTrial)) && (
+              <div
+                className={cx('Bold', isFree ? 'greenBtn' : 'whiteBtn')}
+                onClick={() => handleClick(isFree ? 'renew' : 'upgrade')}
+              >
+                <span className="mRight6">🚀</span>
+                {_l('升级')}
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="valignWrapper">
+            <div className="Bold greenBtn" onClick={() => versionUpgradeModal({ projectId })}>
               <span className="mRight6">🚀</span>
               {_l('升级')}
             </div>
-          )}
-        </div>
-      )}
+            {!isTrial && versionInfo.id && !versionInfo.isOffLine && (
+              <PurchaseExpandPack
+                className="mLeft16"
+                text={_l('管理订阅')}
+                type="manageSubscription"
+                projectId={projectId}
+              />
+            )}
+          </div>
+        ))}
 
       <Modal width={720} visible={freeTrialVisible} title={null} footer={null} onCancel={() => setVisible(false)}>
         <FreeTrialWrap>

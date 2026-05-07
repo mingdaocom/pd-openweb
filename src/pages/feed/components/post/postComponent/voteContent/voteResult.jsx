@@ -18,12 +18,14 @@ class VoteResult extends React.Component {
 
   handleToggleVoteMembers = optionIndex => {
     const memberElements = this.state.memberElements;
+
     if (!memberElements[optionIndex]) {
       const option = _.find(this.props.voteItem.Options, o => o.optionIndex === optionIndex);
       memberElements[optionIndex] = React.createElement(VoteOptionMemberList, { members: option.member });
     } else {
       delete memberElements[optionIndex];
     }
+
     this.setState({ memberElements });
   };
 

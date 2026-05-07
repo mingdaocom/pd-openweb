@@ -37,6 +37,7 @@ export default class SearchInput extends Component {
         isFocus: nextProps.active,
       });
     }
+
     if (this.props.viewId !== nextProps.viewId) {
       this.setState({ value: '', isFocus: false });
     }
@@ -49,6 +50,17 @@ export default class SearchInput extends Component {
     const { value, isFocus, isCaseSensitive } = this.state;
     const { className, keyWords, onOk, onClear, onFocus, onBlur, placeholder, triggerWhenBlurWithEmpty } = this.props;
     const focusMode = isFocus || isCaseSensitive;
+    const handleIconClick = () => {
+      this.setState({ isFocus: true }, () => {
+        $(this.inputEl).focus();
+      });
+    };
+    const iconNode =
+      !isFocus && searchIcon ? (
+        <span onClick={handleIconClick}>{searchIcon}</span>
+      ) : (
+        <i className="icon icon-search textTertiary" onClick={handleIconClick} />
+      );
     return (
       <div
         className={cx(
@@ -60,38 +72,13 @@ export default class SearchInput extends Component {
         style={style}
       >
         <div className="inputCon">
-          <Tooltip placement="bottom" title={isFocus ? '' : <span>{placeholder || _l('搜索')}</span>}>
-            {!isFocus && searchIcon ? (
-              <span
-                onClick={() => {
-                  this.setState(
-                    {
-                      isFocus: true,
-                    },
-                    () => {
-                      $(this.inputEl).focus();
-                    },
-                  );
-                }}
-              >
-                {searchIcon}
-              </span>
-            ) : (
-              <i
-                className="icon icon-search textTertiary"
-                onClick={() => {
-                  this.setState(
-                    {
-                      isFocus: true,
-                    },
-                    () => {
-                      $(this.inputEl).focus();
-                    },
-                  );
-                }}
-              />
-            )}
-          </Tooltip>
+          {isFocus ? (
+            iconNode
+          ) : (
+            <Tooltip placement="bottom" title={<span>{placeholder || _l('搜索')}</span>}>
+              {iconNode}
+            </Tooltip>
+          )}
           {focusMode && (
             <input
               className={cx({ flex: browserIsMobile() })}
@@ -119,6 +106,7 @@ export default class SearchInput extends Component {
                   this.setState({ isFocus: false });
                   onBlur();
                 }
+
                 if (triggerWhenBlurWithEmpty && e.target.value === '' && keyWords) {
                   onOk('');
                 }

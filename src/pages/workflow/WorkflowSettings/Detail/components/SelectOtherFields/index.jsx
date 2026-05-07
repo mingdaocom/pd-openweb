@@ -37,6 +37,7 @@ export default class SelectOtherFields extends Component {
     }),
     disabledInterface: PropTypes.bool,
     filterType: PropTypes.number,
+    showNodeDataSelect: PropTypes.bool,
   };
 
   static defaultProps = {
@@ -49,6 +50,7 @@ export default class SelectOtherFields extends Component {
     showCurrent: false,
     disabledInterface: false,
     filterType: 0,
+    showNodeDataSelect: false,
   };
 
   constructor(props) {
@@ -188,7 +190,8 @@ export default class SelectOtherFields extends Component {
    * 渲染其他字段层
    */
   renderOtherFieldsBox() {
-    const { item, fieldsVisible, handleFieldClick, closeLayer, showClear, disabledInterface } = this.props;
+    const { item, fieldsVisible, handleFieldClick, closeLayer, showClear, disabledInterface, showNodeDataSelect } =
+      this.props;
     const { fieldsData } = this.state;
 
     if (!fieldsVisible || !_.isArray(fieldsData)) {
@@ -204,6 +207,7 @@ export default class SelectOtherFields extends Component {
         noItemTips={_l('没有可用的字段')}
         noData={!disabledInterface && _l('没有可用的节点对象')}
         condition={fieldsData}
+        showNodeDataSelect={showNodeDataSelect}
         handleFieldClick={({
           nodeId,
           fieldValueId,

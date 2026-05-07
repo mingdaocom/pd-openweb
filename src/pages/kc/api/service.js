@@ -34,6 +34,7 @@ function getRoots(args) {
           }
         });
       }
+
       return roots;
     });
 }
@@ -47,6 +48,7 @@ function getRootDetail(rootId, options) {
       if (root) {
         rootCache[root.id] = assignHashFunc(assign({}, rootCache[root.id], root));
       }
+
       return root;
     });
 }
@@ -56,10 +58,13 @@ function getRootName(rootId, options) {
   if (!rootId || rootId === 'my') {
     return Promise.resolve(_l('我的文件'));
   }
+
   const root = rootCache[rootId];
+
   if (root) {
     return Promise.resolve(root.name);
   }
+
   return getRootDetail(rootId, options || {}).then(r => (r ? r.name : _l('位置不存在')));
 }
 
@@ -71,10 +76,12 @@ function getRootName(rootId, options) {
 function removeRoot(args) {
   return kc.removeRoot(args);
 }
+
 /** 还原根目录 */
 function restoreRoot(rootId) {
   return kc.restoreRoot({ id: rootId });
 }
+
 /**
  * 移除根目录成员
  * @param {string} id 根目录ID
@@ -83,15 +90,18 @@ function restoreRoot(rootId) {
 function removeRootMember(args) {
   return kc.removeRootMember(args);
 }
+
 function getReadablePosition(position) {
   let arr = trim(position, '/').split('/');
   const rootId = arr[0];
   let rootName;
+
   if (rootId === 'my' || rootId === md.global.Account.accountId) {
     rootName = Promise.resolve(_l('我的文件'));
   } else {
     rootName = getRootName(rootId, { silent: true });
   }
+
   return rootName.then(name => {
     arr = arr.slice(1, arr.length);
     arr.unshift(name);
@@ -226,6 +236,7 @@ function copyNodeByParentId(args) {
 function updateRootStar(rootId, isStar) {
   return kc.starRoot({ id: rootId, star: isStar }).then(assignHashFunc);
 }
+
 /**
  * 根据路径获取节点
  * @param  {String} path 节点路径
@@ -252,6 +263,7 @@ function getNodeById(id) {
 function getNodeByVersionId(id, versionId, isOldest) {
   return kc.getNodeDetail(id, versionId, isOldest).then(assignHashFunc);
 }
+
 /**
  * 添加文件夹
  * @param {Object} args 参数
@@ -288,6 +300,7 @@ function starNode(args) {
 function updateNode(args) {
   return kc.updateNode(args).then(assignHashFunc);
 }
+
 /**
  *  获取node日志详情
  *  {string} id  节点ID
@@ -295,6 +308,7 @@ function updateNode(args) {
 function getNodeLogDetail(args) {
   return kc.getNodeLogDetail(args).then(assignHashFunc);
 }
+
 /**
  * 获取root日志详情
  * {string} id  共享文件夹ID
@@ -302,16 +316,19 @@ function getNodeLogDetail(args) {
 function getRootLogDetail(args) {
   return kc.getRootLogDetail(args).then(assignHashFunc);
 }
+
 /**
  * 获取我的文件日志详情
  **/
 function getMyLogDetail(args) {
   return kc.getMyLogDetail(args).then(assignHashFunc);
 }
+
 /** 添加节点预览次数 */
 function addNodeViewCount(id, versionId) {
   return kc.addNodeViewCount({ id, versionId }, undefined, undefined, false);
 }
+
 /** Usage(流量使用)
  * @typedef Usage
  * @type Object
@@ -325,6 +342,7 @@ function getUsage() {
 function getTotalUsedSize() {
   return kc.getTotalUsedSize();
 }
+
 /**
  * 全局搜索
  * @param {Stirng} args.keywords 搜索时关键字

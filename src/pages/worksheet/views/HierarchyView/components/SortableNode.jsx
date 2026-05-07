@@ -38,9 +38,11 @@ export default class SortableRecordItem extends Component {
   }
   componentDidMount() {
     const { hierarchyTopLevelDataCount } = this.props;
+
     if (hierarchyTopLevelDataCount < 200) {
       this.drawConnector();
     }
+
     window.addEventListener('popstate', this.onQueryChange);
   }
 
@@ -64,6 +66,7 @@ export default class SortableRecordItem extends Component {
   componentDidUpdate() {
     // if (!isEqual(this.getConnectLinePos(nextProps), this.getConnectLinePos(this.props))) {
     const { hierarchyTopLevelDataCount } = this.props;
+
     if (!this.isFirstSkip || hierarchyTopLevelDataCount < 200) {
       this.drawConnector();
     }
@@ -114,6 +117,7 @@ export default class SortableRecordItem extends Component {
         ...getPosition($parent, $ele, scale, isStraightLine || advancedSetting.hierarchyViewConnectLine === '1'),
       };
     }
+
     return {};
   };
 
@@ -133,6 +137,7 @@ export default class SortableRecordItem extends Component {
 
     // 获取控制点
     const controlPoint = [controlPointX, end[1]];
+
     if ($svgWrap.childElementCount > 0) {
       $svgWrap.childNodes.forEach(child => $svgWrap.removeChild(child));
     }
@@ -155,6 +160,7 @@ export default class SortableRecordItem extends Component {
       window.location.href = `/mobile/record/${appId}/${curInfo.wsid}/${rowId}`;
       return;
     }
+
     handlePushState('page', 'recordDetail');
     this.setState({ recordInfoRowId: rowId, recordInfoVisible: true });
   };
@@ -162,13 +168,16 @@ export default class SortableRecordItem extends Component {
   getRecordInfoPara = () => {
     const { worksheetId, viewId, view, data, controls, hierarchyRelateSheetControls } = this.props;
     const { childType, viewControls } = view;
+
     if (String(childType) === '2') {
       const configIndex = data.pathId.length - 1;
       const { worksheetId, controlId } = viewControls[configIndex] || {};
+
       // 第一级 (本表)
       if (configIndex === 0 || viewControls.length === 1) {
         return { worksheetId, viewId };
       }
+
       // 获取关联控件配置的viewId
       const relateSheetId = getRelateSheetId(view, data.pathId);
       const currentControls = configIndex > 1 ? hierarchyRelateSheetControls[relateSheetId] : controls;
@@ -184,6 +193,7 @@ export default class SortableRecordItem extends Component {
         viewControl: viewControlInfo,
       };
     }
+
     return { worksheetId, viewId };
   };
   getCurrentSheetRows = () => {
@@ -191,6 +201,7 @@ export default class SortableRecordItem extends Component {
 
     const getLayerRows = (arr = [], rows = []) => {
       const { data = {}, treeData = {} } = this.props;
+
       if (arr.length) {
         arr.forEach(item => {
           if (_.get(item, 'pathId.length') === _.get(data, 'pathId.length')) {
@@ -199,13 +210,16 @@ export default class SortableRecordItem extends Component {
               row: treeData[item.rowId],
             });
           }
+
           if (_.get(item, 'children.length')) {
             getLayerRows(item.children, rows);
           }
         });
       }
+
       return rows;
     };
+
     const newRows = getLayerRows(stateTree);
     return _.sortBy(newRows, 'index').map(i => i.row);
   };
@@ -299,6 +313,7 @@ export default class SortableRecordItem extends Component {
                 if (!_.isUndefined(relateSheet.isviewdata) && !relateSheet.isviewdata) {
                   return;
                 }
+
                 updateHierarchyData({ path, pathId, recordId: recordIds[0], value, relateSheet });
               }}
               appId={appId}

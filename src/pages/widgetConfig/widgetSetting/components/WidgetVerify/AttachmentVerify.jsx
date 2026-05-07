@@ -65,6 +65,7 @@ export default function AttachmentVerify(props) {
             onChange={e => {
               const value = e.target.value.trim();
               const newVal = value.replace(/^\D*(\d*(?:\.\d{0,2})?).*$/g, '$1');
+
               if (!isNaN(value) && (value === '' || newVal)) {
                 setMax(newVal);
               }

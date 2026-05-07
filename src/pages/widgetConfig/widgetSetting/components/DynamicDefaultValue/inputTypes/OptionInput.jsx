@@ -104,6 +104,7 @@ export default function DefaultOptions(props) {
       },
     ].concat(options);
   }
+
   const isMulti = data.type === 10;
   const $wrap = createRef(null);
 
@@ -131,6 +132,7 @@ export default function DefaultOptions(props) {
           onDynamicValueChange([{ rcid: '', cid: '', staticValue: key }]);
           return;
         }
+
         if (checkedValue.includes('isEmpty')) {
           if (checkedValue.includes(key)) {
             const values = dynamicValue.filter(item => ['isEmpty', key].includes(item.staticValue));
@@ -143,6 +145,7 @@ export default function DefaultOptions(props) {
           }
         }
       }
+
       if (checkedValue.includes(key)) {
         const index = dynamicValue.findIndex(item => item.staticValue === key);
         onDynamicValueChange(update(dynamicValue, { $splice: [[index, 1]] }));
@@ -159,6 +162,7 @@ export default function DefaultOptions(props) {
     const index = dynamicValue.findIndex(
       item => item.cid === cid && item.rcid === rcid && item.staticValue === staticValue,
     );
+
     if (index > -1) {
       onDynamicValueChange(update(dynamicValue, { $splice: [[index, 1]] }));
     }
@@ -167,10 +171,12 @@ export default function DefaultOptions(props) {
   const handleFieldClick = data => {
     if (isMulti && _.get(data, '[0].rcid') !== 'url') {
       const value = head(data) || {};
+
       if (value.cid) {
         const isExist = dynamicValue.some(item => item.cid === value.cid && item.rcid === value.rcid);
         if (isExist) return;
       }
+
       onDynamicValueChange(dynamicValue.concat(data));
     } else {
       onDynamicValueChange(data);
@@ -233,6 +239,7 @@ export default function DefaultOptions(props) {
                     />
                   );
                 }
+
                 if (staticValue) {
                   const option = find(options, item => item.key === staticValue) || {};
                   return (
@@ -251,6 +258,7 @@ export default function DefaultOptions(props) {
                     </OptionControl>
                   );
                 }
+
                 return null;
               })}
             </div>

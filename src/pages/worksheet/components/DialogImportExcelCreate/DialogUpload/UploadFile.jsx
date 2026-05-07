@@ -60,6 +60,7 @@ export default class UploadFile extends Component {
             file: { name },
             code,
           } = err;
+
           if (
             RegExpValidator.getExtOfFileName(name) != 'xlsx' &&
             RegExpValidator.getExtOfFileName(name) != 'xls' &&
@@ -68,6 +69,7 @@ export default class UploadFile extends Component {
             alert(_l('文件类型错误，仅支持xls、xlsx、csv文件'), 3);
             return;
           }
+
           if (code === window.plupload.FILE_SIZE_ERROR) {
             alert(_l('文件过大，仅支持 20MB 以内的文件'), 3);
             return;

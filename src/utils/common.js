@@ -21,8 +21,10 @@ export function saveLRUWorksheetConfig(key, id, value) {
   if (_.isObject(value)) {
     throw new Error('只支持存储字符串');
   }
+
   const maxSaveNum = 30;
   let data = {};
+
   if (localStorage.getItem(key)) {
     try {
       data = JSON.parse(localStorage.getItem(key));
@@ -30,16 +32,20 @@ export function saveLRUWorksheetConfig(key, id, value) {
       console.error(err);
     }
   }
+
   const newData = _.assign({}, data, { [id]: value });
+
   if (Object.keys(newData).length > maxSaveNum) {
     delete newData[Object.keys(newData).pop];
   }
+
   safeLocalStorageSetItem(key, JSON.stringify(newData));
 }
 
 /** LRU 存储 */
 export function clearLRUWorksheetConfig(key, id) {
   let data = {};
+
   if (localStorage.getItem(key)) {
     try {
       data = JSON.parse(localStorage.getItem(key));
@@ -47,12 +53,15 @@ export function clearLRUWorksheetConfig(key, id) {
       console.error(err);
     }
   }
+
   delete data[id];
   safeLocalStorageSetItem(key, JSON.stringify(data));
 }
+
 /** LRU 读取 */
 export function getLRUWorksheetConfig(key, id) {
   let data = [];
+
   if (localStorage.getItem(key)) {
     try {
       data = JSON.parse(localStorage.getItem(key));
@@ -61,6 +70,7 @@ export function getLRUWorksheetConfig(key, id) {
       return;
     }
   }
+
   return data[id];
 }
 
@@ -71,10 +81,12 @@ export function getLRUWorksheetConfig(key, id) {
 export function KVSet(key, value, { needEncode = true, expireTime } = {}) {
   let newKey = key;
   let newValue = value;
+
   if (needEncode) {
     newKey = btoa(key);
     newValue = btoa(unescape(encodeURIComponent(value)));
   }
+
   return webCache.add({
     key: newKey,
     value: newValue,
@@ -91,9 +103,11 @@ export const debouncedKVSet = _.debounce(KVSet, 1000);
 
 export function KVGet(key, { needEncode = true } = {}) {
   let newKey = key;
+
   if (needEncode) {
     newKey = btoa(key);
   }
+
   return webCache
     .get({ key: newKey })
     .then(res => (get(res, 'data') ? decodeURIComponent(escape(atob(get(res, 'data')))) : ''));
@@ -106,9 +120,11 @@ export function KVGet(key, { needEncode = true } = {}) {
 
 export function KVClear(key, { needEncode = true } = {}) {
   let newKey = key;
+
   if (needEncode) {
     newKey = btoa(key);
   }
+
   return webCache.clear({ key: newKey }, { silent: true });
 }
 
@@ -117,7 +133,9 @@ export function saveTempRecordValueToLocal(key, id, value, max = 5) {
     debouncedKVSet(`${md.global.Account.accountId}${id}-${key}`, value);
     return debouncedKVSet;
   }
+
   let savedIds = [];
+
   if (localStorage.getItem(key)) {
     try {
       savedIds = JSON.parse(localStorage.getItem(key)) || [];
@@ -126,11 +144,13 @@ export function saveTempRecordValueToLocal(key, id, value, max = 5) {
       console.error(err);
     }
   }
+
   savedIds.push(id);
   if (savedIds.length > max) {
     localStorage.removeItem(`${key}_${savedIds[0]}`, value);
     savedIds = savedIds.slice(1);
   }
+
   try {
     safeLocalStorageSetItem(key, JSON.stringify(savedIds));
     safeLocalStorageSetItem(`${key}_${id}`, value);
@@ -149,7 +169,9 @@ export function removeTempRecordValueFromLocal(key, id) {
     KVClear(`${md.global.Account.accountId}${id}-${key}`);
     return;
   }
+
   let savedIds = [];
+
   if (localStorage.getItem(key)) {
     try {
       savedIds = JSON.parse(localStorage.getItem(key)) || [];
@@ -158,11 +180,13 @@ export function removeTempRecordValueFromLocal(key, id) {
       console.error(err);
     }
   }
+
   if (savedIds && savedIds.length) {
     safeLocalStorageSetItem(key, JSON.stringify(savedIds));
   } else {
     localStorage.removeItem(key);
   }
+
   localStorage.removeItem(`${key}_${id}`);
 }
 
@@ -179,6 +203,7 @@ export function validateFnExpression(expression, type = 'mdfunction') {
     } else if (type === 'javascript') {
       eval(`function test() {${expression} }`);
     }
+
     return true;
   } catch (err) {
     console.error(err);
@@ -198,11 +223,13 @@ export function getScrollBarWidth() {
 
 export function getRowGetType(from, { discussId } = {}) {
   let isInbox;
+
   if (typeof discussId !== 'undefined') {
     isInbox = from === 2 && !!discussId;
   } else {
     isInbox = from === 2 && location.search && location.search.indexOf('inboxId') > -1;
   }
+
   if (from == 21) {
     return 21;
   } else if (
@@ -229,6 +256,7 @@ export async function postWithToken(url, tokenArgs = {}, body = {}, axiosConfig 
       throw '获取token失败';
     }
   }
+
   return window.mdyAPI(
     '',
     '',
@@ -329,22 +357,28 @@ export function calcDate(date, expression) {
   if (!date) {
     return { error: true };
   }
+
   if (!/^[+-]/.test(expression)) {
     expression = '+' + expression;
   }
+
   try {
     let result = dayjs(date);
     const regexp = /([/+/-]){1}(\d+(\.\d+)?)+([YQMwdhms]){1}/g;
     let match = regexp.exec(expression);
+
     while (match) {
       const operator = match[1];
       const number = Number(match[2]);
       const unit = match[4];
+
       if (/^[+-]$/.test(operator) && number && typeof number === 'number' && /^[YQMwdhms]$/.test(unit)) {
         result = result[operator === '+' ? 'add' : 'subtract'](Math.round(number), unit.replace(/Y/, 'y'));
       }
+
       match = regexp.exec(expression);
     }
+
     return { result };
   } catch (err) {
     return { error: err };
@@ -360,16 +394,19 @@ export function accMul(arg1, arg2) {
   let m = 0,
     s1 = arg1.toString(),
     s2 = arg2.toString();
+
   try {
     m += (s1.split('.')[1] || '').length;
   } catch (e) {
     console.log(e);
   }
+
   try {
     m += (s2.split('.')[1] || '').length;
   } catch (e) {
     console.log(e);
   }
+
   return (Number(s1.replace('.', '')) * Number(s2.replace('.', ''))) / Math.pow(10, m);
 }
 
@@ -383,22 +420,27 @@ export function accDiv(arg1, arg2) {
     t2 = 0,
     r1,
     r2;
+
   try {
     t1 = (arg1.toString().split('.')[1] || '').length;
   } catch (e) {
     console.log(e);
   }
+
   try {
     t2 = (arg2.toString().split('.')[1] || '').length;
   } catch (e) {
     console.log(e);
   }
+
   r1 = Number(arg1.toString().replace('.', ''));
   r2 = Number(arg2.toString().replace('.', ''));
   const res = (r1 / r2) * Math.pow(10, t2 - t1);
+
   if (res.toString().replace(/\d+\./, '').length > 9) {
     return parseFloat(res.toFixed(9));
   }
+
   return res;
 }
 
@@ -409,18 +451,21 @@ export function accDiv(arg1, arg2) {
  */
 export function accAdd(arg1, arg2) {
   let r1, r2, m;
+
   try {
     r1 = (arg1.toString().split('.')[1] || '').length;
   } catch (e) {
     console.log(e);
     r1 = 0;
   }
+
   try {
     r2 = (arg2.toString().split('.')[1] || '').length;
   } catch (e) {
     console.log(e);
     r2 = 0;
   }
+
   m = Math.pow(10, Math.max(r1, r2));
   return (arg1 * m + arg2 * m) / m;
 }
@@ -438,6 +483,7 @@ export function countChar(str = '', char) {
   if (!str || !char) {
     return 0;
   }
+
   try {
     return str.match(new RegExp(char, 'g')).length;
   } catch (err) {
@@ -469,6 +515,7 @@ export const cutStringWithHtml = (self, len, rows) => {
   let isPic = false;
   let isBr = false;
   let brCount = 0;
+
   for (let i = 0; i < self.length; i++) {
     let letter = self.substring(i, i + 1);
     let nextLetter = self.substring(i + 1, i + 2);
@@ -489,6 +536,7 @@ export const cutStringWithHtml = (self, len, rows) => {
     if (brCount == Number(rows)) {
       break;
     }
+
     str += letter;
     if (!isA && !isPic && !isBr) {
       if (self.charAt(i) > '~') {
@@ -505,6 +553,7 @@ export const cutStringWithHtml = (self, len, rows) => {
         continue;
       }
     }
+
     if (isA) {
       if (letter == '>' && self.substring(i - 1, i) == 'a') {
         isA = false;
@@ -525,6 +574,7 @@ export const cutStringWithHtml = (self, len, rows) => {
       break;
     }
   }
+
   return str;
 };
 
@@ -596,6 +646,7 @@ export const formatFileSize = (size, accuracy, space, units) => {
   if (!size) {
     return '0' + space + units[0];
   }
+
   let i = Math.floor(Math.log(size) / Math.log(1024));
   return (size / Math.pow(1024, i)).toFixed(accuracy) * 1 + space + units[i];
 };
@@ -617,9 +668,11 @@ export const downloadFile = url => {
  */
 export const addToken = (url, verificationId = true) => {
   const id = window.getCookie('md_pss_id') || window.localStorage.getItem('md_pss_id');
+
   if (verificationId && id && !md.global.Account.isPortal) {
     return url;
   }
+
   if (url.includes('?')) {
     return `${url}&md_pss_id=${getPssId()}`;
   } else {
@@ -690,6 +743,7 @@ export const getRequest = str => {
  */
 export const getIconNameByExt = ext => {
   let extType = null;
+
   switch (ext && ext.toLowerCase()) {
     case 'png':
     case 'jpg':
@@ -837,6 +891,7 @@ export const getIconNameByExt = ext => {
     default:
       extType = 'doc';
   }
+
   return extType;
 };
 
@@ -849,6 +904,7 @@ export const getClassNameByExt = ext => {
   if (ext === false) {
     return 'fileIcon-folder';
   }
+
   /*
    * 之前方法针对的是普通附件，普通附件的 ext 属性是带 "." 的，知识文件不带点，这里简单的加个匹配判断
    * 传入的参数没有 "." 时，直接把它用作拓展名
@@ -864,6 +920,7 @@ export const getClassNameByExt = ext => {
 export const getCaretPosition = ctrl => {
   let sel, sel2;
   let caretPos = 0;
+
   if (document.selection) {
     // IE Support
     ctrl.focus();
@@ -880,6 +937,7 @@ export const getCaretPosition = ctrl => {
     ctrl.focus();
     caretPos = ctrl.selectionStart;
   }
+
   return caretPos;
 };
 
@@ -917,6 +975,7 @@ export function addSubPathOfRoutes(routes, subPath) {
   if (!subPath) {
     return routes;
   }
+
   const newRoutes = _.cloneDeep(routes);
   Object.keys(newRoutes).forEach(key => {
     newRoutes[key].path = subPath + newRoutes[key].path;
@@ -999,6 +1058,7 @@ export const updateGlobalStoreForMingo = (key, value) => {
         delete globalStoreForMingo[k];
       });
     }
+
     Object.keys(key).forEach(k => {
       globalStoreForMingo[k] = key[k];
     });
@@ -1330,9 +1390,9 @@ export const setBodyThemeMode = value => {
         : 'light';
 
   if (theme === 'dark') {
-    document.body.setAttribute('data-theme', 'dark');
+    document.documentElement.setAttribute('data-theme', 'dark');
   } else {
-    document.body.removeAttribute('data-theme');
+    document.documentElement.removeAttribute('data-theme');
   }
 
   // 设置 ant mobile 主题
@@ -1345,8 +1405,10 @@ export const getLatestCreateTimestampOfWithSaveShortcut = () => {
   const timestamps = [...document.querySelectorAll('.withSaveShortcut')].map(el =>
     Number(el.className.match(/createTimestamp-(\d+)/)?.[1] || 0),
   );
+
   if (isEmpty(timestamps)) {
     return 0;
   }
+
   return Math.max(...timestamps);
 };

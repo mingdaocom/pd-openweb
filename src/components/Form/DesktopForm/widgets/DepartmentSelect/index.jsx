@@ -36,6 +36,7 @@ const DepartmentSelect = props => {
     formItemId,
     useCallback(data => {
       const { triggerType } = data;
+
       switch (triggerType) {
         case 'Enter':
           if (destoryRef.current) return;
@@ -47,6 +48,7 @@ const DepartmentSelect = props => {
             destoryRef.current();
             destoryRef.current = null;
           }
+
           break;
         default:
           break;

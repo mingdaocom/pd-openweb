@@ -83,12 +83,15 @@ class ColumnHead extends Component {
   getType(control) {
     const { type, sourceControlType } = control;
     let itemType = type;
+
     if (type === 30) {
       itemType = sourceControlType;
     }
+
     if (itemType === 38) {
       itemType = 6;
     }
+
     return itemType;
   }
 
@@ -133,9 +136,11 @@ class ColumnHead extends Component {
 
   frozen(index) {
     const { isTreeTableView, readonly, viewId, frozenColumn } = this.props;
+
     if (isTreeTableView && index > 0) {
       index = index - 1;
     }
+
     frozenColumn(index);
     if (readonly) return;
     saveLRUWorksheetConfig('SHEET_LAYOUT_UPDATE_TIME', viewId, new Date().getTime());
@@ -150,9 +155,11 @@ class ColumnHead extends Component {
 
   updateColumnStyle = ({ controlId, key, value }) => {
     const { saveColumnStylesToLocal, updateColumnStyles } = this.props;
+
     if (!get(window, 'shareState.shareId')) {
       saveColumnStylesToLocal({ [controlId]: { [key]: value } });
     }
+
     updateColumnStyles({ [controlId]: { [key]: value } });
   };
 
@@ -161,6 +168,7 @@ class ColumnHead extends Component {
       className,
       type = '',
       worksheetId = '',
+      viewId = '',
       disabled,
       showRequired,
       count,
@@ -179,6 +187,7 @@ class ColumnHead extends Component {
       onBatchEdit,
       canBatchEdit = true,
       columnStyles = {},
+      fromEmbed,
       rows = [],
       columns = [],
       updateSheetColumnWidths,
@@ -198,6 +207,7 @@ class ColumnHead extends Component {
     const finalClearHiddenColumn = clearHiddenColumn || reduxClearHiddenColumn;
     const finalSheetHiddenColumns = hideColumn && clearHiddenColumn ? sheetHiddenColumns : reduxSheetHiddenColumns;
     const hideColumnFilter = _.get(this.context, 'config.hideColumnFilter');
+    const isSingleView = _.get(this.context, 'isSingleView');
     let control = { ...this.props.control };
     const columnStyle = get(columnStyles, control.controlId, {});
     const direction = isUndefined(columnStyle.direction) ? (controlIsNumber(control) ? 2 : 0) : columnStyle.direction;
@@ -221,12 +231,23 @@ class ColumnHead extends Component {
       Object.keys(CONTROL_FILTER_WHITELIST).map(key => CONTROL_FILTER_WHITELIST[key].keys),
     );
     let canFilter =
-      _.includes(filterWhiteKeys, itemType) && !_.includes(disabledFunctions, 'filter') && !window.hideColumnHeadFilter;
+      _.includes(filterWhiteKeys, itemType) &&
+      !_.includes(disabledFunctions, 'filter') &&
+      !window.hideColumnHeadFilter &&
+      !fromEmbed;
+
     if (control.type === 30 && control.strDefault === '10') {
       canFilter = false;
     }
+
     const maskData =
-      _.get(control, 'advancedSetting.datamask') === '1' && _.get(control, 'advancedSetting.isdecrypt') === '1';
+      !(
+        _.get(window, 'shareState.isPublicView') ||
+        _.get(window, 'shareState.isPublicPage') ||
+        _.get(window, 'shareState.isPublicRecord')
+      ) &&
+      _.get(control, 'advancedSetting.datamask') === '1' &&
+      _.get(control, 'advancedSetting.isdecrypt') === '1';
     control = redefineComplexControl(control);
     const allowSetAlign = WORKSHEET_ALLOW_SET_ALIGN_CONTROLS.includes(control.type);
     return (
@@ -274,9 +295,11 @@ class ColumnHead extends Component {
                     alert(_l('预览模式下，不能操作'), 3);
                     return;
                   }
+
                   const selectedLength = allWorksheetIsSelected
                     ? count - sheetSelectedRows.length
                     : sheetSelectedRows.length;
+
                   if (selectedLength > 1000) {
                     Dialog.confirm({
                       title: (
@@ -289,6 +312,7 @@ class ColumnHead extends Component {
                   } else {
                     onBatchEdit(control);
                   }
+
                   closeMenu();
                 }}
               >
@@ -299,7 +323,10 @@ class ColumnHead extends Component {
             {canFilter && !rowIsSelected && !isShowOtherField && !hideColumnFilter && (
               <MenuItem
                 onClick={() => {
-                  emitter.emit('FILTER_ADD_FROM_COLUMNHEAD' + worksheetId + type, control);
+                  emitter.emit(
+                    'FILTER_ADD_FROM_COLUMNHEAD' + worksheetId + type + (isSingleView ? viewId : ''),
+                    control,
+                  );
                   closeMenu();
                 }}
               >
@@ -319,6 +346,7 @@ class ColumnHead extends Component {
                   alert(_l('预览模式下，不能操作'), 3);
                   return;
                 }
+
                 finalHideColumn(control.controlId);
                 closeMenu();
               }}
@@ -344,6 +372,7 @@ class ColumnHead extends Component {
                     alert(_l('预览模式下，不能操作'), 3);
                     return;
                   }
+
                   this.frozen(columnIndex);
                   closeMenu();
                 }}
@@ -604,30 +633,38 @@ class ColumnHead extends Component {
                       defaultValue={style.width}
                       onBlur={e => {
                         let newWidth = Number(e.target.value);
+
                         if (isNaN(newWidth)) {
                           return;
                         }
+
                         if (newWidth < 60) {
                           newWidth = 60;
                         }
+
                         if (newWidth > 600) {
                           newWidth = 600;
                         }
+
                         this.updateColumnWidth({ controlId: control.controlId, value: newWidth });
                         closeMenu();
                       }}
                       onKeyDown={e => {
                         if (e.key === 'Enter') {
                           let newWidth = Number(e.target.value);
+
                           if (isNaN(newWidth)) {
                             return;
                           }
+
                           if (newWidth < 60) {
                             newWidth = 60;
                           }
+
                           if (newWidth > 600) {
                             newWidth = 600;
                           }
+
                           this.updateColumnWidth({ controlId: control.controlId, value: newWidth });
                           closeMenu();
                         }

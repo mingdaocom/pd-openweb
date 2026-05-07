@@ -72,6 +72,7 @@ const Subtotal = ({ value, dot, unit, advancedSetting = {}, enumDefault2, enumDe
     if (advancedSetting.numshow === '1') {
       content = parseFloat(value) * 100;
     }
+
     content = _.isUndefined(dot) ? content : _.round(content, dot).toFixed(dot);
 
     if (advancedSetting.dotformat === '1') {
@@ -81,6 +82,7 @@ const Subtotal = ({ value, dot, unit, advancedSetting = {}, enumDefault2, enumDe
     if (advancedSetting.thousandth !== '1') {
       content = formatNumberThousand(content);
     }
+
     content = content + (unit ? ` ${unit}` : '');
   }
 

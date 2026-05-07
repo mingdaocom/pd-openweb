@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { Tabs } from 'antd-mobile';
 import cx from 'classnames';
 import _ from 'lodash';
@@ -12,6 +12,7 @@ import Back from '../components/Back';
 import Card from './Card';
 import { processInformTabs } from './enum';
 import Filter from './Filter';
+import Sort from './Sort';
 import { formatQueryParam } from './utils';
 import './index.less';
 
@@ -29,6 +30,8 @@ export default class ProcessInform extends Component {
       searchValue: '',
       countData: {},
       previewRecord: {},
+      sortVisible: false,
+      sortParam: {},
       filterVisible: false,
       queryParam: {},
     };
@@ -48,7 +51,7 @@ export default class ProcessInform extends Component {
   };
   getTodoList() {
     const param = {};
-    const { loading, isMore, currentTab, searchValue, queryParam } = this.state;
+    const { loading, isMore, currentTab, searchValue, sortParam, queryParam } = this.state;
 
     if (loading || !isMore) {
       return;
@@ -61,9 +64,11 @@ export default class ProcessInform extends Component {
     if (this.request) {
       this.request.abort();
     }
+
     if (currentTab !== 'all') {
       param.complete = currentTab === 'already';
     }
+
     if (searchValue) {
       param.keyword = searchValue;
     }
@@ -74,6 +79,7 @@ export default class ProcessInform extends Component {
       pageIndex,
       type: 5,
       ...param,
+      ...sortParam,
       ...formatQueryParam(queryParam),
     });
 
@@ -94,7 +100,7 @@ export default class ProcessInform extends Component {
     });
   }
   handleClearQuery = () => {
-    this.setState({ queryParam: {} });
+    this.setState({ queryParam: {}, sortParam: {} });
   };
   handleChangeCompleteTab = id => {
     this.setState(
@@ -126,7 +132,7 @@ export default class ProcessInform extends Component {
   };
 
   renderInput() {
-    const { searchValue, filterVisible, currentTab, queryParam } = this.state;
+    const { searchValue, sortVisible, filterVisible, currentTab, queryParam, sortParam } = this.state;
     return (
       <div className="searchWrapper flexRow">
         <div className="inputWrap valignWrapper flex">
@@ -162,13 +168,40 @@ export default class ProcessInform extends Component {
           )}
         </div>
         {['unread', 'already'].includes(currentTab) && (
-          <div className="filterWrap" onClick={() => this.setState({ filterVisible: true })}>
-            <Icon
-              icon="filter"
-              className={cx('Font20 textTertiary', { active: !_.isEmpty(_.omitBy(queryParam, _.isNil)) })}
-            />
-          </div>
+          <Fragment>
+            <div className="sortWrap" onClick={() => this.setState({ sortVisible: true })}>
+              <Icon
+                icon="import_export"
+                className={cx('Font20 textTertiary', { active: _.isBoolean(sortParam.isAsc) })}
+              />
+            </div>
+            <div className="filterWrap" onClick={() => this.setState({ filterVisible: true })}>
+              <Icon
+                icon="filter"
+                className={cx('Font20 textTertiary', { active: !_.isEmpty(_.omitBy(queryParam, _.isNil)) })}
+              />
+            </div>
+          </Fragment>
         )}
+        <Sort
+          visible={sortVisible}
+          onClose={() => this.setState({ sortVisible: false })}
+          sort={sortParam}
+          onSort={data => {
+            this.setState(
+              {
+                loading: false,
+                pageIndex: 1,
+                isMore: true,
+                list: [],
+                sortParam: data,
+              },
+              () => {
+                this.getTodoList();
+              },
+            );
+          }}
+        />
         <Filter
           tab={currentTab}
           todoListFilterParam={{
@@ -243,12 +276,12 @@ export default class ProcessInform extends Component {
             />
           </div>
         ))}
-        {loading ? (
+        {loading && (
           <div className={cx({ withoutData: pageIndex == 1 })}>
             <LoadDiv size="middle" />
           </div>
-        ) : null}
-        {!loading && _.isEmpty(list) ? this.renderWithoutData() : null}
+        )}
+        {!loading && _.isEmpty(list) && this.renderWithoutData()}
       </ScrollView>
     );
   }
@@ -256,9 +289,11 @@ export default class ProcessInform extends Component {
   handleAllRead = () => {
     const { filter } = this.state;
     const param = { type: 5 };
+
     if (filter) {
       Object.assign(param, filter);
     }
+
     instanceVersion.batch(param).then(result => {
       if (result) {
         alert(_l('操作成功'));

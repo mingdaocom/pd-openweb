@@ -29,6 +29,7 @@ export default class CustomTextarea extends Component {
     showCurrent: PropTypes.bool,
     onlyOneValue: PropTypes.bool,
     errorMessage: PropTypes.string,
+    showNodeDataSelect: PropTypes.bool,
   };
 
   static defaultProps = {
@@ -42,6 +43,7 @@ export default class CustomTextarea extends Component {
     showCurrent: false,
     onlyOneValue: false,
     errorMessage: '',
+    showNodeDataSelect: false,
   };
 
   state = {
@@ -53,16 +55,20 @@ export default class CustomTextarea extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (this.tagtextarea && prevProps.content !== this.props.content) {
-      const cursor = this.tagtextarea.cmObj.getCursor();
-      const scrollInfo = this.tagtextarea.cmObj.getScrollInfo();
+    const cm = this.tagtextarea?.cmObj;
+
+    if (this.tagtextarea && cm && prevProps.content !== this.props.content) {
+      const cursor = cm.getCursor();
+      const scrollInfo = cm.getScrollInfo();
+      const lastLine = cm.lineCount() - 1;
+
       this.tagtextarea.setValue(this.props.content);
-      this.tagtextarea.cmObj.setCursor(cursor);
-      this.tagtextarea.cmObj.scrollTo(scrollInfo.left, scrollInfo.top);
-      const lastLine = this.tagtextarea.cmObj.lineCount() - 1;
+      cm.setCursor(cursor);
+      cm.scrollTo(scrollInfo.left, scrollInfo.top);
+
       if (cursor.line === lastLine) {
         setTimeout(() => {
-          this.tagtextarea.cmObj.scrollIntoView({ line: lastLine, ch: 0 }, 50);
+          this.tagtextarea?.cmObj?.scrollIntoView({ line: lastLine, ch: 0 }, 50);
         }, 10);
       }
     }
@@ -90,6 +96,7 @@ export default class CustomTextarea extends Component {
       showCurrent,
       onlyOneValue,
       errorMessage,
+      showNodeDataSelect,
     } = this.props;
     const { fieldsVisible } = this.state;
     const params = isIntegration ? { maxHeight: 'auto' } : {};
@@ -118,10 +125,19 @@ export default class CustomTextarea extends Component {
                 flowNodeType={nodeObj.type}
                 appType={nodeObj.appType}
                 actionId={nodeObj.actionId}
-                nodeName={handleGlobalVariableName(ids[0], controlObj.sourceType, nodeObj.name)}
+                nodeName={
+                  ids[0] === ids[1] && (!nodeObj.name || !controlObj.name)
+                    ? ''
+                    : handleGlobalVariableName(ids[0], controlObj.sourceType, nodeObj.name)
+                }
                 controlId={ids[1]}
-                controlName={controlObj.name || ''}
+                controlName={
+                  ids[0] === ids[1]
+                    ? `${nodeObj.name || _l('节点已删除')}(${controlObj.name || _l('工作表已删除')})`
+                    : controlObj.name || ''
+                }
                 errorMessage={errorMessage}
+                isSourceApp={ids[0] === ids[1]}
               />
             );
           }}
@@ -147,6 +163,7 @@ export default class CustomTextarea extends Component {
           isIntegration={isIntegration}
           isPlugin={isPlugin}
           showCurrent={showCurrent}
+          showNodeDataSelect={showNodeDataSelect}
           handleFieldClick={obj => {
             const newFormulaMap = _.cloneDeep(formulaMap);
             newFormulaMap[obj.nodeId] = {
@@ -162,11 +179,14 @@ export default class CustomTextarea extends Component {
             };
 
             updateSource({ formulaMap: newFormulaMap }, () => {
+              const textarea = this.tagtextarea;
+
+              if (!textarea) return;
               if (onlyOneValue) {
-                this.tagtextarea.setValue('');
-                obj.fieldValueId && this.tagtextarea.insertColumnTag(`${obj.nodeId}-${obj.fieldValueId}`);
+                textarea.setValue('');
+                obj.fieldValueId && textarea.insertColumnTag(`${obj.nodeId}-${obj.fieldValueId}`);
               } else {
-                this.tagtextarea.insertColumnTag(`${obj.nodeId}-${obj.fieldValueId}`);
+                textarea.insertColumnTag(`${obj.nodeId}-${obj.fieldValueId}`);
               }
             });
           }}

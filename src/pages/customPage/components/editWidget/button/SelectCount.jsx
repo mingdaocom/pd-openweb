@@ -14,7 +14,7 @@ const SelectCountWrap = styled.div`
     box-sizing: border-box;
     line-height: 30px;
     padding: 0 25px 0 10px;
-    background: var(--color-background-primary);
+    background: var(--color-background-input);
     border-radius: 3px;
   }
   .operateWrap {
@@ -53,8 +53,8 @@ const CountList = styled.ul`
   max-height: 300px;
   overflow-y: auto;
   border-radius: 2px;
-  background-color: var(--color-background-primary);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.29);
+  background-color: var(--color-background-card);
+  box-shadow: var(--shadow-lg);
   li {
     box-sizing: border-box;
     padding: 0 12px;
@@ -65,8 +65,7 @@ const CountList = styled.ul`
     width: 100%;
     &.active,
     &:hover {
-      background-color: var(--color-primary);
-      color: var(--color-white);
+      background-color: var(--color-background-hover);
     }
   }
 `;
@@ -74,6 +73,7 @@ const CLOSE_SECTION = {
   label: _l('关闭'),
   value: false,
 };
+
 export default function SelectCount({
   count = 5,
   maxCount = 10,

@@ -32,16 +32,20 @@ export default class CardMessage extends Component {
     const { message } = this.props;
     const { card } = message;
     const id = Number(message.id);
+
     if (id) {
       const result = utils.cardDisposeName(card);
+
       if (!result.param) {
         return;
       }
+
       ChatController.getCardDetails(result.param).then(result => {
         if (card.md === 'task') {
           this.setCardDetails(result.tasks[0]);
         } else if (card.md === 'calendar') {
           const calendar = result.calendars[0];
+
           if (calendar) {
             let _startTime = '';
             let _endTime = ' ';
@@ -50,6 +54,7 @@ export default class CardMessage extends Component {
             let startYear = moment(start).format('YYYY-MM-DD');
             let endYear = moment(end).format('YYYY-MM-DD');
             let allDay = moment(startYear).isSame(endYear);
+
             if (allDay) {
               _startTime = utils.formatMsgDate(start, true).substr(5) + start.substr(11);
               _endTime += end.substr(11);
@@ -57,12 +62,15 @@ export default class CardMessage extends Component {
               _startTime = utils.formatMsgDate(start, true).substr(5) + start.substr(11);
               _endTime += utils.formatMsgDate(end, true).substr(5) + end.substr(11);
             }
+
             calendar._startTime = _startTime;
             calendar._endTime = _endTime;
           }
+
           this.setCardDetails(calendar);
         } else if (card.md === 'post' || card.md === 'vote') {
           const post = result.posts[0];
+
           if (post) {
             post.message = createLinksForMessage({
               message: post.message,
@@ -71,6 +79,7 @@ export default class CardMessage extends Component {
               categories: post.categories,
               noLink: true,
               filterFace: true,
+              doNotEscapeHTML: true,
             });
             this.setCardDetails(post);
           } else {
@@ -85,13 +94,18 @@ export default class CardMessage extends Component {
   }
   setCardDetails(res = {}) {
     const { session } = this.props;
-    this.setState({
-      cardDetails: res,
-    });
-    utils.scrollEnd(session.id);
+    this.setState(
+      {
+        cardDetails: res,
+      },
+      () => {
+        utils.scrollEnd(session.id);
+      },
+    );
   }
   handleOpenCardMessage(card) {
     const { md, url } = card;
+
     if (md == '' || md == 'url' || md == 'kcfolder' || md === 'worksheet') {
       window.open(url);
     } else {
@@ -100,6 +114,7 @@ export default class CardMessage extends Component {
   }
   showCardMessageDialog(card) {
     const { entityid, md } = card;
+
     switch (md) {
       case 'post':
       case 'vote':
@@ -116,27 +131,35 @@ export default class CardMessage extends Component {
               alert(_l('暂无权限查看该动态或者该动态已经被删除'), 2);
               return;
             }
+
             if (postItem.success !== '1') {
               postItem = undefined;
             }
+
             // 格式化返回的数据
             if (!postItem) return postItem;
             const properties = {};
+
             if (typeof postItem.commentCount !== 'number') {
               properties.commentCount = parseInt(postItem.commentCount, 10);
             }
+
             if (typeof postItem.likeCount !== 'number') {
               properties.likeCount = parseInt(postItem.likeCount, 10);
             }
+
             if (!postItem.categories) {
               properties.categories = [];
             }
+
             if (!postItem.tags) {
               properties.tags = [];
             }
+
             if (Object.keys(properties).length) {
               postItem = Object.assign({}, postItem, properties);
             }
+
             Dialog.confirm({
               width: 800,
               dialogClasses: 'chatFeedDialog',
@@ -222,9 +245,11 @@ export default class CardMessage extends Component {
   renderPost() {
     const { cardDetails } = this.state;
     return (
-      <div style={vertical} className="Message-cardItem Message-cardItem-post">
-        {cardDetails.message}
-      </div>
+      <div
+        style={vertical}
+        className="Message-cardItem Message-cardItem-post"
+        dangerouslySetInnerHTML={{ __html: cardDetails.message }}
+      ></div>
     );
   }
   renderCardContent(title) {
@@ -281,6 +306,7 @@ export default class CardMessage extends Component {
     const { commentCount, attachments, entityName } = cardDetails;
     const disposeName = utils.cardDisposeName(card);
     let name = '';
+
     if (md === 'task' || md === 'calendar' || md === 'worksheet') {
       name = `${disposeName.name}: ${card.title}`;
     } else if (md === 'url' || md === '') {
@@ -290,6 +316,7 @@ export default class CardMessage extends Component {
     } else {
       name = disposeName.name;
     }
+
     return (
       <div className="Message-cardHeader">
         <div className="Message-cardHeader-title">
@@ -308,9 +335,11 @@ export default class CardMessage extends Component {
   renderCardBody(card) {
     const { md, title } = card;
     const { cardDetails } = this.state;
+
     if (md === 'kcfolder' || md === 'kcfile' || md === 'link') {
       return <div className="Message-cardBody">{this.renderCardContent(title)}</div>;
     }
+
     if (_.isEmpty(cardDetails)) {
       return undefined;
     } else {

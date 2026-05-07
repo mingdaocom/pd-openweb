@@ -7,17 +7,21 @@ function formatMonth(month) {
   if (month < 10) {
     return `0${month}`;
   }
+
   return month;
 }
 
 const CalendarHeader = ({ prefixCls, value, onValueChange, locale, direction }) => {
   let beginEnd;
+
   if (direction === 'left') {
     beginEnd = locale.lang.begin;
   }
+
   if (direction === 'right') {
     beginEnd = locale.lang.end;
   }
+
   return (
     <div className={`${prefixCls}-header`}>
       <Icon

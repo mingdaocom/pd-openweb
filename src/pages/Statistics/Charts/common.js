@@ -226,6 +226,7 @@ export const getPorjectChartColors = projectId => {
 export const getChartColors = (style, themeColor, projectId) => {
   const chartColors = getPorjectChartColors(projectId);
   const { colorType, colorGroupIndex, colorGroupId, customColors, personColor = {} } = style ? style : {};
+
   if ([0, 1].includes(colorType)) {
     // 新颜色配置
     if (colorGroupId === 'adaptThemeColor' && themeColor) {
@@ -254,9 +255,11 @@ const getLineStyle = value => {
   if (value === 1) {
     return { lineDash: [0, 0] };
   }
+
   if (value === 2) {
     return { lineDash: [2, 2] };
   }
+
   if (value === 3) {
     return { lineWidth: 3, lineDash: [3, 3] };
   }
@@ -270,28 +273,37 @@ export const getAuxiliaryLineConfig = (auxiliaryLines = [], data, { yaxisList, c
     const control = _.find(yaxisList, { controlId: item.controlId });
     const controlId = control ? item.controlId : null;
     const dot = control ? control.ydot || control.dot : 2;
+
     const getValue = () => {
       const formatValue = value => (value < 1 && value > 0 && dot == 0 ? value : Number(toFixed(value, dot)));
+
       if (item.type === 'constantLine') {
         return item.value;
       }
+
       if (item.type === 'minLine' && controlId) {
         return formatValue(getControlMinValue(data, controlId));
       }
+
       if (item.type === 'maxLine' && controlId) {
         return formatValue(getControlMaxValue(data, controlId));
       }
+
       if (item.type === 'averageLine' && controlId) {
         return formatValue(getControlAvgValue(data, controlId));
       }
+
       if (item.type === 'medianLine' && controlId) {
         return formatValue(getControlMedianValue(data, controlId));
       }
+
       if (item.type === 'percentLine' && controlId) {
         return getControlPercentValue(data, controlId, item.percent);
       }
+
       return undefined;
     };
+
     const value = getValue();
     const showText = item.showName || item.showValue;
     const textConfig = {
@@ -303,6 +315,7 @@ export const getAuxiliaryLineConfig = (auxiliaryLines = [], data, { yaxisList, c
       maxLength: 200,
       autoEllipsis: true,
     };
+
     const getPosition = () => {
       if (item.type === 'tendencyLine' && controlId) {
         const min = getControlMinValue(data, controlId);
@@ -313,22 +326,26 @@ export const getAuxiliaryLineConfig = (auxiliaryLines = [], data, { yaxisList, c
         const maxKey = maxKeys[maxKeys.length - 1] || {};
         const minIndex = _.findIndex(data, { name: minKey.name });
         const maxIndex = _.findIndex(data, { name: maxKey.name });
+
         if (minIndex === maxIndex) {
           return {
             start: ['start', min],
             end: ['end', max],
           };
         }
+
         return {
           start: ['start', minIndex < maxIndex ? min : max],
           end: ['end', minIndex < maxIndex ? max : min],
         };
       }
+
       return {
         start: ['start', value],
         end: ['end', value],
       };
     };
+
     const getStyle = () => {
       if (item.type === 'tendencyLine' && controlId) {
         const index = _.findIndex(yaxisList, { controlId: item.controlId });
@@ -344,6 +361,7 @@ export const getAuxiliaryLineConfig = (auxiliaryLines = [], data, { yaxisList, c
         };
       }
     };
+
     return {
       type: 'line',
       ...getPosition(),
@@ -400,6 +418,7 @@ export const LegendTypeData = [
  */
 export const abbreviateNumber = (value, dot = '', formatValue = toFixed) => {
   const absValue = Math.abs(value);
+
   if (window.getCurrentLang() === 'en') {
     if (absValue >= 1000000000) {
       return `${formatValue(value / 1000000000, dot)}B`;
@@ -583,6 +602,7 @@ export const formatNumberValue = (value, config) => {
   if (ignoreZero && dot > 0) {
     value = value.replace(/(?:\.0+|(\.\d+?)0+)$/, '$1');
   }
+
   return value;
 };
 
@@ -597,14 +617,18 @@ export const formatControlValueDot = (value, data) => {
   const { magnitude, roundType = 2, dotFormat = '1', suffix, thousandth = true, dot, controlId, fixType } = data;
   const isRecordCount = controlId === 'record_count';
   const ydot = Number(data.ydot);
+
   const formatValue = (value, dot) => {
     return formatNumberValue(value, { dot, roundType, dotFormat });
   };
+
   const formatThousandth = (value = '') => {
     value = value.toString();
     return thousandth ? formatNumberThousand(value) : value;
   };
+
   const { format } = _.find(numberLevel, { value: magnitude || 0 });
+
   if (magnitude === 0) {
     // 自动
     const newValue = format(value, ydot, formatValue);
@@ -612,12 +636,14 @@ export const formatControlValueDot = (value, data) => {
   } else if (magnitude === 1) {
     // 无
     let newValue = 0;
+
     if (data.ydot === '') {
       newValue = formatThousandth(formatValue(value, dot));
     } else {
       const dot = isRecordCount ? 0 : ydot;
       newValue = formatThousandth(formatValue(value, dot));
     }
+
     return fixType ? `${suffix}${newValue}` : `${newValue}${suffix}`;
   } else {
     // 千、百万、...
@@ -633,6 +659,7 @@ export const formatControlValueDot = (value, data) => {
 export const formatrChartValue = (value, isPerPile, yaxisList, id, isHideEmptyValue = true) => {
   if (!value && isHideEmptyValue) {
     const { emptyShowType } = _.find(yaxisList, { controlId: id }) || yaxisList[0] || {};
+
     if (emptyShowType === 0) {
       return '';
     } else if (emptyShowType === 1) {
@@ -662,8 +689,10 @@ export const formatrChartAxisValue = (value, isPerPile, yaxisList) => {
     if (_.isEmpty(yaxisList)) {
       return value;
     }
+
     const { magnitude, ydot, suffix, fixType } = yaxisList[0];
     const { format } = _.find(numberLevel, { value: magnitude || 0 });
+
     if ([7, 8].includes(magnitude)) {
       const result = toFixed(format(value), ydot);
       return fixType ? `${suffix}${result}` : `${result}${suffix}`;
@@ -684,6 +713,7 @@ export const formatControlInfo = value => {
   let result = value.split(/-md-\w+-chart-/g);
   let name = null;
   let id = null;
+
   if (result.length === 2) {
     name = result[0];
     id = result[1];
@@ -691,6 +721,7 @@ export const formatControlInfo = value => {
     name = result[0];
     id = null;
   }
+
   return { name, id };
 };
 
@@ -698,9 +729,11 @@ const isApplyStyle = (applyValue, recordKey) => {
   if (applyValue === 1) {
     return recordKey !== 'sum';
   }
+
   if (applyValue === 2) {
     return true;
   }
+
   if (applyValue === 3) {
     return recordKey === 'sum';
   }
@@ -713,25 +746,31 @@ export const getScopeRuleColor = (value, controlMinAndMax = {}, scopeRules, empt
     const { type, and, min, max, color } = rule;
     const minValue = _.isNumber(min) ? min : controlMinAndMax.min || 0;
     const maxValue = _.isNumber(max) ? max : controlMinAndMax.max || 0;
+
     if (type === 1 && value > minValue) {
       if (and === 5 && value < maxValue) {
         result = color;
       }
+
       if (and === 6 && value <= maxValue) {
         result = color;
       }
     }
+
     if (type === 2 && value >= minValue) {
       if (and === 5 && value < maxValue) {
         result = color;
       }
+
       if (and === 6 && value <= maxValue) {
         result = color;
       }
     }
+
     if (type === 3 && value === rule.value) {
       result = color;
     }
+
     if (type === 4 && (emptyShowType === 1 ? _.isNull(value) : !value)) {
       result = color;
     }
@@ -742,6 +781,7 @@ export const getScopeRuleColor = (value, controlMinAndMax = {}, scopeRules, empt
 
 export const getStyleColor = ({ value = 0, controlMinAndMax, rule, controlId, record = {}, emptyShowType }) => {
   const { model, applyValue } = rule;
+
   if (model === 1 && isApplyStyle(applyValue, record.key)) {
     const { min, max, center, centerVisible, colors, controlId: applyControlId } = rule;
     const applyControl = controlMinAndMax[applyControlId];
@@ -749,6 +789,7 @@ export const getStyleColor = ({ value = 0, controlMinAndMax, rule, controlId, re
     const maxValue = _.isNumber(max.value) ? max.value : applyControl ? applyControl.max : 0;
     const centerValue = _.isNumber(center.value) ? center.value : applyControl ? applyControl.center : 0;
     let percent = 0;
+
     if (centerVisible) {
       //（（当前值 - 中间值）/（最大值 - 中间值）* 50% ）+ 50%
       percent = ((value - centerValue) / (maxValue - centerValue)) * 50 + 50;
@@ -756,6 +797,7 @@ export const getStyleColor = ({ value = 0, controlMinAndMax, rule, controlId, re
       // （当前值 - 最小值）/（最大值 - 最小值）* 100%
       percent = ((value - minValue) / (maxValue - minValue)) * 100;
     }
+
     /*
     if (value >= 0) {
       if (centerVisible) {
@@ -796,20 +838,26 @@ export const getStyleColor = ({ value = 0, controlMinAndMax, rule, controlId, re
     if (value <= minValue) {
       percent = 0;
     }
+
     if (value === centerValue) {
       percent = 50;
     }
+
     if (value >= maxValue) {
       percent = 100;
     }
+
     if (percent >= 100) {
       percent = 99;
     }
+
     if (percent <= 0) {
       percent = 0;
     }
+
     return colors[percent];
   }
+
   if (model === 2) {
     const { scopeRules, controlId: applyControlId } = rule;
     return getScopeRuleColor(value, controlMinAndMax[applyControlId || controlId], scopeRules, emptyShowType);
@@ -821,11 +869,13 @@ export const getControlMinAndMax = (yaxisList, data) => {
 
   const get = id => {
     let values = [];
+
     for (let i = 0; i < data.length; i++) {
       if (data[i].controlId === id) {
         values.push(data[i].value);
       }
     }
+
     const min = _.min(values) || 0;
     const max = _.max(values);
     const center = (max + min) / 2;
@@ -920,6 +970,7 @@ export const getEmptyChartData = reportData => {
   const { xaxes, yaxisList, valueMap } = reportData;
   const map = valueMap[xaxes.controlId] || {};
   const data = [];
+
   for (let key in map) {
     const name = _.get(yaxisList[0], 'controlName');
     const id = _.get(yaxisList[0], 'controlId');
@@ -931,5 +982,6 @@ export const getEmptyChartData = reportData => {
       rightValue: undefined,
     });
   }
+
   return data;
 };

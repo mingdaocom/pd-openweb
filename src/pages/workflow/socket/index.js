@@ -39,7 +39,7 @@ const playAudio = audioSrc => {
     // 监听音频播放结束事件
     window.workflowAudioPlayer.addEventListener('ended', () => {
       // 播放下一个音频
-      if (window.audioQueue.length > 0) {
+      if (window.audioQueue?.length > 0) {
         const nextAudio = window.audioQueue.shift();
 
         window.workflowAudioPlayer.src = nextAudio;
@@ -57,6 +57,7 @@ const playAudio = audioSrc => {
     if (!window.audioQueue) {
       window.audioQueue = []; // 初始化队列
     }
+
     window.audioQueue.push(audioSrc); // 将新音频加入队列
   }
 };
@@ -78,6 +79,7 @@ export default () => {
       promptSound,
       accountId,
     } = result[pushType];
+
     const actionFun = (data, pushType) => {
       const { appId: worksheetId, content, rowId, viewId, openMode, code } = data;
 

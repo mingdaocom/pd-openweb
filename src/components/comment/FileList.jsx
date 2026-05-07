@@ -52,6 +52,7 @@ export default class FileList extends Component {
   submit() {
     const { isUploadComplete, attachmentData, kcAttachmentData } = this.state;
     const { sourceId, sourceType, appId } = this.props;
+
     if (!isUploadComplete) {
       alert(_l('文件上传中，请稍等'), 3);
       return;
@@ -93,6 +94,7 @@ export default class FileList extends Component {
       } else {
         alert(_l('获取附件失败'), 2);
       }
+
       this.setState({
         isLoading: false,
       });

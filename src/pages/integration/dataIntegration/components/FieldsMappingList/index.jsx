@@ -8,7 +8,14 @@ import { Checkbox, Icon, Input, Support } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import { ALL_OPERATION_TYPE_DATA } from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/config';
 import { canSetAsTitle, getIconByType } from 'src/pages/widgetConfig/util';
-import { DATABASE_TYPE, isValidName, namePattern, SYSTEM_FIELD_IDS } from '../../constant';
+import {
+  DATABASE_TYPE,
+  isPostgresqlDestinationType,
+  isValidName,
+  lowercaseIfString,
+  namePattern,
+  SYSTEM_FIELD_IDS,
+} from '../../constant';
 import { isNotSupportField } from '../../utils';
 import SelectType from './SelectType';
 import SetComment from './SetComment';
@@ -215,6 +222,7 @@ export default function FieldMappingList(props) {
   const renderInputName = data => {
     const sourceField = data.sourceField || {};
     const destField = data.destField || {};
+    const isPgDestDb = destData.isDbType && isPostgresqlDestinationType(destData.dsType);
     const isDisabled =
       !sourceData.isDbType && !destData.isDbType
         ? isExistJoinPk
@@ -228,9 +236,11 @@ export default function FieldMappingList(props) {
           className="flex"
           value={destField.name || ''}
           disabled={isDisabled}
+          valueFilter={isPgDestDb ? lowercaseIfString : undefined}
           onBlur={event => {
             const hasRepeatName =
               fieldsMapping.filter(item => _.get(item, 'destField.name') === event.target.value).length > 1;
+
             if (hasRepeatName) {
               const newName = destField.name + Math.floor(Math.random() * 10000);
               updateFieldsMapping({
@@ -274,6 +284,7 @@ export default function FieldMappingList(props) {
       </div>
     );
   };
+
   const renderSelectType = data => {
     const { sourceField } = data;
     if (!matchedTypes) return;
@@ -305,6 +316,7 @@ export default function FieldMappingList(props) {
       />
     );
   };
+
   const renderCheckbox = (data, key) => {
     const destField = data.destField || {};
     const sourceField = data.sourceField || {};
@@ -327,6 +339,7 @@ export default function FieldMappingList(props) {
       />
     );
   };
+
   const renderSelectName = data => {
     const destField = data.destField || {};
     const sourceField = data.sourceField || {};
@@ -335,6 +348,7 @@ export default function FieldMappingList(props) {
     const matchedTypeIds = _.uniq((matchedTypes[sourceField.id] || []).map(type => type.dataType));
     const matchedMdTypeIds = _.uniq((matchedTypes[sourceField.id] || []).map(type => type.mdType));
     const isNotSupport = isNotSupportField(sourceField, matchedTypes);
+    const isPgDestDb = destData.isDbType && isPostgresqlDestinationType(destData.dsType);
 
     const filterOptions = destData.isDbType
       ? (destData.destFields || []).filter(o => _.includes(matchedTypeIds, o.jdbcTypeId))
@@ -368,20 +382,23 @@ export default function FieldMappingList(props) {
         };
       });
 
+    const destIdMatchesOption = (optVal, destId) =>
+      destData.isOurCreateTable || isPgDestDb
+        ? String(optVal).toLowerCase() === String(destId).toLowerCase()
+        : optVal === destId;
+
     const isNoMatchOption =
-      destField.id &&
-      options.filter(o =>
-        destData.isOurCreateTable ? o.value.toLowerCase() === destField.id.toLowerCase() : o.value === destField.id,
-      ).length === 0;
+      destField.id && options.filter(o => destIdMatchesOption(o.value, destField.id)).length === 0;
 
     const getValue = () => {
       if (isNoMatchOption) {
         return _l('映射关系失效');
       }
-      //如果目的地表是通过我们同步任务创建的表时，id忽略大小写匹配
-      if (destData.isOurCreateTable && options.length && destField.id) {
-        return (options.filter(o => o.value.toLowerCase() === destField.id.toLowerCase())[0] || {}).value;
+
+      if ((destData.isOurCreateTable || isPgDestDb) && options.length && destField.id) {
+        return (options.filter(o => destIdMatchesOption(o.value, destField.id))[0] || {}).value;
       }
+
       return destField.id;
     };
 
@@ -398,15 +415,16 @@ export default function FieldMappingList(props) {
           value={getValue()}
           options={options}
           onChange={(value, option = {}) => {
+            const normStr = isPgDestDb ? lowercaseIfString : v => v;
             const updatedMapping = value
               ? {
                   sourceField: { ...sourceField, isCheck: true },
                   destField: {
                     ...destField,
-                    id: value,
+                    id: normStr(value),
                     isPk: option.isPk,
-                    name: option.name,
-                    alias: option.alias,
+                    name: normStr(option.name),
+                    alias: normStr(option.alias),
                     dataType: option.dataType,
                     jdbcTypeId: option.jdbcTypeId,
                     precision: option.precision,
@@ -799,6 +817,7 @@ export default function FieldMappingList(props) {
       },
       ...rightColumns,
     ];
+
     if (!isCreate) {
       columns.shift();
     }

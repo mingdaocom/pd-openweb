@@ -149,6 +149,7 @@ export default class Authentication extends Component {
         alert(_l('参数名不能为空'), 2);
         return;
       }
+
       if (hasRawError) {
         alert(_l('raw(JSON)不能为空'), 2);
         return;

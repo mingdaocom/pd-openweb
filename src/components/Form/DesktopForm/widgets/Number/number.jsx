@@ -116,6 +116,7 @@ const NumberComp = props => {
     if (_.get(advancedSetting, 'dotformat') === '1') {
       return formatStrZero(val);
     }
+
     return val;
   };
 
@@ -125,6 +126,7 @@ const NumberComp = props => {
     if (!numinterval || disabled) return null;
 
     let currentValue = value;
+
     if (advancedSetting.numshow === '1' && !isNaN(parseFloat(currentValue))) {
       currentValue = accMul(currentValue, 100);
     }
@@ -134,6 +136,7 @@ const NumberComp = props => {
     } else {
       currentValue = accSub(parseFloat(currentValue || 0), parseFloat(numinterval));
     }
+
     handleChange({}, `${currentValue}`);
   };
 
@@ -164,6 +167,7 @@ const NumberComp = props => {
   }
 
   const isStepNumber = showtype === '3';
+
   if (numshow === '1' && displayValue) {
     displayValue = accMul(displayValue, 100);
   }

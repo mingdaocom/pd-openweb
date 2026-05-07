@@ -19,7 +19,7 @@ const Wrap = styled.div`
       background: var(--color-background-hover);
     }
     &.hs {
-      background: var(--color-background-secondary);
+      background: var(--color-background-hover);
       color: var(--color-primary);
     }
     svg {
@@ -28,7 +28,7 @@ const Wrap = styled.div`
   }
 `;
 const WrapCon = styled.div`
-  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+  box-shadow: var(--shadow-lg);
   padding: 5px 0;
   border-radius: 3px;
   background: var(--color-background-primary);
@@ -42,6 +42,7 @@ const WrapCon = styled.div`
 
 function ChooseWorksheet(props) {
   const { worksheets, onChange, worksheetId } = props;
+
   const renderDrop = () => {
     return (
       <React.Fragment>
@@ -79,6 +80,7 @@ function ChooseWorksheet(props) {
       </React.Fragment>
     );
   };
+
   return <Wrap className="">{renderDrop()}</Wrap>;
 }
 

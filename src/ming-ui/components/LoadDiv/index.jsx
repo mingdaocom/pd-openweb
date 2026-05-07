@@ -7,6 +7,7 @@ import PropTypes from 'prop-types';
  */
 function LoadDiv(props) {
   let { size, style } = props;
+
   if (size === 'big') {
     size = 36;
   } else if (!size || size === 'middle') {
@@ -14,6 +15,7 @@ function LoadDiv(props) {
   } else if (size === 'small') {
     size = 16;
   }
+
   const strokeWidth = Math.floor(size / 8);
   const r = Math.floor(size / 2);
   const cx = r + strokeWidth;
@@ -29,6 +31,7 @@ function LoadDiv(props) {
     </div>
   );
 }
+
 LoadDiv.propTypes = {
   className: PropTypes.string,
   size: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),

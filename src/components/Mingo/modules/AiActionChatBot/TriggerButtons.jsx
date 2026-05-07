@@ -56,10 +56,12 @@ export default function TriggerButtons({
   onReloadButtons = () => {},
 }) {
   const [createAIActionDialogVisible, setCreateAIActionDialogVisible] = useState(false);
+
   const handleSave = params => {
     if (!trim(params.name)) {
       return;
     }
+
     worksheetAjax
       .saveWorksheetBtn({
         btnType: 1,
@@ -77,12 +79,14 @@ export default function TriggerButtons({
   // 根据 actionsort 对 buttons 进行排序
   const sortedButtons = useMemo(() => {
     const actionsort = worksheetInfo?.advancedSetting?.actionsort;
+
     if (!actionsort) {
       return buttons;
     }
 
     try {
       const sortOrder = JSON.parse(actionsort);
+
       if (!Array.isArray(sortOrder) || sortOrder.length === 0) {
         return buttons;
       }
@@ -126,6 +130,7 @@ export default function TriggerButtons({
                 alert(_l('预览模式下，不能操作'), 3);
                 return;
               }
+
               setCreateAIActionDialogVisible(true);
             }}
           >

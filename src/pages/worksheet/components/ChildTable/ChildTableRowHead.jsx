@@ -129,6 +129,7 @@ export default function RowHead(props) {
   } = props;
   const isSavedData = !/^temp/.test(row.rowid);
   const hideOperate = disabled || (isSavedData && (!allowAdd || !allowCancel));
+
   if (rowIndex === -1) {
     return showCheckbox ? (
       <div className={cx(className, 'noRightBorder')} style={style}>
@@ -161,9 +162,11 @@ export default function RowHead(props) {
       </div>
     );
   }
+
   if (!row.rowid || row.rowid.startsWith('empty')) {
     return <Con className={cx(className, 'noRightBorder placeholder')} style={style} />;
   }
+
   return (
     <Con
       className={cx(className, 'noRightBorder', {

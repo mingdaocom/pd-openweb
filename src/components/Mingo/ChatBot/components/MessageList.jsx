@@ -349,6 +349,7 @@ function MessageItem({
       </ClearedLine>
     );
   }
+
   const assistantOperatesComp = (
     <div className="assistantOperates t-flex t-items-center" onClick={e => e.stopPropagation()}>
       <div className={cx('tools t-flex t-items-center', { noAvatar: !showAssistantAvatar })}>
@@ -381,6 +382,7 @@ function MessageItem({
                   setIsPlaying(false);
                   return;
                 }
+
                 const text = getContentFromMessage(content);
                 speechSynthesizer.current.speak(text.replace(/#/g, ''), {
                   onEnd: () => {
@@ -762,6 +764,7 @@ function MessageList(
 
     if (scrollTop < 120) return;
     const scrollBottom = scrollHeight - scrollTop - clientHeight;
+
     if (scrollBottom > 120) {
       scrollToBottomRef.current.classList.remove('fadeOut');
     } else {
@@ -781,12 +784,15 @@ function MessageList(
     if (uiMessages.length === 0) {
       scrollToBottomRef.current?.classList?.add('fadeOut');
     }
+
     if (window.isMingoShare || uiMessages.length === 0 || cache.current.prevIsLoadingChat === isLoadingChat) return;
     const lastUserMessageId = findLast(uiMessages, item => item.role === 'user')?.id;
     const lastUserMessageDom = lastUserMessageId && document.querySelector(`[data-id="${lastUserMessageId}"]`);
+
     if (!isLoadingChat && messagesEndRef.current && lastUserMessageDom) {
       lastUserMessageDom.scrollIntoView();
     }
+
     cache.current.prevIsLoadingChat = isLoadingChat;
   }, [isLoadingChat, uiMessages]);
   const handleMessageClick = useCallback(e => {
@@ -796,6 +802,7 @@ function MessageList(
       return;
     }
   }, []);
+
   if (isLoadingChat) {
     return (
       <MessageListWrap className="t-flex-1">
@@ -807,6 +814,7 @@ function MessageList(
       </MessageListWrap>
     );
   }
+
   return (
     <MessageListWrap
       ref={scrollViewRef}
@@ -884,6 +892,7 @@ function MessageList(
                 let fromMessageId = messageId;
                 let currentMessageIndex = 0,
                   prevMessage = null;
+
                 if (isRegenerate) {
                   currentMessageIndex = messages.findIndex(item => item.id === messageId);
                   prevMessage = messages[currentMessageIndex - 1];
@@ -896,6 +905,7 @@ function MessageList(
                     return;
                   }
                 }
+
                 onSend(newContent, {
                   fromMessageId,
                   originMessageForRegenerate: prevMessage,
@@ -911,19 +921,23 @@ function MessageList(
               onClick={() => {
                 if (!shareMode) return;
                 const ids = [message.modelMessageId];
+
                 if (message.role === 'user') {
                   const nextMessage =
                     messages[findLastIndex(messages, item => item.modelMessageId === message.modelMessageId) + 1];
+
                   if (nextMessage) {
                     ids.push(nextMessage.modelMessageId);
                   }
                 } else {
                   const prevMessage =
                     messages[findLastIndex(messages, item => item.modelMessageId === message.modelMessageId) - 1];
+
                   if (prevMessage) {
                     ids.push(prevMessage.modelMessageId);
                   }
                 }
+
                 if (isSelectAll) {
                   setIsSelectAll(false);
                   setSelectedMessageIds(

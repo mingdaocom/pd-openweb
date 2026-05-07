@@ -15,6 +15,7 @@ const isDynamicValue = (filters = []) => {
     if (f.isGroup) {
       return _.some(f.groupFilters || [], g => !_.isEmpty(g.dynamicSource) || g.isDynamicsource);
     }
+
     return !_.isEmpty(f.dynamicSource) || f.isDynamicsource;
   });
 };

@@ -15,22 +15,27 @@ const ViewDisplay = props => {
 
   useEffect(() => {
     const customPageContent = document.querySelector('#componentsWrap');
+
     window[`refresh-${objectId}`] = () => {
       setVisible(false);
       setTimeout(() => {
         setVisible(true);
       }, 100);
     };
+
     if (!customPageContent || customPageContent.classList.contains('adjustScreen')) {
       setVisible(true);
       return;
     }
+
     const view = customPageContent.querySelector(`.widgetContent .view-${setting.id}`);
+
     const checkVisible = () => {
       if (!view) {
         setVisible(true);
         return;
       }
+
       if (!visible) {
         const pageRect = customPageContent.getBoundingClientRect();
         const rect = view.getBoundingClientRect();
@@ -38,6 +43,7 @@ const ViewDisplay = props => {
         value && setVisible(value);
       }
     };
+
     customPageContent.addEventListener('scroll', checkVisible, false);
     checkVisible();
     return () => {

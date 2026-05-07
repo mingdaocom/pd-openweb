@@ -93,6 +93,7 @@ export default ({
         showTitle={showTitle}
         {...widgetStyle}
         titleSize={titleSize}
+        titlesize={titlesize}
         titleStyle={titleStyle}
         titleColor={titlecolor}
         valuesize={canSetWidgetStyle(item) ? valuesize : '0'}

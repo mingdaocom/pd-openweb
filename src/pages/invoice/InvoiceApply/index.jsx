@@ -43,6 +43,7 @@ const InvoiceApply = props => {
         const invoiceRes = await merchantInvoiceApi.getInvoice({ orderId });
         setInvoiceDetail(invoiceRes);
       }
+
       setStatusType('status');
     }
   };

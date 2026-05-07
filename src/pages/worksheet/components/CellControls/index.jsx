@@ -102,6 +102,7 @@ function mergeControlAdvancedSetting(control = {}, advancedSetting = {}) {
     },
   };
 }
+
 export default class CellControl extends React.Component {
   static propTypes = {
     isSubList: PropTypes.bool,
@@ -148,12 +149,15 @@ export default class CellControl extends React.Component {
 
   componentDidMount() {
     const { registerRef } = this.props;
+
     if (!_.isUndefined(this.props.isediting)) {
       this.setState({ isediting: this.props.isediting });
     }
+
     if (!_.isUndefined(this.props.error)) {
       this.setState({ error: this.props.error });
     }
+
     registerRef(this);
   }
 
@@ -161,6 +165,7 @@ export default class CellControl extends React.Component {
     if (this.state.error && !nextProps.error) {
       this.setState({ error: null });
     }
+
     if (nextProps.cellIndex !== this.props.cellIndex) {
       const { registerRef } = this.props;
       registerRef(this, nextProps.cellIndex);
@@ -197,18 +202,23 @@ export default class CellControl extends React.Component {
     const leftVisible = style.left >= scrollLeft;
     const topVisible = style.top >= scrollTop;
     const bottomVisible = style.top + style.height <= scrollTop + gridHeight;
+
     if (!leftVisible) {
       newLeft = style.left;
     }
+
     if (!rightVisible) {
       newLeft = style.left + style.width - gridWidth;
     }
+
     if (!topVisible) {
       newTop = style.top;
     }
+
     if (!bottomVisible) {
       newTop = style.top + style.height - gridHeight;
     }
+
     return {
       fullvisible: rightVisible && leftVisible && topVisible && bottomVisible,
       newLeft,
@@ -240,15 +250,18 @@ export default class CellControl extends React.Component {
       data: _.isFunction(rowFormData) ? rowFormData() : rowFormData,
       appId,
     });
+
     if (!errorType && (cell.unique || cell.uniqueInRecord) && tableFromModule === WORKSHEETTABLE_FROM_MODULE.SUBLIST) {
       errorType = cellUniqueValidate(cell.controlId, cell.value, row.rowid) ? '' : 'UNIQUE';
     }
+
     // this.errorCleared = !errorType;
     return errorType;
   }
 
   getErrorText(errorType, cell) {
     const { isSubList } = this.props;
+
     if (typeof FORM_ERROR_TYPE_TEXT[errorType] === 'string') {
       return FORM_ERROR_TYPE_TEXT[errorType];
     } else if (typeof FORM_ERROR_TYPE_TEXT[errorType] === 'function') {
@@ -260,15 +273,18 @@ export default class CellControl extends React.Component {
 
   onValidate = value => {
     const { projectId, cell, row, checkRulesErrorOfControl, rowFormData, clearCellError, appId } = this.props;
+
     // 百分比值处理
     if (_.includes([6], cell.type) && cell.advancedSetting && cell.advancedSetting.numshow === '1' && value) {
       value = accDiv(value, 100);
     }
+
     let errorType = this.validate(
       { ...(cell.type === 10 ? mergeControlAdvancedSetting(cell, { otherrequired: '0' }) : { ...cell }), value },
       row,
     );
     let errorText;
+
     if (
       (_.includes([15, 16, 46], cell.type) && errorType && errorType !== 'REQUIRED') ||
       (cell.type === 2 && errorType === 'CUSTOM')
@@ -282,15 +298,19 @@ export default class CellControl extends React.Component {
     } else {
       errorText = errorType && this.getErrorText(errorType, { ...cell, value });
     }
+
     if (errorType === 'OTHER_REQUIRED') {
       errorText = null;
       errorType = null;
     }
+
     if (!errorText) {
       clearCellError(`${(row || {}).rowid}-${cell.controlId}`);
       $('.mdTableErrorTip').remove();
     }
+
     let rowForCheckRule = { ...row, [cell.controlId]: value };
+
     try {
       const tempRow = new DataFormat({
         projectId,
@@ -301,15 +321,18 @@ export default class CellControl extends React.Component {
     } catch (err) {
       console.log(err);
     }
+
     const ruleError = checkRulesErrorOfControl({
       control: cell,
       row: rowForCheckRule,
       validateRealtime: true,
     });
+
     if (ruleError && ruleError?.errorType !== 'RULE_REQUIRED') {
       this.setState({ error: ruleError.errorMessage, ignoreErrorMessage: ruleError.ignoreErrorMessage });
       return ruleError;
     }
+
     this.setState({
       error: errorText || null,
       ignoreErrorMessage: false,
@@ -339,7 +362,9 @@ export default class CellControl extends React.Component {
     if (!window.tempCopyForSheetView || !this.editable) {
       return;
     }
+
     const pasteData = safeParse(window.tempCopyForSheetView);
+
     if (_.includes([9, 10, 11, 29, 35], cell.type)) {
       if (
         cell.type === 29 &&
@@ -348,6 +373,7 @@ export default class CellControl extends React.Component {
       ) {
         return;
       }
+
       if (cell.controlId === pasteData.controlId) {
         handlePasteUpdateCell(cell, pasteData, value => {
           this.handleUpdateCell({ value: value });
@@ -357,6 +383,7 @@ export default class CellControl extends React.Component {
       if (cell.type === 26 && get(safeParse(pasteData.value), '0.status') === 2) {
         return;
       }
+
       if (isSameTypeForPaste(cell.type, pasteData.controlType)) {
         handlePasteUpdateCell(cell, pasteData, value => {
           this.handleUpdateCell({ value: value });
@@ -369,10 +396,12 @@ export default class CellControl extends React.Component {
     const { tableType, cell, onClick } = this.props;
     const { isediting } = this.state;
     const haveEditingStatus = this.haveEditingStatus(cell);
+
     if (e.key.toLowerCase() === 'c' && (e.metaKey || e.ctrlKey) && !window.richTextDialogIsActive) {
       this.handleCopy(cell);
       return;
     }
+
     if (
       e.key.toLowerCase() === 'v' &&
       (e.metaKey || e.ctrlKey) &&
@@ -383,20 +412,24 @@ export default class CellControl extends React.Component {
       this.handlePaste(cell);
       return;
     }
+
     if ((e.metaKey || e.ctrlKey) && !(e.key.toLowerCase() === 'v' && checkIsTextControl(cell.type))) {
       return;
     }
+
     window.cellLastKey = e.key;
     switch (e.key) {
       case 'Backspace':
         if (this.editable && haveEditingStatus && !isediting && !cell.required) {
           this.handleUpdateCell({ value: cell.type === 29 ? '[]' : '' });
         }
+
         break;
       case ' ':
         if (!isediting) {
           onClick({ isSpace: true });
         }
+
         break;
       case 'Enter':
         if (this.editable && haveEditingStatus && !isediting) {
@@ -407,6 +440,7 @@ export default class CellControl extends React.Component {
             window.hasEditingCell = true;
           }
         }
+
         if (
           _.includes([26, 27, 29, 36, 42, 48], cell.type) ||
           (cell.type === 6 && cell.advancedSetting && cell.advancedSetting.showtype === '2')
@@ -415,21 +449,25 @@ export default class CellControl extends React.Component {
             this.cell.current.handleTableKeyDown(e, cache);
           }
         }
+
         break;
       default:
         if (_.isFunction(_.get(this, 'cell.current.handleTableKeyDown'))) {
           this.cell.current.handleTableKeyDown(e, cache);
         }
+
         break;
     }
   };
 
   handleUpdateCell = async (newCell = {}, options = {}) => {
     const { cell, row, updateCell } = this.props;
+
     if (window.isPublicApp) {
       alert(_l('预览模式下，不能操作'), 3);
       return;
     }
+
     updateCell(
       {
         controlId: cell.controlId,
@@ -453,6 +491,7 @@ export default class CellControl extends React.Component {
     if (isediting && !this.editable) {
       return;
     }
+
     const {
       tableType,
       tableFromModule,
@@ -469,6 +508,7 @@ export default class CellControl extends React.Component {
     const { error } = this;
     onCellFocus(isediting);
     const cellFullVisible = isediting && this.checkCellFullVisible();
+
     const run = () => {
       this.setState(
         {
@@ -483,14 +523,17 @@ export default class CellControl extends React.Component {
         cache.hasEditingCell = isediting;
         window.hasEditingCell = isediting;
       }
+
       if (!isediting && !error) {
         clearCellError(`${(row || {}).rowid}-${cell.controlId}`);
         $('.mdTableErrorTip').remove();
       }
+
       if (isediting) {
         enterEditing();
         setActiveRow(row?.rowid || null);
       }
+
       setTimeout(
         () => {
           window.cellisediting = isediting;
@@ -501,23 +544,29 @@ export default class CellControl extends React.Component {
         window.timer = Math.random();
       }
     };
+
     if (!isediting && cell.unique) {
       if (cell.unique && !cell.uniqueInRecord && tableFromModule === WORKSHEETTABLE_FROM_MODULE.SUBLIST) {
         cellUniqueValidate(cell.controlId, _.isUndefined(options.value) ? cell.value : options.value, row.rowid, true);
       }
     }
+
     if (isediting && !cellFullVisible.fullvisible) {
       let newPos = {};
+
       if (_.isNumber(cellFullVisible.newLeft)) {
         newPos.left = cellFullVisible.newLeft;
       }
+
       if (_.isNumber(cellFullVisible.newTop)) {
         newPos.top = cellFullVisible.newTop;
       }
+
       scrollTo(newPos);
       setTimeout(run, 10);
       return;
     }
+
     run();
     setTimeout(() => {
       if (!isediting) {
@@ -528,11 +577,13 @@ export default class CellControl extends React.Component {
 
   clickHandle = (...args) => {
     const [e] = args;
+
     try {
       if (!e.target.closest('.cell-id-' + this.id)) return;
     } catch (err) {
       console.error(err);
     }
+
     const {
       className,
       isSubList,
@@ -551,11 +602,13 @@ export default class CellControl extends React.Component {
     onMouseDown();
     setActiveRow(row.rowid);
     const haveEditingStatus = this.haveEditingStatus(cell);
+
     if (tableType === 'classic') {
       if (!_.isUndefined(cache.focusIndex) && cache.focusIndex === cellIndex && haveEditingStatus) {
         this.handleUpdateEditing(true);
         return;
       }
+
       onFocusCell();
       if (isSubList && e.isTrusted) {
         if (className.includes('lastRow') && className.includes('col-1')) {
@@ -564,16 +617,20 @@ export default class CellControl extends React.Component {
           window.handFocusCell = false;
         }
       }
+
       if (!haveEditingStatus) {
         return;
       }
     }
+
     if (!haveEditingStatus || tableType === 'simple' || triggerClickImmediate) {
       if (!window.getSelection().toString()) {
         onClick(...args);
       }
+
       return;
     }
+
     if (this.clicktimer || clickEnterEditing) {
       // double click
       clearTimeout(this.clicktimer);
@@ -643,24 +700,30 @@ export default class CellControl extends React.Component {
     const error = this.error;
     const singleLine = rowHeight === ROW_HEIGHT[0];
     let className = this.props.className + ' cell-id-' + this.id;
+
     if (error) {
       className = className + ' cellControlErrorStatus';
     }
+
     if (ignoreErrorMessage) {
       className = className + ' ignoreErrorMessage';
     }
+
     if (singleLine) {
       className += ' singleLine';
     }
+
     if (isediting) {
       className += ' isediting';
     }
+
     if (
       className.indexOf('highlight') < 0 &&
       String(window[`activeRowIndex-${tableId}`]) === String(direction === 'horizontal' ? rowIndex : columnIndex)
     ) {
       className += ' highlight';
     }
+
     if (
       cache &&
       !_.isUndefined(cache.focusIndex) &&
@@ -669,6 +732,7 @@ export default class CellControl extends React.Component {
     ) {
       className += ' focus';
     }
+
     if (_.isObject(cell.value) && cell.value.customCell && cell.value.type === 'text') {
       return (
         <div style={style} className={className}>
@@ -676,12 +740,15 @@ export default class CellControl extends React.Component {
         </div>
       );
     }
+
     if (row && _.isEmpty(row)) {
       return <div className={className} style={style} />;
     }
+
     if (!cell.advancedSetting) {
       cell.advancedSetting = {};
     }
+
     if (cell.type === 37) {
       cell.isSubtotal = true;
       if (cell.advancedSetting && cell.advancedSetting.summaryresult === '1') {
@@ -693,9 +760,11 @@ export default class CellControl extends React.Component {
         if (_.includes([15, 16], cell.enumDefault2) && _.includes([2, 3], cell.enumDefault)) {
           cell.advancedSetting = { ...cell.advancedSetting, showtype: cell.unit };
         }
+
         cell.type = cell.enumDefault2 || 6;
       }
     }
+
     const controlPermission = getControlStateAndCheckSectionControl(
       cell,
       from,
@@ -705,6 +774,7 @@ export default class CellControl extends React.Component {
     if (this.editable) {
       className += ' editable';
     }
+
     if (!controlPermission.visible) {
       if (tableFromModule === WORKSHEETTABLE_FROM_MODULE.SUBLIST) {
         return <div className={className} onClick={this.props.onClick} style={style} />;
@@ -713,6 +783,7 @@ export default class CellControl extends React.Component {
         this.editable = false;
       }
     }
+
     const editable = this.editable;
     const isTextControl = checkIsTextControl(cell.type);
     let needLineLimit;
@@ -772,29 +843,37 @@ export default class CellControl extends React.Component {
         : {}),
     };
     let cellContent = null;
+
     if (isTextControl) {
       if (cell.type === 41 || cell.type === 32 || cell.type === 10010 || (cell.type === 2 && cell.enumDefault === 1)) {
         needLineLimit = true;
       }
+
       if (cell.type === 41) {
         cellContent = <RichText {...props} needLineLimit={needLineLimit} />;
       }
+
       if (_.includes([19, 23, 24], cell.type)) {
         cellContent = <Area {...props} needLineLimit={needLineLimit} />;
       }
+
       if (_.includes([15, 16], cell.type)) {
         cellContent = <Date {...props} needLineLimit={needLineLimit} />;
       }
+
       if (cell.type === 3) {
         cellContent = <MobilePhone {...props} />;
       }
+
       if (cell.type === 6 && cell.advancedSetting && cell.advancedSetting.showtype === '2') {
         cellContent = <NumberSlider {...props} />;
       }
+
       if (!cellContent) {
         cellContent = <Text {...props} needLineLimit={needLineLimit} />;
       }
     }
+
     if (
       _.includes([9, 11], cell.type) &&
       (columnStyle.showtype === 2 ||
@@ -804,31 +883,40 @@ export default class CellControl extends React.Component {
     } else if (_.includes([9, 10, 11], cell.type) && (columnStyle.showtype !== 2 || includes([10, 11], cell.type))) {
       cellContent = <Options {...props} />;
     }
+
     if (cell.type === 28) {
       cellContent = <Level {...props} />;
     }
+
     if (cell.type === 27) {
       cellContent = <Department {...props} />;
     }
+
     if (cell.type === 26) {
       props.disabled = this.props.disabled;
       cellContent = <User {...props} chatButton={chatButton} />;
     }
+
     if (cell.type === 21) {
       cellContent = <Relation {...props} />;
     }
+
     if (cell.type === 14) {
       cellContent = <Attachments {...props} />;
     }
+
     if (cell.type === 29 || cell.type === 34) {
       cellContent = <RelateRecord {...props} />;
     }
+
     if (cell.type === 42) {
       cellContent = <Signature {...props} />;
     }
+
     if (cell.type === 36) {
       cellContent = <Switch {...props} />;
     }
+
     if (cell.type === 30) {
       cellContent = (
         <CellControl
@@ -844,27 +932,35 @@ export default class CellControl extends React.Component {
         />
       );
     }
+
     if (cell.type === 35) {
       cellContent = <Cascader {...props} />;
     }
+
     if (cell.type === 40) {
       cellContent = <Location {...props} />;
     }
+
     if (cell.type === 46) {
       cellContent = <Time {...props} />;
     }
+
     if (cell.type === 47) {
       cellContent = <BarCode {...props} />;
     }
+
     if (cell.type === 48) {
       cellContent = <OrgRole {...props} />;
     }
+
     if (cell.type === 49 || cell.type === 50) {
       cellContent = <Search {...props} />;
     }
+
     if (cell.type === 51) {
       cellContent = <RelationSearch {...props} />;
     }
+
     cellContent = cellContent || <div className={className} onClick={this.props.onClick} style={style} />;
     if (direction === 'vertical' && rowIndex === 0) {
       return (
@@ -883,6 +979,7 @@ export default class CellControl extends React.Component {
         />
       );
     }
+
     return cellContent;
   }
 }

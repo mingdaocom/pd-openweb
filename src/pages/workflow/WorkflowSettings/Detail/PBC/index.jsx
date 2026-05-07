@@ -401,6 +401,7 @@ export default class PBC extends Component {
             o.controlId = o.fieldId;
             o.flowNodeAppDtos = data.batchNodes;
           }
+
           return o;
         })}
         formulaMap={data.formulaMap}
@@ -696,7 +697,7 @@ export default class PBC extends Component {
                 fields: this.splitFields(0),
                 subProcessVariables: data.subProcessVariables.filter(o => o.processVariableType === 0),
               }}
-              selectProcessId={data.appId}
+              selectProcessId={_.find(data.appList, o => o.id === data.appId)?.otherApkId ? '' : data.appId}
               desc={_l('向业务流程的流程参数传递初始值，供其执行时使用')}
               updateSource={(obj, callback) => {
                 if (obj.fields) {
@@ -744,7 +745,7 @@ export default class PBC extends Component {
         value={data.appId}
         renderTitle={
           !data.appId
-            ? () => <span className="textSecondary">{_l('请选择')}</span>
+            ? () => <span className="textPlaceholder">{_l('请选择')}</span>
             : data.appId && !selectAppItem
               ? () => <span className="errorColor">{_l('业务流程无效或已删除')}</span>
               : () => (

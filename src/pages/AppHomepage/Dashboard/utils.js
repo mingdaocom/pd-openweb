@@ -5,6 +5,7 @@ import { getRgbaByColor } from 'src/pages/widgetConfig/util';
 
 export const getGreetingText = () => {
   const hours = new Date().getHours();
+
   switch (true) {
     case hours < 6:
       return _l('凌晨好');

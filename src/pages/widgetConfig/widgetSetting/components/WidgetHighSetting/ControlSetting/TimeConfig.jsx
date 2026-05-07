@@ -26,6 +26,7 @@ function StartEndTime(props) {
   const handleValueChange = (value, mode) => {
     onChange(handleAdvancedSettingChange(data, { [mode]: JSON.stringify(value) }));
   };
+
   return (
     <Fragment>
       <div className={cx('labelWrap', { mBottom8: min })}>

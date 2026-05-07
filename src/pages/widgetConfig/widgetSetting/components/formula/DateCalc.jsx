@@ -35,9 +35,11 @@ export default class DateCalc extends Component {
 
   componentDidMount() {
     const { widget, onFormulaEditStatusChange, onDataChange } = this.props;
+
     if (widget.data.dot !== 0) {
       onDataChange({ dot: 0 });
     }
+
     if (this.state.changed && widget.data.enumDefault === 2) {
       onFormulaEditStatusChange(true);
     }
@@ -45,6 +47,7 @@ export default class DateCalc extends Component {
 
   componentWillReceiveProps(nextProps) {
     const { widget } = nextProps;
+
     if (widget.id !== this.props.widget.id) {
       const dataSource = widget.data.dataSource;
       this.setState({
@@ -75,14 +78,17 @@ export default class DateCalc extends Component {
     const { onDataChange, onFormulaEditStatusChange } = this.props;
     const sourceControlId = this.props.widget.data.sourceControlId;
     const { formulaStr } = this.state;
+
     if (!sourceControlId) {
       alert(_l('未添加选择日期'), 3);
       return;
     }
+
     if (!/^([+-]\d+[YMdhm])+$/.test(formulaStr.replace(/\$(.+?)\$/g, '1'))) {
       alert(_l('公式有语法错误'), 3);
       return;
     }
+
     onDataChange({
       dataSource: formulaStr,
     });

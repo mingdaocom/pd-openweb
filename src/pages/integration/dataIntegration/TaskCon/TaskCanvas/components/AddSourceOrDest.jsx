@@ -119,6 +119,7 @@ function AddSourceOrDest(props) {
       </PopupWrap>
     );
   };
+
   return (
     <Wrap>
       <Trigger
@@ -186,6 +187,7 @@ function AddSourceOrDest(props) {
             const { className, id, iconBgColor, type, sourceName, formData } = data[infoTxt];
             onUpdateFlowDatasources({ ...data[infoTxt], name: sourceName });
             let param = {};
+
             if (nodeType !== 'SOURCE_TABLE') {
               param = {
                 dataDestId: id,
@@ -199,6 +201,7 @@ function AddSourceOrDest(props) {
                 param.tableName = _.get(formData, 'extraParams.topic');
               }
             }
+
             let config = {
               ...(_.get(node, 'nodeConfig.config') || {}),
               dbName: '',
@@ -212,11 +215,13 @@ function AddSourceOrDest(props) {
               sourceName,
               ...param,
             };
+
             if ('SOURCE_TABLE' === nodeType) {
               config = { ...config, fields: [] };
             } else {
               config = { ...config, fieldsMapping: [] };
             }
+
             onUpdate({
               ...node,
               nodeConfig: {

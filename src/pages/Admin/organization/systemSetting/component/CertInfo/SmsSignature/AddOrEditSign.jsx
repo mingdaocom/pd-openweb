@@ -50,6 +50,7 @@ function AddOrEditSign(props) {
       const defaultValues = getEnterpriseDefaultFormData(signInfo.enterpriseInfo);
       setFormData(defaultValues);
     }
+
     getCertList();
   }, []);
 
@@ -82,14 +83,17 @@ function AddOrEditSign(props) {
         alert(_l('请上传商标证书'), 3);
         return false;
       }
+
       if (!attachments.contactCardFront) {
         alert(_l('请上传联系人身份证人像面'), 3);
         return false;
       }
+
       if (!attachments.contactCardBack) {
         alert(_l('请上传联系人身份证国徽面'), 3);
         return false;
       }
+
       return true;
     }
 

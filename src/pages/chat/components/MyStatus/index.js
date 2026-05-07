@@ -135,6 +135,7 @@ export default function MyStatus() {
           if (defaultStatusInfo[item.statusId]) {
             return { ...item, ...defaultStatusInfo[item.statusId] };
           }
+
           return item;
         });
 
@@ -174,6 +175,7 @@ export default function MyStatus() {
       buttonType: 'danger',
       onOk: () => {
         const copyList = _.cloneDeep(statusList);
+
         if (statusId === 'new_id') {
           alert(_l('删除成功'));
           setStatusList(copyList.filter(item => item.statusId !== statusId));
@@ -212,6 +214,7 @@ export default function MyStatus() {
 
     const updateRes = isNew ? await personalStyleApi.addOrUpdateStatus(params) : {};
     const { statusId } = updateRes;
+
     if (statusId) {
       params.statusId = statusId;
     }

@@ -70,6 +70,7 @@ class MobileChart extends React.Component {
             window[`langData-${appId}`] = lang.items;
             window[`langVersion-${appId}`] = langInfo.version;
           }
+
           run();
         });
     } else {

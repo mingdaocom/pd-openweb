@@ -1,6 +1,11 @@
 export const PERMISSION_ENUM = {
   //用户
-  MEMBER_MANAGE: 10100,
+  //组织架构
+  MEMBER: 10110,
+  DEPARTMENT: 10120,
+  REPORT_RELATION: 10130,
+  WORKFLOW_OBTAIN: 10140,
+
   ROLE_MENAGE: 10300,
   GROUP_MANAGE: 10500,
   EXTERNAL_USER_MANAGE: 10700,
@@ -38,7 +43,9 @@ export const PERMISSION_ENUM = {
   TAX_SETTING: 16330,
 
   //日志
-  APP_LOG: 17100,
+  APP_MANAGE_LOG: 17110,
+  RECORD_OPERATE_LOG: 17120,
+  USER_ACTION_LOG: 17130,
   LOGIN_LOG: 17300,
   PROJECT_MANAGE_LOG: 17500,
 
@@ -72,20 +79,23 @@ export const ROUTE_CONFIG = {
     'expansionserviceAggregationtable',
     'expansionserviceComputing',
   ],
-  [PERMISSION_ENUM.MEMBER_MANAGE]: ['home', 'structure', 'roles', 'reportrelation'],
+  [PERMISSION_ENUM.MEMBER]: ['home', 'structure', 'roles'],
+  [PERMISSION_ENUM.DEPARTMENT]: ['structure'],
+  [PERMISSION_ENUM.REPORT_RELATION]: ['reportrelation'],
   [PERMISSION_ENUM.ROLE_MENAGE]: ['roles'],
   [PERMISSION_ENUM.GROUP_MANAGE]: ['groups'],
-  [PERMISSION_ENUM.EXTERNAL_USER_MANAGE]: ['portal'],
+  [PERMISSION_ENUM.EXTERNAL_USER_MANAGE]: ['external'],
   [PERMISSION_ENUM.DEPUTE_HANDOVER_MANAGE]: ['delegation'],
+
   [PERMISSION_ENUM.THIRD_PLATFORM_INTEGRATION]: ['platformintegration'],
-  [PERMISSION_ENUM.WX_PUBLIC_ACCOUNT_INTEGRATION]: ['weixin'],
+  [PERMISSION_ENUM.WX_PUBLIC_ACCOUNT_INTEGRATION]: ['systemservice', 'weixin', 'cloudprint'],
   [PERMISSION_ENUM.LDAP_LOGIN]: ['integrationothers'],
   [PERMISSION_ENUM.SSO_LOGIN]: ['integrationothers'],
   [PERMISSION_ENUM.PLATFORM_ACCOUNT_LOGIN]: ['integrationothers'],
   [PERMISSION_ENUM.OPEN_INTERFACE]: ['integrationothers'],
   [PERMISSION_ENUM.BASIC_SETTING]: ['sysinfo', 'certinfo', 'orgothers'],
   [PERMISSION_ENUM.FINANCE]: ['home', 'billinfo'],
-  [PERMISSION_ENUM.SECURITY]: ['security', 'account', 'data', 'securityOthers'],
+  [PERMISSION_ENUM.SECURITY]: ['security', 'addressBook', 'dataAccess', 'function'],
   [PERMISSION_ENUM.APP_RESOURCE_SERVICE]: [
     'home',
     'app',
@@ -106,8 +116,10 @@ export const ROUTE_CONFIG = {
   [PERMISSION_ENUM.INVOICE]: ['invoice'],
   [PERMISSION_ENUM.TAX_SETTING]: ['invoice'],
 
-  [PERMISSION_ENUM.APP_LOG]: ['applog'],
+  [PERMISSION_ENUM.APP_MANAGE_LOG]: ['applog'],
+  [PERMISSION_ENUM.RECORD_OPERATE_LOG]: ['applog'],
+  [PERMISSION_ENUM.USER_ACTION_LOG]: ['applog'],
   [PERMISSION_ENUM.LOGIN_LOG]: ['loginlog'],
   [PERMISSION_ENUM.PROJECT_MANAGE_LOG]: ['orglog'],
-  [PERMISSION_ENUM.THIRD_APP]: ['thirdapp'], //第三方应用--仅私有部署
+  [PERMISSION_ENUM.THIRD_APP]: ['thirdapp'], //第三方应用
 };

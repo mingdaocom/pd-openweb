@@ -41,6 +41,7 @@ window.onload = () => {
 window.callMd = (action, functionName, args) => {
   return new Promise((resolve, reject) => {
     const channel = new MessageChannel();
+
     channel.port2.onmessage = ({ data }) => {
       channel.port1.close();
       if (data.error) {
@@ -49,6 +50,7 @@ window.callMd = (action, functionName, args) => {
         resolve(data.result);
       }
     };
+
     window.parent.postMessage(
       { from: 'customwidget', containerId: window.config?.containerId, action, functionName, args },
       '*',
@@ -90,6 +92,9 @@ window.api.call = (controller, action, data) => {
   'selectLocation',
   'renderText',
   'getLocation',
+  'getThemeMode',
+  'importDataFromExcel',
+  'exportSheet',
 ].forEach(functionName => {
   window.utils[functionName] = args =>
     window.callMdUtil(

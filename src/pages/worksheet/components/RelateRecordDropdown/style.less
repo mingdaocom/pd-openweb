@@ -330,6 +330,9 @@
     input {
       line-height: 28px !important;
     }
+    .selectDialogIcon {
+      margin: 8px;
+    }
     &.isDark {
       background-color: transparent !important;
     }
@@ -337,6 +340,19 @@
 }
 .relateRecordDropdownPopup.small {
   .RelateRecordDropdown-selected {
+    .clearIcon,
+    .dropIcon {
+      margin: 8px;
+    }
+  }
+}
+
+.relateRecordDropdownPopup.isQuickFilter {
+  .RelateRecordDropdown-selected {
+    .activeSelectedItem {
+      margin-top: 4px !important;
+      margin-bottom: 3px !important;
+    }
     .clearIcon,
     .dropIcon {
       margin: 8px;

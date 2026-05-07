@@ -389,6 +389,7 @@ export default class AuxiliaryLine extends Component {
             if (reportTypes.RadarChart === reportType) {
               return !['averageLine', 'tendencyLine'].includes(item.type);
             }
+
             return true;
           })
           .map(item => (

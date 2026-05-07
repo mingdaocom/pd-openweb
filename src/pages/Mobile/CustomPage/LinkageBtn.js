@@ -36,12 +36,15 @@ const AutoLinkagePopover = styled.div`
 
 const LinkageBtn = props => {
   const { linkageFiltersGroup = {}, deleteLinkageFiltersGroup, deleteAllLinkageFiltersGroup } = props;
+
   if (_.isEmpty(linkageFiltersGroup)) {
     return null;
   }
+
   const renderLinkageFiltersPopover = () => {
     const toArray = () => {
       let result = [];
+
       for (let key in linkageFiltersGroup) {
         const item = linkageFiltersGroup[key];
         result.push({
@@ -49,8 +52,10 @@ const LinkageBtn = props => {
           ...item,
         });
       }
+
       return result;
     };
+
     const res = toArray();
     return (
       <AutoLinkagePopover>
@@ -115,6 +120,7 @@ const LinkageBtn = props => {
       </AutoLinkagePopover>
     );
   };
+
   return (
     <Popover
       visible={undefined}

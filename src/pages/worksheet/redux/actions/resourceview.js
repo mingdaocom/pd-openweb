@@ -18,7 +18,7 @@ import {
   formatRecordTime,
   getViewTimesList,
 } from 'src/pages/worksheet/views/ResourceView/util.js';
-import { getFilledRequestParams } from 'src/utils/common';
+import { browserIsMobile, getFilledRequestParams } from 'src/utils/common';
 import { isLightColor } from 'src/utils/control';
 import { formatQuickFilter } from 'src/utils/filter';
 import { dateConvertToServerZone, dateConvertToUserZone } from 'src/utils/project';
@@ -37,6 +37,7 @@ export const initData = () => {
 export const fetchRows = (refresh = true) => {
   return (dispatch, getState) => {
     const { base, controls, views, filters, quickFilter = [], resourceview } = getState().sheet;
+    const { filterControls } = getState().mobile;
     const view = (base.viewId ? _.find(views, { viewId: base.viewId }) : views[0]) || {};
     const selectControl = _.find(controls, item => item.controlId === (view || {}).viewControl);
     const { gridTimes = [], currentTime, keywords } = resourceview;
@@ -47,6 +48,7 @@ export const fetchRows = (refresh = true) => {
       .map(item => dayjs(item, 'HH:mm').format('HH:mm'));
     let beginTime;
     let endTime;
+
     if (['Month', 'Week'].includes(type)) {
       beginTime = moment((gridTimes[0] || {}).date).format('YYYY-MM-DD 00:00:00');
       endTime = moment((gridTimes[gridTimes.length - 1] || {}).date).format('YYYY-MM-DD 23:59:59');
@@ -78,6 +80,7 @@ export const fetchRows = (refresh = true) => {
           kanbanSize: kanbanSize,
           pageSize: pageSize,
           langType: window.shareState.shareId ? getCurrentLangCode() : undefined,
+          filterControls: browserIsMobile() ? filterControls : filters?.filterControls,
         }),
       )
       .then(({ data }) => {
@@ -95,10 +98,12 @@ export const fetchRows = (refresh = true) => {
       });
   };
 };
+
 //加载分组下的更多
 export const fetchRowsByGroupId = (kanbanKey, kanbanIndex) => {
   return (dispatch, getState) => {
     const { base, controls, views, filters, quickFilter = [], resourceview } = getState().sheet;
+    const { filterControls } = getState().mobile;
     const { resourceData = [] } = resourceview;
     const view = base.viewId ? _.find(views, { viewId: base.viewId }) : views[0];
     const selectControl = _.find(controls, item => item.controlId === (view || {}).viewControl);
@@ -110,6 +115,7 @@ export const fetchRowsByGroupId = (kanbanKey, kanbanIndex) => {
       .map(item => dayjs(item, 'HH:mm').format('HH:mm'));
     let beginTime;
     let endTime;
+
     if (['Month', 'Year', 'Week'].includes(type)) {
       beginTime = moment((gridTimes[0] || {}).date).format('YYYY-MM-DD HH:mm');
       endTime = moment((gridTimes[gridTimes.length - 1] || {}).date).format('YYYY-MM-DD 23:59:59');
@@ -137,6 +143,7 @@ export const fetchRowsByGroupId = (kanbanKey, kanbanIndex) => {
           kanbanKey,
           pageIndex: kanbanIndex,
           langType: window.shareState.shareId ? getCurrentLangCode() : undefined,
+          filterControls: browserIsMobile() ? filterControls : filters?.filterControls,
         }),
       )
       .then(({ data }) => {
@@ -198,9 +205,11 @@ const formatByGroup = (info, view, controls, gridTimes, currentTime) => {
             ? formatRows(item, view, controls, gridTimes, true, currentTime)
             : [];
         const { data, totalHeight } = calculateTop(rows, view, gridTimes * oneWidth);
+
         if (_.get(groupControl, 'options.length')) {
           item.name = _.get(_.find(groupControl.options, { key: item.key }), 'value') || item.name;
         }
+
         return {
           ...item,
           rows: data,
@@ -250,6 +259,7 @@ export const getTimeList = cb => {
     const type =
       localStorage.getItem(`${view.viewId}_resource_type`) || types[_.get(view, 'advancedSetting.calendarType') || 0];
     let listN = [];
+
     if (type === 'Month') {
       listN = list.list;
     } else if (type === 'Week') {
@@ -267,6 +277,7 @@ export const getTimeList = cb => {
         });
       });
     }
+
     dispatch({ type: 'CHANGE_RESOURCE_TIME_LIST', data: list });
     dispatch({ type: 'CHANGE_RESOURCE_TIME_LIST_A', data: listN });
     cb && cb();
@@ -323,7 +334,9 @@ export const updateRecordTime = (row, start, end, key, newKey) => {
         value: dateConvertToServerZone(endControl.type === 15 ? moment(end).format('YYYY-MM-DD') : end),
       });
     }
+
     const viewControlData = controls.find(o => o.controlId === view.viewControl) || {};
+
     if (!!newKey && (viewControlData.fieldPermission || '111')[1] === '1') {
       const newData = resourceData.find(o => o.key === newKey);
       newOldControl.push({
@@ -358,6 +371,7 @@ export const updateRecordTime = (row, start, end, key, newKey) => {
       .then(res => {
         let rowsData = [];
         let rowsOldData = [];
+
         if (!newKey) {
           resourceData.map(o => {
             if (o.key === key) {
@@ -427,6 +441,7 @@ export const updateRecordTime = (row, start, end, key, newKey) => {
             }
           });
         }
+
         newKey ? dispatch(updateByKey(newKey, rowsData, key, rowsOldData)) : dispatch(updateByKey(key, rowsData));
       });
   };
@@ -437,6 +452,7 @@ export const updateByKey = (key, rowsData, key1, rowsData1) => {
     const { base, controls, resourceview, views } = getState().sheet;
     const view = base.viewId ? _.find(views, { viewId: base.viewId }) : views[0];
     const { keywords = '', resourceData, gridTimes, currentTime } = resourceview;
+
     const getNewData = (o, rowsData) => {
       let item = {
         ...o,
@@ -453,6 +469,7 @@ export const updateByKey = (key, rowsData, key1, rowsData1) => {
         height: totalHeight,
       };
     };
+
     const dataResource = resourceData.map(o => {
       if (o.key === key) {
         return getNewData(o, rowsData);

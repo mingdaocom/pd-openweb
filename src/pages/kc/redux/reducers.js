@@ -46,6 +46,7 @@ const defaultParams = Map({
   sortBy: NODE_SORT_BY.UPDATE_TIME,
   sortType: NODE_SORT_TYPE.DESC,
 });
+
 function params(state = defaultParams, action) {
   switch (action.type) {
     case 'KC_CLEAR_KC':

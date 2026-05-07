@@ -130,6 +130,7 @@ function IdentityAuth() {
             alert((FACE_CERT_RESULT_TYPES[res.code] || _l('人脸识别链接获取失败')) + _l(',错误码:%0', res.code), 2);
             break;
         }
+
         ![0, 1].includes(res.code) && setSubmitLoading(false);
       })
       .catch(() => setSubmitLoading(false));

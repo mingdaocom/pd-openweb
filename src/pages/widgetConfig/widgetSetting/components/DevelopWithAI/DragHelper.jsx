@@ -9,6 +9,7 @@ const DragLine = styled.div`
   width: 100%;
   cursor: row-resize;
 `;
+
 export default function DragHelper({ defaultTop = 0, min = 0, max = 1000, onChange = _.noop }) {
   const [dragMaskVisible, setDragMaskVisible] = useState(false);
   return !dragMaskVisible ? (

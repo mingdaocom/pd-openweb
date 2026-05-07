@@ -20,16 +20,22 @@ const TextMarkdownWrap = styled.div`
 
   .vditor {
     .vditor-reset {
-      background: ${props =>
-        props.disabled ? 'transparent' : props.isEditing ? '#fff' : 'var(--color-background-secondary)'} !important;
       padding: ${props => (props.disabled && !props.isCreate ? '6px 0' : '6px 15px 6px 12px')} !important;
+      ${props =>
+        props.isMobile
+          ? !props.disabled || props.isEditing
+            ? 'background: var(--color-background-input) !important;'
+            : 'background: var(--color-background-primary) !important;'
+          : ''}
     }
     border-color: ${props =>
       props.disabled
         ? 'transparent'
         : props.isEditing
           ? 'var(--color-primary)'
-          : 'var(--color-background-secondary)'} !important;
+          : props.isMobile
+            ? 'var(--color-border-primary)'
+            : 'var(--color-background-secondary)'} !important;
   }
 
   .iconFullScreen {
@@ -76,6 +82,7 @@ export default function TextMarkdown(props) {
     formItemId,
     useCallback(data => {
       const { triggerType } = data;
+
       switch (triggerType) {
         // case 'trigger_tab_enter':
         //   if (markdownRef.current) {
@@ -139,6 +146,7 @@ export default function TextMarkdown(props) {
       minHeight={minHeight}
       maxHeight={maxHeight}
       isCreate={!recordId}
+      isMobile={isMobile}
       className="textMarkdown"
     >
       {!disabled && isEditing && !isMobile && (
@@ -166,6 +174,7 @@ export default function TextMarkdown(props) {
             if (newValue !== value.trimEnd()) {
               onChange(newValue);
             }
+
             setState({ visible: false });
           }}
         />

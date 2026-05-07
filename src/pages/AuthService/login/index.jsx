@@ -63,6 +63,7 @@ export default function Login() {
 
   const onInit = () => {
     const request = getRequest();
+
     //兼容移动端app的只允许企业单点登录
     if (
       request.appscheme && //只有移动端app会带appscheme参数
@@ -79,6 +80,7 @@ export default function Login() {
       });
       return;
     }
+
     //检测是否已登录
     loginController.checkLogin().then(data => {
       if (data) {
@@ -103,20 +105,25 @@ export default function Login() {
     const toAutoLogin =
       !(request.unionId || !accountId || !encryptPassword || (loginType === 1 && (!projectId || !account))) &&
       (!time || Math.ceil((new Date() - new Date(time)) / (1000 * 60 * 60 * 24)) <= 14);
+
     //检查是否自动登录
     if (toAutoLogin) {
       let param = { loginType, accountId, encryptPassword };
+
       if (loginType === 1) {
         param = { ...param, account, projectId };
       }
+
       loginController.mDAccountAutoLogin({ ...param, regFrom: request.s }).then(data => {
         const { projectId, modeType, isNetwork } = state;
+
         //自动登录失败后，直接进入到登录界面
         if (data.accountResult !== 1) {
           setState({ loading: false });
           console.log(ua, data);
           return;
         }
+
         loginCallback({
           data: { ...data, projectId, modeType, isNetwork },
           onChange: data => setState(data),
@@ -126,14 +133,18 @@ export default function Login() {
       //进入登录流程  回填上次缓存的账号信息
       const loginName = window.localStorage.getItem('LoginName');
       const loginLDAPName = window.localStorage.getItem('LoginLDAPName');
+
       if (loginName || loginLDAPName) {
         let dialCode = '';
+
         if (loginName && isTel(loginName)) {
           const iti = initIntlTelInput();
           dialCode = `+${iti.getSelectedCountryData().dialCode}`;
         }
+
         setState({ emailOrTel: loginName || '', fullName: loginLDAPName || '', dialCode });
       }
+
       if (!state.isNetwork) {
         setState({ loading: false });
       } else {
@@ -155,15 +166,19 @@ export default function Login() {
           location.replace('/privateImageInstall');
           return;
         }
+
         //request.loginMode === 'systemLogin' 指定平台账号登录方式
         if (request.loginMode === 'systemLogin') {
           res.openLDAP = false;
           res.isOpenSystemLogin = true;
         }
+
         let googleSsoSet;
+
         if ((window.platformENV.isOverseas || window.platformENV.isLocal) && !request.projectId) {
           googleSsoSet = await privateSysSetting.getSsonSettingsFroLogin({});
         }
+
         setState({
           ...res,
           googleSsoSet,
@@ -183,6 +198,7 @@ export default function Login() {
             projectId: res.projectId,
           });
         }
+
         if (res.projectId) {
           getProjectLang(res.projectId);
         } else {

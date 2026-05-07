@@ -283,6 +283,7 @@ export default class EditorCon extends Component {
             alert(msg, 2);
             return;
           }
+
           if (!isSucceeded && (errorMsgList || []).length > 0) {
             let str = errorMsgList.join(',');
             alert(str, 2);
@@ -311,9 +312,11 @@ export default class EditorCon extends Component {
       joinType = 'INNER_JOIN',
       className,
     } = _.get(nodeData, ['nodeConfig', 'config']) || {};
+
     if (!isAct && !dsType) {
       return <AddSourceOrDest {...this.props} node={nodeData} height={72} />;
     }
+
     return (
       <div className={cx('nodeCard Hand flexRow flex', {})}>
         {isAct ? (
@@ -363,6 +366,7 @@ export default class EditorCon extends Component {
       ...this.props,
       list,
     };
+
     switch (nodeType) {
       case 'SOURCE_TABLE':
       case 'DEST_TABLE':
@@ -409,6 +413,7 @@ export default class EditorCon extends Component {
         canEditControl = false;
         break;
     }
+
     //筛选|分类汇总 => 没有字段配置
     switch (nodeType) {
       case 'SOURCE_TABLE':
@@ -419,6 +424,7 @@ export default class EditorCon extends Component {
       case 'DEST_TABLE':
         let disable = false;
         let hidePreviwe = false;
+
         if (['DEST_TABLE', 'SOURCE_TABLE'].includes(nodeType)) {
           let { dsType, tableName, workSheetId, createTable, fieldsMapping } =
             _.get(node, ['nodeConfig', 'config']) || {};
@@ -426,6 +432,7 @@ export default class EditorCon extends Component {
             ((dsType === DATABASE_TYPE.APPLICATION_WORKSHEET ? !workSheetId : !tableName) && !createTable) || //选择已已有，未配置表
             (createTable && (fieldsMapping.length <= 0 || !tableName)); //选择新建，未设置名称或映射
         }
+
         //没有设置筛选条件|筛选条件错误，不可预览
         if (['FILTER'].includes(nodeType)) {
           const preNode = list.filter(o => o.pathIds.length > 0 && o.pathIds[0].toDt.nodeId === node.nodeId)[0];
@@ -445,23 +452,28 @@ export default class EditorCon extends Component {
             disable = true;
           }
         }
+
         if (['JOIN'].includes(nodeType)) {
           const { leftTableId, rightTableId } = _.get(node, ['nodeConfig', 'config']) || {};
           const leftT = list.find(o => o.nodeId === leftTableId) || {};
           const rightT = list.find(o => o.nodeId === rightTableId) || {};
           const leftFieldNames = (_.get(leftT, 'nodeConfig.fields') || []).filter(o => !!o.isCheck);
           const rightFieldNames = (_.get(rightT, 'nodeConfig.fields') || []).filter(o => !!o.isCheck);
+
           if (leftFieldNames.length <= 0 || rightFieldNames.length <= 0) {
             //上游两个节点都没有fields
             disable = true;
           }
+
           const { conditions = [] } = _.get(node, 'nodeConfig.config');
+
           if (!conditions || (conditions || []).length <= 0) {
             //未配置相关连接条件
             disable = true;
           } else {
             (conditions || []).map(o => {
               const { leftField, rightField } = o;
+
               if (
                 !leftFieldNames.find(it => it.id === leftField.id) ||
                 !rightFieldNames.find(it => it.id === rightField.id)
@@ -472,6 +484,7 @@ export default class EditorCon extends Component {
             });
           }
         }
+
         if (['DEST_TABLE', 'FILTER', 'JOIN', 'AGGREGATE', 'UNION'].includes(nodeType)) {
           //数据筛选节点、多表连接节点、数据目的地、分类汇总、数据合并节点的预览功能 暂时不上数据预览
           hidePreviwe = true;
@@ -501,6 +514,7 @@ export default class EditorCon extends Component {
                     if (disable) {
                       return;
                     }
+
                     this.setState({
                       showEditControl: true,
                     });
@@ -517,6 +531,7 @@ export default class EditorCon extends Component {
                     if (disable || hidePreviwe) {
                       return;
                     }
+
                     this.refresh();
                   }}
                 >
@@ -582,6 +597,7 @@ export default class EditorCon extends Component {
                           if (disable) {
                             return;
                           }
+
                           this.setState({
                             showEditControl: true,
                           });
@@ -600,6 +616,7 @@ export default class EditorCon extends Component {
                         if (disable || hidePreviwe) {
                           return;
                         }
+
                         this.refresh();
                       }}
                     >

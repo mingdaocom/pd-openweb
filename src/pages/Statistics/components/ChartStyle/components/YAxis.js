@@ -166,6 +166,7 @@ export function bidirectionalBarChartYAxisPanelGenerator(props) {
   const { currentReport, changeCurrentReport, ...collapseProps } = props;
   const { displaySetup, rightY, reportType, yreportType } = currentReport;
   const { ydisplay } = displaySetup;
+
   const onChangeDisplayValue = data => {
     changeCurrentReport({
       displaySetup: {
@@ -174,6 +175,7 @@ export function bidirectionalBarChartYAxisPanelGenerator(props) {
       },
     });
   };
+
   return (
     <Collapse.Panel
       key="bidirectionalBarChartYAxis"

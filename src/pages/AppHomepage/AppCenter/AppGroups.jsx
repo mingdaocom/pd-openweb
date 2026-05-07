@@ -66,6 +66,7 @@ function AppGroups(props) {
     if (cache.current.projectLoaded && location.pathname !== '/app/my') {
       navigateTo('/app/my', false, true);
     }
+
     load(projectId);
   }, [projectId]);
 

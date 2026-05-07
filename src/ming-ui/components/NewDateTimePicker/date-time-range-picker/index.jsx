@@ -40,6 +40,7 @@ class DateTimeRangeDoublePicker extends Component {
     }
 
     let halfData = ['AM', 'PM'];
+
     if (props.type === 'half') {
       halfData = [props.halfStart, props.halfEnd];
     }
@@ -155,6 +156,7 @@ class DateTimeRangeDoublePicker extends Component {
 
         startTimeData.value = startTimeData.min;
       }
+
       // check start.max
       if (
         startTimeData.max &&
@@ -180,6 +182,7 @@ class DateTimeRangeDoublePicker extends Component {
 
         endTimeData.value = endTimeData.min;
       }
+
       // check end.max
       if (
         endTimeData.max &&
@@ -222,6 +225,7 @@ class DateTimeRangeDoublePicker extends Component {
 
     let startTime = this.state.startTime;
     let endTime = this.state.endTime;
+
     if (index === 1) {
       endTime = this.getTimeData(value, this.props, this.state.value[1]);
     } else {
@@ -276,6 +280,7 @@ class DateTimeRangeDoublePicker extends Component {
               return;
             }
           }
+
           if (
             value[0].getTime() > value[1].getTime() &&
             ((this.props.partial && this.state.partialStart && this.state.partialEnd) || !this.props.partial)
@@ -306,9 +311,11 @@ class DateTimeRangeDoublePicker extends Component {
         end: true,
       };
       let returnValue = null;
+
       if (value && value.length === 2) {
         returnValue = [moment(value[0]), moment(value[1])];
       }
+
       if (this.props.partial) {
         config = {
           start: this.state.partialStart,
@@ -323,6 +330,7 @@ class DateTimeRangeDoublePicker extends Component {
       this.props.onChange(event, value, config);
 
       let halfData = null;
+
       if (this.props.type === 'half') {
         halfData = this.state.halfData;
       }
@@ -330,6 +338,7 @@ class DateTimeRangeDoublePicker extends Component {
       if (action === 'ok' && this.props.onOk) {
         this.props.onOk(returnValue, halfData);
       }
+
       if (action === 'clear' && this.props.onClear) {
         this.props.onClear();
       }
@@ -385,14 +394,17 @@ class DateTimeRangeDoublePicker extends Component {
 
   render() {
     const classList = ['mui-datetimerangepicker'];
+
     if (this.props.show) {
       classList.push('show');
     }
+
     const classNames = classList.join(' ');
 
     const dateType = this.props.type === 'datetime' || this.props.type === 'half' ? 'date' : this.props.type;
 
     let partialToolbar = null;
+
     if (this.props.partial) {
       partialToolbar = (
         <div className="mui-datetimerangepicker-row partial">
@@ -480,6 +492,7 @@ class DateTimeRangeDoublePicker extends Component {
     }
 
     let clearBtn = null;
+
     if (this.props.allowClear) {
       clearBtn = (
         <Button

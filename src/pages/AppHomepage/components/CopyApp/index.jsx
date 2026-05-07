@@ -85,6 +85,7 @@ export default class CopyApp extends Component {
             value: l.id,
           };
         });
+
         if (res && res.length) {
           this.setState({
             dataDBInstances: DataDBInstances.concat(list),

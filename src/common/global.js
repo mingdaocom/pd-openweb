@@ -21,6 +21,7 @@ function testApiPath(apiPath, url) {
 
 function changeRequestData(config, apiPath, changes = {}) {
   const needChange = isFunction(apiPath) ? apiPath() : testApiPath(apiPath, config.url);
+
   if (needChange) {
     if (isFunction(changes)) {
       config.data = changes(config.data);
@@ -58,6 +59,7 @@ axios.interceptors.request.use(
     } catch (err) {
       console.error(err);
     }
+
     return config;
   },
   error => {
@@ -288,12 +290,18 @@ window.safeParse = (str, type) => {
   if (!str) {
     return type === 'array' ? [] : {};
   }
+
+  if (typeof str === 'object') {
+    return str;
+  }
+
   try {
     return JSON.parse(str);
   } catch (err) {
     if (str && !(typeof str === 'string' && str.startsWith('deleteRowIds'))) {
       console.error(err);
     }
+
     return type === 'array' ? [] : {};
   }
 };
@@ -340,6 +348,7 @@ window.createTimeSpan = (dateStr, showType = 1) => {
     if (showType === 5) {
       return _l('%0月%1日', simpleMonth, simpleDay);
     }
+
     return `${_l('%0月%1日', simpleMonth, simpleDay)}` + (isShowSort ? '' : ` ${hour}:${minute}`);
   }
 
@@ -452,9 +461,11 @@ const disposeRequestParams = (controllerName, actionName, data, ajaxOptions) => 
     'X-Requested-With': 'XMLHttpRequest',
     ...(ajaxOptions.header || {}),
   };
+
   if (ajaxOptions.noAccountIdHeader) {
     delete headers.AccountId;
   }
+
   const clientId = window.clientId || sessionStorage.getItem('clientId');
   const needClientIdControllerNames = [
     'AppManagement',
@@ -469,6 +480,7 @@ const disposeRequestParams = (controllerName, actionName, data, ajaxOptions) => 
     'Integration',
     'WorksheetSetting',
     'MerchantInvoice',
+    'Mingo',
   ];
 
   if (
@@ -673,6 +685,7 @@ function JSONParseForEncryption(jsonString = '') {
  */
 const interfaceDataDecryption = (response, actionName = '') => {
   const { data, key, encrypted } = response || {};
+
   const getDecryptedValue = (decryptKey, encryptedValue) => {
     const decrypted = CryptoJS.AES.decrypt(encryptedValue, CryptoJS.enc.Utf8.parse(decryptKey), {
       iv: CryptoJS.enc.Utf8.parse(PUBLIC_KEY.replace(/\r|\n/, '').slice(26, 42)),
@@ -817,7 +830,7 @@ window.mdyAPI = (controllerName, actionName, requestData, options = {}) => {
       url,
       headers,
       params: method === 'GET' ? data : {},
-      data: method === 'POST' ? data : {},
+      data: ['POST', 'PUT'].includes(method) ? data : {},
       withCredentials: !ajaxOptions.url,
       signal: controller.signal,
       responseType,

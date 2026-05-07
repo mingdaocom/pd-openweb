@@ -91,6 +91,7 @@ export default function RowDetailModal(props) {
             if (type === 'edit' && !disabled) {
               formContent.current.handleSave(false, false, true);
             }
+
             onClose();
           }}
         ></i>

@@ -22,12 +22,14 @@ export default function getNotice() {
     .then(payload => {
       if (payload.state === 1) {
         const { data = [] } = payload;
+
         if (Array.isArray(data) && data.length > 0) {
           data.forEach(({ data: notice }) => {
             if ([1, 2].includes(notice.type)) {
               displaySysNotice(notice);
               return;
             }
+
             displayMarketNotice(notice);
           });
         }

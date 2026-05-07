@@ -109,6 +109,7 @@ export default function SubListSetting(props) {
     if ((window.subListSheetConfig[controlId] || {}).saveIndex === saveIndex) {
       return;
     }
+
     if (saveIndex && dataSource && !dataSource.includes('-')) {
       setLoading(true);
       worksheetAjax
@@ -126,15 +127,19 @@ export default function SubListSetting(props) {
           // 关联表子表因为无法新增字段 所以不需要更新relationControls
           if (res.type !== 2) return;
           const { showControls } = allControls.find(item => item.controlId === controlId);
+          const mode = res.type === 2 ? 'new' : 'relate';
           onChange({
             ...saveData,
             relationControls: dealControlData(controls),
-            showControls,
+            showControls:
+              mode === 'new' && _.isEmpty(showControls)
+                ? controls.filter(c => !_.includes(ALL_SYS, c.controlId)).map(c => c.controlId)
+                : showControls,
           });
           window.subListSheetConfig = {
             [controlId]: {
               status: true,
-              mode: res.type === 2 ? 'new' : 'relate',
+              mode,
               saveIndex,
               sheetInfo: res,
             },
@@ -163,11 +168,13 @@ export default function SubListSetting(props) {
   const updateSubQueryConfigs = (value = {}, mode) => {
     const index = findIndex(subQueryConfigs, item => item.controlId === value.controlId);
     let newQueryConfigs = subQueryConfigs.slice();
+
     if (mode) {
       index > -1 && newQueryConfigs.splice(index, 1);
     } else {
       index > -1 ? newQueryConfigs.splice(index, 1, value) : newQueryConfigs.push(value);
     }
+
     setSubQueryConfigs(newQueryConfigs);
   };
 
@@ -191,11 +198,13 @@ export default function SubListSetting(props) {
       setMode('new');
       return;
     }
+
     handleClear();
     if ((window.subListSheetConfig[controlId] || {}).status && !needUpdate) {
       setMode(_.get(window.subListSheetConfig[controlId], 'mode'));
       return;
     }
+
     setLoading(true);
     worksheetAjax
       .getWorksheetInfo({
@@ -207,15 +216,17 @@ export default function SubListSetting(props) {
       .then(res => {
         if (res.resultCode === 4) return;
         const controls = filterRelationControls(res);
-        const defaultShowControls = getDefaultShowControls(controls);
+        const mode = res.type === 2 ? 'new' : 'relate';
+        const filterControls = mode === 'new' ? controls.filter(c => !_.includes(ALL_SYS, c.controlId)) : controls;
+        const defaultShowControls = getDefaultShowControls(filterControls);
         setInfo(res);
         window.subListSheetConfig[controlId] = {
           status: true,
-          mode: res.type === 2 ? 'new' : 'relate',
+          mode,
           saveIndex: status.saveIndex,
           sheetInfo: res,
         };
-        setMode(res.type === 2 ? 'new' : 'relate');
+        setMode(mode);
         let oriShowControls = isEmpty(showControls)
           ? defaultShowControls
           : _.isEmpty(showControls.filter(s => find(controls, c => c.controlId === s)))
@@ -277,6 +288,7 @@ export default function SubListSetting(props) {
         </Fragment>
       );
     }
+
     const sortedControls = resortControlByColRow(dealControlData(filterRelationControls(sheetInfo)));
     return (
       <Fragment>

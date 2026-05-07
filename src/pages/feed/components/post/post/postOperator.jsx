@@ -63,11 +63,13 @@ class PostOperator extends React.Component {
     if (e && e.target && e.target === ReactDom.findDOMNode(this.toggleBtn)) {
       return;
     }
+
     this.setState({ showOperateList: false });
   };
 
   render() {
     let dropBtn;
+
     if (!this.props.isShowOperate) {
       dropBtn = (
         <div className="postOperatorListContainer clearfix">

@@ -83,6 +83,7 @@ export default class Widgets extends Component {
       } else {
         handleTriggerEvent(this.handleWxSelectLocation, bindWeiXin(projectId), this.locationFailed);
       }
+
       return;
     }
 
@@ -92,6 +93,7 @@ export default class Widgets extends Component {
       } else {
         handleTriggerEvent(this.handleWxSelectLocation, bindWxWork(projectId), this.locationFailed);
       }
+
       return;
     }
 
@@ -106,6 +108,7 @@ export default class Widgets extends Component {
       } else {
         handleTriggerEvent(this.handleDingSelectLocation, bindDing(projectId), this.locationFailed);
       }
+
       return;
     }
 
@@ -115,6 +118,7 @@ export default class Widgets extends Component {
       } else {
         handleTriggerEvent(this.handleWeLinkSelectLocation, bindWeLink(projectId), this.locationFailed);
       }
+
       return;
     }
   };
@@ -184,6 +188,7 @@ export default class Widgets extends Component {
         },
         fail(res) {
           const { errMsg, errString } = res;
+
           if (
             !(
               errMsg.includes('cancel') ||
@@ -194,6 +199,7 @@ export default class Widgets extends Component {
           ) {
             window.nativeAlert(JSON.stringify(res));
           }
+
           Toast.clear();
         },
       });
@@ -207,6 +213,7 @@ export default class Widgets extends Component {
         },
         fail(res) {
           const { errMsg, errString } = res;
+
           if (
             !(
               errMsg.includes('cancel') ||
@@ -242,9 +249,11 @@ export default class Widgets extends Component {
         },
         cancel: res => {
           const { errMsg } = res;
+
           if (!(errMsg.includes('cancel') || errMsg.includes('canceled'))) {
             window.nativeAlert(JSON.stringify(res));
           }
+
           Toast.clear();
         },
       });
@@ -257,6 +266,7 @@ export default class Widgets extends Component {
         },
         cancel: res => {
           const { errMsg } = res;
+
           if (!(errMsg.includes('cancel') || errMsg.includes('canceled'))) {
             window.nativeAlert(JSON.stringify(res));
           }
@@ -304,6 +314,7 @@ export default class Widgets extends Component {
       content: _l('正在获取经纬度，请稍后'),
     });
     const isGoogle = !!getMapConfig();
+
     if (isGoogle) {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
@@ -329,8 +340,10 @@ export default class Widgets extends Component {
         window.nativeAlert(_l('定位失败，请重试'));
         Toast.clear();
       }
+
       return;
     }
+
     new MapLoader().loadJs().then(() => {
       if (!this._mapHandler) {
         this._mapHandler = new MapHandler();
@@ -371,7 +384,9 @@ export default class Widgets extends Component {
         console.log(error);
       }
     }
+
     let locationForShow = location || {};
+
     if (
       (locationForShow.coordinate || '').toLowerCase() === 'wgs84' &&
       locationForShow.x &&
@@ -382,6 +397,7 @@ export default class Widgets extends Component {
       locationForShow.x = coordinate[0];
       locationForShow.y = coordinate[1];
     }
+
     if (onlyCanAppUse && !value) {
       return (
         <div
@@ -428,6 +444,7 @@ export default class Widgets extends Component {
                   );
                   return;
                 }
+
                 window.open(`https://uri.amap.com/marker?position=${location.x},${location.y}`);
               } else {
                 if (isApp) {

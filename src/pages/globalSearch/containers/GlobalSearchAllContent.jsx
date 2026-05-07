@@ -88,6 +88,7 @@ export default class GlobalSearchAllContent extends Component {
 
   getNextSection = section => {
     const { appData, recordData, result } = this.state;
+
     if (!section) {
       return appData.total !== 0
         ? 'appData'
@@ -153,6 +154,7 @@ export default class GlobalSearchAllContent extends Component {
           result: [],
         });
       }
+
       this.leftAjax = null;
     });
   }
@@ -221,6 +223,7 @@ export default class GlobalSearchAllContent extends Component {
     const { appData, recordData, result } = this.state;
 
     let startType = '';
+
     if (appData && recordData && (appData.list.length !== 0 || recordData.list.length !== 0)) {
       startType = appData.list.length !== 0 ? 'app' : recordData.list.length !== 0 ? 'record' : '';
     } else if (result) {
@@ -242,6 +245,7 @@ export default class GlobalSearchAllContent extends Component {
     let _list = result.filter(l => ['user', 'group'].indexOf(l.type) < 0);
 
     let startType = '';
+
     if (type === 'app') {
       startType = recordData.list.length !== 0 ? 'record' : _list[0].type;
     } else if (type === 'record') {
@@ -250,6 +254,7 @@ export default class GlobalSearchAllContent extends Component {
       let obj = _list.find((l, index) => index !== 0 && _list[index - 1].type === type);
       startType = obj ? obj.type : '';
     }
+
     this.setState({ highlightType: startType });
   };
 

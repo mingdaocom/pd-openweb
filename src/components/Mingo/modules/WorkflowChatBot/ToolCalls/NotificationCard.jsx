@@ -69,6 +69,7 @@ function NotificationCard({ chatbotId, conversationId, functionData = {} }) {
   if (loading) {
     return <LoadDiv size="small" className="mTop20 mBottom20" />;
   }
+
   return (
     <Con>
       <div className="data-item">

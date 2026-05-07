@@ -14,7 +14,7 @@ export const urlList = [
   'mobile/discuss/',
   'mobile/addDiscuss/',
   'printForm/',
-  'printFormBatch/',
+  'printFormOld/',
 ];
 
 export const getSuffix = url => {
@@ -35,14 +35,17 @@ export const replacePorTalUrl = url => {
   ) {
     url = url.replace('app/' + md.global.Account.appId, md.global.Account.addressSuffix);
   }
+
   return url;
 };
 
 export const getAppId = params => {
   let { appId } = params;
+
   if (md.global.Account.isPortal) {
     appId = md.global.Account.appId;
   }
+
   return appId;
 };
 
@@ -58,10 +61,12 @@ export const toApp = appId => {
 export const getCurrentId = cb => {
   const request = getRequest();
   const { ReturnUrl = '', mdAppId = '' } = request;
+
   if (mdAppId) {
     cb(mdAppId);
     return;
   }
+
   let href = decodeURIComponent(ReturnUrl ? ReturnUrl : location.href);
   let currentAppId = '';
   urlList.forEach(o => {
@@ -83,6 +88,7 @@ export const resetPortalUrl = () => {
   window.localStorage.removeItem(`${md.global.Account.appId}_portalCustomLink`);
   const customLink = getCurrentExt(md.global.Account.appId, md.global.Account.addressSuffix);
   const hasCustomLink = location.href.indexOf(`/${customLink}`) >= 0;
+
   const getLink = () => {
     return location.href.replace(
       `${window.subPath || ''}/${md.global.Account.addressSuffix}`,
@@ -102,12 +108,15 @@ export const resetPortalUrl = () => {
 export const getCurrentExt = (appId, suffix) => {
   const request = getRequest();
   const { ReturnUrl = '', customLink } = request;
+
   if (customLink) {
     return customLink;
   }
+
   const urlPathname = new URL(decodeURIComponent(ReturnUrl ? ReturnUrl : location.href));
   const pathname = urlPathname.pathname;
   let prefix;
+
   if (appId) {
     ['app/', 'mobile/recordList/'].forEach(o => {
       if (pathname.indexOf(`/${o}${appId}/`) >= 0) {
@@ -115,6 +124,7 @@ export const getCurrentExt = (appId, suffix) => {
       }
     });
   }
+
   if (!prefix) {
     if (suffix) {
       prefix = `/${suffix}/`;
@@ -122,13 +132,16 @@ export const getCurrentExt = (appId, suffix) => {
       return null;
     }
   }
+
   if (pathname.indexOf(prefix) >= 0) {
     const restOfPath = pathname.substring(pathname.indexOf(prefix) + prefix.length);
     const indexOfSlash = restOfPath.indexOf('/');
+
     if (indexOfSlash < 0 && restOfPath.length === 6) {
       return restOfPath;
     }
   }
+
   return null;
 };
 
@@ -136,6 +149,7 @@ export const goApp = (sessionId, appId, customLink) => {
   setPssId(sessionId);
   const request = getRequest();
   let { ReturnUrl = '' } = request;
+
   if (ReturnUrl) {
     if (ReturnUrl.indexOf(`/${customLink}`) >= 0 && customLink) {
       const regex = new RegExp(`/${customLink}(.*)$`, 'g');
@@ -148,6 +162,7 @@ export const goApp = (sessionId, appId, customLink) => {
     toApp(appId);
   }
 };
+
 export const setAutoLoginKey = (res, removeLink = true) => {
   if (res.accountResult === 9 && res.state) {
     window.clientId = res.state;
@@ -160,6 +175,7 @@ export const setAutoLoginKey = (res, removeLink = true) => {
     window.shareState.isPublicFormPreview = false;
     window.shareState.isPublicForm = false;
   }
+
   const { appId, autoLoginKey } = res;
   removeLink && window.localStorage.removeItem(`${appId}_portalCustomLink`);
   if (!autoLoginKey) {
@@ -174,6 +190,7 @@ export const accountResultAction = (res, customLink) => {
   const { accountResult, sessionId, appId, state } = res;
   window.localStorage.removeItem(`${appId}_portalCustomLink`);
   let msg = '';
+
   switch (accountResult) {
     case 1:
       return goApp(sessionId, appId, customLink);
@@ -250,9 +267,11 @@ export const accountResultAction = (res, customLink) => {
       msg = _l('登录失败');
       break;
   }
+
   alert(msg, 3);
   return;
 };
+
 export const statusList = [2, 3, 4, 9, 10, 11, 12, 13, 14, 10000, 20000, 40]; //需要呈现相对落地页的状态码
 
 export const isErrSet = portalSetResult => {

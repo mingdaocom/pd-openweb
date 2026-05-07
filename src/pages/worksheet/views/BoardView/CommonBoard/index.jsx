@@ -1,12 +1,14 @@
-﻿import React, { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useDrop } from 'react-dnd-latest';
 import { every, isEmpty } from 'lodash';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { LoadDiv } from 'ming-ui';
+import useButtonStatusOfRows from 'worksheet/hooks/useButtonStatusOfRows';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import { emitter } from 'src/utils/common';
 import { getAdvanceSetting } from 'src/utils/control';
+import { filterButtonBySheetSwitchPermit, getSheetOperatesButtons } from 'src/utils/worksheet';
 import SelectField from '../../components/SelectField';
 import ViewEmpty from '../../components/ViewEmpty';
 import { filterAndFormatterControls } from '../../util';
@@ -70,13 +72,16 @@ function CommonBoard(props) {
         const $wrap = document.querySelector('.boardListWrap');
         const pos = $wrap.getBoundingClientRect();
         const offset = monitor.getClientOffset();
+
         if (offset.x < pos.x + 40) {
           $wrap.scrollLeft -= 20;
         }
+
         if (offset.x + 40 > pos.x + pos.width) {
           $wrap.scrollLeft += 20;
         }
       }
+
       _.throttle(scroll)();
     },
   });
@@ -85,6 +90,26 @@ function CommonBoard(props) {
   const flagRef = useRef({ preScrollLeft: 0, pending: false });
   const commonBoardRef = useRef(null);
   const [intersectionBox, setIntersectionBox] = useState(null);
+  const { boardData } = boardView;
+  const { sheetButtons, printList, sheetSwitchPermit } = props;
+
+  // 获取所有记录 ID
+  const allRecordIds = useMemo(() => {
+    return _.flatMap(boardData, item => item.rows.map(row => safeParse(row)?.rowid)).filter(Boolean);
+  }, [boardData]);
+
+  // 获取操作按钮
+  const operateButtons = useMemo(() => {
+    let buttons = getSheetOperatesButtons(view, { buttons: sheetButtons, printList });
+    buttons = filterButtonBySheetSwitchPermit(buttons, sheetSwitchPermit, viewId);
+    return buttons;
+  }, [view, sheetButtons, printList, sheetSwitchPermit, viewId]);
+
+  // 获取按钮 ID
+  const btnIds = useMemo(() => operateButtons.map(b => b.btnId).filter(Boolean), [operateButtons]);
+
+  // 获取按钮状态
+  const { buttonsCheckStatus } = useButtonStatusOfRows(worksheetId, allRecordIds, btnIds);
 
   const allowOperation = useMemo(() => {
     const firstGroupControl = _.find(controls, item => item.controlId === view.viewControl);
@@ -125,11 +150,13 @@ function CommonBoard(props) {
       $listWrap.scrollLeft = e.deltaY * 10 + $listWrap.scrollLeft;
     }
   };
+
   const refresh = useCallback(({ worksheetId }) => {
     if (worksheetId === props.worksheetId && !document.querySelector('.workSheetRecordInfo')) {
       refreshSheet(view);
     }
   });
+
   const bindEvent = () => {
     const scrollEvent = _.throttle(scrollHorizontal);
     const scrollLoadEvent = _.throttle(scrollLoad);
@@ -139,6 +166,7 @@ function CommonBoard(props) {
     if ($listWrap) {
       $listWrap.addEventListener('scroll', scrollLoadEvent);
     }
+
     emitter.addListener('RELOAD_RECORD_INFO', refresh);
     return () => {
       document.body.removeEventListener('mousewheel', scrollEvent);
@@ -152,6 +180,7 @@ function CommonBoard(props) {
 
   useEffect(() => {
     const unBindEvent = bindEvent();
+
     return () => {
       clearBoardView();
       unBindEvent();
@@ -174,14 +203,18 @@ function CommonBoard(props) {
       'customitems',
       'customnavs',
     ]);
+
     if (advancedSetting.navshow && _.get(nextView, 'viewControl')) {
       let control = controls.find(o => o.controlId === _.get(nextView, 'viewControl'));
       let type = control.type;
+
       if (type === 30) {
         type = control.sourceControlType;
       }
+
       advancedSetting.navshow = [26, 27, 48].includes(type) ? '1' : '0';
     }
+
     nextView.advancedSetting = advancedSetting;
     setViewConfigVisible(true);
     saveView(viewId, nextView, () => {
@@ -205,6 +238,7 @@ function CommonBoard(props) {
     const { viewControl } = view;
     const viewData = dealBoardViewData({ view, controls, data: boardData });
     const { navshow, freezenav } = getAdvanceSetting(view);
+
     // 选择了控件作为看板且控件没有被删除
     if (!isFirstGroupValidField) {
       return (
@@ -258,6 +292,7 @@ function CommonBoard(props) {
               addRecord={addRecord}
               allowOperation={allowOperation}
               viewRootEl={intersectionBox}
+              buttonsCheckStatus={buttonsCheckStatus}
               {..._.pick(props, [
                 'appId',
                 'viewId',

@@ -15,7 +15,7 @@ import './less/Score.less';
 const CustomScoreIcon = styled.div`
   .scoreIcon {
     transition: 0.3s;
-    color: ${props => props.color || 'var(--color-border-primary)'};
+    color: ${props => props.color || 'var(--color-text-placeholder)'};
     &:hover {
       color: ${props => props.color || 'var(--color-border-primary)'};
     }
@@ -64,11 +64,13 @@ class CustomScore extends Component {
 
     if (this.props.disabled) {
       this.onMouseEnter = () => {};
+
       this.onMouseLeave = () => {};
     } else {
       this.onMouseEnter = this.onMouseEnter.bind(this);
       this.onMouseLeave = this.onMouseLeave.bind(this);
     }
+
     this.onSelect = this.onSelect.bind(this);
   }
   componentWillReceiveProps(nextProps) {
@@ -85,6 +87,7 @@ class CustomScore extends Component {
     if (index === this.state.lastScore) {
       index = 0;
     }
+
     this.setState({
       lastScore: index,
       score: index,
@@ -128,14 +131,17 @@ class CustomScore extends Component {
         {list.map((item, index) => {
           const tipText = `${_.get(itemnames[index], 'value') || index + 1}`;
           let tipProps = { placement: 'top', offset: [0, 1] };
+
           if (isMobile) {
             if (index === 0 && getStringBytes(tipText) >= 10) {
               tipProps = { placement: 'topLeft', offset: [-12, 1] };
             }
+
             if (index === list.length - 1 && getStringBytes(tipText) >= 10) {
               tipProps = { placement: 'topRight', offset: [12, 1] };
             }
           }
+
           return (
             <div
               key={index}

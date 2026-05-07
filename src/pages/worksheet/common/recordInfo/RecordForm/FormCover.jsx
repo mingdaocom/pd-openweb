@@ -11,6 +11,7 @@ import { browserIsMobile } from 'src/utils/sso';
 const videoReg = (data = {}) => {
   return /(swf|avi|flv|mpg|rm|mov|wav|asf|3gp|mkv|rmvb|mp4)/i.test(data.ext || '');
 };
+
 const imgReg = (data = {}) => {
   return /(gif|png|jpg|jpeg|webp|svg|psd|bmp|tif|tiff)/i.test(data.ext || '');
 };
@@ -233,9 +234,11 @@ export default function FormCover(props) {
 
   useEffect(() => {
     let newData = [];
+
     if (coverid) {
       newData = JSON.parse(control.value || '[]').filter(i => videoReg(i) || imgReg(i));
     }
+
     setImageData(newData);
   }, [flag]);
 
@@ -245,9 +248,11 @@ export default function FormCover(props) {
       rowId: recordId,
     });
     const hideFunctions = ['editFileName', 'saveToKnowlege', 'share'];
+
     if (!allowDownload) {
       hideFunctions.push('download');
     }
+
     // 打开图片
     previewAttachments({
       index: currentIndex,
@@ -309,6 +314,7 @@ export default function FormCover(props) {
   if (!imageData.length) {
     return null;
   }
+
   return (
     <FormCoverWrap height={coverheight} coverType={covertype} bgColor={bgColor}>
       <CarouseWrap>

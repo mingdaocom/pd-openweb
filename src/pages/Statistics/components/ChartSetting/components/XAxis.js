@@ -74,9 +74,11 @@ const getEmptyTypes = reportType => {
   if (reportType === reportTypes.LineChart) {
     return lineChartEmptyTypes;
   }
+
   if (reportType === reportTypes.NumberChart) {
     return numberChartEmptyTypes;
   }
+
   return emptyTypes;
 };
 
@@ -93,9 +95,11 @@ const getIsEmptyType = (reportType, { isTime, isOption }) => {
   ) {
     return true;
   }
+
   if ([reportTypes.NumberChart, reportTypes.FunnelChart].includes(reportType) && isOption) {
     return true;
   }
+
   return false;
 };
 
@@ -138,28 +142,34 @@ export default class XAxis extends Component {
   };
   handleVerification = (data, isAlert = false) => {
     const { reportType, split, yaxisList } = this.props.currentReport;
+
     if ([reportTypes.CountryLayer].includes(reportType) && !isAreaControl(data.type)) {
       isAlert && alert(_l('行政区域图仅支持地区字段可作为x轴维度'), 2);
       return false;
     }
+
     if ([reportTypes.WorldMap].includes(reportType) && !(isAreaControl(data.type) || data.type === 40)) {
       isAlert && alert(_l('地图仅支持地区和定位字段可作为x轴维度'), 2);
       return false;
     }
+
     if ([reportTypes.FunnelChart].includes(reportType)) {
       if (isTimeControl(data.type)) {
         isAlert && alert(_l('时间类型不能作为x轴维度'), 2);
         return false;
       }
+
       if (data.controlId === _.get(yaxisList[0], 'controlId')) {
         isAlert && alert(_l('维度和数值不能相同'), 2);
         return false;
       }
     }
+
     if ([reportTypes.PieChart].includes(reportType) && yaxisList.length > 1) {
       isAlert && alert(_l('多数值时不能同时配置维度'), 2);
       return false;
     }
+
     if (
       [reportTypes.BarChart, reportTypes.RadarChart].includes(reportType) &&
       split.controlId &&
@@ -168,6 +178,7 @@ export default class XAxis extends Component {
       isAlert && alert(_l('多数值时不能同时配置维度和分组'), 2);
       return false;
     }
+
     if (isXAxisControl(data.type)) {
       return true;
     } else {

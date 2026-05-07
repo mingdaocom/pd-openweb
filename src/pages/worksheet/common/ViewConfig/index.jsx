@@ -20,6 +20,7 @@ export default class ViewConfig extends React.Component {
 
   componentWillReceiveProps(nextProps) {
     const { view } = nextProps;
+
     if (nextProps.viewId !== this.props.viewId) {
       this.state = {
         name: view.name,
@@ -30,6 +31,7 @@ export default class ViewConfig extends React.Component {
   componentWillUnmount() {
     if (this.inputEl && document.activeElement === this.inputEl) {
       const value = this.inputEl.value.trim();
+
       if (value && this.props.view.name !== value) {
         this.handleNameSave();
       }
@@ -100,17 +102,20 @@ export default class ViewConfig extends React.Component {
             onFocus={this.handleFocus}
             onBlur={event => {
               const value = event.target.value.trim();
+
               if (!value) {
                 this.setState({
                   name: view.name,
                 });
               }
+
               if (value && view.name !== value) {
                 this.handleNameSave();
               }
             }}
             onKeyDown={event => {
               const value = event.target.value.trim();
+
               if (event.which === 13 && value && view.name !== value) {
                 this.handleNameSave();
                 $(this.inputEl).blur();

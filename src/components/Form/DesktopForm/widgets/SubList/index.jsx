@@ -3,6 +3,7 @@ import _, { find, get } from 'lodash';
 import PropTypes from 'prop-types';
 import RecordInfoContext from 'worksheet/common/recordInfo/RecordInfoContext';
 import ChildTable from 'worksheet/components/ChildTable';
+import { WidgetEventHelper } from '../../../core/useFormEventManager';
 
 export default class SubList extends React.Component {
   static contextType = RecordInfoContext;
@@ -22,6 +23,7 @@ export default class SubList extends React.Component {
   constructor(props) {
     super(props);
     this.debounceChange = _.debounce(this.props.onChange, 300);
+    this.eventHelper = new WidgetEventHelper(props.formItemId);
   }
 
   handleChange = ({ rows, originRows = [], lastAction = {} }, mode) => {
@@ -33,15 +35,18 @@ export default class SubList extends React.Component {
         rows,
       });
     }
+
     const { value, recordId, onChildTableLoaded = () => {} } = this.props;
     // 子表导入场景这里可以异化，导入完成再调用 onChange
     const onChange =
       lastAction.type === 'UPDATE_ROW' && lastAction.asyncUpdate ? this.debounceChange : this.props.onChange;
 
     const isAdd = !recordId;
+
     if (!isAdd && lastAction.type === 'INIT_ROWS') {
       onChildTableLoaded();
     }
+
     if (
       !_.includes(
         [
@@ -61,6 +66,7 @@ export default class SubList extends React.Component {
           'WORKSHEET_SHEETVIEW_APPEND_ROWS',
           'UPDATE_PAGINATION',
           'RESET_CHANGES',
+          'UPDATE_SORT_CONFIG',
         ],
         lastAction.type,
       ) &&
@@ -69,6 +75,7 @@ export default class SubList extends React.Component {
       if (lastAction.type === 'ADD_ROWS' && find(lastAction.rows, row => row.isAddByTree)) {
         return;
       }
+
       if (isAdd) {
         onChange({
           isAdd: true,
@@ -87,12 +94,14 @@ export default class SubList extends React.Component {
       } else {
         let deleted = [];
         let updated = [];
+
         try {
           deleted = value.deleted || lastAction.deleted || [];
           updated = value.updated || lastAction.updated || [];
         } catch (err) {
           console.log(err);
         }
+
         if (lastAction.type === 'DELETE_ROW') {
           deleted = _.uniqBy(deleted.concat(lastAction.rowid)).filter(id => !/^(temp|default)/.test(id));
         } else if (lastAction.type === 'DELETE_ROWS') {
@@ -110,6 +119,7 @@ export default class SubList extends React.Component {
         } else if (lastAction.type === 'ADD_ROWS') {
           updated = _.uniqBy(updated.concat(lastAction.rows.map(r => r.rowid)));
         }
+
         onChange({
           deleted,
           updated,
@@ -119,9 +129,36 @@ export default class SubList extends React.Component {
     }
   };
 
+  componentDidMount() {
+    // 子表 Tab 焦点：Enter 新建一行并进入表格内部键盘逻辑
+    this.eventHelper.subscribe(data => {
+      const { triggerType } = data;
+
+      if (triggerType === 'Enter') {
+        try {
+          const childTableWrapper = this.childTable.current;
+          const innerTable = childTableWrapper && childTableWrapper.store && childTableWrapper.store.ref;
+
+          if (innerTable && typeof innerTable.handleAddRowByLine === 'function') {
+            innerTable.handleAddRowByLine();
+          }
+        } catch (err) {
+          console.log(err);
+        }
+      }
+    });
+  }
+
+  componentWillUnmount() {
+    if (this.eventHelper) {
+      this.eventHelper.destroy();
+    }
+  }
+
   render() {
     const {
       from,
+      formItemId,
       registerCell,
       worksheetId,
       recordId,
@@ -138,11 +175,16 @@ export default class SubList extends React.Component {
       <div className="mdsubList">
         {
           <ChildTable
+            formItemId={formItemId}
             showSearch
             showExport
             ref={this.childTable}
             initSource={initSource}
-            registerCell={registerCell}
+            registerCell={cell => {
+              if (typeof registerCell === 'function') {
+                registerCell(cell);
+              }
+            }}
             appId={appId}
             viewId={viewIdForPermit}
             from={from}

@@ -76,11 +76,13 @@ const UserInfoDialogWrap = styled.div`
     }
   }
 `;
+
 export default function UserInfoWrap(props) {
   const { setShow, title, onDel, currentData, renderCancel, okText, isPage, disable, width, showClose, show, appId } =
     props;
   const customwidget = useRef(null);
   const [ids, setIds] = useState([]);
+
   const renderCon = () => {
     return (
       <Wrap className="flexColumn" width={width}>
@@ -113,14 +115,18 @@ export default function UserInfoWrap(props) {
                 if (disable) {
                   return;
                 }
+
                 let { data, hasError } = customwidget.current.getSubmitData();
+
                 if (hasError) {
                   return;
                 }
+
                 if (data.find(o => o.type === 29 && safeParse(o.value, 'array').length > 5)) {
                   alert(_l('最多只能关联 5 条记录'), 3);
                   return;
                 }
+
                 props.onOk(data, ids);
                 setShow(false);
               }}
@@ -136,6 +142,7 @@ export default function UserInfoWrap(props) {
                   if (disable) {
                     return;
                   }
+
                   setShow(false);
                 }}
               >
@@ -152,9 +159,11 @@ export default function UserInfoWrap(props) {
       </Wrap>
     );
   };
+
   if (isPage) {
     return renderCon();
   }
+
   return (
     <Drawer
       width={640}

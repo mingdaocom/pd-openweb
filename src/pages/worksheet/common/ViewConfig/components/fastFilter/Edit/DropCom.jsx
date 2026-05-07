@@ -12,11 +12,13 @@ export default function DropCom(props) {
   let dataInfo = data.types.map(o => {
     return { ...o, disabled: !!conData.encryId && o.value !== FILTER_CONDITION_TYPE.EQ };
   });
+
   if (['dateRangeType'].includes(data.key)) {
     dataInfo = getDateRangeTypeListByShowtype(
       conData.type === 38 ? _.get(conData, 'unit') : _.get(conData, 'advancedSetting.showtype'),
     );
   }
+
   let type = getControlFormatType(control);
   let value = ['filterType', 'dateRangeType'].includes(data.key)
     ? ['filterType'].includes(data.key) && data.keys.includes(type) && control[data.key] === 0
@@ -32,6 +34,7 @@ export default function DropCom(props) {
         className="flex"
         onChange={newValue => {
           let dataNew = { [data.key]: newValue };
+
           if (data.keys.includes(type) && [15, 16].includes(type)) {
             if (['dateRangeType'].includes(data.key)) {
               dataNew.daterange = '[]'; //新增默认不勾选
@@ -39,6 +42,7 @@ export default function DropCom(props) {
                 dataNew.value = moment(control.value).format(DATE_FORMAT_BY_DATERANGETYPE[newValue]);
               }
             }
+
             if (['filterType'].includes(data.key)) {
               //日期字段筛选方式切换，颗粒度清空
               dataNew = {
@@ -49,6 +53,7 @@ export default function DropCom(props) {
               };
             }
           }
+
           if (['filterType'].includes(data.key) && [6, 8, 15, 16, 17, 18, 46].includes(type)) {
             //清空默认值
             dataNew = {
@@ -59,6 +64,7 @@ export default function DropCom(props) {
               value: '',
             };
           }
+
           updateViewSet({
             ...dataNew,
           });

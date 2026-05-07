@@ -103,10 +103,12 @@ function CustomBtnFormSet(props) {
     getSheetBtns();
   }, [worksheetId]);
   let ajaxFn = null;
+
   const getSheetBtns = () => {
     if (ajaxFn) {
       ajaxFn.abort();
     }
+
     ajaxFn = sheetAjax.getWorksheetBtns({
       worksheetId,
     });
@@ -136,6 +138,7 @@ function CustomBtnFormSet(props) {
         </p>
       );
     }
+
     let singleBtns = list.filter(o => !o.isBatch);
     let batchBtns = list.filter(o => o.isBatch);
 
@@ -230,6 +233,7 @@ function CustomBtnFormSet(props) {
                       buriedUpgradeVersionDialog(worksheetInfo.projectId, VersionProductType.recycle);
                       return;
                     }
+
                     setState({
                       showTrash: true,
                     });
@@ -310,4 +314,5 @@ function CustomBtnFormSet(props) {
     </React.Fragment>
   );
 }
+
 export default CustomBtnFormSet;

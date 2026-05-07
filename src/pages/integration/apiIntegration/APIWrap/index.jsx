@@ -39,6 +39,7 @@ function APISetting(props) {
         props.onCancel && props.onCancel();
       }
     };
+
     window.addEventListener('keydown', keyDownListener, false);
     return () => {
       window.removeEventListener('keydown', keyDownListener, false);
@@ -53,7 +54,6 @@ function APISetting(props) {
       });
       getInfo(props.listId);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.listId, curId]);
 
   //获取这个api的相关信息
@@ -73,6 +73,7 @@ function APISetting(props) {
     if (!processId) {
       return;
     }
+
     const flowNodeData = await flowNodeAjax.get({ processId }, { isIntegration: true });
     const processPublishInfo = await processAjax.getProcessPublish({ processId }, { isIntegration: true });
     const hasManageAuth = checkPermission(flowNodeData.companyId, PERMISSION_ENUM.MANAGE_API_CONNECTS);
@@ -112,6 +113,7 @@ function APISetting(props) {
           apkInfo: props.connectInfo,
         });
   };
+
   // 更新基本信息
   const updateInfo = data => {
     processAjax
@@ -140,6 +142,7 @@ function APISetting(props) {
         props.onChange && props.onChange(newData);
       });
   };
+
   const createApi = async () => {
     const res = await packageVersionAjax.addApi(
       {
@@ -170,6 +173,7 @@ function APISetting(props) {
     getInfo(newRes.id);
     props.onChange && props.onChange(newRes);
   };
+
   /**
    * 开启关闭
    */
@@ -179,6 +183,7 @@ function APISetting(props) {
     });
     processAjax.publish({ isPublish: enabled, processId: data.id }, { isIntegration: true }).then(publishData => {
       const { isPublish } = publishData;
+
       if (isPublish) {
         let newData = {
           ...data,
@@ -230,6 +235,7 @@ function APISetting(props) {
         return <Log hasManageAuth={hasManageAuth} processId={data.id} connectInfo={apkInfo} />;
     }
   };
+
   if (loading) {
     return (
       <Wrap className={props.className}>
@@ -242,7 +248,7 @@ function APISetting(props) {
     <Wrap className={cx(props.className, 'flexColumn')}>
       {props.forPage && <DocumentTitle title={`${_l('集成')}-${data.name || _l('未命名 API')}`} />}
 
-      <div className="conSetting flex" style={{ background: tab === 2 ? '#fff' : 'none' }}>
+      <div className="conSetting flex" style={{ background: tab === 2 ? 'var(--color-background-primary)' : 'none' }}>
         <Header
           data={data}
           apkInfo={apkInfo}

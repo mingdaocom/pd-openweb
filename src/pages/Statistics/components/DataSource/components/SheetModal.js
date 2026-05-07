@@ -171,13 +171,16 @@ export default class SheetModal extends Component {
   };
   getWorksheetViews(worksheetId) {
     const { views = [], loading, show } = this.state.viewsData[worksheetId] || {};
+
     if (loading) {
       return;
     }
+
     if (views.length) {
       this.setViewsData(worksheetId, { show: !show });
       return;
     }
+
     this.setViewsData(worksheetId, { loading: true });
     sheetApi
       .getWorksheetInfo({
@@ -191,6 +194,7 @@ export default class SheetModal extends Component {
   }
   handleSave = () => {
     const { viewId, newWorksheetId, appType, activeKey } = this.state;
+
     if (viewId || viewId === null) {
       this.props.onChange(newWorksheetId, viewId, appType);
     } else {
@@ -315,6 +319,7 @@ export default class SheetModal extends Component {
                   } else {
                     !aggregationSheets.length && this.getAggregationSheetList(appId);
                   }
+
                   this.setState({ activeKey: key, searchValue: '' });
                 }}
                 centered={true}

@@ -73,12 +73,15 @@ function ColumnVisibilityControl(props) {
       resizeObserverRef.current.disconnect();
       resizeObserverRef.current = null;
     }
+
     const timer = setTimeout(() => {
       const baseColumnHead = document.querySelector(`.sheetViewTable.id-${tableId}-id .topFixedtop-left`);
+
       const updateHeight = () => {
         if (!baseColumnHead) return;
         setColumnHeadHeight(baseColumnHead.offsetHeight);
       };
+
       updateHeight();
       resizeObserverRef.current = new ResizeObserver(() => {
         updateHeight();
@@ -96,7 +99,7 @@ function ColumnVisibilityControl(props) {
   }, [tableId, columnHeadHeightProp, titlewrap, showControls]);
 
   useEffect(() => {
-    const { personal_setting = {} } = getAdvanceSetting(view);
+    const { personal_setting = '{}' } = getAdvanceSetting(view);
     const personalSetting = safeParse(personal_setting || '{}');
     const allControlIds = columns.map(c => c.controlId);
     // 从 controls 计算 showControls
@@ -104,9 +107,11 @@ function ColumnVisibilityControl(props) {
     const showControls = allControlIds.filter(id => !controls.includes(id));
     // 从 controlsSorts 读取排序，如果没有则使用全部字段的顺序
     let controlsSorts = allControlIds;
+
     if (typeof personalSetting?.controlsSorts !== 'undefined' && personalSetting?.controlsSorts?.length > 0) {
       controlsSorts = personalSetting?.controlsSorts;
     }
+
     setShowControls(showControls);
     setControlsSorts(controlsSorts);
   }, [view, columns]);
@@ -120,10 +125,12 @@ function ColumnVisibilityControl(props) {
     if (visible && tableId) {
       requestAnimationFrame(() => {
         const mainCenter = document.querySelector(`.sheetViewTable.id-${tableId}-id .main-center`);
+
         if (mainCenter) {
           const height = mainCenter.style.height ? parseInt(mainCenter.style.height, 10) : mainCenter.offsetHeight;
           setTableVisibleHeight(height - 80); //减去搜索栏和操作栏的高度
         }
+
         window.dispatchEvent(new Event('resize'));
       });
     }

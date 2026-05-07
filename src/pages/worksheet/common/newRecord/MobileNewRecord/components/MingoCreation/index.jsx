@@ -76,6 +76,7 @@ const MingoCreation = forwardRef((props, ref) => {
           closeImmediate();
           return;
         }
+
         break;
       case COMPOSITE_INPUT_TYPE.VOICE:
         voiceInputRef.current?.open();

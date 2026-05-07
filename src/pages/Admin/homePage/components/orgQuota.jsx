@@ -13,7 +13,7 @@ import { formatFileSize, getValue } from '../utils';
 
 // 租住管理首页-组织额度
 export default function orgQuota(props) {
-  const { projectId, data, isFree, isTrial, isLocal, authority, updateData = () => {} } = props;
+  const { projectId, data, isFree, isTrial, isMingdaoSaas, authority, updateData = () => {} } = props;
   const analysisPermission = authority.includes(PERMISSION_ENUM.USER_ANALYTICS);
   const IsPlatformLocal = window.platformENV.isPlatform;
   const hasBalance = IsPlatformLocal && authority.includes(PERMISSION_ENUM.FINANCE);
@@ -30,10 +30,13 @@ export default function orgQuota(props) {
       case 'limitDataPipelineJobCount':
       case 'limitAggregationTableCount':
       case 'limitDataPipelineEtlJobCount':
+      case 'limitVectorKnowledgeCount':
+      case 'limitVectorKnowledgeChunkCount':
         return data[key] >= 2147483647;
       case 'limitExecCount':
         return data[key] >= 1000000000;
     }
+
     return false;
   };
 
@@ -50,6 +53,8 @@ export default function orgQuota(props) {
         'effectiveExternalUserCount',
         'effectiveWorksheetCount',
         'effectiveWorksheetRowCount',
+        'effectiveVectorKnowledgeCount',
+        'effectiveVectorKnowledgeChunkCount',
       ].includes(key)
     ) {
       percent =
@@ -59,12 +64,14 @@ export default function orgQuota(props) {
     } else {
       percent = ((data[key] / (getValue(data[limit]) * Math.pow(1024, 3))) * 100).toFixed(2);
     }
+
     return percent;
   };
 
   const getAllowAdd = key => {
     switch (key) {
       case 'limitExternalUserCount':
+      case 'limitVectorKnowledgeChunkCount':
         return !isFree && !isTrial;
       default:
         return !getNoLimit(key) && !isCloseProject;
@@ -77,6 +84,7 @@ export default function orgQuota(props) {
     let value = key === 'effectiveApkStorageCount' ? formatFileSize(data[key]) : getValue(data[key]);
     let overMillion = false;
     let overTenThousand = false;
+
     if (key !== 'effectiveApkStorageCount') {
       overMillion = data[key] >= 100000000;
       overTenThousand = data[key] >= 10000;
@@ -111,14 +119,20 @@ export default function orgQuota(props) {
       case 'limitDataPipelineJobCount':
       case 'effectiveDataPipelineEtlJobCount':
       case 'limitDataPipelineEtlJobCount':
+      case 'effectiveVectorKnowledgeCount':
+      case 'limitVectorKnowledgeCount':
         return overMillion ? _l('%0 亿+个', value) : overTenThousand ? _l('%0 万个', value) : _l('%0 个', value);
+      case 'effectiveVectorKnowledgeChunkCount':
+      case 'limitVectorKnowledgeChunkCount':
+        return overMillion ? _l('%0 亿+块', value) : overTenThousand ? _l('%0 万块', value) : _l('%0 块', value);
       default:
     }
   };
 
   const getCountText = (key, limit) => {
     const isAttachmentUpload = key === 'effectiveApkStorageCount'; // 附件上传量
-    const percentValue = getValue(data[limit]) === '-' || getNoLimit(limit) ? undefined : getCountProcess(key, limit);
+    const percentValue =
+      getValue(data[limit]) === '-' || getNoLimit(limit) || data[limit] === 0 ? undefined : getCountProcess(key, limit);
 
     return (
       <div className="useCount">
@@ -154,86 +168,89 @@ export default function orgQuota(props) {
           <div className="userInfo">
             <div className="content">
               <ul>
-                {UPLOAD_COUNT.filter(item => (IsPlatformLocal || !isLocal ? item : item.isLocalFilter)).map(item => {
-                  const { key, limit, text, link, click, featureId, routePath = undefined, autoPurchase } = item;
+                {UPLOAD_COUNT.filter(item => (IsPlatformLocal || isMingdaoSaas ? item : item.isLocalFilter)).map(
+                  item => {
+                    const { key, limit, text, link, click, featureId, routePath = undefined, autoPurchase } = item;
 
-                  if (featureId && !getFeatureStatus(projectId, featureId)) return;
+                    if (featureId && !getFeatureStatus(projectId, featureId)) return;
 
-                  const percentValue = getCountProcess(key, limit);
+                    const percentValue = data[key] === 0 ? 0 : getCountProcess(key, limit);
 
-                  return (
-                    <li
-                      className="Hand"
-                      onClick={() => {
-                        if (
-                          [
-                            'effectiveDataPipelineRowCount',
-                            'effectiveDataPipelineJobCount',
-                            'effectiveDataPipelineEtlJobCount',
-                          ].includes(key)
-                        ) {
-                          localStorage.setItem('currentProjectId', projectId);
-                          return location.assign('/integration/task');
-                        }
-                        link && navigateTo(`/admin/${link}/${projectId}`);
-                      }}
-                    >
-                      <div className="workflowTitle flexRow">
-                        <div className="flex">
-                          <span className="Font15 Bold">{text}</span>
-                          {key === 'effectiveApkStorageCount' && (
-                            <Tooltip placement="top" title={_l('应用中本年的附件上传量，上传即占用，删除不会恢复')}>
-                              <span className="icon-help1 Font13 textTertiary" />
-                            </Tooltip>
+                    return (
+                      <li
+                        className="Hand"
+                        onClick={() => {
+                          if (
+                            [
+                              'effectiveDataPipelineRowCount',
+                              'effectiveDataPipelineJobCount',
+                              'effectiveDataPipelineEtlJobCount',
+                            ].includes(key)
+                          ) {
+                            localStorage.setItem('currentProjectId', projectId);
+                            return location.assign('/integration/task');
+                          }
+
+                          link && navigateTo(`/admin/${link}/${projectId}`);
+                        }}
+                      >
+                        <div className="workflowTitle flexRow">
+                          <div className="flex">
+                            <span className="Font15 Bold">{text}</span>
+                            {key === 'effectiveApkStorageCount' && (
+                              <Tooltip placement="top" title={_l('应用中本年的附件上传量，上传即占用，删除不会恢复')}>
+                                <span className="icon-help1 Font13 textTertiary" />
+                              </Tooltip>
+                            )}
+                          </div>
+                          {link && (
+                            <span className="textTertiary Bold Font13 hoverColorPrimary detailBtn">{_l('查看')}</span>
+                          )}
+                          {!!item.PurchaseExpandPack && getAllowAdd(limit) && (
+                            <PurchaseExpandPack
+                              className="mLeft12 Bold Hover_theme"
+                              text={_l('扩容')}
+                              type={click}
+                              projectId={projectId}
+                              routePath={routePath}
+                            />
                           )}
                         </div>
-                        {link && (
-                          <span className="textTertiary Bold Font13 hoverColorPrimary detailBtn">{_l('查看')}</span>
+                        <Progress
+                          showInfo={false}
+                          style={{ margin: '7px 0', textAlign: 'left' }}
+                          trailColor="var(--color-border-secondary)"
+                          strokeColor={
+                            _.isNaN(Number(percentValue))
+                              ? 'var(--color-border-secondary)'
+                              : percentValue > 90
+                                ? { from: '#f44336', to: '#FF5779' }
+                                : { from: '#1677ff ', to: '#4bb2ff' }
+                          }
+                          strokeWidth={4}
+                          percent={percentValue}
+                        />
+                        {getCountText(key, limit)}
+                        {isMingdaoSaas && hasBalance && !!autoPurchase && !data[autoPurchase] && (
+                          <span
+                            className="mTop10 InlineBlock textSecondary Font13 Underline hoverColorPrimary"
+                            onClick={e => {
+                              e.stopPropagation();
+                              updateData({ balanceManageVisible: true });
+                            }}
+                          >
+                            {_l('启用自动增补')}
+                          </span>
                         )}
-                        {!!item.PurchaseExpandPack && getAllowAdd(limit) && (
-                          <PurchaseExpandPack
-                            className="mLeft12 Bold Hover_theme"
-                            text={_l('扩容')}
-                            type={click}
-                            projectId={projectId}
-                            routePath={routePath}
-                          />
+                        {data[autoPurchase] && item.autoPurchaseText && (
+                          <div className="mTop10 textSecondary Font13 mul2_overflow_ellipsis">
+                            {item.autoPurchaseText}
+                          </div>
                         )}
-                      </div>
-                      <Progress
-                        showInfo={false}
-                        style={{ margin: '7px 0', textAlign: 'left' }}
-                        trailColor="var(--color-border-secondary)"
-                        strokeColor={
-                          _.isNaN(Number(percentValue))
-                            ? 'var(--color-border-secondary)'
-                            : percentValue > 90
-                              ? { from: '#f44336', to: '#FF5779' }
-                              : { from: '#1677ff ', to: '#4bb2ff' }
-                        }
-                        strokeWidth={4}
-                        percent={percentValue}
-                      />
-                      {getCountText(key, limit)}
-                      {!isLocal && hasBalance && !!autoPurchase && !data[autoPurchase] && (
-                        <span
-                          className="mTop10 InlineBlock textSecondary Font13 Underline hoverColorPrimary"
-                          onClick={e => {
-                            e.stopPropagation();
-                            updateData({ balanceManageVisible: true });
-                          }}
-                        >
-                          {_l('启用自动增补')}
-                        </span>
-                      )}
-                      {data[autoPurchase] && item.autoPurchaseText && (
-                        <div className="mTop10 textSecondary Font13 mul2_overflow_ellipsis">
-                          {item.autoPurchaseText}
-                        </div>
-                      )}
-                    </li>
-                  );
-                })}
+                      </li>
+                    );
+                  },
+                )}
               </ul>
             </div>
           </div>

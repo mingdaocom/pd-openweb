@@ -106,6 +106,7 @@ function AppCenter(props) {
     });
     return key;
   };
+
   const keyStr = getKey();
 
   function changeProject(project) {

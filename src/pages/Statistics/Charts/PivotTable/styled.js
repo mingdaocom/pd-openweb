@@ -235,7 +235,7 @@ const PivotTableContent = styled.div`
     position: absolute;
     left: 0;
     top: 0;
-    z-index: 2;
+    z-index: 3;
     height: 100%;
     width: 2px;
     cursor: ew-resize;
@@ -257,6 +257,9 @@ const PivotTableContent = styled.div`
   .ant-table-body {
     overflow-y: overlay !important;
     overflow-x: overlay !important;
+    > table {
+      transform: translateZ(0);
+    }
   }
   .relevanceContent {
     width: 130px;

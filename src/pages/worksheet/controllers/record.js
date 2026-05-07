@@ -25,7 +25,9 @@ export async function downloadAttachmentById({
     if (!fileId && !refId) {
       throw new Error();
     }
+
     let data;
+
     if (refId) {
       data = await kcAjax.getNodeDetail({
         actionType: 14,
@@ -40,6 +42,7 @@ export async function downloadAttachmentById({
         controlId,
       });
     }
+
     const logExtend = qs.stringify({
       controlId: sourceControlId || controlId,
       rowId,
@@ -62,6 +65,7 @@ export function getFormDataForNewRecord({
 }) {
   return new Promise((resolve, reject) => {
     let controls = _.cloneDeep(worksheetInfo.template.controls);
+
     function handle() {
       try {
         controls = controls
@@ -95,6 +99,7 @@ export function getFormDataForNewRecord({
                 console.log(err);
               }
             }
+
             if (defaultFormData[control.controlId]) {
               control.value = defaultFormData[control.controlId];
               if (!defaultFormDataEditable) {
@@ -105,10 +110,12 @@ export function getFormDataForNewRecord({
                 }
               }
             }
+
             return { ...control };
           });
         controls = controls.map(control => {
           const writeControl = _.find(writeControls, wc => control.controlId === wc.controlId) || {};
+
           if (writeControl.defsource) {
             control.value = '';
             if (_.includes([9, 10, 11], control.type)) {
@@ -117,6 +124,7 @@ export function getFormDataForNewRecord({
               control.advancedSetting = { ...(control.advancedSetting || {}), defsource: writeControl.defsource };
             }
           }
+
           if (control.type === 30 && !control.value) {
             const parentControl = _.find(
               worksheetInfo.template.controls,
@@ -124,18 +132,23 @@ export function getFormDataForNewRecord({
             );
             const sourceControl =
               parentControl && _.find(parentControl.relationControls, c => c.controlId === control.sourceControlId);
+
             if (!parentControl) {
               return control;
             }
+
             if (parentControl.value) {
               const parentSheetRelateRecord = JSON.parse(parentControl.value)[0];
+
               if (!parentSheetRelateRecord.sourcevalue) {
                 return { ...control };
               }
+
               if (sourceControl && sourceControl.type === 29) {
                 try {
                   const sourceControlValue = JSON.parse(parentSheetRelateRecord.sourcevalue)[control.sourceControlId];
                   const sourceControlValueRecord = JSON.parse(sourceControlValue)[0];
+
                   if (sourceControlValueRecord) {
                     control.value = sourceControlValueRecord.name;
                   }
@@ -147,19 +160,25 @@ export function getFormDataForNewRecord({
               }
             }
           }
+
           return { ...control };
         });
       } catch (err) {
         reject(err);
       }
+
       resolve(controls);
     }
+
     // 兼容 看板 甘特图视图新建记录时关联记录默认值数据不完整问题
     const defaultFormDataControlIds = Object.keys(defaultFormData);
+
     if (defaultFormDataControlIds.length === 1) {
       const control = _.find(controls, c => c.controlId === defaultFormDataControlIds[0]);
+
       if (control && control.type === 29 && _.find(controls, c => c.dataSource === `$${control.controlId}$`)) {
         const value = safeParse(defaultFormData[control.controlId]);
+
         if (value.length && value[0].sid && !value[0].sourcevalue) {
           worksheetAjax
             .getRowDetail({
@@ -178,6 +197,7 @@ export function getFormDataForNewRecord({
         }
       }
     }
+
     handle();
   });
 }
@@ -218,9 +238,11 @@ export function submitNewRecord(props) {
     rowStatus: rowStatus ? rowStatus : 1,
     ...customBtn,
   };
+
   if (args.masterRecord && !args.masterRecord.rowId) {
     delete args.masterRecord;
   }
+
   worksheetAjax
     .addWorksheetRow(args)
     .then(res => {
@@ -239,21 +261,26 @@ export function submitNewRecord(props) {
         } else {
           alert(_l('保存草稿失败'), 2);
         }
+
         return;
       }
+
       if (res.resultCode === 1 && !res.data) {
         alert(_l('记录添加成功'));
         onSubmitEnd();
         setRequesting(false);
         return;
       }
+
       if (res.resultCode === 1) {
         let newControls;
         let newOptionControls = updateOptionsOfControls(formdata, res.data);
+
         if (newOptionControls.length && _.isFunction(updateWorksheetControls)) {
           updateWorksheetControls(newOptionControls);
           newControls = newOptionControls.map(c => ({ ...c, value: res.data[c.controlId] }));
         }
+
         onSubmitSuccess({ rowData: res.data, newControls });
       } else if (res.resultCode === 11) {
         if (customwidget.current && _.isFunction(customwidget.current.uniqueErrorUpdate)) {
@@ -270,6 +297,7 @@ export function submitNewRecord(props) {
       } else {
         handleRecordError(res.resultCode, undefined, true);
       }
+
       onSubmitEnd();
       setRequesting(false);
     })
@@ -294,6 +322,7 @@ export function copyRow({ worksheetId, viewId, rowIds, relateRecordControlId }, 
         } else {
           alert(_l('复制成功'));
         }
+
         done(res.data);
         emitter.emit('ROWS_UPDATE');
       } else if (res && res.resultCode === 7) {
@@ -331,6 +360,7 @@ export async function openControlAttachmentInNewTab({
     console.error('参数不全');
     return;
   }
+
   const shareId = await worksheetAjax.getAttachmentShareId({
     appId,
     controlId,
@@ -342,9 +372,11 @@ export async function openControlAttachmentInNewTab({
     instanceId,
     workId,
   });
+
   if (shareId) {
     // const url = `${window.subPath ? window.subPath : ''}/rowfile/${shareId}/${getType || ''}`;
     const url = `${window.subPath ? window.subPath : ''}/rowfiles/${worksheetId}/${recordId}/${controlId}/${fileId || ''}/${getType || ''}`;
+
     if (!openAsPopup) {
       window.open(url);
     } else {
@@ -353,12 +385,15 @@ export async function openControlAttachmentInNewTab({
       const screenLeft = window.screen.availLeft;
       let popupWidth = 1280;
       let popupHeight = 800;
+
       if (popupHeight > screenHeight) {
         popupHeight = screenHeight;
       }
+
       if (popupWidth > screenWidth * 0.8) {
         popupWidth = screenWidth * 0.8;
       }
+
       const windowFeatures = `left=${screenLeft + screenWidth - 1280},top=0,width=${popupWidth},height=${popupHeight}`;
       window.open(url, '', windowFeatures);
     }

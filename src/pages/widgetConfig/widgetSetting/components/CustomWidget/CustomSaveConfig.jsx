@@ -74,16 +74,19 @@ export default function CustomSaveConfig(props) {
           {...props}
           onOk={({ sheetId, control, sheetName }) => {
             let para = { dataSource: sheetId, size: WHOLE_SIZE };
+
             // 关联本表
             if (sheetId === globalSheetInfo.worksheetId) {
               para = { ...para, controlName: _l('父'), enumDefault2: 0, relateSelf: true };
             } else {
               para = sheetName ? { ...para, controlName: sheetName } : para;
             }
+
             // 使用关联控件
             if (!_.isEmpty(control)) {
               para = update(control, { advancedSetting: { hide: { $set: '' } } });
             }
+
             setState({ saveType: 29, saveInfo: para });
             setVisible(false);
           }}

@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import ClipboardButton from 'react-clipboard.js';
 import { useSetState } from 'react-use';
 import { DatePicker } from 'antd';
 import localeEn from 'antd/es/date-picker/locale/en_US';
 import localeJaJp from 'antd/es/date-picker/locale/ja_JP';
 import localeZhCn from 'antd/es/date-picker/locale/zh_CN';
 import localeZhTw from 'antd/es/date-picker/locale/zh_TW';
+import copy from 'copy-to-clipboard';
 import moment from 'moment';
 import styled from 'styled-components';
 import { Checkbox, Dialog, Icon, Input, Textarea } from 'ming-ui';
@@ -90,11 +90,13 @@ function ExportPlugin(props) {
         alert(_l('密码不符合规范'), 3);
         return;
       }
+
       if (data.projects && data.projects.length > 10) {
         alert(_l('授权组织不能超过10个'), 3);
         return;
       }
     }
+
     setExporting(true);
     pluginApi
       .export({ id: pluginId, releaseId, source, profile: checkSecretKey ? data : undefined }, API_EXTENDS)
@@ -150,16 +152,17 @@ function ExportPlugin(props) {
                 />
                 <div className="pwdOperate">
                   {!pwdEditing && data.password ? (
-                    <ClipboardButton
+                    <span
                       className="pointer textTertiary ThemeHoverColor3 mLeft16"
-                      component="span"
-                      data-clipboard-text={data.password}
-                      onSuccess={() => alert(_l('复制成功'))}
+                      onClick={() => {
+                        copy(data.password);
+                        alert(_l('复制成功'));
+                      }}
                     >
                       <Tooltip title={_l('复制')} placement="bottom">
                         <Icon icon="content-copy" />
                       </Tooltip>
-                    </ClipboardButton>
+                    </span>
                   ) : (
                     <span
                       className="colorPrimary ThemeHoverColor2 pointer mLeft10 mRight20 nowrap"

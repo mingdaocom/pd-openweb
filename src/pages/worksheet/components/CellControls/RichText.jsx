@@ -14,6 +14,7 @@ import EditableCellCon from '../EditableCellCon';
 export function regexFilterHtmlScript(str) {
   return filterXss(str).replace(/(<([^>]+)>)/gi, '');
 }
+
 export default class Text extends React.Component {
   static propTypes = {
     className: PropTypes.string,
@@ -42,6 +43,7 @@ export default class Text extends React.Component {
 
   handleTableKeyDown = e => {
     const { updateEditingStatus } = this.props;
+
     switch (e.key) {
       case 'Escape':
         this.handleChange();
@@ -54,13 +56,16 @@ export default class Text extends React.Component {
 
   handleChange = () => {
     const { cell, updateCell } = this.props;
+
     if ((cell.value || '') === this.state.value) {
       return;
     }
+
     if (cell.required && !this.state.value) {
       alert(_l('保存失败，%0为必填字段', cell.controlName), 2);
       return;
     }
+
     updateCell({
       value: this.state.value,
     });

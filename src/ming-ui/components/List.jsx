@@ -18,6 +18,7 @@ class List extends Component {
       if (!React.isValidElement(item)) {
         return null;
       }
+
       if (item.props.icon) {
         if (item.props.iconAtEnd && !iconAtEnd) {
           iconAtEnd = true;
@@ -25,6 +26,7 @@ class List extends Component {
           iconAtFront = true;
         }
       }
+
       return item;
     });
 

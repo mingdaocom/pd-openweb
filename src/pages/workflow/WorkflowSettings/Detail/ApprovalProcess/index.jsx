@@ -68,6 +68,7 @@ export default class ApprovalProcess extends Component {
         if (sId && !fields) {
           result.fields = [];
           result.flowNodeMap = Object.assign({
+            [OPERATION_TYPE.SUSPEND]: result.flowNodeMap[OPERATION_TYPE.SUSPEND],
             [OPERATION_TYPE.BEFORE]: result.flowNodeMap[OPERATION_TYPE.BEFORE],
             [OPERATION_TYPE.EMAIL]: result.flowNodeMap[OPERATION_TYPE.EMAIL],
           });
@@ -77,7 +78,9 @@ export default class ApprovalProcess extends Component {
           result = Object.assign(this.state.data, {
             fields: result.fields,
             flowNodeMap: Object.assign(result.flowNodeMap, {
+              [OPERATION_TYPE.SUSPEND]: this.state.data.flowNodeMap[OPERATION_TYPE.SUSPEND],
               [OPERATION_TYPE.BEFORE]: this.state.data.flowNodeMap[OPERATION_TYPE.BEFORE],
+              [OPERATION_TYPE.EMAIL]: this.state.data.flowNodeMap[OPERATION_TYPE.EMAIL],
             }),
           });
         }

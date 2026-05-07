@@ -39,12 +39,14 @@ export default class Cascader extends React.Component {
 
   handleTableKeyDown = e => {
     const { isediting, updateEditingStatus } = this.props;
+
     switch (e.key) {
       default:
         (() => {
           if (!e.isInputValue && (isediting || !e.key || !isKeyBoardInputChar(e.key))) {
             return;
           }
+
           updateEditingStatus(true, () => {});
           e.stopPropagation();
           e.preventDefault();
@@ -103,6 +105,7 @@ export default class Cascader extends React.Component {
                   value: this.value,
                 });
               }
+
               updateEditingStatus(false);
             }
           }}

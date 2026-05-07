@@ -105,10 +105,12 @@ const CompositeInput = forwardRef((props, ref) => {
     if (isEmpty()) return;
 
     const hasUploading = attachmentBoxRef.current?.querySelector('.uploadingProgress') !== null;
-    if (hasUploading) {
+
+    if (attachmentBoxRef.current && hasUploading) {
       alert(_l('附件正在上传，请稍后'), 3);
       return;
     }
+
     onGenerateRecord({ text: value, filesList: existingFiles });
     onReset();
     setVisible(false);

@@ -154,6 +154,7 @@ function Setting(props) {
       });
     });
   };
+
   const onSave = addressExt => {
     ExternalPortalApi.editCustomAddressExt({
       appId,
@@ -167,6 +168,7 @@ function Setting(props) {
       }
     });
   };
+
   return (
     <Drawer
       width={640}
@@ -270,10 +272,12 @@ function Setting(props) {
               $('.nameInput').focus();
               return;
             }
+
             if (!editData.roleId || !roleList.find(o => o.roleId === editData.roleId)) {
               alert(_l('请选择有效的默认角色'), 3);
               return;
             }
+
             if (
               !_.get(editData, 'loginMode.phone') &&
               !_.get(editData, 'loginMode.weChat') &&
@@ -282,10 +286,12 @@ function Setting(props) {
               alert(_l('至少选择一种登录方式'), 3);
               return;
             }
+
             if (!_.get(editData, 'registerMode.phone') && !_.get(editData, 'registerMode.email')) {
               alert(_l('至少选择一种注册方式'), 3);
               return;
             }
+
             const isNew = !list.find(o => o.ext === editData.ext);
             const newList = isNew
               ? list.concat(editData)
@@ -293,6 +299,7 @@ function Setting(props) {
                   if (o.ext === editData.ext) {
                     return editData;
                   }
+
                   return o;
                 });
             onSave(newList);

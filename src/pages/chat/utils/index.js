@@ -70,6 +70,7 @@ export const sortSession = (sessions, value, messageListShowType = md.global.Acc
   if (messageListShowType === 1) {
     sessions.forEach(item => {
       const isTop = item.top_info ? item.top_info.isTop : false;
+
       if (isTop) {
         top.push(item);
       } else if (item.count && ('isPush' in item ? item.isPush : true)) {
@@ -89,6 +90,7 @@ export const sortSession = (sessions, value, messageListShowType = md.global.Acc
   } else {
     sessions.forEach(item => {
       const isTop = item.top_info ? item.top_info.isTop : false;
+
       if (isTop) {
         top.push(item);
       } else {
@@ -117,8 +119,10 @@ const formatSession = item => {
     const isAdmin = item.wdAdminid === md.global.Account.accountId;
     const isFileTransfer = item.value === 'file-transfer';
     const wdAdminid = item.wdAdminid;
+
     if (isSelf) {
       let con = '';
+
       if (isFileTransfer) {
         con = item.msg.con;
       } else if (iswd) {
@@ -126,9 +130,11 @@ const formatSession = item => {
       } else {
         con = `${_l('我')}: ${item.msg.con}`;
       }
+
       item.msg.con = con;
     } else {
       let con = '';
+
       if (iswd) {
         if (wdAdminid) {
           con = isAdmin ? `${_l('你撤回了成员“%0”的一条消息', item.from.name)}` : `${_l('管理员撤回了一条成员消息')}`;
@@ -138,6 +144,7 @@ const formatSession = item => {
       } else {
         con = `${item.from.name}: ${item.msg.con}`;
       }
+
       item.msg.con = con;
     }
   } else {
@@ -233,6 +240,7 @@ export const formatMessage = (message, prevMessage) => {
         message.timestamp = null;
       }
     }
+
     if (message.unreadLine) {
       message.isDuplicated = false;
     }
@@ -286,6 +294,7 @@ export const formatNewSession = message => {
       avatar: message.logo,
     };
   }
+
   return formatSession(message);
 };
 
@@ -313,6 +322,7 @@ export const getCurrentTime = () => {
 
 export const cardDisposeName = card => {
   const { md, entityid, extra } = card;
+
   switch (md) {
     case 'task':
       return {
@@ -390,9 +400,11 @@ export const toLink = str => {
   // var urlReg = /((http|https|ftp):\/\/|www)[^\s\|<\|\u4E00-\u9FA5]*[^(http|https|ftp:\/\/)]/ig;
   return str.replace(urlReg, m => {
     let _href = m;
+
     if (m.match(/^w{1,3}/)) {
       _href = 'http://' + m;
     }
+
     return '<a class="convertLink" target="_blank" href="' + _href + '">' + m.replace('&', '&amp;') + '</a>';
   });
 };
@@ -420,6 +432,7 @@ export const messageContentParser = message => {
 export const formatFileSize = (size = 0) => {
   let byteSize = Math.round((size / 1024) * 100) / 100;
   let suffix = 'K';
+
   if (byteSize > 1024) {
     byteSize = Math.round((byteSize / 1024) * 100) / 100;
     suffix = 'M';
@@ -479,8 +492,10 @@ const highlight = el => {
  */
 export const scrollEnd = (id, isBottom = false) => {
   const scrollView = window[`scrollView-${id}`];
+
   if (scrollView) {
     const { scrollTop, maxScrollTop } = scrollView.getScrollInfo();
+
     if (maxScrollTop && (isBottom || maxScrollTop - scrollTop < 200)) {
       scrollView.scrollTo({ top: maxScrollTop });
     }
@@ -500,16 +515,19 @@ export const sessionListScrollTop = () => {
  * 开启消息提示
  */
 let flashTitleInterval = null;
+
 export const flashTitle = () => {
   if (!window.isOpenMessageTwinkle) return;
   if (flashTitleInterval) return;
   flashTitleInterval = window.setInterval(() => {
     let _title = window.document.title;
+
     if (_title.indexOf('【' + _l('新消息') + '】') === -1) {
       window.document.title = '【' + _l('新消息') + '】' + _title.replace('【　　　】', '');
     } else {
       window.document.title = '【　　　】' + _title.replace('【' + _l('新消息') + '】', '');
     }
+
     _title = window.document.title;
   }, 600);
 };
@@ -519,6 +537,7 @@ export const flashTitle = () => {
  */
 export const removeFlashTitle = (value, sessionList) => {
   const list = sessionList.filter(session => session.value !== value);
+
   if (!isCount(list)) {
     window.clearInterval(flashTitleInterval);
     flashTitleInterval = null;
@@ -576,6 +595,7 @@ export const chatWindow = {
  */
 export const getCursortPosition = el => {
   let cursorIndex = 0;
+
   if (document.selection) {
     el.focus();
     let range = document.selection.createRange();
@@ -584,6 +604,7 @@ export const getCursortPosition = el => {
   } else if (el.selectionStart || el.selectionStart == 0) {
     cursorIndex = el.selectionStart;
   }
+
   return cursorIndex;
 };
 
@@ -631,15 +652,18 @@ export const getIsInbox = id => _.toArray(INBOXTYPES).includes(id);
  */
 export const isCount = list => {
   let isCount = false;
+
   for (let i = 0; i < list.length; i++) {
     const session = list[i] || {};
     const hasPush = 'isPush' in session ? session.isPush : true;
     const notSilient = 'isSilent' in session ? !session.isSilent || [1, 2].includes(session.showBadge) : true;
+
     if (session && session.count && hasPush && notSilient) {
       isCount = true;
       continue;
     }
   }
+
   return isCount;
 };
 

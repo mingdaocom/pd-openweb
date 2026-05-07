@@ -28,6 +28,7 @@ const CallBackRefresh = props => {
     const newObjects = refreshObjects.concat({ ...data });
     onChange(newObjects);
   };
+
   const removeFilterObject = id => {
     const newObjects = refreshObjects.filter(item => item.objectId !== id);
     onChange(newObjects);
@@ -53,6 +54,7 @@ const CallBackRefresh = props => {
             checked={filterObject.length === refreshObjects.length}
             onChange={e => {
               const { checked } = e.target;
+
               if (checked) {
                 const newObjects = filterObject.map(c => {
                   const { ...data } = c;
@@ -76,6 +78,7 @@ const CallBackRefresh = props => {
                 checked={_.find(refreshObjects, { objectId: c.objectId }) ? true : false}
                 onChange={e => {
                   const { checked } = e.target;
+
                   if (checked) {
                     addFilterObject(c.objectId);
                   } else {

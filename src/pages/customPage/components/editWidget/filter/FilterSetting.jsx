@@ -49,12 +49,14 @@ export default function FilterSetting(props) {
 
   const getDaterange = () => {
     let daterange = advancedSetting.daterange;
+
     try {
       daterange = JSON.parse(daterange);
     } catch (error) {
       console.log(error);
       daterange = [];
     }
+
     return daterange;
   };
 
@@ -71,6 +73,7 @@ export default function FilterSetting(props) {
   const renderDrop = data => {
     const value = filter[data.key];
     let types = data.types;
+
     if (['dateRangeType'].includes(data.key)) {
       types = getDateRangeTypeListByShowtype(
         (firstControlData.originType || firstControlData.type) === 38
@@ -78,8 +81,10 @@ export default function FilterSetting(props) {
           : _.get(firstControlData, 'advancedSetting.showtype'),
       );
     }
+
     const handleChange = value => {
       const param = { [data.key]: value };
+
       if (data.key === 'filterType') {
         param.dateRangeType =
           value !== FILTER_CONDITION_TYPE.DATEENUM ? undefined : getDefaultDateRangeType(firstControlData);
@@ -88,14 +93,17 @@ export default function FilterSetting(props) {
           daterange: '[]',
         };
       }
+
       if (data.key === 'dateRangeType') {
         param.advancedSetting = {
           ...advancedSetting,
           daterange: '[]',
         };
       }
+
       setFilter(param);
     };
+
     return (
       <Fragment>
         <div className="textPrimary Font13 mBottom8 Font13">{data.txt}</div>
@@ -161,6 +169,7 @@ export default function FilterSetting(props) {
                 const result = {
                   [data.key]: _.toString(item.value),
                 };
+
                 if (data.key === 'allowitem' && item.value === 1) {
                   changeAdvancedSetting(result, {
                     values: [],
@@ -186,13 +195,17 @@ export default function FilterSetting(props) {
 
   const renderTimeType = () => {
     const dateRangeType = _.get(filter, 'dateRangeType') || '';
+
     const getShowTypeForDataRange = () => {
       const type = firstControlData.originType || firstControlData.type;
+
       if (type === 38) {
         return _.get(firstControlData, 'unit');
       }
+
       return _.get(firstControlData, 'advancedSetting.showtype') || '';
     };
+
     return (
       <DateTimeDataRange
         daterange={getDaterange()}

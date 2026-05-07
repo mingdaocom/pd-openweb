@@ -34,10 +34,13 @@ function RecordCard({ showAsTitle, config, functionArguments }) {
         updatedRow[titleControl.controlId] = safeParse(rowDetail.rowData)[titleControl.controlId];
         setHiddenControlIds(titleControl.controlId);
       }
+
       Object.keys(updatedRow).forEach(key => {
         const control = get(res.worksheet, 'template.controls', []).find(c => c.controlId === key);
+
         if (control && includes([9, 10, 11], control.type)) {
           const value = safeParse(updatedRow[key]);
+
           if (value[0] && value[0].length !== 36) {
             updatedRow[key] = JSON.stringify(
               value
@@ -54,12 +57,14 @@ function RecordCard({ showAsTitle, config, functionArguments }) {
         const worksheetName = get(res.worksheet, 'name');
         setTitle(title ? `${worksheetName}: ${title}` : worksheetName);
       }
+
       setLoading(false);
     });
   }, [config.name]);
   if (showAsTitle) {
     return title ? <div className="secondary-tool-name ellipsis t-flex-1">{title}</div> : null;
   }
+
   return (
     <Con>
       {loading ? (

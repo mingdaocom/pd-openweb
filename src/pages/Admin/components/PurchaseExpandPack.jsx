@@ -1,6 +1,8 @@
 import React from 'react';
 import _ from 'lodash';
 import { element, string } from 'prop-types';
+import projectApi from 'src/api/project';
+import { versionUpgradeModal } from 'src/components/pay/versionUpgrade/VersionUpgradeModal';
 import { navigateTo } from 'src/router/navigateTo';
 
 export default function PurchaseExpandPack(props) {
@@ -14,10 +16,43 @@ export default function PurchaseExpandPack(props) {
       onClick();
       return;
     }
-    navigateTo(`/admin/${routePath}/${projectId}/${type}${extraParam ? '/' + extraParam : ''}`);
+
+    if (!window.platformENV.isOverseas) {
+      navigateTo(`/admin/${routePath}/${projectId}/${type}${extraParam ? '/' + extraParam : ''}`);
+    } else {
+      if (['user', 'portalexpand'].includes(type)) {
+        projectApi.getCurrentLicense({ projectId }).then(res => {
+          if (res) {
+            !res.isOffLine
+              ? type === 'user'
+                ? navigateTo(`/admin/${routePath}/${projectId}/${type}${extraParam ? '/' + extraParam : ''}`)
+                : projectApi
+                    .getExternalIsFirstSubscription({ projectId })
+                    .then(res =>
+                      res
+                        ? navigateTo(`/admin/${routePath}/${projectId}/${type}${extraParam ? '/' + extraParam : ''}`)
+                        : versionUpgradeModal({ projectId, type }),
+                    )
+              : versionUpgradeModal({ projectId, type, showOffLine: true });
+          }
+        });
+
+        return;
+      }
+
+      versionUpgradeModal({ projectId, type });
+    }
   };
 
-  if (window.platformENV.isOverseas || window.platformENV.isLocal) return null;
+  if (window.platformENV.isLocal) return null;
+
+  if (
+    window.platformENV.isOverseas &&
+    ((licenseType === 0 && type !== 'recharge') ||
+      (licenseType === 2 && ['user', 'portalexpand', 'storage', 'workflow', 'dataSync'].includes(type)))
+  ) {
+    return null;
+  }
 
   if ([0, 2].includes(licenseType) && type === 'aggregationtable') {
     //免费版和试用版 不支持扩充聚合表

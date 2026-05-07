@@ -25,6 +25,7 @@ function getPopupContainer(popupContainer, rows) {
   } catch (err) {
     console.log(err);
   }
+
   return popupContainer;
 }
 
@@ -57,10 +58,13 @@ export default class User extends React.Component {
     if (nextProps.cell.value !== this.props.cell.value) {
       this.setState({ value: safeParse(nextProps.cell.value, 'array') });
     }
+
     const single = nextProps.cell.enumDefault === 0;
+
     if (this.cell.current && single && !this.props.isediting && nextProps.isediting) {
       this.pickUser();
     }
+
     if (!single && !this.props.isediting && nextProps.isediting && _.isEmpty(this.props.cell.value)) {
       setTimeout(() => {
         this.pickUser();
@@ -107,9 +111,11 @@ export default class User extends React.Component {
   handleExitEditing = ({ exit = true } = {}) => {
     const { updateEditingStatus, cell } = this.props;
     const { isError } = this.state;
+
     if (isError) {
       this.setState({ value: safeParse(cell.value, 'array') });
     }
+
     this.setState({ isError: false });
     if (exit) {
       updateEditingStatus(false);
@@ -118,9 +124,11 @@ export default class User extends React.Component {
 
   handleTableKeyDown = e => {
     const { editable, updateEditingStatus } = this.props;
+
     if (!editable) {
       return;
     }
+
     switch (e.key) {
       case 'Escape':
         this.handleExitEditing();
@@ -132,16 +140,19 @@ export default class User extends React.Component {
         if (!this.isPicking) {
           this.pickUser();
         }
+
         break;
       default:
         if (!e.key || !isKeyBoardInputChar(e.key)) {
           return;
         }
+
         updateEditingStatus(true);
         if (!(e.target.tagName.toLowerCase() === 'input' && e.target.className === 'searchInput')) {
           e.stopPropagation();
           e.preventDefault();
         }
+
         break;
     }
   };
@@ -149,19 +160,23 @@ export default class User extends React.Component {
   handleChange = forceUpdate => {
     const { error, ignoreErrorMessage, isSubList, cell, updateCell } = this.props;
     const { value } = this.state;
+
     if (isSubList && !forceUpdate) {
       return;
     }
+
     if (cell.controlId === 'ownerid') {
       updateCell({
         value: value[0] && value[0].accountId,
       });
       return;
     }
+
     this.handleExitEditing({ exit: cell.enumDefault === 0 });
     if (error && !ignoreErrorMessage) {
       return;
     }
+
     updateCell({
       value: JSON.stringify(value),
     });
@@ -172,9 +187,11 @@ export default class User extends React.Component {
     const { value } = this.state;
     const target = (this.cell && this.cell.current) || (event || {}).target;
     const tabType = getTabTypeBySelectUser(cell);
+
     if (!target || this.isPicking) {
       return;
     }
+
     this.isPicking = true;
     if (
       tabType === 1 &&
@@ -184,11 +201,14 @@ export default class User extends React.Component {
       alert(_l('您不是该组织成员，无法获取其成员列表，请联系组织管理员'), 3);
       return;
     }
+
     const selectedAccountIds = value.map(item => item.accountId);
+
     const callback = (data, forceUpdate) => {
       if (cell.enumDefault === 0) {
         // 单选
         const validateResult = onValidate(JSON.stringify(data));
+
         if (validateResult.errorType && !validateResult.ignoreErrorMessage) {
           this.setState({
             value: data,
@@ -197,9 +217,11 @@ export default class User extends React.Component {
           });
           return;
         }
+
         if (validateResult.errorMessage) {
           alert(validateResult.errorMessage, 3);
         }
+
         this.setState(
           {
             value: data,
@@ -211,6 +233,7 @@ export default class User extends React.Component {
         );
       } else {
         const validateResult = onValidate(JSON.stringify(data));
+
         if (validateResult.errorType && !validateResult.ignoreErrorMessage) {
           this.setState({
             value: data,
@@ -219,15 +242,19 @@ export default class User extends React.Component {
           });
           return;
         }
+
         let newData = [];
+
         try {
           newData = _.uniqBy(this.state.value.concat(data), 'accountId');
         } catch (err) {
           console.log(err);
         }
+
         if (validateResult.errorMessage) {
           alert(validateResult.errorMessage, 3);
         }
+
         this.setState(
           {
             value: newData,
@@ -236,8 +263,10 @@ export default class User extends React.Component {
           () => this.handleChange(forceUpdate),
         );
       }
+
       this.isPicking = false;
     };
+
     const selectRangeOptions = dealUserRange(
       cell,
       _.isFunction(rowFormData) ? rowFormData() : rowFormData,
@@ -302,6 +331,7 @@ export default class User extends React.Component {
 
   deleteLastUser = () => {
     const { value } = this.state;
+
     if (value.length) {
       this.setState(
         {

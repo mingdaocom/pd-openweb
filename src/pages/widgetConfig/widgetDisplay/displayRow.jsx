@@ -27,8 +27,8 @@ const DisplayRowListWrap = styled.div`
     display: flex;
     flex-direction: column;
     background: var(--color-background-primary);
-    ${props => (props.widgetPanelFixed ? 'border-left: 10px solid var(--color-background-secondary);' : '')}
-    ${props => (props.settingPanelFixed ? 'border-right: 10px solid var(--color-background-secondary);' : '')}
+    ${props => (props.widgetPanelFixed ? 'border-left: 10px solid var(--color-border-secondary);' : '')}
+    ${props => (props.settingPanelFixed ? 'border-right: 10px solid var(--color-border-secondary);' : '')}
     .addWidgetIcon {
       width: 28px;
       height: 28px;

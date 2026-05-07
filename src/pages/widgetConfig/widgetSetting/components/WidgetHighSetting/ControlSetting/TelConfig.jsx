@@ -49,10 +49,13 @@ export default function TelConfig({ data, onChange, globalSheetInfo = {} }) {
     if (enumDefault === 0 && _.isEmpty(defaultCountry)) {
       fixedDataController.getRegionConfigInfos({ projectId: globalSheetInfo.projectId }).then(res => {
         let code = 'CN';
+
         if (!_.isEmpty(res)) {
           code = _.get(res, 'code');
         }
+
         const defaultGeoCountry = _.find(allData, a => a.iso2 === code.toLocaleLowerCase());
+
         if (defaultGeoCountry) {
           onChange(
             handleAdvancedSettingChange(data, {
@@ -70,6 +73,7 @@ export default function TelConfig({ data, onChange, globalSheetInfo = {} }) {
     if (allData.length < 1) return COMMON_DEFAULT_COUNTRY;
     return commonData;
   };
+
   const getCommonOnlyCountry = () => {
     // 设置了允许的国家就从允许的国家中选择  否则从全部国家中选择
     return allowData.length > 0 ? allowData : allData;
@@ -90,10 +94,13 @@ export default function TelConfig({ data, onChange, globalSheetInfo = {} }) {
       if (commonData.length === COMMON_DEFAULT_COUNTRY.length && isEqual(commonData, COMMON_DEFAULT_COUNTRY)) {
         return <div className="text textSecondary">{_l('默认')}</div>;
       }
+
       return <div className="text">{_l('%0个', commonData.length)}</div>;
     }
+
     return <div className="text textDisabled">{_l('请选择')}</div>;
   };
+
   return (
     <Fragment>
       <SettingItem>

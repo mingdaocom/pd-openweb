@@ -96,15 +96,18 @@ export default class Statistics extends Component {
     const { worksheetId, isFullScreen } = this.props;
     const { ownerId, pageIndex, reports, pageLoading } = this.state;
     const loadingKey = pageIndex > 1 ? 'pageLoading' : 'loading';
+
     if ((pageIndex > 1 ? pageLoading : false) || !pageIndex) {
       return;
     }
+
     this.setState({
       [loadingKey]: true,
     });
     if (this.request) {
       this.request.abort();
     }
+
     this.request = report.list({
       appId: worksheetId,
       isOwner: !!ownerId,
@@ -139,6 +142,7 @@ export default class Statistics extends Component {
   }
   handleOpenGlobalStatisticsPanel() {
     const { isFullScreen } = this.props;
+
     if (isFullScreen) {
       const el = document.querySelector('.GlobalStatisticsPanel');
       root && root.unmount();

@@ -44,6 +44,7 @@ export default class GunterExport extends Component {
   }
   renderContent() {
     const { base, views } = this.props;
+
     if (views.length) {
       const view = _.find(views, { viewId: base.viewId });
       return (

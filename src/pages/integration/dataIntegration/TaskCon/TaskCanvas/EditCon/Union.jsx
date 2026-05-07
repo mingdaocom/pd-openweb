@@ -25,6 +25,7 @@ const PopupWrap = styled.div`
     left: 82px;
   }
 `;
+
 export default function Union(props) {
   const { renderCard, onUpdate, list } = props;
   const [{ node, leftNode, rightNode, unionType }, setState] = useSetState({
@@ -53,6 +54,7 @@ export default function Union(props) {
       </PopupWrap>
     );
   };
+
   return (
     <WrapL>
       <div className="title Bold">{_l('数据合并')}</div>

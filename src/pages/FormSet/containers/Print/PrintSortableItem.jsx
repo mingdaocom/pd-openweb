@@ -11,6 +11,7 @@ import { filterData } from 'src/pages/FormSet/components/columnRules/config.js';
 import { PRINT_TYPE, PRINT_TYPE_STYLE } from 'src/pages/Print/core/config';
 import ShowBtnFilterDialog from 'src/pages/worksheet/common/CreateCustomBtn/components/ShowBtnFilterDialog.jsx';
 import { getPrintCardInfoOfTemplate } from 'src/pages/worksheet/common/PrintQrBarCode/enum';
+import { sendCloudPrint } from 'src/utils/record';
 import MoreOption from '../../components/MoreOption';
 import RangeDrop from '../../components/RangeDrop';
 
@@ -19,6 +20,7 @@ export default function PrintSortableItem(props) {
   const { views = [], worksheetId } = worksheetInfo;
   const printInfo = getPrintCardInfoOfTemplate(item);
   const isCustom = [PRINT_TYPE.WORD_PRINT, PRINT_TYPE.EXCEL_PRINT].includes(item.type);
+  const isCloudPrint = item.type === PRINT_TYPE.CLOUD_PRINT;
   const inputRef = useRef();
 
   const [inputName, setInputName] = useState(item.name);
@@ -37,6 +39,17 @@ export default function PrintSortableItem(props) {
 
     !isEdit && setIsRename(false);
 
+    if (isEdit) {
+      changeState({
+        templateId: '',
+        type: 'edit',
+        showEditPrint: false,
+        showCloudPrint: false,
+        showPrintTemDialog: false,
+        showCreatePrintTemp: false,
+      });
+    }
+
     if (_.includes([PRINT_TYPE.QR_CODE_PRINT, PRINT_TYPE.BAR_CODE_PRINT], item.type)) {
       printQrBarCode({
         isCharge: isEdit,
@@ -53,10 +66,22 @@ export default function PrintSortableItem(props) {
     } else {
       let params = {};
 
-      if (!isEdit) {
+      if (isCloudPrint && !isEdit) {
+        // 处理测试云打印
+        sendCloudPrint({
+          id: item.id,
+          projectId: worksheetInfo.projectId,
+          appId: worksheetInfo.appId,
+          worksheetId,
+          rowIds: [options.previewRowId],
+        });
+        return;
+      } else if (!isEdit) {
         params = { name: item.name, fileTypeNum: item.type, isDefault: item.type === PRINT_TYPE.SYS_PRINT };
       } else if (isCustom) {
         params = { fileType: item.type === 5 ? 'Excel' : 'Word' };
+      } else if (isCloudPrint) {
+        params = {};
       } else {
         params = { isDefault: item.type === PRINT_TYPE.SYS_PRINT };
       }
@@ -64,7 +89,7 @@ export default function PrintSortableItem(props) {
       changeState({
         templateId: item.id,
         type: isEdit ? 'edit' : 'preview',
-        [isEdit && isCustom ? 'showEditPrint' : 'showPrintTemDialog']: true,
+        [isEdit && isCustom ? 'showEditPrint' : isCloudPrint ? 'showCloudPrint' : 'showPrintTemDialog']: true,
         ...params,
         ...options,
       });
@@ -103,11 +128,13 @@ export default function PrintSortableItem(props) {
       setIsRename(false);
       return;
     }
+
     if (!_.trim(inputName)) {
       alert(_l('请输入模板名称'), 3);
       inputRef.current.focus();
       return;
     }
+
     sheetAjax
       .editPrintName({
         id: item.id,
@@ -115,8 +142,19 @@ export default function PrintSortableItem(props) {
       })
       .then(res => {
         if (res) {
+          let cloudExtraParams = [];
+
+          if (item.type === PRINT_TYPE.CLOUD_PRINT) {
+            cloudExtraParams = _.cloneDeep(item.cloudExtraParams);
+            const index = cloudExtraParams.findIndex(item => item.fieldKey === 'name');
+            cloudExtraParams[index].value = inputName;
+          }
+
           setIsRename(false);
-          updatePrint(item.id, { name: inputName });
+          updatePrint(item.id, {
+            name: inputName,
+            cloudExtraParams: item.type === PRINT_TYPE.CLOUD_PRINT ? cloudExtraParams : undefined,
+          });
         } else {
           alert(_l('修改失败'), 2);
         }
@@ -337,7 +375,7 @@ export default function PrintSortableItem(props) {
             [PRINT_TYPE.WORD_PRINT, PRINT_TYPE.EXCEL_PRINT].includes(item.type) || printInfo.icon !== 'doc'
               ? 'Font24'
               : 'Font22'
-          }`}
+          } ${isCloudPrint ? 'textTertiary' : ''}`}
         />
         <div className="flex overflow_ellipsis">
           {isRename ? (
@@ -372,7 +410,7 @@ export default function PrintSortableItem(props) {
           {_l('编辑')}
         </span>
         <span className="Hand Bold" onClick={onClickPreview}>
-          {_l('预览')}
+          {isCloudPrint ? _l('测试') : _l('预览')}
         </span>
       </div>
       <div className="more w80px TxtCenter">{renderMoreOption()}</div>

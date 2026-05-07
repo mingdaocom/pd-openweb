@@ -55,6 +55,7 @@ export default class AvatarEditor extends Component {
         .toString(16)
         .substring(1);
     }
+
     return S4() + S4() + '-' + S4() + '-' + S4() + '-' + S4() + '-' + S4() + S4() + S4();
   }
 
@@ -75,10 +76,12 @@ export default class AvatarEditor extends Component {
 
   onSave = () => {
     const { preview } = this.state;
+
     if (!preview) {
       this.props.closeDialog();
       return;
     }
+
     //1= 用户头像
     getToken([{ bucket: 4, ext: '.png' }], this.props.defaultType ? 0 : 1).then(res => {
       if (res.error) {
@@ -102,6 +105,7 @@ export default class AvatarEditor extends Component {
             }
           }
         };
+
         xhr.open('POST', url, true);
         xhr.setRequestHeader('Content-Type', 'application/octet-stream');
         xhr.setRequestHeader('Authorization', 'UpToken ' + res[0].uptoken);

@@ -119,7 +119,9 @@ export default class FieldRecycleBin extends Component {
         alert(_l('恢复失败，表单控件数量已达到上限'), 3);
         return;
       }
+
       const err = checkWidgetMaxNumErr(item, allControls);
+
       if (err) {
         alert(err, 3);
         return;
@@ -293,6 +295,7 @@ export default class FieldRecycleBin extends Component {
                 buriedUpgradeVersionDialog(projectId, VersionProductType.recycle);
                 return;
               }
+
               this.setState({ visible: true }, this.getRecycleList);
             }}
           >

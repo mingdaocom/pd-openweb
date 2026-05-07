@@ -77,6 +77,8 @@ export const VersionProductType = {
   attachmentDownPolicy: 51, // 附件下载策略
   customEncrypt: 52, // 自定义加密算法
   entra: 53, // Microsoft Entra
+  workflowLog: 54, // 工作流日志
+  vectorKnowledgeBase: 55, // 向量知识库
 };
 
 export const VersionProductHelpLink = {

@@ -19,6 +19,7 @@ const formatCondition = ({ filters = [], relationControls = [], ruleValue }) => 
         groupFilters: condition.groupFilters.map(formatCondition),
       };
     }
+
     const control = _.find(relationControls, column => condition.controlId === column.controlId) || {};
     // type为关联他表，type取sourceControlType的值 -1//无值, 通用方法转换redefineComplexControl
 
@@ -46,6 +47,7 @@ const formatCondition = ({ filters = [], relationControls = [], ruleValue }) => 
       isDynamicsource: false,
       ...ruleConfig,
     };
+
     if (condition.isDynamicsource === undefined) {
       if ((_.get(condition, 'dynamicSource') || []).length > 0) {
         return initialDynamicSource;
@@ -60,6 +62,7 @@ const formatCondition = ({ filters = [], relationControls = [], ruleValue }) => 
       }
     }
   }
+
   const data = filters.map(formatCondition).filter(_.identity);
   return data;
 };

@@ -63,6 +63,7 @@ const ORDERTYPE = {
 
 const getOrderTxt = data => {
   const { orderType, version = {} } = data;
+
   switch (orderType) {
     case ORDERTYPE.NEW:
     case ORDERTYPE.AGAINFIRST:

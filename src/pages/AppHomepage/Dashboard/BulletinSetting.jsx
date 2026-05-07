@@ -219,6 +219,7 @@ export default function BulletinSetting(props) {
       alert(_l('请先保存正在编辑的内容'), 3);
       return;
     }
+
     setActiveIndex(index);
     setEditStatus({ editing: false, saved: false });
   };
@@ -244,6 +245,7 @@ export default function BulletinSetting(props) {
         alert(_l('请先保存正在编辑的内容'), 3);
         return;
       }
+
       Dialog.confirm({
         title: _l('删除此项'),
         buttonType: 'danger',
@@ -272,6 +274,7 @@ export default function BulletinSetting(props) {
       alert(_l('链接格式不正确'), 3);
       return;
     }
+
     updatePlatformSetting(
       { bulletinBoards: bulletins.map(item => ({ ...item, link: item.link.trim(), title: item.title.trim() })) },
       () => {
@@ -333,6 +336,7 @@ export default function BulletinSetting(props) {
                 setFlag(+new Date());
                 return;
               }
+
               setActiveIndex(newIndex);
               setBulletins(newItems);
               updatePlatformSetting({ bulletinBoards: newItems });

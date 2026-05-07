@@ -11,6 +11,7 @@ const initialState = {
 
 export default (state = initialState, action) => {
   const { showEdit, type, editType = '', projectId, data, ruleId, isSaveing } = action;
+
   switch (type) {
     case 'ACTION_ING':
       return {

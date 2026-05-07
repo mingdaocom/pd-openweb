@@ -71,9 +71,11 @@ export default function DateTime(props) {
   const optionDate = _.flatten(date);
   const startDateValue = minValue ? moment(replaceTimeValue(minValue)).toDate() : null;
   const endDateValue = maxValue ? moment(replaceTimeValue(maxValue)).toDate() : null;
+
   const handleSetMoreVisible = () => {
     setMoreVisible(!moreVisible);
   };
+
   const handleSelectOptionDate = value => {
     if (dateRange === value) {
       onChange({ dateRange: 0, minValue: undefined, maxValue: undefined });
@@ -88,6 +90,7 @@ export default function DateTime(props) {
       });
     }
   };
+
   const startDateExtraObj = endDateValue ? { max: moment(replaceTimeValue(endDateValue)).toDate() } : {};
   const precisionObj = { 5: 'year', 4: 'month', 3: 'date', 2: 'hour', 1: 'minite', 6: 'second' };
   return (

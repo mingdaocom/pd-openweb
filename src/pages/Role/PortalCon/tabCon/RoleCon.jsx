@@ -59,6 +59,7 @@ class Con extends React.Component {
   componentWillReceiveProps(nextProps) {
     const { portal = {} } = this.props;
     const { roleList = [] } = portal;
+
     if (!_.isEqual(nextProps.portal.roleList, roleList)) {
       this.setState({
         roleList: nextProps.portal.roleList,
@@ -140,6 +141,7 @@ class Con extends React.Component {
           DateRangeType: 1,
         });
       }
+
       this.setState({ roleId: data.roleId });
     }
   };
@@ -147,9 +149,11 @@ class Con extends React.Component {
     const { getPortalRoleList, setPortalRoleList, portal, showRoleSet, appId, projectId, editType } = this.props;
     const { loading } = portal;
     const { roleList = [], dataList = [], roleId, copyData } = this.state;
+
     if (loading) {
       return <LoadDiv />;
     }
+
     return (
       <React.Fragment>
         {!!copyData && (

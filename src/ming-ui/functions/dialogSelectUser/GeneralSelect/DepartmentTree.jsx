@@ -94,6 +94,7 @@ export default class DepartmentTree extends Component {
   handleScrollEnd = () => {
     const { groupId, loading, isMore } = this.state;
     const { projectId } = this.props;
+
     if (!loading && isMore) {
       if (projectId === groupId) {
         this.handleLoadAll(groupId);
@@ -268,6 +269,7 @@ export default class DepartmentTree extends Component {
               event.stopPropagation();
               this.expandNext(item.id);
               const { selects } = this.state;
+
               if (selects.includes(item.id)) {
                 this.setState({
                   selects: selects.filter(id => id !== item.id),
@@ -312,6 +314,7 @@ export default class DepartmentTree extends Component {
               className="h100"
               onScrollEnd={() => {
                 const { isMoreDepartment } = this.state;
+
                 if (!departmentLoading && isMoreDepartment && department.length >= this.state.pagedDepartmentSize) {
                   this.getNextPageDepartmentTrees();
                 }

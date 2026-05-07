@@ -86,6 +86,7 @@ export default class CommonUserHandle extends Component {
 
     // 获取url参数
     const { tr } = getAppFeaturesVisible();
+
     if (window.isPublicApp || !tr) {
       return null;
     }
@@ -120,7 +121,7 @@ export default class CommonUserHandle extends Component {
         )}
 
         {type !== 'appPkg' && (
-          <React.Fragment>
+          <Fragment>
             {type === 'dashboard' && hasProjectAdminAuth && (
               <MdLink to={`/admin/home/${currentProject.projectId}`}>
                 <EntryWrap>
@@ -159,7 +160,6 @@ export default class CommonUserHandle extends Component {
                 )}
               </Fragment>
             )}
-          </React.Fragment>
         )}
       </div>
     );
@@ -177,6 +177,7 @@ export class LeftCommonUserHandle extends Component {
 
   componentDidMount() {
     const { id, permissionType, isLock } = this.props.data;
+
     if (!canEditData(permissionType) && !canEditApp(permissionType, isLock)) {
       appManagementApi
         .getAppRoleSetting({

@@ -78,6 +78,7 @@ function FunctionalSwitch(props) {
   const edit = props => {
     const { type, state } = props;
     let switchList = [{ ...props }]; //非批量操作相关，直接操作
+
     if ([...batch, 25].includes(type)) {
       //批量操作相关数据处理
       if (type === 25) {
@@ -94,6 +95,7 @@ function FunctionalSwitch(props) {
         switchList.push(...batchOther);
       }
     }
+
     if ([statisticsConst, ...statistics].includes(type)) {
       if (type === statisticsConst) {
         switchList.push(
@@ -108,6 +110,7 @@ function FunctionalSwitch(props) {
         switchList.push(...batchOther);
         let batchNum = switchList.filter(item => item.state).length;
         let noBatch = batchNum <= 0;
+
         if (noBatch) {
           //下面批量操作全部关闭，批量操作按钮也关闭
           switchList.push(
@@ -120,6 +123,7 @@ function FunctionalSwitch(props) {
         }
       }
     }
+
     sheetAjax
       .batchEditSwitch({
         worksheetId: info.worksheetId,
@@ -146,6 +150,7 @@ function FunctionalSwitch(props) {
     let len = viewIds.length;
     let Ids = views.map(o => o.viewId);
     let l = viewIds.filter(o => Ids.includes(o)).length; //有效的视图数量
+
     switch (key) {
       case '2':
       case '4':
@@ -157,10 +162,12 @@ function FunctionalSwitch(props) {
 
   const closeRangeDiaFn = info => {
     const { viewIds = [], state } = info.showData;
+
     if (viewIds.length <= 0 && !diaRang && state) {
       alert('至少选中一个视图！', 3);
       return;
     }
+
     setInfo({
       ...info,
       showData: {},
@@ -168,6 +175,7 @@ function FunctionalSwitch(props) {
     });
     setRang(false);
   };
+
   const renderSwitch = o => {
     return (
       <Switch
@@ -177,6 +185,7 @@ function FunctionalSwitch(props) {
             //使用范围未关闭 不可点击其他开关的状态时
             return;
           }
+
           if ([20, 30].includes(o.type) && o.state) {
             return confirm({
               title: <span className="Red">{_l('关闭%0', listConfigStr[o.type])}</span>,
@@ -201,6 +210,7 @@ function FunctionalSwitch(props) {
       />
     );
   };
+
   return (
     <React.Fragment>
       {info.loading ? (
@@ -229,6 +239,7 @@ function FunctionalSwitch(props) {
                         .filter(it => !hideList.includes(it))
                         .map(oo => {
                           const o = info.data.find(a => a.type === oo) || {};
+
                           if (
                             oo === 31 ||
                             (batch.includes(oo) && (!info.data.find(a => a.type === 25).state || hideBatch)) ||
@@ -237,6 +248,7 @@ function FunctionalSwitch(props) {
                             //排除复制,暂未上线
                             return '';
                           }
+
                           return (
                             <li className={cx({ current: (info.showData.type || '') === o.type, isOpen: o.state })}>
                               {/* batch,statistics内的操作左侧没有开关*/}
@@ -251,6 +263,7 @@ function FunctionalSwitch(props) {
                                 className="con flexRow"
                                 onClick={e => {
                                   const target = e.target;
+
                                   if (o.state) {
                                     const { viewIds = [] } = o;
                                     setRang(viewIds.length <= 0);
@@ -441,4 +454,5 @@ function FunctionalSwitch(props) {
     </React.Fragment>
   );
 }
+
 export default FunctionalSwitch;

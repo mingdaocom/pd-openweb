@@ -46,6 +46,7 @@ export default function CreateAppItem(props) {
       setDialogImportExcel(true);
       return;
     }
+
     if (type === 'group') {
       sheetListActions.addAppSection({
         appId,
@@ -54,6 +55,7 @@ export default function CreateAppItem(props) {
       setCreateMenuVisible(false);
       return;
     }
+
     setCreateType(type);
     setCreateMenuVisible(false);
   };
@@ -81,6 +83,7 @@ export default function CreateAppItem(props) {
                   if (item.createType === 'chatbot') {
                     return workflowAgentFeatureType === '1' && !md.global.SysSettings.hideAIBasicFun;
                   }
+
                   return true;
                 }).map((item, index) => (
                   <Fragment key={index}>

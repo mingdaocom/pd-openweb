@@ -43,6 +43,7 @@ export default function (props) {
     if (otp.replace(/[^\d]/g, '').trim().length >= verifyLen) {
       onLogin();
     }
+
     // 当用户开始输入新的验证码时，重置错误状态
     if (hasError && otp.length > 0) {
       setState({ hasError: false });
@@ -98,18 +99,22 @@ export default function (props) {
     if (timeLeft > 0 && !isfrequentLogin) {
       return;
     }
+
     let callback = (res = {}) => {
       if (res.ret !== 0) {
         // 图形验证失败，重置发送状态，允许重新发送
         otpInputRef.current?.resetSending();
         return;
       }
+
       sendForVerifyCodeLogin(res, codeType);
     };
+
     const onCancel = () => {
       // 取消图形验证时，重置 OtpInput 的发送状态
       otpInputRef.current?.resetSending();
     };
+
     new captcha(callback, onCancel);
   };
 
@@ -125,15 +130,18 @@ export default function (props) {
         verifyCode: otp,
         isCookie: isCheck,
       };
+
       if (res) {
         params.ticket = res.ticket;
         params.randStr = res.randstr;
         params.captchaType = md.global.getCaptchaType();
       }
+
       removePssId();
       let cb = data => {
         setState({ loginLoading: false, hasError: data.accountResult !== 1 });
         const msgStyle = browserIsMobile() ? { 'margin-top': '180px' } : {};
+
         // 3：验证码错误，这个复用之前密码错误的状态码
         if (data.accountResult === 3) {
           alert({
@@ -143,6 +151,7 @@ export default function (props) {
           });
           return;
         }
+
         // 0：如果没有点击发送过验证码，直接返回失败
         if (data.accountResult === 0) {
           alert({
@@ -152,6 +161,7 @@ export default function (props) {
           });
           return;
         }
+
         // 11：验证码过期或者失效，需要重新发送 用户再次点击发送验证码
         if ([11].includes(data.accountResult)) {
           setState({ isfrequentLogin: true });
@@ -162,6 +172,7 @@ export default function (props) {
           });
           return;
         }
+
         //5频繁登录错误，需要验证码
         if ([5].includes(data.accountResult)) {
           setState({ isfrequentLogin: true });
@@ -172,11 +183,13 @@ export default function (props) {
           });
           return;
         }
+
         loginCallback({
           data: { ...props, ...data },
           onChange: data => onChange(data),
         });
       };
+
       params.account = encrypt(dialCode + account.trim());
       params.state = request.state;
       params.unionId = request.unionId;
@@ -185,18 +198,21 @@ export default function (props) {
       if (request.appkey) {
         params.appKey = request.appkey;
       }
+
       loginController.mDAccountLogin(params).then(data => {
         data.account = account;
         data.loginType = 0;
         cb(data);
       });
     };
+
     if (isfrequentLogin) {
       new captcha(loginFetch);
     } else {
       loginFetch();
     }
   };
+
   return (
     <Wrap>
       <div className={`titleHeader flexRow alignItemsCenter Bold ${isNetwork ? 'mTop32' : 'mTop40'}`}>

@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { ConfigProvider } from 'antd';
 import classNames from 'classnames';
 import _ from 'lodash';
+import { emitter } from 'src/utils/common';
 import { getCurrentProject } from 'src/utils/project';
 
 /**
@@ -14,6 +15,7 @@ const getPixelRatio = context => {
   if (!context) {
     return 1;
   }
+
   const backingStore =
     context.backingStorePixelRatio ||
     context.webkitBackingStorePixelRatio ||
@@ -153,6 +155,14 @@ export default props => {
     };
   }, []);
 
+  const [themeMode, setThemeMode] = useState(() => window.themeMode || 'light');
+  useEffect(() => {
+    const onThemeChange = mode => setThemeMode(mode || window.themeMode || 'light');
+    emitter.on('CHANGE_THEME_MODE', onThemeChange);
+    return () => emitter.off('CHANGE_THEME_MODE', onThemeChange);
+  }, []);
+  const fontColor = themeMode === 'dark' ? 'rgba(255, 255, 255, 0.18)' : 'rgba(0, 0, 0, .06)';
+
   const getValue = key => {
     switch (key) {
       case 'mobilePhone':
@@ -167,6 +177,10 @@ export default props => {
   };
 
   const getContent = () => {
+    if (md.global.Account.watermark == 1 && md.global.Account.isPortal && md.global.Account.watermarkTxt) {
+      return md.global.Account.watermarkTxt.replace(/\$(\w+)\$/g, (_, key) => getValue(key));
+    }
+
     if (currentProject.enabledWatermarkTxt) {
       return currentProject.enabledWatermarkTxt.replace(/\$(\w+)\$/g, (_, key) => getValue(key));
     }
@@ -188,7 +202,7 @@ export default props => {
         fontSize={18}
         gapX={200}
         gapY={200}
-        fontColor="rgba(0, 0, 0, .06)"
+        fontColor={fontColor}
         markStyle={{ zIndex: props.zIndex || 100000000 }}
         {...props}
       >

@@ -115,9 +115,11 @@ export default class HistoryDetail extends Component {
     const { type, appType } = flowNode;
     const names = workItems.map(item => {
       const { workItemAccount, workItemLog } = item;
+
       if (workItemLog && workItemAccount) {
         return { name: workItemAccount.fullName, action: workItemLog.action, target: workItemLog.actionTargetName };
       }
+
       if (workItemAccount) {
         return {
           name:

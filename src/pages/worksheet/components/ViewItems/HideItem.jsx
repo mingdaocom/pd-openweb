@@ -62,6 +62,7 @@ export default function HideItem(props) {
       item.name = value;
       updateViewName(item);
     }
+
     setEdit(false);
   };
 

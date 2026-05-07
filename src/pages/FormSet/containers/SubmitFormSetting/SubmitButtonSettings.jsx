@@ -88,6 +88,7 @@ export default function SubmitButtonSettings(props) {
               onChange={newValue => {
                 if (newValue === _.get(advancedSetting, data[0])) return;
                 let param = {};
+
                 if (newValue === '3') {
                   if (!_.get(advancedSetting, data[2])) {
                     param = {
@@ -96,6 +97,7 @@ export default function SubmitButtonSettings(props) {
                     };
                   }
                 }
+
                 onChangeSetting({
                   ...param,
                   [data[0]]: newValue,

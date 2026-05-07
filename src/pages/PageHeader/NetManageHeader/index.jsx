@@ -72,9 +72,11 @@ export default class NetManageHeader extends Component {
             <HomeEntry
               onClick={() => {
                 const { params } = fn(location.pathname) || {};
+
                 if (!_.isEmpty(params)) {
                   localStorage.setItem('currentProjectId', params.projectId);
                 }
+
                 navigateTo('/dashboard');
               }}
             >

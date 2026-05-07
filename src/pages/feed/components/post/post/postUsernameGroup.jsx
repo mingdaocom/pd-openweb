@@ -18,6 +18,7 @@ class PostUsernameGroup extends React.Component {
     const { postItem, ...props } = this.props;
 
     const children = [];
+
     if (postItem.Secretary) {
       // mingdao xiao mi shu
       children.push(<UserName key="username" isSecretary user={postItem.user} />);
@@ -27,6 +28,7 @@ class PostUsernameGroup extends React.Component {
       children.push(<div key="arrowRight" className="arrowRight InlineBlock" />);
       const shareProjects = (postItem.scope && postItem.scope.shareProjects) || [];
       const shareGroups = (postItem.scope && postItem.scope.shareGroups) || [];
+
       if (shareProjects.length || shareGroups.length) {
         _.forEach(shareProjects, p => {
           children.push(
@@ -58,6 +60,7 @@ class PostUsernameGroup extends React.Component {
               </UserCard>,
             );
           }
+
           children.push(', ');
         });
         if (children[children.length - 1] === ', ') {
@@ -71,8 +74,10 @@ class PostUsernameGroup extends React.Component {
         );
       }
     }
+
     children.push(<span key="colon">:</span>);
     let icon, postTypeName;
+
     switch (postItem.postType) {
       case '1':
         icon = 'link';
@@ -97,6 +102,7 @@ class PostUsernameGroup extends React.Component {
         postTypeName = _l('附件');
         break;
     }
+
     if (icon) {
       children.push(
         <Tooltip title={postTypeName}>
@@ -104,6 +110,7 @@ class PostUsernameGroup extends React.Component {
         </Tooltip>,
       );
     }
+
     return <div {...props}>{children}</div>;
   }
 }

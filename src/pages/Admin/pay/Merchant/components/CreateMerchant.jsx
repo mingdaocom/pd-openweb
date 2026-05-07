@@ -22,7 +22,7 @@ const PayChannelItem = styled.div`
   margin: 0 120px;
   padding: 20px 24px;
   &:hover {
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16);
+    box-shadow: var(--shadow-lg);
   }
   .channelIcon {
     width: 26px;

@@ -26,6 +26,7 @@ export default function (props) {
   const onTriggerClick = () => {
     defaultType && $wrap.current.triggerClick();
   };
+
   return (
     <DynamicValueInputWrap>
       {defaultType ? (

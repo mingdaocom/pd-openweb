@@ -29,12 +29,15 @@ export default function PlayVoice(props) {
   const handleSet = async item => {
     setState({ advancedSetting: { ...advancedSetting, fileKey: item.fileKey } });
     const curFile = _.find(VOICE_FILE_LIST.concat(voiceFiles), v => v.fileKey === item.fileKey);
+
     if (item.fileKey && curFile) {
       let audioSrc = _.get(curFile, 'filePath');
+
       // 上传的mp3置换url
       if (!Number(item.fileKey)) {
         audioSrc = await fileAjax.getChatFileUrl({ serverName: curFile.filePath, key: item.fileKey });
       }
+
       window.customEditPlayer.src = audioSrc;
       window.customEditPlayer.play();
     }

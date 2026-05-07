@@ -29,6 +29,7 @@ export default class FileMessage extends Component {
       // 上传文件对象
       this.uploader = uploader;
     };
+
     window[`chatUploadProgress${files.id}`] = progress => {
       this.setState({
         progress: Number(progress),
@@ -38,11 +39,13 @@ export default class FileMessage extends Component {
   }
   handleStopFile() {
     const { files } = this.props.message.msg;
+
     if (this.uploader) {
       this.uploader.stop();
       this.uploader.removeFile({ id: files.id });
       this.uploader.start();
     }
+
     this.setState(
       {
         cancel: true,
@@ -56,6 +59,7 @@ export default class FileMessage extends Component {
   handleMessageFilePreview() {
     const { message } = this.props;
     const { type } = message;
+
     if (type === Constant.SESSIONTYPE_CALENDAR) {
       if (message.kcFile) {
         previewAttachments(

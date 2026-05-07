@@ -36,13 +36,16 @@ function tableState(
 ) {
   if (includes(['APPEND_RECORDS', 'DELETE_RECORDS'], action.type) && !action.saveSync) {
     const newCount = typeof state.countForShow === 'undefined' ? state.count : state.countForShow;
+
     if (action.type === 'APPEND_RECORDS') {
       return { ...state, countForShow: newCount + action.records.length };
     } else if (action.type === 'DELETE_RECORDS') {
       return { ...state, countForShow: newCount - action.recordIds.length };
     }
+
     return { ...state };
   }
+
   switch (action.type) {
     case 'UPDATE_RECORDS':
       return { ...state, count: action.records.length, originalRecords: action.records };
@@ -98,7 +101,9 @@ function changes(state = cloneDeep(initialChanges), action) {
       return { ...state, changed: true };
     }
   }
+
   const newRecords = (action.records || []).map(record => ({ ...record, isNew: true }));
+
   switch (action.type) {
     case 'APPEND_RECORDS':
       return {
@@ -144,6 +149,7 @@ function originFirstPageResult(state = [], action) {
 
 function records(state = [], action) {
   let newRecords;
+
   switch (action.type) {
     case 'UPDATE_RECORDS':
       return action.records;
@@ -160,13 +166,16 @@ function records(state = [], action) {
         return state;
       } else if (action.afterRecordId) {
         const afterRowIndex = findIndex(state, r => r.rowid === action.afterRecordId);
+
         if (afterRowIndex < 0) {
           return state;
         }
+
         return [...state.slice(0, afterRowIndex + 1), ...newRecords, ...state.slice(afterRowIndex + 1)];
       } else {
         return newRecords.concat(state);
       }
+
     case 'DELETE_RECORDS':
       return state
         .filter(record => !includes(action.recordIds, record.rowid))

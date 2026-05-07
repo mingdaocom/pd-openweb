@@ -3,6 +3,8 @@ import _ from 'lodash';
 import { Dialog, Switch } from 'ming-ui';
 import projectSettingAjax from 'src/api/projectSetting';
 import monitorAjax from 'src/pages/integration/api/monitor';
+import { purchaseMethodFunc } from 'src/components/pay/versionUpgrade/PurchaseMethodModal';
+import { versionUpgradeModal } from 'src/components/pay/versionUpgrade/VersionUpgradeModal';
 import PurchaseExpandPack from 'src/pages/Admin/components/PurchaseExpandPack';
 
 let ajaxPromise = {};
@@ -65,6 +67,7 @@ export default ({ projectId }) => {
       });
       return;
     }
+
     setAutoPurchaseDataPipelineExtPack(!checked);
   };
 
@@ -110,14 +113,26 @@ export default ({ projectId }) => {
               </Fragment>
             )}
           </span>
-          {!window.platformENV.isOverseas && !window.platformENV.isLocal && (
-            <PurchaseExpandPack
-              className="mLeft10 ThemeHoverColor2"
-              text={_l('购买升级包')}
-              type="dataSync"
-              projectId={projectId}
-            />
-          )}
+          {!window.platformENV.isLocal &&
+            (licenseType === 1 ? (
+              <PurchaseExpandPack
+                className="mLeft10 NoUnderline ThemeHoverColor2"
+                text={_l('购买升级包')}
+                type="dataSync"
+                projectId={projectId}
+              />
+            ) : (
+              <span
+                className="ThemeColor3 ThemeHoverColor2 mLeft10 NoUnderline"
+                onClick={() => {
+                  window.platformENV.isOverseas
+                    ? versionUpgradeModal({ projectId })
+                    : purchaseMethodFunc({ projectId });
+                }}
+              >
+                <span className="Bold">{_l('购买付费版')}</span>
+              </span>
+            ))}
         </div>
       )}
       {!window.platformENV.isOverseas && !window.platformENV.isLocal && !_.includes([0, 2], licenseType) && (

@@ -3,8 +3,10 @@ import { BrowserRouter } from 'react-router-dom';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon, Menu, MenuItem, Modal } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import functionWrap from 'ming-ui/components/FunctionWrap';
 import worksheetAjax from 'src/api/worksheet';
+import { openRecordInfo } from 'worksheet/common/recordInfo';
 import RecordInfo from 'worksheet/common/recordInfo/RecordInfoWrapper';
 import BaseColumnHead from 'worksheet/components/BaseColumnHead';
 import WorksheetTable from 'worksheet/components/WorksheetTable';
@@ -61,10 +63,6 @@ const TotalNumWrap = styled.span`
   padding: 0px 6px;
   line-height: 20px;
   border-radius: 10px;
-`;
-
-const DraftTxt = styled.span`
-  color: var(--color-text-title);
 `;
 
 function DraftModal(props) {
@@ -184,6 +182,7 @@ function DraftModal(props) {
       />
     );
   };
+
   const deleteSelete = ids => {
     worksheetAjax
       .deleteWorksheetRows({
@@ -280,6 +279,7 @@ function DraftModal(props) {
                       const selectRows = [];
                       newSelected.forEach(rowId => {
                         const row = _.find(records, trashRow => trashRow.rowid === rowId);
+
                         if (row && (row.allowedit || row.allowEdit)) {
                           selectRows.push(row);
                         }
@@ -294,6 +294,7 @@ function DraftModal(props) {
                   if (cell.type === 29 && cell.enumDefault === 2) {
                     setActiveRelateTableControlIdOfRecord(cell.controlId);
                   }
+
                   setRecordId(row.rowid);
                   setRecordInfoVisible(true);
                 }}
@@ -334,14 +335,28 @@ function DraftModal(props) {
             loadRowsWhenChildTableStoreCreated={true}
             updateDraftList={(rowId, rowData) => {
               let data = _.clone(records);
+
               if (!rowData) {
                 data = data.filter(it => it.rowid !== rowId);
               } else {
                 const index = _.findIndex(data, it => it.rowid === rowId);
                 data[index] = rowData;
               }
+
               updateDraftTotal(data.length);
               setRecords(data);
+              emitter.emit('UPDATE_DRAFT_TOTAL', { worksheetId, total: data.length });
+
+              if (rowId && _.get(worksheetInfo, 'advancedSetting.subafter') === '3') {
+                openRecordInfo({
+                  appId: appId,
+                  worksheetId: worksheetId,
+                  recordId: rowId,
+                  viewId: _.get(worksheetInfo, 'advancedSetting.subview'),
+                  isOpenNewAddedRecord: true,
+                  enablePayment: worksheetInfo.enablePayment,
+                });
+              }
             }}
           />
         )}
@@ -349,9 +364,11 @@ function DraftModal(props) {
     </BrowserRouter>
   );
 }
+
 export const openWorkSheetDraft = props => functionWrap(DraftModal, { ...props, closeFnName: 'onCancel' });
 
 let request = null;
+
 function WorksheetDraft(props) {
   const {
     appId,
@@ -384,9 +401,11 @@ function WorksheetDraft(props) {
       getType: 21,
     }).then(res => {
       const total = Number(res) || 0;
+
       if (isNewRecord && !total) {
         $(draftEntryRef.current).parent().remove();
       }
+
       updateDraftTotalInfo({ worksheetId, total });
       setTotal(total);
     });
@@ -416,29 +435,31 @@ function WorksheetDraft(props) {
   }
 
   return (
-    <span
-      className={`Relative Hand draftEntry inlineFlex alignItemsCenter ${className}`}
-      onClick={() => {
-        openWorkSheetDraft({
-          view,
-          appId,
-          worksheetInfo,
-          sheetSwitchPermit,
-          isCharge,
-          allowAdd,
-          addNewRecord: props.addNewRecord,
-          setHighLightOfRows,
-          updateDraftTotal: total => {
-            setTotal(total);
-            updateDraftTotalInfo({ worksheetId, total });
-          },
-        });
-      }}
-    >
-      <Icon icon="drafts_approval" className="Font18 textTertiary" />
-      <DraftTxt className="mLeft5 Font13">{_l('草稿箱')}</DraftTxt>
-      {total ? <TotalNumWrap className="mLeft5 Font13">{total}</TotalNumWrap> : ''}
-    </span>
+    <Tooltip placement="bottom" title={_l('草稿箱')}>
+      <span
+        className={`Relative Hand draftEntry inlineFlex alignItemsCenter ${className}`}
+        onClick={() => {
+          openWorkSheetDraft({
+            view,
+            appId,
+            worksheetInfo,
+            sheetSwitchPermit,
+            isCharge,
+            allowAdd,
+            addNewRecord: props.addNewRecord,
+            setHighLightOfRows,
+            updateDraftTotal: total => {
+              setTotal(total);
+              updateDraftTotalInfo({ worksheetId, total });
+            },
+          });
+        }}
+      >
+        <Icon icon="drafts_approval" className="Font18 textTertiary" />
+        {total ? <TotalNumWrap className="mLeft5 Font13">{total}</TotalNumWrap> : ''}
+      </span>
+    </Tooltip>
   );
 }
+
 export default WorksheetDraft;

@@ -155,6 +155,7 @@ export default class Cascader extends Component {
       options = data;
       this.cacheTreePath(data);
     }
+
     this.setState({ [key]: options });
   }
 
@@ -244,6 +245,7 @@ export default class Cascader extends Component {
     const { options = [], operatePath = [] } = this.state;
     const lastId = operatePath[operatePath.length - 1] || '';
     let sourceData = [];
+
     const findData = (data, id) => {
       data.forEach(item => {
         if (item.value === id) {
@@ -322,9 +324,11 @@ export default class Cascader extends Component {
     if (!h5Options.length) return <LoadDiv />;
 
     const keywords = this.getKeywords();
+
     if (keywords) {
       h5Options = sortPathsBySearchKeyword(h5Options, keywords);
     }
+
     // 必须选择最后一级
     if (keywords || +anylevel) {
       return (

@@ -48,8 +48,8 @@ export default function (props) {
               changeSetting={false}
             />
           )}
-          onSave={value => {
-            onChange(value || undefined);
+          onSave={({ description }) => {
+            onChange(description || undefined);
             setEditAppIntroVisible(false);
           }}
           onCancel={() => setEditAppIntroVisible(false)}

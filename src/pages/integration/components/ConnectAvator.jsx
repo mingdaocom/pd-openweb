@@ -22,6 +22,7 @@ const Wrap = styled.div(
   }
 `,
 );
+
 export default function ConnectAvator(props) {
   return (
     <Wrap className={props.className} width={props.width} height={props.width} size={props.size}>

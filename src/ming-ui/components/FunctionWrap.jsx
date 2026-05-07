@@ -13,20 +13,27 @@ import _ from 'lodash';
 
 export default function (Comp, props = {}) {
   const div = document.createElement('div');
+  let destroyed = false;
 
   document.body.appendChild(div);
 
   const root = createRoot(div);
 
+  const handlePopState = () => !window.isMingDaoApp && destroy();
+
   function destroy() {
+    if (destroyed) return;
+    destroyed = true;
+
+    window.removeEventListener('popstate', handlePopState);
     root.unmount();
-    if (div && div.parentNode === document.body) {
-      document.body.removeChild(div);
+
+    if (div && div.parentNode) {
+      div.parentNode.removeChild(div);
     }
-    window.removeEventListener('popstate', () => !window.isMingDaoApp && destroy());
   }
 
-  window.addEventListener('popstate', () => !window.isMingDaoApp && destroy());
+  window.addEventListener('popstate', handlePopState);
 
   root.render(
     <Comp

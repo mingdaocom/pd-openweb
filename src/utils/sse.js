@@ -79,6 +79,7 @@ export function parseStreamingJsonlData(content, isStreaming = true) {
         if (!isStreaming) {
           return JSON.parse(line.replace(/\b0+(\d+(\.\d+)?)\b/g, '$1'));
         }
+
         const parser = new PartialJsonParser();
         const result = parser.parse(line);
         return result;
@@ -93,11 +94,13 @@ export function getTextContentFromMessage(content) {
   if (typeof content === 'string') {
     return content;
   }
+
   return content
     .map(item => {
       if (item.type === 'text') {
         return item.text;
       }
+
       return '';
     })
     .filter(Boolean)

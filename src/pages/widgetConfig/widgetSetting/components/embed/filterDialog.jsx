@@ -38,6 +38,7 @@ export default function FilterDialog(props) {
           if (i.isGroup) {
             return { ...i, groupFilters: (i.groupFilters || []).map(g => ({ ...g, ...ruleConfig })) };
           }
+
           return { ...i, ...ruleConfig };
         });
         onOk(newFilters);

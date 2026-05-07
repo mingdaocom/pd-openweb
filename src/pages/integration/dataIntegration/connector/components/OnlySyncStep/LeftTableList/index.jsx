@@ -241,6 +241,7 @@ export default function LeftTableList(props) {
       .forEach(item => {
         const sourceNodeConfig = item.sourceNode.config;
         const destTableName = item.destNode.config.tableName;
+
         if (!countObj[destTableName]) {
           countObj[destTableName] = 1;
         } else {

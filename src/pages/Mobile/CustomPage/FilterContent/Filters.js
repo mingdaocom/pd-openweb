@@ -9,6 +9,12 @@ import { DATE_TYPE } from 'worksheet/common/ViewConfig/components/fastFilter/con
 import { formatFilterValuesToServer } from 'src/pages/worksheet/common/Sheet/QuickFilter/utils';
 import { FILTER_CONDITION_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum';
 
+const Item = styled.div`
+  .controlName {
+    color: ${({ requiredError }) => (requiredError ? 'red' : 'var(--color-text-title)')};
+  }
+`;
+
 const Con = styled.div`
   .header {
     padding: 0 15px 10px;
@@ -48,6 +54,7 @@ const Con = styled.div`
 const formatFilterValuesToText = (control, item) => {
   const controlType = control.type;
   const { values } = item;
+
   switch (controlType) {
     case WIDGETS_TO_API_TYPE_ENUM.USER_PICKER: // 人员
       return values.map(v => v.fullname);
@@ -74,6 +81,7 @@ const formatFilterValuesToText = (control, item) => {
         const list = _.flatten(DATE_TYPE);
         return [_.get(_.find(list, { value: item.dateRange }), 'text')];
       }
+
     case WIDGETS_TO_API_TYPE_ENUM.SWITCH: // 检查项
       return item.filterType ? [item.filterType === 2 ? _l('选中') : _l('未选中')] : [];
     case WIDGETS_TO_API_TYPE_ENUM.FLAT_MENU: // 单选
@@ -86,17 +94,20 @@ const formatFilterValuesToText = (control, item) => {
 };
 
 function QuickFilter(props) {
-  const { enableBtn, filters, getFiltersText, updateQuickFilter, onCloseDrawer } = props;
+  const { enableBtn, advancedSetting, filters, getFiltersText, updateQuickFilter, onCloseDrawer } = props;
   const store = useRef({});
   const [values, setValues] = useState({});
+  const [requiredErrorVisible, setRequiredErrorVisible] = useState(false);
   const debounceUpdateQuickFilter = useRef(_.debounce(updateQuickFilter, 500));
   const items = useMemo(
     () =>
       filters
         .map(filter => {
           const newControl = _.cloneDeep(turnControl(filter.control));
+          const isRequired = _.includes(_.get(advancedSetting, 'requiredcids', ''), (newControl || {}).controlId);
           return {
             ...filter,
+            isRequired,
             control: newControl,
             dataType: newControl ? newControl.type : filter.dataType,
             filterType: newControl && newControl.encryId ? 2 : filter.filterType,
@@ -105,17 +116,30 @@ function QuickFilter(props) {
         .filter(c => c.control && !(window.shareState.shareId && _.includes([26, 27, 48], c.control.type))),
     [JSON.stringify(filters)],
   );
+
   const update = newValues => {
     const valuesToUpdate = newValues || values;
-    const quickFilter = items
-      .map((filter, i) => ({
-        ...filter,
-        filterType: filter.dataType === 36 ? filter.filterType : filter.filterType || (filter.dataType === 29 ? 24 : 2),
-        spliceType: filter.spliceType || 1,
-        ...valuesToUpdate[i],
-      }))
-      .filter(validate)
-      .map(conditionAdapter);
+    const needCheckRequired = _.get(advancedSetting, 'requiredcids.length');
+    const itemsWithValues = items.map((filter, i) => ({
+      ...filter,
+      filterType: filter.dataType === 36 ? filter.filterType : filter.filterType || (filter.dataType === 29 ? 24 : 2),
+      spliceType: filter.spliceType || 1,
+      ...valuesToUpdate[i],
+    }));
+
+    if (needCheckRequired) {
+      const emptyItems = itemsWithValues.filter(item => item.isRequired && !validate(item));
+
+      if (emptyItems.length) {
+        setRequiredErrorVisible(true);
+        alert(_l('请填写%0', _.get(emptyItems, '0.control.controlName')), 2);
+        return;
+      }
+    }
+
+    setRequiredErrorVisible(false);
+    const quickFilter = itemsWithValues.filter(validate).map(conditionAdapter);
+
     if (getFiltersText) {
       const texts = quickFilter.map(item => {
         const control = _.get(_.find(items, { controlId: item.controlId }), 'control') || {};
@@ -123,18 +147,22 @@ function QuickFilter(props) {
       });
       getFiltersText(texts);
     }
+
     if (quickFilter.length) {
       const formattedFilter = quickFilter.map(c => {
         if (values[0] === 'isEmpty') {
           c.filterType = 7;
         }
+
         if (c.filterType === FILTER_CONDITION_TYPE.DATE_BETWEEN && c.dateRange !== 18) {
           c.filterType = FILTER_CONDITION_TYPE.DATEENUM;
         }
+
         return {
           ...c,
         };
       });
+
       if (_.includes(NumberTypes, store.current.activeType)) {
         debounceUpdateQuickFilter.current(formatQuickFilter(formattedFilter));
       } else {
@@ -143,16 +171,20 @@ function QuickFilter(props) {
     } else {
       updateQuickFilter([]);
     }
+
+    enableBtn && onCloseDrawer();
   };
+
   const handleQuery = () => {
     update();
-    onCloseDrawer();
   };
+
   const handleReset = () => {
     setValues({});
     updateQuickFilter([]);
     onCloseDrawer();
   };
+
   const filtersData = Object.keys(values)
     .map(key => ({
       controlId: 'fastFilter_' + _.get(filters[key], 'control.controlId'),
@@ -173,7 +205,9 @@ function QuickFilter(props) {
     );
 
   useEffect(() => {
-    update();
+    if (!enableBtn) {
+      update();
+    }
   }, [items]);
 
   return (
@@ -183,32 +217,43 @@ function QuickFilter(props) {
       </div>
       <div className="flex body">
         {items.map((item, i) => (
-          <FilterInput
-            key={item.controlId}
-            {...item}
-            {...values[i]}
-            filtersData={filtersData}
-            projectId={props.projectId}
-            appId={props.appId}
-            showTextAdvanced={false}
-            // worksheetId={props.worksheetId}
-            onChange={(change = {}) => {
-              store.current.activeType = item.control.type;
-              const newValues = { ...values, [i]: { ...values[i], ...change } };
-              setValues(newValues);
-              if (!enableBtn && !_.isEmpty(newValues)) {
-                update(newValues);
-              }
-            }}
-            onRemove={() => {
-              delete values[i];
-              const newValues = { ...values };
-              setValues(newValues);
-              if (!enableBtn) {
-                update(newValues);
-              }
-            }}
-          />
+          <Item
+            requiredError={
+              requiredErrorVisible &&
+              item.isRequired &&
+              !validate({
+                ...item,
+                ...values[i],
+              })
+            }
+          >
+            <FilterInput
+              key={item.controlId}
+              {...item}
+              {...values[i]}
+              filtersData={filtersData}
+              projectId={props.projectId}
+              appId={props.appId}
+              showTextAdvanced={false}
+              // worksheetId={props.worksheetId}
+              onChange={(change = {}) => {
+                store.current.activeType = item.control.type;
+                const newValues = { ...values, [i]: { ...values[i], ...change } };
+                setValues(newValues);
+                if (!enableBtn && !_.isEmpty(newValues)) {
+                  update(newValues);
+                }
+              }}
+              onRemove={() => {
+                delete values[i];
+                const newValues = { ...values };
+                setValues(newValues);
+                if (!enableBtn) {
+                  update(newValues);
+                }
+              }}
+            />
+          </Item>
         ))}
       </div>
       {enableBtn && (

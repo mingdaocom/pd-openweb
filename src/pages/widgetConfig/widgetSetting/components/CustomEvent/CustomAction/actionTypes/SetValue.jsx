@@ -52,6 +52,7 @@ export default function SetValue(props) {
           alert(_l('请设置字段值'), 3);
           return;
         }
+
         handleOk({ ...actionData, actionItems });
         setState({ visible: false });
       }}
@@ -71,7 +72,10 @@ export default function SetValue(props) {
                 <div className="setItem">
                   <div className="itemFiled itemFiledTitle ">
                     {icon && <Icon className="mRight8 Font14 textSecondary" icon={icon} />}
-                    <span className={cx('flex overflow_ellipsis', { Red: _.isEmpty(currentControl) })}>
+                    <span
+                      className={cx('flex overflow_ellipsis', { Red: _.isEmpty(currentControl) })}
+                      title={_.get(currentControl, 'controlName') || _l('已删除')}
+                    >
                       {_.get(currentControl, 'controlName') || _l('已删除')}
                     </span>
                   </div>

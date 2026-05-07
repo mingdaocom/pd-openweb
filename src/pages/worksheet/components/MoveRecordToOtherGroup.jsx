@@ -57,7 +57,7 @@ const Content = styled(ScrollView)`
       overflow: hidden;
     }
     &:hover {
-      background-color: var(--color-background-disabled);
+      background-color: var(--color-background-hover);
     }
   }
 `;
@@ -99,6 +99,7 @@ function getGroupText(control, group, groupEmptyName) {
       text: groupEmptyName,
     };
   }
+
   const value = getDefaultValue({ control, groupKey: group.key, name: group.name })[control.controlId];
   return {
     value,
@@ -128,9 +129,11 @@ export default function MoveRecordToOtherGroup(props) {
         ...getGroupText(groupControl, group, groupEmptyName),
       }))
       .filter(group => String(group.key) !== String(currentGroupKey));
+
     if (keyWords.trim()) {
       result = result.filter(group => group.text.indexOf(keyWords.trim()) > -1);
     }
+
     return result;
   }, [groups.map(g => g.key).join(','), keyWords.trim()]);
   return (

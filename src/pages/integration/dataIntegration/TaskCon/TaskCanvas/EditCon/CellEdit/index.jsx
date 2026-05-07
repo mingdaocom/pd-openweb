@@ -117,6 +117,7 @@ export default class CellEdit extends Component {
   componentDidMount() {
     const { node = {} } = this.props;
     const { nodeType = '' } = node;
+
     if (nodeType === 'DEST_TABLE') {
       this.getFieldsDataTypeMatch(this.props);
     } else if (nodeType === 'SOURCE_TABLE') {
@@ -137,6 +138,7 @@ export default class CellEdit extends Component {
         },
         () => {
           const { nodeType = '' } = nextProps.node;
+
           if (nodeType === 'DEST_TABLE') {
             this.getFieldsDataTypeMatch(nextProps);
           } else if (nodeType === 'SOURCE_TABLE') {
@@ -149,6 +151,7 @@ export default class CellEdit extends Component {
   componentDidUpdate() {
     setTimeout(() => {
       let isERR = $('.isNoMatchOption').length > 0;
+
       if (this.state.isEr !== isERR) {
         this.setState({
           isEr: isERR,
@@ -186,6 +189,7 @@ export default class CellEdit extends Component {
       _.get(list.find(o => o.nodeType === 'DEST_TABLE') || {}, 'nodeConfig.config.dsType') ===
       DATABASE_TYPE.APPLICATION_WORKSHEET;
     let data = [];
+
     try {
       data =
         (await getFields({
@@ -199,6 +203,7 @@ export default class CellEdit extends Component {
     } catch (error) {
       console.log(error);
     }
+
     data = data.filter(o => !disableList.includes(o.jdbcTypeId));
     this.setState({
       fieldsBysource: data,
@@ -368,8 +373,10 @@ export default class CellEdit extends Component {
     // 如果来源表没有主键 这个页面也不能保存
     //目的地表
     const fieldsMapping = _.get(node, ['nodeConfig', 'config', 'fieldsMapping']) || [];
+
     if (nodeType === 'DEST_TABLE') {
       const mapDestPk = fieldsMapping.filter(o => _.get(o, 'destField.isPk') && _.get(o, 'destField.isCheck'));
+
       if (
         _.get(node, 'nodeConfig.config.dsType') !== DATABASE_TYPE.APPLICATION_WORKSHEET &&
         (mapDestPk.length <= 0 || (fileList || []).filter(o => o.isPk).length > mapDestPk.length)
@@ -377,21 +384,25 @@ export default class CellEdit extends Component {
         disable = true;
         txt = _l('目的地主键未设置相关映射');
       }
+
       if (fieldsMapping.filter(o => _.get(o, 'sourceField.isPk') && _.get(o, 'destField.isCheck')).length <= 0) {
         //主键未设置相关映射 源字段为主键，且未设置映射
         disable = true;
         txt = _l('主键未设置相关映射');
       }
+
       if (fieldsMapping.filter(o => _.get(o, 'destField.isCheck')).length <= 0) {
         disable = true;
         txt = _l('未设置相关映射字段');
       }
+
       //新建
       if (_.get(node, ['nodeConfig', 'config', 'createTable'])) {
         if (!sheetName) {
           disable = true;
           txt = _l('新建表未设置表名称');
         }
+
         if (
           fieldsMapping.filter(o => _.get(o, 'destField.isCheck') && !!(_.get(o, 'destField.name') || '').trim())
             .length < fieldsMapping.filter(o => _.get(o, 'destField.isCheck')).length
@@ -399,6 +410,7 @@ export default class CellEdit extends Component {
           disable = true;
           txt = _l('未设置相关映射字段');
         }
+
         //目的地为工作表
         if (_.get(node, ['nodeConfig', 'config', 'dsType']) === DATABASE_TYPE.APPLICATION_WORKSHEET) {
           //标题字段
@@ -413,6 +425,7 @@ export default class CellEdit extends Component {
             txt = _l('目标工作表未设置主键');
           }
         }
+
         //新建，且目的地或数据源有库类型，都需要验证dataType
         if (destIsDb || srcIsDb) {
           if (
@@ -444,32 +457,39 @@ export default class CellEdit extends Component {
         }
       }
     }
+
     if (nodeType === 'SOURCE_TABLE') {
       if (fields.filter(o => _.get(o, 'isErr')).length > 0) {
         disable = true;
         txt = _l('存在已失效或已删除的字段');
       }
+
       if (fields.filter(o => _.get(o, 'isPk')).length <= 0) {
         disable = true;
         txt = _l('请设置主键');
       }
+
       if (fields.filter(o => !_.get(o, 'isCheck') && _.get(o, 'isPk')).length > 0) {
         disable = true;
         txt = _l('未勾选主键字段');
       }
+
       const fieldsCheck = fields.filter(o => _.get(o, 'isCheck'));
       duplicates = fieldsCheck.reduce((acc, curr, index) => {
         const alias = curr.alias;
         const isDuplicate = fieldsCheck.slice(index + 1).some(item => item.alias === alias);
+
         if (isDuplicate) {
           acc.push(alias);
         }
+
         return acc;
       }, []);
       if (duplicates.length > 0) {
         disable = true;
         txt = _l('字段名称不能重复');
       }
+
       //非mysql,kafka都不允许无主键的表
       if (
         ![DATABASE_TYPE.MYSQL, DATABASE_TYPE.ALIYUN_MYSQL, DATABASE_TYPE.TENCENT_MYSQL, DATABASE_TYPE.KAFKA].includes(
@@ -480,6 +500,7 @@ export default class CellEdit extends Component {
         disable = true;
         txt = _l('该表没有主键，无法同步');
       }
+
       //HANA库 依据字段更新时 是否选择依据字段
       let hanaHasBaseField = true;
       // HANA库 依据字段更新时 首次读取值校验是否为空
@@ -488,73 +509,89 @@ export default class CellEdit extends Component {
       let validFirstValue = true;
       // HANA库 读取间隔为每天，具体时间是否选择
       let isSetReadTime = true;
+
       if (_.get(node, 'nodeConfig.config.scheduleConfig')) {
         if (_.get(node, 'nodeConfig.config.scheduleConfig.readType') === 1) {
           const basisField = _.get(node, 'nodeConfig.config.scheduleConfig.config.basisField') || {};
           const firstValue = _.get(node, 'nodeConfig.config.scheduleConfig.config.firstValue');
+
           if (!basisField.id) {
             hanaHasBaseField = false;
           }
+
           if (!firstValue && firstValue !== 0) {
             isEmptyFirstValue = true;
           }
+
           if ([91, 93].includes(basisField.jdbcTypeId) && !basisField.isPk) {
             //日期格式
             const regex =
               /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])(?:\s(0\d|1\d|2[0-3]):([0-5]\d)(?::([0-5]\d))?)?$/;
+
             if (!regex.test(firstValue)) {
               validFirstValue = false;
             }
           }
         }
+
         if (
           _.get(node, 'nodeConfig.config.scheduleConfig.readIntervalType') === 1 &&
           !_.get(node, 'nodeConfig.config.scheduleConfig.readTime')
         ) {
           isSetReadTime = false;
         }
+
         if (!hanaHasBaseField) {
           disable = true;
           txt = _l('定时设置依据字段未设置');
         }
+
         if (isEmptyFirstValue) {
           disable = true;
           txt = _l('首次读取开始值不允许为空');
         }
+
         if (!validFirstValue) {
           disable = true;
           txt = _l('首次读取开始值格式不完整');
         }
+
         if (!isSetReadTime) {
           disable = true;
           txt = _l('请选择每天读取具体时间');
         }
       }
     }
+
     if (nodeType === 'JOIN') {
       if (fields.filter(o => !_.get(o, 'isCheck') && _.get(o, 'isPk')).length > 0) {
         //所有的主键必须都勾选
         disable = true;
         txt = _l('未勾选主键字段');
       }
+
       const fieldsCheck = fields.filter(o => _.get(o, 'isCheck'));
       duplicates = fieldsCheck.reduce((acc, curr, index) => {
         const alias = curr.alias;
         const isDuplicate = fieldsCheck.slice(index + 1).some(item => item.alias === alias);
+
         if (isDuplicate) {
           acc.push(alias);
         }
+
         return acc;
       }, []);
       if (duplicates.length > 0) {
         disable = true;
         txt = _l('字段名称不能重复');
       }
+
       if (isEr) {
         disable = true;
         txt = _l('存在错误的配置');
       }
     }
+
     if (['UNION'].includes(nodeType)) {
       const fields = _.get(node, 'nodeConfig.config.fields') || [];
       fields.map(o => {
@@ -576,6 +613,7 @@ export default class CellEdit extends Component {
         txt = _l('请选择字段');
       }
     }
+
     return (
       <Wrap className="">
         <div className={cx('conEdit flexColumn', { isMaxC: ['UNION', 'DEST_TABLE'].includes(nodeType) })}>
@@ -656,11 +694,13 @@ export default class CellEdit extends Component {
                     if (loading) {
                       return;
                     }
+
                     if (disable) {
                       alert(txt, 3);
                       this.setState({ duplicates });
                       return;
                     }
+
                     if (nodeType === 'DEST_TABLE') {
                       const mapping = _.get(node, ['nodeConfig', 'config', 'fieldsMapping']) || [];
                       const data = mapping.map(o => {
@@ -691,6 +731,7 @@ export default class CellEdit extends Component {
                         },
                       });
                     }
+
                     if (nodeType === 'SOURCE_TABLE') {
                       let fields = _.get(node, 'nodeConfig.fields').map(o => {
                         return _.omit(o, ['isErr']);
@@ -707,9 +748,11 @@ export default class CellEdit extends Component {
                         },
                       });
                     }
+
                     if (['JOIN'].includes(nodeType)) {
                       onSave(node);
                     }
+
                     if (['UNION'].includes(nodeType)) {
                       let fields = (_.get(node, 'nodeConfig.config.fields') || [])
                         .map(o => o.resultField)

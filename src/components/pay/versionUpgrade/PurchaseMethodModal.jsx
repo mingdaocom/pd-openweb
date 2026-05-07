@@ -84,6 +84,7 @@ export default function PurchaseMethodModal(props) {
     } else {
       window.open('https://www.mingdao.com/form/fdff452c554747f3aa64484fdfe7a0d4?source=content2821432');
     }
+
     onCancel();
   };
 

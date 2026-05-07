@@ -37,8 +37,8 @@ const WrapItem = styled.div`
 `;
 const ActWrap = styled.div`
   width: 180px;
-  background: var(--color-background-primary);
-  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+  background: var(--color-background-card);
+  box-shadow: var(--shadow-lg);
   border-radius: 4px;
   padding: 6px 0;
   .labelWrap {
@@ -64,6 +64,7 @@ const ActWrap = styled.div`
   }
 `;
 const max = 8;
+
 function FormatWrap(props) {
   const { num, onUpdate } = props;
   const [{ items, show }, setState] = useSetState({
@@ -79,6 +80,7 @@ function FormatWrap(props) {
       }),
     });
   };
+
   return (
     <Trigger
       action={['hover']}
@@ -88,6 +90,7 @@ function FormatWrap(props) {
         if (!show && !_.isEqual(props.items, items)) {
           onUpdate(items, false);
         }
+
         setState({
           show,
         });
@@ -168,9 +171,11 @@ function FormatWrap(props) {
                   value={Number(dot)}
                   onChange={value => {
                     let count = JSON.stringify(max >= value ? value : max);
+
                     if (count === dot) {
                       return;
                     }
+
                     const newData = handleAdvancedSettingChange(_.get(items[num], 'controlSetting'), {
                       dot: count,
                     });
@@ -215,6 +220,7 @@ function FormatWrap(props) {
     </Trigger>
   );
 }
+
 export default function AggregationCon(props) {
   const { list, onChange, updateErr, sourceInfos } = props;
 
@@ -230,15 +236,18 @@ export default function AggregationCon(props) {
     const index = getSourceIndex(flowData, item);
     const color = item.isCalculateField ? 'var(--color-text-tertiary)' : DEFAULT_COLORS[index];
     let isDelete = _.get(item, 'isDelete');
+
     if (item.isCalculateField) {
       const ids = extractBetweenDollars(_.get(item, 'controlSetting.dataSource'));
       const calculateFields = list.filter(o => !o.isCalculateField);
+
       if (ids.filter(o => !!calculateFields.find(it => it.id === o)).length < ids.length) {
         isDelete = true;
       }
     } else if (isDelStatus(item, sourceInfos, 'AGGREGATE')) {
       isDelete = true;
     }
+
     isDelete && updateErr();
 
     const getInfo = (props.sourceTables || []).find(o => (item.oid || '').indexOf(o.workSheetId) >= 0) || {};
@@ -343,11 +352,14 @@ export default function AggregationCon(props) {
                                     if (o.value === item.aggFuncType) {
                                       return;
                                     }
+
                                     const hs = !!list.find(it => it.oid === item.oid && it.aggFuncType === o.value);
+
                                     if (hs) {
                                       alert(_l('不能重复添加相同计算方式的相同字段'), 3);
                                       return;
                                     }
+
                                     onUpdate(
                                       items.map((it, i) => {
                                         return i === num
@@ -437,9 +449,11 @@ export default function AggregationCon(props) {
                   return false;
                 } else {
                   let isDelete = _.get(item, 'isDelete');
+
                   if (isDelStatus(item, sourceInfos)) {
                     isDelete = true;
                   }
+
                   return !isDelete;
                 }
               })
@@ -448,10 +462,12 @@ export default function AggregationCon(props) {
               })}
             onOk={control => {
               const data = getRuleAlias(control.controlName, flowData, true, true) || [];
+
               if (data.length > 1 || data.find(o => o.id !== item.id)) {
                 alert(_l('已存在该字段名称，名称不可重复'), 3);
                 return;
               }
+
               let newDt = {
                 ...item,
                 alias: control.controlName,
@@ -481,9 +497,11 @@ export default function AggregationCon(props) {
               if (item.alias === name) {
                 return;
               }
+
               if (!getRuleAlias(name, flowData, true)) {
                 return alert(_l('已存在该字段名称，名称不可重复'), 3);
               }
+
               onUpdate(
                 items.map((o, i) => {
                   return i === num ? { ...o, alias: name } : o;

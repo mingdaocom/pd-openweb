@@ -53,6 +53,7 @@ export default class GanttDialog extends Component {
 
     taskReq.getTaskStaticGanttChart({ folderID }).then(res => {
       const { status } = res;
+
       if (!status) {
         this.setState({
           loading: false,
@@ -61,6 +62,7 @@ export default class GanttDialog extends Component {
         });
         return;
       }
+
       const { taskData, maxCompleteTime, minStartTime, folderName } = res.data;
       const data = this.dealWithData(taskData);
       const formatBeginTime = momentTime(minStartTime);
@@ -84,18 +86,22 @@ export default class GanttDialog extends Component {
    */
   handleTime = (beginTime, endTime) => {
     const { type } = this.state;
+
     if (type === 'day') {
       beginTime.subtract(7, 'day');
       endTime.add(8, 'day');
     }
+
     if (type === 'week') {
       beginTime.subtract(1, 'week').startOf('week');
       endTime.add(1, 'week').endOf('week');
     }
+
     if (type === 'month') {
       beginTime.subtract(1, 'month').startOf('month');
       endTime.add(1, 'month').endOf('month');
     }
+
     return { beginTime, endTime };
   };
 
@@ -274,6 +280,7 @@ export default class GanttDialog extends Component {
     ];
 
     const randArr = [];
+
     for (let i = 0; i < length; i++) {
       randArr.push(randStrArr[Math.floor(Math.random() * randStrArr.length)]);
     }
@@ -317,6 +324,7 @@ export default class GanttDialog extends Component {
    */
   handleTaskItemHover = (layerVisible, e) => {
     const activeLayer = document.querySelector('.activeLayer');
+
     if (layerVisible) {
       const $el = e.currentTarget;
       const top = $el.getBoundingClientRect().top - 51;
@@ -389,6 +397,7 @@ export default class GanttDialog extends Component {
       scrollToToday,
     } = this;
     let width = 0;
+
     if (refreshLoading) {
       width =
         $('.timeHeader').width() > $('.ganttContentBox').width()

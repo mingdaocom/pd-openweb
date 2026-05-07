@@ -31,6 +31,7 @@ export default ({
     6: _l('密码不正确'),
     8: _l('验证码错误'),
   };
+
   const cb = function (res) {
     if (res.ret !== 0) {
       return;

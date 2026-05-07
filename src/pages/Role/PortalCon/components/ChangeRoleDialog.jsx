@@ -34,6 +34,7 @@ const ChangeRoleDialogWrap = styled.div`
     }
   }
 `;
+
 export default function ChangeRoleDialog(props) {
   const { setChangeRoleDialog, changeRoleDialog, roleList = [], title } = props;
   const [roleId, setRoleId] = useState('');
@@ -56,6 +57,7 @@ export default function ChangeRoleDialog(props) {
           alert(_l('请选择角色'), 3);
           return;
         }
+
         props.onOk(roleId);
         setChangeRoleDialog(false);
       }}

@@ -79,6 +79,7 @@ export default function Money(props) {
     if (data.unit && !(data.advancedSetting || {}).suffix) {
       onChange(handleAdvancedSettingChange({ ...data, unit: '' }, { suffix: data.unit }));
     }
+
     worksheetAjax.getWorksheetCurrencyInfos().then(res => {
       setList(res);
     });

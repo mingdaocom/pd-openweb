@@ -17,7 +17,7 @@ const Con = styled.div`
   width: 480px;
   border-radius: 4px;
   background: var(--color-background-card);
-  box-shadow: 0px 4px 16px 1px rgba(0, 0, 0, 0.24);
+  box-shadow: var(--shadow-lg);
   padding: 16px 0 0;
   .queryTypeSelectWrapper {
     margin-top: 12px;
@@ -144,10 +144,12 @@ function Filters(props, ref) {
     editingFilter &&
     _.isEmpty(editingFilter.conditions) &&
     !_.some(editingFilter.conditionsGroups.map(g => g.conditions.length));
+
   function updateActiveTab(newType) {
     setActiveTab(newType);
     localStorage.setItem('worksheetFilters_activeTab', newType);
   }
+
   function filterAddConditionControls(controls) {
     return filterOnlyShowField(
       showWorkflowControl
@@ -161,23 +163,28 @@ function Filters(props, ref) {
           ),
     );
   }
+
   function filterWorksheet(filter) {
     const filterControls = filter && formatForSave(filter);
     const isClear = !filter || _.isEmpty(filter.conditionsGroups.filter(g => g.conditions.length));
+
     if ((filterControls && !_.isEmpty(filterControls)) || isClear) {
       onChange({
         filterControls,
       });
       setQueryButtonDisabled(true);
     }
+
     if (filter.id.startsWith('new')) {
       setActiveFilter();
     }
   }
+
   function handleTriggerFilter(filter) {
     setActiveFilter(filter);
     filterWorksheet(filter);
   }
+
   function handleAddNewFilter() {
     addFilter();
     setTimeout(() => {
@@ -186,10 +193,12 @@ function Filters(props, ref) {
       }
     }, 80);
   }
+
   useEffect(() => {
     if (!showSavedFilters) {
       return;
     }
+
     loadFilters(worksheetId, data => {
       if (!_.isEmpty(data) && !cache.current.callFromColumn) {
         updateActiveTab(2);
@@ -217,6 +226,7 @@ function Filters(props, ref) {
     ) {
       filterWorksheet(state.editingFilter);
     }
+
     cache.current.editingFilter = state.editingFilter;
   }, [state.editingFilter]);
   useEffect(() => {
@@ -237,6 +247,7 @@ function Filters(props, ref) {
           : undefined,
       );
     }
+
     if (popupVisible && !loading && String(activeTab) === '2' && !filters.length) {
       setActiveTab(1);
     }
@@ -350,6 +361,7 @@ function Filters(props, ref) {
                       const dom = document.querySelector(
                         '.keyStr_' + defaultCondition.keyStr + ' .ant-select-selector',
                       );
+
                       if (dom) {
                         dom.click();
                       }
@@ -412,10 +424,12 @@ function Filters(props, ref) {
                   onBack={needSetOriginFilter => {
                     if (needSetOriginFilter) {
                       const originFilter = _.find(filters, f => f.id === editingFilter.id);
+
                       if (originFilter) {
                         handleTriggerFilter(originFilter);
                       }
                     }
+
                     editFilter(undefined);
                   }}
                   handleTriggerFilter={handleTriggerFilter}

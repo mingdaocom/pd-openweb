@@ -5,8 +5,10 @@ import { Button, Dropdown, Input, LoadDiv, RadioGroup, Support, Switch } from 'm
 import { Tooltip } from 'ming-ui/antd-components';
 import merchantInvoiceApi from 'src/api/merchantInvoice';
 import worksheetSettingApi from 'src/api/worksheetSetting';
+import { NORMAL_SYSTEM_FIELDS_SORT, WORKFLOW_SYSTEM_FIELDS_SORT } from 'src/pages/worksheet/common/ViewConfig/enum';
 import { navigateTo } from 'src/router/navigateTo';
 import MapField from '../common/MapField';
+import CustomRemark from './CustomRemark';
 import '../common/payAndInvoice.less';
 
 export default class InvoiceConfig extends Component {
@@ -25,6 +27,7 @@ export default class InvoiceConfig extends Component {
       productId: '',
       remark: '',
       fieldMaps: {},
+      invoiceCustomRemark: '',
     };
   }
 
@@ -77,7 +80,7 @@ export default class InvoiceConfig extends Component {
 
   onSave = () => {
     const { projectId, worksheetId } = this.props.worksheetInfo || {};
-    const { taxNo, scenes, productId, remark, fieldMaps } = this.state;
+    const { taxNo, scenes, productId, remark, fieldMaps, invoiceCustomRemark } = this.state;
 
     if (!taxNo) {
       alert(_l('请选择开票主体'), 3);
@@ -94,6 +97,7 @@ export default class InvoiceConfig extends Component {
         remark,
         fieldMaps,
         mapWorksheetId: worksheetId,
+        invoiceCustomRemark,
       })
       .then(res => {
         if (res) {
@@ -119,6 +123,7 @@ export default class InvoiceConfig extends Component {
       productList,
       isOpenPayment,
       boundControlIds,
+      invoiceCustomRemark,
     } = this.state;
     const controls = _.get(this.props.worksheetInfo, 'template.controls') || [];
 
@@ -252,15 +257,17 @@ export default class InvoiceConfig extends Component {
                   onChange={value => this.onChangeConfig({ productId: value })}
                 />
 
-                {/* <SelectWithRefer
-                  data={category}
-                  onChange={data => this.onChangeConfig({ category: data })}
-                  optionList={productList}
+                <div className="subTitle">{_l('自定义发票备注')}</div>
+                <div className="textTertiary mBottom16">{_l('可自定义发票备注的显示内容，仅支持文本字段')}</div>
+                <CustomRemark
+                  value={invoiceCustomRemark}
+                  onChange={value => this.onChangeConfig({ invoiceCustomRemark: value })}
                   controlList={controls.filter(
-                    ({ controlId }) =>
-                      !_.includes([...NORMAL_SYSTEM_FIELDS_SORT, ...WORKFLOW_SYSTEM_FIELDS_SORT], controlId),
+                    ({ controlId, type }) =>
+                      !_.includes([...NORMAL_SYSTEM_FIELDS_SORT, ...WORKFLOW_SYSTEM_FIELDS_SORT], controlId) &&
+                      type === 2,
                   )}
-                /> */}
+                />
 
                 <div className="title">{_l('其他')}</div>
                 <div className="subTitle">{_l('说明配置')}</div>

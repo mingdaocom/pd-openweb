@@ -7,8 +7,10 @@ export default function (props) {
   const { warnList = [], fullName, onChange = () => {}, focusDiv, accountTxtType, accountTxt } = props;
   const warn = _.find(warnList, it => it.tipDom === 'inputFullname');
   const InputRef = useRef();
+
   const getTxt = () => {
     let txt = _l('用户名');
+
     switch (accountTxtType) {
       case 10:
         txt = _l('用户名');
@@ -23,6 +25,7 @@ export default function (props) {
         txt = accountTxt;
         break;
     }
+
     return txt;
   };
 

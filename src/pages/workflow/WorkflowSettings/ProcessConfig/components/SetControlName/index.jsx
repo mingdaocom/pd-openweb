@@ -95,6 +95,7 @@ export default ({ data = [], list = [], errorItems, setErrorItems, updateSource 
       if (o.controlId === controlId) {
         o.value = value;
       }
+
       if (o.controlId === dataSource) {
         const objectArray = {};
         let isAllEmpty = true;
@@ -111,6 +112,7 @@ export default ({ data = [], list = [], errorItems, setErrorItems, updateSource 
 
         o.value = isAllEmpty ? '' : JSON.stringify([objectArray]);
       }
+
       return o;
     });
   };
@@ -170,6 +172,7 @@ export default ({ data = [], list = [], errorItems, setErrorItems, updateSource 
                         if (o.controlId === obj.controlId) {
                           o.alias = value;
                         }
+
                         return o;
                       })
                       .forEach(o => {

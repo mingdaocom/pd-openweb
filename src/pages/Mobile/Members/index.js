@@ -44,6 +44,7 @@ class Members extends Component {
       confirmText: <span className="Red">{_l('确认')}</span>,
       onConfirm: () => {
         const { value } = document.querySelector('.appNameInput input');
+
         if (detail.name === value) {
           this.props.dispatch(
             actions.deleteApp(
@@ -71,6 +72,7 @@ class Members extends Component {
     return data.map(item => {
       const { users, count } = item;
       const isInCurrentRole = !!_.filter(users, ({ accountId }) => accountId === md.global.Account.accountId).length;
+
       if (!isAdmin && item.permissionWay != 80 && this.props.memberData.rolesVisibleConfig === ROLE_CONFIG.REFUSE) {
         return '';
       }

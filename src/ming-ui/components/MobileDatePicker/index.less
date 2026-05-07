@@ -4,7 +4,7 @@
   overflow: hidden;
   position: fixed !important;
   .datepicker {
-    background-color: var(--color-background-primary) !important;
+    background-color: var(--color-background-card) !important;
     border-radius: 12px 12px 0 0;
     z-index: 1000;
     .datepicker-header {
@@ -25,10 +25,16 @@
             overflow: hidden;
             white-space: nowrap;
             text-overflow: ellipsis;
+            color: var(--color-text-primary);
           }
         }
         &::after {
-          background: linear-gradient(#fff, rgba(245, 245, 245, 0) 52%, rgba(245, 245, 245, 0) 48%, #fff);
+          background: linear-gradient(
+            var(--color-background-card),
+            rgba(245, 245, 245, 0) 52%,
+            rgb(255 255 255 / 0%) 48%,
+            var(--color-background-card)
+          );
         }
       }
     }

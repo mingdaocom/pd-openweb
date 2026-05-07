@@ -65,12 +65,9 @@ const Wrap = styled.div`
     .role {
       width: 90px;
       height: 36px;
-      background: var(--color-background-primary);
-      border: 1px solid var(--color-border-secondary);
-      opacity: 1;
-      border-radius: 3px;
       .Dropdown--input {
         display: flex;
+        border: 1px solid var(--color-border-secondary) !important;
         .value {
           flex: 1;
         }
@@ -95,28 +92,35 @@ const Wrap = styled.div`
     }
   }
 `;
-const TYPELIST = !md.global.SysSettings.enableSmsCustomContent ? [_l('邮箱邀请')] : [_l('手机邀请'), _l('邮箱邀请')];
+const TYPELIST = [_l('手机邀请'), _l('邮箱邀请')];
+
 function AddUserByTelDialog(props) {
   const { appId, show, setAddUserByTelDialog, getUserList, roleList, registerMode = {} } = props;
   const roleId = props.roleId || roleList.find(o => o.isDefault).roleId;
   const [loading, setLoading] = useState(false); //
   const [list, setList] = useState([{ phone: '', name: '', roleId: roleId }]);
   const [isSendMsgs, setIsSend] = useState(true); //
-  const [type, setType] = useState(registerMode.phone && md.global.SysSettings.enableSmsCustomContent ? 0 : 1); //
+  const [type, setType] = useState(() => (registerMode.phone && md.global.SysSettings?.enableSmsCustomContent ? 0 : 1)); //
+  const effectiveType = md.global.SysSettings?.enableSmsCustomContent ? type : 1; // enableSmsCustomContent 为 true 时才能用手机号邀请
+
   const update = () => {
     if (loading) {
       return;
     }
+
     setLoading(true);
     let data = list
       .filter(o => !!o.phone && !!o.name && !o.isErr)
       .map(o => {
         return { ..._.pick(o, ['phone', 'name', 'roleId']) };
       });
+    const effectiveType = md.global.SysSettings?.enableSmsCustomContent ? type : 1;
+
     if (data.length <= 0 || list.filter(o => o.isErr || (!!o.phone && !o.name)).length > 0) {
       setLoading(false);
-      return alert(type === 0 ? _l('请填写正确的手机号或姓名') : _l('请填写正确的邮箱或姓名'), 3);
+      return alert(effectiveType === 0 ? _l('请填写正确的手机号或姓名') : _l('请填写正确的邮箱或姓名'), 3);
     }
+
     externalPortalAjax
       .addExAccounts({
         isSendMsgs,
@@ -130,6 +134,7 @@ function AddUserByTelDialog(props) {
           if (success) {
             getUserList();
           }
+
           if (existedData.length > 0) {
             return alert(_l('有%0个用户不能重复邀请', existedData.length), 3);
           } else if (success) {
@@ -137,6 +142,7 @@ function AddUserByTelDialog(props) {
           } else if (!success) {
             return alert(_l('邀请失败，请稍后再试'), 3);
           }
+
           setLoading(false);
         },
         () => {
@@ -144,9 +150,11 @@ function AddUserByTelDialog(props) {
         },
       );
   };
+
   const addNew = () => {
     setList(list.concat({ phone: '', name: '', roleId: list[list.length - 1].roleId || roleId }));
   };
+
   return (
     <Dialog
       className="addUserByTelDialog"
@@ -162,37 +170,29 @@ function AddUserByTelDialog(props) {
       }}
     >
       <Wrap>
-        {TYPELIST.map((o, i) => {
-          const index = md.global.SysSettings.enableSmsCustomContent ? i : i + 1;
-          if (!registerMode.phone || !registerMode.email) {
-            return '';
-          }
-          return (
-            <Radio
-              className=""
-              text={o}
-              checked={type === index}
-              onClick={() => {
-                setType(index);
-              }}
-            />
-          );
-        })}
+        {md.global.SysSettings?.enableSmsCustomContent &&
+          registerMode.phone &&
+          registerMode.email &&
+          TYPELIST.map((o, i) => <Radio key={i} text={o} checked={type === i} onClick={() => setType(i)} />)}
         {window.platformENV.isPlatform && (
-          <p className="mTop16">
-            <PriceTip text={_l('发送邀请的费用自动从组织信用点中扣除')} />
-            {!window.platformENV.isOverseas && !window.platformENV.isLocal && (
-              <span className="mLeft5">{_l('目前仅支持中国大陆手机号。')}</span>
-            )}
+          <p
+            className={
+              md.global.SysSettings?.enableSmsCustomContent && registerMode.phone && registerMode.email ? 'mTop16' : ''
+            }
+          >
+            <PriceTip
+              text={_l('发送邀请的费用自动从组织信用点中扣除（其中，发送至港澳台/国际短信，需组织集成国际短信服务）')}
+            />
           </p>
         )}
         <div className="list">
           {list.map((o, i) => {
             return (
               <div className="row">
-                {type === 0 ? (
+                {effectiveType === 0 ? (
                   <Tel
                     data={o}
+                    allowDropdown={true}
                     inputClassName="rowTel"
                     onChange={data => {
                       setList(
@@ -257,6 +257,7 @@ function AddUserByTelDialog(props) {
                   }}
                 />
                 <Dropdown
+                  border
                   isAppendToBody
                   data={roleList.map(o => {
                     return { ...o, value: o.roleId, text: o.name };
@@ -299,7 +300,7 @@ function AddUserByTelDialog(props) {
         </span>
         <Checkbox
           className="TxtCenter InlineBlock Hand textSecondary sendMes"
-          text={type === 0 ? _l('发送短信通知') : _l('发送邮件通知')}
+          text={effectiveType === 0 ? _l('发送短信通知') : _l('发送邮件通知')}
           checked={isSendMsgs}
           onClick={() => {
             setIsSend(!isSendMsgs);
@@ -309,6 +310,7 @@ function AddUserByTelDialog(props) {
     </Dialog>
   );
 }
+
 const mapStateToProps = state => ({
   portal: state.portal,
 });

@@ -187,6 +187,7 @@ class FolderChart extends Component {
     // 负责人切换
     $('body').on('click.folderChart', '.folderChartChargeBtn', function () {
       const $folderChartChargeList = $(this).siblings('.folderChartChargeList');
+
       if (!$folderChartChargeList.length) {
         that.getTaskCharges();
       } else {
@@ -217,6 +218,7 @@ class FolderChart extends Component {
     $('body').on('click.folderChart', '.folderChartChargeLists .folderChartSelectBtn', function () {
       $(this).toggleClass('ThemeBorderColor3 ThemeBGColor3');
       const $List = $(this).closest('.folderChartChargeList');
+
       if (
         $List.find('.folderChartChargeLists .ThemeBGColor3').length === $List.find('.folderChartChargeLists li').length
       ) {
@@ -237,10 +239,12 @@ class FolderChart extends Component {
       let isAuto = false;
       const chargeAccountIDs = [];
       const isDialog = $(this).closest('.folderChartMaxView').length;
+
       if (!$folderChartChargeList.find('.folderChartSelect.ThemeBGColor3').length) {
         alert(_l('请选择负责人!'), 3);
         return false;
       }
+
       $folderChartChargeList.addClass('Hidden');
 
       // 全选选中
@@ -254,6 +258,7 @@ class FolderChart extends Component {
 
       // 处理title文本
       const txt = isAuto ? _l('所有负责人') : _l('已选择%0人', chargeAccountIDs.length);
+
       if (isDialog) {
         $('.folderChartMaxView .folderChartChargeTxt').html(txt);
       } else {
@@ -391,6 +396,7 @@ class FolderChart extends Component {
       .then(source => {
         if (source.data) {
           const list = doT.template(chargeList)(source.data);
+
           if ($('.folderChartMaxView').length) {
             $('.folderChartMaxView .folderChartChargeBox').append(list);
           } else {
@@ -492,6 +498,7 @@ class FolderChart extends Component {
 
   folderCharts1(id = 'folderCharts1', source = folderChartSettings.data) {
     const data = [];
+
     for (const item of source) {
       const date = moment(item.date).format(`MM/DD${source.length === 7 ? ' ddd' : ''}`);
       data.push({
@@ -524,6 +531,7 @@ class FolderChart extends Component {
 
   folderCharts2(id = 'folderCharts2', source = folderChartSettings.data) {
     const data = [];
+
     for (const item of source) {
       const date = moment(item.date).format(`MM/DD`);
       data.push({
@@ -561,6 +569,7 @@ class FolderChart extends Component {
 
   folderCharts3(id = 'folderCharts3', source = folderChartSettings.data) {
     const data = [];
+
     for (const item of source) {
       const date = moment(item.date).format(`MM/DD`);
       data.push({
@@ -598,6 +607,7 @@ class FolderChart extends Component {
 
   folderCharts4(id = 'folderCharts4', source = folderChartSettings.data) {
     const data = [];
+
     for (const item of source) {
       const date = moment(item.date).format(`MM/DD`);
       data.push({
@@ -635,6 +645,7 @@ class FolderChart extends Component {
 
   folderCharts5(id = 'folderCharts5', source = folderChartSettings.data) {
     const data = [];
+
     for (const item of source) {
       const date = moment(item.date).format(`MM/DD${source.length === 7 ? ' ddd' : ''}`);
       data.push({
@@ -667,6 +678,7 @@ class FolderChart extends Component {
 
   folderCharts6(id = 'folderCharts6', source = folderChartSettings.data) {
     const data = [];
+
     for (const item of source) {
       const date = moment(item.date).format(`MM/DD`);
       data.push({
@@ -694,6 +706,7 @@ class FolderChart extends Component {
 
   folderCharts13(id = 'folderCharts13', source = folderChartSettings.data) {
     const data = [];
+
     for (const item of source) {
       const date = moment(item.date).format(`MM/DD`);
       data.push({
@@ -721,6 +734,7 @@ class FolderChart extends Component {
 
   folderCharts14(id = 'folderCharts14', source = folderChartSettings.data) {
     const data = [];
+
     for (const item of source) {
       const date = moment(item.date).format(`MM/DD`);
       data.push({
@@ -753,6 +767,7 @@ class FolderChart extends Component {
 
   folderCharts15(id = 'folderCharts15', source = folderChartSettings.data) {
     const data = [];
+
     for (const item of source) {
       const date = moment(item.date).format(`MM/DD`);
       data.push({
@@ -792,6 +807,7 @@ class FolderChart extends Component {
     // 数据排序
     source = this.dataDisposeFun(this.dataSortFun('amount', source));
     const data = [];
+
     for (const item of source) {
       const date = filterXss(item.fullName).substr(0, 10);
       data.push({
@@ -826,6 +842,7 @@ class FolderChart extends Component {
     // 数据排序
     source = this.dataDisposeFun(this.dataSortFun('completed_N', source));
     const data = [];
+
     for (const item of source) {
       const date = filterXss(item.fullName).substr(0, 10);
       data.push({
@@ -855,6 +872,7 @@ class FolderChart extends Component {
     // 数据排序
     source = this.dataDisposeFun(this.dataSortFun('underway_A', source));
     const data = [];
+
     for (const item of source) {
       const date = filterXss(item.fullName).substr(0, 10);
       data.push({
@@ -889,6 +907,7 @@ class FolderChart extends Component {
     // 数据排序
     source = this.dataDisposeFun(this.dataSortFun('timespan_Und', source));
     const data = [];
+
     for (const item of source) {
       const date = filterXss(item.fullName).substr(0, 10);
       data.push({
@@ -923,6 +942,7 @@ class FolderChart extends Component {
     // 数据排序
     source = this.dataDisposeFun(this.dataSortFun('completedTimeAvg', source));
     const data = [];
+
     for (const item of source) {
       const date = filterXss(item.fullName).substr(0, 10);
       data.push({
@@ -951,6 +971,7 @@ class FolderChart extends Component {
   folderCharts12(id = 'folderCharts12') {
     // 数据排序
     const data = [];
+
     for (const item of folderChartSettings.data.stages) {
       const date = item.stageName;
       data.push({
@@ -984,6 +1005,7 @@ class FolderChart extends Component {
   folderChartsPie(id, source) {
     // 数据排序
     const data = [];
+
     for (const item of source.options) {
       const name = item.name.length > 6 && id !== 'folderChartsMax' ? item.name.substring(0, 5) + '...' : item.name;
       const count = item.count;
@@ -1008,6 +1030,7 @@ class FolderChart extends Component {
   folderChartsBar(id, source) {
     // 数据排序
     const data = [];
+
     for (const item of source.dailyStatistics) {
       const date = moment(item.date).format(`MM/DD${source.length === 7 ? ' ddd' : ''}`);
       data.push({
@@ -1147,6 +1170,7 @@ class FolderChart extends Component {
     if (source.length <= sourceLength || $('.folderChartMaxView').length) {
       return source;
     }
+
     return source.slice(source.length - sourceLength);
   }
 
@@ -1160,12 +1184,14 @@ class FolderChart extends Component {
         return a[columnName] > b[columnName] ? 1 : -1;
       });
     };
+
     // 升序     图表数据数组最早的在最下面
     const dataAscFun = () => {
       return source.sort((a, b) => {
         return a[columnName] > b[columnName] ? -1 : 1;
       });
     };
+
     if ($('.folderChartMaxView').length) {
       if (folderChartSettings.maxSort === 'desc') {
         return dataDescFun();
@@ -1187,6 +1213,7 @@ class FolderChart extends Component {
   updateChargeSelect() {
     const isDialog = $('.folderChartMaxView').length;
     let ids;
+
     if (isDialog) {
       $('.folderChartMaxView .folderChartSelect').toggleClass(
         'ThemeBorderColor3 ThemeBGColor3',

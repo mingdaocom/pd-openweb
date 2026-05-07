@@ -24,6 +24,7 @@ const Wrap = styled.div`
     }
   }
 `;
+
 export default function Remark({ data, onChange }) {
   const [show, setShow] = useState(false);
   return (

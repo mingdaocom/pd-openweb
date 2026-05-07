@@ -16,6 +16,7 @@ export default function CustomSelectDate(props) {
   const changeFileds = item => {
     let startDate = moment().subtract(29, 'days').startOf('day').format(dateFormat),
       endDate = moment().format(dateFormat);
+
     switch (item.value) {
       case 0:
         // 今天
@@ -68,6 +69,7 @@ export default function CustomSelectDate(props) {
         startDate = moment().subtract(1, 'year').startOf('day').format(dateFormat);
         break;
     }
+
     changeDate({ startDate, endDate, searchDateStr: item.label, ...item });
     setDateInfo({ searchDateStr: item.label, startDate, endDate });
   };

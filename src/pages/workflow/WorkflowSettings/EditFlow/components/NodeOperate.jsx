@@ -89,6 +89,7 @@ export default class NodeOperate extends Component {
     } else {
       this.workflowNodeName.value = item.name;
     }
+
     this.setState({ isEdit: false });
   };
 
@@ -386,6 +387,7 @@ export default class NodeOperate extends Component {
   updateBranchSort = type => {
     const { processId, item, flowIds, updateBranchSort } = this.props;
     const currentIndex = _.findIndex(flowIds, o => o === item.id);
+
     const moveElements = array => {
       array.splice(currentIndex, 1);
 

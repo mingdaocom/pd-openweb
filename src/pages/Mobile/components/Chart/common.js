@@ -43,17 +43,20 @@ export const getLegendType = displaySetup => {
         position: 'top',
       };
     }
+
     if (displaySetup.legendType === 2) {
       return {
         position: 'left',
       };
     }
+
     if (displaySetup.legendType === 3) {
       return {
         position: 'bottom',
         align: 'center',
       };
     }
+
     if (displaySetup.legendType === 4) {
       return {
         position: 'right',
@@ -71,6 +74,7 @@ const calculatePerPilePosition = data => {
   data.map((item, index) => {
     const last = data[index - 1];
     const next = data[index + 1];
+
     if (last) {
       item.percentOffsetY = next ? (item.y || item.percent) + last.percent : 1;
       return item;
@@ -100,6 +104,7 @@ export const formatPerPileChartData = result => {
     });
     perPileResult.push(...calculatePerPilePosition(current));
   }
+
   return perPileResult;
 };
 
@@ -120,16 +125,20 @@ export const formDate = time => {
     const [year, week] = time.split('W');
     time = moment(year).isoWeek(week).format('YYYY-MM-DD');
   }
+
   // 季度
   if (time.includes('Q')) {
     const [year, quarter] = time.split('Q');
     time = moment(year).quarter(quarter).format('YYYY-MM-DD');
   }
+
   // 兼容时
   let hour = moment(time).get('hour');
+
   if (isNaN(hour)) {
     time = `${time}:00`;
   }
+
   let nowTime = new Date(time);
   nowTime = nowTime.getTime();
   return nowTime;
@@ -155,6 +164,7 @@ export const sortChartData = (data, xaxisSortType, yaxisList, showXAxisCount = 0
     );
   } else {
     const yaxisSort = yaxisList.filter(item => item.sortType !== 0)[0];
+
     if (yaxisSort && yaxisSort.sortType) {
       const sortList = data.filter(item => {
         const id = item.groupName.split(/-md-\w+-chart-/g)[1];

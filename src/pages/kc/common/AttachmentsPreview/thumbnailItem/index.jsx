@@ -41,13 +41,20 @@ class ThumbnailItem extends React.Component {
     const { previewType, size, name } = attachment;
     const ext = attachment.ext.toLowerCase();
     let content;
+
     if (
       previewType === PREVIEW_TYPE.PICTURE &&
       size < MAX_IMG_VIEW_SIZE &&
       !this.state.error &&
       (!attachment.refId || attachment.shareUrl)
     ) {
-      const imagePath = attachment.viewUrl;
+      let imagePath = attachment.viewUrl || '';
+
+      if (imagePath) {
+        const urlObj = new URL(imagePath);
+        imagePath += urlObj.search ? `&imageView2/2/h/70` : `?imageView2/2/h/70`;
+      }
+
       content = (
         <img
           onError={() => {
@@ -69,6 +76,7 @@ class ThumbnailItem extends React.Component {
         </span>
       );
     }
+
     return (
       <div
         onClick={this.props.onClick}

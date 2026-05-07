@@ -155,8 +155,10 @@ export default function CascaderConfig(props) {
               if (value === '3') {
                 setVisibleInfo({ topfiltersVisible: true });
               }
+
               return;
             }
+
             onChange(handleAdvancedSettingChange(data, { topshow: value, topfilters: '' }));
             // 满足条件的项
             if (value === '3') {
@@ -289,6 +291,7 @@ export default function CascaderConfig(props) {
                   }),
                 );
               }
+
               setVisibleInfo({ searchVisible: !searchcontrol });
             }}
           >

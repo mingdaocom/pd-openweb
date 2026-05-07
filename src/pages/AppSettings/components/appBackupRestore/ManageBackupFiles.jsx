@@ -247,6 +247,7 @@ export default function ManageBackupFiles(props) {
                         buriedUpgradeVersionDialog(projectId, VersionProductType.regularBackup);
                         return;
                       }
+
                       setPopupVisible(true);
                     }}
                   >

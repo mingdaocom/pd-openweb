@@ -29,7 +29,7 @@ import './worksheet.less';
 const Drag = styled.div(
   ({ left }) => `
   position: absolute;
-  z-index: 9;
+  z-index: 12;
   left: ${left}px;
   width: 2px;
   height: 100%;
@@ -57,6 +57,7 @@ const WorkSheetContainer = props => {
         if (request && request.abort) {
           request.abort();
         }
+
         request = homeAppApi.getPageInfo({
           appId,
           id,
@@ -64,6 +65,7 @@ const WorkSheetContainer = props => {
         });
         request.then(data => {
           const storage = JSON.parse(localStorage.getItem(`mdAppCache_${md.global.Account.accountId}_${appId}`)) || {};
+
           if (![1, 4].includes(data.resultCode) || (storage.lastWorksheetId === id && data.resultCode === 4)) {
             moveSheetCache(appId, params.groupId);
             homeAppApi
@@ -76,6 +78,7 @@ const WorkSheetContainer = props => {
               });
             return;
           }
+
           setData(data);
           setLoading(false);
         });
@@ -94,6 +97,7 @@ const WorkSheetContainer = props => {
   useEffect(() => {
     if (!id && !sheetListLoading) {
       const firstSheetId = getSheetListFirstId(sheetList, isCharge);
+
       if (firstSheetId && params.groupId) {
         navigateTo(`/app/${appId}/${params.groupId}/${firstSheetId}`);
       } else {
@@ -159,6 +163,7 @@ const WorkSheetContainer = props => {
       />
     );
   }
+
   if (data.wsType === 1) {
     const currentSheet =
       currentPcNaviStyle === 2 && data.urlTemplate
@@ -170,11 +175,12 @@ const WorkSheetContainer = props => {
         : undefined;
     return <CustomPageContent currentSheet={currentSheet} ids={{ ...params, appId }} id={id} />;
   }
+
   if (data.wsType === 3) {
     const name = currentSheet.workSheetName || data.name;
     return (
       <Chatbot
-        data={{ ...currentSheet, name, appId, chatbotId: id, conversationId: params.viewId }}
+        data={{ ...currentSheet, name, appId, chatbotId: id, conversationId: params.viewId, groupId: params.groupId }}
         navigateToConversation={(conversationId, isReplace = false) => {
           navigateTo(`/app/${appId}/${params.groupId}/${id}/${conversationId || ''}`, isReplace);
         }}
@@ -205,8 +211,10 @@ class WorkSheet extends Component {
     if (window.isPublicApp) {
       $(document.body).addClass('isPublicApp');
     }
+
     const id = this.getValidedWorksheetId(this.props);
     let { appId, groupId, viewId } = match.params;
+
     if (md.global.Account.isPortal) {
       appId = md.global.Account.appId;
     }
@@ -229,11 +237,14 @@ class WorkSheet extends Component {
   }
   componentWillReceiveProps(nextProps) {
     const { updateBase, worksheetId, updateWorksheetLoading, views } = nextProps;
+
     if (/\/app\/[\w-]+$/.test(location.pathname)) {
       return;
     }
+
     const id = this.getValidedWorksheetId(nextProps);
     let { appId, groupId, viewId } = nextProps.match.params;
+
     if (
       appId !== this.props.match.params.appId ||
       groupId !== this.props.match.params.groupId ||
@@ -241,6 +252,7 @@ class WorkSheet extends Component {
     ) {
       updateWorksheetLoading(true);
     }
+
     if (
       appId !== this.props.match.params.appId ||
       viewId !== this.props.match.params.viewId ||
@@ -252,6 +264,7 @@ class WorkSheet extends Component {
       }
 
       let defaultViewId = undefined;
+
       if (
         !viewId &&
         this.props.match.params.viewId === worksheetId &&
@@ -259,9 +272,11 @@ class WorkSheet extends Component {
       ) {
         const showViews = views.filter(view => {
           const showhide = _.get(view, 'advancedSetting.showhide') || '';
+
           if (browserIsMobile()) {
             return !showhide.includes('spc&happ') && !showhide.includes('hide');
           }
+
           return !showhide.includes('hpc') && !showhide.includes('hide');
         });
 
@@ -278,6 +293,7 @@ class WorkSheet extends Component {
         activeModule: 'worksheet',
       });
     }
+
     this.setCache(nextProps.match.params);
     if (
       _.get(this.props, 'appPkg.iconColor') !== _.get(nextProps, 'appPkg.iconColor') ||
@@ -328,9 +344,11 @@ class WorkSheet extends Component {
    */
   setCache(params) {
     let { appId, groupId, worksheetId, viewId } = params;
+
     if (md.global.Account.isPortal) {
       appId = md.global.Account.appId;
     }
+
     let storage = JSON.parse(localStorage.getItem(`mdAppCache_${md.global.Account.accountId}_${appId}`));
 
     if (!worksheetId) {
@@ -345,6 +363,7 @@ class WorkSheet extends Component {
         storage.lastViewId = '';
         safeLocalStorageSetItem(`mdAppCache_${md.global.Account.accountId}_${appId}`, JSON.stringify(storage));
       }
+
       return;
     }
 
@@ -367,9 +386,11 @@ class WorkSheet extends Component {
   getValidedWorksheetId(props) {
     const { match } = props || this.props;
     let id;
+
     if (match.params.worksheetId) {
       id = match.params.worksheetId;
     }
+
     return id;
   }
   render() {
@@ -377,9 +398,11 @@ class WorkSheet extends Component {
     const { projectId, currentPcNaviStyle } = appPkg;
     const { navWidth, dragMaskVisible, createRecordSideMaskVisible, createRecordSideMaskBase } = this.state;
     let { appId, groupId, worksheetId } = match.params;
+
     if (md.global.Account.isPortal) {
       appId = md.global.Account.appId;
     }
+
     const currentSheet = findSheet(worksheetId, sheetList) || {};
     return (
       <WaterMark projectId={projectId}>
@@ -392,6 +415,7 @@ class WorkSheet extends Component {
             ) {
               return;
             }
+
             if ((window.isMacOs ? e.metaKey : e.ctrlKey) && e.keyCode === 191) {
               const fullEl = document.querySelector('.icon.fullRotate');
               fullEl && fullEl.click();

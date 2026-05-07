@@ -9,6 +9,7 @@ const EditShowNameCon = styled.div`
     margin-bottom: 10px;
   }
 `;
+
 export default function PublishFail(props) {
   const { name, onCancel, toNode, errorMsgList = [] } = props;
   return (

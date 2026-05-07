@@ -157,11 +157,14 @@ class TelCon extends React.Component {
   // 验证input内容 手机
   isValid = () => {
     const { account, newAccount } = this.props;
+
     if (account) {
       //老手机号 不需要验证
       return true;
     }
+
     let isRight = true;
+
     if (this.props.inputType === 'phone') {
       if (this.iti.getNumber().replace(/\s*/g, '')) {
         // 手机号
@@ -175,6 +178,7 @@ class TelCon extends React.Component {
         isRight = false;
         alert(_l('请输入手机号'), 2);
       }
+
       return isRight;
     } else {
       if (newAccount.replace(/\s*/g, '')) {
@@ -189,6 +193,7 @@ class TelCon extends React.Component {
         isRight = false;
         alert(_l('请输入邮箱'), 2);
       }
+
       return isRight;
     }
   };
@@ -207,6 +212,7 @@ class TelCon extends React.Component {
             verifyCodeLoading: true,
           });
         }
+
         let param = {
           appId: this.props.appId,
           // portalSmsType: this.props.type, //1：注销 2：修改手机号 3：绑定手机号（不能为0）
@@ -222,6 +228,7 @@ class TelCon extends React.Component {
               : this.props.account,
           ),
         };
+
         let thenFn = data => {
           if (data.actionResult === 1) {
             this.countDown();
@@ -242,9 +249,11 @@ class TelCon extends React.Component {
             } else {
               alert(_l('验证码发送失败'), 3);
             }
+
             return;
           }
         };
+
         externalPortalAjax
           .sendAccountVerifyCode(param)
           .then(data => {
@@ -280,12 +289,14 @@ class TelCon extends React.Component {
   onChangeAccount = e => {
     const { setNewAccount, setIsValidNumber, inputType, setCountry } = this.props;
     const isPhone = inputType === 'phone';
+
     if ((isPhone ? e.target.value.replace(/[^\d]/g, '') : e.target.value.trim()).length < e.target.value.length) {
       setNewAccount(isPhone ? e.target.value.replace(/[^\d]/g, '') : e.target.value.trim());
       isPhone && this.iti && this.iti.setNumber(`${e.target.value.replace(/[^\d]/g, '')}`);
     } else {
       setNewAccount(isPhone && this.iti ? this.iti.getNumber() : e.target.value.trim());
     }
+
     setCountry(isPhone && this.iti ? `+${this.iti.getSelectedCountryData().dialCode}` : '');
     setIsValidNumber(isPhone && this.iti ? this.iti.isValidNumber() : this.isValidEmail(e.target.value.trim()));
   };

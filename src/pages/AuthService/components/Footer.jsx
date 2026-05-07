@@ -54,6 +54,7 @@ const Wrap = styled.div`
     }
   }
 `;
+
 export default function Footer() {
   const [links, setState] = useState([]);
 

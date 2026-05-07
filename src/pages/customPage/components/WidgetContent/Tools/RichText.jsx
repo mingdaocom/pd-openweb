@@ -5,12 +5,14 @@ import { Tooltip } from 'ming-ui/antd-components';
 import { TabsSettingPopover } from './styled.js';
 
 let isEdit = false;
+
 export default props => {
   const { toolItem, highlight, widget } = props;
   const { icon, type } = toolItem;
   const { componentConfig = {}, editRichText } = widget;
   const { showType = 2 } = componentConfig;
   const [popoverVisible, setPopoverVisible] = useState(false);
+
   const handleChangeConfig = data => {
     props.handleToolClick(type, {
       componentConfig: {
@@ -19,6 +21,7 @@ export default props => {
       },
     });
   };
+
   return (
     <Fragment>
       {!editRichText && (

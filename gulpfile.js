@@ -3,7 +3,6 @@ const fs = require('fs');
 const path = require('path');
 const { merge } = require('webpack-merge');
 const deleteSync = require('del').deleteSync;
-const each = require('gulp-each');
 const chalk = require('chalk');
 const $ = require('gulp-load-plugins')();
 const generate = require('./CI/generate');

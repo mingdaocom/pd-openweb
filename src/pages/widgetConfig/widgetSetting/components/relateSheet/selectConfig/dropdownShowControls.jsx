@@ -76,6 +76,7 @@ export default function DropdownShowControls(props) {
             let nextData = handleAdvancedSettingChange(data, {
               ...(value === '0' ? { openfastfilters: '0', ddset: '1' } : { openfastfilters: '1', ddset: '0' }),
             });
+
             if (enumDefault === 2) {
               nextData = handleAdvancedSettingChange(nextData, {
                 ...(value === '0' ? { chooseshow: '0', chooseshowids: '' } : { chooseshow: '1' }),
@@ -84,6 +85,7 @@ export default function DropdownShowControls(props) {
                 nextData.showControls = [];
               }
             }
+
             handleChange(nextData);
           }}
         />

@@ -38,6 +38,7 @@ export default class lineClampTextBox extends Component {
     while ($textContent.height() > $textBox.height()) {
       $textContent.text($textContent.text().replace(/(\s)*(\S|\W)(\.\.\.)?$/, '...'));
     }
+
     return;
   }
   render() {

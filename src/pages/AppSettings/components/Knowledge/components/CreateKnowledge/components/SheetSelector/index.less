@@ -1,0 +1,213 @@
+.sheetSelectorContainer {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  .sheetSchemeWrapper {
+    display: flex;
+    gap: 32px;
+  }
+  .createKnowledgeWrapper {
+    flex-shrink: 0;
+    width: 200px;
+    .createKnowledge {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      .icon {
+        font-size: 44px;
+        color: var(--color-text-tertiary);
+      }
+      .createKnowledgeTitle {
+        margin-top: 10px;
+        font-size: 13px;
+        color: var(--color-text-secondary);
+      }
+      &.active {
+        border-color: var(--color-primary);
+        background-color: var(--color-primary-transparent);
+        .icon,
+        .createKnowledgeTitle {
+          color: var(--color-primary);
+        }
+      }
+    }
+  }
+  .aiRecommendationWrapper {
+    flex: 1;
+    min-width: 0;
+  }
+  .customTitle,
+  .aiRecommendation {
+    display: flex;
+    align-items: center;
+    margin: 20px 0;
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--color-text-primary);
+    .icon {
+      margin-left: 4px;
+      font-size: 16px;
+      color: var(--color-text-secondary);
+      cursor: pointer;
+      &:hover {
+        color: var(--color-primary);
+      }
+    }
+  }
+  .schemeContainer {
+    position: relative;
+    padding-right: 10px;
+    width: 100%;
+    .schemeViewport {
+      width: 100%;
+      overflow: hidden;
+    }
+    .nav {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      margin: auto 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background-color: var(--color-background-primary);
+      box-shadow: var(--shadow-sm);
+      cursor: pointer;
+      z-index: 2;
+      &.left {
+        left: -15px;
+      }
+      &.right {
+        right: -15px;
+      }
+    }
+  }
+  .createKnowledge,
+  .schemeItem {
+    flex-shrink: 0;
+    padding: 10px;
+    width: 200px;
+    height: 140px;
+    border: 1px solid var(--color-border-tertiary);
+    background-color: var(---color-background-primary);
+    border-radius: 6px;
+    cursor: pointer;
+    &:hover {
+      border-color: var(--color-border-strong);
+      background-color: var(--color-background-secondary);
+    }
+  }
+  .schemeWrapper {
+    display: flex;
+    gap: 20px;
+    .schemeItem {
+      &.recommendScheme {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        color: var(--color-text-primary);
+        .schemeItemTitle {
+          font-size: 14px;
+          font-weight: 700;
+        }
+        .schemeItemDescription {
+          margin: 10px 0 6px;
+          font-size: 12px;
+          display: -webkit-box;
+          -webkit-box-orient: vertical;
+          -webkit-line-clamp: 3;
+          line-clamp: 3;
+          overflow: hidden;
+        }
+        .schemeItemFooter {
+          font-size: 13px;
+          color: var(--color-text-tertiary);
+        }
+        &.active {
+          border-color: var(--color-mingo);
+          background-color: rgba(110, 9, 249, 0.06);
+        }
+      }
+    }
+  }
+  .subTitle {
+    margin: 20px 0 8px;
+    font-size: 13px;
+    color: var(--color-text-secondary);
+  }
+  .emptySheetList {
+    margin: 20px 10px 30px;
+    color: var(--color-text-tertiary);
+  }
+  .addSheetButton {
+    margin-top: 10px;
+    width: 200px;
+  }
+  .sheetListScrollWrapper {
+    margin: 0 -20px 10px;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    .sheetListScroll {
+      padding: 0 10px;
+      .scroll-viewport {
+        margin: 0 -10px;
+      }
+    }
+  }
+  .sheetListWrapper {
+    padding: 0 10px;
+    width: 100%;
+    .sheetItemBox {
+      width: calc(100% + 20px);
+      transform: translateX(-10px);
+      background-color: var(--color-background-primary);
+      &:hover {
+        background-color: var(--color-background-hover);
+      }
+    }
+    .sheetItem {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: calc(100% - 20px);
+      transform: translateX(10px);
+      height: 50px;
+      border-radius: 3px;
+      cursor: pointer;
+      .worksheetIcon {
+        display: flex;
+        align-items: center;
+        flex-shrink: 0;
+        margin-right: 10px;
+      }
+      .worksheetTitle {
+        flex-shrink: 0;
+        margin-right: 20px;
+        width: 380px;
+        font-size: 14px;
+        color: var(--color-text-primary);
+      }
+      .worksheetDescription {
+        flex: 1;
+        font-size: 13px;
+        color: var(--color-text-secondary);
+      }
+      .icon-delete1 {
+        margin-left: 10px;
+        flex-shrink: 0;
+        font-size: 16px;
+        color: var(--color-text-secondary);
+        cursor: pointer;
+        &:hover {
+          color: var(--color-error);
+        }
+      }
+    }
+  }
+}

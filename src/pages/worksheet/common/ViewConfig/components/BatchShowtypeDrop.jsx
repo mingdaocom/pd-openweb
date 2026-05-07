@@ -119,6 +119,7 @@ export default function (props) {
       </WrapMenu>
     );
   };
+
   return (
     <Trigger
       action={['click']}

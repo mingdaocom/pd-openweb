@@ -52,9 +52,11 @@ export default class CreateEditDeptDialog extends Component {
   onOk = () => {
     const { departmentInfo = {}, parentDepartment, submitLoading } = this.state;
     const { departmentName } = departmentInfo;
+
     if (parentDepartment.departmentId && parentDepartment.departmentId === departmentInfo.departmentId) {
       return alert(_l('不能设设置自己为上级部门'), 3);
     }
+
     if (!departmentName) {
       return alert(_l('请输入部门名称'), 2);
     }
@@ -75,6 +77,7 @@ export default class CreateEditDeptDialog extends Component {
         this.setState({ submitLoading: false });
         return alert(_l('输入内容包含敏感词，请重新填写'), 3);
       }
+
       if (type === 'create') {
         departmentController
           .addDepartment({
@@ -93,6 +96,7 @@ export default class CreateEditDeptDialog extends Component {
             } else if (data.resultStatus === RESULTS.PARENTNOTTOSUB) {
               alert(_l('不能设置子部门为自己的上级部门'), 3);
             }
+
             this.setState({ submitLoading: false });
           })
           .catch(() => {
@@ -117,6 +121,7 @@ export default class CreateEditDeptDialog extends Component {
               parentId: parentDepartment.departmentId,
               updateDataInfo: departmentInfo,
             });
+
             if (data.resultStatus === RESULTS.SUCCESS) {
               callback({
                 response: {
@@ -126,6 +131,7 @@ export default class CreateEditDeptDialog extends Component {
                 },
               });
               _this.props.onCancel();
+              alert(_l('编辑成功'));
             } else if (data.resultStatus === RESULTS.FAILED) {
               alert(_l('编辑失败'), 2);
             } else if (data.resultStatus === RESULTS.EXISTS) {
@@ -135,6 +141,7 @@ export default class CreateEditDeptDialog extends Component {
             } else if (data.resultStatus === RESULTS.PARENTNOTTOSUB) {
               alert(_l('不能设置子部门为自己的上级部门'), 3);
             }
+
             this.setState({ submitLoading: false });
           })
           .catch(() => {

@@ -9,6 +9,7 @@ export default function MdLinkify(props) {
     if (typeof children === 'string') {
       return children.length > 1000 && !unLimit ? children : parseString(children);
     }
+
     return children;
   };
 
@@ -34,6 +35,7 @@ export default function MdLinkify(props) {
       if (match.index > lastIndex) {
         elements.push(string.substring(lastIndex, match.index));
       }
+
       const parseComponent = (
         <a {...properties} href={match.url}>
           {match.text}
@@ -47,6 +49,7 @@ export default function MdLinkify(props) {
     if (string.length > lastIndex) {
       elements.push(string.substring(lastIndex));
     }
+
     return elements.length === 1 ? elements[0] : elements;
   };
 

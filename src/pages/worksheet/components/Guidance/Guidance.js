@@ -85,6 +85,7 @@ export default class Guidance extends Component {
       height: height + extraHeight,
       top: top - extraHeight / 2,
     };
+
     if (direction == 'left') {
       return {
         ...base,
@@ -102,13 +103,16 @@ export default class Guidance extends Component {
     safeLocalStorageSetItem(`guide-${md.global.Account.accountId}`, guide);
     if (guide === 2) {
       const moreOperate = document.querySelector('.worksheetCompHeader .moreOperate ul');
+
       if (moreOperate) {
         const div = document.createElement('div');
         div.classList.add('guidanceCircle');
         div.classList.add('editSheetGuidanceCircle');
         moreOperate.appendChild(div);
       }
+
       const createNewMenu = document.querySelector('.createNewMenu');
+
       if (createNewMenu) {
         const div = document.createElement('div');
         div.classList.add('guidanceCircle');
@@ -119,8 +123,10 @@ export default class Guidance extends Component {
       $('.editSheetGuidanceCircle').remove();
       $('.addSheetGuidanceCircle').remove();
     }
+
     if (guide === 4) {
       const createNewMenu = document.querySelector('.createNewMenu');
+
       if (createNewMenu) {
         const div = document.createElement('div');
         div.classList.add('guidanceCircle');
@@ -133,6 +139,7 @@ export default class Guidance extends Component {
   };
   handleLaststep = () => {
     const { guide } = this.state;
+
     if (guide === maxGuide) {
       this.setState(
         {
@@ -160,6 +167,7 @@ export default class Guidance extends Component {
   };
   renderGuidanceItem() {
     const { guide } = this.state;
+
     if (guide === 2) {
       const createSheetStyle = this.getElStyle(document.querySelector('#createCustomItem'), -8, -8);
       const sheetEditStyle = this.getElStyle(document.querySelector('.sheetHeader .icon-more_horiz'), 13, 13);
@@ -188,6 +196,7 @@ export default class Guidance extends Component {
         </Fragment>
       );
     }
+
     if (guide === 3) {
       const addViewStyle = this.getElStyle(document.querySelector('.worksheetSheet .addViewIcon'), 13, 13);
       return (
@@ -202,6 +211,7 @@ export default class Guidance extends Component {
         </Fragment>
       );
     }
+
     if (guide === 4) {
       const createSheetStyle = this.getElStyle(document.querySelector('#createCustomItem'), -8, -8);
       return (
@@ -219,6 +229,7 @@ export default class Guidance extends Component {
         </Fragment>
       );
     }
+
     if (guide === 5) {
       const userStyle = this.getElStyle(
         document.querySelectorAll('.appPkgHeaderWrap .appExtensionWrap .appExtensionItem')[2],
@@ -238,6 +249,7 @@ export default class Guidance extends Component {
         </Fragment>
       );
     }
+
     if (guide === 6) {
       const workflowStyle = this.getElStyle(
         document.querySelectorAll('.appPkgHeaderWrap .appExtensionWrap .appExtensionItem')[1],
@@ -260,6 +272,7 @@ export default class Guidance extends Component {
         </Fragment>
       );
     }
+
     return <Fragment />;
   }
   render() {

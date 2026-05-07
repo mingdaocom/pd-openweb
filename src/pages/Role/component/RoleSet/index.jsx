@@ -51,6 +51,7 @@ export default class RoleSet extends PureComponent {
     if (sysRoleType.includes(data.roleType)) {
       return;
     }
+
     this.abortRequest();
     this.setState({ loading: true });
 
@@ -140,6 +141,7 @@ export default class RoleSet extends PureComponent {
       } else {
         promiseAjax = Ajax.addRole(param);
       }
+
       promiseAjax.then(res => {
         if (res.resultCode === 1) {
           this.setState({
@@ -173,11 +175,13 @@ export default class RoleSet extends PureComponent {
           sheets: roleDetail.permissionWay === PERMISSION_WAYS.CUSTOM ? roleDetail.sheets : undefined,
         },
       };
+
       if (isForPortal) {
         promiseAjax = externalPortalAjax.editAppExRole(param);
       } else {
         promiseAjax = Ajax.editAppRole(param);
       }
+
       return promiseAjax.then(res => {
         if (res === 1) {
           this.setState({

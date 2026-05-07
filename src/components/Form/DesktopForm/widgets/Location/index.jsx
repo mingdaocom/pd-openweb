@@ -79,6 +79,7 @@ const Widgets = props => {
     formItemId,
     useCallback(data => {
       const { triggerType } = data;
+
       switch (triggerType) {
         case 'Enter':
           if (valueRef.current) return;
@@ -105,7 +106,9 @@ const Widgets = props => {
       console.log(error);
     }
   }
+
   let locationForShow = location || {};
+
   if (
     (locationForShow.coordinate || '').toLowerCase() === 'wgs84' &&
     locationForShow.x &&
@@ -147,6 +150,7 @@ const Widgets = props => {
               );
               return;
             }
+
             window.open(`https://uri.amap.com/marker?position=${location.x},${location.y}`);
           }}
         >

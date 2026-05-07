@@ -38,6 +38,7 @@ export default function TelDialog(props) {
             } else {
               alert(_l('验证码错误'), 3);
             }
+
             return;
           }
         });
@@ -48,14 +49,17 @@ export default function TelDialog(props) {
     if (!newAccount) {
       return alert(type === 'phone' ? _l('请输入手机号') : _l('请输入邮箱'), 3);
     }
+
     if (!isValidNumber) {
       return alert(type === 'phone' ? _l('请输入正确的手机号') : _l('请输入正确的邮箱'), 3);
     }
+
     if (!code) {
       return alert(_l('请输入验证码'), 3);
     } else {
       let Ajax = null;
       const account = type === 'phone' && newAccount.indexOf('+') === -1 ? country + newAccount : newAccount;
+
       if (isBind) {
         Ajax = externalPortalAjax.bindExAccount({
           appId,
@@ -69,6 +73,7 @@ export default function TelDialog(props) {
           account,
         });
       }
+
       Ajax.then(data => {
         if (data.actionResult === 1) {
           onOk(newAccount);
@@ -80,6 +85,7 @@ export default function TelDialog(props) {
           } else {
             alert(_l('绑定失败，请稍后再试'), 3);
           }
+
           return;
         }
       });

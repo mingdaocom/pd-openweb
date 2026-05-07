@@ -28,6 +28,7 @@ class Popup extends React.Component {
     const $popup = $(this.popup);
     const position = $popup.offset();
     const outerOffset = position.left + $popup.width() - document.body.clientWidth;
+
     if (outerOffset > 0) {
       this.setState({
         style: _.assign({}, this.state.style, {

@@ -90,6 +90,7 @@ const WORKBINDOPTION = state => {
       return { label: _l('Microsoft'), img: microsoftImg, iconIsImage: true };
   }
 };
+
 export default class AccountChart extends React.Component {
   constructor(props) {
     super(props);
@@ -151,6 +152,7 @@ export default class AccountChart extends React.Component {
   //微信或qq绑定
   handleBind(type) {
     const currentType = this.state[type] || {};
+
     if (!currentType.state) {
       if (type === 'weiXinBind') {
         let url = md.global.Config.WebUrl + 'orgsso/weixin/auth';
@@ -248,10 +250,12 @@ export default class AccountChart extends React.Component {
   // 解绑账号（邮箱和手机）
   handleUnBindAccount(type) {
     const { email, mobilePhone, isVerify } = this.state;
+
     if (!(mobilePhone && email && isVerify)) {
       alert(_l('无法解绑，邮箱和手机，请至少保留其一'), 2);
       return;
     }
+
     validateFunc({
       title: type === 'email' ? _l('解绑邮箱') : _l('解绑手机号'),
       type,
@@ -459,6 +463,7 @@ export default class AccountChart extends React.Component {
     if (loading) {
       return <LoadDiv className="mTop40" />;
     }
+
     return (
       <div className="accountChartContainer">
         <div className="Font17 Bold textPrimary mBottom6">{_l('账户与隐私')}</div>

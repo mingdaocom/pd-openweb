@@ -30,9 +30,11 @@ class Message extends Component {
   }
   shouldComponentUpdate(nextProps) {
     const { currentSession } = this.props;
+
     if (currentSession.value == nextProps.currentSession.value) {
       return true;
     }
+
     return false;
   }
 
@@ -58,9 +60,11 @@ class Message extends Component {
       time: message.time,
     };
     const type = session.isGroup ? Constant.SESSIONTYPE_GROUP : Constant.SESSIONTYPE_USER;
+
     if (isAdmin) {
       param.adminid = md.global.Account.accountId;
     }
+
     socket.Message.sendWithdrawMessgae(type, param).then(result => {
       const { socket: newMessage } = result;
       this.props.dispatch(actions.updateWithdrawMessage(to, newMessage));
@@ -123,6 +127,7 @@ class Message extends Component {
         } else {
           return <CardMessage session={session} message={message} />;
         }
+
       case Constant.MSGTYPE_AUDIO:
         return <AudioMessage message={message} />;
       case Constant.MSGTYPE_APP_VIDEO:

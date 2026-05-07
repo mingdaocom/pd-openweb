@@ -58,6 +58,7 @@ const MingoShareLand = props => {
         setInfoLoading(false);
         return;
       }
+
       setInfo(data);
       setInfoLoading(false);
     });
@@ -67,9 +68,11 @@ const MingoShareLand = props => {
     copy(link);
     alert(_l('复制成功'));
   };
+
   const onContinueChat = () => {
     window.open(`/mingo/chat/${chatId}?from=share`, '_blank');
   };
+
   return (
     <Con className="t-flex t-flex-col">
       <Header error={error} isSmallMode={isSmallMode} isShare onCopyLink={onCopyLink} onContinueChat={onContinueChat} />

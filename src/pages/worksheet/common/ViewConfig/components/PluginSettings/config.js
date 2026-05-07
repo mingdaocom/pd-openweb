@@ -72,6 +72,7 @@ export const controlKeys = {
 
 export const defaultData = (type, info) => {
   let data = info;
+
   switch (type) {
     case 200:
       data = {
@@ -83,6 +84,7 @@ export const defaultData = (type, info) => {
         data.sourceControlType = info.sourceControlType;
         data.controls = ['29'];
       }
+
       break;
     case 22:
       data = {
@@ -307,6 +309,7 @@ export const defaultData = (type, info) => {
     default:
       break;
   }
+
   return { ...data, ...info };
 };
 

@@ -34,6 +34,7 @@ function withClickAway(exceptionList, Component = exceptionList) {
       }
 
       const el = ReactDom.findDOMNode(this);
+
       if (this.props.ignoreOnHide !== false && !$(el).is(':visible')) {
         return;
       }
@@ -43,9 +44,11 @@ function withClickAway(exceptionList, Component = exceptionList) {
           if (item instanceof window.jQuery) {
             return map(item, x => x);
           }
+
           if (typeof item === 'string' && window.jQuery) {
             return map(window.jQuery(item), x => x);
           }
+
           try {
             return ReactDom.findDOMNode(item);
           } catch (err) {
@@ -54,6 +57,7 @@ function withClickAway(exceptionList, Component = exceptionList) {
           }
         }),
       );
+
       // 检��click 的对象是不是在当前组件或��exception 列表��
       if (
         this.props.onClickAway &&

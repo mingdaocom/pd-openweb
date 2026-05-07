@@ -1,5 +1,4 @@
 import React, { Fragment } from 'react';
-import ClipboardButton from 'react-clipboard.js';
 import cx from 'classnames';
 import _ from 'lodash';
 import Trigger from 'rc-trigger';
@@ -278,40 +277,6 @@ export default class AppLog extends React.Component {
           );
         })}
       </Fragment>
-    );
-  }
-
-  viewPassword(item) {
-    return (
-      <div className="viewAppLogPasswordDialogID">
-        <div className="clearfix mBottom24">
-          <span className="Left Font15">{_l('查看密码')}</span>
-          <span
-            className="Right icon-delete Font16 hoverTextPrimaryLight textTertiary Hand"
-            onClick={() => this.setState({ passwordDialogVisible: null })}
-          ></span>
-        </div>
-        <div className="passwordInputBox">
-          <input
-            type="text"
-            className="inputBox"
-            value={item.password}
-            readonly="readonly"
-            ref={input => (this.input = input)}
-            onFocus={() => this.input.select()}
-          />
-          <Tooltip title={_l('复制密码')} placement="top">
-            <ClipboardButton
-              className="adminHoverColor Hand"
-              component="span"
-              data-clipboard-text={item.password}
-              onSuccess={() => alert(_l('复制成功'))}
-            >
-              <span className="icon-content-copy mLeft15 textTertiary hoverTextPrimaryLight Hand LineHeight36"></span>
-            </ClipboardButton>
-          </Tooltip>
-        </div>
-      </div>
     );
   }
 

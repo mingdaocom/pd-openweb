@@ -12,6 +12,7 @@ import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import { PRINT_TEMP, PRINT_TYPE, PRINT_TYPE_STYLE } from 'src/pages/Print/core/config';
 import { VersionProductType } from 'src/utils/enum';
 import { addBehaviorLog, getFeatureStatus } from 'src/utils/project';
+import { sendCloudPrint } from 'src/utils/record';
 import { generatePdf } from '../PrintQrBarCode/GeneratingPdf';
 
 const Con = styled.div`
@@ -57,6 +58,14 @@ const Con = styled.div`
     }
     &.ming .Item .Item-content {
       padding-left: 44px;
+    }
+
+    .disabledCloudPrint {
+      cursor: not-allowed;
+      .Item-content .Icon,
+      .Item-content .templateName {
+        color: var(--color-text-disabled) !important;
+      }
     }
   }
 `;
@@ -110,6 +119,8 @@ export default function PrintList(props) {
   const [menuVisible, setMenuVisible] = useState(false);
   const [templateList, setTemplateList] = useState(props.templateList || []);
   const featureType = getFeatureStatus(projectId, VersionProductType.wordPrintTemplate);
+  const [printLoading, setPrintLoading] = useState(false);
+  const [templateId, setTemplateId] = useState('');
 
   function loadPrintList() {
     setLoading(true);
@@ -141,9 +152,11 @@ export default function PrintList(props) {
         );
       });
   }
+
   useEffect(() => {
     props.templateList && setTemplateList(props.templateList);
   }, [props.templateList]);
+
   useEffect(() => {
     if (menuVisible && !props.templateList) {
       loadPrintList();
@@ -154,15 +167,19 @@ export default function PrintList(props) {
       alert(_l('预览模式下，不能操作'), 3);
       return;
     }
+
     const disablePrint = !window.isChrome && !window.isFirefox && !window.isSafari;
+
     if (window.isMDClient) {
       alert('客户端不支持此功能，请使用Chrome、Firefox或其他国产浏览器', 3);
       return;
     }
+
     if (disablePrint) {
       alert('当前浏览器不支持此功能，请使用Chrome、Firefox或其他国产浏览器', 3);
       return;
     }
+
     if (id) {
       generatePdf({
         templateId: id,
@@ -203,6 +220,134 @@ export default function PrintList(props) {
     }
   }
 
+  const renderBatchPrint = templateType => {
+    const defaultTempList = templateList.filter(it =>
+      [PRINT_TYPE.SYS_PRINT, PRINT_TYPE.WORD_PRINT, PRINT_TYPE.EXCEL_PRINT].includes(it.type),
+    );
+    const codeTempList = templateList.filter(it =>
+      [PRINT_TYPE.QR_CODE_PRINT, PRINT_TYPE.BAR_CODE_PRINT].includes(it.type),
+    );
+    const cloudTempList = templateList.filter(it => it.type === PRINT_TYPE.CLOUD_PRINT);
+    const list =
+      templateType === 'defaultPrint' ? defaultTempList : templateType === 'codePrint' ? codeTempList : cloudTempList;
+
+    if (list.length === 0) return null;
+
+    return (
+      <div key={templateType}>
+        {((templateType === 'codePrint' && !!defaultTempList.length) ||
+          (templateType === 'cloudPrint' && (!!defaultTempList.length || !!codeTempList.length))) && <hr />}
+        <div className="split">
+          {templateType === 'defaultPrint'
+            ? _l('记录打印')
+            : templateType === 'codePrint'
+              ? _l('条码打印')
+              : _l('云打印')}
+        </div>
+        {list.map((template, i) => (
+          <MenuItem
+            className={
+              printLoading && templateId === template.id && template.type === PRINT_TYPE.CLOUD_PRINT
+                ? 'disabledCloudPrint'
+                : ''
+            }
+            data-event={`printTemp-${i}`}
+            key={i}
+            icon={
+              [2, 5].includes(template.type) ? (
+                <span className={`${PRINT_TYPE_STYLE[template.type].fileIcon} fileIcon`}></span>
+              ) : _.includes([PRINT_TYPE.CLOUD_PRINT], template.type) ? (
+                <Icon icon="cloud_printing" className="Font18 textTertiary" />
+              ) : (
+                <Icon icon={getPrintCardInfoOfTemplate(template).icon} className="Font18" />
+              )
+            }
+            onClick={() => {
+              if (_.includes([0, 6], template.type)) {
+                if (rowIds.length > MAX_SYSTEM_PRINT_COUNT || selectedLength > MAX_SYSTEM_PRINT_COUNT) {
+                  alert(_l('单次最多打印 %0 条', MAX_SYSTEM_PRINT_COUNT), 3);
+                  return;
+                }
+              }
+
+              if (_.includes([3, 4], template.type)) {
+                const logType = template.type === 3 ? 'printQRCode' : 'printBarCode';
+                addBehaviorLog(logType, worksheetId, {
+                  printId: template.id,
+                  msg: [allowLoadMore ? count : selectedRows.length],
+                }); // 埋点
+                handlePrintQrCode({ id: template.id, printType: template.type === 3 ? 1 : 3 });
+              } else if (template.type === 0) {
+                handleTemplateRecordPrint({
+                  template,
+                  worksheetId,
+                  viewId,
+                  appId,
+                  projectId,
+                  rowIds,
+                });
+              } else if (template.type === PRINT_TYPE.CLOUD_PRINT) {
+                if (printLoading && templateId === template.id) {
+                  return;
+                }
+
+                setMenuVisible(false);
+                setPrintLoading(true);
+                setTemplateId(template.id);
+                sendCloudPrint({
+                  id: template.id,
+                  projectId,
+                  appId,
+                  worksheetId,
+                  rowIds,
+                  finishCallback: () => {
+                    setPrintLoading(false);
+                    setTemplateId('');
+                  },
+                });
+              } else {
+                if (featureType === '2') {
+                  buriedUpgradeVersionDialog(projectId, VersionProductType.wordPrintTemplate);
+                  return;
+                }
+
+                let printId = template.id;
+                let printData = {
+                  printId,
+                  isDefault: false, // word模板
+                  worksheetId,
+                  projectId,
+                  rowId: rowIds.join(','),
+                  rowIds,
+                  getType: 1,
+                  viewId,
+                  appId,
+                  name: template.name,
+                  isBatch: true,
+                  fileTypeNum: template.type,
+                  allowDownloadPermission: template.allowDownloadPermission,
+                  allowEditAfterPrint: template.allowEditAfterPrint,
+                };
+                let printKey = Math.random().toString(36).substring(2);
+                webCacheAjax.add({
+                  key: `${printKey}`,
+                  value: JSON.stringify(printData),
+                });
+                window.open(`${window.subPath || ''}/printForm/${appId}/worksheet/preview/print/${printKey}`);
+                setMenuVisible(false);
+              }
+            }}
+          >
+            <span className="templateName ellipsis">{template.name || template.formName || _l('未命名')}</span>
+            {_.includes([3, 4], template.type) && (
+              <span className="detail">{getPrintCardInfoOfTemplate(template).text}</span>
+            )}
+          </MenuItem>
+        ))}
+      </div>
+    );
+  };
+
   return (
     <Con>
       {children ? (
@@ -235,75 +380,7 @@ export default function PrintList(props) {
             )}
             {!loading &&
               !!featureType &&
-              templateList.map((template, i) => (
-                <MenuItem
-                  data-event={`printTemp-${i}`}
-                  key={i}
-                  icon={
-                    [2, 5].includes(template.type) ? (
-                      <span className={`${PRINT_TYPE_STYLE[template.type].fileIcon} fileIcon`}></span>
-                    ) : (
-                      <Icon icon={getPrintCardInfoOfTemplate(template).icon} className="Font18" />
-                    )
-                  }
-                  onClick={() => {
-                    if (_.includes([3, 4], template.type)) {
-                      const logType = template.type === 3 ? 'printQRCode' : 'printBarCode';
-                      addBehaviorLog(logType, worksheetId, {
-                        printId: template.id,
-                        msg: [allowLoadMore ? count : selectedRows.length],
-                      }); // 埋点
-                      handlePrintQrCode({ id: template.id, printType: template.type === 3 ? 1 : 3 });
-                    } else if (template.type === 0) {
-                      if (rowIds.length > MAX_SYSTEM_PRINT_COUNT || selectedLength > MAX_SYSTEM_PRINT_COUNT) {
-                        alert(_l('单次最多打印 %0 条', MAX_SYSTEM_PRINT_COUNT), 3);
-                        return;
-                      }
-                      handleTemplateRecordPrint({
-                        template,
-                        worksheetId,
-                        viewId,
-                        appId,
-                        projectId,
-                        rowIds,
-                      });
-                    } else {
-                      if (featureType === '2') {
-                        buriedUpgradeVersionDialog(projectId, VersionProductType.wordPrintTemplate);
-                        return;
-                      }
-                      let printId = template.id;
-                      let printData = {
-                        printId,
-                        isDefault: false, // word模板
-                        worksheetId,
-                        projectId,
-                        rowId: rowIds.join(','),
-                        getType: 1,
-                        viewId,
-                        appId,
-                        name: template.name,
-                        isBatch: true,
-                        fileTypeNum: template.type,
-                        allowDownloadPermission: template.allowDownloadPermission,
-                        allowEditAfterPrint: template.allowEditAfterPrint,
-                      };
-                      let printKey = Math.random().toString(36).substring(2);
-                      webCacheAjax.add({
-                        key: `${printKey}`,
-                        value: JSON.stringify(printData),
-                      });
-                      window.open(`${window.subPath || ''}/printForm/${appId}/worksheet/preview/print/${printKey}`);
-                      setMenuVisible(false);
-                    }
-                  }}
-                >
-                  <span className="templateName ellipsis">{template.name || template.formName || _l('未命名')}</span>
-                  {_.includes([3, 4], template.type) && (
-                    <span className="detail">{getPrintCardInfoOfTemplate(template).text}</span>
-                  )}
-                </MenuItem>
-              ))}
+              ['defaultPrint', 'codePrint', 'cloudPrint'].map(item => renderBatchPrint(item))}
           </TemplateList>
           {!!showCodePrint && !!templateList.length && (
             <Fragment>
@@ -321,6 +398,7 @@ export default function PrintList(props) {
                   alert(_l('单次最多打印 %0 条', MAX_SYSTEM_PRINT_COUNT), 3);
                   return;
                 }
+
                 handleSystemPrintRecord({
                   worksheetId,
                   viewId,

@@ -15,6 +15,7 @@ function enterHandle(Comp) {
       if (!props.visible || !props.bindEnterTriggerOk) {
         return;
       }
+
       if (_.isFunction(props.confirmOnOk)) {
         props.confirmOnOk();
         props.onCancel();
@@ -231,6 +232,7 @@ class Dialog extends Component {
 
     // 右上角关闭按钮
     let dialogCloseX = null;
+
     if (this.props.closable) {
       dialogCloseX = (
         <button className="mui-dialog-close-btn" onClick={this.props.handleClose || this.handleCancel}>
@@ -241,11 +243,13 @@ class Dialog extends Component {
 
     // 描述
     let desc = null;
+
     if (this.props.description) {
       desc = <div className="mui-dialog-desc">{this.props.description}</div>;
     }
 
     let content = null;
+
     if (this.props.visible) {
       content = (
         <DialogBase {...baseProps} onClose={this.handleCancel} visible={this.props.visible}>

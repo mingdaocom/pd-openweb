@@ -39,6 +39,7 @@ export default class AppSettings extends React.Component {
 
   renderContent(item = {}) {
     const entities = item.entities || [];
+
     if (entities.length > 0) {
       return (
         <ScrollView className="singleItemAppContent">
@@ -157,6 +158,7 @@ export default class AppSettings extends React.Component {
     if (!list.length) {
       return <LoadDiv />;
     }
+
     return (
       <Fragment>
         {list.map(item => {

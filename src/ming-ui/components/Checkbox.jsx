@@ -68,11 +68,16 @@ class Checkbox extends React.Component {
      * 样式风格
      */
     styleType: PropTypes.oneOf(['light', 'default']),
+    /**
+     * 文字位置
+     */
+    textPosition: PropTypes.oneOf(['left', 'right']),
   };
 
   static defaultProps = {
     onClick: () => {},
     indeterminate: false,
+    textPosition: 'right',
   };
 
   constructor(props) {
@@ -117,14 +122,18 @@ class Checkbox extends React.Component {
       style,
       noMargin,
       styleType = '',
+      textPosition = 'left',
     } = this.props;
     let icon = null;
+
     if (!indeterminate && this.state.checked) {
       icon = <Icon icon="ok" />;
     }
+
     if (clearselected) {
       icon = <Icon icon="minus" />;
     }
+
     return (
       <label
         style={style}
@@ -146,13 +155,14 @@ class Checkbox extends React.Component {
         }}
         title={title}
       >
+        {textPosition === 'left' && <span className="Font13 Checkbox-text">{text}</span>}
         <span
           className={cx(SIZE_LIST.indexOf(size) >= 0 ? 'Checkbox-box--' + size : '', 'Checkbox-box')}
           style={noMargin ? { marginRight: 0 } : {}}
         >
           {icon}
         </span>
-        <span className="Font13 Checkbox-text">{text}</span>
+        {textPosition === 'right' && <span className="Font13 Checkbox-text">{text}</span>}
         {children}
       </label>
     );

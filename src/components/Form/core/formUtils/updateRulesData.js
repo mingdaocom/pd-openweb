@@ -9,6 +9,7 @@ import { checkValueAvailable, updateDataPermission } from './index';
 const removeRequireError = (controls = [], checkRuleValidator = () => {}) => {
   controls.forEach(con => {
     const { controlId = '', childControlIds = [] } = con;
+
     if (!childControlIds.length) {
       checkRuleValidator(controlId, FORM_ERROR_TYPE.RULE_REQUIRED, '');
     } else {
@@ -53,21 +54,24 @@ export const updateRulesData = props => {
     child: {},
     errorMsg: {},
     dynamic: {},
+    style: {},
   };
 
   function pushType(key, id, obj) {
     relateRuleType[key][id] ? relateRuleType[key][id].push(obj) : (relateRuleType[key][id] = [obj]);
   }
 
-  const { defaultRules = [], errorRules = [] } = getAvailableFilters(rules, formatData, recordId);
+  const { defaultRules = [], errorOrStyleRules = [] } = getAvailableFilters(rules, formatData, recordId);
 
-  if (defaultRules.length > 0 || errorRules.length > 0) {
+  if (defaultRules.length > 0 || errorOrStyleRules.length > 0) {
     // 交互类业务规则捞取各类操作具体执行内容
     if (defaultRules.length > 0) {
       defaultRules.forEach(rule => {
         rule.ruleItems.forEach(({ type, controls = [] }) => {
           let { isAvailable, availableControlIds = [] } = checkValueAvailable(rule, formatData, recordId);
+
           let currentType = type;
+
           //显示隐藏无论满足条件与否都要操作
           if (currentType === 1) {
             currentType = isAvailable ? 1 : 2;
@@ -90,20 +94,21 @@ export const updateRulesData = props => {
             formatData.map(item => {
               pushType('parent', item.controlId, attrObj);
             });
-          } else if (currentType === 9) {
-            // 条件字段有变更才更新值
-            if (_.some(availableControlIds, a => _.includes(currentRuleControlIds, a))) {
-              controls.forEach(con => {
-                pushType('dynamic', con.controlId, { ..._.pick(con, ['type', 'value']) });
-              });
-            }
           } else {
             controls.forEach(con => {
-              const { controlId = '', childControlIds = [], permission, isCustom } = con;
-              if (!childControlIds.length) {
-                pushType('parent', controlId, { ...attrObj, ...(isCustom ? { permission } : {}) });
+              if (currentType === 9) {
+                // 条件字段有变更才更新值
+                if (_.some(availableControlIds, a => _.includes(currentRuleControlIds, a))) {
+                  pushType('dynamic', con.controlId, { ..._.pick(con, ['type', 'value']) });
+                }
               } else {
-                childControlIds.map(child => pushType('child', `${controlId}-${child}`, attrObj));
+                const { controlId = '', childControlIds = [], permission, isCustom } = con;
+
+                if (!childControlIds.length) {
+                  pushType('parent', controlId, { ...attrObj, ...(isCustom ? { permission } : {}) });
+                } else {
+                  childControlIds.map(child => pushType('child', `${controlId}-${child}`, attrObj));
+                }
               }
             });
           }
@@ -133,17 +138,22 @@ export const updateRulesData = props => {
     });
 
     // 执行验证业务规则
-    if (errorRules.length > 0) {
-      errorRules.forEach(rule => {
-        // 前端校验才走
-        if (rule.checkType !== 2) {
+    if (errorOrStyleRules.length > 0) {
+      errorOrStyleRules.forEach(rule => {
+        // 前端校验才走, 样式规则也走
+        if (rule.checkType !== 2 || rule.type === 3) {
           rule.ruleItems.forEach(({ type, message, controls = [] }) => {
             const {
               filterControlIds = [],
               availableControlIds = [],
               isAvailable,
             } = checkValueAvailable(rule, formatData, recordId, from);
-            if (_.includes([6], type)) {
+
+            if (rule.type === 3 && isAvailable) {
+              controls.forEach(con => {
+                pushType('style', con.controlId, { ..._.pick(con, ['type', 'value']), message });
+              });
+            } else if (_.includes([6], type)) {
               const errorIds = controls.map(i => i.controlId);
               const curErrorIds = rule.type === 1 && errorIds.length > 0 ? errorIds : filterControlIds;
               //过滤已经塞进去的错误
@@ -192,6 +202,7 @@ export const updateRulesData = props => {
         const dynamicSettings = relateRuleType.dynamic[key];
         // 同个id赋值逻辑，取最后一个
         const lastSetting = _.last(dynamicSettings);
+
         if (lastSetting && _.isFunction(handleChange)) {
           try {
             await handleSetValueActions([{ ...lastSetting, controlId: key }], {
@@ -207,6 +218,27 @@ export const updateRulesData = props => {
             });
           } catch (error) {
             console.log(error);
+          }
+        }
+      });
+    }
+
+    // 执行样式规则
+    if (!_.isEmpty(relateRuleType.style)) {
+      Object.keys(relateRuleType.style).map(key => {
+        if (relateRuleType.style[key]) {
+          const styleSettings = _.last(relateRuleType.style[key] || []);
+
+          if (!_.isEmpty(styleSettings)) {
+            let item = _.find(formatData, fo => fo.controlId === key);
+
+            if (item) {
+              item.advancedSetting = {
+                ...item.advancedSetting,
+                ...JSON.parse(styleSettings.message || '{}'),
+                ...JSON.parse(styleSettings.value || '{}'),
+              };
+            }
           }
         }
       });
@@ -230,5 +262,6 @@ export const updateRulesData = props => {
       });
     });
   }
+
   return formatData;
 };

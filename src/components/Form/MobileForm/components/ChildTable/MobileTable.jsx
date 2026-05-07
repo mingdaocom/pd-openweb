@@ -52,6 +52,15 @@ const MobileTableContent = styled.div`
     width: 15px;
     text-align: center;
   }
+  .mobileRelateRecordWrap {
+    overflow: hidden;
+    word-break: break-all;
+    text-overflow: ellipsis;
+    white-space: pre-line;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+  }
   ${({ controlStyles }) => controlStyles || ''}
 `;
 
@@ -76,6 +85,7 @@ export default function MobileTable(props) {
     recordId,
     showExpand,
     appId,
+    control,
     onSave = () => {},
     submitChildTableCheckData = () => {},
   } = props;
@@ -208,13 +218,13 @@ export default function MobileTable(props) {
                       }}
                       row={row}
                       rowHeight={30}
-                      from={4}
+                      from={c.type == 29 && c.enumDefault === 2 ? 3 : 4}
                       mode="mobileSub"
                       masterData={masterData}
                       rowFormData={() => controls.map(c => Object.assign({}, c, { value: row[c.controlId] }))}
                       projectId={projectId}
                       worksheetId={worksheetId}
-                      canedit={c.type === 36 && controlPermission.editable}
+                      canedit={c.type === 36 && controlPermission.editable && !control.mobileCheckRuleLocked}
                       appId={appId}
                       updateCell={({ value }) => {
                         if (c.type !== 36) return;
@@ -224,7 +234,7 @@ export default function MobileTable(props) {
                         if (isEdit) return;
                         clearTimeout(timer);
                         timer = setTimeout(() => {
-                          submitChildTableCheckData();
+                          submitChildTableCheckData({ isQuickUpdateCheck: true });
                         }, 500);
                       }}
                     />

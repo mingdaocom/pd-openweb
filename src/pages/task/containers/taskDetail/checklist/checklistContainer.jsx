@@ -98,6 +98,7 @@ class ChecklistContainer extends Component {
         prevIndex = index - 1;
         return this.dragItem;
       }
+
       return item;
     });
 
@@ -131,6 +132,7 @@ class ChecklistContainer extends Component {
    */
   checklistItemHover(index, topIndex) {
     const source = this.state.source;
+
     if (source[topIndex].items.length < 100) {
       source.forEach(data => {
         _.remove(data.items, item => item.type === 'blank');
@@ -158,6 +160,7 @@ class ChecklistContainer extends Component {
           prevIndex = index - 1;
           return this.dragItem;
         }
+
         return item;
       });
     });

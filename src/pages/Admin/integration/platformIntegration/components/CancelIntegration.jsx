@@ -8,8 +8,8 @@ const Wrap = styled.div`
   line-height: 48px;
   color: var(--color-error);
   padding-left: 20px;
-  background-color: var(--color-background-primary);
-  box-shadow: 0px 4px 16px 1px rgba(0, 0, 0, 0.24);
+  background-color: var(--color-background-card);
+  box-shadow: var(--shadow-sm);
   border-radius: 3px;
   cursor: pointer;
 `;

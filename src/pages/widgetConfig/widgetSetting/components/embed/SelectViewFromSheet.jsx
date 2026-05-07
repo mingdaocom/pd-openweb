@@ -111,10 +111,12 @@ export default function SelectViewFromSheet({ projectId, currentAppId, appId, sh
       alert('请选择应用', 3);
       return;
     }
+
     if (!ids.sheetId) {
       alert('请选择工作表', 3);
       return;
     }
+
     if (!ids.viewId) {
       alert('请选择视图', 3);
       return;

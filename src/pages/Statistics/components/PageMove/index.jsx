@@ -9,6 +9,7 @@ import store from 'src/redux/configureStore';
 const formatApps = function (validProject, projectId, appId) {
   const appList = [];
   const project = validProject.filter(item => item.projectId === projectId)[0];
+
   if (project && project.projectApps && project.projectApps.length) {
     project.projectApps.forEach(app => {
       if (canEditApp(app.permissionType) && !app.isLock) {
@@ -19,6 +20,7 @@ const formatApps = function (validProject, projectId, appId) {
       }
     });
   }
+
   return appList;
 };
 
@@ -49,11 +51,13 @@ export default class SheetMove extends Component {
   handleOk() {
     const { reportId, pageId, onSucceed, onCancel } = this.props;
     const { pageValue } = this.state;
+
     if (pageId === pageValue) {
       alert(_l('不能移动到当前页面'), 3);
       onCancel();
       return;
     }
+
     reportConfig
       .copyReport({
         reportId,

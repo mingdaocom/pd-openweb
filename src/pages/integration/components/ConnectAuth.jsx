@@ -112,6 +112,7 @@ function ConnectAuth(props) {
     if (!node || !node.id) {
       return;
     }
+
     Promise.all([
       flowNodeAjax.get({ processId: props.connectId }, { isIntegration: true }),
       flowNodeAjax.getNodeDetail(
@@ -130,6 +131,7 @@ function ConnectAuth(props) {
       });
     });
   };
+
   const getNodeInfo = () => {
     flowNodeAjax
       .getNodeDetail(
@@ -166,11 +168,13 @@ function ConnectAuth(props) {
       </div>
     );
   };
+
   const renderBasic = () => {
     if (!node.appId) {
       //还未配置过
       return;
     }
+
     return (
       <div className="con">
         <div className="flexRow mBottom20">
@@ -224,6 +228,7 @@ function ConnectAuth(props) {
         setState({ node: { ...node, ...obj } });
       });
   };
+
   const checkNumberControl = (evt, isBlur) => {
     let num = evt.target.value.replace(/[^\d]/g, '');
     evt.target.value = num;
@@ -232,6 +237,7 @@ function ConnectAuth(props) {
       if (num > 2628000) {
         num = 2628000;
       }
+
       evt.target.value = num;
       updateSource({ expireAfterSeconds: num });
     }
@@ -245,6 +251,7 @@ function ConnectAuth(props) {
         webHookNodes[i].formControls = [];
         webHookNodes[i].body = '';
       }
+
       webHookNodes[i][key] = obj[key];
     });
     setState({ node: { ...node, webHookNodes } });
@@ -255,9 +262,11 @@ function ConnectAuth(props) {
 
   const updateTokenRefreshValue = (evt, key, isBlur = false) => {
     let value = evt.target.value;
+
     if (isBlur) {
       value = value.trim();
     }
+
     updateAjaxParameter(
       { retryControls: [{ ..._.get(node.webHookNodes[testIndex], 'retryControls[0]'), [key]: value }] },
       testIndex,
@@ -346,6 +355,7 @@ function ConnectAuth(props) {
       } else {
         alert(_l('刷新失败'), 2);
       }
+
       setState({ tokenLoading: false });
     });
   };
@@ -354,6 +364,7 @@ function ConnectAuth(props) {
     if ((node.webHookNodes || []).length <= 0) {
       return '';
     }
+
     return (
       <div className="con">
         <div className="flexRow mBottom20">
@@ -435,9 +446,11 @@ function ConnectAuth(props) {
       </div>
     );
   };
+
   if (loading) {
     return <LoadDiv />;
   }
+
   const tipsRender = () => {
     if (node.appType === 31) {
       return node.appId ? (
@@ -453,6 +466,7 @@ function ConnectAuth(props) {
       if ((node.webHookNodes || []).length <= 0) {
         return;
       }
+
       return (node.controls || []).length > 0 ? (
         !!node && <Icon icon="check_circle" className="Green_right tip" />
       ) : (
@@ -460,13 +474,16 @@ function ConnectAuth(props) {
       );
     }
   };
+
   const renderBtn = () => {
     let str = '';
+
     if (node.appType !== 31) {
       str = !node.controls ? _l('开始配置') : _l('修改配置');
     } else {
       str = (node.fields || []).filter(o => !!o.fieldValue).length <= 0 ? _l('开始配置') : _l('修改配置');
     }
+
     return (
       <div
         className="btn Hand"
@@ -504,9 +521,7 @@ function ConnectAuth(props) {
           </p>
         </div>
         {/*安装的连接  只能在OAuth2获取AccessToken  */}
-        {props.canEdit && props.connectType === 2 && node.appType !== 31
-          ? ''
-          : props.canEdit && props.connectType !== 2 && renderBtn()}
+        {props.canEdit && (props.connectType !== 2 || props.allowEdit) && renderBtn()}
       </CardTopWrap>
       {node && node.appType === 31 ? renderBasic() : renderOAuth()}
       {showEdit && props.canEdit && Component && (

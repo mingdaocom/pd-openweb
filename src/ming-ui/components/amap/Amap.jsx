@@ -96,6 +96,7 @@ export default class Amap extends Component {
   componentWillReceiveProps(nextProps) {
     const { defaultAddress } = nextProps;
     const { lng, lat } = defaultAddress || {};
+
     if (defaultAddress && lat) {
       this.setPosition(lng, lat);
     }
@@ -117,13 +118,16 @@ export default class Amap extends Component {
     if (mapTools) {
       this._maphHandler.initTool(); // 初始控件
     }
+
     if (autoGeolocation) {
       this._maphHandler.getCurrentPos(this.handleCurrPos); // 初始定位
     }
+
     if (defaultAddress) {
       const { lng, lat } = defaultAddress;
       this.setPosition(lng, lat);
     }
+
     this._maphHandler.onClick(this.handleMapClick); // 点击地图
   }
   handleChange(value) {
@@ -174,6 +178,7 @@ export default class Amap extends Component {
   // 回车搜索或点击搜索
   handleSearch() {
     const { searchStr } = this.state;
+
     if (this._maphHandler) {
       this._maphHandler.getLocation(searchStr, (lng, lat, address) => {
         this.geoLocation(lng, lat, address);
@@ -190,6 +195,7 @@ export default class Amap extends Component {
 
       this.geoLocation(lng, lat, address, name);
     }
+
     this.setState({
       autoCompleteVisible: false,
       searchStr: item.address,
@@ -226,6 +232,7 @@ export default class Amap extends Component {
                   </MenuItem>
                 );
               }
+
               return null;
             })}
           </Menu>

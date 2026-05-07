@@ -48,13 +48,14 @@ export default class TimeModal extends Component {
     const { controls, onChangeFilter } = this.props;
     const { filterRangeId, rangeType, rangeValue, today, dynamicFilter } = this.state;
     const control = _.find(controls, { controlId: filterRangeId }) || {};
+    const todayValue = [4, 8, 11, 15, 18, 19].includes(rangeType) ? today : false;
     onChangeFilter({
       filterRangeName: control.controlName,
       filterRangeId,
       rangeType,
       rangeValue,
-      today: [4, 8, 11, 15, 18, 19].includes(rangeType) ? today : false,
-      ignoreToday: false,
+      today: todayValue,
+      ignoreToday: todayValue,
       dynamicFilter,
     });
   };
@@ -129,6 +130,7 @@ export default class TimeModal extends Component {
               suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
               onChange={value => {
                 const data = { rangeType: value };
+
                 if (_.isString(value)) {
                   const [rangeType, rangeValue] = value.split('-');
                   data.rangeType = Number(rangeType);
@@ -140,6 +142,7 @@ export default class TimeModal extends Component {
                 } else {
                   data.rangeValue = null;
                 }
+
                 this.setState(data);
               }}
               onDropdownVisibleChange={visible => {
@@ -200,6 +203,7 @@ export default class TimeModal extends Component {
   renderDynamicFilter() {
     const { dynamicFilter } = this.state;
     const unitValues = [1, 3, 4];
+
     const changeDynamicFilter = data => {
       this.setState({
         dynamicFilter: {
@@ -208,6 +212,7 @@ export default class TimeModal extends Component {
         },
       });
     };
+
     return (
       <Fragment>
         <div className="flexRow valignWrapper mTop20">

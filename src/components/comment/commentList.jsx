@@ -61,6 +61,7 @@ class CommentList extends React.Component {
   componentWillReceiveProps(nextProps) {
     const changeSource = nextProps.entityType !== this.props.entityType || this.props.sourceId !== nextProps.sourceId; //内部和外部讨论 || 源id改变
     const hasNewComments = nextProps.commentList.length > this.props.commentList.length;
+
     if (
       changeSource ||
       this.props.containAttachment !== nextProps.containAttachment ||
@@ -149,10 +150,15 @@ class CommentList extends React.Component {
               this.props.updateCommentList(commentList.concat(res.data || []));
             }
           }
+
           this.setState({
             isEmptyDiscussion: res.data && res.data.length <= 0 && focusType == 0 && !containAttachment && !keywords,
             hasMore: res.data && res.data.length !== 0 && res.data.length >= pageSize,
           });
+        } else if (res && res.code === 2) {
+          alert(_l('参数错误'), 2);
+        } else if (res && res.code === 7) {
+          alert(_l('无权限查看讨论'), 2);
         } else {
           alert(_l('获取讨论失败'), 2);
         }
@@ -169,6 +175,7 @@ class CommentList extends React.Component {
     if (discussionId === this.state.showReplyCommentId) {
       discussionId = '';
     }
+
     this.setState({ showReplyCommentId: discussionId });
   };
 
@@ -199,9 +206,11 @@ class CommentList extends React.Component {
             ? _l('包含附件')
             : FILTER_OPTIONS.find(o => o.value === focusType).label + (containAttachment ? _l('且包含附件') : '')
           : '';
+
       if (filterText) {
         return _l('暂无%0的讨论', filterText);
       }
+
       return _l('暂无讨论');
     };
 
@@ -215,6 +224,7 @@ class CommentList extends React.Component {
       if (nullCommentList) {
         return nullCommentList;
       }
+
       return <div className="mTop15 textDisabled Font13 commentEmpty">{getEmptyText()}</div>;
     }
 

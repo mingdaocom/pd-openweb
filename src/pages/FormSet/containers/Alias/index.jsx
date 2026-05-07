@@ -58,6 +58,7 @@ export default function Alias(props) {
     if (!name) {
       setState({ name: defaultName });
     }
+
     setState({ nameFocus: false });
     sheetAjax
       .updateEntityName({ worksheetId: worksheetId, entityName: name || defaultName, projectId })

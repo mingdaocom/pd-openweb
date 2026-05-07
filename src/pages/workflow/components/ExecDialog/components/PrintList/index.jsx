@@ -3,11 +3,12 @@ import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { Icon, MenuItem } from 'ming-ui';
+import webCacheAjax from 'src/api/webCache';
 import sheetAjax from 'src/api/worksheet';
-import {
-  handleSystemPrintRecord,
-  handleTemplateRecordPrint,
-} from 'worksheet/common/recordInfo/RecordForm/PrintList.jsx';
+import { handleSystemPrintRecord } from 'worksheet/common/recordInfo/RecordForm/PrintList.jsx';
+import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
+import { VersionProductType } from 'src/utils/enum';
+import { getFeatureStatus } from 'src/utils/project';
 
 const MenuBox = styled.div`
   max-width: 280px;
@@ -65,20 +66,37 @@ const systemPrint = props => {
  * 模板打印
  */
 const templatePrint = (props, item) => {
-  const { projectId, data, worksheetId, viewId, rowId, onClose } = props;
-  const appId = data.app.id;
+  const { projectId, data, worksheetId, rowId, viewId, onClose } = props;
+  const { id, name, describe, entityName, allowEditAfterPrint } = item;
+  const featureType = getFeatureStatus(projectId, VersionProductType.wordPrintTemplate);
 
-  handleTemplateRecordPrint({
-    isDefault: item.describe === '0', // 系统打印模板
+  if (describe !== '0' && featureType === '2') {
+    buriedUpgradeVersionDialog(projectId, VersionProductType.wordPrintTemplate);
+    return;
+  }
+
+  const printData = {
+    printId: id,
+    isDefault: describe === '0', // 系统打印模板
     worksheetId,
-    viewId,
-    rowIds: [rowId],
-    appId,
     projectId,
-    template: item,
+    rowIds: [rowId],
     getType: 1,
-    name: item.name,
+    viewId: viewId,
+    appId: data.app.id,
+    name,
+    fileTypeNum: parseInt(describe),
+    allowDownloadPermission: parseInt(entityName),
+    allowEditAfterPrint: allowEditAfterPrint,
+  };
+  const printKey = Math.random().toString(36).substring(2);
+
+  webCacheAjax.add({
+    key: `${printKey}`,
+    value: JSON.stringify(printData),
   });
+
+  window.open(`${window.subPath || ''}/printForm/${data.app.id}/worksheet/preview/print/${printKey}`);
 
   onClose();
 };

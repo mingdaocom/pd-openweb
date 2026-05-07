@@ -89,9 +89,11 @@ export default function DialogMapping(props) {
     if (item.type === 10000008) {
       return { iconType: 34, placeholder: _l('请选择子表') };
     }
+
     if (item.type === 10000007) {
       return { iconType: 2, placeholder: item.dataSource ? _l('请选择子表中的字段') : _l('选择文本，或子表字段') };
     }
+
     return { iconType: item.type, placeholder: item.dataSource ? _l('请选择子表中的字段') : _l('请选择') };
   };
 
@@ -157,8 +159,10 @@ export default function DialogMapping(props) {
 
   const handleChange = (value, item, parentId) => {
     let newItem = {};
+
     if (item.dataSource) {
       const parentMappingItem = _.find(mappingData, i => i.id === item.dataSource);
+
       if (parentMappingItem && parentMappingItem.type === 10000008) {
         const parentControl = _.find(allControls, i => i.controlId === parentMappingItem.cid);
         newItem = {
@@ -176,9 +180,11 @@ export default function DialogMapping(props) {
         newItem = { type: item.type, id: item.controlId, cid: value, subid: '' };
       }
     }
+
     let index = _.findIndex(mappingData, i => i.id === newItem.id && findControl(i, newItem));
 
     let newResponseMap = [];
+
     if (_.isUndefined(value)) {
       newResponseMap = mappingData.filter((i, idx) => idx !== index);
     } else {

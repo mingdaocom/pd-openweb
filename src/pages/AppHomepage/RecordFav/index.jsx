@@ -176,10 +176,12 @@ function RecordFav(props) {
         return { ...o, rowid: o.rowId };
       });
   };
+
   const getAllList = () => {
     if (request) {
       request.abort();
     }
+
     currentProjectId = props.projectId;
     request = favoriteApi.getAllFavorites({
       projectId,
@@ -188,9 +190,11 @@ function RecordFav(props) {
     request.then(res => {
       const groupedData = res.reduce((acc, item) => {
         const { appId } = item;
+
         if (!acc[appId]) {
           acc[appId] = [];
         }
+
         acc[appId].push(item);
         return acc;
       }, {});
@@ -205,9 +209,11 @@ function RecordFav(props) {
       });
     });
   };
+
   const onSearch = value => {
     setState({ keywords: value });
   };
+
   const renderSkeleton = height => {
     return (
       <div className={cx({ 'pLeft16 pRight16': props.forCard })}>
@@ -217,6 +223,7 @@ function RecordFav(props) {
       </div>
     );
   };
+
   const renderNav = () => {
     const renderNavItem = o => {
       return (
@@ -242,6 +249,7 @@ function RecordFav(props) {
         </div>
       );
     };
+
     return (
       <React.Fragment>
         <div className={cx('openNavIcon', { hide: openNav })}>
@@ -291,10 +299,12 @@ function RecordFav(props) {
       </React.Fragment>
     );
   };
+
   const nullCon = () => {
     if (keywords) {
       return <div className="nullCon mTop40">{_l('无搜索结果')}</div>;
     }
+
     return (
       <div className={!props.forCard ? 'nullCon empty' : 'emptyWrapper'}>
         <img src={collectRecordEmptyPng} />
@@ -302,6 +312,7 @@ function RecordFav(props) {
       </div>
     );
   };
+
   const onRefresh = isClear => {
     isClear &&
       setState({
@@ -317,6 +328,7 @@ function RecordFav(props) {
     });
     getAllList();
   };
+
   const onDel = info => {
     const { worksheetId, rowId, viewId } = info;
     favoriteApi
@@ -334,6 +346,7 @@ function RecordFav(props) {
         }
       });
   };
+
   const getRowInfo = info => {
     const { rowId, viewId, worksheetId, appId } = info;
     addBehaviorLog('worksheetRecord', worksheetId, { rowId });
@@ -445,6 +458,7 @@ function RecordFav(props) {
       </div>
     );
   };
+
   return (
     <Con className={cx('flexRow Relative', props.className)} forCard={props.forCard}>
       {!props.forCard && renderNav()}

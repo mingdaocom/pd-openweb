@@ -50,6 +50,7 @@ const _initPost = function (acceptor, options, callback) {
 export const newTask = (acceptor, options = {}) => {
   return new Promise((resolve, reject) => {
     let members = {};
+
     if (acceptor.type === Constant.SESSIONTYPE_USER && acceptor.id !== Constant.FILE_TRANSFER.id) {
       members = [
         {
@@ -59,6 +60,7 @@ export const newTask = (acceptor, options = {}) => {
         },
       ];
     }
+
     $.CreateTask({
       MemberArray: members,
       ProjectID: acceptor.isGroup ? acceptor.projectId : '',
@@ -69,6 +71,7 @@ export const newTask = (acceptor, options = {}) => {
           reject(res);
           return false;
         }
+
         const task = res.data;
         const message = {
           type: Constant.MSGTYPE_CARD,
@@ -107,6 +110,7 @@ export const selectTask = () => {
       };
       resolve(message);
     };
+
     const root = createRoot(document.createElement('div'));
 
     root.render(<RelationControl types={[1]} onSubmit={onSubmit} />);
@@ -121,6 +125,7 @@ export const selectTask = () => {
 export const newSchedule = (acceptor, options = {}) => {
   return new Promise(resolve => {
     let members = [];
+
     if (acceptor.type === Constant.SESSIONTYPE_USER && acceptor.id !== Constant.FILE_TRANSFER.id) {
       members = [
         {
@@ -130,6 +135,7 @@ export const newSchedule = (acceptor, options = {}) => {
         },
       ];
     }
+
     createCalendar({
       MemberArray: members,
       createShare: options.showSuccessTip,
@@ -169,12 +175,15 @@ export const selectSchedule = () => {
           text: '',
         },
       };
+
       if (sidext) {
         message.card.url += '_' + moment(sidext).format('YYYYMMDDHHmmss');
         message.card.entityid += '_' + moment(sidext).format('YYYYMMDDHHmmss');
       }
+
       resolve(message);
     };
+
     const root = createRoot(document.createElement('div'));
 
     root.render(<RelationControl types={[3]} onSubmit={onSubmit} />);

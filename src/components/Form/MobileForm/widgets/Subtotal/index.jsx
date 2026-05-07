@@ -25,10 +25,12 @@ const Subtotal = props => {
 
   const getContent = () => {
     let content = value;
+
     if (!_.isUndefined(value) && enumDefault2 === 6) {
       if (advancedSetting.numshow === '1') {
         content = parseFloat(value) * 100;
       }
+
       content = _.isUndefined(dot) ? content : _.round(content, dot).toFixed(dot);
 
       if (advancedSetting.dotformat === '1') {
@@ -38,6 +40,7 @@ const Subtotal = props => {
       if (advancedSetting.thousandth !== '1') {
         content = formatNumberThousand(content);
       }
+
       content = content + (unit ? ` ${unit}` : '');
     }
 
@@ -56,6 +59,7 @@ const Subtotal = props => {
     if (advancedSetting.prefix || advancedSetting.suffix) {
       content = `${advancedSetting.prefix || ''} ` + content + ` ${advancedSetting.suffix || ''}`;
     }
+
     return content;
   };
 

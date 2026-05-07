@@ -27,6 +27,7 @@ const Con = styled.div`
     background-color: var(--color-background-secondary);
   }
 `;
+
 export default function NoRecords(props) {
   const { style, sheetIsFiltered, allowAdd, showNewRecord, text, icon, showGenDataFromMingo } = props;
   const [ref, { height }] = useMeasure();
@@ -41,6 +42,7 @@ export default function NoRecords(props) {
             if (sheetIsFiltered || !allowAdd) {
               return;
             }
+
             showNewRecord();
           }}
         >

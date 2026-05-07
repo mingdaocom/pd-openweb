@@ -130,30 +130,37 @@ class AppointDialog extends React.Component {
     if (!DEF_TYPES.concat(DEF_R_TYPES).includes(data.type)) {
       return;
     }
+
     const { writeObject } = this.state;
     const { currentSheetInfo } = this.props;
     const SheetInfo = currentSheetInfo; // 动态默认值 =>当前主记录字段
     let advancedSetting = { ..._.omit(data.advancedSetting, ['dynamicsrc', 'defaultfunc']), defaulttype: '' };
+
     if (data.type === 34 && item.defsource) {
       //子表 defaulttype: '0'
       advancedSetting = { ...advancedSetting, defaulttype: '0' };
     }
+
     const getDefsource = item => {
       if (!item.defsource) return item.defsource;
       if ([9, 10, 11].includes(data.type)) {
         const defsource = safeParse(item.defsource, 'array');
         const list = safeParse(_.get(defsource, `[0].staticValue`));
+
         if (!list || !isArray(list)) {
           return JSON.stringify([{ ...defsource[0], staticValue: '' }]);
         }
+
         return JSON.stringify(
           list.map(o => {
             return { ...defsource[0], staticValue: o };
           }),
         );
       }
+
       return item.defsource;
     };
+
     //填写本标
     return (
       <div className={'inputDef Relative'}>
@@ -171,6 +178,7 @@ class AppointDialog extends React.Component {
           onChange={d => {
             const { advancedSetting = {} } = d;
             let { defsource } = advancedSetting;
+
             if ([9, 10, 11].includes(d.type)) {
               const dataDefsource = safeParse(defsource, 'array');
               defsource = JSON.stringify([
@@ -180,6 +188,7 @@ class AppointDialog extends React.Component {
                 },
               ]);
             }
+
             const newCopyCells = writeControls;
             newCopyCells[index].defsource = defsource;
             this.setState({
@@ -203,10 +212,12 @@ class AppointDialog extends React.Component {
     let writeControls = [];
     dataControls.map(o => {
       let data = this.state.writeControls.find(it => it.controlId === o.controlId);
+
       if (data) {
         if (o.sectionId) {
           writeControls.push(dataControls.find(it => it.controlId === o.sectionId));
         }
+
         writeControls.push(data);
       }
     });
@@ -222,20 +233,28 @@ class AppointDialog extends React.Component {
           <div className="appointList">
             {writeControls.map((item, index) => {
               const writeControlsData = _.find(dataControls, items => items.controlId === item.controlId);
+
               if (!writeControlsData) {
                 return '';
               }
+
               const type = writeControlsData.type;
               const controlName = writeControlsData.controlName;
               let canNotForWrite = canNotForCustomWrite(writeControlsData);
+
               if (sectionIds.includes(item.controlId)) {
                 return (
                   <div className="itemBox mTop10">
                     <Icon icon={getIconByType(type)} className={cx('Font14 textTertiary mRight15')} />
-                    <span className="">{controlName}</span>
+                    <span className="" title={controlName}>
+                      {controlName}
+                    </span>
                   </div>
                 );
               }
+
+              const fieldLabel = controlName || (type === 22 ? _l('分段') : _l('备注'));
+
               return (
                 <div className="itemBox mTop10">
                   <span
@@ -245,7 +264,9 @@ class AppointDialog extends React.Component {
                     })}
                   >
                     <Icon icon={getIconByType(type)} className={cx('Font14 textTertiary mRight15')} />
-                    <span className="">{controlName || (type === 22 ? _l('分段') : _l('备注'))}</span>
+                    <span className="" title={fieldLabel}>
+                      {fieldLabel}
+                    </span>
                     {canNotForWrite && (
                       <Tooltip
                         trigger="click"
@@ -281,6 +302,7 @@ class AppointDialog extends React.Component {
                         if (isOnlyRead(type) || ([43].includes(type) && [3].includes(newValue))) {
                           return;
                         }
+
                         const newCopyCells = writeControls;
                         newCopyCells[index].type = newValue;
                         this.setState({
@@ -308,6 +330,7 @@ class AppointDialog extends React.Component {
         </Wrap>
       );
     }
+
     return '';
   };
 
@@ -368,6 +391,7 @@ class AppointDialog extends React.Component {
               // alert(_l('请填写新建关联记录'));
               return;
             }
+
             const value = {
               ...this.state,
               showAppointDialog: false,

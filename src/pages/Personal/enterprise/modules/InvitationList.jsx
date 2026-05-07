@@ -50,6 +50,7 @@ export default class InvitationList extends Component {
         default:
           alert(_l('操作失败'), 2);
       }
+
       this.props.closeDialog();
     });
   }
@@ -63,6 +64,7 @@ export default class InvitationList extends Component {
       } else {
         alert(_l('操作失败'), 2);
       }
+
       this.props.closeDialog();
     });
   }

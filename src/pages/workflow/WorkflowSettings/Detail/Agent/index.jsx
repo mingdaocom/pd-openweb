@@ -4,14 +4,16 @@ import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
-import { Checkbox, Icon, LoadDiv, PriceTip, ScrollView, Support, SvgIcon, Switch } from 'ming-ui';
+import { Checkbox, Dialog, Icon, LoadDiv, PriceTip, ScrollView, Support, SvgIcon, Switch } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import { dialogSelectIntegrationApi } from 'ming-ui/functions';
 import flowNode from '../../../api/flowNode';
 import process from '../../../api/process';
 import { openAgentPromptGenBot } from 'src/components/Mingo/modules/AgentPromptGenBot';
+import { VersionProductType } from 'src/utils/enum';
+import { getFeatureStatus } from 'src/utils/project';
 import selectPBPDialog from '../../../components/selectPBPDialog';
-import { AGENT_TOOLS, APP_TYPE } from '../../enum';
+import { AGENT_TOOLS, APP_TYPE, SEARCH_MODE_MAP } from '../../enum';
 import {
   CustomTextarea,
   DetailFooter,
@@ -19,6 +21,7 @@ import {
   OutputList,
   SelectAIModel,
   SpecificFieldsValue,
+  VectorKnowledge,
 } from '../components';
 import selectWorksheet from './selectWorksheet';
 import worksheetFilter from './worksheetFilter';
@@ -136,7 +139,7 @@ const SHEET_LIST = styled.div`
   align-items: center;
   margin-top: 12px;
   padding: 0 15px 0 12px;
-  height: 48px;
+  min-height: 48px;
   background: var(--color-background-secondary);
   border-radius: 4px;
   font-size: 0;
@@ -185,6 +188,8 @@ export default class Agent extends Component {
       saveRequest: false,
       tabIndex: 1,
       selectToolId: '',
+      showVectorDialog: false,
+      toolNode: {},
     };
   }
 
@@ -265,6 +270,7 @@ export default class Agent extends Component {
     if (saveRequest) {
       return;
     }
+
     if (!prompt.trim()) {
       alert(_l('提示词不能为空'), 2);
       return;
@@ -394,11 +400,7 @@ export default class Agent extends Component {
                 updateSource={({ fieldValue }) => this.updateSource({ maxMessages: fieldValue })}
               />
             </div>
-          </Fragment>
-        )}
 
-        {isFirstAgent && (
-          <Fragment>
             <div className="Font13 bold mTop20">{_l('其他')}</div>
             <div className="flexRow mTop10 alignItemsCenter">
               <Switch
@@ -532,6 +534,7 @@ export default class Agent extends Component {
           errorMessage={key === 'file' ? _l('附件上传未启用。前往“编辑对话机器人 > 其他”启用“上传附件”') : ''}
           type={key === 'file' ? 14 : 2}
           height={0}
+          showNodeDataSelect={key === 'prompt'}
           content={data[key]}
           formulaMap={data.formulaMap}
           onChange={(err, value) => this.updateSource({ [key]: value })}
@@ -543,49 +546,55 @@ export default class Agent extends Component {
 
   // 渲染工具
   renderTool() {
-    const { flowInfo } = this.props;
+    const { flowInfo, isAIActions, companyId } = this.props;
     const { data } = this.state;
     const isChatBot = flowInfo.startAppType === APP_TYPE.CHATBOT;
-    const MORE_TOOLS = [3, 1, 2, 4, 7, 8, 6, 5]
+    const MORE_TOOLS = [3, 1, 2, 4, 7, 8, 6, 5, 9]
+      .filter(
+        key =>
+          key !== 9 ||
+          (!md.global?.SysSettings?.hideRagEmbedFun &&
+            getFeatureStatus(companyId, VersionProductType.vectorKnowledgeBase) === '1'),
+      )
       .map(key => ({ text: AGENT_TOOLS[key].displayName, type: key }))
       .filter(
         o =>
           !_.includes(
-            data.tools.filter(o => _.includes([1, 2, 3, 4, 7, 8], o.type) && o.enabled).map(o => o.type),
+            data.tools.filter(o => _.includes([1, 2, 3, 4, 7, 8, 9], o.type) && o.enabled).map(o => o.type),
             o.type,
           ),
       );
     const worksheetTools = data.tools.filter(o => _.includes([1, 2, 3, 4], o.type) && o.enabled);
-    const otherTools = data.tools.filter(o => !_.includes([1, 2, 3, 4], o.type));
+    const otherTools = data.tools.filter(o => !_.includes([1, 2, 3, 4], o.type) && o.enabled);
 
     return (
       <Fragment>
-        <div className="Font12 textSecondary mTop20">
-          {_l('在下方配置AI Agent可以使用的工具。AI Agent将尝试调用工具完成任务')}
+        <div className="Font12 mTop20 flexRow alignItemsCenter">
+          <div className="textSecondary flex">
+            {_l('在下方配置AI Agent可以使用的工具。AI Agent将尝试调用工具完成任务')}
+          </div>
+          {(isChatBot || isAIActions) && (
+            <Fragment>
+              <Checkbox
+                className="InlineFlex"
+                text={_l('按用户权限')}
+                checked={data.checkUserPermission}
+                onClick={checked => this.updateSource({ checkUserPermission: !checked })}
+              />
+              <Tooltip
+                placement="topRight"
+                title={_l(
+                  '该配置对数据处理及知识库检索工具生效。取消勾选后，工具执行时将忽略用户数据权限，Agent可访问并返回所有满足配置的数据，请谨慎操作。',
+                )}
+              >
+                <i className="Font14 icon-help textTertiary mLeft5" />
+              </Tooltip>
+            </Fragment>
+          )}
         </div>
         {!!worksheetTools.length && (
           <Fragment>
-            <div className="flexRow alignItemsCenter mTop20">
-              <div className="bold Font12 textSecondary flex">{_l('数据处理')}</div>
-              {isChatBot && (
-                <Fragment>
-                  <Checkbox
-                    className="InlineFlex"
-                    text={_l('按用户权限')}
-                    checked={data.checkUserPermission}
-                    onClick={checked => this.updateSource({ checkUserPermission: !checked })}
-                  />
-                  <Tooltip
-                    placement="topRight"
-                    title={_l(
-                      '取消勾选后，工具执行时将忽略用户数据权限，Agent 可访问并返回超出用户权限范围的数据，谨慎操作。',
-                    )}
-                  >
-                    <i className="Font14 icon-help textTertiary mLeft5" />
-                  </Tooltip>
-                </Fragment>
-              )}
-            </div>
+            <div className="bold Font12 textSecondary mTop20">{_l('数据处理')}</div>
             {worksheetTools.map(item => this.renderToolsList(item))}
           </Fragment>
         )}
@@ -663,6 +672,15 @@ export default class Agent extends Component {
                           if (_.includes([7, 8], o.type)) {
                             this.updateSource({ tools: data.tools.concat(getNewTool()) });
                           }
+
+                          if (o.type === 9) {
+                            const toolNode = data.tools.find(o => o.type === 9)?.toolNode;
+
+                            this.setState({
+                              showVectorDialog: true,
+                              toolNode: { ...toolNode, searchMode: toolNode.searchMode || 'auto' },
+                            });
+                          }
                         }}
                       >
                         <div className="agentToolsIcon">
@@ -691,7 +709,7 @@ export default class Agent extends Component {
 
   // 渲染工具列表
   renderToolsList = item => {
-    const { flowInfo, selectNodeId } = this.props;
+    const { flowInfo, selectNodeId, isAIActions } = this.props;
     const { data, selectToolId } = this.state;
     const isChatBot = flowInfo.startAppType === APP_TYPE.CHATBOT;
     const tool = AGENT_TOOLS[item.type];
@@ -709,7 +727,7 @@ export default class Agent extends Component {
                 {selectToolId === item.toolId ? (
                   <input
                     type="text"
-                    className="flex"
+                    className="flex Font14"
                     autoFocus
                     value={item.name}
                     onFocus={() => (this.cacheName = item.name)}
@@ -741,7 +759,7 @@ export default class Agent extends Component {
                   </Tooltip>
                 )}
 
-                {tool.range && (
+                {tool.range && item.type !== 9 && (
                   <div
                     className="Font13 ThemeColor3 ThemeHoverColor2 pointer mLeft10"
                     onClick={() =>
@@ -780,7 +798,7 @@ export default class Agent extends Component {
                   />
                 )}
 
-                {!tool.range && !selectToolId && !isDelete && (
+                {(!tool.range || item.type === 9) && !selectToolId && !isDelete && (
                   <i
                     className="Font16 textSecondary ThemeHoverColor3 pointer icon-edit mLeft10"
                     onClick={() => this.setState({ selectToolId: item.toolId })}
@@ -793,6 +811,7 @@ export default class Agent extends Component {
               {tool.range && (
                 <div className="Font12 textSecondary">{item.auto ? tool.autoRange : tool.specificRange}</div>
               )}
+
               {item.type === 8 && window.platformENV.isPlatform && (
                 <div className="Font12 textSecondary">
                   <PriceTip text={_l('邮件费用自动从组织信用点中扣除')} />
@@ -804,7 +823,7 @@ export default class Agent extends Component {
               <i
                 className="Font16 pointer textTertiary ThemeHoverColor3 icon-trash"
                 onClick={() => {
-                  if (_.includes([1, 2, 3, 4], item.type)) {
+                  if (_.includes([1, 2, 3, 4, 9], item.type)) {
                     this.updateTool(item.toolId, { enabled: !item.enabled });
                   } else {
                     this.updateSource({ tools: data.tools.filter(o => o.toolId !== item.toolId) });
@@ -814,7 +833,7 @@ export default class Agent extends Component {
             </div>
           </div>
 
-          {isChatBot && !_.includes([3, 4], item.type) && !isDelete && (
+          {(isChatBot || isAIActions) && !_.includes([3, 4, 9], item.type) && !isDelete && (
             <div className="mTop3">
               <Checkbox
                 className="textSecondary"
@@ -865,6 +884,25 @@ export default class Agent extends Component {
                 />
               </SHEET_LIST>
             ))}
+
+          {item.type === 9 && (
+            <SHEET_LIST>
+              <div className="flexColumn flex pTop8 pBottom8 pLeft5">
+                <div className="Font13">
+                  <span className="textSecondary">{_l('知识库')}</span>
+                  <span className="mLeft5">{this.renderKnowledgeList(item.toolNode)}</span>
+                </div>
+                <div className="Font13">
+                  <span className="textSecondary">{_l('检索策略')}</span>
+                  <span className="mLeft5">{SEARCH_MODE_MAP[item.toolNode.searchMode]}</span>
+                </div>
+              </div>
+              <i
+                className="Font16 pointer textTertiary ThemeHoverColor3 icon-edit mLeft15"
+                onClick={() => this.setState({ showVectorDialog: true, toolNode: item.toolNode })}
+              />
+            </SHEET_LIST>
+          )}
         </div>
       </TOOLS_ITEM>
     );
@@ -902,8 +940,18 @@ export default class Agent extends Component {
     );
   }
 
+  // 渲染知识库列表
+  renderKnowledgeList({ knowledgeIds, appList }) {
+    return knowledgeIds.map((kid, index) => {
+      const item = _.find(appList, o => o.id === kid);
+      const delimiter = index < knowledgeIds.length - 1 ? '、' : '';
+
+      return item ? item.name + delimiter : <span className="red">{_l('知识库已删除') + delimiter}</span>;
+    });
+  }
+
   render() {
-    const { data } = this.state;
+    const { data, showVectorDialog, toolNode } = this.state;
 
     if (_.isEmpty(data)) {
       return <LoadDiv className="mTop15" />;
@@ -924,6 +972,43 @@ export default class Agent extends Component {
           </ScrollView>
         </div>
         <DetailFooter {...this.props} isCorrect={data.prompt.trim()} onSave={this.onSave} />
+
+        {showVectorDialog && (
+          <Dialog
+            className="workflowDialogBox workflowSettings"
+            style={{ overflow: 'initial' }}
+            overlayClosable={false}
+            width={800}
+            type="scroll"
+            visible
+            title={_l('添加知识库检索')}
+            onCancel={() => this.setState({ showVectorDialog: false })}
+            onOk={() => {
+              if (!toolNode.knowledgeIds.length) {
+                alert(_l('请选择知识库'), 2);
+                return;
+              }
+
+              this.updateSource({
+                tools: data.tools.map(o =>
+                  o.type === 9 ? { ...o, name: _l('知识库检索'), toolNode, enabled: true } : o,
+                ),
+              });
+              this.setState({ showVectorDialog: false });
+            }}
+          >
+            <div className="workflowDetail w100">
+              <div className="workflowDetailBox pAll0">
+                <VectorKnowledge
+                  {...this.props}
+                  data={toolNode}
+                  showAuto
+                  updateSource={(obj, callback) => this.setState({ toolNode: { ...toolNode, ...obj } }, callback)}
+                />
+              </div>
+            </div>
+          </Dialog>
+        )}
       </Fragment>
     );
   }

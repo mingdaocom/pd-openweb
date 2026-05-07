@@ -4,10 +4,12 @@ import { find, identity } from 'lodash';
 function overrideControls(control, controls) {
   return controls.map(c => {
     const resetControl = find(control.relationControls, { controlId: c.controlId });
+
     if (resetControl) {
       c.required = resetControl.required;
       c.fieldPermission = resetControl.fieldPermission;
     }
+
     return c;
   });
 }

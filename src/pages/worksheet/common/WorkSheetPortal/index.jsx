@@ -86,12 +86,15 @@ const WorkSheetPortal = props => {
 
     const renderIcon = () => {
       let icon = 'visibility_off';
+
       if (item.status === 3) {
         icon = 'desktop_off';
       }
+
       if (item.status === 4) {
         icon = 'mobile_off';
       }
+
       return (
         [2, 3, 4].includes(item.status) && (
           <Tooltip placement="bottom" title={_l('仅系统角色可见（包含管理员、开发者）')}>
@@ -185,6 +188,7 @@ const WorkSheetPortal = props => {
     if (loading) {
       return <LoadDiv />;
     }
+
     if (_.isEmpty(data)) {
       return <WorksheetEmpty appId={appId} groupId={groupId} />;
     }

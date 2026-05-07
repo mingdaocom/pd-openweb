@@ -45,13 +45,16 @@ export default () => {
     if ($(e.target).closest('.mdEditorContent').length) return;
     if ($(e.target).closest('.stopPropagation').length) return;
     const $a = $(this);
+
     if ($a.attr('download') || $a.attr('rel') === 'external' || (!window.isMDClient && $a.attr('target'))) {
       return;
     }
+
     const link = $a.attr('href');
     if (!link && link !== '') return;
     const parsedLink = parseUrl(link);
     const currentLink = window.location;
+
     if (
       parsedLink.protocol !== currentLink.protocol ||
       parsedLink.hostname !== currentLink.hostname ||
@@ -59,15 +62,18 @@ export default () => {
     ) {
       return;
     }
+
     if (/\/form|worksheetshare\/\w*/.test(parsedLink.pathname)) {
       return;
     }
+
     e.preventDefault();
 
     // 系统消息 有的带protocol和hostname有的不带
     // 从parsedLink里取出pathname, search和hash
     const { pathname, search, hash } = parsedLink;
     let url = `${pathname}${search}${hash}`;
+
     //外部门户 worksheet老地址兼容处理
     if (md.global.Account.isPortal && url.startsWith('/worksheet/')) {
       compatibleWorksheetRoute(
@@ -93,8 +99,10 @@ export default () => {
       if (e.target.classList.contains('stopPropagation')) {
         return;
       }
+
       const activeElement = document.activeElement;
       const activeElementTagName = activeElement && activeElement.tagName && activeElement.tagName.toLowerCase();
+
       if (
         (activeElementTagName === 'input' || activeElementTagName === 'textarea') &&
         activeElement &&
@@ -106,6 +114,7 @@ export default () => {
           Object.keys(window.closeFns).map(k => window.closeFns[k]),
           'index',
         );
+
         if (
           fnitem &&
           /(workSheetNewRecord|createRecordSideMask|workSheetRecordInfo|fillRecordControls)/.test(fnitem.className) &&
@@ -113,6 +122,7 @@ export default () => {
         ) {
           return;
         }
+
         if (fnitem && typeof fnitem.fn === 'function') {
           fnitem.fn(e);
           if (Object.keys(window.closeFns).length === 0) {
@@ -129,13 +139,16 @@ export const initThemeMode = () => {
     window.themeModeVisible = false;
     return;
   }
+
   window.themeModeVisible = true;
   // 主题颜色变化
   const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+
   const onChangeThemeMode = e => {
     if (!localStorage.getItem('themeMode')) {
       localStorage.setItem('themeMode', 'light');
     }
+
     if (['dark', 'light'].includes(localStorage.getItem('themeMode'))) {
       window.themeMode = localStorage.getItem('themeMode');
       setBodyThemeMode(window.themeMode);
@@ -145,6 +158,17 @@ export const initThemeMode = () => {
       emitter.emit('CHANGE_THEME_MODE', window.themeMode);
     }
   };
+
   mediaQuery.addEventListener('change', onChangeThemeMode);
+  window.onChangeThemeMode = value => {
+    if (['dark', 'light'].includes(value)) {
+      localStorage.setItem('themeMode', value);
+      onChangeThemeMode({});
+    } else {
+      localStorage.setItem('themeMode', 'system');
+      onChangeThemeMode(window.matchMedia('(prefers-color-scheme: dark)'));
+    }
+  };
+
   onChangeThemeMode(mediaQuery);
 };

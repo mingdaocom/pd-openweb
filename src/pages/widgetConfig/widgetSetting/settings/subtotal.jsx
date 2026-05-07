@@ -176,10 +176,12 @@ export default function Subtotal(props) {
       dot: 0,
       unit: '',
     };
+
     if (value === 'count') {
       onChange({ ...nextData, sourceControlId: '' });
       return;
     }
+
     if (value === sourceControlId) return;
     const nextControl = getControlByControlId(availableControls, value);
     nextData = { ...nextData, enumDefault: _.get(_.head(getTotalType(nextControl)), 'value') };
@@ -207,10 +209,12 @@ export default function Subtotal(props) {
         const unit = _.isNumber(unitToNumber) ? DATE_FORMULA_UNIT[unitToNumber - 1] || '' : '';
         nextData = { ...nextData, unit };
       }
+
       if (nextControl.enumDefault === 2) {
         nextData = { ...nextData, enumDefault2: 16 };
       }
     }
+
     onChange({ ...nextData, sourceControlId: value });
   };
 
@@ -322,6 +326,7 @@ export default function Subtotal(props) {
                     });
                     return;
                   }
+
                   // 他表字段关联的是时间
                   if (selectedControl.type === 30 && includes([2, 3], value)) {
                     onChange({
@@ -370,6 +375,7 @@ export default function Subtotal(props) {
                     onChange(handleAdvancedSettingChange(data, { filters: '' }));
                     return;
                   }
+
                   setVisible(true);
                 }}
               />

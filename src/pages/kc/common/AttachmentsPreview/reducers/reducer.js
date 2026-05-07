@@ -2,6 +2,7 @@
 
 function attachments(state = [], action) {
   let newAttachments = state.slice(0);
+
   switch (action.type) {
     case 'FILE_PREVIEW_INIT':
       newAttachments = action.attachments;
@@ -25,6 +26,7 @@ function attachments(state = [], action) {
 
 function originAttachments(state = [], action) {
   let newAttachments = state.slice(0);
+
   switch (action.type) {
     case 'FILE_PREVIEW_SAVE_ORIGIN_ATTACHMENTS':
       newAttachments = action.attachments;
@@ -45,6 +47,7 @@ function index(state = 0, action) {
       if (action.isPre) {
         return state + action.attachments.length;
       }
+
       return state;
     default:
       return state;

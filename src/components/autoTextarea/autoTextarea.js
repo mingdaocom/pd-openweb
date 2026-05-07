@@ -42,6 +42,7 @@ export default (function ($) {
             if (height > opts.maxHeight) {
               height = opts.maxHeight;
             }
+
             $this.height(height);
           }
         });
@@ -50,6 +51,7 @@ export default (function ($) {
           if (!$this.val()) {
             $this.height(opts.minHeight);
           }
+
           var height;
           if (this.scrollHeight > opts.minHeight + opts.gap) {
             if (opts.maxHeight && this.scrollHeight > opts.maxHeight + opts.gap) {
@@ -62,6 +64,7 @@ export default (function ($) {
               height = this.scrollHeight - opts.gap;
               $(this).css('overflowY', 'hidden');
             }
+
             $(this).height(height);
             //
             if (_.isFunction(opts.onChange)) {

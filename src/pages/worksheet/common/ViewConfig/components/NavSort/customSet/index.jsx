@@ -49,6 +49,7 @@ const Wrap = styled.div`
     }
   }
 `;
+
 export default function (props) {
   const $ref = useRef(null);
   const {
@@ -63,14 +64,17 @@ export default function (props) {
     appId,
     maxCount,
   } = props;
+
   const formatSetting = () => {
     const data = getAdvanceSetting(view, advancedSettingKey) || [];
+
     if ([29].includes(controlInfo.type)) {
       return data.map(o => {
         let da = safeParse(o);
         return { ...da, rowid: da.id };
       });
     }
+
     if (isSameType([26, 27, 48], controlInfo)) {
       const keyId = isSameType([26], controlInfo)
         ? 'accountId'
@@ -87,8 +91,10 @@ export default function (props) {
         return { ...da, [keyId]: da.id, [keyName]: da.name };
       });
     }
+
     return data;
   };
+
   const [{ setting, keyWords, controls, loading }, setState] = useSetState({
     setting: formatSetting(),
     list: [],
@@ -125,12 +131,14 @@ export default function (props) {
       const list = controlInfo.options.filter(o => !o.isDeleted);
       formatSettingData(list.map(o => o.key));
     }
+
     if (isSameType([28], controlInfo)) {
       const list = [...new Array(parseInt(_.get(controlInfo, ['advancedSetting', 'max']) || '1', 10))].map(
         (o, i) => i + 1 + '',
       );
       formatSettingData(list);
     }
+
     if (isSameType([29], controlInfo)) {
       const worksheetId = controlInfo.dataSource;
       const args = {
@@ -268,6 +276,7 @@ export default function (props) {
                   if (loading) {
                     return;
                   }
+
                   setState({ loading: true });
                   getColumns();
                 }}
@@ -315,6 +324,7 @@ export default function (props) {
               if (setting.filter(o => o !== 'add').length >= maxCount) {
                 return;
               }
+
               if (isSameType([26], controlInfo)) {
                 addUser(true, getTabTypeBySelectUser(controlInfo));
               } else if (isSameType([27], controlInfo)) {

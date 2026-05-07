@@ -45,6 +45,7 @@ const Wrap = styled.div`
     // margin-left: 197px;
   }
 `;
+
 // 不能以中划线开头或结束（前端校验）
 // 至少包含4位字母或数字（前端校验）
 // 只能输入数字、字母、中划线（前端校验）
@@ -58,6 +59,7 @@ export default function EditPortalUrlDialog(props) {
     loading: false,
     errStr: '',
   });
+
   const verify = str => {
     if (!str.match(/[\d|\w]/g) || str.match(/[\d|\w]/g).length < 4) {
       setState({
@@ -77,6 +79,7 @@ export default function EditPortalUrlDialog(props) {
       });
     }
   };
+
   const editAddressSuffix = _.debounce(cb => {
     externalPortalAjax
       .editCustomAddressSuffix({
@@ -127,6 +130,7 @@ export default function EditPortalUrlDialog(props) {
               if (props.urlSuffix === urlSuffix) {
                 return onCancel();
               }
+
               if (!errStr) {
                 setState({
                   loading: true,

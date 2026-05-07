@@ -53,6 +53,7 @@ export default class CustomDefaultValue extends Component {
               }),
             );
           }
+
           onClose();
         }}
       >

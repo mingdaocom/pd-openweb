@@ -17,6 +17,7 @@ export default class WebHookCheatSheet extends Component {
   }
   componentDidMount() {
     const { processId, currentNodeId: nodeId, selectNodeId } = this.props.match.params;
+
     if (processId && selectNodeId) {
       api.getWebHookData({ selectNodeId, nodeId, processId }).then(apiData => {
         this.setState({ apiData, loading: false });

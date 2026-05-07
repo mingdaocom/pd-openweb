@@ -87,10 +87,12 @@ export default class TagTextarea extends React.Component {
       if (height) {
         this.cmObj.setSize('100%', typeof height === 'number' ? `${height}px` : height);
       }
+
       if (defaultValue) {
         this.updateTextareaView();
         // this.cmObj.execCommand('goDocEnd');
       }
+
       this.cmObj.on('change', this.handleCMChange);
       this.cmObj.on('beforeChange', (cm, obj) => {
         if (this.cmcon) {
@@ -98,17 +100,21 @@ export default class TagTextarea extends React.Component {
             if (this.cmcon.classList.contains('autoHeight')) {
               this.cmcon.classList.remove('autoHeight');
             }
+
             this.cmcon.style.height = maxHeight + 'px';
           } else {
             if (!this.cmcon.classList.contains('autoHeight')) {
               this.cmcon.classList.add('autoHeight');
             }
+
             this.cmcon.style.height = 'auto';
           }
         }
+
         if (obj.origin === 'undo' || obj.origin === 'redo') {
           return;
         }
+
         // 事件内，mode只能从每次this.props取，不然取不到最新
         if (
           this.props.mode === MODE.ONLYTAG &&
@@ -118,7 +124,9 @@ export default class TagTextarea extends React.Component {
         ) {
           obj.cancel();
         }
+
         let { text } = obj;
+
         // 事件内，mode只能从每次this.props取，不然取不到最新
         if (
           this.props.mode === MODE.FORMULA &&
@@ -134,6 +142,7 @@ export default class TagTextarea extends React.Component {
               .join(''),
           );
         }
+
         if (
           this.props.mode === MODE.DATE &&
           obj.origin !== '+delete' &&
@@ -147,6 +156,7 @@ export default class TagTextarea extends React.Component {
               .join(''),
           );
         }
+
         obj.update(obj.from, obj.to, text);
       });
       this.cmObj.on('focus', (...args) => {
@@ -157,11 +167,13 @@ export default class TagTextarea extends React.Component {
         if (this.cmcon) {
           this.cmcon.classList.remove('active');
         }
+
         if (!_.isUndefined(this.tempValue)) {
           this.props.onChange(null, this.tempValue, this.tempObj);
           this.tempValue = undefined;
           this.tempObj = undefined;
         }
+
         onBlur(...args);
       });
     }
@@ -174,9 +186,11 @@ export default class TagTextarea extends React.Component {
   updateTextareaView = () => {
     const { mode, operatorsSetMargin } = this.props;
     const value = this.cmObj.getValue();
+
     if (this.markers) {
       this.markers.forEach(marker => marker.clear());
     }
+
     this.markers = [];
     this.markColumns(this.markers, value);
     if (mode === MODE.FORMULA || mode === MODE.DATE || operatorsSetMargin) {
@@ -222,12 +236,14 @@ export default class TagTextarea extends React.Component {
   handleCMChange = (cm, obj) => {
     const { onChange } = this.props;
     const value = this.cmObj.getValue();
+
     if (!includes(['setValue', '*compose'], obj.origin)) {
       onChange(null, value, obj);
     } else if (obj.origin === '*compose') {
       this.tempValue = value;
       this.tempObj = obj;
     }
+
     setTimeout(() => {
       if (obj.origin === '*compose' && !get(this, 'cmObj.display.input.composing')) {
         onChange(null, value, obj);
@@ -243,6 +259,7 @@ export default class TagTextarea extends React.Component {
     node.classList.add('columnTagCon');
     if (_.isFunction(this.props.renderTag)) {
       const tag = this.props.renderTag(id, options);
+
       if (React.isValidElement(tag)) {
         const root = createRoot(node);
         root.render(<TagWrapper onDidMount={() => cb(node)} tag={tag} />);
@@ -250,8 +267,10 @@ export default class TagTextarea extends React.Component {
         node.appendChild(tag);
         cb(node);
       }
+
       return;
     }
+
     node.append(id);
     cb(node);
     return;
@@ -306,8 +325,10 @@ export function getRePosFromStr(text = '', re = /\$[^ \r\n[\](){}!@%^&*+=]+?\$/g
   const lines = text.split('\n');
   const positions = [];
   let m;
+
   for (let i = 0; i < lines.length; i++) {
     const l = lines[i];
+
     while ((m = re.exec(l)) !== null) {
       var tag = m[0].substring(1, m[0].length - 1);
       positions.push({
@@ -318,5 +339,6 @@ export function getRePosFromStr(text = '', re = /\$[^ \r\n[\](){}!@%^&*+=]+?\$/g
       });
     }
   }
+
   return positions;
 }

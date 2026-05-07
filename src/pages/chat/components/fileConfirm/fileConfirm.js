@@ -1,10 +1,8 @@
 import React from 'react';
-import doT from 'dot';
 import moment from 'moment';
 import { Button, Dialog } from 'ming-ui';
 import { formatFileSize, getClassNameByExt } from 'src/utils/common';
 import RegExpValidator from 'src/utils/expression';
-import mainTpl from './main.htm';
 import './style.less';
 
 var FileConfirm = function (file, callback) {
@@ -26,17 +24,37 @@ FileConfirm.prototype = {
     } else {
       name = fullname;
     }
+
     if (name === '剪切板贴图') {
       name = moment().format('上传于YYYY-MM-DD HH时mm分');
     }
-    var html = doT.template(mainTpl)();
+
     FC.dialogBoxID = 'fileConfirmDialog_' + Math.random().toString(16).slice(2);
 
     Dialog.confirm({
       dialogClasses: `${FC.dialogBoxID} fileConfirmDialog darkHeader`,
       width: 540,
       title: _l('上传文件'),
-      children: <div dangerouslySetInnerHTML={{ __html: html }}></div>,
+      children: (
+        <div className="fileConfirmDialogContainer">
+          <div className="filePreview">
+            <div className="fileIcon">
+              <span className="fileSize"></span>
+            </div>
+            <div className="thumbnailCon">
+              <div className="thumbnail"></div>
+            </div>
+          </div>
+          <div className="dList">
+            <div className="dItem">
+              <div className="itemLabel">{_l('名称')}</div>
+              <div className="itemContent">
+                <input type="text" id="fileName" placeholder={_l('名称')} />
+              </div>
+            </div>
+          </div>
+        </div>
+      ),
       footer: (
         <div className="Dialog-footer-btns">
           <Button
@@ -46,7 +64,8 @@ FileConfirm.prototype = {
               if (FC.callback && typeof FC.callback.noFn === 'function') {
                 FC.callback.noFn(FC.file);
               }
-              $(`.${FC.dialogBoxID}`).parent().remove();
+
+              document.querySelector(`.${FC.dialogBoxID} .mui-dialog-close-btn`).click();
             }}
           >
             {_l('取消')}
@@ -56,7 +75,7 @@ FileConfirm.prototype = {
             onClick={() => {
               if (FC.yesFn()) {
                 $(document).off('keyup.fileConfirm.upload');
-                $(`.${FC.dialogBoxID}`).parent().remove();
+                document.querySelector(`.${FC.dialogBoxID} .mui-dialog-close-btn`).click();
               }
             }}
           >
@@ -81,10 +100,17 @@ FileConfirm.prototype = {
         if (e.keyCode === 13) {
           if (FC.yesFn()) {
             $(document).off('keyup.fileConfirm.upload');
-            $(`.${FC.dialogBoxID}`).parent().remove();
+            document.querySelector(`.${FC.dialogBoxID} .mui-dialog-close-btn`).click();
             $('.chatMessage-textarea textarea').focus();
           } else {
             return false;
+          }
+        }
+
+        if (e.keyCode === 27) {
+          $(document).off('keyup.fileConfirm.upload');
+          if (FC.callback && typeof FC.callback.noFn === 'function') {
+            FC.callback.noFn(FC.file);
           }
         }
       });
@@ -94,14 +120,16 @@ FileConfirm.prototype = {
   },
   yesFn: function () {
     var FC = this;
-    var fileName = FC.dialogEle.$fileName.val() || '';
+    var fileName = FC.dialogEle?.$fileName?.val() || '';
     if (fileName.trim() === '') {
       alert(_l('名称不能为空'), 3);
       return false;
     }
+
     if (!FC.validate(fileName)) {
       return false;
     }
+
     if (FC.callback && typeof FC.callback.yesFn === 'function' && FC.first) {
       FC.file.name = FC.getFullFileName();
       FC.callback.yesFn(FC.file);
@@ -147,6 +175,7 @@ FileConfirm.prototype = {
     if (FC.file) {
       reader.readAsDataURL(FC.file.getNative ? FC.file.getNative() : FC.file);
     }
+
     FC.dialogEle.$thumbnail.append(img).show();
   },
   getFullFileName: function () {
@@ -156,10 +185,12 @@ FileConfirm.prototype = {
   validate: function (str) {
     const illegalSet = ['\\', '/', ':', '*', '?', '"', '<', '>', '|'];
     const illegalChars = new RegExp(`[${illegalSet.map(c => '\\' + c).join('')}]`, 'g');
+
     if (illegalChars.test(str)) {
       alert(_l('名称不能包含以下字符:') + ' ' + illegalSet.join(' '), 3);
       return false;
     }
+
     return true;
   },
 };

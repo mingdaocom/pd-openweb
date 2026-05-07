@@ -119,7 +119,7 @@ class PrintForm extends React.Component {
   };
 
   getParamFn = () => {
-    if (location.href.indexOf('printForm') > -1) {
+    if (location.href.indexOf('printFormOld') > -1) {
       const { params = {} } = this.state;
       const { key } = params;
 
@@ -342,6 +342,7 @@ class PrintForm extends React.Component {
     Promise.all(promiseList).then(res => {
       printData.receiveControls.forEach((item, index) => {
         let _index = controls.findIndex(l => l.controlId === item.controlId);
+
         if (_index > -1 && item.type === 51 && !_.isEmpty(res[_index])) {
           res[_index].template.controls = replaceControlsTranslateInfo(
             res[_index].worksheet.appId,
@@ -444,17 +445,20 @@ class PrintForm extends React.Component {
 
       const rules = resData[1];
       //通过规则计算
+      // console.log('规则计算前', _.cloneDeep(res.receiveControls));
       let receiveControls = updateRulesData({
         rules: [typeForCon.NEW, typeForCon.EDIT].includes(type) && from === fromType.FORM_SET ? [] : rules,
         recordId: rowId,
         data: res.receiveControls,
       });
+      // console.log('规则计算后', _.cloneDeep(receiveControls));
       const needVisible = printId || (type === typeForCon.NEW && from === fromType.FORM_SET);
       receiveControls = getControlsForPrint(receiveControls, res.relationMaps, needVisible, {
         info: info,
         fileStyle: (_.get(res, 'advanceSettings') || []).find(l => l.key === 'atta_style'),
         user_info: (_.get(res, 'advanceSettings') || []).find(l => l.key === 'user_info'),
       });
+      // console.log('权限过滤后', receiveControls);
       receiveControls = replaceControlsTranslateInfo(appId, worksheetId, receiveControls);
 
       let dat = (res.receiveControls || []).filter(o => ![43, 49].includes(o.type) && o.controlId !== 'wfcotime'); //去除 文本识别 43 接口查询按钮
@@ -989,6 +993,7 @@ class PrintForm extends React.Component {
     }
 
     const visibleControls = getVisibleControls(receiveControls);
+    console.log('二次权限过滤后', visibleControls);
     let data = {
       handChange: this.handChange,
       params,

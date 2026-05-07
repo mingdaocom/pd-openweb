@@ -188,6 +188,7 @@ export default function TodoEntrustModal(props) {
   const disabledDateTime = date => {
     const hours = moment().hours();
     const minutes = moment().minutes();
+
     if (!date || moment(date).isSame(moment(), 'd')) {
       return {
         disabledHours: () => Array.from(Array(hours), (_, k) => k),
@@ -195,6 +196,7 @@ export default function TodoEntrustModal(props) {
           !date || moment(date).isSame(moment(), 'h') ? Array.from(Array(minutes), (_, k) => k) : [],
       };
     }
+
     return {
       disabledHours: () => [],
       disabledMinutes: () => [],

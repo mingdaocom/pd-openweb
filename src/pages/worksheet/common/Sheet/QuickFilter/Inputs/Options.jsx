@@ -114,14 +114,18 @@ function pickOptions(options, navfilters) {
     return options;
   }
 }
+
 export default function Options(props) {
   const { control, advancedSetting = {}, onChange = () => {} } = props;
   const { allowitem, direction, navshow, navfilters, shownullitem, nullitemname } = advancedSetting;
   let { options } = control;
+
   if (String(navshow) === '2') {
     options = pickOptions(options, navfilters);
   }
+
   const values = filter(props.values, key => find(options, { key }) || key === 'isEmpty');
+
   if (shownullitem === '1') {
     options = [
       {
@@ -131,12 +135,15 @@ export default function Options(props) {
       },
     ].concat(options);
   }
+
   const multiple = String(allowitem) === '2';
+
   function handleChange(value) {
     onChange({
       ...value,
     });
   }
+
   if (String(direction) === '1') {
     return (
       <FullLineCon>
@@ -205,9 +212,11 @@ export default function Options(props) {
           value={JSON.stringify(values)}
           onChange={newValue => {
             let parsedValue = JSON.parse(newValue);
+
             if (parsedValue.length > 1) {
               parsedValue = parsedValue.filter(v => v !== 'isEmpty');
             }
+
             handleChange({ values: parsedValue });
           }}
         />

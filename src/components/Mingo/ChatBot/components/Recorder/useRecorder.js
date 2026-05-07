@@ -61,9 +61,11 @@ export default function useRecorder({ authConfig, onStop = () => {}, onError = (
 
       // 计算平均音量
       let sum = 0;
+
       for (let i = 0; i < bufferLength; i++) {
         sum += dataArray[i];
       }
+
       const average = sum / bufferLength;
 
       // 转换为百分比 (0-100)，并进行一些调整使其更敏感
@@ -77,6 +79,7 @@ export default function useRecorder({ authConfig, onStop = () => {}, onError = (
     if (volumeCheckIntervalRef.current) {
       clearInterval(volumeCheckIntervalRef.current);
     }
+
     volumeCheckIntervalRef.current = setInterval(checkVolume, 100); // 每100ms检测一次
   }, [checkVolume]);
 
@@ -86,6 +89,7 @@ export default function useRecorder({ authConfig, onStop = () => {}, onError = (
       clearInterval(volumeCheckIntervalRef.current);
       volumeCheckIntervalRef.current = null;
     }
+
     setVolume(0);
   }, []);
 
@@ -112,6 +116,7 @@ export default function useRecorder({ authConfig, onStop = () => {}, onError = (
       clearInterval(recordTimeIntervalRef.current);
       recordTimeIntervalRef.current = null;
     }
+
     recordStartTimeRef.current = null;
   }, []);
 
@@ -147,6 +152,7 @@ export default function useRecorder({ authConfig, onStop = () => {}, onError = (
             if (isDebug) console.log('麦克风轨道已停止:', track.label, track.readyState);
           });
         }
+
         return null;
       });
 
@@ -165,6 +171,7 @@ export default function useRecorder({ authConfig, onStop = () => {}, onError = (
               // onStop();
             });
         }
+
         return null;
       });
 
@@ -190,6 +197,7 @@ export default function useRecorder({ authConfig, onStop = () => {}, onError = (
         alert('请确保已加载腾讯云语音识别SDK');
         return;
       }
+
       setStatus('connecting');
       setRecognizedText('');
       setRecordTime(0); // 重置录音时间
@@ -222,16 +230,19 @@ export default function useRecorder({ authConfig, onStop = () => {}, onError = (
             speechRecognizerRef.current.write(res);
           }
         };
+
         recorderRef.current.OnError = err => {
           console.error('OnError:', err);
           onError(err);
           stop();
         };
+
         recorderRef.current.start();
 
         if (!speechRecognizerRef.current) {
           speechRecognizerRef.current = new window.SpeechRecognizer(params);
         }
+
         speechRecognizerRef.current.OnRecognitionStart = () => {
           isCanSendDataRef.current = true;
           isCanStopRef.current = true;
@@ -239,28 +250,34 @@ export default function useRecorder({ authConfig, onStop = () => {}, onError = (
           startVolumeCheck(); // 开始音量检测
           startRecordTime(); // 开始录音时间计时
         };
+
         speechRecognizerRef.current.OnSentenceBegin = res => {
           if (isDebug) console.log('OnSentenceBegin:', res);
         };
+
         speechRecognizerRef.current.OnRecognitionResultChange = res => {
           if (isDebug) console.log('OnRecognitionResultChange', res);
           const currentText = `${resultTextRef.current}${res.result.voice_text_str}`;
           setRecognizedText(currentText);
         };
+
         speechRecognizerRef.current.OnSentenceEnd = res => {
           if (isDebug) console.log('OnSentenceEnd:', res);
           resultTextRef.current += res.result.voice_text_str;
           setRecognizedText(resultTextRef.current);
         };
+
         speechRecognizerRef.current.OnRecognitionComplete = res => {
           if (isDebug) console.log('OnRecognitionComplete:', res);
           onStop(cache.current);
           cache.current = {};
         };
+
         speechRecognizerRef.current.OnError = () => {
           setStatus('error');
           stop();
         };
+
         speechRecognizerRef.current.start();
       } catch (error) {
         console.log(error);

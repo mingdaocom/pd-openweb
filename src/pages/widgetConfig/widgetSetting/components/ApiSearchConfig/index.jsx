@@ -192,9 +192,11 @@ export default function ApiSearchConfig(props) {
       .getApiControlDetail({ apiTemplateId: data.dataSource, actionType: fromOperationFlow ? 13 : 8 })
       .then(res => {
         const { basicInfo = {}, requestControls = [], responseControls = [], enabled } = res || {};
+
         if (_.isFunction(props.setControls)) {
           props.setControls(requestControls);
         }
+
         setEnabled(enabled);
         setApiInfo(basicInfo);
         dealResult(requestControls, responseControls, basicInfo);

@@ -49,7 +49,7 @@ export default class DeleteNodeObj extends Component {
             onClick={checked => updateSource({ destroy: !checked })}
           />
         </div>
-        <div className="textSecondary mTop5 mLeft26">{_l('彻底删除后数据不可恢复，请谨慎操作')}</div>
+        <div className="Font13 textSecondary mTop5 mLeft26">{_l('彻底删除后数据不可恢复，请谨慎操作')}</div>
       </Fragment>
     );
   }

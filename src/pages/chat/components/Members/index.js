@@ -38,6 +38,7 @@ export default class Members extends Component {
   }
   componentWillReceiveProps(nextProps) {
     const { session } = nextProps;
+
     if (session.groupMemberCount !== this.state.groupMemberCount) {
       this.getGroupUsers();
     }

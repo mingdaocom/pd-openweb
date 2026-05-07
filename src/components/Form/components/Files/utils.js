@@ -75,6 +75,7 @@ export const handleSaveKcCloud = (data, isDownload) => {
 
   let nodeType = 0;
   let sourceData = {};
+
   if (data.refId) {
     nodeType = 2;
     sourceData.nodeId = data.refId;
@@ -117,6 +118,7 @@ export const handleDownload = (data, isDownload, logData) => {
     : data.attachmentType == 5
       ? `${data.downloadUrl}&shareFolderId=${data.refId}`
       : `${md.global.Config.AjaxApiUrl}file/downDocument?fileID=${data.fileID}`;
+
   if (isDownload) {
     window.open(downloadFile(url + logExtend));
   } else {
@@ -127,12 +129,15 @@ export const handleDownload = (data, isDownload, logData) => {
 export const loadImage = url => {
   return new Promise((reslove, reject) => {
     const image = new Image();
+
     image.onload = () => {
       reslove(image);
     };
+
     image.onerror = error => {
       reject(error);
     };
+
     image.src = url;
   });
 };

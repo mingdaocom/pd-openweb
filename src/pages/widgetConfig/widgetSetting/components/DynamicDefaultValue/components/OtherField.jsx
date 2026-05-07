@@ -59,6 +59,7 @@ export default function OtherField(props) {
         'text',
       );
     }
+
     if (from === DYNAMIC_FROM_MODE.WATER_MASK && fieldId === 'user-self') return WATER_MASK_TYPES[0].text;
     if (_.includes(['user', 'time', 'address', 'xy'], fieldId)) {
       return _.get(
@@ -66,6 +67,7 @@ export default function OtherField(props) {
         'text',
       );
     }
+
     if (
       from === DYNAMIC_FROM_MODE.PRINT_TEMP &&
       _.includes(
@@ -75,6 +77,7 @@ export default function OtherField(props) {
     ) {
       return PRINT_TEMP_TYPES.find(i => i.id === fieldId).text;
     }
+
     if (
       _.includes(
         [
@@ -101,6 +104,7 @@ export default function OtherField(props) {
         'text',
       );
     }
+
     return (
       _.get(
         _.find(controls, item => _.includes([item.controlId, item.id], fieldId)),
@@ -112,14 +116,17 @@ export default function OtherField(props) {
       )
     );
   };
+
   const getFieldNameById = (item, controls) => {
     const { cid, rcid } = item;
     const filterControls = getControls({ data, controls, isCurrent: true, from });
+
     if (rcid) {
       // 子表控件中 如果是主记录
       if (rcid === worksheetId) {
         return { fieldName: getFieldName(filterControls, cid) };
       }
+
       const record = _.find(controls, item => item.controlId === rcid);
       const reFilterControls = getControls({ data, controls: _.get(record, 'relationControls') || [], from });
       return {
@@ -130,6 +137,7 @@ export default function OtherField(props) {
       return { fieldName: getFieldName(filterControls, cid) };
     }
   };
+
   const delField = tag => {
     const { cid, rcid, staticValue } = tag;
     const index = _.findIndex(dynamicValue, d =>
@@ -137,8 +145,10 @@ export default function OtherField(props) {
     );
     onDynamicValueChange(update(dynamicValue, { $splice: [[index, 1]] }));
   };
+
   const isFieldDeleteFn = (item, controls = []) => {
     const { cid, rcid } = item;
+
     const isFieldNotInControls = (controls, cid) => {
       if (
         _.includes(
@@ -186,11 +196,13 @@ export default function OtherField(props) {
         return false;
       return !_.some(controls, item => _.includes([item.controlId, item.id], cid));
     };
+
     if (rcid) {
       // 子表控件中 主记录控件
       if (rcid === worksheetId) {
         return isFieldNotInControls(controls, cid);
       }
+
       const record = _.find(controls, item => item.controlId === rcid);
       if (!record) return true;
       return isFieldNotInControls(_.get(record, 'relationControls'), cid);
@@ -198,6 +210,7 @@ export default function OtherField(props) {
       return isFieldNotInControls(controls, cid);
     }
   };
+
   if (text) return <span style={{ height: '26px' }}>{text}</span>;
   const isText = getControlType(data) === 'text' || data.type === 45;
   const { fieldName, recordName } = getFieldNameById(item, controls);

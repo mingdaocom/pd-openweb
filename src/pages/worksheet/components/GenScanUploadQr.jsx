@@ -11,10 +11,10 @@ import { getTemporaryAttachmentFromUrl } from 'src/utils/common';
 
 const Popup = styled.div`
   position: relative;
-  background-color: var(--color-background-primary);
+  background-color: var(--color-background-card);
   padding: 12px 20px 20px;
   width: 240px;
-  box-shadow: 0px 1px 6px 1px rgba(0, 0, 0, 0.24);
+  box-shadow: var(--shadow-xl);
   border-radius: 6px;
   .error {
     color: var(--color-error);
@@ -137,6 +137,7 @@ function QrPopup({
       if (cache.current.timer) {
         clearInterval(cache.current.timer);
       }
+
       function run() {
         attachmentAjax.getScanAttachments({ scanId: newScanId }).then(res => {
           if (res.status !== 1) {
@@ -144,13 +145,17 @@ function QrPopup({
             if (cache.current.timer) {
               clearInterval(cache.current.timer);
             }
+
             return;
           }
+
           const { attachmentScanSimpleDetail = [] } = res;
+
           if (!isEmpty(attachmentScanSimpleDetail)) {
             const newAttachments = attachmentScanSimpleDetail.filter(
               item => !cache.current.appendedAttachmentIds.includes(getUrlNoSearch(item.fileUrl)),
             );
+
             if (newAttachments.length > 0) {
               onScanResultUpdate(newAttachments.map(getTemporaryAttachmentFromUrl));
               const newAppendedAttachmentIds = newAttachments.map(item => getUrlNoSearch(item.fileUrl));
@@ -166,6 +171,7 @@ function QrPopup({
           }
         });
       }
+
       const timer = setInterval(run, UPDATE_ATTACHMENT_INTERVAL);
       cache.current.timer = timer;
     },
@@ -176,6 +182,7 @@ function QrPopup({
     (cb = () => {}) => {
       setLoading(true);
       let sourceType = 1;
+
       if (!worksheetId) {
         sourceType = 3;
       } else if (from === 'worksheet') {
@@ -183,12 +190,15 @@ function QrPopup({
       } else {
         sourceType = 2;
       }
+
       let getType;
+
       if (fromIsDraft) {
         getType = 21;
       } else if (fromIsWorkflow) {
         getType = 9;
       }
+
       attachmentAjax
         .getAttachmentScanUrl({
           sourceType,
@@ -227,6 +237,7 @@ function QrPopup({
       if (cache.current.scanId) {
         attachmentAjax.stopAttachmentScanUrl({ scanId: cache.current.scanId });
       }
+
       if (cache.current.timer) {
         clearInterval(cache.current.timer);
       }
@@ -307,6 +318,7 @@ export default function GenScanUploadQr({
           const { bottom } = ref.current.getBoundingClientRect();
           setPopupPosition(bottom + 290 > window.innerHeight ? 'top' : 'bottom');
         }
+
         setPopupVisible(newVisible);
       }}
       popupAlign={{

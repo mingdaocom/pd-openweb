@@ -161,32 +161,40 @@ export default class Announce extends Component {
       users,
       files,
     } = this.state;
+
     if (!content) {
       alert(_l('请输入内容'), 3);
       return false;
     }
+
     if (content.length > 500) {
       alert(_l('您输入的通告内容过长，不能超过500字'), 3);
       return false;
     }
+
     if (!sendEmail && !sendMessage && !sendMobileMessage) {
       alert(_l('请选择发送方式'), 3);
       return false;
     }
+
     if (sendMobileMessage && content.length > 60) {
       alert(_l('短信内容的长度不能超过60个字符'), 3);
       return false;
     }
+
     if (!allProject && !allAdmin && !allDepartmentChargeUser && !groups.length && !users.length) {
       alert(_l('请选择要发送的人'), 3);
       return false;
     }
 
     let groupIds = [];
+
     if (groups.length) {
       groupIds = groups.map(x => x.groupId);
     }
+
     let accountIds = [];
+
     if (users.length) {
       accountIds = users.map(x => x.accountId);
     }
@@ -210,12 +218,14 @@ export default class Announce extends Component {
       .then(data => {
         if (data.actionResult == 1) {
           const failCount = data.failCount;
+
           if (failCount === 0) {
             alert(_l('发布成功'));
           } else if (failCount) {
             const message = '<div className="Font12 textPlaceholder">' + _l('%0人发送失败', failCount) + '</div>';
             alert(message, 3);
           }
+
           this.setState({
             content: '',
             sendEmail: false,

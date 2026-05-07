@@ -66,9 +66,11 @@ const DateWidget = props => {
 
   useEffect(() => {
     let _value = value;
+
     if (/^\d+$/.test(String(_value)) && String(_value).length < 5) {
       _value = '';
     }
+
     const isLocationBegin = !!minDate && advancedSetting.locationbegin === '1';
     const defaultDate = isLocationBegin ? moment(minDate) : moment();
 
@@ -119,7 +121,7 @@ const DateWidget = props => {
   return (
     <Fragment>
       <div
-        className={cx('customFormControlBox flexRow flexCenter', {
+        className={cx('customFormControlBox bgInput flexRow flexCenter', {
           controlEditReadonly: !formDisabled && value && disabled,
           controlDisabled: formDisabled,
         })}

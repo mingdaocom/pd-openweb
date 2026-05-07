@@ -174,9 +174,11 @@ class Dropdown extends Component {
   constructor(props) {
     super(props);
     let value;
+
     if (props.defaultValue !== undefined) {
       value = props.defaultValue;
     }
+
     if (props.value !== undefined) {
       value = props.value;
     }
@@ -194,6 +196,7 @@ class Dropdown extends Component {
         value: nextProps.value,
       });
     }
+
     if (_.isBoolean(nextProps.popupVisible)) {
       this.setState({ showMenu: nextProps.popupVisible });
     }
@@ -201,6 +204,7 @@ class Dropdown extends Component {
 
   getTextFromDataById(data, value) {
     let text = this.props.placeholder;
+
     const getTextFromList = list => {
       list.forEach(item => {
         if (item.value != undefined && item.value === value) {
@@ -213,6 +217,7 @@ class Dropdown extends Component {
         }
       });
     };
+
     getTextFromList(data);
     return text;
   }
@@ -242,6 +247,7 @@ class Dropdown extends Component {
     if (item.disabled) {
       return;
     }
+
     if (this.props.value == undefined && !this.props.noChangeValue) {
       this.setState({
         value: item.value,
@@ -332,6 +338,7 @@ class Dropdown extends Component {
     if (this.props.isAppendToBody && this._input) {
       return { width: this._input.getBoundingClientRect().width };
     }
+
     return {};
   };
 
@@ -390,7 +397,7 @@ class Dropdown extends Component {
                 padding: '0 16px 0 14px',
                 height: 36,
                 alignItems: 'center',
-                borderBottom: '1px solid var(--color-border-tertiary)',
+                borderBottom: '1px solid var(--color-border-secondary)',
                 marginBottom: 5,
               }}
             >
@@ -467,7 +474,7 @@ class Dropdown extends Component {
                       )}
               </span>
             ) : (
-              <span className="Dropdown--placeholder textDisabled ellipsis InlineBlock">{placeholder}</span>
+              <span className="Dropdown--placeholder textPlaceholder ellipsis InlineBlock">{placeholder}</span>
             )}
             {cancelAble && value != undefined ? (
               <Fragment>
@@ -481,12 +488,14 @@ class Dropdown extends Component {
                         value: undefined,
                       });
                     }
+
                     if (this.props.selectClose) {
                       this.setState({
                         showMenu: false,
                       });
                       this.props.onVisibleChange(false);
                     }
+
                     if (this.props.onChange) {
                       this.props.onChange(undefined);
                     }

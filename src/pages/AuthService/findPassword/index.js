@@ -55,11 +55,13 @@ export default class FindPassword extends React.Component {
   submitAccountVerify = () => {
     const { emailOrTel, password, verifyCode, dialCode } = this.state;
     const _this = this;
+
     const cb = function (res) {
       if (res.ret !== 0) {
         _this.setState({ loginDisabled: false });
         return;
       }
+
       RegisterController.updatePassword({
         account: encrypt(dialCode + emailOrTel),
         password: encrypt(password),
@@ -73,6 +75,7 @@ export default class FindPassword extends React.Component {
           if (data) {
             _this.setState({ loginDisabled: false });
             let actionResult = ActionResult;
+
             if (data.actionResult == actionResult.success) {
               alert(_l('密码重置成功！'), '1', 3000, () => {
                 _this.updateWarn([]);
@@ -88,6 +91,7 @@ export default class FindPassword extends React.Component {
                 ]);
                 return;
               }
+
               if (data.actionResult == actionResult.failInvalidVerifyCode) {
                 _this.updateWarn([{ tipDom: 'inputCode', warnTxt: _l('验证码错误'), isError: true }]);
               } else if (data.actionResult == actionResult.noEfficacyVerifyCode) {
@@ -138,6 +142,7 @@ export default class FindPassword extends React.Component {
     });
     this.setState({ warnList: validationData.warnList });
     let isV = await validationData.isRight;
+
     if (isV) {
       this.setState(
         {
@@ -152,9 +157,11 @@ export default class FindPassword extends React.Component {
 
   renderCon = () => {
     const { loginDisabled, loading } = this.state;
+
     if (loading) {
       return <LoadDiv className="" style={{ margin: '50px auto' }} />;
     }
+
     return (
       <React.Fragment>
         <div className="titleHeader">

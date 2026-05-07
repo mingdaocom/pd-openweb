@@ -203,15 +203,19 @@ export default function DevelopWithAI(props) {
     },
     [lastCode, Object.keys(codeStore)],
   );
+
   const handleExit = () => {
     const blobSizeOfKb = new Blob([currentCode]).size / 1024;
+
     if (blobSizeOfKb > 64) {
       alert(_l('代码无法保存，代码长度不能超过64KB'), 3);
       return;
     }
+
     onChange({ ...control, ...changes });
     onClose();
   };
+
   useEffect(() => {
     setChanges(prev => ({
       ...prev,
@@ -322,6 +326,7 @@ export default function DevelopWithAI(props) {
                         if (!error) {
                           return;
                         }
+
                         if (isFunction(get(llmRef, 'current.sendMessage'))) {
                           setShowEmptyHolder(false);
                           llmRef.current.setInput(_l('我在运行组件时出现了如下错误，请帮忙修复。```%0```', error));
@@ -440,10 +445,12 @@ export default function DevelopWithAI(props) {
                     if (!lastCode) {
                       setLastCode(currentCode);
                     }
+
                     setCurrentCode(newCode);
                     if (fileName) {
                       setCodeFileName(fileName);
                     }
+
                     if (isComplete) {
                       if (!codeStore[messageId]) {
                         setCodeStore(prev => ({

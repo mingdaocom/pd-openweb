@@ -206,13 +206,16 @@ export default class Editor extends Component {
       value: resume,
       color: resumeColor,
     });
+
     if (aiCreateLoading) {
       return;
     }
+
     if (remark && remark.length > remarkMaxLength) {
       alert(_l('描述文字超出上限'), 2);
       return;
     }
+
     onSave({
       description: content,
       resume: showType ? resumeInfo : '',
@@ -221,6 +224,7 @@ export default class Editor extends Component {
     if (cacheKey === 'sheetIntroDescription' && !content && resume) {
       this.props.onCancel();
     }
+
     changeEditState && changeEditState(false);
     this.clearStorage();
   };
@@ -234,24 +238,29 @@ export default class Editor extends Component {
       langType: getCurrentLangCode(),
       desc: remark,
     };
+
     if (isApp) {
       param.name = data.name;
       param.appId = data.id;
       param.type = 1;
     }
+
     if (isSheet) {
       param.name = data.name;
       param.worksheetId = data.worksheetId;
       param.type = 2;
     }
+
     this.setState({ aiCreateLoading: true, remark: '', lastRemark: this.state.remark });
     mingoApi
       .generateAppOrWorksheetDescription(param)
       .then(data => {
         const { isSuccess, content, errorMsg } = data;
+
         if (!isSuccess) {
           alert(errorMsg, 3);
         }
+
         this.setState({
           sourceAi: true,
           aiCreateLoading: false,
@@ -267,6 +276,7 @@ export default class Editor extends Component {
 
   renderState = () => {
     const { aiCreateLoading, remark, lastRemark, sourceAi } = this.state;
+
     if (aiCreateLoading) {
       return (
         <div className="flexRow alignItemsCenter">
@@ -275,6 +285,7 @@ export default class Editor extends Component {
         </div>
       );
     }
+
     if (remark && sourceAi && !aiCreateLoading) {
       return (
         <div
@@ -288,6 +299,7 @@ export default class Editor extends Component {
         </div>
       );
     }
+
     return (
       <div className="flexRow alignItemsCenter active" onClick={this.handleCreateAi}>
         <span className="mRight4 bold">{_l('AI 生成')}</span>
@@ -326,7 +338,7 @@ export default class Editor extends Component {
     const isError = remark.length > remarkMaxLength;
 
     if (!isEditing) {
-      const { name, iconUrl, iconColor, projectId, managers } = data;
+      const { name, iconUrl, iconColor, projectId, managers = [] } = data;
       const { projects } = md.global.Account;
       const { companyName } = _.filter(projects, { projectId })[0] || {};
       const isEditAppDescription = !isEditing && (canEditData(permissionType) || canEditApp(permissionType, isLock));

@@ -7,6 +7,7 @@ import { Dialog } from 'ming-ui';
 const { TextArea } = Input;
 
 const Wrap = styled.div``;
+
 export default function Con(props) {
   const { onCancel, onChangePortalSet, sign } = props;
   const { portalSetModel = {} } = props.portalSet;
@@ -29,6 +30,7 @@ export default function Con(props) {
       return 1;
     }
   };
+
   return (
     <Dialog
       title={_l('短信通知内容设置')}

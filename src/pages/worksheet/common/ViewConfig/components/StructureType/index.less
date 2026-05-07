@@ -7,33 +7,13 @@
   background-repeat: no-repeat;
   background-size: contain;
   background-position: center center;
-  &.vertically {
-    background-image: url('./img/vertically.png');
-    &.active {
-      background-image: url('./img/verticallyCur.png');
-    }
-  }
-  &.mix {
-    background-image: url('./img/mix.png');
-    &.active {
-      background-image: url('./img/mixCur.png');
-    }
-  }
-  &.horizontal {
-    background-image: url('./img/horizontal.png');
-    &.active {
-      background-image: url('./img/horizontalCur.png');
-    }
-  }
-  &.tree {
-    background-image: url('./img/tree.png');
-    &.active {
-      background-image: url('./img/treeCur.png');
-    }
-  }
   border: 1px solid var(--color-border-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   &.active,
   &:hover {
+    color: var(--color-primary);
     border: 1px solid var(--color-primary);
   }
 }

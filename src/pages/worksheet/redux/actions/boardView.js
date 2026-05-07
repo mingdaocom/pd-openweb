@@ -82,15 +82,18 @@ const getBoardViewPara = (sheet = {}, view) => {
   const { viewId, appId, chartId, type } = base;
   view = view || getCurrentView(sheet);
   const { worksheetId, viewControl } = view;
+
   if (!viewControl) {
     return;
   }
+
   let relationWorksheetId;
   const selectControl = _.find(controls, item => item.controlId === viewControl);
 
   if (selectControl && selectControl.type === 29) {
     relationWorksheetId = selectControl.dataSource;
   }
+
   let para = {
     type,
     appId,
@@ -105,10 +108,12 @@ const getBoardViewPara = (sheet = {}, view) => {
     fastFilters: formatQuickFilter(quickFilter),
     langType: window.shareState.shareId ? getCurrentLangCode() : undefined,
   };
+
   if (relationWorksheetId) {
     // para = { ...para, relationWorksheetId, kanbanSize: advancedSetting && advancedSetting.navshow === '1' ? 50 : 20 };
     para = { ...para, relationWorksheetId };
   }
+
   return para;
 };
 
@@ -121,9 +126,11 @@ export function initBoardViewData(view, hasSecondGroup) {
   return (dispatch, getState) => {
     const { sheet } = getState();
     const para = getBoardViewPara(sheet, view);
+
     if (hasSecondGroup) {
       para.kanbanSize = 50;
     }
+
     if (!para) return;
     dispatch({
       type: 'CHANGE_BOARD_VIEW_LOADING',
@@ -159,6 +166,7 @@ function getBoardViewDataFillPage({ para, dispatch, view, controls }) {
         loading: false,
       });
     }
+
     const translateInfo = getTranslateInfo(para.appId, para.worksheetId, view.viewControl);
     const formatData = sortDataByCustomItems(data, view, controls);
     const groupControl = _.find(controls, { controlId: view.viewControl });
@@ -166,12 +174,14 @@ function getBoardViewDataFillPage({ para, dispatch, view, controls }) {
       changeBoardViewData(
         formatData.map(data => {
           const name = translateInfo[data.key] || data.name;
+
           if (_.get(groupControl, 'options.length')) {
             return {
               ...data,
               name: _.get(_.find(groupControl.options, { key: data.key }), 'value') || name,
             };
           }
+
           return {
             ...data,
             name,
@@ -202,10 +212,12 @@ export function getBoardViewPageData({ alwaysCallback = noop }) {
     const { relationWorksheetId, kanbanSize } = para || {};
     // 关联看板隐藏无数据看板，开启不允许拉取数据，关闭时允许
     const isRelateHide = relationWorksheetId && kanbanSize === 50;
+
     if (isRelateHide || !hasMoreData || !para) {
       alwaysCallback();
       return;
     }
+
     wrappedGetFilterRows(getFilledRequestParams({ ...para, kanbanIndex: kanbanIndex + 1 }))
       .then(({ data }) => {
         // 将已经存在的看板过滤掉
@@ -224,11 +236,13 @@ export function getBoardViewPageData({ alwaysCallback = noop }) {
       });
   };
 }
+
 function mergeUniqBoardData(boardViewData, currentData) {
   return uniqBy(boardViewData.concat(currentData), value => {
     return _.get(JSON.parse(value), 'rowid');
   });
 }
+
 // 分页获取单个看板数据
 export function getSingleBoardPageData({ pageIndex, kanbanKey, alwaysCallback, checkIsMore }) {
   return (dispatch, getState) => {
@@ -236,10 +250,12 @@ export function getSingleBoardPageData({ pageIndex, kanbanKey, alwaysCallback, c
     const { boardView } = sheet;
     const { boardData } = boardView;
     const para = getBoardViewPara(sheet);
+
     if (!para) {
       alwaysCallback();
       return;
     }
+
     wrappedGetFilterRows(getFilledRequestParams({ ...para, pageIndex, kanbanKey }))
       .then(({ data }) => {
         dispatch({ type: 'CHANGE_BOARD_VIEW_LOADING', loading: false });

@@ -134,6 +134,7 @@ export default function GeneratingPopup(props) {
       onClose();
     }
   }
+
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
     return () => {

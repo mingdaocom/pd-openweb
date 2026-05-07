@@ -108,6 +108,7 @@ const MobileForm = props => {
             <div className="customFormItemSplitLine" key={`clearfix-${worksheetId}-${item.controlId}`}></div>,
           );
         }
+
         return;
       }
 
@@ -116,7 +117,10 @@ const MobileForm = props => {
       }
 
       const displayRowInfo = getWidgetDisplayRow({ item, data, widgetStyle });
-      const isShowRefreshBtn = showRefreshBtn({ ..._.pick(props, ['disabledFunctions', 'recordId', 'from']), item });
+      const isShowRefreshBtn = showRefreshBtn({
+        ..._.pick(props, ['disabledFunctions', 'recordId', 'from', 'isEditing']),
+        item,
+      });
 
       formList.push(
         <div

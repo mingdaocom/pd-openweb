@@ -740,6 +740,20 @@ export default {
     return mdyAPI('AppManagement', 'EditWorkSheetInfoForApp', args, options);
   },
   /**
+   * 批量修改应用项信息
+   * @param {Object} args 请求参数
+   * @param {string} args.appId 应用id
+   * @param {string} args.name 应用名称
+   * @param {string} args.icon 应用图标
+   * @param {array} args.sections 修改分组应用项信息
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  batchEditItemInfo: function (args, options = {}) {
+    return mdyAPI('AppManagement', 'BatchEditItemInfo', args, options);
+  },
+  /**
    * 变更应用拥有者
    * @param {Object} args 请求参数
    * @param {string} args.appId 应用id
@@ -1205,6 +1219,7 @@ export default {
    * 修改应用实体分享信息
    * @param {Object} args 请求参数
    * @param {string} args.sourceId 分享来源id （页面id，图标id等）
+   * @param {string} args.appId 应用id
    * @param {integer} args.sourceType 分享类型  21 =自定义页面，31 = 图表，70 = 对话机器人，71 = 对话机器人对话历史
    * @param {integer} args.status 状态  0 = 关闭，1 =启用
    * @param {string} args.password 密码
@@ -1500,6 +1515,8 @@ export default {
    * @param {string} args.endDateTime 结束时间
    * @param {boolean} args.confirmExport 是否确认导出(超量的情况下传)
    * @param {boolean} args.isSingle 是否是单个应用
+   * @param {integer} args.souceType 操作来源类型（0 = 全部，1 = 官方，2 = 三方应用）
+   * @param {array} args.sourceIds 操作来源ids
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -1525,6 +1542,8 @@ export default {
    * @param {string} args.endDateTime 结束时间
    * @param {boolean} args.confirmExport 是否确认导出(超量的情况下传)
    * @param {boolean} args.isSingle 是否是单个应用
+   * @param {integer} args.souceType 操作来源类型（0 = 全部，1 = 官方，2 = 三方应用）
+   * @param {array} args.sourceIds 操作来源ids
    * @param {string} args.archivedId 归档id
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层

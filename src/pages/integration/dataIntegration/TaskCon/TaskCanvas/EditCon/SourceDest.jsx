@@ -88,6 +88,7 @@ export default class SourceDest extends Component {
         },
       );
     }
+
     if (!_.isEqual(this.props.node, nextProps.node)) {
       this.setState({
         node: nextProps.node,
@@ -97,6 +98,7 @@ export default class SourceDest extends Component {
 
   initData = async (nextProps, isNext) => {
     const { currentProjectId: projectId, node = {} } = nextProps || this.props;
+
     if (schemaTypes.length <= 0) {
       const schemaTypesData = await DataSourceApi.getTypes({
         onlyCreated: false,
@@ -105,18 +107,23 @@ export default class SourceDest extends Component {
       });
       schemaTypes = schemaTypesData.filter(o => o.hasSchema).map(o => o.className);
     }
+
     const isKafka = _.get(node, 'nodeConfig.config.dsType') === 'KAFKA';
+
     if (isKafka) {
       return;
     }
+
     if (['SOURCE_TABLE', 'DEST_TABLE'].includes(node.nodeType)) {
       const { dbName, dsType, className, schema } = _.get(node, ['nodeConfig', 'config']) || {};
+
       if (!dsType) {
         this.setState({
           ...initData,
         });
         return;
       }
+
       this.getDatasourceList(node, projectId);
       if (isNext) {
         schemaTypes.includes(className) && schema && this.getSchemasList(projectId);
@@ -148,12 +155,14 @@ export default class SourceDest extends Component {
   getSheetListByAppId = () => {
     const { node, childSections = [], appInfo = {} } = this.state;
     let { appId, appSectionId } = _.get(node, ['nodeConfig', 'config']) || {};
+
     if (!appId) {
       this.setState({
         sheetList: [],
       });
       return;
     }
+
     this.setState({
       loading: true,
     });
@@ -232,6 +241,7 @@ export default class SourceDest extends Component {
         });
         return;
       }
+
       DataSourceApi.getDatabases({
         projectId,
         datasourceId,
@@ -254,6 +264,7 @@ export default class SourceDest extends Component {
       });
       return;
     }
+
     DataSourceApi.getSchemas({
       projectId,
       datasourceId,
@@ -270,6 +281,7 @@ export default class SourceDest extends Component {
   //获取数据源对应数据表列表
   getSheetList = () => {
     let { appId, dsType } = _.get(this.state.node, ['nodeConfig', 'config']) || {};
+
     if (dsType === DATABASE_TYPE.APPLICATION_WORKSHEET) {
       if (!appId) {
         this.setState({
@@ -277,6 +289,7 @@ export default class SourceDest extends Component {
         });
         return;
       }
+
       this.getSheetListByAppId(appId);
     }
   };
@@ -286,11 +299,13 @@ export default class SourceDest extends Component {
       ...(_.get(node, 'nodeConfig.config') || {}),
       ...options,
     };
+
     if ('SOURCE_TABLE' === node.nodeType) {
       config = { ...config, fields: [] };
     } else {
       config = { ...config, fieldsMapping: [] };
     }
+
     let nodeData = {
       ...node,
       nodeConfig: {
@@ -404,6 +419,7 @@ export default class SourceDest extends Component {
       if (!dbParam.renderValue) {
         return alert(_l('请选择相应的表或库'), 2);
       }
+
       this.onChangeConfig(
         {
           tableName: '',
@@ -437,6 +453,7 @@ export default class SourceDest extends Component {
         scheduleConfig: null,
         scheduleConfigId: '',
       };
+
       if (dsType === DATABASE_TYPE.APPLICATION_WORKSHEET) {
         if (!appSectionId) {
           const { sections = [] } = appInfo;
@@ -449,6 +466,7 @@ export default class SourceDest extends Component {
           };
         }
       }
+
       this.onChangeConfig(
         {
           tableName:
@@ -496,6 +514,7 @@ export default class SourceDest extends Component {
       value: !tbValue && !tableName ? undefined : tbValue || '',
       renderValue: tableName,
     };
+
     if ('DEST_TABLE' === node.nodeType) {
       tbParam.searchNull = () => {
         return (

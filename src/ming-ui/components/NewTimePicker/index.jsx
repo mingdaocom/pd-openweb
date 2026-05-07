@@ -66,6 +66,7 @@ class Time extends Component {
 
   getTimeLabel = time => {
     let data = [this.padZero(time.hour), this.padZero(time.minute)];
+
     if (this.props.type === 'second') {
       data = [this.padZero(time.hour), this.padZero(time.minute), this.padZero(time.second)];
     }
@@ -75,6 +76,7 @@ class Time extends Component {
 
   clickListener = e => {
     const node = ReactDOM.findDOMNode(this);
+
     if ((node === e.target || !node.contains(e.target)) && this.state.menuOpened) {
       this.hideMenu();
     }
@@ -122,15 +124,19 @@ class Time extends Component {
 
   render() {
     const classList = ['mui-time'];
+
     if (this.state.menuOpened && this.button) {
       const rect = this.button.getBoundingClientRect();
+
       if (window.innerHeight - rect.top < rect.height + 162) {
         classList.push('bottom-edge');
       }
+
       if (window.innerWidth - rect.left < 122 - rect.width) {
         classList.push('right-edge');
       }
     }
+
     const classNames = classList.join(' ');
 
     return (

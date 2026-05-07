@@ -131,6 +131,7 @@ export default class Sort extends Component {
         item.originalControlId = item.controlId;
         item.controlId = `${item.controlId}-right`;
       }
+
       return item;
     });
   };
@@ -140,6 +141,7 @@ export default class Sort extends Component {
     const { xaxes, yaxisList, rightY, split = {} } = currentReport;
 
     const yList = yaxisList.map(item => item.controlId);
+
     if (isPivotTable) {
       const { pivotTable = { lines: [], columns: [] } } = currentReport;
       const lines = pivotTable.lines.map(item =>
@@ -182,9 +184,11 @@ export default class Sort extends Component {
       if (currentCustomSort === xaxes.controlId) {
         this.handleChangeXSort(sortListKey, { controlId: xaxes.controlId });
       }
+
       if (currentCustomSort === split.controlId) {
         this.handleChangeYSort(sortListKey, { controlId: split.controlId });
       }
+
       if (rightY && currentCustomSort === rightY.split.controlId) {
         const ySameList = _.filter(yaxisList, item => _.find(rightY.yaxisList, { controlId: item.controlId })).map(
           item => item.controlId,
@@ -207,6 +211,7 @@ export default class Sort extends Component {
   };
   handleChangeCustomSortValue = () => {
     const { customSortControl, customSortValue } = this.state;
+
     if (customSortValue === 1) {
       this.getCustomSort({ [customSortControl.controlId]: 2 });
     } else if (customSortValue === 2) {
@@ -299,7 +304,7 @@ export default class Sort extends Component {
   };
   handleChangeYSort = (value, { controlId }) => {
     const { reportType, currentReport } = this.props;
-    const { yaxisList, split, pivotTable, sorts, xaxes, displaySetup } = currentReport;
+    const { yaxisList, split, sorts, xaxes, displaySetup } = currentReport;
     const isPivotTable = reportType === reportTypes.PivotTable;
     const isExclusion = _.isEmpty(split && split.controlId);
     const xaxesId = xaxes.particleSizeType ? `${xaxes.controlId}-${xaxes.particleSizeType}` : xaxes.controlId;
@@ -329,12 +334,8 @@ export default class Sort extends Component {
           }
         } else {
           if (isPivotTable) {
-            const lineItem = _.findLast(pivotTable.lines) || {};
-            const columnItem = _.findLast(pivotTable.columns) || {};
             const key = _.findKey(n);
-            return _.find(yaxisList, { controlId: key }) || [lineItem.controlId, columnItem.controlId].includes(key)
-              ? null
-              : n;
+            return _.find(yaxisList, { controlId: key }) ? null : n;
           } else {
             if (displaySetup.isPile) {
               return n;
@@ -350,11 +351,9 @@ export default class Sort extends Component {
     }
   };
   handleChangePivotTableSort = (value, { controlId }) => {
-    const { pivotTable, yaxisList, sorts } = this.props.currentReport;
+    const { sorts } = this.props.currentReport;
 
     if (sorts.length) {
-      const lineItem = _.findLast(pivotTable.lines) || {};
-      const columnItem = _.findLast(pivotTable.columns) || {};
       const currentEmpty = _.isEmpty(_.find(sorts, controlId));
 
       if (currentEmpty) {
@@ -372,10 +371,7 @@ export default class Sort extends Component {
             return null;
           }
         } else {
-          const key = _.findKey(n);
-          return [lineItem.controlId, columnItem.controlId].includes(controlId) && _.find(yaxisList, { controlId: key })
-            ? null
-            : n;
+          return n;
         }
       });
       this.handleChangeSorts(newSorts.filter(item => item));
@@ -392,9 +388,11 @@ export default class Sort extends Component {
     const sortData = isCustomSort(item) && index !== 3 ? [...getSortData(item), customSort] : getSortData(item);
     const sortsItem = _.find(sorts, item.controlId);
     const value = sortsItem ? sortsItem[item.controlId] : 0;
+
     if (_.isEmpty(sortData)) {
       return null;
     }
+
     this.isRenderSort = true;
     return (
       <div className="sortItem" key={`${item.controlId}-${index}`}>
@@ -536,9 +534,11 @@ export default class Sort extends Component {
   getIsSort = () => {
     const { reportType, currentReport } = this.props;
     const { yaxisList = [], xaxes = {} } = currentReport;
+
     if (reportTypes.NumberChart === reportType) {
       return yaxisList.length > 1 || xaxes.cid;
     }
+
     return [
       reportTypes.LineChart,
       reportTypes.BarChart,

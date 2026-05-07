@@ -160,6 +160,7 @@ function Explain(props) {
       className="explain textWhite"
       onClick={e => {
         const { target } = e;
+
         if (target.classList.contains('explain') || target.classList.contains('content')) {
           onClick();
         }
@@ -205,6 +206,7 @@ export default function CarouselPreview(props) {
         .then(data => {
           const { appId, code, imageData = [], rowData = [], controls = [] } = data;
           const imageControl = _.find(controls, { controlId: image }) || {};
+
           if (imageControl.type === 14) {
             setImageData(
               imageData.map(data => {
@@ -215,6 +217,7 @@ export default function CarouselPreview(props) {
               }),
             );
           }
+
           if (imageControl.type === 47) {
             setImageData(
               imageData
@@ -245,6 +248,7 @@ export default function CarouselPreview(props) {
                 .filter(n => n.image),
             );
           }
+
           setRowData(rowData.map(data => JSON.parse(data)));
           setControls(controls);
           setCode(code);
@@ -296,15 +300,19 @@ export default function CarouselPreview(props) {
         location.href = `/app/${appId}/${worksheetId}/${viewId}/row/${rowid}`;
         return;
       }
+
       if (openMode === 1) {
         if (isMobile) {
           handlePushState('page', 'recordDetail');
         }
+
         setPreviewRecord({ appId, rowId: rowid });
       }
+
       if (openMode === 2) {
         location.href = `/app/${appId}/${worksheetId}/${viewId}/row/${rowid}`;
       }
+
       if (openMode === 3) {
         window.open(`/app/${appId}/${worksheetId}/${viewId}/row/${rowid}`);
       }
@@ -314,9 +322,11 @@ export default function CarouselPreview(props) {
     if (action === 2) {
       const content = data[url];
       const targetUrl = getUrlList(content)[0];
+
       if (targetUrl && openMode === 1) {
         window.open(targetUrl);
       }
+
       if (targetUrl && openMode === 2) {
         location.href = targetUrl;
       }
@@ -327,9 +337,11 @@ export default function CarouselPreview(props) {
       if (imageControl.type === 14) {
         const hideFunctions = ['editFileName', 'saveToKnowlege', 'share'];
         const allowDownload = imageControl.advancedSetting.allowdownload || '1';
+
         if (allowDownload === '0') {
           hideFunctions.push('download');
         }
+
         previewAttachments({
           index: currentIndex,
           attachments: imageData,
@@ -338,6 +350,7 @@ export default function CarouselPreview(props) {
           hideFunctions,
         });
       }
+
       if (imageControl.type === 47) {
         const img = contentRef.current.querySelector('.slick-list .slick-active img');
         previewAttachments(
@@ -356,6 +369,7 @@ export default function CarouselPreview(props) {
         </div>
       );
     }
+
     if (code === 1) {
       return (
         <div className="flexColumn valignWrapper w100 h100" style={{ justifyContent: 'center' }}>
@@ -377,6 +391,7 @@ export default function CarouselPreview(props) {
 
   const renderFileImage = (record, data) => {
     const url = `${data.viewUrl}&|imageView2/0/q/100`;
+
     if (config.fill === 3) {
       return <img onClick={() => handleTriggerAction(record)} src={url} className="w100 h100" />;
     } else {

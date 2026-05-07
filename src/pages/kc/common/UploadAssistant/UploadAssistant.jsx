@@ -29,6 +29,7 @@ class UploadProgress extends React.Component {
   render() {
     let percentage = (parseInt(this.props.percentage * 100, 10) || 0) + '%';
     let colorClass, text, icon;
+
     switch (this.props.status) {
       case UPLOAD_STATUS.COMPLETE:
         percentage = '100%';
@@ -53,6 +54,7 @@ class UploadProgress extends React.Component {
         icon = <span className="uploadPercentageText">{percentage}</span>;
         break;
     }
+
     return (
       <div className="uploadPercentage" title={text}>
         <div className="progressContainer">
@@ -78,6 +80,7 @@ class UploadAction extends React.Component {
   render() {
     let show = true;
     let icon, action, title;
+
     switch (this.props.status) {
       case UPLOAD_STATUS.ERROR:
         icon = <Icon icon="turnLeft" />;
@@ -95,6 +98,7 @@ class UploadAction extends React.Component {
         show = false;
         break;
     }
+
     return (
       show && (
         <div className="fileListActionBtn Hand" title={title} icon={icon} onClick={action}>
@@ -151,18 +155,22 @@ class UploadAssistant extends React.Component {
           if (!comp._isMounted) {
             return;
           }
+
           $(ReactDom.findDOMNode(comp)).on('change', '#selectDirectoryTrigger', evt => {
             if (evt.target.files.length > MAX_FILE_COUNT) {
               alert(_l('支持每次选择%0个文件，超过的请您分批次选择', MAX_FILE_COUNT));
               evt.target.value = null;
               return;
             }
+
             comp.uploader.addFile(
               Array.prototype.map.call(evt.target.files, file => {
                 const mFile = new moxie.file.File(null, file);
+
                 if (file.webkitRelativePath) {
                   mFile.relativePath = '/' + file.webkitRelativePath.replace(/^\//, '');
                 }
+
                 return mFile;
               }),
             );
@@ -174,12 +182,15 @@ class UploadAssistant extends React.Component {
             return new Promise((resolve, reject) => {
               if (nativeFile && nativeFile.size % 4096 == 0 && nativeFile.size <= 102400) {
                 const reader = new FileReader();
+
                 reader.onload = function () {
                   resolve();
                 };
+
                 reader.onerror = function () {
                   reject();
                 };
+
                 reader.readAsText(nativeFile);
               } else {
                 resolve();
@@ -190,6 +201,7 @@ class UploadAssistant extends React.Component {
           let { fileList } = comp.state;
           _.forEach(files, file => {
             let errorText;
+
             switch (file.mdUploadErrorType) {
               case UPLOAD_ERROR.INVALID_FILES:
                 errorText = _l('文件格式不支持');
@@ -229,6 +241,7 @@ class UploadAssistant extends React.Component {
           if (errTip) {
             alert(errTip);
           }
+
           const fileList = comp.state.fileList.update(err.file.id, fileItem => {
             if (!fileItem) fileItem = {};
             fileItem.errorText = errTip;
@@ -267,6 +280,7 @@ class UploadAssistant extends React.Component {
                 } else {
                   fileItem.status = UPLOAD_STATUS.ERROR;
                 }
+
                 return fileItem;
               });
               comp._isMounted && comp.setState({ fileList });
@@ -304,12 +318,15 @@ class UploadAssistant extends React.Component {
       });
       return true;
     };
+
     if (!window.uploadLocation && window.location.search) {
       const strUploadLocation = qs.parse(window.location.search.substr(1)).uploadLocation;
+
       if (strUploadLocation) {
         window.uploadLocation = JSON.parse(decodeURIComponent(strUploadLocation));
       }
     }
+
     if (window.uploadLocation) {
       const uploadLocation = window.uploadLocation;
       window.setUploadLocation(uploadLocation);
@@ -337,6 +354,7 @@ class UploadAssistant extends React.Component {
     if (this.uploader) {
       this.uploader.destroy();
     }
+
     delete window.setUploadLocation;
     this._isMounted = false;
   }
@@ -346,6 +364,7 @@ class UploadAssistant extends React.Component {
     const domHeight = $('.uploadAssistant .fileListBody').height();
     const elementHeight = $('.uploadAssistant .fileListBody').children('ul').height();
     let rightM = 0;
+
     /* 存在滚动条*/
     if (domHeight < elementHeight) {
       rightM = window.isChrome ? 5 : 17;
@@ -386,6 +405,7 @@ class UploadAssistant extends React.Component {
       isFolderNode: 1,
     }).then(result => {
       let uploadPathPromise, rootId, parentId;
+
       switch (result.type) {
         case PICK_TYPE.NODE:
           uploadPathPromise = service.getReadablePosition(result.node.position);
@@ -402,6 +422,7 @@ class UploadAssistant extends React.Component {
           rootId = parentId = '';
           break;
       }
+
       Promise.all([uploadPathPromise]).then(([uploadPath]) => {
         this._isMounted && this.setState({ uploadPath, rootId, parentId });
       });
@@ -417,6 +438,7 @@ class UploadAssistant extends React.Component {
     if (evt) {
       evt.stopPropagation();
     }
+
     $('#selectFileTrigger').click();
     this.setState({ hoverChooseBtn: false });
   };
@@ -425,11 +447,13 @@ class UploadAssistant extends React.Component {
     if (evt) {
       evt.stopPropagation();
     }
+
     if (this.isSupportDirectory()) {
       $('#selectDirectoryTrigger').click();
     } else {
       alert(_l('仅支持 Chrome 内核浏览器'), 3);
     }
+
     this.setState({ hoverChooseBtn: false });
   };
 
@@ -493,6 +517,7 @@ class UploadAssistant extends React.Component {
                   </span>
                 );
               }
+
               return null;
             })}
             <span className="changeUploadPath ThemeColor3 Hand" onClick={this.changeUploadPath}>

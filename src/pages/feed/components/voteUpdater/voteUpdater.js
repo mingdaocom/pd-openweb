@@ -33,6 +33,7 @@ const VoteUpdater = {
         } else {
           it.curindex = 1;
         }
+
         if (it.curindex >= 10) {
           it.width = 69;
           it.txtWidth = 84;
@@ -40,6 +41,7 @@ const VoteUpdater = {
           it.width = 70;
           it.txtWidth = 85;
         }
+
         var itemTpl =
           '<li class="pAll5" index="{{=it.curindex}}">\
           <div class="Left mRight5">\
@@ -69,6 +71,7 @@ const VoteUpdater = {
         } else {
           $options.find('ul').append($newItem);
         }
+
         $options.scrollTop($options.scrollTop() + $options.height());
 
         _this.initUploadify(it.curindex, idPrefix);
@@ -321,15 +324,19 @@ const VoteUpdater = {
         $el.find('div[pluploadid]').show();
         $el.find('.voteOptions li:gt(1)').remove();
       }
+
       if ($el.find('.voteAvailableNumber').length > 0) {
         $el.find('.voteAvailableNumber').get(0).selectedIndex = 0;
       }
+
       if ($el.find('.voteAnonymous').length > 0) {
         $el.find('.voteAnonymous').removeAttr('checked');
       }
+
       if ($el.find('.voteVisble').length > 0) {
         $el.find('.voteVisble').attr('checked', 'checked');
       }
+
       if ($(el).find('.voteOptions li').length > 0) {
         var oplength = $(el).find('.voteOptions li').length;
         if (oplength > 0) {
@@ -340,6 +347,7 @@ const VoteUpdater = {
           }
         }
       }
+
       $el.find('.voteLastHour').val(new Date().getHours());
       _this.voteLastTime = moment(_this.getTomorrowEnd()).format('YYYY-MM-DD');
       $el.find('.voteUpdaterOperate').show();

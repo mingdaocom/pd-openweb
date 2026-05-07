@@ -389,6 +389,7 @@ export default {
    * @param {string} args.projectId 组织id
    * @param {} args.aliPayStatus
    * @param {} args.wechatPayStatus
+   * @param {} args.merchantPayConfigInfo
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}

@@ -13,6 +13,7 @@ import { canEditApp } from 'worksheet/redux/actions/util.js';
 import UnNormal from 'worksheet/views/components/UnNormal';
 import WorkflowChatBot from 'src/components/Mingo/modules/WorkflowChatBot';
 import ConversationList from 'src/components/Mingo/modules/WorkflowChatBot/ConversationList';
+import { navigateTo } from 'src/router/navigateTo';
 import { setAppThemeColor } from 'src/utils/common';
 import { browserIsMobile } from 'src/utils/common';
 import defaultProfile from './assets/profile.png';
@@ -92,13 +93,16 @@ const Chatbot = props => {
       processApi.getChatbotConfig({ chatbotId }),
     ]).then(data => {
       const [appItme, config] = data;
+
       if (browserIsMobile() && appItme[0].sectionId) {
         location.href = `/mobile/chatbot/${appId}/${appItme[0].sectionId}/${chatbotId}/${data.conversationId || ''}${location.search || ''}`;
         return;
       }
+
       if (appItme[0].iconColor) {
         setAppThemeColor(appItme[0].iconColor);
       }
+
       setChatbotAppItem(appItme[0]);
       setChatbotConfig(config);
       setLoading(false);
@@ -130,6 +134,25 @@ const Chatbot = props => {
       )}
       <div className="flexRow alignItemsCenter flex">
         {isEmbed && <img className="chatbotAvatar mRight5" src={chatbotConfig.iconUrl || defaultProfile} />}
+        {!isEmbed && appPkg.currentPcNaviStyle === 2 && (
+          <div className="iconWrap mRight5">
+            <Tooltip
+              arrowPointAtCenter={true}
+              title={_l('退出全屏')}
+              shortcut={window.isMacOs ? '⌘/' : 'Ctrl+/'}
+              placement="bottom"
+            >
+              <Icon
+                className="Font20 textTertiary pointer"
+                icon="backspace"
+                onClick={() => {
+                  window.disabledSideButton = true;
+                  navigateTo(`/app/${appId}/${data.groupId}`);
+                }}
+              />
+            </Tooltip>
+          </div>
+        )}
         <div className={cx('chatbotName bold Font17 mRight5', { mLeft5: !navVisible })}>{chatbotName}</div>
         {isCharge && (
           <MoreMenu

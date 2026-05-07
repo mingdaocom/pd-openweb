@@ -23,6 +23,7 @@ export default class CustomLocation extends Component {
 
   formatCurrent() {
     const { currentLocation } = this.props;
+
     if (currentLocation) {
       return {
         lng: currentLocation.position.lng,
@@ -31,11 +32,13 @@ export default class CustomLocation extends Component {
         name: (currentLocation.addressComponent || {}).building,
       };
     }
+
     return null;
   }
 
   formatDefault() {
     const { defaultAddress } = this.props;
+
     if (defaultAddress) {
       return {
         lng: defaultAddress.x,
@@ -44,6 +47,7 @@ export default class CustomLocation extends Component {
         name: defaultAddress.title,
       };
     }
+
     return null;
   }
 

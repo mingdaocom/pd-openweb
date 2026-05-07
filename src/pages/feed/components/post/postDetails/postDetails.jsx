@@ -25,6 +25,7 @@ class PostDetails extends React.Component {
       store.dispatch(addSuccess(this.props.postItem, false));
       this.listenToRemove(this.props.postItem.postID);
     }
+
     this.unsubscribeOnUpdate = store.subscribe(() => {
       if (this._mounted && this.props.postItem) {
         const { post } = store.getState();
@@ -46,10 +47,12 @@ class PostDetails extends React.Component {
 
   listenToRemove = postId => {
     const { onRemove } = this.props;
+
     if (this.onRemoveListener) {
       emitter.removeListener('POST_REMOVE_SUCCESS', this.onRemoveListener);
       delete this.onRemoveListener;
     }
+
     this.onRemoveListener = function (action) {
       if (action.postId === postId) {
         if (onRemove) {
@@ -61,6 +64,7 @@ class PostDetails extends React.Component {
         }
       }
     };
+
     emitter.addListener('POST_REMOVE_SUCCESS', this.onRemoveListener);
   };
 

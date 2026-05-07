@@ -141,6 +141,7 @@ export default class FilterItem extends Component {
                 if (!canSave) {
                   return;
                 }
+
                 onSave(filter);
                 this.setState({
                   operateVisible: false,
@@ -249,10 +250,12 @@ export default class FilterItem extends Component {
 
   renameFilter = value => {
     const { filter, onRename } = this.props;
+
     if (!value) {
       alert(_l('请输入名称'), 3);
       return;
     }
+
     this.setState({
       nameIsEditing: false,
     });
@@ -314,9 +317,11 @@ export default class FilterItem extends Component {
           className={cx('filterItem flexRow ThemeBGColor3', { expanded })}
           onClick={e => {
             const $targetTarget = $(e.target).closest('.moreOperateBtn, .worksheetFilterOperateList');
+
             if ($targetTarget.length) {
               return;
             }
+
             onFilter();
             hideFilter();
           }}
@@ -348,6 +353,7 @@ export default class FilterItem extends Component {
                   if (!expanded || !canEdit) {
                     return;
                   }
+
                   e.stopPropagation();
                   this.setState({ nameIsEditing: true }, () => {
                     if (this.title) {

@@ -21,7 +21,7 @@ const BaseInfoWrap = styled(Dialog)`
   .ming.Input:focus,
   .ming.Textarea:hover:not(:disabled),
   .ming.Textarea:focus {
-    border-color: var(--color-border-secondary);
+    border-color: var(--color-primary);
   }
 `;
 
@@ -49,6 +49,7 @@ const handleMask = (val, isMask) => {
     if (arr.length > 15 && (index < 4 || index > arr.length - 5)) {
       return it;
     }
+
     return '*';
   });
 
@@ -65,6 +66,7 @@ function EditBaseInfo(props) {
     if (ruleNameInput && ruleNameInput.current) {
       ruleNameInput.current.focus();
     }
+
     setRuleName(ruleDetail.name);
   }, [ruleDetail.name]);
 

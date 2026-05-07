@@ -50,7 +50,7 @@ const Wrapper = styled.div`
       margin-right: 20px;
       cursor: pointer;
       &:hover {
-        background: rgba(0, 0, 0, 0.05);
+        background: var(--color-background-hover);
       }
     }
   }
@@ -309,6 +309,7 @@ export default function Certification(props) {
               15: _l('证书超过有效期'),
             },
           };
+
           switch (data) {
             case 1:
               alert(_l('认证信息已提交'));

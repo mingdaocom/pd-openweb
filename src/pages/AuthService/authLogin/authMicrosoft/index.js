@@ -24,18 +24,22 @@ function generateCodeChallenge(verifier) {
   const hash = CryptoJS.SHA256(verifier);
   return hash.toString(CryptoJS.enc.Base64url);
 }
+
 //跳转到移动端app
 function toAppByScheme(appscheme, sessionId) {
   const schemeUrl = appscheme + '://ssocallback?sessionId=' + encodeURIComponent(sessionId); // 构建 scheme URL
   window.location.href = schemeUrl;
 }
+
 //登录成功的跳转
 function loginSuccess(url, appscheme) {
   const sessionId = getPssId();
+
   if (appscheme && sessionId) {
     toAppByScheme(appscheme, sessionId);
     return;
   }
+
   if (checkOriginUrl(url)) {
     location.replace(decodeURIComponent(url));
   } else {
@@ -46,6 +50,7 @@ function loginSuccess(url, appscheme) {
 if (code) {
   const originalState = state.split('_appscheme_')[0];
   const appschemeFromState = state.split('_appscheme_')[1];
+
   if (checkLogin()) {
     loginSuccess(url, appschemeFromState);
   } else {
@@ -62,11 +67,13 @@ if (code) {
       async: true,
       success: result => {
         const { accountResult, sessionId } = result.data;
+
         if (accountResult === 1) {
           if (appschemeFromState && sessionId) {
             toAppByScheme(appschemeFromState, sessionId);
             return;
           }
+
           getGlobalMeta().then(() => {
             setPssId(sessionId);
             if (checkOriginUrl(url)) {
@@ -83,6 +90,7 @@ if (code) {
 } else {
   const otherParamString = formatOtherParam(otherParam);
   const newUrl = addOtherParam(url, otherParamString);
+
   if (checkLogin()) {
     loginSuccess(newUrl, appscheme);
   } else {

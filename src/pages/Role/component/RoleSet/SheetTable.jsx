@@ -11,6 +11,7 @@ import ViewGroup from './ViewGroup';
 const Wrap = styled.div`
   flex: 52;
 `;
+
 export const changeSheetModel = (sheet, type, checked) => {
   const KEYS = {
     READ: 'canRead',
@@ -19,6 +20,7 @@ export const changeSheetModel = (sheet, type, checked) => {
     ADD: 'canAdd',
   };
   const viewAuth = KEYS[type];
+
   if ('canAdd' === KEYS[type]) {
     return {
       ...sheet,
@@ -31,6 +33,7 @@ export const changeSheetModel = (sheet, type, checked) => {
       }),
     };
   }
+
   return {
     ...sheet,
     canAdd: 'canRead' === KEYS[type] && !checked ? false : sheet.canAdd,

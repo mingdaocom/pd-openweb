@@ -1,6 +1,5 @@
 import React from 'react';
 import _ from 'lodash';
-import moment from 'moment';
 import { Checkbox, Dropdown, Icon } from 'ming-ui';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
@@ -87,7 +86,7 @@ class SideNav extends React.Component {
     });
   }
 
-  toggleApprovalCheckItem(index, childIndex = undefined) {
+  toggleApprovalCheckItem(index) {
     const { handChange, printData = [] } = this.props;
     const { approval = [] } = printData;
     let approvalParentId = '';
@@ -145,7 +144,6 @@ class SideNav extends React.Component {
   }
 
   renderApproval() {
-    const { openApprovalList } = this.state;
     const { printData } = this.props;
     const { approval = [] } = printData;
 
@@ -391,6 +389,8 @@ class SideNav extends React.Component {
 
     switch (key) {
       case 'setting':
+        const advanceSettingMap = _.keyBy(printData.advanceSettings || [], 'key');
+        const getAdvanceValue = key => advanceSettingMap[key]?.value;
         return (
           <BasicsSetting
             hide={hide}
@@ -398,10 +398,12 @@ class SideNav extends React.Component {
             printData={{
               printOption: printData.printOption,
               showData: printData.showData,
+              enableEmptyPlaceholder: Number(getAdvanceValue('enableEmptyPlaceholder')),
+              emptyPlaceholderMode: getAdvanceValue('emptyPlaceholderMode'),
               allowDownloadPermission: printData.allowDownloadPermission,
             }}
             printFont={printData.font || DEFAULT_FONT_SIZE}
-            nameWidth={(_.find(printData.advanceSettings, l => l.key === 'nameWidth') || {}).value}
+            nameWidth={getAdvanceValue('nameWidth')}
             changeAdvanceSettings={this.changeAdvanceSettings}
             handChange={handChange}
           />

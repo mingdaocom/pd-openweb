@@ -32,9 +32,11 @@ class DiscussList extends Component {
   }
   getSheetDiscussion(pageIndex, isPullRefreshing = false) {
     const { worksheetId, rowId, entityType } = this.props;
+
     if (!isPullRefreshing) {
       this.setState({ loading: true });
     }
+
     this.props.dispatch(
       actions.getSheetDiscussion(
         {
@@ -80,6 +82,7 @@ class DiscussList extends Component {
         if (index === 0) {
           this.props.dispatch(actions.removeSheetDiscussion(discussionId, rowId));
         }
+
         this.actionSheetHandler.close();
       },
     });
@@ -88,6 +91,7 @@ class DiscussList extends Component {
     const { target } = event;
     const { loading, isMore } = this.state;
     const isEnd = target.scrollHeight - target.scrollTop <= target.clientHeight;
+
     if (isEnd && !loading && isMore) {
       this.getSheetDiscussion(this.state.pageIndex + 1);
     }

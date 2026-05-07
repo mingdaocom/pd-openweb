@@ -356,6 +356,7 @@ class SelectAIModelDialog extends Component {
           } else {
             onOk();
           }
+
           onClose();
         }}
         onCancel={onClose}

@@ -95,6 +95,7 @@ const Wrap = styled.div`
     }
   }
 `;
+
 export default function SelectStartOrEndGroups(props) {
   let {
     view = {},
@@ -118,12 +119,14 @@ export default function SelectStartOrEndGroups(props) {
 
   const getData = () => {
     let calendarcids = [];
+
     try {
       calendarcids = safeParse(_.get(view, ['advancedSetting', 'calendarcids']), 'array');
     } catch (error) {
       console.log(error);
       calendarcids = [];
     }
+
     if (calendarcids.length <= 0 && begindateOrFirst) {
       calendarcids = begindate
         ? [{ begin: begindate, end: enddate }]
@@ -133,8 +136,10 @@ export default function SelectStartOrEndGroups(props) {
             },
           ];
     }
+
     return calendarcids;
   };
+
   useEffect(() => {
     let data = getData();
     setCalendarcids(data);
@@ -259,6 +264,7 @@ export default function SelectStartOrEndGroups(props) {
                 if (calendarcids.length <= 1) {
                   return;
                 }
+
                 handleChange({
                   calendarcids: JSON.stringify(calendarcids.filter((item, n) => n !== i)),
                 });

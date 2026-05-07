@@ -27,6 +27,7 @@ class AppLib extends Component {
         if (data.projectId === 'external') {
           alert(_l('安装失败'), 3);
         }
+
         const licenseType = _.get(_.find(projects, item => item.projectId === data.projectId) || {}, 'licenseType');
         return upgradeVersionDialog({ ...data, isFree: licenseType === 0 });
       },
@@ -63,6 +64,7 @@ class AppLib extends Component {
 
   reload = () => {
     const projectId = localStorage.getItem('currentProjectId');
+
     if (projectId !== this.state.projectId) {
       location.href = `/app/lib?projectId=${projectId}`;
     }

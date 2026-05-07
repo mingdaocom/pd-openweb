@@ -53,14 +53,17 @@ export default class Tel extends Component {
   onChange = () => {
     const countryData = this.iti.getSelectedCountryData();
     let value;
+
     if (!_.keys(countryData).length) {
       value = $(this.input).val().replace(/ /g, '');
     } else {
       value = this.iti.getNumber();
     }
+
     if (this.iti.isValidNumber()) {
       $(this.input).removeClass('err');
     }
+
     (this.props.data || {}).value !== value && this.props.onChange({ value, isErr: !this.iti.isValidNumber() });
   };
 

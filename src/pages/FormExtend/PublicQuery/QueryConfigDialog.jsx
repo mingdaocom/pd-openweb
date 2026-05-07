@@ -93,9 +93,11 @@ export default function QueryConfigDialog(props) {
           worksheetId: worksheet.worksheetId,
           ...{ ..._.pick(queryInfo, ['viewId', 'queryControlIds', 'title', 'exported']), ...tempQueryInfo },
         };
+
         if (!params.title) {
           params.title = _l('查询%0', queryInfo.worksheetName || _.get(queryInfo, 'worksheet.name'));
         }
+
         publicWorksheetAjax.editPublicQuery(params).then(() => {
           alert(_l('设置成功'));
           onSuccess({ ...queryInfo, ...params });

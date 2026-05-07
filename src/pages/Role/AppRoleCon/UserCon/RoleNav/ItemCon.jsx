@@ -21,6 +21,7 @@ export default class ItemCon extends React.Component {
     const { data, roleId } = this.props;
 
     let optList = [];
+
     //离开自己所在的角色
     if (data.isMyRole && !(isOwner && data.roleType === APP_ROLE_TYPE.ADMIN_ROLE) && !selectDebugRole.length) {
       //拥有者不能离开管理员角色
@@ -32,6 +33,7 @@ export default class ItemCon extends React.Component {
         },
       ];
     }
+
     //编辑自己有权限的自定义角色
     if (canEditApp) {
       if (!sysRoleType.includes(data.roleType)) {
@@ -58,6 +60,7 @@ export default class ItemCon extends React.Component {
         ];
       }
     }
+
     return (
       <li
         className={cx('flexRow alignItemsCenter navRoleLi', {
@@ -92,6 +95,7 @@ export default class ItemCon extends React.Component {
                 if (!data.isMyRole || sysRoleType.includes(data.roleType)) {
                   return null;
                 }
+
                 return (
                   <div className="textSecondary Font12" style={{ padding: '6px 16px' }}>
                     {_l('我所在的角色')}

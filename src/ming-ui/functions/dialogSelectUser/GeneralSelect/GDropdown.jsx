@@ -86,9 +86,11 @@ class Dropdown extends Component {
   constructor(props) {
     super(props);
     let value;
+
     if (props.defaultValue !== undefined) {
       value = props.defaultValue;
     }
+
     if (props.value !== undefined) {
       value = props.value;
     }
@@ -109,6 +111,7 @@ class Dropdown extends Component {
 
   getTextFromDataById(data, value) {
     let text = this.props.placeholder;
+
     const getTextFromList = list => {
       list.forEach(item => {
         if (item.value != undefined && item.value === value) {
@@ -119,6 +122,7 @@ class Dropdown extends Component {
         }
       });
     };
+
     getTextFromList(data);
     return text;
   }
@@ -137,6 +141,7 @@ class Dropdown extends Component {
         value,
       });
     }
+
     this.setState({
       showMenu: false,
     });

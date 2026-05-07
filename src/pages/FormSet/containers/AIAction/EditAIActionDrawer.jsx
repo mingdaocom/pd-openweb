@@ -177,7 +177,7 @@ export default function EditAIActionDrawer(props) {
     params,
   } = state;
   const tools = (nodeDetail?.tools || []).filter(
-    o => (_.includes([1, 2, 3, 4], o.type) && o.enabled) || !_.includes([1, 2, 3, 4], o.type),
+    o => (_.includes([1, 2, 3, 4, 9], o.type) && o.enabled) || !_.includes([1, 2, 3, 4, 9], o.type),
   );
 
   const promptRef = useRef(null);

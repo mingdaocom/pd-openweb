@@ -20,6 +20,7 @@ const DropComponentWrap = styled(DropComponent)`
 
 const renderItem = newVal => {
   let iconContent = null;
+
   if (newVal === '1') {
     iconContent = <div className="rangeIcon"></div>;
   } else if (newVal === '2') {

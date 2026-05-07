@@ -59,9 +59,11 @@ export default class ViewItems extends Component {
         directionVisible: false,
       });
     }
+
     if (nextProps.viewList.length !== this.props.viewList.length) {
       this.flag = null;
     }
+
     if (nextProps.viewList.length > this.props.viewList.length) {
       this.computeViewItemActiveLeft(500);
     }
@@ -96,6 +98,7 @@ export default class ViewItems extends Component {
     });
     if (!setWorksheetHidden) return;
     let rect = document.querySelector('.drawerWorksheetHidden', 1).getBoundingClientRect();
+
     if (rect.right > e.clientX && e.clientX > rect.left && rect.bottom > e.clientY && e.clientY > rect.top) {
       return;
     } else {
@@ -166,6 +169,7 @@ export default class ViewItems extends Component {
       sortCid: '',
       showControlName: true, // 新创建的表格默认 显示字段名称
     };
+
     if (id === 'customize') {
       // pluginSource 插件来源 0:开发 1:已发布
       const { pluginId, pluginName, pluginIcon, pluginIconColor, pluginSource, isNew } = data;
@@ -201,10 +205,12 @@ export default class ViewItems extends Component {
   handleRemoveView = view => {
     const { viewList, appId, worksheetId } = this.props;
     const showVies = getShowViews(viewList);
+
     if (showVies.filter(o => ![21].includes(o.viewType)).length === 1 && ![21].includes(view.viewType)) {
       alert(_l('必须保留一个默认视图'), 3);
       return;
     }
+
     confirm({
       title: <span className="Red">{_l('确定删除此视图吗？')}</span>,
       okText: _l('删除'),
@@ -267,6 +273,7 @@ export default class ViewItems extends Component {
   computeDirectionVisible() {
     if (!this.scrollWraperEl) return;
     const viewsScrollEl = this.scrollWraperEl.querySelector('.viewsScroll');
+
     if (viewsScrollEl) {
       const { offsetWidth, scrollWidth } = viewsScrollEl;
       this.flag = true;
@@ -278,9 +285,11 @@ export default class ViewItems extends Component {
   computeViewItemActiveLeft(delay = 300) {
     if (!this.scrollWraperEl) return;
     const viewsScrollEl = this.scrollWraperEl.querySelector('.viewsScroll');
+
     if (viewsScrollEl) {
       setTimeout(() => {
         const activeEl = viewsScrollEl.querySelector('.workSheetViewItem.active');
+
         if (activeEl) {
           if (activeEl.offsetLeft + activeEl.clientWidth > viewsScrollEl.clientWidth) {
             viewsScrollEl.scrollLeft = activeEl.offsetLeft;
@@ -302,18 +311,21 @@ export default class ViewItems extends Component {
     const viewsScrollEl = this.scrollWraperEl.querySelector('.viewsScroll');
     const { scrollWidth, scrollLeft, offsetWidth } = viewsScrollEl;
     const width = scrollLeft + offsetWidth;
+
     if (!scrollLeft && hideDirection !== 'left') {
       this.setState({
         hideDirection: 'left',
       });
       return;
     }
+
     if (width === scrollWidth && hideDirection !== 'right') {
       this.setState({
         hideDirection: 'right',
       });
       return;
     }
+
     if (scrollLeft && width < scrollWidth && hideDirection !== null) {
       this.setState({
         hideDirection: null,
@@ -383,9 +395,11 @@ export default class ViewItems extends Component {
 
   changeWorksheetHidden = () => {
     const { setWorksheetHidden, hasClickDrawe } = this.state;
+
     if (hasClickDrawe && !setWorksheetHidden) {
       return;
     }
+
     this.setState({
       setWorksheetHidden: true,
       hasClickDrawe: false,

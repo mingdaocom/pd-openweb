@@ -19,7 +19,7 @@ const Tab = styled.div`
   border-radius: 4px;
   font-size: 13px;
   color: ${props => (props.active ? 'var(--color-text-title)' : 'var(--color-text-secondary)')};
-  background: ${props => (props.active ? '#fff' : 'transparent')};
+  background: ${props => (props.active ? 'var(--color-background-card)' : 'transparent')};
   opacity: ${props => (props.disabled ? 0.5 : 1)};
   cursor: ${props => (props.disabled ? 'not-allowed' : 'pointer')};
 `;
@@ -110,6 +110,7 @@ export default function EditControlItem(props) {
             if (newType === 'clear') {
               setRef(undefined);
             }
+
             onChange({ type: newType });
           }}
         />

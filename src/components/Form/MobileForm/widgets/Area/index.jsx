@@ -42,7 +42,7 @@ const Area = props => {
       onClear={() => props.onChange('')}
     >
       <div
-        className={cx('customFormControlBox flexRow flexCenter', {
+        className={cx('customFormControlBox bgInput flexRow flexCenter', {
           controlEditReadonly: !formDisabled && value && disabled,
           controlDisabled: formDisabled,
         })}

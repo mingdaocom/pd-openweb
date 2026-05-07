@@ -17,6 +17,7 @@ const Relation = props => {
       alert('您不是该组织成员，请联系管理员！', 3);
       return;
     }
+
     setDialogVisible(true);
   };
 
@@ -24,6 +25,7 @@ const Relation = props => {
     formItemId,
     useCallback(data => {
       const { triggerType } = data;
+
       switch (triggerType) {
         case 'Enter':
           handleAdd();

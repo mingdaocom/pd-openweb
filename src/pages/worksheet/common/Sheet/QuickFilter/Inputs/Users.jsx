@@ -73,6 +73,7 @@ const Icon = styled.i`
 const Empty = styled.span`
   color: var(--color-text-disabled);
 `;
+
 export default function Users(props) {
   const { projectId, isMultiple, advancedSetting = {}, onChange = () => {}, appId, from } = props;
   const [values, setValues] = useState(props.values || []);
@@ -110,6 +111,7 @@ export default function Users(props) {
       alert(_l('您不是该组织成员，无法获取其成员列表，请联系组织管理员'), 3);
       return;
     }
+
     const selectIds = values.map(l => l.accountId);
 
     setActive(true);
@@ -198,6 +200,7 @@ export default function Users(props) {
               user.avatar = emptyAvatar;
               user.fullname = nullitemname || _l('为空');
             }
+
             return (
               <UserItem className="ellipsis">
                 <UserHead

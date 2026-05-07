@@ -333,6 +333,7 @@ export const Filter_KEYS = ['filterType'];
 export const getControlFormatType = (control = {}) => {
   return redefineComplexControl(control).type;
 };
+
 export const getDefaultDateRange = showtype => {
   return showtype === DATE_SHOW_TYPE.YEAR
     ? DATE_TYPE_Y
@@ -344,6 +345,7 @@ export const getDefaultDateRange = showtype => {
           ? DATE_TYPE_H
           : DATE_TYPE_ALL;
 };
+
 //默认颗粒度日 1
 export const getDefaultDateRangeType = (control = {}) => {
   return !!_.get(control, 'advancedSetting.showtype') && Number(_.get(control, 'advancedSetting.showtype'))
@@ -421,12 +423,15 @@ export const getSetDefault = (control = {}) => {
   };
   FAST_FILTERS_WHITELIST.forEach(o => {
     let defaultValue = o.default;
+
     if (o.keys.includes(type)) {
       const { advancedSetting = {} } = fastFilterSet;
+
       if (!ADVANCEDSETTING_KEYS.includes(o.key)) {
         if (DATE_GRANULARITY_TYPE.keys.includes(type) && o.key === 'dateRangeType') {
           defaultValue = getDefaultDateRangeType(control);
         }
+
         fastFilterSet = {
           ...fastFilterSet,
           [o.key]: control[o.key] || defaultValue,
@@ -450,12 +455,15 @@ export const getSetDefault = (control = {}) => {
   if (control.encryId) {
     fastFilterSet = { ...fastFilterSet, filterType: FILTER_CONDITION_TYPE.EQ };
   }
+
   if (_.get(control, 'advancedSetting.searchcontrol')) {
     fastFilterSet.advancedSetting.searchcontrol = _.get(control, 'advancedSetting.searchcontrol');
   }
+
   if (_.get(control, 'advancedSetting.searchtype')) {
     fastFilterSet.advancedSetting.searchtype = _.get(control, 'advancedSetting.searchtype');
   }
+
   return fastFilterSet;
 };
 
@@ -463,6 +471,7 @@ export const getSetDefault = (control = {}) => {
 export const formatFastFilterData = info => {
   return info.map(o => {
     let values = o.values;
+
     if ([26, 27, 48, 29, 35].includes(o.dataType)) {
       const key = [29, 35].includes(o.dataType)
         ? 'rowid'
@@ -475,20 +484,24 @@ export const formatFastFilterData = info => {
         if (o.indexOf(key) < 0 && o.indexOf('id') < 0) {
           return o;
         }
+
         return (safeParse(o) || {})[key] || (safeParse(o) || {}).id || o;
       });
     }
+
     return { ...o, values };
   });
 };
 
 export const getDaterange = advancedSetting => {
   let daterange = advancedSetting.daterange;
+
   try {
     daterange = safeParse(daterange, 'array');
   } catch (error) {
     console.log(error);
     daterange = [];
   }
+
   return daterange;
 };

@@ -8,8 +8,8 @@ export const Header = styled(FlexCenter)`
   padding: 0 24px;
   height: 54px;
   justify-content: space-between;
-  background-color: var(--color-background-card);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.24);
+  background-color: var(--color-background-primary);
+  box-shadow: var(--shadow-sm);
   border-radius: 5px 5px 0 0;
   font-size: 17px;
   z-index: 1;

@@ -68,10 +68,12 @@ export default function Validity(props) {
       alert(_l('密码长度4~8位'), 2);
       return;
     }
+
     if (/^[0-9]+$/.test(customPassword) || /^[A-Za-z]+$/.test(customPassword)) {
       alert(_l('密码必须包含数字或者字母'), 2);
       return;
     }
+
     onChange({ password: customPassword });
   };
 
@@ -117,12 +119,14 @@ export default function Validity(props) {
             clearIcon={<Icon icon="cancel" className="textDisabled Font17" />}
             onChange={(value = alwaysValue) => {
               const target = _.find(validityDateTypes, { value });
+
               if (target && target.getValidTime) {
                 const validTime = target.getValidTime();
                 onChange({ validTime });
               } else {
                 onChange({ validTime: '' });
               }
+
               setType(value);
             }}
           >
@@ -143,6 +147,7 @@ export default function Validity(props) {
           className="mRight10"
           onChange={event => {
             const password = generateRandomPassword(4);
+
             if (event.target.checked) {
               setCustomPassword(password);
               onChange({ password });

@@ -58,16 +58,20 @@ export default class RecordItem extends React.PureComponent {
 
   get cover() {
     const { coverCid, data } = this.props;
+
     if (!coverCid) {
       return null;
     }
+
     let coverControlData;
+
     try {
       coverControlData = getCoverControlData(JSON.parse(data[coverCid]) || []);
     } catch (err) {
       console.log(err);
       return null;
     }
+
     return coverControlData;
   }
 
@@ -82,6 +86,7 @@ export default class RecordItem extends React.PureComponent {
     const cardControls = new Array(showControls.length);
     allControls.forEach(control => {
       const indexOfShowControls = showControls.indexOf(control.controlId);
+
       if (
         indexOfShowControls > -1 &&
         !(
@@ -144,11 +149,13 @@ export default class RecordItem extends React.PureComponent {
             padding: '6px 40px 6px 12px',
           };
     let coverUrl;
+
     if (cover) {
       coverUrl = RegExpValidator.fileIsPicture(cover.ext)
         ? cover.previewUrl.replace(/imageView2\/1\/w\/\d+\/h\/\d+/, `|imageView2/1/w/${coverSize}/h/${coverSize}`)
         : cover.previewUrl;
     }
+
     return (
       <div
         className={cx(baseCle, 'flexRow', {
@@ -170,7 +177,7 @@ export default class RecordItem extends React.PureComponent {
             className={cx('title', { Bold: titleIsBold })}
             title={titleText}
             style={{
-              color: 'var(--color-text-title)',
+              color: 'var(--color-text-primary)',
               fontWeight: size === SIZE.BIG ? 'bold' : 'normal',
               lineHeight: showCoverAndControls && !!showControls.length ? '1.5' : '24px',
               marginBottom: showCoverAndControls && !!showControls.length ? 4 : 0,

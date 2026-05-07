@@ -103,15 +103,19 @@ export default class GroupingAxis extends Component {
   };
   getName = () => {
     const { reportType } = this.props;
+
     if (reportType === reportTypes.DualAxes) {
       return _l('分组(Y轴)');
     }
+
     if (reportType === reportTypes.BidirectionalBarChart) {
       return _l('分组(数值1)');
     }
+
     if ([reportTypes.ScatterChart, reportTypes.WorldMap].includes(reportType)) {
       return _l('颜色(维度)');
     }
+
     return _l('分组');
   };
   renderTimeOverlay() {

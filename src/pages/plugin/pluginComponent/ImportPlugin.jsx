@@ -12,6 +12,9 @@ import { formatFileSize } from 'src/utils/common';
 import { fileCheckErrorMsg } from '../config';
 import { API_EXTENDS, pluginApiConfig } from '../config';
 
+const IMPORT_PLUGIN_HELP_LINK =
+  'https://help.mingdao.com/extensions/developer/view/#10-%E6%8F%92%E4%BB%B6%E7%9A%84%E5%AF%BC%E5%87%BA%E5%AF%BC%E5%85%A5';
+
 const UploadWrapper = styled.div`
   .uploadBox {
     width: 100%;
@@ -188,6 +191,7 @@ function ImportPlugin(props) {
     setImporting(true);
     const url = md.global.FileStoreConfig.documentHost + '/' + file.key;
     const checkSuccess = !needCheck || !!(await onCheckFile(url, true));
+
     if (checkSuccess) {
       pluginApi
         .import({ projectId, url, pluginId }, API_EXTENDS)
@@ -317,7 +321,7 @@ function ImportPlugin(props) {
         <UploadWrapper>
           <div className="textSecondary mBottom24">
             {_l('将插件文件导入组织创建一个新的插件，启用后即可在全组织范围内使用。')}
-            <Support text={_l('帮助')} type={3} href="https://help.mingdao.com/" />
+            <Support text={_l('帮助')} type={3} href={IMPORT_PLUGIN_HELP_LINK} />
           </div>
           <div className="uploadBox">
             <img className="uploadImg" src={file.name ? importActiveImg : importDisabledImg} />

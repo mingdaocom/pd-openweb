@@ -35,7 +35,7 @@ export default class SystemSetting extends Component {
 
     return (
       <div className="orgManagementWrap">
-        <AdminTitle prefix={_l(`${(_.find(TABS, v => v.key === currentTab) || {}).label || '组织信息'}`)} />
+        <AdminTitle prefix={_l(`组织 - ${(_.find(TABS, v => v.key === currentTab) || {}).label || '组织信息'}`)} />
         {showHeader && (
           <div className="orgManagementHeader">
             <div className="tabBox">

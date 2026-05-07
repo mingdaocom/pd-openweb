@@ -4,12 +4,15 @@ import * as ACTIONS from '../actions/current';
 
 const initialState = () => {
   let typeCursor = 0;
+
   if (location.href.indexOf('admin/approve') > -1) {
     typeCursor = 3;
   }
+
   if (Config.params && Config.params[3] === 'uncursor') {
     typeCursor = 2;
   }
+
   return {
     projectId: Config.projectId,
     departmentId: '',
@@ -30,6 +33,7 @@ const initialState = () => {
 const updateUserSet = (state, action) => {
   const { selectedAccountIds } = state;
   const { type, accountIds } = action;
+
   switch (type) {
     case ACTIONS.ADD_TO_USERSET:
       return _.union(selectedAccountIds, accountIds);
@@ -55,6 +59,7 @@ export default (state = initialState(), action) => {
     userStatus,
     noDepartmentUsers,
   } = action;
+
   switch (type) {
     case 'PROJECT_ID_CHANGED':
       return initialState();

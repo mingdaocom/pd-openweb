@@ -318,6 +318,7 @@ export default function DashboardSetting(props) {
                         alert(_l('没有权限，无法上传'), 3);
                         return;
                       }
+
                       currentProject.licenseType === 0 &&
                         upgradeVersionDialog({
                           projectId: currentProject.projectId,

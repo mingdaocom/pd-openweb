@@ -109,6 +109,11 @@
   }
 }
 
-.fileConfirmDialog > .mui-dialog-scroll-container > .mui-dialog-dialog > .mui-dialog-header {
-  background: var(--color-background-secondary);
+.fileConfirmDialog {
+  & > .mui-dialog-scroll-container > .mui-dialog-dialog > .mui-dialog-header {
+    background: var(--color-background-secondary);
+  }
+  .mui-dialog-close-btn {
+    display: none;
+  }
 }

@@ -4,6 +4,8 @@ import { Dropdown, Menu } from 'antd';
 import cx from 'classnames';
 import { Icon } from 'ming-ui';
 import projectSettingAjax from 'src/api/projectSetting';
+import { getMyPermissions, hasPermission } from 'src/components/checkPermission';
+import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 import {
   fetchApproval,
   fetchInActive,
@@ -29,6 +31,7 @@ const shouldLoadDepartments = props => {
   if (isLoading) return false;
   return isExpired || (haveSubDepartment && !subDepartments.length);
 };
+
 class TabList extends React.Component {
   constructor(props) {
     super(props);
@@ -36,9 +39,16 @@ class TabList extends React.Component {
     this.state = {
       showPositionDialog: false,
       isNew: true,
+      hasDepartmentAuth: false,
     };
     fetchInActive(projectId);
     fetchApproval(projectId);
+  }
+
+  componentDidMount() {
+    const myPermissions = getMyPermissions(this.props.projectId);
+    const hasDepartmentAuth = hasPermission(myPermissions, PERMISSION_ENUM.DEPARTMENT);
+    this.setState({ hasDepartmentAuth });
   }
 
   handleClick = typeCursor => {
@@ -65,6 +75,7 @@ class TabList extends React.Component {
         if (shouldLoadDepartments(this.props)) {
           loadDepartments('', 1);
         }
+
         loadUsers('');
         break;
       case 2:
@@ -150,7 +161,7 @@ class TabList extends React.Component {
             </li>
           </ul>
         </div>
-        <CreateBtn />
+        <CreateBtn hasDepartmentAuth={this.state.hasDepartmentAuth} />
         <div
           className="w100 flex"
           style={{
@@ -159,7 +170,7 @@ class TabList extends React.Component {
             minHeight: 0,
           }}
         >
-          <TreeView />
+          <TreeView hasDepartmentAuth={this.state.hasDepartmentAuth} />
         </div>
       </React.Fragment>
     );

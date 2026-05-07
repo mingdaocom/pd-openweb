@@ -147,14 +147,17 @@ export const updateStartTimeAndEndTime = (id, index, time, type, isReset) => (di
         if (item.singleTime === config.SINGLE_TIME.END) {
           item.singleTime = '';
         }
+
         item.showStartTime = time;
       } else {
         // 只有开始时间
         if (item.singleTime === config.SINGLE_TIME.START) {
           item.singleTime = '';
         }
+
         item.showEndTime = time;
       }
+
       // 重置时间类型
       if (isReset) {
         item.singleTime = config.recordSingleTime;
@@ -163,6 +166,7 @@ export const updateStartTimeAndEndTime = (id, index, time, type, isReset) => (di
       } else {
         config.dragItem = item;
       }
+
       // 重新计算时长
       item.showHourLong = utils.getValidHours(item.showStartTime, item.showEndTime, stateConfig.filterWeekend);
     }

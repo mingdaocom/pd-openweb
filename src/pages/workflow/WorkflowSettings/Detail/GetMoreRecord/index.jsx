@@ -362,6 +362,7 @@ export default class GetMoreRecord extends Component {
               ACTION_ID.FROM_PBC_OUTPUT_ARRAY,
               ACTION_ID.FROM_JSON_PARSE_ARRAY,
               ACTION_ID.FROM_PLUGIN_ARRAY,
+              ACTION_ID.FROM_VECTOR_ARRAY,
             ],
             data.actionId,
           )) &&
@@ -382,6 +383,7 @@ export default class GetMoreRecord extends Component {
             ACTION_ID.FROM_PBC_OUTPUT_ARRAY,
             ACTION_ID.FROM_JSON_PARSE_ARRAY,
             ACTION_ID.FROM_PLUGIN_ARRAY,
+            ACTION_ID.FROM_VECTOR_ARRAY,
           ],
           data.actionId,
         ) && this.renderArray()}
@@ -439,6 +441,7 @@ export default class GetMoreRecord extends Component {
       { text: _l('业务流程输出数组'), value: ACTION_ID.FROM_PBC_OUTPUT_ARRAY },
       { text: _l('JSON解析数组'), value: ACTION_ID.FROM_JSON_PARSE_ARRAY },
       { text: _l('插件数组'), value: ACTION_ID.FROM_PLUGIN_ARRAY },
+      { text: _l('向量知识库数组'), value: ACTION_ID.FROM_VECTOR_ARRAY },
     ];
 
     if (flowInfo.startAppType !== APP_TYPE.PBC || flowInfo.child) {
@@ -569,7 +572,7 @@ export default class GetMoreRecord extends Component {
           value={data.appId}
           renderTitle={
             !data.appId
-              ? () => <span className="textSecondary">{_l('请选择')}</span>
+              ? () => <span className="textPlaceholder">{_l('请选择')}</span>
               : data.appId && !selectAppItem
                 ? () => (
                     <span className="errorColor">
@@ -645,7 +648,7 @@ export default class GetMoreRecord extends Component {
               value={fieldId}
               renderTitle={
                 !fieldId
-                  ? () => <span className="textSecondary">{_l('请选择')}</span>
+                  ? () => <span className="textPlaceholder">{_l('请选择')}</span>
                   : fieldId && !item
                     ? () => <span className="errorColor">{_l('字段不存在或已删除')}</span>
                     : () => (
@@ -720,6 +723,7 @@ export default class GetMoreRecord extends Component {
       [ACTION_ID.FROM_PBC_OUTPUT_ARRAY]: _l('选择业务流程节点'),
       [ACTION_ID.FROM_JSON_PARSE_ARRAY]: _l('选择JSON解析节点'),
       [ACTION_ID.FROM_PLUGIN_ARRAY]: _l('选择插件节点'),
+      [ACTION_ID.FROM_VECTOR_ARRAY]: _l('选择向量知识库节点'),
     };
 
     return (
@@ -749,7 +753,7 @@ export default class GetMoreRecord extends Component {
               value={fieldId}
               renderTitle={
                 !fieldId
-                  ? () => <span className="textSecondary">{_l('请选择')}</span>
+                  ? () => <span className="textPlaceholder">{_l('请选择')}</span>
                   : fieldId && !item
                     ? () => <span className="errorColor">{_l('字段不存在或已删除')}</span>
                     : () => <span>{item.controlName}</span>
@@ -874,7 +878,7 @@ export default class GetMoreRecord extends Component {
             onClick={checked => this.updateSource({ destroy: !checked })}
           />
         </div>
-        <div className="textSecondary mTop5 mLeft26">{_l('彻底删除后数据不可恢复，请谨慎操作')}</div>
+        <div className="Font13 textSecondary mTop5 mLeft26">{_l('彻底删除后数据不可恢复，请谨慎操作')}</div>
       </Fragment>
     );
   }
@@ -923,6 +927,7 @@ export default class GetMoreRecord extends Component {
                 ACTION_ID.FROM_PBC_OUTPUT_ARRAY,
                 ACTION_ID.FROM_JSON_PARSE_ARRAY,
                 ACTION_ID.FROM_PLUGIN_ARRAY,
+                ACTION_ID.FROM_VECTOR_ARRAY,
               ],
               data.actionId,
             ) &&

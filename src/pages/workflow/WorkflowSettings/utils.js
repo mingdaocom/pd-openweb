@@ -57,6 +57,7 @@ export const getIcons = (type, appType, actionId) => {
       } else {
         icon = 'icon-table';
       }
+
       break;
     case NODE_TYPE.BRANCH:
     case NODE_TYPE.BRANCH_ITEM:
@@ -99,6 +100,7 @@ export const getIcons = (type, appType, actionId) => {
       } else if (actionId === ACTION_ID.REFRESH_SINGLE_DATA) {
         icon = 'icon-architecture';
       }
+
       break;
     case NODE_TYPE.SEARCH:
       icon = 'icon-search';
@@ -112,6 +114,7 @@ export const getIcons = (type, appType, actionId) => {
       } else {
         icon = 'icon-workflow_function';
       }
+
       break;
     case NODE_TYPE.MESSAGE:
       icon = 'icon-forum';
@@ -128,6 +131,7 @@ export const getIcons = (type, appType, actionId) => {
       } else {
         icon = 'icon-transport';
       }
+
       break;
     case NODE_TYPE.CODE:
       icon = 'icon-url';
@@ -138,6 +142,7 @@ export const getIcons = (type, appType, actionId) => {
       } else {
         icon = 'icon-link2';
       }
+
       break;
     case NODE_TYPE.SUB_PROCESS:
       icon = 'icon-subprocess';
@@ -190,12 +195,16 @@ export const getIcons = (type, appType, actionId) => {
       } else {
         icon = 'icon-AI_image';
       }
+
       break;
     case NODE_TYPE.PLUGIN:
       icon = 'icon-workflow';
       break;
     case NODE_TYPE.AGENT:
       icon = 'icon-AI_Agent';
+      break;
+    case NODE_TYPE.VECTOR:
+      icon = 'icon-a-knowledge_search';
       break;
     case NODE_TYPE.SYSTEM:
       if (appType === APP_TYPE.PROCESS) {
@@ -207,6 +216,7 @@ export const getIcons = (type, appType, actionId) => {
       } else {
         icon = 'icon-application_custom';
       }
+
       break;
     case NODE_TYPE.TOOLS:
       if (appType === APP_TYPE.PBC) {
@@ -224,6 +234,7 @@ export const getIcons = (type, appType, actionId) => {
       } else {
         icon = 'icon-AI_Agent';
       }
+
       break;
     case NODE_TYPE.FIND_SINGLE_MESSAGE:
       if (appType === APP_TYPE.USER) {
@@ -235,6 +246,7 @@ export const getIcons = (type, appType, actionId) => {
       } else {
         icon = 'icon-user';
       }
+
       break;
     case NODE_TYPE.FIND_MORE_MESSAGE:
       if (appType === APP_TYPE.USER) {
@@ -246,6 +258,7 @@ export const getIcons = (type, appType, actionId) => {
       } else {
         icon = 'icon-multiple_user';
       }
+
       break;
     default:
       icon = 'icon-report';
@@ -407,6 +420,7 @@ export const getConditionList = (type, enumDefault) => {
       } else {
         list = { ids: ['9', '10', '3', '4', '43', '8', '7'], defaultConditionId: '9' };
       }
+
       break;
     case 27:
       if (enumDefault === 0) {
@@ -414,6 +428,7 @@ export const getConditionList = (type, enumDefault) => {
       } else {
         list = { ids: ['9', '10', '100', '101', '35', '36', '48', '49', '43', '8', '7'], defaultConditionId: '9' };
       }
+
       break;
     case 29:
       if (enumDefault === 1) {
@@ -421,6 +436,7 @@ export const getConditionList = (type, enumDefault) => {
       } else {
         list = { ids: ['9', '10', '33', '34', '43', '32', '31'], defaultConditionId: '33' };
       }
+
       break;
     case 36:
       list = { ids: ['29', '30'], defaultConditionId: '29' };
@@ -431,6 +447,7 @@ export const getConditionList = (type, enumDefault) => {
       } else {
         list = { ids: ['9', '10', '41', '39', '42', '40', '37', '38', '8', '7'], defaultConditionId: '9' };
       }
+
       break;
     case 41:
     case 10000007:
@@ -705,6 +722,7 @@ export const getToolName = (name = '') => {
     wf_api_: _l('集成API'),
     wf_email_: _l('发送邮件'),
     wf_send_: _l('发送站内通知%03028'),
+    wf_knowledge_search_: _l('知识库检索'),
   };
 
   // 遍历映射对象，查找匹配的键

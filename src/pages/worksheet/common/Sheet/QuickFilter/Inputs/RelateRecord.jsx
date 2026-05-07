@@ -5,7 +5,7 @@ import _, { find } from 'lodash';
 import { arrayOf, func, shape } from 'prop-types';
 import styled from 'styled-components';
 import RelateRecordDropdown from 'worksheet/components/RelateRecordDropdown/RelateRecordDropdownCopy';
-import { getTitleTextFromRelateControl } from 'src/utils/control';
+import { getTitleTextFromRelateControl, isRelateRecordTableControl } from 'src/utils/control';
 import RelateRecordOptions from './RelateRecordOptions';
 
 const Con = styled.div`
@@ -50,7 +50,7 @@ const Dropdown = styled(RelateRecordDropdown)`
     }
     .clearIcon,
     .dropIcon {
-      margin: 8px;
+      margin: ${({ selectedLength }) => (selectedLength > 0 ? 9 : 8)}px;
     }
     .activeSelectedItem {
       margin-top: 0px !important;
@@ -62,8 +62,9 @@ const SelectedTags = styled.div`
   max-width: 100%;
   .item {
     position: relative;
+    max-width: 100%;
     display: inline-block;
-    margin: 0 0 5px 6px;
+    margin: 0 0 3px 6px;
     line-height: 24px;
     padding: 0 24px 0 10px;
     background-color: rgba(0, 100, 240, 0.08);
@@ -100,6 +101,7 @@ export default function RelateRecord(props) {
   const { relationControls = [] } = control;
   const { navshow, allowitem, navfilters, direction, shownullitem, nullitemname } = advancedSetting || {};
   let staticRecords;
+
   if (navshow === '3') {
     control.advancedSetting.filters = navfilters;
   } else if (navshow === '2') {
@@ -107,7 +109,9 @@ export default function RelateRecord(props) {
       .map(safeParse)
       .map(r => ({ rowid: r.id, ...r }));
   }
+
   let fastSearchControlArgs;
+
   if (advancedSetting.searchcontrol) {
     control.advancedSetting.searchcontrol = advancedSetting.searchcontrol;
     fastSearchControlArgs = {
@@ -115,9 +119,12 @@ export default function RelateRecord(props) {
       filterType: advancedSetting.searchtype === '1' ? 2 : 1,
     };
   }
+
   if (advancedSetting.clicksearch && navshow !== '2') {
     control.advancedSetting.clicksearch = advancedSetting.clicksearch;
   }
+
+  const isRelateTable = isRelateRecordTableControl(props.control);
   const [conRef, { width }] = useMeasure();
   const [active, setActive] = useState();
   const isMultiple = String(allowitem) === '2';
@@ -131,11 +138,13 @@ export default function RelateRecord(props) {
         ]
       : [];
   let renderSelected;
+
   function handleChange(value) {
     onChange({
       ...value,
     });
   }
+
   if (!values.length) {
     renderSelected = () => (
       <span className="normalSelectedItem" style={{ fontSize: 13, color: 'var(--color-text-disabled)' }}>
@@ -145,6 +154,7 @@ export default function RelateRecord(props) {
   } else if (isMultiple || values.length > 1) {
     renderSelected = (selected = [], { handleDelete = () => {} } = {}) => {
       let text;
+
       if ((selected[0] || {}).rowid === 'isEmpty') {
         text = nullitemname || _l('为空');
       } else {
@@ -156,7 +166,7 @@ export default function RelateRecord(props) {
                 className="item"
                 key={i}
                 style={{
-                  ...(i === 0 ? { marginTop: 6 } : {}),
+                  ...(i === 0 ? { marginTop: 3 } : {}),
                   ...(selected.length > 1 ? { maxWidth: 'calc(100% - 30px)' } : {}),
                 }}
               >
@@ -173,6 +183,7 @@ export default function RelateRecord(props) {
           </SelectedTags>
         );
       }
+
       return (
         <span className="normalSelectedItem" style={{ fontSize: 13 }}>
           {text}
@@ -180,6 +191,7 @@ export default function RelateRecord(props) {
       );
     };
   }
+
   if (String(direction) === '1') {
     return (
       <RelateRecordOptions
@@ -204,6 +216,7 @@ export default function RelateRecord(props) {
       />
     );
   }
+
   // searchcontrol
   // searchtype 0 模糊[default] 1精确
   // clicksearch 1 搜索后限制 0[default]
@@ -211,8 +224,9 @@ export default function RelateRecord(props) {
     <Con ref={conRef} className={cx({ isMultiple: true, active })}>
       {!!width && (
         <Dropdown
+          selectedLength={values?.length}
           isDark={isDark}
-          popupClassName={values.length < 2 ? 'small' : ''}
+          popupClassName={cx('isQuickFilter', values.length < 2 ? 'small' : '')}
           getFilterRowsGetType={32}
           zIndex="xxx"
           disableNewRecord
@@ -227,7 +241,8 @@ export default function RelateRecord(props) {
           advancedSetting={{}}
           controls={relationControls}
           selected={values}
-          showCoverAndControls={true}
+          showCoverAndControls={!isRelateTable}
+          forceShowDialogSelect={isRelateTable}
           popupContainer={() => document.body}
           multiple={isMultiple}
           renderSelected={active ? undefined : renderSelected}

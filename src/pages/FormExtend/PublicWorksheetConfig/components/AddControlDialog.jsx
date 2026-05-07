@@ -16,10 +16,12 @@ export default class AddConntrol extends React.Component {
         onCancel={onClose}
         onOk={() => {
           const value = this.input.value;
+
           if (!value.trim()) {
             alert(_l('请输入字段名称'), 3);
             return;
           }
+
           onOk(this.input.value.trim());
           onClose();
         }}

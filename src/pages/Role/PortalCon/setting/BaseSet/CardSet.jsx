@@ -25,6 +25,7 @@ export default function (props) {
       </React.Fragment>
     );
   };
+
   return (
     <>
       <h6 className="Font16 textPrimary Bold mBottom0 mTop24">{_l('名片配置')}</h6>
@@ -43,6 +44,7 @@ export default function (props) {
             alert('最多支持显示6个字段');
             return;
           }
+
           onChangePortalSet({
             portalSetModel: {
               ...portalSetModel,
@@ -67,6 +69,7 @@ export default function (props) {
             alert('最多支持显示6个字段');
             return;
           }
+
           onChangePortalSet({
             portalSetModel: {
               ...portalSetModel,

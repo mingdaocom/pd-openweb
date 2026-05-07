@@ -16,6 +16,7 @@ export default class Announcement extends Component {
   }
   componentWillReceiveProps(nextProps) {
     const { session } = nextProps;
+
     if (session.about !== this.state.value) {
       this.setState({
         value: session.about,

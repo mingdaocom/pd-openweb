@@ -51,6 +51,7 @@ const getRoutes = param => {
     const Component = TYPE_TO_COMP[key];
     const featureType = getFeatureStatus(param.currentProjectId, VersionProductType.dataMirror);
     const noRender = !featureType && key === 'dataMirror';
+
     if (!noRender) {
       components.push(
         <Route

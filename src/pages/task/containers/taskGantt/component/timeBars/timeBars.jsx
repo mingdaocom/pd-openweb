@@ -69,10 +69,12 @@ const ganttSource = {
       const diffLeft = clientOffset.x - config.offset.x + currentScrollLeft - config.offsetX - config.scrollLeft;
       // 计算偏移小时
       const diffHours = Math.floor(diffLeft / utils.getOneHourWidth(props.viewType));
+
       // 偏移小时相同的时候不重现换算
       if (config.diffHours === diffHours) {
         return false;
       }
+
       // 记录新的偏移小时
       config.diffHours = diffHours;
 
@@ -82,6 +84,7 @@ const ganttSource = {
         if (config.oldStartTime) {
           $(preview).find('.dragPreviewStartTime').html(moment(config.originalStartTime).format('Do HH'));
         }
+
         // 填充结束时间
         if (config.oldEndTime) {
           $(preview).find('.dragPreviewEndTime').html(moment(config.originalEndTime).format('Do HH'));
@@ -103,6 +106,7 @@ const ganttSource = {
         if (config.newStartTime) {
           $(preview).find('.dragPreviewStartTime').html(moment(config.newStartTime).format('Do HH'));
         }
+
         // 填充结束时间
         if (config.newEndTime) {
           $(preview).find('.dragPreviewEndTime').html(moment(config.newEndTime).format('Do HH'));
@@ -231,6 +235,7 @@ export default class TimeBars extends Component {
           if (moment(start) >= moment(config.originalEndTime)) {
             start = moment(config.originalEndTime).add(-1, 'h').format('YYYY-MM-DD HH:mm');
           }
+
           // 新时间
           config.newStartTime = start;
           // 更新开始时间
@@ -238,11 +243,13 @@ export default class TimeBars extends Component {
           // 处理滚动条
           that.dragTriggerScroll(evt);
         }
+
         // 拖拽右侧
         if (direction === config.DRAG_DIRECTION.RIGHT) {
           if (moment(end) <= moment(config.originalStartTime)) {
             end = moment(config.originalStartTime).add(1, 'h').format('YYYY-MM-DD HH:mm');
           }
+
           // 新时间
           config.newEndTime = end;
           // 更新结束时间
@@ -395,6 +402,7 @@ export default class TimeBars extends Component {
     if (data.singleTime === config.SINGLE_TIME.END) {
       style.left = 0;
       let endTime = config.timeStamp;
+
       if (data.status === config.TASKSTATUS.COMPLETED) {
         endTime = moment(data.completeTime).add(1, 'h').format('YYYY-MM-DD HH:mm');
       }
@@ -584,6 +592,7 @@ export default class TimeBars extends Component {
     }
 
     const hours = Math.ceil((moment(data.completeTime || config.timeStamp) - moment(data.deadline)) / 60 / 60 / 1000);
+
     if (this.getOverdueHour() * utils.getOneHourWidth(this.props.viewType) >= config.TASK_MESSAGE_SIZE) {
       return (
         <span className="timeBarMessageP">

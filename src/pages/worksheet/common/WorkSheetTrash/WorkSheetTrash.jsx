@@ -83,6 +83,7 @@ const createActions = dispatch => ({
         },
       ];
     }
+
     dispatch({
       type: 'UPDATE_LOADING',
       loading: true,
@@ -202,11 +203,13 @@ export default function WorkSheetTrash(props) {
         type: 26,
       },
     ]);
+
   function loadRows(args) {
     actions.loadRows(
       Object.assign({}, { appId, worksheetId, pageIndex, pageSize, sortControls: [sortControl], filterControls }, args),
     );
   }
+
   useEffect(() => {
     loadRows({ appId, worksheetId, pageIndex, sortControls: [sortControl] });
   }, []);
@@ -238,6 +241,7 @@ export default function WorkSheetTrash(props) {
                     worksheetId,
                     rowIds: hasAuthRowIds,
                   };
+
                   if (isAll) {
                     delete args.rowIds;
                     args.isAll = true;
@@ -245,12 +249,14 @@ export default function WorkSheetTrash(props) {
                     args.filterControls = filterControls;
                     args.keyWords = searchText;
                   }
+
                   args.restoreRelation = !!needRestoreRelation.current;
                   worksheetAjax.restoreWorksheetRows(args).then(res => {
                     if (!res.isSuccess) {
                       alert(_l('恢复失败'), 3);
                       return;
                     }
+
                     setIsAll(false);
                     if (res.successCount === selected.length || isAll) {
                       alert(_l('恢复成功'));
@@ -263,6 +269,7 @@ export default function WorkSheetTrash(props) {
                       reloadWorksheet();
                       return;
                     }
+
                     setTimeout(
                       () => {
                         loadRows({ pageIndex: 1 });
@@ -271,6 +278,7 @@ export default function WorkSheetTrash(props) {
                     );
                   });
                 };
+
                 if (controls.find(c => c.type === 29)) {
                   Dialog.confirm({
                     title: _l('恢复记录'),
@@ -318,6 +326,7 @@ export default function WorkSheetTrash(props) {
                       appId,
                       rowIds: hasAuthRowIds,
                     };
+
                     if (isAll) {
                       delete args.rowIds;
                       args.isAll = true;
@@ -325,12 +334,14 @@ export default function WorkSheetTrash(props) {
                       args.filterControls = filterControls;
                       args.keyWords = searchText;
                     }
+
                     worksheetAjax.removeWorksheetRows(args).then(() => {
                       if (selectRows.length === selected.length || isAll) {
                         alert(_l('删除成功'));
                       } else {
                         alert(_l('删除成功，无编辑权限的记录无法删除'));
                       }
+
                       setIsAll(false);
                       setSelected([]);
                       reloadWorksheet();
@@ -340,6 +351,7 @@ export default function WorkSheetTrash(props) {
                         }, 1000);
                         return;
                       }
+
                       actions.deleteRecord(hasAuthRowIds);
                     });
                   }
@@ -443,6 +455,7 @@ export default function WorkSheetTrash(props) {
                     }}
                     onSelect={newSelected => {
                       let newSelectRows = [];
+
                       if (isAll) {
                         newSelected.forEach(() => {
                           newSelectRows = records.filter(r => _.find(newSelected, id => r.rowid !== id));
@@ -452,12 +465,14 @@ export default function WorkSheetTrash(props) {
                       } else {
                         newSelected.forEach(rowId => {
                           const row = _.find(records, trashRow => trashRow.rowid === rowId);
+
                           if (row && (row.allowedit || row.allowEdit)) {
                             newSelectRows.push(row);
                           }
                         });
                         setIsAll(false);
                       }
+
                       setSelected(newSelected);
                       setSelectRows(newSelectRows);
                     }}

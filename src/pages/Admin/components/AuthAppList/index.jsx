@@ -103,12 +103,12 @@ export default function AuthAppList(props) {
       dataIndex: 'owner',
       title: _l('拥有者'),
       render: item => {
-        const createAccount = item.createAccountInfo || {};
+        const createAccount = item.createAccountInfo || item.createAccount || {};
         return !_.isEmpty(createAccount) ? (
-          <div className="flexRow alignItemsCenter">
+          <div className="flexRow alignItemsCenter h100">
             <img className="userIcon" src={createAccount.avatar} />
-            <span className="overflow_ellipsis" title={createAccount.fullName}>
-              {createAccount.fullName}
+            <span className="overflow_ellipsis" title={createAccount.fullName || createAccount.fullname}>
+              {createAccount.fullName || createAccount.fullname}
             </span>
           </div>
         ) : null;

@@ -30,6 +30,7 @@ export default class GetMoreRecord extends Component {
       [ACTION_ID.FROM_JSON_PARSE_ARRAY]: _l('从JSON解析数组获取数据'),
       [ACTION_ID.BATCH_UPDATE]: _l('批量更新记录'),
       [ACTION_ID.BATCH_DELETE]: _l('批量删除记录'),
+      [ACTION_ID.FROM_VECTOR_ARRAY]: _l('从向量知识库数组获取数据'),
     };
 
     if (!item.appId && !item.selectNodeId) {
@@ -55,6 +56,7 @@ export default class GetMoreRecord extends Component {
           ACTION_ID.FROM_PBC_OUTPUT_ARRAY,
           ACTION_ID.FROM_PLUGIN_ARRAY,
           ACTION_ID.FROM_JSON_PARSE_ARRAY,
+          ACTION_ID.FROM_VECTOR_ARRAY,
         ],
         item.actionId,
       )

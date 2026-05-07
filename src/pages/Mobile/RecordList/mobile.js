@@ -32,6 +32,7 @@ class RecordList extends Component {
   }
   componentDidMount() {
     const { getFilters } = getRequest();
+
     if (getFilters === 'true') {
       mdAppResponse({ sessionId: 'Filter test session', type: 'getFilters' }).then(data => {
         const { value = [] } = data;
@@ -61,10 +62,12 @@ class RecordList extends Component {
   componentWillReceiveProps(nextProps) {
     const { params: newParams } = nextProps.match;
     const { params } = this.props.match;
+
     if (newParams.viewId !== params.viewId) {
       this.props.updateBase({ viewId: newParams.viewId });
       this.props.resetSheetView();
     }
+
     if (newParams.worksheetId !== params.worksheetId) {
       this.props.emptySheetRows();
       this.props.emptySheetControls();
@@ -86,6 +89,7 @@ class RecordList extends Component {
   };
   handleChangeView = view => {
     const { now } = this.props;
+
     if (now) {
       this.props.updateBase({ viewId: view.viewId });
       this.props.resetSheetView();
@@ -111,11 +115,14 @@ class RecordList extends Component {
       console.log(error);
       calendarcids = [];
     }
+
     if (calendarcids.length <= 0) {
       calendarcids = [{ begin: begindate, end: enddate }]; //兼容老数据
     }
+
     const canDelete = isOpenPermit(permitList.delete, sheetSwitchPermit, view.viewId);
     const showCusTomBtn = isOpenPermit(permitList.execute, sheetSwitchPermit, view.viewId);
+
     if (_.isEmpty(views)) {
       return (
         <div className="flexColumn h100 justifyContentCenter alignItemsCenter Font16 textTertiary">
@@ -124,6 +131,7 @@ class RecordList extends Component {
         </div>
       );
     }
+
     return (
       <Fragment>
         <div
@@ -167,6 +175,7 @@ class RecordList extends Component {
         </div>
       );
     }
+
     if (workSheetLoading) {
       return (
         <div className="flexRow justifyContentCenter alignItemsCenter h100">

@@ -31,6 +31,7 @@ const Wrap = styled.div`
     }
   }
 `;
+
 //新增源|目的地
 function EditDest(props) {
   const { onUpdate, dest = {} } = props;
@@ -89,6 +90,7 @@ function EditDest(props) {
             let param = {
               dataDestId: id,
             };
+
             if (className === 'kafka') {
               param.dbName = _.get(formData, 'extraParams.topic');
               param.tableName = _.get(formData, 'extraParams.topic');

@@ -73,18 +73,22 @@ let request = null;
 
 const getStateParam = tab => {
   let param = {};
+
   if (tab === 'waitingApproval') {
     param = { type: 4 };
   }
+
   if (tab === 'waitingWrite') {
     param = { type: 3 };
   }
+
   if (tab === 'unread') {
     param = {
       type: 5,
       complete: false,
     };
   }
+
   if (tab === 'mySponsor') {
     param = { type: 0 };
   }
@@ -147,9 +151,11 @@ export default function Process(props) {
     if (currentTab === 'waitingApproval') {
       countDataState.waitingApproval = countData.waitingApproval - 1;
     }
+
     if (currentTab === 'waitingWrite') {
       countDataState.waitingWrite = countData.waitingWrite - 1;
     }
+
     if (currentTab === 'mySponsor') {
       countDataState.waitingExamine = countData.waitingExamine - 1;
     }
@@ -173,6 +179,7 @@ export default function Process(props) {
                 window.mobileNavigateTo(`/mobile/processInform/${currentTab}`);
                 return;
               }
+
               window.mobileNavigateTo(`/mobile/processMatters/${currentTab}`);
             }}
           >
@@ -230,6 +237,7 @@ export default function Process(props) {
             if (data.id) {
               handleApproveDone(data);
             }
+
             setData({ previewRecord: {} });
           }}
         />
@@ -261,6 +269,7 @@ export default function Process(props) {
                   window.mobileNavigateTo(`/mobile/processInform/${item.tab}`);
                   return;
                 }
+
                 window.mobileNavigateTo(`/mobile/processMatters/${item.tab}`);
               }}
             >

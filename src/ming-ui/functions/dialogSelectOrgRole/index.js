@@ -68,14 +68,17 @@ class DialogSelectOrgRole extends Component {
     let isShowRole =
       !md.global.Account.isPortal &&
       (md.global.Account.projects || []).some(it => it.projectId === this.props.projectId);
+
     if (!isShowRole) {
       this.setState({ loading: false });
       return;
     }
+
     this.setState({ isMore: false });
     if (this.promise && this.promise.abort) {
       this.promise.abort();
     }
+
     this.promise = organizeAjax.getOrganizes({
       keywords,
       projectId,
@@ -95,6 +98,7 @@ class DialogSelectOrgRole extends Component {
           });
           return;
         }
+
         if (appointedOrganizeIds.length) {
           result.list.forEach(l => {
             let index = _.findIndex(treeList, o => o.orgRoleGroupId === l.orgRoleGroupId);

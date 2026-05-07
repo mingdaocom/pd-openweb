@@ -7,7 +7,11 @@ import { Checkbox, Dropdown, Icon, Menu, MenuItem, Radio, SortableList } from 'm
 import { Tooltip } from 'ming-ui/antd-components';
 import { quickSelectUser } from 'ming-ui/functions';
 import sheetAjax from 'src/api/worksheet';
+import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
+import { VersionProductType } from 'src/utils/enum';
+import { getFeatureStatus } from 'src/utils/project';
 import { NODE_TYPE, OPERATION_TYPE, RELATION_TYPE, USER_TYPE } from '../../../enum';
+import { EXPIRE_LIST } from '../../../enum';
 import CustomTextarea from '../CustomTextarea';
 import EmailApproval from '../EmailApproval';
 import Member from '../Member';
@@ -89,7 +93,22 @@ export default props => {
     { text: _l('发起人无需审批自动通过'), key: 'startEventPass' },
     { text: _l('已审批过的审批人自动通过'), key: 'userTaskPass' },
   ];
+  const SOURCE_HANDLE_LIST = [
+    {
+      title: _l('回到发起节点时'),
+      desc: _l('当流程退回至此节点时触发更新'),
+      key: OPERATION_TYPE.BEFORE,
+    },
+    {
+      title: _l('流程中止时更新'),
+      desc: _l('流程中止后，更新数据对象的字段值'),
+      key: OPERATION_TYPE.SUSPEND,
+    },
+  ];
   const initiator = data.processConfig.initiatorMaps ? parseInt(Object.keys(data.processConfig.initiatorMaps)[0]) : 0;
+  const autoClear = !!data.processConfig.expireType;
+  const featureType = getFeatureStatus(companyId, VersionProductType.encapsulatingBusinessProcess);
+
   const selectCharge = (event, callback) => {
     quickSelectUser(event.target, {
       offset: {
@@ -118,6 +137,7 @@ export default props => {
       },
     });
   };
+
   const list = data.processConfig.revokeFlowNodes
     .filter(item => item.typeId === NODE_TYPE.APPROVAL)
     .map(item => {
@@ -127,6 +147,7 @@ export default props => {
         disabled: _.includes(data.processConfig.requiredIds, item.id),
       };
     });
+
   // 渲染撤回节点
   const renderRevokeNode = () => {
     const { revokeFlowNodes, revokeNodeIds } = data.processConfig;
@@ -236,6 +257,7 @@ export default props => {
       </Fragment>
     );
   };
+
   const getPrintList = () => {
     sheetAjax.getPrintList({ worksheetId }).then(data => {
       setPrintList(
@@ -251,6 +273,7 @@ export default props => {
       );
     });
   };
+
   const renderPrintItem = ({ items, item, DragHandle, dragging }) => {
     const selectItem = _.find(printList, o => o.id === item);
 
@@ -287,6 +310,7 @@ export default props => {
       </SortableItemBox>
     );
   };
+
   const renderOpinionNode = () => {
     const { revokeFlowNodes, viewNodeIds } = data.processConfig;
     const opinionNodes = revokeFlowNodes.map(item => {
@@ -450,7 +474,7 @@ export default props => {
       />
 
       {initiator === 2 && !data.processConfig.agents.length && (
-        <div className="textSecondary mTop5">{_l('当前流程还没有流程拥有者，请在 流程发起节点 中配置')}</div>
+        <div className="Font13 textSecondary mTop5">{_l('当前流程还没有流程拥有者，请在 流程发起节点 中配置')}</div>
       )}
 
       {initiator === 5 && (
@@ -773,6 +797,60 @@ export default props => {
               )
             }
           />
+
+          <div className="flexRow mTop15 alignItemsCenter">
+            <Checkbox
+              text={_l('审批流程中允许查看他人填写字段')}
+              checked={data.processConfig.allowUpdateView}
+              onClick={checked =>
+                updateSource({
+                  processConfig: Object.assign({}, data.processConfig, { allowUpdateView: !checked }),
+                })
+              }
+            />
+            <Tooltip title={_l('审批和填写节点中查看他人填写内容')}>
+              <Icon icon="info" className="textTertiary Font16 mLeft5" />
+            </Tooltip>
+          </div>
+
+          {featureType && (
+            <div className="flexRow mTop15 alignItemsCenter">
+              <Checkbox
+                text={_l('自动清理执行历史')}
+                checked={autoClear}
+                onClick={() => {
+                  if (featureType === '2') {
+                    buriedUpgradeVersionDialog(companyId, VersionProductType.workflowLog);
+                    return;
+                  }
+
+                  updateSource({
+                    processConfig: Object.assign({}, data.processConfig, { expireType: autoClear ? 0 : 1 }),
+                  });
+                }}
+              />
+              <Tooltip title={_l('勾选后，超过保留周期的执行历史将自动删除且不可找回，请谨慎使用。')}>
+                <Icon icon="info" className="textTertiary Font16 mLeft5" />
+              </Tooltip>
+            </div>
+          )}
+          {autoClear && (
+            <div className="mTop10 flexRow alignItemsCenter mLeft26">
+              <div>{_l('执行后')}</div>
+              <Dropdown
+                className="mLeft10 mRight10"
+                style={{ width: 100 }}
+                menuStyle={{ width: '100%' }}
+                data={EXPIRE_LIST}
+                value={data.processConfig.expireType}
+                border
+                onChange={expireType =>
+                  updateSource({ processConfig: Object.assign({}, data.processConfig, { expireType }) })
+                }
+              />
+              <div>{_l('自动删除')}</div>
+            </div>
+          )}
         </Fragment>
       )}
 
@@ -799,30 +877,38 @@ export default props => {
         <Fragment>
           {data.flowNodeMap ? (
             <Fragment>
-              <div className="Font13 bold mTop20">{_l('回到发起节点时')}</div>
-              <div className="Font13 textSecondary mTop10">{_l('当流程退回至此节点时触发更新')}</div>
-              <UpdateFields
-                type={1}
-                companyId={companyId}
-                processId={processId}
-                relationId={props.relationId}
-                selectNodeId={props.selectNodeId}
-                nodeId={data.flowNodeMap[OPERATION_TYPE.BEFORE].selectNodeId}
-                controls={data.flowNodeMap[OPERATION_TYPE.BEFORE].controls.filter(o => o.type !== 29)}
-                fields={data.flowNodeMap[OPERATION_TYPE.BEFORE].fields}
-                showCurrent
-                formulaMap={data.flowNodeMap[OPERATION_TYPE.BEFORE].formulaMap}
-                updateSource={(obj, callback = () => {}) =>
-                  updateSource(
-                    {
-                      flowNodeMap: Object.assign({}, data.flowNodeMap, {
-                        [OPERATION_TYPE.BEFORE]: Object.assign({}, data.flowNodeMap[OPERATION_TYPE.BEFORE], obj),
-                      }),
-                    },
-                    callback,
-                  )
-                }
-              />
+              {SOURCE_HANDLE_LIST.map((item, index) => {
+                const sourceData = data.flowNodeMap[item.key] || {};
+
+                return (
+                  <Fragment key={index}>
+                    <div className={cx('Font13 bold', index === 0 ? 'mTop20' : 'mTop25')}>{item.title}</div>
+                    <div className="Font13 textSecondary mTop10">{item.desc}</div>
+                    <UpdateFields
+                      type={1}
+                      companyId={companyId}
+                      processId={processId}
+                      relationId={props.relationId}
+                      selectNodeId={props.selectNodeId}
+                      nodeId={sourceData.selectNodeId}
+                      controls={sourceData.controls.filter(o => o.type !== 29)}
+                      fields={sourceData.fields}
+                      showCurrent
+                      formulaMap={sourceData.formulaMap}
+                      updateSource={(obj, callback = () => {}) =>
+                        updateSource(
+                          {
+                            flowNodeMap: Object.assign({}, data.flowNodeMap, {
+                              [item.key]: Object.assign({}, data.flowNodeMap[item.key], obj),
+                            }),
+                          },
+                          callback,
+                        )
+                      }
+                    />
+                  </Fragment>
+                );
+              })}
 
               <ProcessDetails {...props} />
             </Fragment>

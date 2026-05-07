@@ -25,6 +25,9 @@ const CheckWidgetWrap = styled.div`
       ${props => (props.formDisabled ? 'color: inherit !important;' : '')}
     }
   }
+  .ming.Checkbox.Checkbox--disabled .Checkbox-box {
+    background-color: var(--color-background-disabled);
+  }
 
   .Radio {
     display: flex;

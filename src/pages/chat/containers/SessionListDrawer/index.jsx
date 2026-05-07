@@ -4,13 +4,15 @@ import { bindActionCreators } from 'redux';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { BgIconButton } from 'ming-ui';
+import { BgIconButton, LoadDiv } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import SearchMember from 'src/pages/chat/components/SearchMember';
 import * as actions from 'src/pages/chat/redux/actions';
 import * as socket from 'src/pages/chat/utils/socket';
 import Avatar from '../ChatList/Avatar';
 import RenderAddressBook from '../ChatList/Toolbar/RenderAddressBook';
 import SessionList from '../SessionList';
+import errorIcon from '../SessionList/resource/errorIcon.png';
 import CreateGroup from './CreateGroup';
 
 const Wrap = styled.div`
@@ -20,16 +22,19 @@ const Wrap = styled.div`
     padding: 3px;
     border-radius: 50%;
   }
+  .errorIcon {
+    transform: scale(0.5);
+  }
 `;
 
 const SessionListDrawer = props => {
-  const { toolbarConfig, setToolbarConfig, embed = false } = props;
+  const { toolbarConfig, setToolbarConfig, embed = false, socketState } = props;
   const { sessionListFixing } = toolbarConfig;
   const [searchValue, setSearchValue] = useState(null);
   const hideChat = md.global.SysSettings.forbidSuites.includes('6');
 
   return (
-    <Wrap className={cx('flexColumn h100 w100 bgCard pLeft10 pRight10', embed ? 'pTop4' : 'pTop10')}>
+    <Wrap className={cx('flexColumn h100 w100 bgPrimary pLeft10 pRight10', embed ? 'pTop4' : 'pTop10')}>
       <div className="header flexRow alignItemsCenter justifyContentBetween">
         {embed ? (
           <BgIconButton
@@ -88,6 +93,20 @@ const SessionListDrawer = props => {
           )}
         </div>
       </div>
+      {socketState === 1 && (
+        <div className="flexRow alignItemsCenter mTop10">
+          <LoadDiv className="mp0 mLeft5" size="small" />
+          <div className="mLeft5 bold">{_l('正在连接...')}</div>
+        </div>
+      )}
+      {socketState === 2 && (
+        <div className="flexRow alignItemsCenter mTop10 textError">
+          <Tooltip title={_l('连接失败，点击刷新重试')} placement="bottom">
+            <img src={errorIcon} className="errorIcon pointer" onClick={() => location.reload()} />
+          </Tooltip>
+          <div className="mLeft5 bold">{_l('连接已断开')}</div>
+        </div>
+      )}
       <div className="content flexColumn mTop10 flex Font14 Relative minHeight0">
         {embed && (
           <Fragment>
@@ -121,6 +140,7 @@ const SessionListDrawer = props => {
 export default connect(
   state => ({
     toolbarConfig: state.chat.toolbarConfig,
+    socketState: state.chat.socketState,
   }),
   dispatch => bindActionCreators(_.pick(actions, ['setToolbarConfig', 'setShowAddressBook']), dispatch),
 )(SessionListDrawer);

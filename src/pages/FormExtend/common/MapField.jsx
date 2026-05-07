@@ -64,7 +64,11 @@ const fieldsConfig = {
     { controlId: 'invoiceId', controlName: _l('发票单号'), type: [2] },
     { controlId: 'invoiceStatus', controlName: _l('开票状态'), type: [2, 11] },
     { controlId: 'invoiceTime', controlName: _l('开票时间'), type: [16] },
-    { controlId: 'invoiceUrl', controlName: _l('电子发票'), type: [2] },
+    { controlId: 'isFastRed', controlName: _l('发票状态'), type: [2] },
+    { controlId: 'isBlue', controlName: _l('红蓝标志'), type: [2] },
+    { controlId: 'invoiceUrl', controlName: _l('发票PDF地址'), type: [2] },
+    { controlId: 'ofdUrl', controlName: _l('发票OFD地址'), type: [2] },
+    { controlId: 'xmlUrl', controlName: _l('发票XML地址'), type: [2] },
   ],
 };
 

@@ -24,6 +24,7 @@ export default class EmailInput extends Component {
               alert(_l('请输入正确的邮箱'), 3);
               return;
             }
+
             $(this.input).removeClass('err');
             this.props.onChange({ value: e.target.value.trim(), isErr: false });
           }}

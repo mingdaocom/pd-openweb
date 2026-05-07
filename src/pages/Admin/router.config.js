@@ -24,7 +24,7 @@ export const menuList = [
             component: () => import('./organization/billCenter/waitingPay'),
           },
           {
-            path: '/admin/expansionservice/(.*)/(user|storage|workflow|storage|dataSync|app)+',
+            path: '/admin/expansionservice/(.*)/(user|storage|workflow|storage|dataSync|app|chunks)+',
             component: () => import('./organization/billCenter/expansionService'),
           },
           {
@@ -96,11 +96,11 @@ export const menuList = [
       },
       {
         name: _l('外部用户'),
-        key: 'portal',
-        menuPath: '/admin/portal/:projectId',
+        key: 'external',
+        menuPath: '/admin/external/:projectId',
         routes: [
           {
-            path: '/admin/portal/:projectId',
+            path: '/admin/external/:projectId',
             exact: true,
             component: () => import('./user/portal'),
           },
@@ -339,37 +339,98 @@ export const menuList = [
     ],
   },
   {
+    title: _l('集成'),
+    key: 'integration',
+    icon: 'icon-device_hub',
+    subMenuList: [
+      {
+        name: _l('企业身份'),
+        key: 'platformintegration',
+        menuPath: '/admin/platformintegration/:projectId(.*)',
+        routes: [
+          {
+            path: '/admin/platformintegration/:projectId/:type?',
+            component: () => import('./integration/platformIntegration'),
+          },
+        ],
+      },
+      {
+        name: _l('系统服务'),
+        key: 'systemservice',
+        menuPath: '/admin/systemservice/:projectId(.*)',
+        routes: [
+          {
+            path: '/admin/systemservice/:projectId',
+            component: () => import('./integration/systemServices'),
+          },
+          {
+            path: '/admin/weixin/:projectId',
+            component: () => import('./integration/systemServices'),
+          },
+          {
+            path: '/admin/cloudprint/:projectId',
+            component: () => import('./integration/systemServices'),
+          },
+        ],
+      },
+      {
+        name: _l('第三方应用'),
+        key: 'thirdapp',
+        routes: [
+          {
+            path: '/admin/thirdapp/:projectId/:type?',
+            component: () => import('./integration/thirdpartyApp'),
+          },
+          {
+            path: '/admin/thirdapp/:projectId/:type?',
+            component: () => import('./integration/thirdpartyApp'),
+          },
+        ],
+      },
+      {
+        name: _l('其他'),
+        key: 'integrationothers',
+        routes: [
+          {
+            path: '/admin/integrationothers/:projectId',
+            component: () => import('./integration/others'),
+          },
+        ],
+      },
+    ],
+  },
+  {
     title: _l('安全'),
     key: 'security',
     icon: 'icon-security',
     subMenuList: [
       {
-        name: _l('账号'),
-        key: 'account',
+        name: _l('通讯录'),
+        key: 'addressBook',
         routes: [
           {
-            path: '/admin/account/:projectId',
+            path: '/admin/addressBook/:projectId',
             component: () => import('./security/account'),
           },
         ],
       },
       {
-        name: _l('数据'),
-        key: 'data',
+        name: _l('数据与访问'),
+        key: 'dataAccess',
         routes: [
           {
-            path: '/admin/data/:projectId/:type?',
+            path: '/admin/dataAccess/:projectId',
             exact: true,
             component: () => import('./security/data'),
           },
         ],
       },
       {
-        name: _l('其他'),
-        key: 'securityOthers',
+        name: _l('功能'),
+        key: 'function',
         routes: [
           {
-            path: '/admin/securityothers/:projectId',
+            path: '/admin/function/:projectId',
             exact: true,
             component: () => import('./security/securityOthers'),
           },
@@ -416,55 +477,6 @@ export const menuList = [
             path: '/admin/orglog/:projectId',
             exact: true,
             component: () => import('./logs/orgLog'),
-          },
-        ],
-      },
-    ],
-  },
-  {
-    title: _l('集成'),
-    key: 'integration',
-    icon: 'icon-device_hub',
-    subMenuList: [
-      {
-        name: _l('企业身份'),
-        key: 'platformintegration',
-        menuPath: '/admin/platformintegration/:projectId(.*)',
-        routes: [
-          {
-            path: '/admin/platformintegration/:projectId/:type?',
-            component: () => import('./integration/platformIntegration'),
-          },
-        ],
-      },
-      {
-        name: _l('微信服务号'),
-        key: 'weixin',
-        menuPath: '/admin/weixin/:projectId(.*)',
-        routes: [
-          {
-            path: '/admin/weixin/:projectId',
-            component: () => import('./integration/weixin'),
-          },
-        ],
-      },
-      {
-        name: _l('第三方应用'),
-        key: 'thirdapp',
-        routes: [
-          {
-            path: '/admin/thirdapp/:projectId',
-            component: () => import('./integration/thirdpartyApp'),
-          },
-        ],
-      },
-      {
-        name: _l('其他'),
-        key: 'integrationothers',
-        routes: [
-          {
-            path: '/admin/integrationothers/:projectId',
-            component: () => import('./integration/others'),
           },
         ],
       },

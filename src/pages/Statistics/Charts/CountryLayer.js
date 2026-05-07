@@ -56,17 +56,21 @@ const setColorLavel = data => {
   let max = Math.ceil(res.length / colorsLength);
   let currentIndex = max;
   let lavel = 1;
+
   for (let i = 0; i < res.length; i++) {
     let current = res[i];
     let last = res[i - 1];
+
     if (i === currentIndex) {
       currentIndex = currentIndex + max;
       if (current.value !== (last && last.value)) {
         lavel = lavel + 1;
       }
     }
+
     current.colorLavel = lavel;
   }
+
   return res.map(item => {
     return {
       ...item,
@@ -119,6 +123,7 @@ export class CountryLayer extends Component {
   componentWillReceiveProps(nextProps) {
     const { style = {}, displaySetup = {} } = nextProps.reportData;
     const { style: oldStyle = {}, displaySetup: oldDisplaySetup = {} } = this.props.reportData;
+
     if (
       (!_.isEmpty(displaySetup) && displaySetup.showChartType !== oldDisplaySetup.showChartType) ||
       displaySetup.magnitudeUpdateFlag !== oldDisplaySetup.magnitudeUpdateFlag ||
@@ -132,11 +137,13 @@ export class CountryLayer extends Component {
     ) {
       this.resetChart(nextProps);
     }
+
     if (nextProps.isLinkageData !== this.props.isLinkageData) {
       this.isLinkageData =
         nextProps.isLinkageData &&
         !(_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length === 0);
     }
+
     if (!nextProps.loading && this.props.loading) {
       const { map, yaxisList, summary } = nextProps.reportData;
       const data = setColorLavel(map);
@@ -152,7 +159,9 @@ export class CountryLayer extends Component {
       if (this.isViewOriginalData || this.isLinkageData) {
         this.CountryLayerChart.on('fillAreaLayer:click', this.handleClick);
       }
+
       const { dotLayerConfig, viewLevel, source } = config;
+
       if (dotLayerConfig) {
         const { locationMap } = props.reportData;
         const dotLayer = new this.DotLayer(dotLayerConfig);
@@ -170,7 +179,7 @@ export class CountryLayer extends Component {
   handleClick = data => {
     const { feature, x, y } = data;
     const { path } = this.state;
-    const { isThumbnail, reportData } = this.props;
+    const { isThumbnail, reportData, isMobile } = this.props;
     const { xaxes, country, appId, reportId, name, reportType, style } = reportData;
     const { code, originalCode, value, level } = feature.properties;
     const codeValue = originalCode || code;
@@ -185,6 +194,7 @@ export class CountryLayer extends Component {
       reportType,
       filters: [],
     };
+
     if (path.length) {
       // 省
       if (country.particleSizeType === 1) {
@@ -194,6 +204,7 @@ export class CountryLayer extends Component {
           param[`${xaxes.controlId}-${path.length}`] = codeValue;
         }
       }
+
       // 市
       if (country.particleSizeType === 2) {
         if (municipalityRegExp.test(codeValue)) {
@@ -214,13 +225,14 @@ export class CountryLayer extends Component {
         type: xaxes.controlType,
       });
     }
+
     if (_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length) {
       linkageMatch.onlyChartIds = style.autoLinkageChartObjectIds;
     }
 
     this.setState({
       offset: {
-        x,
+        x: x + (isMobile ? -100 : 0),
         y,
       },
       match: param,
@@ -238,11 +250,13 @@ export class CountryLayer extends Component {
       isPersonal: false,
       match,
     };
+
     if (isThumbnail) {
       this.props.onOpenChartDialog(data);
     } else {
       this.props.requestOriginalData(data);
     }
+
     this.setState({ dropdownVisible: false });
   };
   handleAutoLinkage = () => {
@@ -293,6 +307,7 @@ export class CountryLayer extends Component {
         this.setState({ drillDownLoading: false, dropdownVisible: false, drillDownCode: code });
         const { locationMap = {} } = result;
         const data = setColorLavel(result.map);
+
         const renderDotLayerChart = level => {
           if (this.DotLayerChart) {
             const dotLayerConfig = this.getDotLayerConfig({ data, locationMap });
@@ -323,22 +338,27 @@ export class CountryLayer extends Component {
         } else {
           const { map } = reportData;
           const newPath = [];
+
           if (country.particleSizeType === 1) {
             const last = _.find(map, { code: code });
             newPath.push(_l('全国'), last.name);
           }
+
           if (country.particleSizeType === 2) {
             const last = _.find(map, { code: code });
             newPath.push(...last.name.split('/'));
           }
+
           if (country.particleSizeType === 1) {
             this.CountryLayerChart.drillDown({ level: 'province', adcode: code }, { source: { data } });
             renderDotLayerChart('province');
           }
+
           if (country.particleSizeType === 2) {
             this.CountryLayerChart.drillDown({ level: 'city', adcode: code }, { source: { data } });
             renderDotLayerChart('city');
           }
+
           this.setState({ path: newPath });
         }
       });
@@ -381,6 +401,7 @@ export class CountryLayer extends Component {
             },
           });
         }
+
         // 全国
         if (country.particleSizeType === 1) {
           this.CountryLayerChart.drillUp(undefined, 'country');
@@ -389,6 +410,7 @@ export class CountryLayer extends Component {
           this.CountryLayerChart.drillUp(undefined, 'province');
           renderDotLayerChart('province');
         }
+
         this.setState({ path: [], drillDownCode: null });
         this.depthColorLavels = null;
       }
@@ -403,6 +425,7 @@ export class CountryLayer extends Component {
         });
         this.CountryLayerChart.drillUp(undefined, 'country');
       }
+
       if (country.particleSizeType === 2) {
         this.props.changeCurrentReport({
           country: {
@@ -413,6 +436,7 @@ export class CountryLayer extends Component {
         });
         this.CountryLayerChart.drillUp(undefined, 'province');
       }
+
       this.setState({ path: [], drillDownCode: null });
     }
 

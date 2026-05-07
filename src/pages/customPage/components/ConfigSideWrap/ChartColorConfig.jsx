@@ -57,9 +57,11 @@ export default props => {
     const { colorType, colorGroupId, customColors, personColor } = chartColor || {};
     const chartColors = getPorjectChartColors(appPkg.projectId);
     const defaultConfig = { name: _l('未配置'), showColors: [] };
+
     if (!config.chartColor) {
       return defaultConfig;
     }
+
     if (colorType === 2) {
       return {
         name: _l('自定义颜色'),
@@ -72,6 +74,7 @@ export default props => {
       };
     } else if (colorGroupId === 'adaptThemeColor') {
       const adaptThemeColors = chartColors.filter(item => (item.themeColors || []).includes(iconColor));
+
       if (adaptThemeColors.length) {
         return {
           name: _l('适应主题'),
@@ -113,6 +116,7 @@ export default props => {
       },
     ];
     const colors = pageStyleType === 'light' ? lightColors : darkColors;
+
     const handleChangeColor = pivoTableColor => {
       const { pivoTableColorIndex = 1 } = config;
       handleChangeConfig({
@@ -120,6 +124,7 @@ export default props => {
         pivoTableColorIndex: pivoTableColorIndex + 1,
       });
     };
+
     return (
       <div className="flexRow alignItemsCenter">
         <div className="textSecondary Font13 bold mRight10 label">{_l('透视表颜色')}</div>
@@ -225,6 +230,7 @@ export default props => {
   const renderTitleStylesConfig = () => {
     const { titleStyles = defaultTitleStyles } = config;
     const { color } = replaceTitleColor(titleStyles, iconColor);
+
     const handleChange = data => {
       handleChangeConfig({
         titleStyles: {
@@ -235,6 +241,7 @@ export default props => {
         },
       });
     };
+
     return (
       <div className="flexRow alignItemsCenter mBottom15">
         <div className="textSecondary Font13 bold mRight10 label">{_l('标题样式')}</div>
@@ -283,7 +290,6 @@ export default props => {
           />
           <div
             className="colorWrap"
-            style={{ backgroundColor: 'var(--color-background-primary)' }}
             onClick={() => {
               handleChange({
                 fontBold: !titleStyles.fontBold,
@@ -294,7 +300,6 @@ export default props => {
           </div>
           <div
             className="colorWrap"
-            style={{ backgroundColor: 'var(--color-background-primary)' }}
             onClick={() => {
               handleChange({
                 fontItalic: !titleStyles.fontItalic,
@@ -335,20 +340,24 @@ export default props => {
   };
 
   const { name, showColors } = getColorConfig();
+
   const getBgColor = titleStyle => {
     const value = _.isNumber(titleStyle) ? titleStyle : config.titleStyle || 0;
+
     if (value === 0 || value === 3) {
       return {
         color: 'var(--color-text-primary)',
         border: '1px solid var(--color-text-disabled)',
       };
     }
+
     if (value === 1) {
       return {
         color: '#fff',
         backgroundColor: iconColor,
       };
     }
+
     if (value === 2) {
       return {
         color: '#fff',

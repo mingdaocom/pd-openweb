@@ -85,6 +85,7 @@ export default function Attachment(props) {
                 className={cx('displayItem', { active: showtype === item.value })}
                 onClick={() => {
                   let resProps = {};
+
                   if (item.value === '2') {
                     resProps.covertype = '1';
                   } else if (item.value === '4') {
@@ -93,6 +94,7 @@ export default function Attachment(props) {
                   } else {
                     resProps.covertype = '0';
                   }
+
                   onChange(handleAdvancedSettingChange(data, { showtype: item.value, ...resProps }));
                 }}
               >

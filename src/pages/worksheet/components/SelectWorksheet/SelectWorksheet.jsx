@@ -27,6 +27,7 @@ const SearchWrap = styled.div`
     font-size: 24px;
   }
 `;
+
 function WorksheetList(props) {
   const {
     searchable = true,
@@ -64,6 +65,7 @@ function WorksheetList(props) {
                   if (filterIds.includes(worksheet.workSheetId)) {
                     return;
                   }
+
                   hide();
                   handleSelect(worksheet);
                 }}
@@ -133,6 +135,7 @@ export default class SelectWroksheet extends React.Component {
       this.loadWorksheets(nextProps.appId, nextProps.value, nextProps.worksheetType);
       return;
     }
+
     if (nextProps.value !== this.props.value) {
       this.loadSelectedWorksheet(nextProps.value, nextProps.worksheetType);
     }
@@ -167,11 +170,15 @@ export default class SelectWroksheet extends React.Component {
       this.setState({ selectedWorksheet: null });
       return;
     }
+
     const { worksheets, selectedWorksheet } = this.state;
+
     if (selectedWorksheet && selectedWorksheet.id === worksheetId) {
       return;
     }
+
     const newSelectedWorksheet = _.find(worksheets, worksheet => worksheet.workSheetId === worksheetId);
+
     if (newSelectedWorksheet) {
       this.setState({
         selectedWorksheet: {
@@ -202,6 +209,7 @@ export default class SelectWroksheet extends React.Component {
     if (worksheet.workSheetId === currentWorksheetId) {
       return;
     }
+
     this.setState({
       selectedWorksheet: {
         name: worksheet.workSheetName,
@@ -216,6 +224,7 @@ export default class SelectWroksheet extends React.Component {
     if (worksheet.workSheetId === currentWorksheetId) {
       return;
     }
+
     this.setState({
       selectedWorksheet: {
         name: worksheet.workSheetName,

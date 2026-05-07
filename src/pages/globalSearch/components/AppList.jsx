@@ -6,6 +6,7 @@ import styled from 'styled-components';
 import { Icon, SvgIcon } from 'ming-ui';
 import smartSearchAjax from 'src/api/smartSearch';
 import { transferExternalLinkUrl } from 'src/pages/AppHomepage/AppCenter/utils';
+import store from 'src/redux/configureStore';
 import { renderText } from 'src/utils/control';
 import { VersionProductType } from 'src/utils/enum';
 import { addBehaviorLog, getCurrentProject, getFeatureStatus } from 'src/utils/project';
@@ -141,8 +142,8 @@ const Box = styled.div`
 `;
 
 const MoreOperateMenu = styled.ul`
-  background: var(--color-background-primary);
-  box-shadow: 0px 4px 16px 1px rgba(0, 0, 0, 0.24);
+  background: var(--color-background-card);
+  box-shadow: var(--shadow-sm);
   border-radius: 3px 3px 3px 3px;
   width: 160px;
   font-size: 13px;
@@ -304,6 +305,7 @@ export default function AppList(props) {
 
   const clickShowHandle = () => {
     const { viewAll } = props;
+
     if (viewAll) {
       closeDialog && closeDialog();
       return;
@@ -322,11 +324,17 @@ export default function AppList(props) {
       const control = titleControls.find(l => l.controlId === item.titleControlId);
       return control ? renderText({ ...control, value: item.title || '' }) || item.title : item.title || '';
     }
+
     return item.itemType === 3 ? item.appName || '' : item.name || '';
   };
 
   const skipHandle = item => {
     let url = '';
+
+    if (_.get(store.getState().chat, 'currentSession.id')) {
+      return;
+    }
+
     if (dataKey === 'app') {
       //埋点
       const typeObj = { 0: 'worksheet', 1: 'customPage', 2: 'app', 3: 'app' };
@@ -344,6 +352,7 @@ export default function AppList(props) {
     } else {
       url = encodeURI(`/app/${item.appId}/${item.itemId}/row/${item.rowId}`);
     }
+
     window.open(url);
   };
 
@@ -373,6 +382,7 @@ export default function AppList(props) {
       dataKey === 'record' && getFeatureStatus(currentProjectId, VersionProductType.globalSearch) !== '1';
 
     const { allowSuperSearch } = getCurrentProject(currentProjectId);
+
     if (dataKey === 'record' && !allowSuperSearch) {
       return <div className="noData">{_l('“%0”功能不可用', currentProjectName)}</div>;
     }

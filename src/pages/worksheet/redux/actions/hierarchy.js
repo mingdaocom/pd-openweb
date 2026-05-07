@@ -17,6 +17,7 @@ const getTotalDataIds = (hierarchyViewData = {}, total = 0) => {
     if (item) {
       totalIds.push(item.rowid);
     }
+
     if (get(item, 'childrenids.length') > 0) {
       totalIds.concat(getTotalDataIds(item.childrenids, total));
     }
@@ -142,6 +143,7 @@ function getHierarchyDataRecursion({ worksheet, records, kanbanKey, index, para 
         dispatch({ type: 'CHANGE_HIERARCHY_DATA_STATUS', data: { loading: false } });
         return;
       }
+
       getHierarchyDataRecursion({
         worksheet,
         records: records.concat(data),
@@ -185,6 +187,7 @@ export const expandMultiLevelHierarchyDataOfMultiRelate = level => {
           dispatch({ type: 'CHANGE_HIERARCHY_DATA_STATUS', data: { loading: false } });
           return;
         }
+
         const para = {
           viewControls,
           level,
@@ -220,22 +223,27 @@ export const addHierarchyRecord = args => (dispatch, getState) => {
     const { hierarchyView } = sheet;
     const { hierarchyViewState = [] } = hierarchyView || {};
     const recordIndex = path[0];
+
     // 分页数据
     if (reGetData && recordIndex >= 50) {
       const curRecord = hierarchyViewState[recordIndex];
       const children = curRecord.children || [];
+
       // 只有未展开且没有展开过的时候才处理
       if (children?.length && typeof children[0] === 'string') {
         dispatch({ type: 'ADD_RECORD_CHILDREN_WITH_ONLY_PAGINATION', data: { index: recordIndex, rowId: data.rowid } });
         return;
       }
     }
+
     dispatch(addHierarchyChildrenRecord({ data, path, pathId }));
   }
 };
+
 export function onCopySuccess(data) {
   return dispatch => {
     const { path, pathId, item } = data;
+
     if (path.length === 1) {
       // 添加顶级记录
       dispatch({ type: 'ADD_TOP_LEVEL_STATE', data: item });
@@ -244,9 +252,11 @@ export function onCopySuccess(data) {
     }
   };
 }
+
 export function addHierarchyChildrenRecord(data) {
   return { type: 'ADD_HIERARCHY_CHILDREN_RECORD_STATE', data };
 }
+
 export const getTopLevelHierarchyData = args => dispatch => {
   dispatch({ type: 'CHANGE_HIERARCHY_DATA_STATUS', data: { loading: true } });
   args.langType = window.shareState.shareId ? getCurrentLangCode() : undefined;
@@ -260,6 +270,7 @@ export const getTopLevelHierarchyData = args => dispatch => {
     }
   });
 };
+
 // 删除层级记录
 export function deleteHierarchyRecord({ rows, path, pathId, ...rest }) {
   return (dispatch, getState) => {
@@ -269,8 +280,10 @@ export function deleteHierarchyRecord({ rows, path, pathId, ...rest }) {
     const rowIds = rows.filter(item => !!item.allowDelete).map(item => item.rowid);
     sheetAjax.deleteWorksheetRows({ rowIds, ...getHierarchyViewIds(sheet, path), ...rest }).then(data => {
       const id = rowIds[0];
+
       if (data.isSuccess) {
         const pathLen = pathId.length;
+
         if (pathLen === 1) {
           dispatch(expandedMultiLevelHierarchyData({ layer: 3 }));
         } else {
@@ -285,6 +298,7 @@ export function deleteHierarchyRecord({ rows, path, pathId, ...rest }) {
             ),
           );
         }
+
         dispatch({
           type: 'CHANGE_HIERARCHY_VIEW_DATA',
           data: update(hierarchyViewData, { $unset: [id] }),
@@ -300,6 +314,7 @@ export const hideHierarchyRecord = (id, path, pathId) => (dispatch, getState) =>
   const { hierarchyView } = sheet;
   let { hierarchyViewData } = hierarchyView;
   const pathLen = pathId.length;
+
   if (pathLen === 1) {
     dispatch(expandedMultiLevelHierarchyData({ layer: 3 }));
   } else {
@@ -314,6 +329,7 @@ export const hideHierarchyRecord = (id, path, pathId) => (dispatch, getState) =>
       ),
     );
   }
+
   dispatch({
     type: 'CHANGE_HIERARCHY_VIEW_DATA',
     data: update(hierarchyViewData, { $unset: [id] }),
@@ -325,12 +341,15 @@ const isAncestor = (src, target) => {
   for (let i = 0; i < target.length; i++) {
     if (src[i] !== target[i]) return false;
   }
+
   return true;
 };
+
 const isSibling = (src, target) => {
   if (!Array.isArray(src) || !Array.isArray(target)) return;
   return JSON.stringify(src.slice(0, -1)) === JSON.stringify(target.slice(0, -1));
 };
+
 export function updateMovedRecord(args) {
   return (dispatch, getState) => {
     const { src, target, ...rest } = args;
@@ -372,6 +391,7 @@ export function updateMovedRecord(args) {
           );
           return;
         }
+
         // 如果拖动祖先元素中 则只拉取祖先元素的数据即可
         if (isAncestor(src.path, target.path)) {
           dispatch(
@@ -385,6 +405,7 @@ export function updateMovedRecord(args) {
           );
           return;
         }
+
         dispatch(getAssignChildren({ ..._.pick(target, ['path', 'pathId']), kanbanKey: target.rowId }, true));
         dispatch(
           getAssignChildren(
@@ -413,6 +434,7 @@ export function moveMultiSheetRecord(args) {
 
     const targetControl = _.find(sheet.controls || [], item => item.controlId === controlId) || {};
     const targetRowData = _.find(hierarchyView.hierarchyViewState || [], { rowId: target.rowId }) || {};
+
     // 如果是单条且已有值，则返回
     if (targetControl.enumDefault === 1 && targetRowData.children?.length) {
       alert(_l('已存在一条关联记录，修改失败！'), 2);
@@ -494,6 +516,7 @@ export function getAssignChildren({ path = [], pathId = [], callback, ...args },
         };
       }
     };
+
     args = {
       ...getDefaultPara(),
       ...getParaIds(sheet),
@@ -508,6 +531,7 @@ export function getAssignChildren({ path = [], pathId = [], callback, ...args },
       if (resultCode !== 1) {
         return;
       }
+
       dispatch({
         type: 'CHANGE_HIERARCHY_VIEW_DATA',
         data: dealData(data),
@@ -520,6 +544,7 @@ export function getAssignChildren({ path = [], pathId = [], callback, ...args },
         });
         return;
       }
+
       dispatch({
         type: 'EXPAND_CHILDREN_STATE',
         data: { data, path, pathId },
@@ -582,9 +607,11 @@ export function becomeTopLevelRecord(data) {
     });
   };
 }
+
 export const addTopLevelStateFromTemp = data => {
   return { type: 'ADD_TOP_LEVEL_STATE_FROM_TEMP', data };
 };
+
 // 更新层级记录数据
 export function updateHierarchyData({ recordId, value, path, pathId, relateSheet }) {
   return (dispatch, getState) => {
@@ -595,6 +622,7 @@ export function updateHierarchyData({ recordId, value, path, pathId, relateSheet
     const updateKeys = Object.keys(value);
     // 父记录更新有值，手动刷新，否则作为顶级处理
     const hasValue = value[viewControl] && !_.isEmpty(safeParse(value[viewControl] || '[]'));
+
     if (_.includes(updateKeys, viewControl) && hasValue) {
       dispatch(getDefaultHierarchyData());
       return;
@@ -616,6 +644,7 @@ export function updateHierarchyData({ recordId, value, path, pathId, relateSheet
       });
       return;
     }
+
     if (!_.isEmpty(value)) {
       dispatch({
         type: 'CHANGE_HIERARCHY_VIEW_DATA',
@@ -624,12 +653,14 @@ export function updateHierarchyData({ recordId, value, path, pathId, relateSheet
         }),
       });
     }
+
     // 如果在记录详情里编辑了关联记录 则重新拉取这个记录下的子记录
     if (relateSheet) {
       if (String(childType) === '2') {
         dispatch(multiRelateGetChildren({ path, pathId, kanbanKey: recordId }));
         return;
       }
+
       const args = {
         kanbanKey: recordId,
         ...getParaIds(sheet),
@@ -660,9 +691,11 @@ export function getHierarchyRecord(args, cb) {
       if (isFunction(cb)) {
         cb(data);
       }
+
       if (resultCode !== 1 || !data.length) {
         return;
       }
+
       dispatch({ type: 'CHANGE_HIERARCHY_VIEW_DATA', data: dealData(data) });
       dispatch({ type: 'CHANGE_HIERARCHY_DATA_STATUS', data: { loading: false, pageIndex: args.pageIndex || 1 } });
       dispatch({ type: 'ADD_TOP_LEVEL_STATE', data });
@@ -691,6 +724,7 @@ export function removeHierarchyTempItem(data) {
 export function addHierarchyRelateSheetControls(payload) {
   return { type: 'ADD_HIERARCHY_RELATE_SHEET_CONTROLS', payload };
 }
+
 export function initHierarchyRelateSheetControls(payload) {
   return { type: 'INIT_HIERARCHY_RELATE_SHEET_CONTROLS', payload };
 }
@@ -748,15 +782,18 @@ export const updateHierarchySearchRecord = record => {
   return (dispatch, getState) => {
     const { sheet } = getState();
     const count = sheet.hierarchyView.hierarchyTopLevelDataCount || 0;
+
     if (count < 1000) {
       if (record) {
         //向上展开所有层级
         const currentItem = getItemByRowId(record.rowid, sheet.hierarchyView.hierarchyViewState);
+
         if (currentItem) {
           dispatch({ type: 'CHANGE_HIERARCHY_DATA_VISIBLE', data: currentItem });
           //定位到可视区域
           setTimeout(() => {
             const searchEl = document.getElementById(`${record.rowid}`);
+
             if (searchEl) {
               searchEl.scrollIntoView({
                 inline: 'center',
@@ -766,6 +803,7 @@ export const updateHierarchySearchRecord = record => {
           }, 100);
         }
       }
+
       //搜索命中
       dispatch({ type: 'CHANGE_HIERARCHY_SEARCH_RECORD_ID', data: record ? record.rowid : null });
     } else {

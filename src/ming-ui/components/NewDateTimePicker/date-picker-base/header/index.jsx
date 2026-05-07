@@ -40,6 +40,7 @@ class Header extends Component {
     const month = _month.toString();
 
     const timeButtons = [];
+
     if (this.props.view === 'year') {
       timeButtons.push(
         <span key="year-range" className="year">
@@ -47,6 +48,7 @@ class Header extends Component {
         </span>,
       );
     }
+
     if (this.props.view === 'month') {
       timeButtons.push(
         <button
@@ -62,6 +64,7 @@ class Header extends Component {
         </button>,
       );
     }
+
     if (this.props.view === 'date') {
       if (this.props.prefix) {
         timeButtons.push(
@@ -70,6 +73,7 @@ class Header extends Component {
           </span>,
         );
       }
+
       timeButtons.push([
         <button
           key="year"

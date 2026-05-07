@@ -45,6 +45,7 @@ export default class AddCondition extends Component {
       widgetControlData = {},
     } = this.props;
     const { columnListVisible } = this.state;
+
     // 关联记录、查询记录（非聚合表）支持rowId,查询工作表也只支持rowid
     if (
       from === 'relateSheet' &&
@@ -55,9 +56,11 @@ export default class AddCondition extends Component {
     ) {
       columns = columns.concat(ROW_ID_CONTROL);
     }
+
     if (md.global.Account.isPortal) {
       columns = columns.filter(item => !_.includes(['ownerid', 'caid', 'uaid'], item.controlId));
     }
+
     return (
       <div className={cx('Hand addFilterCondition', { nodata: !conditionCount, active: columnListVisible })}>
         <Trigger
@@ -99,6 +102,7 @@ export default class AddCondition extends Component {
               if (disabled) {
                 return;
               }
+
               this.setState({ columnListVisible: true });
             }}
           >

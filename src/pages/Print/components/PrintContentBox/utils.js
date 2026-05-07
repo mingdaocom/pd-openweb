@@ -61,6 +61,7 @@ export const getApproval = ({ rowId, approvalIds, params, updateApprovalAjax }) 
           id: item.id,
           workId: item.workId,
         });
+
       if (_.has(ajaxWithProcessIdMap, item.process.parentId)) {
         ajaxWithProcessIdMap[item.process.parentId].ajaxList.push(requestFn);
         ajaxWithProcessIdMap[item.process.parentId].originalData.push(item);
@@ -83,7 +84,7 @@ export const getApproval = ({ rowId, approvalIds, params, updateApprovalAjax }) 
 };
 
 export const getApprovalDetail = ({ approvalList, approvalRef, params }) => {
-  const { ajaxList, originalData } = approvalRef;
+  const { ajaxList = [], originalData = [] } = approvalRef || {};
   const { appId } = params;
   return Promise.all(ajaxList.map(fn => fn())).then(resData => {
     resData.forEach((item, index) => {
@@ -104,10 +105,11 @@ export const isRelationControl = type => {
   return [34, 51, 29].includes(type);
 };
 
-const formatRelationRows = (res, rowIds, controls) => {
+const formatRelationRows = (res, controls) => {
   const result = {};
 
-  res.forEach((controlGroup, i) => {
+  res.forEach((item, i) => {
+    const { data: controlGroup, rowIds = [] } = item || {};
     const controlId = controls[i]?.controlId;
     if (!controlId || !_.isArray(controlGroup)) return;
 
@@ -130,42 +132,60 @@ export const getAllRelationRows = ({ params, relationControls, controlProcessedM
   const { worksheetId, rowIds } = params;
 
   const promiseList = relationControls.map(control => {
+    const requestRowIds = [];
     const filtersMap = rowIds.reduce((acc, rowId) => {
-      const filters =
-        getFilter({
-          control: { ...control, recordId: rowId },
-          formData: controlProcessedMap[rowId],
-          filterKey: 'resultfilters',
-        }) || [];
+      const filters = getFilter({
+        control: { ...control, recordId: rowId },
+        formData: controlProcessedMap[rowId],
+        filterKey: 'resultfilters',
+      });
 
-      // 过滤空值 & 空数组
-      if (!filters?.length) {
+      // emptyRule = 3 且动态值为空时，getFilter 返回 false，对应行不发请求
+      if (filters === false) {
         return acc;
       }
 
+      // 过滤空值 & 空数组
+      if (!filters?.length) {
+        requestRowIds.push(rowId);
+        return acc;
+      }
+
+      requestRowIds.push(rowId);
       acc[rowId] = filters;
       return acc;
     }, {});
 
-    return sheetAjax.getRowRelationRows({
-      worksheetId,
-      controlId: control.controlId,
-      getRules: true,
-      getWorksheet: true,
-      keywords: '',
-      pageIndex: 1,
-      pageSize: control?.type === 51 && control.enumDefault === 1 ? 1 : 1000,
-      rowids: rowIds,
-      rowAndFilterControls: filtersMap,
-      getType: 5,
-    });
+    if (!requestRowIds.length) {
+      return Promise.resolve({
+        data: [],
+        rowIds: [],
+      });
+    }
+
+    return sheetAjax
+      .getRowRelationRows({
+        worksheetId,
+        controlId: control.controlId,
+        getRules: true,
+        getWorksheet: true,
+        keywords: '',
+        pageIndex: 1,
+        pageSize: control?.type === 51 && control.enumDefault === 1 ? 1 : 1000,
+        rowids: requestRowIds,
+        rowAndFilterControls: filtersMap,
+        getType: 5,
+      })
+      .then(data => ({
+        data,
+        rowIds: requestRowIds,
+      }));
   });
 
   return Promise.all(promiseList).then(res => {
     if (!res.length) return {};
 
-    const dataMap = formatRelationRows(res, rowIds, relationControls);
-    console.log('dataMap', dataMap);
+    const dataMap = formatRelationRows(res, relationControls);
     return dataMap;
   });
 };

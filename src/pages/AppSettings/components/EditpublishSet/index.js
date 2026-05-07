@@ -115,6 +115,7 @@ class EditPublishSetDialog extends React.Component {
 
   getWXProjectSettingInfo() {
     const { projectId, appId } = this.props;
+
     if (!window.platformENV.isOverseas && !window.platformENV.isLocal) {
       workWeiXinAjax.getWXProjectSettingInfo({ projectId, appId }).then(res => {
         if (res && res.status === 1) {
@@ -155,6 +156,7 @@ class EditPublishSetDialog extends React.Component {
   renderEnterpriseWechatModal = () => {
     let { integratedWechat, noIntegratedWechat } = this.state;
     const { appName } = this.props;
+
     if (integratedWechat) {
       // 已集成
       return (
@@ -274,29 +276,37 @@ class EditPublishSetDialog extends React.Component {
               {[1, 2, 3].map(o => {
                 let cur = false;
                 let s = ['pcCon', 'webCon', 'appCon'][o - 1];
+
                 if (o === 1) {
                   cur = pcDisplay;
                 }
+
                 if (o === 2) {
                   cur = webMobileDisplay;
                 }
+
                 if (o === 3) {
                   cur = appDisplay;
                 }
+
                 s = !cur ? s + 'hover' : s;
                 return (
                   <li
                     onClick={() => {
                       let curData = {};
+
                       if (o === 1) {
                         curData = { pcDisplay: !cur };
                       }
+
                       if (o === 2) {
                         curData = { webMobileDisplay: !cur };
                       }
+
                       if (o === 3) {
                         curData = { appDisplay: !cur };
                       }
+
                       this.publishSettings(curData);
                     }}
                   >

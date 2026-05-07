@@ -60,20 +60,24 @@ export default function Analysis(props) {
           }) => {
             const { config = {} } = widget;
             const newConfig = config.objectId ? config : { ...config, objectId: uuidv4() };
+
             if (reportId) {
               onEdit({ value: reportId, config: newConfig, worksheetId, name: reportName, reportType });
               onClose();
               return;
             }
+
             if (report.id && reportName !== widget.name) {
               onEdit({ name: reportName, config: newConfig });
               onClose();
               return;
             }
+
             // 需要重新更新数据 如统计名称变更
             if (isRequest) {
               onUpdate({ needUpdate: !widget.needUpdate });
             }
+
             if (!dialogVisible) {
               onClose();
             }

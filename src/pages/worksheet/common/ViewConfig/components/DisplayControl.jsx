@@ -94,6 +94,7 @@ export default function DisplayControl(props) {
           viewType={view.viewType}
           onChange={({ newControlSorts, newShowControls }) => {
             let showList = newShowControls.filter(c => allCanDisplayControls.map(o => o.controlId).includes(c));
+
             if (maxCount3 && showList.length > 3) {
               alert(_l('一行三列布局时，最多只能设置3个显示字段'), 3);
               return;
@@ -133,6 +134,7 @@ export default function DisplayControl(props) {
                 if (effectiveControls.length <= 0) {
                   return;
                 }
+
                 const showcount = _.get(view, 'advancedSetting.showcount')
                   ? undefined
                   : effectiveControls.length > 3
@@ -167,9 +169,11 @@ export default function DisplayControl(props) {
                   }
                   onChange={value => {
                     let count = JSON.stringify(effectiveControls.length >= value ? value : effectiveControls.length);
+
                     if (count === _.get(view, 'advancedSetting.showcount')) {
                       return;
                     }
+
                     props.updateCurrentView({
                       ...view,
                       appId,

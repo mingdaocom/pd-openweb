@@ -70,6 +70,7 @@ export default class ViewHoverRelateRecordCard extends Component {
       if (!allowOpenRecord) {
         return;
       }
+
       this.setState({ previewRecordId: record.rowid });
     };
 

@@ -36,6 +36,7 @@ export default class Accumulate extends Component {
   };
   handleChange = event => {
     const { value } = event.target;
+
     if (value === 1) {
       this.handleChangeDisplaySetup(
         {
@@ -54,10 +55,12 @@ export default class Accumulate extends Component {
   };
   handleSaveShowOptionIds = () => {
     const { showOptionIds } = this.state;
+
     if (_.isEmpty(showOptionIds)) {
       alert(_l('请选择显示项'), 2);
       return;
     }
+
     this.handleChangeDisplaySetup(
       {
         showOptionIds,

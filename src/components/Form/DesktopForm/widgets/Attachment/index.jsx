@@ -61,12 +61,14 @@ export default class Widgets extends Component {
     if (this.state.loading) {
       this.loadAttachments();
     }
+
     if (_.get(this.props, 'advancedSetting.showtype') === '3') {
       this.detectionShowType();
     }
 
     this.eventHelper.subscribe(data => {
       const { triggerType } = data;
+
       switch (triggerType) {
         case 'trigger_tab_enter':
           this.setState({ popupVisible: false });
@@ -94,6 +96,7 @@ export default class Widgets extends Component {
         this.setState({ value: nextProps.value });
       }
     }
+
     if (_.get(nextProps, 'advancedSetting.showtype') === '3' && nextProps.formWidth !== this.props.formWidth) {
       this.detectionShowType();
     }
@@ -115,8 +118,10 @@ export default class Widgets extends Component {
     if (!value) {
       return false;
     }
+
     try {
       const file = JSON.parse(value)[0];
+
       if (!file) {
         return false;
       } else {
@@ -125,19 +130,23 @@ export default class Widgets extends Component {
     } catch (err) {
       console.log(err);
     }
+
     return false;
   }
 
   loadAttachments(props) {
     const { value, worksheetId, recordId, controlId, isDraft } = props || this.props;
     let fileIds = [];
+
     try {
       fileIds = JSON.parse(value).map(f => f.fileId);
     } catch (err) {
       console.log(err);
       this.setState({ loading: false, value: '' });
     }
+
     const args = { fileIds, worksheetId, rowId: recordId, controlId };
+
     if (window.shareState && window.shareState.shareId) {
       args.shareId = window.shareState.shareId;
       args.type = window.shareState.isPublicRecord
@@ -146,9 +155,11 @@ export default class Widgets extends Component {
           ? 11
           : 14;
     }
+
     if (isDraft) {
       args.type = 21;
     }
+
     attachmentApi
       .getAttachmentToList(args)
       .then(data => {
@@ -279,6 +290,7 @@ export default class Widgets extends Component {
       if (item.fileID === id) {
         item.originalFilename = newName;
       }
+
       return item;
     });
 
@@ -388,6 +400,7 @@ export default class Widgets extends Component {
     const { projectId, appId, worksheetId, controlId, formData, advancedSetting } = this.props;
     const control = _.find(formData, { controlId }) || {};
     let h5watermark = '';
+
     if (!mingdaoAppError && advancedSetting.h5watermark) {
       const h5watermarkArr = advancedSetting.h5watermark.split('$');
       const data = formData.filter(v => _.includes([2, 3, 4, 5, 6, 8, 15, 16, 46], v.type));
@@ -541,6 +554,7 @@ export default class Widgets extends Component {
                 },
               );
             }
+
             if (type === 'camera') {
               this.setState(
                 {
@@ -554,6 +568,7 @@ export default class Widgets extends Component {
                 },
               );
             }
+
             if (type === 'camcorder') {
               this.setState(
                 {
@@ -567,6 +582,7 @@ export default class Widgets extends Component {
                 },
               );
             }
+
             if (isComplete) {
               this.mobileFileRef[type].setState({
                 files: [],
@@ -736,6 +752,7 @@ export default class Widgets extends Component {
                 offset={[0, 2]}
                 canAddLink={false}
                 canAddKnowledge={canAddKnowledge}
+                canPcUpload={true}
                 minWidth={130}
                 showAttInfo={false}
                 advancedSetting={advancedSetting}
@@ -783,11 +800,13 @@ export default class Widgets extends Component {
                   controlId={controlId}
                   onScanResultUpdate={files => {
                     let currentAttachments = [];
+
                     try {
                       currentAttachments = JSON.parse(this.state.value).attachments || [];
                     } catch (err) {
                       console.log(err);
                     }
+
                     this.filesChanged(currentAttachments.concat(files), 'attachments');
                   }}
                 >

@@ -139,6 +139,7 @@ async function getStatus(data, shareId) {
     if (moment().isBefore(moment(linkSwitchTime.startTime), 'second')) {
       return FILL_STATUS.NOT_OPEN;
     }
+
     if (moment().isAfter(moment(linkSwitchTime.endTime), 'second')) {
       return FILL_STATUS.CLOSE;
     }
@@ -158,11 +159,13 @@ async function getStatus(data, shareId) {
       sessionStorage.setItem('entryUrl', location.href);
       //所有人开启收集微信信息，或平台/组织用户，走微信授权跳转
       const request = getRequest();
+
       if (request.code && request.state) {
         const userInfo = await publicWorksheetAjax.getUserInfo({
           code: request.code,
           state: request.state,
         });
+
         if (userInfo) {
           safeLocalStorageSetItem('wxUserInfo', JSON.stringify(userInfo || {}));
 
@@ -184,6 +187,7 @@ async function getStatus(data, shareId) {
             if (loginResult.accountResult === 1) {
               setPssId(loginResult.sessionId);
               const globalResult = await globalApi.getGlobalMeta({});
+
               if (globalResult) {
                 window.config = globalResult.config;
                 if (!window.md) {
@@ -191,10 +195,12 @@ async function getStatus(data, shareId) {
                 } else {
                   window.md.global = globalResult['md.global'];
                 }
+
                 if (window.md.global && !window.md.global.Account) {
                   window.md.global.Account = {};
                 }
               }
+
               clearUrl();
             } else {
               clearUrl();
@@ -224,15 +230,18 @@ async function getStatus(data, shareId) {
   if (writeScope !== 1 && (!md.global.Account.accountId || md.global.Account.isPortal)) {
     return FILL_STATUS.NEED_LOGIN;
   }
+
   //组织用户, 判断是否是该组织成员
   if (writeScope === 3 && md.global.Account.projects) {
     const projectIds = md.global.Account.projects.map(p => p.projectId);
+
     if (!_.includes(projectIds, projectId)) {
       return FILL_STATUS.NO_PROJECT_USER;
     }
   }
 
   const wxUserInfo = JSON.parse(localStorage.getItem('wxUserInfo') || '{}');
+
   if (writeScope === 1 && !(weChatSetting.isCollectWxInfo && wxUserInfo.openId)) {
     if (canSubmitByLimitFrequency(shareId, limitWriteFrequencySetting)) {
       return isWithinLimitWriteTime ? FILL_STATUS.NORMAL : FILL_STATUS.NOT_IN_FILL_TIME;
@@ -254,6 +263,7 @@ function fillWxInfo(formData, weChatSetting) {
   if (!_.isEmpty(wxUserInfo)) {
     data = formData.map(item => {
       let itemData = item;
+
       for (let k in fieldMaps) {
         if (item.controlId === fieldMaps[k]) {
           itemData = {
@@ -281,9 +291,11 @@ function fillWxInfo(formData, weChatSetting) {
           };
         }
       }
+
       return itemData;
     });
   }
+
   return data;
 }
 
@@ -301,6 +313,7 @@ async function fillRowRelationRows(control, rowId, worksheetId) {
     .then(res => {
       if (res.resultCode === 1) {
         let defSource;
+
         if (control.type === 34) {
           const subControls = ((res.template || {}).controls || []).filter(
             c => !_.includes(SYSTEM_FIELD_IDS, c.controlId),
@@ -321,6 +334,7 @@ async function fillRowRelationRows(control, rowId, worksheetId) {
             return { cid: '', rcid: '', isAsync: false, staticValue: JSON.stringify([JSON.stringify(item)]) };
           });
         }
+
         filledControl.advancedSetting = {
           ...control.advancedSetting,
           defsource: JSON.stringify(defSource),
@@ -359,9 +373,11 @@ export async function getFormData(data, status) {
         const cacheField = cacheFormData.filter(c => c.controlId === item.controlId)[0] || {};
         return item.type !== 29 ? { ...item, value: cacheField.value } : item;
       });
+
       if (weChatSetting.isCollectWxInfo) {
         formData = fillWxInfo(formData, weChatSetting);
       }
+
       return formData;
     }
   }
@@ -382,6 +398,7 @@ export async function getFormData(data, status) {
       status: 1,
     };
     const lastFillData = await publicWorksheetAjax.getLastFillData(queryParams);
+
     if (lastFillData.data && lastFillData.data[0]) {
       for (let i = 0; i < controls.length; i++) {
         let item = controls[i];
@@ -427,9 +444,11 @@ export async function getFormData(data, status) {
           return item;
         }
       });
+
       if (weChatSetting.isCollectWxInfo) {
         formData = fillWxInfo(formData, weChatSetting);
       }
+
       return formData;
     }
   }
@@ -565,19 +584,23 @@ function getInfoControl(formData, publicWorksheetInfo) {
 function fillReportSource(receiveControls, publicWorksheetInfo) {
   const { originalControls } = publicWorksheetInfo;
   const fromUrlControl = _.find(originalControls, oc => oc.controlName.indexOf('违规表单链接') > -1);
+
   if (!fromUrlControl) {
     return receiveControls;
   } else {
     let fromurl;
+
     try {
       fromurl = qs.parse(decodeURIComponent(location.search.slice(1))).from;
     } catch (err) {
       console.log(err);
       return receiveControls;
     }
+
     if (!fromurl) {
       return receiveControls;
     }
+
     return receiveControls
       .filter(control => control.controlId !== fromUrlControl.controlId)
       .concat({
@@ -602,6 +625,7 @@ function formatFileControls(controls) {
         value: JSON.stringify(parsed),
       };
     }
+
     return control;
   });
 }
@@ -626,13 +650,16 @@ export function addWorksheetRow(
     .filter(c => !_.find(infoControl, ic => c.controlId === ic.controlId))
     .concat(infoControl)
     .filter(item => !_.includes([27, 21, 30, 31, 32, 48], item.type));
+
   // 举报表单填充举报链接 写死id  仅公网有效
   if (shareId === 'a7f10198e9d84702b68ba35f73c94cac') {
     receiveControls = fillReportSource(receiveControls, publicWorksheetInfo);
   }
+
   if (browserIsMobile()) {
     receiveControls = formatFileControls(receiveControls);
   }
+
   publicWorksheetAjax
     .addRow({
       worksheetId,

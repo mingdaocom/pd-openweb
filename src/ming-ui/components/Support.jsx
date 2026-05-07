@@ -38,6 +38,7 @@ export default class Support extends Component {
           const url = md.global.Config.HelpUrl
             ? href.replace('https://help.mingdao.com', md.global.Config.HelpUrl)
             : href;
+
           if (window.isMingDaoApp) {
             location.href = url;
           } else {
@@ -60,6 +61,7 @@ export default class Support extends Component {
           const url = md.global.Config.HelpUrl
             ? href.replace('https://help.mingdao.com', md.global.Config.HelpUrl)
             : href;
+
           if (window.isMingDaoApp) {
             location.href = url;
           } else {

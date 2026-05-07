@@ -19,7 +19,6 @@ import { LOGIN_FAIL_REASON, LOGIN_LOG_COLUMNS } from './enum';
 
 const LoginLogWrap = styled.div`
   .tipInfo {
-    color: var(--color-white);
     font-size: 13px;
     line-height: 36px;
     font-weight: 400;
@@ -39,7 +38,10 @@ const PAGE_SIZE = 50;
 export default class LoginLog extends Component {
   constructor(props) {
     const columns = LOGIN_LOG_COLUMNS.filter(
-      v => window.platformENV.isLocal || (!window.platformENV.isLocal && v.dataIndex !== 'failReason'),
+      v =>
+        window.platformENV.isLocal ||
+        (window.platformENV.isOverseas && v.dataIndex !== 'geoCity') ||
+        (!window.platformENV.isLocal && !window.platformENV.isOverseas && v.dataIndex !== 'failReason'),
     );
     super(props);
     this.state = {
@@ -68,6 +70,7 @@ export default class LoginLog extends Component {
             deviceId,
             imei,
           } = log;
+
           switch (item.dataIndex) {
             case 'accountId':
               if (!log.accountId) {
@@ -114,7 +117,8 @@ export default class LoginLog extends Component {
                   {(
                     [
                       {
-                        label: window.platformENV.isLocal ? _l('登录成功') : _l('登录'),
+                        label:
+                          window.platformENV.isLocal || window.platformENV.isOverseas ? _l('登录成功') : _l('登录'),
                         value: '1',
                       },
                       { label: _l('登出'), value: '2' },
@@ -249,7 +253,7 @@ export default class LoginLog extends Component {
         type: 'selectTime',
         key: 'loginLogOutDate',
         label: _l('登录/登出时间'),
-        placeholder: _l('登录/登出时间'),
+        placeholder: _l('最近30天'),
         dateFormat: 'YYYY-MM-DD HH:mm:ss',
         limitSixMonths: window.platformENV.isOverseas || window.platformENV.isLocal,
         suffixIcon: <Icon icon="person" className="Font16" />,
@@ -264,12 +268,17 @@ export default class LoginLog extends Component {
         options: [
           { label: _l('全部'), value: '' },
           {
-            label: window.platformENV.isLocal ? _l('登录成功') : _l('登录'),
+            label: window.platformENV.isLocal || window.platformENV.isOverseas ? _l('登录成功') : _l('登录'),
             value: 1,
           },
           { label: _l('登录失败'), value: -1 },
           { label: _l('登出'), value: 2 },
-        ].filter(v => window.platformENV.isLocal || (!window.platformENV.isLocal && v.value !== -1)),
+        ].filter(
+          v =>
+            window.platformENV.isLocal ||
+            window.platformENV.isOverseas ||
+            (!window.platformENV.isLocal && !window.platformENV.isOverseas && v.value !== -1),
+        ),
       },
     ];
 

@@ -29,8 +29,10 @@ export default class SubLineCount extends Component {
                       subTotal: event.target.checked,
                     };
                   }
+
                   return item;
                 });
+
                 if (!newLines.filter(n => n.subTotal).length) {
                   param.yaxisList = yaxisList.map(n => {
                     return {
@@ -43,6 +45,7 @@ export default class SubLineCount extends Component {
                     };
                   });
                 }
+
                 param.pivotTable.lines = newLines;
                 onChangeCurrentReport(param, true);
               }}
@@ -64,6 +67,7 @@ export default class SubLineCount extends Component {
                           subTotalName: event.target.value,
                         };
                       }
+
                       return item;
                     }),
                   },

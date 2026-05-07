@@ -8,6 +8,7 @@ import { DATE_TYPE, DATE_TYPE_ALL, DATE_TYPE_FUTURE, DATE_TYPE_PASS } from '../c
 import { getDefaultDateRange, getShowtypeByDateRangeType } from '../util';
 
 const Wrap = styled.div``;
+
 export default function (props) {
   const { onClose, showType, dateRangeType, onChange = () => {} } = props;
 
@@ -104,6 +105,7 @@ export default function (props) {
                               const endIndex = _.findLastIndex(arr, value => value === endValue);
                               return arr.slice(startIndex, endIndex + 1);
                             }
+
                             const newList = sliceBetweenValues(DATE_TYPE_ALL, startIndex, item.value);
                             setState({
                               daterange: _.uniq([...daterange, ...newList].filter(o => defaultRange.includes(o))),
@@ -112,11 +114,13 @@ export default function (props) {
                           } else {
                             setStartIndex(item.value);
                             let newValue = daterange;
+
                             if (newValue.includes(item.value)) {
                               newValue = newValue.filter(o => o !== item.value);
                             } else {
                               newValue = newValue.concat(item.value);
                             }
+
                             setState({ daterange: newValue });
                           }
                         }}

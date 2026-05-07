@@ -128,6 +128,7 @@ const SortableListWrap = props => {
     ...otherProps
   } = props;
   let waitingAttachments = [];
+
   if (isMobile) {
     waitingAttachments =
       temporaryAttachments?.filter(item => {
@@ -220,21 +221,26 @@ const Files = props => {
     setSortAllAttachments(sortFiles(allAttachments));
     if (isLargeImageCard) {
       const imageAttachments = sortAllAttachments.filter(filterImageAttachments);
+
       if (props.viewMore && imageAttachments.length > showLineCount) {
         setViewMoreVisible(true);
       }
     } else {
       const current = _.get(ref, 'current') || {};
+
       if (_.isFunction(current.getContainer) && current.getContainer()) {
         const el = current.getContainer();
         const { clientHeight, clientWidth } = el.querySelector('.attachmentFilesWrap');
+
         if (props.viewMore) {
           setViewMore(true);
           setViewMoreVisible(clientHeight > el.clientHeight);
         }
+
         if (!isMobile && clientWidth && ['1'].includes(showType)) {
           setSmallSize(clientWidth <= 160);
         }
+
         if (!isMobile && clientWidth && ['2', '3'].includes(showType)) {
           setSmallSize(clientWidth <= 300);
         }
@@ -257,17 +263,20 @@ const Files = props => {
     const files = attachmentData.filter(item => item.fileID !== data.fileID);
     onChangeAttachmentData(files);
   };
+
   // 删除未保存的知识附件
   const handleDeleteKCFile = data => {
     const files = knowledgeAtts.filter(item => item.refId !== data.refId);
     onChangeKnowledgeAtts(files);
   };
+
   // 删除未保存的七牛云附件
   const handleDeleteFile = data => {
     const files = attachments.filter(item => item.fileID !== data.fileID);
     onChangeAttachments(files);
     props.onRemoveFile(_.find(attachments, { fileID: data.fileID }));
   };
+
   // 重命名未保存的七牛云附件
   const handleResetNameFile = (id, newName) => {
     newName = newName.trim();
@@ -278,18 +287,22 @@ const Files = props => {
     }
 
     const error = props.checkValueByFilterRegex(newName);
+
     if (error) {
       alert(error, 2);
       return;
     }
+
     if (_.isEmpty(newName)) {
       alert(_l('名称不能为空'), 2);
       return;
     }
+
     const files = attachments.map(item => {
       if (item.fileID === id) {
         item.originalFileName = newName;
       }
+
       return item;
     });
     onChangeAttachments(files);
@@ -355,8 +368,10 @@ const Files = props => {
           {
             mdReplaceAttachment: newAttachment => {
               const newAttachmentData = attachmentData.slice();
+
               if (newAttachment && newAttachment.docVersionID) {
                 const attachmentIndex = _.findIndex(attachmentData, d => d.docVersionID === newAttachment.docVersionID);
+
                 if (attachmentIndex > -1) {
                   newAttachmentData[attachmentIndex] = newAttachment;
                   onChangeAttachmentData(newAttachmentData);
@@ -371,6 +386,7 @@ const Files = props => {
       () => handleTriggerMore(file),
     );
   };
+
   // 未保存的知识附件预览
   const handleKCPreview = data => {
     const res = knowledgeAtts.filter(item => item.node).map(item => item.node);
@@ -396,6 +412,7 @@ const Files = props => {
       },
     );
   };
+
   // 未保存的七牛云附件预览
   const handlePreview = data => {
     const res = attachments.map(item => {
@@ -472,9 +489,11 @@ const Files = props => {
 
   const handleOpenControlAttachmentInNewTab = (fileId, options = {}) => {
     const { recordBaseInfo } = props;
+
     if (!recordBaseInfo) {
       return;
     }
+
     addBehaviorLog('previewFile', recordBaseInfo.worksheetId, { fileId, rowId: recordBaseInfo.recordId });
     openControlAttachmentInNewTab(
       _.assign(
@@ -495,6 +514,7 @@ const Files = props => {
     const parentWorksheetId = _.get(masterData, 'worksheetId');
     const parentRowId = _.get(masterData, 'recordId');
     const parentControlId = _.get(masterData, 'controlId');
+
     if (
       allowedit === '1' &&
       ((onlyeditself === '1' && md.global.Account.accountId === file.accountId) || onlyeditself !== '1') &&
@@ -503,9 +523,11 @@ const Files = props => {
       (window.platformENV.isOverseas || window.platformENV.isLocal ? md.global.Config.EnableDocEdit : true)
     ) {
       let attachmentShareId;
+
       if (!controlId) {
         attachmentShareId = location.pathname.match(/.*\/(recordfile|rowfile)\/(\w+)/)[2];
       }
+
       attachmentApi
         .getAttachmentEditDetail({
           fileId: file.fileID,
@@ -569,10 +591,12 @@ const Files = props => {
             alert(_l('名称不能包含以下字符：') + '\\ / : * ? " < > |', 3);
             return;
           }
+
           if (_.isEmpty(name)) {
             alert(_l('名称不能为空'), 2);
             return;
           }
+
           onAttachmentName(id, name, {
             instanceId: recordBaseInfo.instanceId,
             workId: recordBaseInfo.workId,

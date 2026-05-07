@@ -5,6 +5,7 @@ import { SwitchStyle } from './style';
 
 export default function DetailSet(props) {
   const { appId, view, updateCurrentView } = props;
+
   const handleChange = value => {
     updateCurrentView({
       ...view,
@@ -14,6 +15,7 @@ export default function DetailSet(props) {
       ...(value === 1 ? { fastFilters: [], advancedSetting: { showtitle: '0' }, editAdKeys: ['showtitle'] } : {}),
     });
   };
+
   return (
     <Fragment>
       <Fragment>

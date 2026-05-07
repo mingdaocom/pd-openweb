@@ -95,6 +95,18 @@ export default class SubDomain extends Component {
   }
 
   handleSubmit() {
+    if (this.state.subDomain) {
+      this.handleHomeImageSubmit().then(images => {
+        if (images) {
+          alert(_l('设置成功'));
+          this.props.setLevel(1);
+        } else {
+          alert(_l('设置失败'), 2);
+        }
+      });
+      return;
+    }
+
     Promise.all([this.handleHomeImageSubmit(), this.handleSubDomainSubmit()]).then(([images, name]) => {
       if (images && name === 1) {
         alert(_l('设置成功'));

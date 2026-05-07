@@ -133,6 +133,7 @@ export default class UploadTemplateSheet extends React.Component {
 
       const commonControls = [];
       const cardControls = [];
+
       for (let i = 0; i < controls.length; i++) {
         const { type, advancedSetting, showControls = [], dataSource } = controls[i];
 
@@ -174,6 +175,7 @@ export default class UploadTemplateSheet extends React.Component {
           if (a.row === b.row) {
             return a.col - b.col;
           }
+
           return a.row - b.row;
         }),
 
@@ -233,6 +235,7 @@ export default class UploadTemplateSheet extends React.Component {
     const { enumDefault, dataSource } = it;
     const worksheetControls = relation ? relation.controlList : controls;
     let ISBN = 'ISBN号';
+
     if (it.enumDefault2 === 1) {
       ISBN = 'privatelink';
     } else if (alias) {
@@ -393,9 +396,11 @@ export default class UploadTemplateSheet extends React.Component {
    */
   strForFile = data => {
     let o = data.type === 30 ? { ...data, type: !data.sourceControlType ? data.type : data.sourceControlType } : data;
+
     if (qrcodeField.indexOf(o.controlId) > -1) {
       return o.size ? `$[${o.size}]$` : '';
     }
+
     return o.type === 42 || o.type === 14 || o.controlId === 'qrCode'
       ? `$[${o.type === 42 ? '48*20' : o.type === 14 ? '90*auto' : '20*20'}]$`
       : '';

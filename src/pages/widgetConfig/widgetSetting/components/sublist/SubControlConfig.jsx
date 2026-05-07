@@ -63,6 +63,7 @@ export default function SubControlConfig({
   const handleChange = obj => {
     changeWidgetData(controlId, obj);
   };
+
   const subListProps = {
     ...rest,
     subListData,

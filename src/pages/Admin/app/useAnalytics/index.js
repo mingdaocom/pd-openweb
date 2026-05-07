@@ -39,6 +39,7 @@ export default class UseAnalytics extends Component {
     const { params = {} } = match;
     const { currentTab } = this.state;
     const featureType = getFeatureStatus(params.projectId, VersionProductType.analysis);
+
     if (featureType === '2') {
       return (
         <div className="orgManagementWrap">
@@ -49,7 +50,7 @@ export default class UseAnalytics extends Component {
 
     return (
       <div className="useAnalyticsContainer orgManagementWrap">
-        <AdminTitle prefix={_l('使用分析')} />
+        <AdminTitle prefix={_l('应用管理 - 使用分析')} />
         <div className="orgManagementHeader">
           <div className="tabBox">
             {TABS.map(item => (

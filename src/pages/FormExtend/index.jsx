@@ -119,6 +119,7 @@ export default function FormExtend(props) {
                           buriedUpgradeVersionDialog(projectId, VersionProductType.PAY);
                           return;
                         }
+
                         handleClickNav(item.key);
                       },
                     };

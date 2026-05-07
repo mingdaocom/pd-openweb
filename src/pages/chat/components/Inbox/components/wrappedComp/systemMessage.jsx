@@ -1,6 +1,5 @@
 import React, { Fragment, PureComponent } from 'react';
 import { createRoot } from 'react-dom/client';
-import linkify from 'linkifyjs/html';
 import { match } from 'path-to-regexp';
 import styled from 'styled-components';
 import xss from 'xss';
@@ -17,7 +16,7 @@ import { navigateTo } from 'src/router/navigateTo';
 import { getRequest } from 'src/utils/common';
 import { addBehaviorLog, dateConvertToUserZone } from 'src/utils/project';
 import { MSG_DONE_TEXT, MSGTYPES } from '../../constants';
-import { formatInboxItem } from '../../util';
+import { formatInboxItem, linkifySanitizedHtml } from '../../util';
 import Avatar from '../baseComponent/avatar';
 import Star from '../baseComponent/star';
 
@@ -137,6 +136,7 @@ export default class SystemMessage extends PureComponent {
           new ErrorDialog({ fileKey: id[0] });
           return;
         }
+
         // 工作表导入
         if (href.indexOf('excelbatcherrorpage') > -1) {
           evt.preventDefault();
@@ -154,7 +154,18 @@ export default class SystemMessage extends PureComponent {
           return;
         }
 
+        // 工作表导入附件
+        if (href.indexOf('importattachmentserrorpage') > -1) {
+          evt.preventDefault();
+          evt.stopPropagation();
+          const arr = href.split('/');
+          new ErrorDialog({ fileKey: arr[arr.length - 1], isAttachment: true });
+
+          return;
+        }
+
         const matchedAppPath = (location.pathname.match(/\/app\/([\w-]{36})/) || '')[0];
+
         // 应用首页
         if (
           matchedAppPath &&
@@ -268,6 +279,9 @@ export default class SystemMessage extends PureComponent {
 
     const isApiErrorMessage = content.includes('integrationApi') && !app;
 
+    const value = xss(content.replace(/[\r\n]/g, '<br />'), xssOptions);
+    const linkifyValue = parse(linkifySanitizedHtml(value, xssOptions));
+
     return (
       <div className="messageItem">
         <div className="Left">
@@ -292,10 +306,9 @@ export default class SystemMessage extends PureComponent {
             <div className="textMsg">
               <span dangerouslySetInnerHTML={{ __html: typeName }} />
               {typeName && <span className="mRight5 textTertiary">:</span>}
-
               <span
                 dangerouslySetInnerHTML={{
-                  __html: parse(xss(linkify(xss(content.replace(/[\r\n]/g, '<br />'), xssOptions)), xssOptions)),
+                  __html: linkifyValue,
                 }}
                 ref={el => {
                   this.msg = el;

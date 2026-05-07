@@ -3,6 +3,7 @@ import update from 'immutability-helper';
 import _, { findIndex, flatten, get, includes, isArray, isEmpty, isObject, keys, omit, sortBy } from 'lodash';
 import { navigateTo } from 'src/router/navigateTo';
 import { browserIsMobile } from 'src/utils/common';
+import { getColorValue } from 'src/utils/control';
 import {
   HAVE_HIGH_SETTING_WIDGET,
   HAVE_MASK_WIDGET,
@@ -60,9 +61,11 @@ export const exportRelevantComponents = r => {
 export const getUrlPara = () => {
   const search = new URLSearchParams(location.search);
   const para = {};
+
   for (var [key, value] of search) {
     para[key] = value;
   }
+
   return para;
 };
 
@@ -86,10 +89,12 @@ export const toEditWidgetPage = (paras, isOpenNew = true) => {
     navigateTo(url);
   }
 };
+
 export const getDefaultSizeByType = type => {
   if (typeof type === 'number') {
     type = enumWidgetType[type];
   }
+
   return get(DEFAULT_DATA[type], 'size');
 };
 
@@ -127,6 +132,7 @@ export const putControlByOrder = controls => {
   controls.forEach(item => {
     if (!item.size) item = { ...item, size: getDefaultSizeByData(item) };
     const { row, col } = item;
+
     if (isEmpty(obj[row])) {
       obj[row] = [item];
     } else {
@@ -159,16 +165,19 @@ export const putControlByOrder = controls => {
 export const dealControlData = (controls = []) => {
   return controls.map(item => {
     const { type } = item;
+
     // 子表控件递归处理其中的控件
     if (type === 34) {
       return { ...item, relationControls: dealControlData(item.relationControls) };
     }
+
     if (type === 31) {
       const fnReg = new RegExp(`c(?=[${FORMULA_FN_LIST.join('|')}])`, 'g');
       return update(item, {
         dataSource: { $apply: dataSource => dataSource.replace(/AVG/g, 'AVERAGE').replace(fnReg, '') },
       });
     }
+
     return item;
   });
 };
@@ -180,6 +189,7 @@ export const replaceHalfWithSizeControls = controls =>
       const size = item.size || (item.half ? WHOLE_SIZE / 2 : WHOLE_SIZE);
       return { ...omit(item, 'half'), size };
     }
+
     return omit(item, 'half');
   });
 
@@ -190,6 +200,7 @@ const replaceRowWithControls = widgets => {
   tabWidgets.forEach(item => {
     flattenTabs.push([item]);
     const childWidgets = _.get(item, 'type') === 52 ? putControlByOrder(item.relationControls || []) : [];
+
     if (childWidgets.length > 0) {
       flattenTabs.push(...childWidgets);
     }
@@ -213,6 +224,7 @@ export const resortControlByColRow = (controls = []) => {
 // 能否作为标题控件
 export const canSetAsTitle = data => {
   let { type } = data;
+
   if (type === 30) {
     if (data.sourceControl && data.sourceControl.type && (data.strDefault || '')[0] !== '1') {
       type = data.sourceControl.type;
@@ -220,6 +232,7 @@ export const canSetAsTitle = data => {
       return false;
     }
   }
+
   return !includes(NOT_AS_TITLE_CONTROL, type);
 };
 
@@ -230,9 +243,11 @@ export function genWidgetRowAndCol(widgets) {
 export const setDefaultTitle = controls => {
   if (controls.some(item => item.attribute === 1)) return controls;
   const canAsTitleIndex = findIndex(controls, item => canSetAsTitle(item));
+
   if (canAsTitleIndex > -1) {
     return update(controls, { [canAsTitleIndex]: { $apply: item => ({ ...item, attribute: 1 }) } });
   }
+
   return controls;
 };
 
@@ -278,16 +293,20 @@ export const getControlByControlId = (controls, controlId, key) => {
 export const returnMasterPage = globalSheetInfo => {
   setTimeout(() => {
     const { fromURL } = getUrlPara();
+
     if (fromURL === 'newPage') {
       window.close();
       return;
     }
+
     if (fromURL) {
       navigateTo(decodeURIComponent(fromURL));
       return;
     }
+
     if (globalSheetInfo) {
       const { appId, groupId, worksheetId } = globalSheetInfo;
+
       if (!appId) {
         navigateTo(`/app`);
       } else {
@@ -301,6 +320,7 @@ export const getWidgetInfo = type => {
   if (typeof type === 'number') {
     type = enumWidgetType[type];
   }
+
   return DEFAULT_CONFIG[type] || {};
 };
 
@@ -344,9 +364,11 @@ export const filterOnlyShowField = (controls = []) => {
 
 export const levelSafeParse = value => {
   let levelValue = parseFloat(value, 10);
+
   if (!_.isNumber(levelValue) || _.isNaN(levelValue)) {
     levelValue = undefined;
   }
+
   return levelValue;
 };
 
@@ -362,10 +384,13 @@ export const formatSearchConfigs = (res = {}) => {
 };
 
 export const getRgbaByColor = (color, alpha) => {
+  color = getColorValue(color);
   let sColorChange = [];
+
   for (let i = 1; i < 7; i += 2) {
     sColorChange.push(parseInt(`0x${color.slice(i, i + 2)}`));
   }
+
   return `rgba(${sColorChange.join(',')},${alpha})`;
 };
 
@@ -378,6 +403,7 @@ export const supportDisplayRow = item => {
       ((item.type === 29 || item.type === 51) && _.get(item, 'advancedSetting.showtype') === '3')
     );
   }
+
   // 多条关联记录（列表）、查询记录列表、子表、分割线、备注
   return !(isSheetDisplay(item) || includes([34, 22, 51, 52], item.type));
 };
@@ -394,10 +420,12 @@ export const getFilterRelateControls = ({ controls = [], showControls = [], data
     WIDGETS_TO_API_TYPE_ENUM.REMARK,
     ...SYS_CONTROLS,
   ];
+
   // 列表形态支持条码
   if (!isSheetDisplay(data)) {
     filterIds.push(WIDGETS_TO_API_TYPE_ENUM.BAR_CODE);
   }
+
   return _.filter(controls, item => !_.includes(filterIds, item.type) || _.includes(showControls, item.controlId));
 };
 
@@ -437,11 +465,13 @@ export const isOldSheetList = data => {
 export const getBoundRowByTab = widgets => {
   for (var i = 0; i < widgets.length; i++) {
     const row = widgets[i];
+
     for (var j = 0; j < row.length; j++) {
       const item = widgets[i][j];
       if (fixedBottomWidgets(item)) return i;
     }
   }
+
   return -1;
 };
 
@@ -481,6 +511,7 @@ export const isShowUnitConfig = (data = {}, selectedControl = {}) => {
   if (selectedControl.type === 37) {
     if ([2, 3].includes(enumDefault) && [15, 16, 46].includes(selectedControl.enumDefault2)) return false;
   }
+
   return true;
 };
 
@@ -520,6 +551,7 @@ export const supportSettingCollapse = (props, key) => {
       if (type === 51) {
         return enumDefault === 2 && advancedSetting.querytype !== '1';
       }
+
       return _.includes(HAVE_OPTION_WIDGET, type) || (type === 45 && enumDefault === 3);
     case 'style':
       return _.includes(HAVE_TABLE_STYLE_WIDGET, type) || isSheetDisplay(data);
@@ -548,14 +580,17 @@ export const supportSettingCollapse = (props, key) => {
           if (_.includes([2, 6, 46, 10], type) && isCustom) return false;
           return _.includes(HAVE_HIGH_SETTING_WIDGET, type);
       }
+
     case 'security':
       let currentControl = { ...data };
+
       if (currentControl.type === 30) {
         const parsedDataSource = parseDataSource(dataSource);
         const { relationControls = [] } = getControlByControlId(allControls, parsedDataSource);
         const parsedControl = getControlByControlId(relationControls, sourceControlId);
         currentControl = parsedControl;
       }
+
       if (_.includes([2, 6], currentControl.type) && isCustomWidget(currentControl)) return false;
 
       return (
@@ -583,7 +618,7 @@ export const supportWidgetIntroOptions = (data = {}, introType, from, isRecycle 
   // 回收站不显示样式、说明
   if (isRecycle) return false;
   // 分段、他表、标签页
-  if (_.includes([22, 30, 52], data.type) && introType === 2) return false;
+  if (_.includes([22, 30], data.type) && introType === 2) return false;
   // 子表内不支持事件
   if (from === 'subList' && introType === 4) return false;
 
@@ -632,6 +667,7 @@ export const checkOptionsRepeat = (controls = [], checkCollections = true) => {
     if (_.includes([9, 10, 11], c.type) && c.dataSource ? checkCollections : true) {
       const noDelOptions = (c.options || []).filter(o => !o.isDeleted);
       const uniqOptions = _.uniqBy(noDelOptions, 'value');
+
       if (noDelOptions.length !== uniqOptions.length) {
         return true;
       }

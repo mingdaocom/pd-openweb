@@ -24,12 +24,15 @@ export default function (props) {
   const sourceDt = getNodeInfo(flowData, 'DATASOURCE');
   const getSourceTableData = (_.get(sourceDt, 'nodeConfig.config.sourceTables') || [])[0] || {};
   const [{ showList }, setState] = useSetState({ showList: false });
+
   if (getGroupFields(flowData).length >= GROUPMAX) {
     return '';
   }
+
   if (props.updateLoading) {
     return <div className={cx('mTop16 textDisabled  qw alignItemsCenter flexRow')}>{_l('加载中...')}</div>;
   }
+
   return (
     <Trigger
       action={['click']}
@@ -69,9 +72,11 @@ export default function (props) {
                           } else {
                             o = _.omit(o, ['isLimit']);
                           }
+
                           return o;
                         });
                       }
+
                       return o;
                     }),
                   tableName: getTranslateInfo(appId, null, workSheetId).name || tableName,
@@ -107,9 +112,11 @@ export default function (props) {
                   fields: [newDt],
                   resultField: setResultFieldSettingByAggFuncType(resultField),
                 };
+
                 if (canArraySplit(controlData)) {
                   groupFieldAdd.arraySplit = !isUnique(controlData);
                 }
+
                 const groupDt = getNodeInfo(flowData, 'GROUP');
                 onUpdate(
                   [

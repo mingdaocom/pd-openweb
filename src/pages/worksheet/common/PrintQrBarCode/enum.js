@@ -275,6 +275,7 @@ export function getPrintCardInfoOfTemplate(template = {}) {
       [PRINT_TYPE.BAR]: 'a-barcode',
     }[printType] || 'doc';
   let text = '';
+
   if (labelSize === 100) {
     text = _l('%0 x %1 mm', template.labelCustomWidth, template.labelCustomHeight);
   } else if (printType === PRINT_TYPE.QR) {
@@ -287,5 +288,6 @@ export function getPrintCardInfoOfTemplate(template = {}) {
   } else if (printType === PRINT_TYPE.BAR) {
     text = getTextByValue(BAR_LABEL_SIZE, labelSize);
   }
+
   return { icon, text };
 }

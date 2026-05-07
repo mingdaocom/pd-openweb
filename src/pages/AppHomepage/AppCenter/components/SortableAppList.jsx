@@ -84,6 +84,7 @@ export default class SortableComponent extends Component {
           />
         );
       }
+
       if (isEmpty(items)) return <span />;
       return null;
     };

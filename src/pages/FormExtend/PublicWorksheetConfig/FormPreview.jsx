@@ -36,6 +36,7 @@ export default class FormPreview extends React.Component {
               if (isOldSheetList(item)) {
                 return { ...item, advancedSetting: Object.assign({}, item.advancedSetting, { showtype: '1' }) };
               }
+
               return item;
             })}
           fromType="public"

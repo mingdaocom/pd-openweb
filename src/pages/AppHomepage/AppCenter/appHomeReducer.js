@@ -32,6 +32,7 @@ function updateAppOfState(state, appId, update = data => data) {
   });
   return state;
 }
+
 function deleteAppOfState(state, appId) {
   [
     'apps',
@@ -51,6 +52,7 @@ function deleteAppOfState(state, appId) {
     if (state[key]) {
       state[key].forEach(group => {
         const hasDeletedApp = _.includes(group.appIds, appId);
+
         if (hasDeletedApp) {
           group.appIds = group.appIds.filter(id => id !== appId);
           group.count = group.appIds.length;
@@ -73,6 +75,7 @@ function updateGroupOfState(state, groupId, update = data => data) {
 export function reducer(state, action = {}) {
   let newState = { ...state };
   let newApp;
+
   switch (action.type) {
     case 'PROJECT_GROUPS_NAME_LANG':
       return { ...state, projectGroupsLang: action.data };
@@ -146,6 +149,7 @@ export function reducer(state, action = {}) {
             return state.apps;
         }
       };
+
       const markedData = action.isMark
         ? state.markedApps.concat({
             ..._.find(getSourceApps(), { id: action.appId }),
@@ -181,6 +185,7 @@ export function reducer(state, action = {}) {
       if (!newApp) {
         return state;
       }
+
       newApp = { ...newApp, id: action.newAppId, name: _l('%0-复制', newApp.name), isNew: true, isMarked: false };
       return updateAppOfState({
         ...state,
@@ -323,8 +328,10 @@ function handleDashboardOrAppResponse(dispatch, data, isDashboard) {
         value: false,
       });
     }
+
     return;
   }
+
   let groups = [...(data.projectGroups || []), ...(data.personalGroups || [])];
   const markedGroup = (data.markedGroupIds || []).map(id => _.find(groups, { id })).filter(_.identity);
   groups = groups.map(g => ({ ...g, isMarked: !!_.find(markedGroup, { id: g.id }) }));
@@ -393,6 +400,7 @@ function getAppLangs(dispatch, projectId, noCache = false) {
       });
     });
 }
+
 export class CreateActions {
   constructor(props) {
     this.dispatch = props.dispatch;
@@ -414,9 +422,11 @@ export class CreateActions {
       getAppLangs(this.dispatch, projectId, noCache);
       getGroupsLangs(this.dispatch, projectId);
     }
+
     if (window.dashboardAjax) {
       window.dashboardAjax.abort();
     }
+
     window.dashboardAjax = homeAppAjax.myPlatform({ projectId, containsLinks: true });
     window.dashboardAjax.then(data => {
       delete window.dashboardAjax;
@@ -427,12 +437,14 @@ export class CreateActions {
     if (!activeGroupId) {
       localStorage.removeItem(`latest_group_${md.global.Account.accountId}`);
     }
+
     if (!noGroupsLoading) {
       this.dispatch({
         type: 'UPDATE_GROUPS_LOADING',
         value: true,
       });
     }
+
     this.dispatch({
       type: 'UPDATE_APPS_LOADING',
       value: true,
@@ -444,13 +456,16 @@ export class CreateActions {
     if (projectId === 'external') {
       projectId = undefined;
     }
+
     if (projectId) {
       getAppLangs(this.dispatch, projectId, noCache);
       getGroupsLangs(this.dispatch, projectId);
     }
+
     if (window.homeGetMyAppAjax) {
       window.homeGetMyAppAjax.abort();
     }
+
     window.homeGetMyAppAjax = homeAppAjax.getMyApp({ projectId, containsLinks: true });
     window.homeGetMyAppAjax.then(data => {
       delete window.homeGetMyAppAjax;
@@ -601,11 +616,13 @@ export class CreateActions {
     const args = {
       appId,
     };
+
     if (editingGroup.groupType === 0) {
       args.personalGroups = [editingGroup.id];
     } else {
       args.projectGroups = [editingGroup.id];
     }
+
     (isRemove ? homeAppAjax.removeToGroup : homeAppAjax.addToGroup)(args)
       .then(() => {
         this.dispatch({
@@ -761,6 +778,7 @@ export class CreateActions {
   }
   updateAppSort({ sortType, appIds, projectId, groupId }) {
     const markedAppDisplay = _.get(this.state, 'origin.homeSetting.markedAppDisplay');
+
     if (!_.isUndefined(markedAppDisplay) && sortType === 1) {
       if (markedAppDisplay === 1) {
         projectId = undefined;
@@ -768,6 +786,7 @@ export class CreateActions {
         sortType = 7;
       }
     }
+
     homeAppAjax
       .updateAppSort({ sortType, appIds, projectId, groupId })
       .then(res => {

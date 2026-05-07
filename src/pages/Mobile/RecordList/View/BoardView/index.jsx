@@ -117,9 +117,11 @@ const MobileBoardView = props => {
     if (clicktype === '2') return;
     if (clicktype === '1') {
       let value = item[clickcid];
+
       if (RegExpValidator.isURL(value)) {
         window.open(value);
       }
+
       return;
     }
 
@@ -129,6 +131,7 @@ const MobileBoardView = props => {
       }`;
       return;
     }
+
     handlePushState('page', 'recordDetail');
     updatePreviewRecordId(item.rowid);
     setUpdateRowParam(updateRowParam);
@@ -142,6 +145,7 @@ const MobileBoardView = props => {
     if (!updateRowParam.key) {
       return;
     }
+
     // 分组字段值
     // 之前
     const preControlValue = updateRowParam.preRow[viewControl] || '';
@@ -175,6 +179,7 @@ const MobileBoardView = props => {
       });
       return;
     }
+
     updateBoardViewRecord(param);
   };
 

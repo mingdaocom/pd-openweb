@@ -29,6 +29,7 @@ export default function RowItem({ row, displayItemType, sectionId, index, ...res
       if (sectionId && (_.includes(['SECTION'], item.enumType) || notInsetSectionTab(item.data))) {
         return false;
       }
+
       // 批量拖拽，当前拖拽物在批量选中区域内
       if (rest.batchDrag && _.some(row, r => _.find(rest.batchActive || [], i => i.row === r.row))) return false;
       return true;
@@ -37,12 +38,14 @@ export default function RowItem({ row, displayItemType, sectionId, index, ...res
       if (monitor.isOver({ shallow: true }) && monitor.canDrop()) {
         if (isFullLineDragItem(item)) {
           let dir = 'bottom';
+
           if ($ref.current) {
             // 若拖拽点在上半部则指示线在上方
             const { height, top } = $ref.current.getBoundingClientRect();
             const { y } = monitor.getClientOffset();
             if (y - top <= height / 2) dir = 'top';
           }
+
           setPointerDir(dir);
         } else {
           const rowItem = (rest.widgets || [])[index] || [];
@@ -61,6 +64,7 @@ export default function RowItem({ row, displayItemType, sectionId, index, ...res
         if (pointerDir === 'right') {
           return { mode: DRAG_MODE.INSERT_TO_ROW_END, rowIndex: index, sectionId, activePath: [index, row.length - 1] };
         }
+
         // 上下插入整行控件
         return {
           mode: DRAG_MODE.INSERT_NEW_LINE,

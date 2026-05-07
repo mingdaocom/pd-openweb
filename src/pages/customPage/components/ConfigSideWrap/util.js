@@ -14,9 +14,11 @@ export const replaceTitleColor = (data, themeColor) => {
   if (data.color === 'DARK_COLOR' && themeColor) {
     data.color = themeColor;
   }
+
   if (data.color === 'LIGHT_COLOR' && themeColor) {
     data.color = generate(themeColor)[0];
   }
+
   return data;
 };
 

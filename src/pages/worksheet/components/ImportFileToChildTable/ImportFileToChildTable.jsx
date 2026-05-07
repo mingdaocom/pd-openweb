@@ -56,6 +56,7 @@ export default function ImportFileToChildTable(props) {
               if (url) {
                 setExcelUrl(url);
               }
+
               setStep('preview');
             }}
             onParsePaste={data => {

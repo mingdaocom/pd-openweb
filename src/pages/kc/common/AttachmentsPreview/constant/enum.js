@@ -23,11 +23,13 @@ const FROM_TYPE = {
 
 function createDict(map) {
   const result = {};
+
   for (const key in map) {
     map[key].forEach(ext => {
       result[ext] = PREVIEW_TYPE[key] || PREVIEW_TYPE.OTHER;
     });
   }
+
   return result;
 }
 

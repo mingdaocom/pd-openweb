@@ -201,6 +201,7 @@ function Others(props) {
       },
     },
   ];
+
   const handleSearch = keyWords => {
     setState({ keyWords });
     SetAppRolePagingModel({
@@ -209,6 +210,7 @@ function Others(props) {
       keywords: keyWords,
     });
   };
+
   const onSearch = _.debounce(keywords => handleSearch(keywords), 500);
   return (
     <Wrap className={cx('flex flexColumn overflowHidden', { isAllType: roleId !== 'all' })}>
@@ -277,6 +279,7 @@ function Others(props) {
           if (userList.length >= total || userList.length < pageSize * pageIndex || loading) {
             return;
           }
+
           setState({ pageIndex: pageIndex + 1 });
           SetAppRolePagingModel({
             ...appRolePagingModel,
@@ -287,11 +290,13 @@ function Others(props) {
         handleChangeSortHeader={sorter => {
           const { field, order } = sorter;
           let data = appRolePagingModel.sort.filter(o => o.fieldType !== (field === 'operateTime' ? 10 : 20));
+
           if (field === 'operateTime') {
             data = [...data, { fieldType: 10, isASC: order === 'ascend' }];
           } else {
             data = [...data, { fieldType: 20, isASC: order === 'ascend' }];
           }
+
           SetAppRolePagingModel({
             ...appRolePagingModel,
             pageIndex: 1,
@@ -304,6 +309,7 @@ function Others(props) {
     </Wrap>
   );
 }
+
 const mapStateToProps = state => ({
   portal: state.portal,
 });

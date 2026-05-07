@@ -75,12 +75,15 @@ export const getDefaultIsUnfold = (value = true, widgetStyle = {}) => {
   let tempIsUnfold = value;
   const localValue = JSON.parse(localStorage.getItem('sheetSectionIsUnfold') || '{}');
   const showIcon = widgetStyle.showicon || '1';
+
   if (!_.isUndefined(_.get(localValue, [widgetStyle.tabposition]))) {
     tempIsUnfold = _.get(localValue, [widgetStyle.tabposition]);
   }
+
   if (showIcon !== '1') {
     tempIsUnfold = true;
   }
+
   return tempIsUnfold;
 };
 

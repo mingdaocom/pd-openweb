@@ -87,6 +87,7 @@ export const Chatbot = props => {
         <WorkflowChatBot
           isMobile
           maxWidth={800}
+          appId={appId}
           chatbotId={chatbotId}
           conversationId={conversationId}
           chatbotConfig={chatbotConfig}

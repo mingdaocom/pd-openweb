@@ -241,12 +241,14 @@ const handleCopyWorkSheet = props => {
     name: workSheetName,
     relationControlIds: [],
   };
+
   const onOk = () => {
     copyArgs.name = copyArgs.name.trim();
     if (!copyArgs.name) {
       alert(_l('请填写名称'), 3);
       return;
     }
+
     if (type === 1) {
       sheetListActions.copyCustomPage(
         {
@@ -284,8 +286,10 @@ const handleCopyWorkSheet = props => {
         parentGroupId,
       });
     }
+
     dialogConfirm();
   };
+
   const nameMap = {
     0: _l('工作表'),
     1: _l('自定义页面'),
@@ -440,6 +444,7 @@ export default function MoreOperation(props) {
               } else {
                 window.editCustomPage && window.editCustomPage();
               }
+
               setPopupVisible(false);
             }}
           >
@@ -458,6 +463,7 @@ export default function MoreOperation(props) {
             } else {
               selectIcon();
             }
+
             setPopupVisible(false);
           }}
         >
@@ -516,7 +522,7 @@ export default function MoreOperation(props) {
                 alert(_l('复制成功'));
               }}
             >
-              <span className="text">{_l('复制ID')}</span>
+              <span className="text">{_l('复制 ID')}</span>
             </MenuItem>
 
             {isEditApp && <hr className="splitter" />}
@@ -707,6 +713,7 @@ export default function MoreOperation(props) {
 
   useEffect(() => {
     const appItemEl = document.querySelector(`.workSheetItem-${appItem.workSheetId}`);
+
     if (popupVisible) {
       appItemEl && appItemEl.classList.add('hover');
     } else {
@@ -744,6 +751,7 @@ export default function MoreOperation(props) {
               alert(_l('相同组不需要移动'), 3);
               return;
             }
+
             sheetListActions.moveSheet({
               sourceAppId: appId,
               resultAppId,

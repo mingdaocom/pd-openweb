@@ -17,20 +17,25 @@ export default function RelateRecord(props) {
   });
   const { controlId, coverCid, showControls, dataSource, viewId } = control;
   const { allowitem, nullitemname, shownullitem, navshow, navfilters } = advancedSetting;
+
   if (advancedSetting.clicksearch && navshow !== '2') {
     control.advancedSetting.clicksearch = advancedSetting.clicksearch;
   }
+
   const isMultiple = String(allowitem) === '2';
   const [moreVisible, setMoreVisible] = useState(false);
   let staticRecords;
+
   if (navshow === '3') {
     control.advancedSetting.filters = navfilters;
   }
+
   if (navshow === '2') {
     staticRecords = JSON.parse(navfilters)
       .map(safeParse)
       .map(r => ({ rowid: r.id, ...r }));
   }
+
   const prefixRecords =
     shownullitem === '1'
       ? [
@@ -40,6 +45,7 @@ export default function RelateRecord(props) {
           },
         ]
       : [];
+
   const handleSetMoreVisible = () => {
     setMoreVisible(!moreVisible);
   };
@@ -49,6 +55,7 @@ export default function RelateRecord(props) {
       ...value,
     });
   }
+
   const getDefaultRelateSheetValue = () => {
     try {
       const { formData, controlId, recordId, worksheetId } = this.props.control;
@@ -63,6 +70,7 @@ export default function RelateRecord(props) {
           rowid: recordId,
         }),
       };
+
       if (titleControl.type === 29) {
         try {
           const cellData = JSON.parse(titleControl.value);
@@ -72,6 +80,7 @@ export default function RelateRecord(props) {
           defaultRelatedSheetValue.name = '';
         }
       }
+
       return {
         worksheetId,
         relateSheetControlId: controlId,

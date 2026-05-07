@@ -61,6 +61,7 @@ export default class EditMemberDialog extends Component {
   });
   renderUserList = () => {
     const { userList, isSearch, isLoading } = this.state;
+
     if (isLoading) {
       return (
         <div className="content pBottom10 Font13">
@@ -68,6 +69,7 @@ export default class EditMemberDialog extends Component {
         </div>
       );
     }
+
     return (
       <div className="content pBottom10 Font13">
         <ScrollView className="h100" onScrollEnd={this.onScrollEnd}>

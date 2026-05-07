@@ -18,6 +18,7 @@ export const dealChildren = children => {
       console.log(error);
     }
   }
+
   return [];
 };
 

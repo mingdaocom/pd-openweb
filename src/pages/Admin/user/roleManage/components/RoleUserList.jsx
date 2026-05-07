@@ -45,10 +45,9 @@ class RoleUserList extends Component {
       fromAdmin: true,
       showCreateBtn: false,
       checkIncludeChilren: true,
-      selectedDepartment:
-        (item.orgRoleChargeDepartments || []).map(l => {
-          return { ...l, checkIncludeChilren: true };
-        }) || [],
+      selectedDepartment: (item?.orgRoleChargeDepartments || []).map(l => {
+        return { ...l, checkIncludeChilren: true };
+      }),
       selectFn: (dep, dep2) => {
         const departmentIds = dep2.map(l => ({ departmentId: l.departmentId, isIncludeSub: true }));
         OrganizeAjax.setOrgRoleChargeDepartment({
@@ -143,11 +142,13 @@ class RoleUserList extends Component {
               checked={isSelectAll || !_.isEmpty(temp)}
               onClick={checked => {
                 let ids = [];
+
                 if (!checked) {
                   ids = userList.map(item => item.accountId);
                 } else {
                   ids = [];
                 }
+
                 this.props.updateSelectUserIds(ids);
               }}
             />
@@ -186,11 +187,13 @@ class RoleUserList extends Component {
               checked={_.includes(selectUserIds, item.accountId)}
               onClick={checked => {
                 let ids = [...selectUserIds];
+
                 if (!checked) {
                   ids.push(item.accountId);
                 } else {
                   ids = ids.filter(it => item.accountId !== it);
                 }
+
                 this.props.updateSelectUserIds(ids);
               }}
             />
@@ -222,6 +225,7 @@ class RoleUserList extends Component {
               if (item.departments.length - 1 > i) {
                 return `${it.name};`;
               }
+
               return `${it.name}`;
             })}
           >
@@ -229,6 +233,7 @@ class RoleUserList extends Component {
               if (item.departments.length - 1 > i) {
                 return `${it.name};`;
               }
+
               return `${it.name}`;
             })}
           </td>
@@ -238,6 +243,7 @@ class RoleUserList extends Component {
               if (item.jobs.length - 1 > i) {
                 return `${it.name};`;
               }
+
               return `${it.name}`;
             })}
           >
@@ -245,6 +251,7 @@ class RoleUserList extends Component {
               if (item.jobs.length - 1 > i) {
                 return `${it.name};`;
               }
+
               return `${it.name}`;
             })}
           </td>
@@ -272,6 +279,7 @@ class RoleUserList extends Component {
     }
 
     let flag = ref.current.scrollWidth - ref.current.scrollLeft === this.scrollRef.current.clientWidth;
+
     if (flag === fixedRight) {
       this.setState({ fixedRight: !flag });
     }

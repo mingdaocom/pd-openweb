@@ -45,7 +45,7 @@ AllowBindAccountNoVerify:bool，是否允许绑定账号不验证
 PasswordRegex:string，密码正则表达式
 PasswordRegexTip:string，密码正则表达式说明文字
 TwoFactorAuthenticationSwitchType:int，双因素认证开关类型（1：全平台用户无需二次验证 2：全平台用户必须二次验证 3：用户自行设置）
-TwoFactorAuthenticationPriorityType:int，双因素认证优先的账号类型（1：手机号，2：邮箱）
+TwoFactorAuthenticationPriorityType:int，双因素认证优先的账号类型（1：手机号，2：邮箱，3：TOTP）
 FirstLoginResetPassword:bool，首次登录需要重置密码
 PasswordOverdueDays:int，密码过期时间，0代表不过期
 BrandName:string，品牌名

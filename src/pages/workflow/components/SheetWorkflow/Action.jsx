@@ -124,6 +124,7 @@ function UpdateUserDialog(props) {
       },
     });
   };
+
   return (
     <Dialog
       visible={visible}
@@ -410,6 +411,7 @@ export default function WorkflowAction(props) {
   const handleSkip = () => {
     const description =
       type === 4 ? _l('当前节点未进行操作的成员将设为通过') : _l('当前节点未进行操作的成员将设为提交');
+
     if (isMobile) {
       MobileDialog.confirm({
         title: _l('确认跳过当前节点 ?'),
@@ -490,7 +492,7 @@ export default function WorkflowAction(props) {
         <MenuItem
           key="end"
           className="deleteItem pLeft15 pRight15"
-          style={{ height: 36, color: 'var(--color-error)' }}
+          style={{ height: 36, color: 'var(--color-error) !important' }}
           icon={<Icon icon="close" className="Font17 pRight5" />}
           onClick={handleEndInstance}
         >

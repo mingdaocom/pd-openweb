@@ -64,7 +64,7 @@ export default function EmptyIndexContent(props) {
   const data = CONFIG_DATA[type] || {};
 
   return (
-    <div className="h100 flexColumn alignItemsCenter justifyContentCenter pBottom20">
+    <div className="flexColumn alignItemsCenter justifyContentCenter pBottom20">
       <img src={data.img} style={{ width: 90 }} />
       <div className="Font24 bold mTop30">{data.title}</div>
       <div className="textSecondary Font18 mTop12">{data.desc}</div>

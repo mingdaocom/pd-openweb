@@ -98,6 +98,7 @@ const WrapPopover = styled.div`
     }
   }
 `;
+
 export default function ActionSet(props) {
   const {
     refreshFn = () => {},
@@ -132,6 +133,7 @@ export default function ActionSet(props) {
 
   const { hidebtn, clicktype = '0', clickcid, listbtns, detailbtns } = _.get(view, 'advancedSetting') || {};
   const acstyle = safeParse(_.get(view, 'advancedSetting.acstyle'));
+
   const getBtnBySort = (list, ids) => {
     let dataList = [];
     let others = list.filter(o => !ids.includes(o.btnId));
@@ -142,6 +144,7 @@ export default function ActionSet(props) {
       .filter(o => !!o);
     return [...dataList, ...others];
   };
+
   const listBtns = getBtnBySort(
     btnList.filter(
       o => safeParse(_.get(o, 'advancedSetting.listviews'), 'array').includes(viewId) || o.isAllView === 1,
@@ -433,9 +436,11 @@ export default function ActionSet(props) {
                     value={Number(acstyle.btncount > maxNum ? maxNum : acstyle.btncount || maxNum)}
                     onChange={value => {
                       let btncount = JSON.stringify(maxNum >= value ? value : maxNum);
+
                       if (btncount === (acstyle.btncount || maxNum)) {
                         return;
                       }
+
                       onChangeAcStyle({ btncount });
                     }}
                   />
@@ -453,12 +458,15 @@ export default function ActionSet(props) {
                       value={Number(acstyle.primarycount || 1)}
                       onChange={value => {
                         let primarycount = JSON.stringify(maxNum >= value ? value : maxNum);
+
                         if (primarycount === (acstyle.primarycount || maxNum)) {
                           return;
                         }
+
                         if (primarycount === (acstyle.primarycount || 1)) {
                           return;
                         }
+
                         onChangeAcStyle({ primarycount });
                       }}
                     />

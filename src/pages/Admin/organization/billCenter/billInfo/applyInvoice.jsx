@@ -70,6 +70,7 @@ export default function InvoiceSetting(props) {
   const saveSetting = () => {
     const formConfig = data.invoiceType === 1 ? applyInvoiceConfig : [...applyInvoiceConfig, ...newInvoiceConfig];
     const error = formConfig.some(({ key }) => !data[key]);
+
     if (error) {
       const errInfo = _.find(formConfig, ({ key }) => !data[key]) || {};
       alert(_l('请输入%0', errInfo.text), 2);
@@ -98,12 +99,14 @@ export default function InvoiceSetting(props) {
           alert(_l('申请失败'), 2);
           return;
         }
+
         alert(_l('申请成功'));
       })
       .finally(() => {
         onClose();
       });
   };
+
   return (
     <Dialog
       visible
@@ -132,6 +135,7 @@ export default function InvoiceSetting(props) {
                   placeholder={_l('请输入%0', text)}
                   onBlur={e => {
                     const value = e.target.value;
+
                     if (verify && value && !verify.test(value)) {
                       setData({ [key]: '' });
                       alert(_l('%0填写格式有误', text), 2);
@@ -164,6 +168,7 @@ export default function InvoiceSetting(props) {
                   placeholder={_l('请输入%0', text)}
                   onBlur={e => {
                     const value = e.target.value;
+
                     if (verify && value && !verify.test(value)) {
                       alert(_l('%0填写格式有误', text), 2);
                       setData({ [key]: '' });

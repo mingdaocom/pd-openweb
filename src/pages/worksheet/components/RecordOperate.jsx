@@ -88,7 +88,7 @@ const MoreOperate = styled.span`
   color: var(--color-text-tertiary);
   font-size: 18px;
   &:hover {
-    background-color: rgba(0, 0, 0, 0.03);
+    background-color: var(--color-background-secondary);
     color: var(--color-primary);
   }
 `;
@@ -131,6 +131,7 @@ export function handleDeleteRecord({
           onRemoveRelation({ confirm: false });
           return;
         }
+
         onDeleteSuccess({ appId, worksheetId, viewId, recordId });
         emitter.emit('ROWS_UPDATE');
       } catch (err) {
@@ -139,10 +140,12 @@ export function handleDeleteRecord({
       }
     }
   }
+
   if (isSubList) {
     deleteRow();
     return;
   }
+
   if (showRemoveRelation) {
     Dialog.confirm({
       onlyClose: true,
@@ -303,13 +306,16 @@ export default function RecordOperate(props) {
     !isExternal &&
     _.includes(shows, 'fav') &&
     !isManageView;
+
   function changePopupVisible(value) {
     onPopupVisibleChange(value);
     if (customButtonActive.current) {
       return;
     }
+
     setPopupVisible(value);
   }
+
   async function loadButtons() {
     try {
       setCustomButtons([]);
@@ -333,15 +339,18 @@ export default function RecordOperate(props) {
       alert(_l('加载自定义按钮失败'), 3);
     }
   }
+
   const checkFavoriteByRowId = () => {
     favoriteApi.checkFavoriteByRowId({ rowId: recordId, worksheetId, viewId }).then(res => {
       setIsFavorite(res);
     });
   };
+
   useEffect(() => {
     if (popupVisible && !defaultCustomButtons && !disableCustomButtons) {
       loadButtons();
     }
+
     if (popupVisible && canFav) {
       checkFavoriteByRowId();
     }
@@ -378,6 +387,7 @@ export default function RecordOperate(props) {
         });
     }
   };
+
   return (
     <Trigger
       action={action}
@@ -454,6 +464,7 @@ export default function RecordOperate(props) {
                     if (e.relatedTarget.closest('.rowIndex')) {
                       return;
                     }
+
                     changePopupVisible(false);
                   }
                 : noop
@@ -544,6 +555,7 @@ export default function RecordOperate(props) {
                     alert(_l('预览模式下，不能操作'), 3);
                     return;
                   }
+
                   changePopupVisible(false);
                   handleCopyRecord({
                     worksheetId,
@@ -569,6 +581,7 @@ export default function RecordOperate(props) {
                     alert(_l('预览模式下，不能操作'), 3);
                     return;
                   }
+
                   changePopupVisible(false);
                   onRecreate({ group: currentGroup });
                   emitter.emit('ROWS_UPDATE');
@@ -588,7 +601,7 @@ export default function RecordOperate(props) {
                   changePopupVisible(false);
                 }}
               >
-                {_l('复制ID')}
+                {_l('复制 ID')}
               </MenuItemWrap>
             )}
             {(showCopyId || showRecreate || showCopyId) && <Hr />}
@@ -625,6 +638,7 @@ export default function RecordOperate(props) {
                       alert(_l('预览模式下，不能操作'), 3);
                       return;
                     }
+
                     setMoveRecordToOtherGroupVisible(true);
                   }}
                 >
@@ -641,6 +655,7 @@ export default function RecordOperate(props) {
                     alert(_l('预览模式下，不能操作'), 3);
                     return;
                   }
+
                   handleShareRecord({
                     isCharge,
                     appId,
@@ -701,6 +716,7 @@ export default function RecordOperate(props) {
                     alert(_l('预览模式下，不能操作'), 3);
                     return;
                   }
+
                   changePopupVisible(false);
                   handleDeleteRecord({
                     worksheetId,
@@ -776,6 +792,7 @@ export default function RecordOperate(props) {
                   if (e.relatedTarget.className.includes('recordOperate')) {
                     return;
                   }
+
                   setTimeout(() => {
                     changePopupVisible(false);
                   }, 100);

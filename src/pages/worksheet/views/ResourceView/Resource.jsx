@@ -35,18 +35,22 @@ const Drag = styled.div(
   }
 `,
 );
+
 export default function Resource(props) {
   const isM = browserIsMobile();
   const { fetchRows, getRelationControls, view, getTimeList, resourceview, controls } = props;
+
   const getDirectoryWidth = () => {
     if (isM) {
       return Math.floor(props.width * 0.3);
     }
+
     const resourceDirectoryWidth = localStorage.getItem(`resourceDirectoryWidth-${props.viewId}`);
     const worksheetContentBoxEl = document.querySelector('.worksheetSheet');
     const contentBoxWidth = worksheetContentBoxEl ? worksheetContentBoxEl.clientWidth / 3 : 210;
     return resourceDirectoryWidth ? Number(resourceDirectoryWidth) : contentBoxWidth;
   };
+
   const [{ dragMaskVisible, directoryWidth, maxWidth, showGroup, canvasType }, setState] = useSetState({
     dragMaskVisible: false,
     directoryWidth: getDirectoryWidth(),
@@ -68,6 +72,7 @@ export default function Resource(props) {
       fetchRows();
     });
   };
+
   useEffect(() => {
     const viewEl = document.querySelector(`.resourceView-${view.viewId}`);
     setState({
@@ -101,6 +106,7 @@ export default function Resource(props) {
       </div>
     );
   };
+
   const handleToolClick = () => {
     const $wrap = document.querySelector('.resourceView');
     const oneWidth = canvasType !== 'Day' ? timeWidth : timeWidthHalf;
@@ -134,6 +140,7 @@ export default function Resource(props) {
     });
     $('.new-div-class .valignWrappe').hide();
     const name = view.name + '.png';
+
     try {
       domtoimage.toBlob(copyDom, { bgcolor: '#f5f5f5', width: width, height: height }).then(function (blob) {
         saveAs(blob, name);
@@ -145,6 +152,7 @@ export default function Resource(props) {
       document.querySelector('body').removeChild(copyDom);
     }
   };
+
   return (
     <Wrap>
       <div className={cx('resourceView flexRow', `resourceView-${view.viewId}`)}>

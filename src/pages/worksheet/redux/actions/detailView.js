@@ -15,6 +15,7 @@ export const fetchRows = (pageIndex, keyWords) => {
     if (detailRowsRequest && detailRowsRequest.abort && requestViewIds.includes(viewId)) {
       detailRowsRequest.abort();
     }
+
     requestViewIds.push(viewId);
 
     dispatch({ type: 'CHANGE_DETAIL_VIEW_PAGE_INDEX', pageIndex });
@@ -70,6 +71,7 @@ export const updateRow = data => {
     const { detailView } = getState().sheet;
     let { detailViewRows } = detailView;
     const row = detailViewRows.find(o => o.rowid === data.rowid);
+
     if (!row) {
       dispatch({
         type: 'CHANGE_DETAIL_VIEW_ROWS',

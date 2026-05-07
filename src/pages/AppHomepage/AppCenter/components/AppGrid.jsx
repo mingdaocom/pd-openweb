@@ -450,9 +450,11 @@ function MarkedGroupTab(props) {
   const [popupVisible, setPopupVisible] = useState({});
   let safeActiveGroupId = activeGroupId;
   const activeGroup = _.find(markedGroup, { id: safeActiveGroupId }) || markedGroup[0];
+
   if (activeGroupId !== activeGroup.id) {
     safeActiveGroupId = activeGroup.id;
   }
+
   return (
     !keywords && (
       <div>
@@ -625,6 +627,7 @@ export default function AppGrid(props) {
     }
 
     const $box = $('.myAppGroupDetail');
+
     if (window.ResizeObserver && !!$box.length && !$box.data('bind')) {
       const observer = new ResizeObserver(switchMoreBtn);
 
@@ -650,6 +653,7 @@ export default function AppGrid(props) {
     if (groups.length) {
       const cacheGroupTabId = localStorage.getItem(`home_active_group_tab_${projectId}_${md.global.Account.accountId}`);
       const cacheGroup = projectGroups.filter(g => g.id === cacheGroupTabId)[0];
+
       if (!cacheGroup) {
         //记忆的分组不存在，切换到全部tab
         setCurrentGroupTab('all');
@@ -683,6 +687,7 @@ export default function AppGrid(props) {
                     if (currentGroupTab === group.id) {
                       return;
                     }
+
                     setCurrentGroupTab(group.id);
                     setActiveMoreGroup('');
                   }}

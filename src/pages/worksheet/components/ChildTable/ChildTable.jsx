@@ -163,6 +163,14 @@ const createElementFromHtml = html => {
 
 const maxAllowFrozenColumnIndex = 10;
 
+const getDefaultSummaryTypes = control => {
+  const types = safeParse(control?.advancedSetting?.statisticsseting || '[]', 'array');
+  return types.reduce((acc, curr) => {
+    acc[curr.id] = curr.type;
+    return acc;
+  }, {});
+};
+
 class ChildTable extends React.Component {
   static contextType = RecordInfoContext;
   static propTypes = {
@@ -216,11 +224,13 @@ class ChildTable extends React.Component {
     this.abortController = typeof AbortController !== 'undefined' && new AbortController();
     this.requestPool = createRequestPool({ abortController: this.abortController });
     const _handleUpdateCell = this.handleUpdateCell.bind(this);
+
     this.handleUpdateCell = (...args) => {
       flushSync(() => {
         _handleUpdateCell(...args);
       });
     };
+
     this.dataFormatCacheMap = new Map();
     props.registerCell(this);
     this.rowsLoading = {};
@@ -234,9 +244,11 @@ class ChildTable extends React.Component {
         this.loadRows(undefined, { needResetControls });
       }
     }
+
     if (_.isFunction(control.addRefreshEvents)) {
       control.addRefreshEvents(control.controlId, options => this.refresh(null, options));
     }
+
     if (browserIsMobile()) return;
     $(this.childTableCon).on('mouseenter', '.cell:not(.row-head)', this.handleMouseEnter);
     $(this.childTableCon).on('mouseleave', '.cell:not(.row-head)', this.handleMouseLeave);
@@ -247,6 +259,7 @@ class ChildTable extends React.Component {
     if (nextProps.refreshFlag && nextProps.refreshFlag !== this.props.refreshFlag) {
       this.refresh();
     }
+
     const { initRows } = this.props;
     this.updateDefsourceOfControl(nextProps);
     const control = this.props.control;
@@ -259,6 +272,7 @@ class ChildTable extends React.Component {
     } else if (isAddRecord && valueChanged && typeof nextControl.value === 'undefined') {
       initRows([]);
     }
+
     if (
       nextControl.controlId !== control.controlId ||
       !_.isEqual(nextControl.showControls, control.showControls) ||
@@ -284,6 +298,7 @@ class ChildTable extends React.Component {
         },
       );
     }
+
     // 重新渲染子表来适应新宽度
     if (
       nextProps.control.sideVisible !== this.props.control.sideVisible ||
@@ -299,12 +314,15 @@ class ChildTable extends React.Component {
         console.error(err);
       }
     }
+
     if (!_.isEqual(this.props.rows, nextProps.rows)) {
       const { pageIndex, pageSize } = this.state;
       const pageNum = Math.ceil(nextProps.rows.length / pageSize);
+
       if (pageIndex > pageNum && pageNum) {
         this.setState({ pageIndex: pageNum });
       }
+
       if (get(nextProps, 'lastAction.type') === 'CLEAR_AND_SET_ROWS') {
         this.dataFormatCacheMap.clear();
       }
@@ -315,6 +333,7 @@ class ChildTable extends React.Component {
     if (!_.isEqual(this.state, nextState)) {
       return true;
     }
+
     return (
       !_.isEqual(get(this.props, 'treeTableViewData.treeMap'), get(nextProps, 'treeTableViewData.treeMap')) ||
       !_.isEqual(this.props.rows, nextProps.rows) ||
@@ -328,9 +347,11 @@ class ChildTable extends React.Component {
 
   componentWillUnmount() {
     const { mode, control } = this.props;
+
     if (mode !== 'dialog' && _.isFunction(control.addRefreshEvents)) {
       control.addRefreshEvents(control.controlId, undefined);
     }
+
     $(this.childTableCon).off('mouseenter', '.cell:not(.row-head)', this.handleMouseEnter);
     $(this.childTableCon).off('mouseleave', '.cell:not(.row-head)', this.handleMouseLeave);
     window.removeEventListener('keydown', this.handleKeyDown);
@@ -348,10 +369,12 @@ class ChildTable extends React.Component {
     let { min, max, rownum, enablelimit, treeLayerControlId } = parsedSettings;
     let minCount;
     let maxCount = _.get(window, 'shareState.isPublicForm') ? 200 : MAX_COUNT;
+
     if (enablelimit) {
       minCount = min;
       maxCount = max;
     }
+
     return { ...parsedSettings, minCount, maxCount, rownum, treeLayerControlId };
   }
 
@@ -385,6 +408,7 @@ class ChildTable extends React.Component {
       ((instanceId && workId) || window.shareState.isPublicWorkflowRecord) &&
       worksheetInfo.workflowChildTableSwitch !== false;
     const { showControls = [], advancedSetting = {}, relationControls = [] } = control;
+
     if (baseLoading) {
       return [];
     }
@@ -409,11 +433,13 @@ class ChildTable extends React.Component {
       })),
     );
     let controlssorts = [];
+
     try {
       controlssorts = JSON.parse(advancedSetting.controlssorts);
     } catch (err) {
       console.log(err);
     }
+
     let result = sortControlByIds(controls, _.isEmpty(controlssorts) ? showControls : controlssorts).map(c => {
       const control = { ...c };
       const resetedControl = _.find(relationControls.concat(systemControls), { controlId: control.controlId });
@@ -421,6 +447,7 @@ class ChildTable extends React.Component {
         control.required = resetedControl.required;
         control.fieldPermission = resetedControl.fieldPermission;
       }
+
       if (!_.find(showControls, scid => control.controlId === scid)) {
         if (control.type === 52) {
           control.hidden = true;
@@ -440,6 +467,7 @@ class ChildTable extends React.Component {
           control.controlPermissions = replaceByIndex(control.controlPermissions || '111', 2, '1');
         }
       }
+
       if (
         control.controlId === 'ownerid' ||
         (_.get(window, 'shareState.isPublicWorkflowRecord') &&
@@ -496,13 +524,16 @@ class ChildTable extends React.Component {
     const { control, clearAndSetRows } = this.props;
     const { controls = [] } = this.state;
     const sort = safeParse(control.advancedSetting.sorts)[0];
+
     if (sort && sort.controlId) {
       const sortControl = _.find(controls, c => c.controlId === sort.controlId);
+
       if (sortControl) {
         clearAndSetRows(handleSortRows(rows, sortControl, sort.isAsc));
         return;
       }
     }
+
     clearAndSetRows(rows);
   }
 
@@ -527,9 +558,11 @@ class ChildTable extends React.Component {
     const isWorkflow =
       ((instanceId && workId) || window?.shareState?.isPublicWorkflowRecord) &&
       worksheetInfo?.workflowChildTableSwitch !== false;
+
     if (!recordId || !masterData) {
       return;
     }
+
     loadRows({
       getWorksheet: needResetControls,
       worksheetId: masterData.worksheetId,
@@ -543,13 +576,16 @@ class ChildTable extends React.Component {
         if (isFunction(get(control, 'dataFormat.current.revalidateControl'))) {
           control.dataFormat.current.revalidateControl(control.controlId);
         }
+
         if (res === null) {
           this.setState({
             error: _l('没有权限'),
           });
           return;
         }
+
         const state = { loading: false };
+
         if (needResetControls) {
           let newControls = (_.get(res, 'worksheet.template.controls') || _.get(res, 'template.controls')).concat(
             systemControls,
@@ -564,6 +600,7 @@ class ChildTable extends React.Component {
             state.controls = this.getControls(nextProps, { newControls });
           }
         }
+
         this.setState(state, () => {
           if (isWorkflow && isRefresh) {
             if (!isEmpty(originControls) && isFunction(control.updateRelationControls)) {
@@ -587,6 +624,7 @@ class ChildTable extends React.Component {
     if (get(this, 'searchRef.current.clear')) {
       this.searchRef.current.clear();
     }
+
     this.dataFormatCacheMap.clear();
   };
 
@@ -617,6 +655,7 @@ class ChildTable extends React.Component {
                 !_.includes(hiddenTypes.concat(SHEET_VIEW_HIDDEN_TYPES), c.type),
           )
           .map(c => _.assign({}, c));
+
     if (isTreeTableView && columns[0]) {
       const appendWidth = getTreeExpandCellWidth(treeTableViewData.maxLevel, rows.length);
       this.expandCellAppendWidth = appendWidth;
@@ -624,6 +663,7 @@ class ChildTable extends React.Component {
       columns[0].hideFrozen = true;
       columns[0].isTreeExpandCell = true;
     }
+
     return columns;
   }
 
@@ -631,11 +671,13 @@ class ChildTable extends React.Component {
     control = control || this.props.control;
     const columns = this.getShowColumns();
     let widths = {};
+
     try {
       widths = JSON.parse(control.advancedSetting.widths);
     } catch (err) {
       console.log(err);
     }
+
     if (isArray(widths)) {
       let result = {};
       columns.forEach((column, i) => {
@@ -643,6 +685,7 @@ class ChildTable extends React.Component {
       });
       return result;
     }
+
     return pick(
       widths,
       columns.map(c => c.controlId),
@@ -684,6 +727,7 @@ class ChildTable extends React.Component {
       const activeCell = this.worksheettable.current.table.refs.dom.current.querySelector(
         '.cell.row-id-' + rowId + '.canedit',
       );
+
       if (activeCell) {
         activeCell.click();
       }
@@ -711,6 +755,7 @@ class ChildTable extends React.Component {
     const { masterData, recordId } = this.props;
     const { projectId, rules = [] } = this.worksheetInfo;
     const { searchConfig } = this;
+
     const asyncUpdateCell = (cid, newValue) => {
       this.handleUpdateCell(
         {
@@ -733,17 +778,21 @@ class ChildTable extends React.Component {
         },
       );
     };
+
     let formdata = null;
     const isNewRecord = isCreate || !row;
     const cacheKey = isNewRecord ? rowId : row?.rowid;
+
     if (isNewRecord || !cacheKey || !this.dataFormatCacheMap.has(cacheKey)) {
       formdata = new DataFormat({
         requestPool: this.requestPool,
         data: this.state.controls.map(c => {
           let controlValue = (row || {})[c.controlId];
+
           if (_.isUndefined(controlValue) && (isCreate || !row)) {
             controlValue = c.value;
           }
+
           return {
             ...c,
             isSubList: true,
@@ -765,11 +814,13 @@ class ChildTable extends React.Component {
           if (!row || !row.needShowLoading) return;
           this.rowsLoading[rowId] = !_.every(Object.values(loadingInfo), b => !b);
           const newShowLoadingMask = !Object.values(this.rowsLoading).every(v => v === false);
+
           if (newShowLoadingMask !== this.showLoadingMask) {
             this.setState({
               showLoadingMask: newShowLoadingMask,
             });
           }
+
           this.showLoadingMask = newShowLoadingMask;
         },
         onAsyncChange: (changes, dataFormat) => {
@@ -777,13 +828,16 @@ class ChildTable extends React.Component {
             if (rowId && row && row.needShowLoading) {
               this.rowsLoading[rowId] = !_.every(Object.values(dataFormat.loadingInfo), b => !b);
               const newShowLoadingMask = !Object.values(this.rowsLoading).every(v => v === false);
+
               if (newShowLoadingMask !== this.showLoadingMask) {
                 this.setState({
                   showLoadingMask: newShowLoadingMask,
                 });
               }
+
               this.showLoadingMask = newShowLoadingMask;
             }
+
             if (!_.isEmpty(changes.controlIds)) {
               changes.controlIds.forEach(cid => {
                 asyncUpdateCell(cid, changes.value);
@@ -802,9 +856,11 @@ class ChildTable extends React.Component {
     } else {
       formdata = this.dataFormatCacheMap.get(cacheKey);
     }
+
     if (controlId) {
       formdata.updateDataSource({ controlId, value, userTriggerChange });
     }
+
     return [
       {
         ...(row || {}),
@@ -818,12 +874,14 @@ class ChildTable extends React.Component {
   handleSetPageIndexWhenAddRow(newRowsLength) {
     const { pageSize, pageIndex } = this.state;
     let newPageIndex = pageIndex;
+
     if (this.showAsPages && newRowsLength > pageSize) {
       newPageIndex = Math.ceil(newRowsLength / pageSize);
       if (pageIndex !== newPageIndex) {
         this.setState({ pageIndex: newPageIndex });
       }
     }
+
     return newPageIndex;
   }
 
@@ -837,9 +895,11 @@ class ChildTable extends React.Component {
     let { allowadd } = parseAdvancedSetting(control.advancedSetting);
     const filteredRows = filterEmptyChildTableRows(rows);
     const disabledNew = filteredRows.length >= maxCount || disabled || !allowadd;
+
     if (disabledNew) {
       return;
     }
+
     const newPageIndex = this.handleSetPageIndexWhenAddRow(filteredRows.length + 1);
     this.updateDefsourceOfControl();
     const row = this.newRow();
@@ -851,8 +911,10 @@ class ChildTable extends React.Component {
         } else {
           this.worksheettable.current.table.refs.setScroll(100000, 0);
         }
+
         setTimeout(() => {
           let activeCell = null;
+
           if (layoutDirection === 'horizontal') {
             activeCell = this.worksheettable.current.table.refs.dom.current.querySelector(
               '.cell.row-' +
@@ -870,6 +932,7 @@ class ChildTable extends React.Component {
                 '.canedit',
             );
           }
+
           if (activeCell) {
             activeCell.click();
           }
@@ -884,10 +947,12 @@ class ChildTable extends React.Component {
     const { control, masterData, rows, addRows } = this.props;
     const { projectId } = this.worksheetInfo;
     const controls = this.getShowColumns();
+
     if (!controls.filter(c => _.includes(CHILD_TABLE_ALLOW_IMPORT_CONTROL_TYPES, c.type)).length) {
       alert(_l('没有支持导入的字段'), 3);
       return;
     }
+
     importFileToChildTable({
       projectId,
       maxCount: this.settings.maxCount,
@@ -899,6 +964,7 @@ class ChildTable extends React.Component {
         if (!_.isArray(data)) {
           return;
         }
+
         setTimeout(() => {
           const newRows = data
             .slice(0, this.settings.maxCount - filterEmptyChildTableRows(rows).length)
@@ -908,6 +974,7 @@ class ChildTable extends React.Component {
                 isImportFromExcel: true,
               }),
             );
+
           if (replace) {
             this.handleClearAndSetRows(newRows);
           } else {
@@ -924,9 +991,11 @@ class ChildTable extends React.Component {
     const { entityName } = this.worksheetInfo;
     const { controls } = this.state;
     const relateRecordControl = batchAddControls[0];
+
     if (!relateRecordControl) {
       return;
     }
+
     this.updateDefsourceOfControl();
     const tempRow = this.newRow();
     const relateRecord = isMobile ? mobileSelectRecord : selectRecords;
@@ -950,9 +1019,11 @@ class ChildTable extends React.Component {
       formData: controls.map(c => ({ ...c, value: tempRow[c.controlId] })).concat(this.props.masterData.formData),
       onOk: selectedRecords => {
         const rowsLength = filterEmptyChildTableRows(rows).length;
+
         if (rowsLength + selectedRecords.length > this.settings.maxCount) {
           alert(_l('最多输入%0条记录，超出的记录不写入', this.settings.maxCount), 3);
         }
+
         addRows(
           selectedRecords.slice(0, this.settings.maxCount - rowsLength).map(selectedRecord => {
             const row = this.rowUpdate({
@@ -964,14 +1035,17 @@ class ChildTable extends React.Component {
           }),
         );
         this.handleSetPageIndexWhenAddRow(rowsLength + selectedRecords.length);
+        this.triggerCustomEvent();
         setTimeout(() => {
           try {
             const ele = document.querySelector('.mobileSheetRowRecord .recordScroll');
+
             if (isMobile && ele) {
               const itemHeight =
                 h5showtype === '2' ? 36 * ((_.isEmpty(h5abstractids) ? 3 : h5abstractids.length) + 1) : 36;
               ele.scrollTop = ele.scrollTop + (selectedRecords.length - 1) * itemHeight;
             }
+
             this.worksheettable.current.table.refs.setScroll(0, 100000);
           } catch (err) {
             console.log(err);
@@ -985,18 +1059,23 @@ class ChildTable extends React.Component {
     const { rows, updateRow } = this.props;
     const { controls } = this.state;
     const rowData = _.find(rows, r => r.rowid === row.rowid);
+
     if (!rowData) {
       return;
     }
+
     let { value } = cell;
     let tempRowId;
     const isEmptyRow = row?.rowid?.startsWith('empty');
+
     if (isEmptyRow) {
       if (this.disabledNew || this.isExceed) {
         return;
       }
+
       tempRowId = `temp-${uuidv4()}`;
     }
+
     const newRow = this.rowUpdate(
       {
         row: { ...rowData, ...(tempRowId ? { rowid: tempRowId, isCreate: true } : {}) },
@@ -1008,15 +1087,22 @@ class ChildTable extends React.Component {
         control,
       },
     );
+
     const update = debounce(
       () => {
         if (_.isFunction(options.updateSuccessCb)) {
           options.updateSuccessCb(newRow);
         }
+
         updateRow({ rowid: row.rowid, value: newRow }, { asyncUpdate: options.asyncUpdate });
+
+        if (!options.asyncUpdate) {
+          this.triggerCustomEvent();
+        }
       },
       isUndefined(options.debounceTime) ? 300 : options.debounceTime,
     );
+
     // 处理新增自定义选项
     if (
       _.includes([WIDGETS_TO_API_TYPE_ENUM.MULTI_SELECT, WIDGETS_TO_API_TYPE_ENUM.DROP_DOWN], control.type) &&
@@ -1036,8 +1122,8 @@ class ChildTable extends React.Component {
       update();
       return;
     }
+
     update.apply(this);
-    this.triggerCustomEvent();
   }
 
   handleRowDetailSave = (row, updatedControlIds) => {
@@ -1075,11 +1161,13 @@ class ChildTable extends React.Component {
   handleSwitch = ({ prev }) => {
     const { previewRowIndex } = this.state;
     let newRowIndex;
+
     if (prev) {
       newRowIndex = previewRowIndex - 1;
     } else {
       newRowIndex = previewRowIndex + 1;
     }
+
     this.openDetail(newRowIndex);
   };
 
@@ -1120,6 +1208,7 @@ class ChildTable extends React.Component {
     const isUniqueInRecord = !_.find(rowId ? rows.filter(row => row.rowid !== rowId) : rows, row =>
       this.compareValue(checkControl, row[controlId], value),
     );
+
     if (_.includes(uniqueControlIds, controlId)) {
       return isUniqueInRecord;
     } else if (!isUniqueInRecord) {
@@ -1150,9 +1239,11 @@ class ChildTable extends React.Component {
   handleMouseEnter = e => {
     const { layoutDirection } = this.state;
     const cell = $(e.target).closest('.cell:not(.focus)')[0];
+
     if (!cell) {
       return;
     }
+
     $(cell).addClass('errorActive');
     const { rows, cellErrors } = this.props;
     const columns = this.getShowColumns();
@@ -1164,8 +1255,10 @@ class ChildTable extends React.Component {
     const controlIndex = layoutDirection === 'horizontal' ? columnIndex : rowIndex + 1;
     const rowId = (rows[dataIndex] || {}).rowid;
     const controlId = !isUndefined(controlIndex) && (columns[controlIndex - 1] || {}).controlId;
+
     if (hasError && !cellIsEditing && rowId && controlId) {
       const error = cellErrors[rowId + '-' + controlId];
+
       if (error) {
         const errorEle = createElementFromHtml(`<div
             class="mdTableErrorTip"
@@ -1203,16 +1296,20 @@ class ChildTable extends React.Component {
     const { appId, control, updateRows } = this.props;
     const { selectedRowIds } = this.state;
     const { projectId, worksheetId } = this.worksheetInfo;
+
     if (!selectedRowIds.length) {
       return;
     }
+
     const selectedRows = selectedRowIds
       .map(rowId => find(tableRows, { rowid: rowId }))
       .filter(_.identity)
       .filter(row => row.allowedit);
+
     if (!selectedRows.length) {
       return;
     }
+
     batchEditRecord({
       appId,
       worksheetId,
@@ -1356,39 +1453,54 @@ class ChildTable extends React.Component {
     const allowEdit = !disabled && allowedit;
     const allowBatchEditControls = columns.filter(controlBatchCanEdit);
     const showSummary =
-      layoutDirection === 'horizontal' && String(get(control, 'advancedSetting.openstatistics')) === '1';
+      layoutDirection === 'horizontal' &&
+      String(get(control, 'advancedSetting.openstatistics')) === '1' &&
+      !isTreeTableView &&
+      !get(window, 'shareState.shareId');
+
     if (!columns.length) {
       return <div className="childTableEmptyTag"></div>;
     }
+
     if (keywords) {
       tableRows = filterRowsByKeywords({ rows: tableRows, controls: controls, keywords });
     }
+
     // 根据 sortConfig 对 tableRows 进行排序显示，但不修改原始 rows
     const { sortConfig } = this.props;
+
     if (sortConfig && sortConfig.controlId) {
       const sortControl = _.find(controls, { controlId: sortConfig.controlId });
+
       if (sortControl) {
         tableRows = handleSortRows(tableRows, sortControl, sortConfig.isAsc);
       }
     }
+
     let tableData = tableRows;
+
     if (showAsPages) {
       tableData = tableData.slice((pageIndex - 1) * pageSize, pageIndex * pageSize);
     }
+
     if (treeLayerControlId) {
       const emptyRows = _.filter(tableRows, r => /^empty-/.test(r.rowid));
       tableData = getSheetViewRows({ rows: _.filter(tableRows, r => !/^empty-/.test(r.rowid)) }, { treeMap }).concat(
         emptyRows,
       );
     }
+
     const rowCount = layoutDirection === 'horizontal' ? tableData.length : columns.length;
     const fullShowTable = rowCount <= maxShowRowCount;
     let tableHeight =
       (fullShowTable ? rowCount || 1 : maxShowRowCount) * rowHeight + headHeight + (showSummary ? 34 : 0);
+
     if (maxHeight && tableHeight > maxHeight) {
       tableHeight = maxHeight;
     }
+
     let tableFooter;
+
     if (
       layoutDirection === 'horizontal' &&
       !isMobile &&
@@ -1502,6 +1614,7 @@ class ChildTable extends React.Component {
                   alert(_l('数据为空，暂不支持导出！'), 3);
                   return;
                 }
+
                 return exportSheet({
                   worksheetId: this.props.masterData.worksheetId,
                   rowId: recordId,
@@ -1647,7 +1760,7 @@ class ChildTable extends React.Component {
                       <div className={cx('importFromFile', { disabled: isExceed })}>
                         <Tooltip placement="bottom" title={<span className="preWrap">{_l('导入数据')}</span>}>
                           <div className="content" onClick={isExceed ? () => {} : this.handleImport}>
-                            <i className="icon icon-file_upload Font16 textSecondary"></i>
+                            <i className="icon icon-worksheet_import Font16 textSecondary"></i>
                           </div>
                         </Tooltip>
                         <DropIcon
@@ -1665,7 +1778,7 @@ class ChildTable extends React.Component {
                   {showBatchEdit && (allowBatchDelete || allowEdit || (allowadd && allowCopy)) && (
                     <Fragment>
                       {(showImport || showAddRowByLine || showSelectRecord) && <div className="splitter"></div>}
-                      <span className="addRowByLine" onClick={() => this.setState({ isBatchEditing: true })}>
+                      <span className="batchEditBtn" onClick={() => this.setState({ isBatchEditing: true })}>
                         {_l('批量操作')}
                       </span>
                     </Fragment>
@@ -1725,10 +1838,12 @@ class ChildTable extends React.Component {
                         ) {
                           return;
                         }
+
                         if (filterEmptyChildTableRows(tableRows).length + selectedRowIds.length > maxCount) {
                           alert(_l('复制失败，最多输入%0条记录', maxCount), 2);
                           return;
                         }
+
                         if (selectedRowIds.length) {
                           this.copyRows(
                             selectedRowIds
@@ -1793,6 +1908,7 @@ class ChildTable extends React.Component {
                 isDraft={isDraft}
                 tableType="classic"
                 isSubList
+                formItemId={this.props.formItemId}
                 showAsZebra={false}
                 wrapControlName={titleWrap}
                 headTitleCenter={titleCenter}
@@ -1869,6 +1985,7 @@ class ChildTable extends React.Component {
                       alert(enablelimit ? _l('已超过子表最大行数') : _l('最多输入%0条记录', maxCount), 3);
                       return;
                     }
+
                     this.copyRow(row);
                   },
                 }}
@@ -1932,10 +2049,12 @@ class ChildTable extends React.Component {
                         alert(enablelimit ? _l('已超过子表最大行数') : _l('最多输入%0条记录', maxCount), 3);
                         return;
                       }
+
                       this.copyRow(args.row);
                     }}
                     saveSheetLayout={({ closePopup }) => {
                       const changes = {};
+
                       if (!_.isEmpty(tempSheetColumnWidths)) {
                         changes.widths = JSON.stringify(
                           pick(
@@ -1944,9 +2063,11 @@ class ChildTable extends React.Component {
                           ),
                         );
                       }
+
                       if (frozenIndexChanged) {
                         changes.freezeids = JSON.stringify([String(frozenIndex)]);
                       }
+
                       const newControl = {
                         ...control,
                         advancedSetting: {
@@ -1975,6 +2096,7 @@ class ChildTable extends React.Component {
                                 let newResponseControl = res.data.controls.filter(
                                   c => c.controlId === control.controlId,
                                 )[0];
+
                                 if (newResponseControl) {
                                   newResponseControl = {
                                     ...newResponseControl,
@@ -1996,6 +2118,7 @@ class ChildTable extends React.Component {
                 )}
                 renderColumnHead={({ ...rest }) => {
                   const { control, columnIndex, rowIndex, isVertical } = rest;
+
                   if (isVertical) {
                     return (
                       <RowHeadColumn
@@ -2007,6 +2130,7 @@ class ChildTable extends React.Component {
                       />
                     );
                   }
+
                   const maskData =
                     _.get(control, 'advancedSetting.datamask') === '1' &&
                     _.get(control, 'advancedSetting.isdecrypt') === '1';
@@ -2043,6 +2167,7 @@ class ChildTable extends React.Component {
                                   alert(_l('预览模式下，不能操作'), 3);
                                   return;
                                 }
+
                                 console.log(columnIndex);
                                 const isFrozen = frozenIndex === columnIndex;
                                 this.setState({
@@ -2099,13 +2224,14 @@ class ChildTable extends React.Component {
                   );
                 }}
                 renderFooterCell={({ columnIndex, className, style }) => {
-                  const control = [{ type: 'summaryhead' }].concat(columns)[columnIndex];
+                  let childtableControl = [{ type: 'summaryhead' }].concat(columns)[columnIndex];
                   return (
                     <ChildTableSummaryCell
                       className={className}
                       style={style}
-                      control={control}
-                      rows={tableRows}
+                      control={childtableControl}
+                      defaultSummaryTypes={getDefaultSummaryTypes(control)}
+                      rows={filterEmptyChildTableRows(tableRows)}
                       selectedIds={selectedRowIds}
                     />
                   );
@@ -2121,21 +2247,26 @@ class ChildTable extends React.Component {
                   if (disabledNew || isExceed) {
                     return;
                   }
+
                   const isEmptyRow = row.rowid.startsWith('empty');
+
                   if (isEmptyRow) {
                     updateRow({ rowid: row.rowid, value: this.newRow({}, { isCreate: true }) });
                     setTimeout(() => {
                       const activeCell = this.worksheettable.current.table.refs.dom.current.querySelector(
                         '.cell.cell-' + cellIndex,
                       );
+
                       if (activeCell) {
                         activeCell.click();
                       }
                     }, 100);
                     return;
                   }
+
                   if (isDraft) {
                     const enterEditingMode = _.get(this, 'context.enterEditingMode');
+
                     if (enterEditingMode) {
                       enterEditingMode();
                     }
@@ -2186,15 +2317,18 @@ class ChildTable extends React.Component {
                     });
                     function getUpRowId() {
                       const childrenRows = filter(tableData, r => r.pid === parentRow.rowid);
+
                       if (childrenRows.length) {
                         return last(childrenRows).rowid;
                       } else {
                         return parentRow.rowid;
                       }
                     }
+
                     const upRowId = getUpRowId();
                     const upRowIndex = upRowId && findIndex(tableData, { rowid: upRowId });
                     const scrollY = this.worksheettable.current.table.refs.dom.current.querySelector('.scroll-y');
+
                     if (scrollY) {
                       const newRowBottomToTop = (upRowIndex + 2) * rowHeight;
                       const conHeight = scrollY.clientHeight;
@@ -2207,10 +2341,12 @@ class ChildTable extends React.Component {
                         }, 100);
                       }
                     }
+
                     setTimeout(() => {
                       const activeCell = this.worksheettable.current.table.refs.dom.current.querySelector(
                         '.cell.row-id-' + row.rowid + '.canedit',
                       );
+
                       if (activeCell) {
                         activeCell.click();
                       }
@@ -2364,13 +2500,16 @@ class ChildTable extends React.Component {
               onDelete={deleteRow}
               onClose={() => {
                 const { previewRowIndex } = this.state;
+
                 // 清理弹窗中编辑的行的缓存，确保行内编辑时使用最新数据
                 if (previewRowIndex > -1) {
                   const row = tableData[previewRowIndex];
+
                   if (row && row.rowid) {
                     this.dataFormatCacheMap.delete(row.rowid);
                   }
                 }
+
                 this.setState({ recordVisible: false, isEditCurrentRow: false, previewRowIndex: null });
               }}
               rules={rules}

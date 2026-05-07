@@ -117,19 +117,23 @@ export function initConfigDetail(id, data, currentReport, customPageConfig) {
     if (item.type === 30) {
       item.type = item.sourceControlType;
     }
+
     if (item.type === 38) {
       if (item.enumDefault === 1) {
         item.type = 8;
       }
+
       if (item.enumDefault === 2) {
         item.type = 16;
       }
     } else if (item.type === 37) {
       item.type = item.enumDefault2;
     }
+
     if (item.encryId) {
       item.type = 2;
     }
+
     return item;
   });
 
@@ -142,6 +146,7 @@ export function initConfigDetail(id, data, currentReport, customPageConfig) {
           [`${key}-right`]: item[key],
         };
       }
+
       return item;
     });
   }
@@ -149,6 +154,7 @@ export function initConfigDetail(id, data, currentReport, customPageConfig) {
   if (_.isEmpty(result.split)) {
     result.split = {};
   }
+
   if (_.isEmpty(result.style)) {
     result.style = {};
   }
@@ -161,6 +167,7 @@ export function initConfigDetail(id, data, currentReport, customPageConfig) {
       xaxes.controlName = data.controlName;
       xaxes.controlType = data.type;
     }
+
     yaxisList.forEach(item => {
       const control = _.find(axisControls.concat(formulas), { controlId: item.controlId }) || {};
       item.controlName = control.controlName;
@@ -182,12 +189,14 @@ export function initConfigDetail(id, data, currentReport, customPageConfig) {
         const { controlName } = rightY.yaxisList[0];
         rightY.display.ydisplay.title = controlName;
       }
+
       if (!('all' in rightY.summary)) {
         const data = {
           ...rightY.summary,
           type: 1,
           name: '',
         };
+
         if (summary.controlId) {
           rightY.summary = {
             ...data,
@@ -208,21 +217,25 @@ export function initConfigDetail(id, data, currentReport, customPageConfig) {
         }
       }
     }
+
     if (displaySetup) {
       if (_.isEmpty(displaySetup.xdisplay.title)) {
         displaySetup.xdisplay.title = xaxes.rename || xaxes.controlName;
       }
+
       if (_.isEmpty(displaySetup.ydisplay.title) && yaxisList.length) {
         const { controlName } = yaxisList[0];
         displaySetup.ydisplay.title = controlName;
       }
     }
+
     if (isConfigAll && !('all' in summary)) {
       const data = {
         ...summary,
         type: 1,
         name: '',
       };
+
       if (summary.controlId) {
         result.summary = {
           ...data,
@@ -242,13 +255,16 @@ export function initConfigDetail(id, data, currentReport, customPageConfig) {
         };
       }
     }
+
     if (!isConfigAll) {
       result.summary.all = undefined;
       result.summary.controlList = undefined;
     }
+
     if (result.reportType === reportTypes.PivotTable) {
       const { pivotTableStyle = defaultPivotTableStyle } = result.style || {};
       const { pivoTableColor, pivoTableColorIndex = 1 } = customPageConfig;
+
       if (pivoTableColor && pivoTableColorIndex >= (pivotTableStyle.pivoTableColorIndex || 0)) {
         const isLight = isLightColor(pivoTableColor);
         result.style.pivotTableStyle = {
@@ -262,6 +278,7 @@ export function initConfigDetail(id, data, currentReport, customPageConfig) {
     } else if (reportTypes.NumberChart == result.reportType) {
       const { numberChartStyle = defaultNumberChartStyle } = result.style || {};
       const { numberChartColor, numberChartColorIndex = 1 } = customPageConfig;
+
       if (numberChartColor && numberChartColorIndex >= (numberChartStyle.numberChartColorIndex || 0)) {
         result.style.numberChartStyle = {
           ...numberChartStyle,
@@ -272,6 +289,7 @@ export function initConfigDetail(id, data, currentReport, customPageConfig) {
     } else {
       const style = result.style || {};
       const { chartColor, chartColorIndex = 1 } = customPageConfig;
+
       if (chartColor && chartColorIndex >= (style.chartColorIndex || 0)) {
         result.style = {
           ...style,
@@ -279,6 +297,7 @@ export function initConfigDetail(id, data, currentReport, customPageConfig) {
         };
       }
     }
+
     if (!_.isEmpty(currentReport) && result.reportType !== currentReport.reportType) {
       result.auth = currentReport.auth;
     }
@@ -302,6 +321,7 @@ export function initConfigDetail(id, data, currentReport, customPageConfig) {
         today: true,
       };
     }
+
     if (isConfigAll && result.summary) {
       result.summary.all = false;
     }
@@ -310,10 +330,12 @@ export function initConfigDetail(id, data, currentReport, customPageConfig) {
   if (summary && _.isEmpty(summary.name)) {
     summary.name = _.find(normTypes, { value: summary.type }).text;
   }
+
   if (rightY) {
     if (rightY.summary && _.isEmpty(rightY.summary.name)) {
       rightY.summary.name = _.find(normTypes, { value: rightY.summary.type }).text;
     }
+
     if (_.isEmpty(rightY.summary)) {
       rightY.summary = {
         name: _.find(normTypes, { value: 1 }).text,
@@ -351,10 +373,12 @@ export function initConfigDetail(id, data, currentReport, customPageConfig) {
       result.xaxes = {};
       currentReport.xaxes = {};
     }
+
     if (reportTypes.ScatterChart === currentReport.reportType || reportTypes.NumberChart === reportType) {
       currentReport.split = {};
       result.split = {};
     }
+
     if (reportTypes.GaugeChart === currentReport.reportType || reportTypes.ProgressChart === reportType) {
       result.config = {
         min: null,
@@ -362,6 +386,7 @@ export function initConfigDetail(id, data, currentReport, customPageConfig) {
         targetList: [],
       };
     }
+
     if (reportTypes.ScatterChart === reportType) {
       result.displaySetup.showNumber = false;
       result.displaySetup.showPileTotal = false;
@@ -369,10 +394,12 @@ export function initConfigDetail(id, data, currentReport, customPageConfig) {
       result.displaySetup.showDimension = false;
       result.yaxisList = currentReport.yaxisList.filter((n, index) => index < 3);
     }
+
     if (reportTypes.DualAxes === reportType) {
       result.yaxisList = currentReport.yaxisList.length ? [currentReport.yaxisList[0]] : [];
       rightY.yaxisList = currentReport.yaxisList.length > 1 ? [currentReport.yaxisList[1]] : [];
     }
+
     if (
       [reportTypes.LineChart, reportTypes.BarChart, reportTypes.RadarChart, reportTypes.NumberChart].includes(
         reportType,
@@ -383,32 +410,41 @@ export function initConfigDetail(id, data, currentReport, customPageConfig) {
         result.split = currentReport.split;
       }
     }
+
     if (
       [reportTypes.LineChart, reportTypes.BarChart, reportTypes.DualAxes].includes(reportType) &&
       (_.get(currentReport, ['summary', 'controlList']) || []).length
     ) {
       result.summary.controlList = [];
     }
+
     if ([reportTypes.FunnelChart, reportTypes.PieChart].includes(reportType)) {
       result.yaxisList = currentReport.yaxisList.length ? [currentReport.yaxisList[0]] : [];
       if (isTimeControl(currentReport.xaxes.controlType)) {
         result.xaxes = {};
       }
+
       result.split = {};
     }
+
     if (reportTypes.BidirectionalBarChart === reportType) {
       result.yaxisList = currentReport.yaxisList.length ? [currentReport.yaxisList[0]] : [];
       rightY.yaxisList = currentReport.yaxisList.length > 1 ? [currentReport.yaxisList[1]] : [];
       result.split = {};
+      result.summary.controlList = [];
+      rightY.summary.controlList = [];
     }
+
     if (reportTypes.PivotTable === reportType) {
       result.pivotTable.lines = currentReport.xaxes.controlId ? [currentReport.xaxes] : [];
       result.pivotTable.columns = currentReport.split.controlId ? [currentReport.split] : [];
       result.split = {};
       result.xaxes = {};
     }
+
     if (reportTypes.CountryLayer === reportType) {
       const areaAxisControls = axisControls.filter(item => isAreaControl(item.type));
+
       if (areaAxisControls.length) {
         const xaxis = areaAxisControls[0];
         result.xaxes = {
@@ -419,8 +455,10 @@ export function initConfigDetail(id, data, currentReport, customPageConfig) {
       } else {
         result.xaxes = {};
       }
+
       result.yaxisList = currentReport.yaxisList.length ? [currentReport.yaxisList[0]] : [];
     }
+
     if (reportTypes.TopChart === reportType) {
       const { yaxisList } = currentReport;
       result.sorts = yaxisList.length ? [{ [yaxisList[0].controlId]: 2 }] : [];
@@ -429,25 +467,32 @@ export function initConfigDetail(id, data, currentReport, customPageConfig) {
         valueProgressVisible: true,
       };
     }
+
     if (reportTypes.WordCloudChart === reportType) {
       result.yaxisList = currentReport.yaxisList.length ? [currentReport.yaxisList[0]] : [];
     }
+
     if (reportTypes.ProgressChart === reportType) {
       result.yaxisList = currentReport.yaxisList.filter(data => isNumberControl(data.controlType));
     }
+
     if (reportTypes.GaugeChart === reportType) {
       const yaxisList = currentReport.yaxisList.filter(data => isNumberControl(data.controlType));
       result.yaxisList = yaxisList.length ? [yaxisList[0]] : [];
     }
+
     if (reportTypes.WorldMap === reportType) {
       const { xaxes } = result;
+
       if (!(isAreaControl(xaxes.type) || xaxes.type === 40)) {
         result.xaxes = {};
       }
+
       if (result.yaxisList && result.yaxisList.length) {
         result.summary.controlId = result.yaxisList[0].controlId;
       }
     }
+
     if (result.displaySetup) {
       result.displaySetup.xdisplay.title = result.xaxes ? result.xaxes.controlName : null;
       result.displaySetup.ydisplay.title = result.yaxisList.length ? result.yaxisList[0].controlName : '';
@@ -457,6 +502,7 @@ export function initConfigDetail(id, data, currentReport, customPageConfig) {
       result.displaySetup.contrast = false;
       result.displaySetup.showXAxisCount = 0;
     }
+
     if (result.country) {
       result.country.particleSizeType = 1;
     }
@@ -567,6 +613,7 @@ export function getSortData(control) {
   const normType = _.get(control, 'normType');
   const descendingValue = 1;
   const ascendingValue = 2;
+
   if (
     type === WIDGETS_TO_API_TYPE_ENUM.NUMBER ||
     type === WIDGETS_TO_API_TYPE_ENUM.MONEY ||
@@ -640,6 +687,7 @@ export function getSortData(control) {
       },
     ];
   }
+
   return null;
 }
 
@@ -652,10 +700,12 @@ export const formatSorts = (sorts, ids, ySameList = []) => {
     .filter(id => id)
     .forEach(id => {
       const item = _.find(sorts, id);
+
       if (item) {
         const key = _.findKey(item);
         const newKey = key.replace('-right', '');
         const value = item[key];
+
         // 兼容双轴相同维度的情况
         if (ySameList.includes(newKey)) {
           if (key.includes('-right')) {
@@ -722,6 +772,7 @@ export const defaultDropdownScopeData = 18;
  */
 export const formatContrastTypes = ({ rangeType, today }) => {
   let base = [];
+
   switch (rangeType) {
     case 1:
     case 2:
@@ -740,6 +791,7 @@ export const formatContrastTypes = ({ rangeType, today }) => {
         base.push({ text: _l('去年'), value: 2, ignoreToday: true });
         base.push({ text: _l('去年同期'), value: 2 });
       }
+
       break;
     case 5:
     case 6:
@@ -753,6 +805,7 @@ export const formatContrastTypes = ({ rangeType, today }) => {
         base.push({ text: _l('去年'), value: 2, ignoreToday: true });
         base.push({ text: _l('去年同期'), value: 2 });
       }
+
       break;
     case 9:
     case 10:
@@ -766,6 +819,7 @@ export const formatContrastTypes = ({ rangeType, today }) => {
         base.push({ text: _l('去年'), value: 2, ignoreToday: true });
         base.push({ text: _l('去年同期'), value: 2 });
       }
+
       break;
     case 12:
     case 13:
@@ -775,7 +829,9 @@ export const formatContrastTypes = ({ rangeType, today }) => {
     case 15:
       if (today) {
         base.push({ text: _l('去年'), value: 2, ignoreToday: true });
+        base.push({ text: _l('去年同期'), value: 2 });
       }
+
       break;
     case 16:
     case 17:
@@ -788,6 +844,7 @@ export const formatContrastTypes = ({ rangeType, today }) => {
     default:
       break;
   }
+
   return base;
 };
 
@@ -797,6 +854,7 @@ export const formatContrastTypes = ({ rangeType, today }) => {
 export const formatLineChartContrastTypes = ({ rangeType, rangeValue, today }) => {
   const base = [{ text: _l('无'), value: 0 }];
   const last = { text: _l('与上一年相比'), value: 2 };
+
   switch (rangeType) {
     case 0:
       // 全部
@@ -855,6 +913,7 @@ export const formatLineChartContrastTypes = ({ rangeType, rangeValue, today }) =
     default:
       break;
   }
+
   return base;
 };
 
@@ -865,18 +924,23 @@ export const getTodayTooltip = ({ rangeType, rangeValue }) => {
   if (rangeType === 4) {
     return _l('未勾选时, 表示统计从本周星期一开始到星期日的数据, 勾选时, 表示统计从本周星期一开始到今天的数据。');
   }
+
   if (rangeType === 8) {
     return _l('未勾选时, 表示统计从本月1日开始到31日的数据, 勾选时, 表示统计从本月1日开始到今天的数据。');
   }
+
   if (rangeType === 11) {
     return _l('未勾选时, 表示统计从本季度1月1日开始到3月31日的数据, 勾选时, 表示统计从本季度1月1日开始到今天的数据。');
   }
+
   if (rangeType === 15) {
     return _l('未勾选时, 表示统计从本年1月1日开始到12月31日的数据, 勾选时,表示统计从本年1月1日开始到今天的数据。');
   }
+
   if (rangeType === 18) {
     return _l('未勾选时, 表示统计从过去%0天开始到昨天数据, 勾选时, 表示统计从过去%0天开始到今天的数据。', rangeValue);
   }
+
   if (rangeType === 19) {
     return _l('未勾选时, 表示统计从明天开始到将来%0天数据, 勾选时, 表示统计从今天开始到将来%0天的数据。', rangeValue);
   }
@@ -1099,6 +1163,7 @@ export const isPastAndFuture = value => {
  */
 export const isTimeControl = (value, controls = []) => {
   const data = _.find(controls, { controlId: value });
+
   if (_.isEmpty(data)) {
     return (
       value === WIDGETS_TO_API_TYPE_ENUM.DATE ||
@@ -1187,18 +1252,22 @@ export const renderFieldStyleValue = (controlType, controlValue) => {
   if (controlType === 29) {
     return _l('关联表');
   }
+
   if (controlType === WIDGETS_TO_API_TYPE_ENUM.DEPARTMENT) {
     const { departmentName } = window.safeParse(controlValue);
     return departmentName || controlValue;
   }
+
   if (controlType === WIDGETS_TO_API_TYPE_ENUM.USER_PICKER) {
     const { fullname } = window.safeParse(controlValue);
     return fullname || controlValue;
   }
+
   if (isOptionControl(controlType)) {
     const { value } = window.safeParse(controlValue);
     return value || controlValue;
   }
+
   return controlValue;
 };
 
@@ -1207,6 +1276,7 @@ export const renderFieldStyleValue = (controlType, controlValue) => {
  */
 export const getAxisText = (reportType, showChartType) => {
   const isBarChart = reportType === reportTypes.BarChart && showChartType === 2;
+
   if (
     !reportType ||
     [
@@ -1222,59 +1292,69 @@ export const getAxisText = (reportType, showChartType) => {
       y: _l('数值%'),
     };
   }
+
   if (reportTypes.DualAxes === reportType) {
     return {
       x: _l('X轴(维度)'),
       y: _l('Y轴(数值)'),
     };
   }
+
   if (reportTypes.WordCloudChart === reportType) {
     return {
       x: _l('词标签(维度)'),
       y: _l('词大小(数值)'),
     };
   }
+
   if (reportTypes.BidirectionalBarChart === reportType) {
     return {
       x: _l('维度'),
       y: _l('方向1(数值)'),
     };
   }
+
   if (reportTypes.ScatterChart === reportType) {
     return {
       x: _l('点(维度)'),
     };
   }
+
   if (reportTypes.GaugeChart === reportType) {
     return {
       x: _l('维度'),
       y: _l('进度指示(数值)'),
     };
   }
+
   if (reportTypes.CountryLayer === reportType) {
     return {
       x: _l('地理区域(维度)'),
       y: _l('数值%'),
     };
   }
+
   if (reportTypes.WorldMap === reportType) {
     return {
       x: _l('地区(维度)'),
       y: _l('数值%'),
     };
   }
+
   if (reportTypes.TopChart === reportType) {
     return {
       x: _l('维度'),
       y: _l('进度指示(数值)'),
     };
   }
+
   if ([reportTypes.PivotTable].includes(reportType)) {
     return {
       x: _l('行(维度)'),
       y: _l('列(维度)'),
     };
   }
+
   return {
     x: isBarChart ? _l('Y轴(维度)') : _l('X轴(维度)'),
     y: isBarChart ? _l('X轴(数值)') : _l('Y轴(数值)'),
@@ -1476,12 +1556,12 @@ export const fillValueMap = (result, pageId) => {
     return result;
   }
 
-  const { valueMap = {}, reportType, xaxes, split, rightY } = fillTranslate(result, pageId);
-  const splitId = split ? split.controlId : '';
-
   if (_.isNull(result.style)) {
     result.style = {};
   }
+
+  const { valueMap = {}, reportType, xaxes, split, rightY } = fillTranslate(result, pageId);
+  const splitId = split ? split.controlId : '';
 
   if ([reportTypes.PivotTable].includes(reportType)) {
     result.map = [];
@@ -1577,10 +1657,13 @@ export const fillValueMap = (result, pageId) => {
 
 const fillTranslate = (result, pageId) => {
   const appId = _.get(window.appInfo, 'id');
+
   if (!appId) {
     return result;
   }
+
   const parentId = pageId ? pageId : result.appId;
+
   const getParentId = control => {
     if (control.dataSource && control.dataSource.length === 24) {
       return control.dataSource;
@@ -1588,11 +1671,14 @@ const fillTranslate = (result, pageId) => {
       return result.appId;
     }
   };
+
   const translateValueMap = (dataSource, controlId, displayMode) => {
     const isFieldStyle = displayMode === 'fieldStyle';
     const valueMapTranslateInfo = getTranslateInfo(appId, null, dataSource);
+
     if (!_.isEmpty(valueMapTranslateInfo)) {
       const map = result.valueMap[controlId] || {};
+
       for (let key in map) {
         if (map[key] && valueMapTranslateInfo[key]) {
           if (isFieldStyle) {
@@ -1608,7 +1694,9 @@ const fillTranslate = (result, pageId) => {
       }
     }
   };
+
   const chartTranslateInfo = getTranslateInfo(appId, parentId, result.reportId);
+
   if (result.xaxes && result.xaxes.controlId) {
     result.xaxes.rename = chartTranslateInfo[`xaxes-${result.xaxes.controlId}-name`] || result.xaxes.rename;
     result.xaxes.controlName =
@@ -1618,18 +1706,21 @@ const fillTranslate = (result, pageId) => {
         item.key = getTranslateInfo(appId, parentId, item.c_id).name || item.key;
       });
     }
+
     if (result.contrastMap && result.contrastMap.length) {
       result.contrastMap.forEach(item => {
         item.key = getTranslateInfo(appId, parentId, item.c_id).name || item.key;
       });
     }
   }
+
   if (result.yaxisList && result.yaxisList.length) {
     result.yaxisList.forEach(item => {
       item.rename = chartTranslateInfo[`yaxis-${item.controlId}-name`] || item.rename;
       item.controlName = getTranslateInfo(appId, getParentId(item), item.controlId).name || item.controlName;
     });
   }
+
   if (result.rightY && _.get(result.rightY, 'yaxisList.length')) {
     result.rightY.yaxisList.forEach(item => {
       item.rename = chartTranslateInfo[`rightYaxis-${item.controlId}-name`] || item.rename;
@@ -1641,11 +1732,13 @@ const fillTranslate = (result, pageId) => {
         item.name = chartTranslateInfo[`rightYSummaryControl-${item.controlId}-name`] || item.name;
       });
     }
+
     if (result.rightY.display) {
       result.rightY.display.ydisplay.title =
         chartTranslateInfo.rightYdisplayTitle || result.rightY.display.ydisplay.title;
     }
   }
+
   if (result.lines && result.lines.length) {
     result.lines.forEach(item => {
       item.rename = chartTranslateInfo[`line-${item.controlId}-name`] || item.rename;
@@ -1657,6 +1750,7 @@ const fillTranslate = (result, pageId) => {
           };
         });
       }
+
       if (item.dataSource) {
         translateValueMap(
           item.dataSource,
@@ -1673,6 +1767,7 @@ const fillTranslate = (result, pageId) => {
       item.name = chartTranslateInfo[`lineSummaryControl-${item.controlId}-name`] || item.name;
     });
   }
+
   if (result.columns && result.columns.length) {
     result.columns.forEach(item => {
       item.rename = chartTranslateInfo[`column-${item.controlId}-name`] || item.rename;
@@ -1688,21 +1783,26 @@ const fillTranslate = (result, pageId) => {
       item.name = chartTranslateInfo[`columnSummaryControl-${item.controlId}-name`] || item.name;
     });
   }
+
   if (result.name) {
     result.name = chartTranslateInfo.name || result.name;
   }
+
   if (result.desc) {
     result.desc = chartTranslateInfo.description || result.desc;
   }
+
   if (result.summary) {
     result.summary.name = chartTranslateInfo.summaryName || result.summary.name;
     (result.summary.controlList || []).forEach(item => {
       item.name = chartTranslateInfo[`summaryControl-${item.controlId}-name`] || item.name;
     });
   }
+
   if (result.displaySetup.ydisplay) {
     result.displaySetup.ydisplay.title = chartTranslateInfo.ydisplayTitle || result.displaySetup.ydisplay.title;
   }
+
   if (result.reportType === reportTypes.ScatterChart && result.style.quadrant) {
     const quadrant = result.style.quadrant;
     quadrant.topRightText = chartTranslateInfo.quadrantTopRightText || quadrant.topRightText;
@@ -1710,18 +1810,23 @@ const fillTranslate = (result, pageId) => {
     quadrant.bottomLeftText = chartTranslateInfo.quadrantBottomLeftText || quadrant.bottomLeftText;
     quadrant.bottomRightText = chartTranslateInfo.quadrantBottomRightText || quadrant.bottomRightText;
   }
+
   if (result.reportType === reportTypes.FunnelChart) {
     result.style.funnelConversionText = chartTranslateInfo.funnelConversionText || result.style.funnelConversionText;
   }
+
   if (result.reportType === reportTypes.ProgressChart) {
     result.style.currentValueName = chartTranslateInfo.currentValueName || result.style.currentValueName;
     result.style.targetValueName = chartTranslateInfo.targetValueName || result.style.targetValueName;
   }
+
   if (_.get(result, 'split.dataSource')) {
     const splitId = result.split.controlId;
     const relationControl = _.get(result.split, 'relationControl');
+
     if (relationControl) {
       const relationControlDataSource = _.get(relationControl, 'dataSource');
+
       // 他表字段
       if (relationControlDataSource) {
         // 选项集
@@ -1735,11 +1840,14 @@ const fillTranslate = (result, pageId) => {
       translateValueMap(_.get(result, 'split.dataSource'), splitId);
     }
   }
+
   if (_.get(result, 'xaxes.dataSource')) {
     const xaxesId = result.xaxes.controlId;
     const relationControl = _.get(result, 'xaxes.relationControl');
+
     if (relationControl) {
       const relationControlDataSource = _.get(relationControl, 'dataSource');
+
       if (relationControlDataSource) {
         translateValueMap(relationControlDataSource, xaxesId);
       } else {
@@ -1749,11 +1857,14 @@ const fillTranslate = (result, pageId) => {
       translateValueMap(_.get(result, 'xaxes.dataSource'), xaxesId);
     }
   }
+
   if (result.valueMap) {
     for (let controlId in result.valueMap) {
       const valueMapTranslateInfo = getTranslateInfo(appId, result.appId, controlId);
+
       if (!_.isEmpty(valueMapTranslateInfo)) {
         const map = result.valueMap[controlId];
+
         for (let key in map) {
           if (map[key] && valueMapTranslateInfo[key]) {
             map[key] = valueMapTranslateInfo[key];
@@ -1762,6 +1873,7 @@ const fillTranslate = (result, pageId) => {
       }
     }
   }
+
   return result;
 };
 
@@ -1791,6 +1903,7 @@ export const mergeReportData = (currentReport, result, id) => {
   const isBarChart = result.reportType === reportTypes.BarChart;
   const isPivotTable = result.reportType === reportTypes.PivotTable;
   const param = {};
+
   if (result.status > 0) {
     if (isPivotTable) {
       param.pivotTable = {
@@ -1818,8 +1931,10 @@ export const mergeReportData = (currentReport, result, id) => {
           summary: result.rightY.summary,
         };
       }
+
       const { style, split } = result;
       const isOptionColor = getIsAlienationColor(result) || (isBarChart && _.get(split, 'options.length'));
+
       if (_.isEmpty(id) && _.isEmpty(style) && isOptionColor) {
         param.style = {
           colorType: 0,
@@ -1827,6 +1942,7 @@ export const mergeReportData = (currentReport, result, id) => {
       }
     }
   }
+
   return param;
 };
 
@@ -1854,6 +1970,7 @@ export const getAlreadySelectControlId = currentReport => {
   } else {
     alreadySelectControlId.push(xaxes.controlId, split.controlId, ...rightYaxisList, rightSplitId);
   }
+
   return alreadySelectControlId.filter(_ => _);
 };
 
@@ -1936,10 +2053,12 @@ export const formatTimeFormats = particleSizeType => {
   if (particleSizeType === 5) {
     return [{ value: '0', getTime: () => moment().format('YYYY') }];
   }
+
   // 季
   if (particleSizeType === 4) {
     return [{ value: '0', getTime: () => moment().format('YYYY[Q]Q') }];
   }
+
   // 月
   if (particleSizeType === 3) {
     return [
@@ -1950,10 +2069,12 @@ export const formatTimeFormats = particleSizeType => {
       { value: '3', getTime: () => `${moment().format('M/YYYY')} (EU)` },
     ];
   }
+
   // 周
   if (particleSizeType === 2) {
     return [{ value: '0', getTime: () => moment().format('YYYY[W]WW') }];
   }
+
   // 时
   if (particleSizeType === 6) {
     return [
@@ -1961,14 +2082,17 @@ export const formatTimeFormats = particleSizeType => {
       { value: '1', getTime: () => moment().format('HH') },
     ];
   }
+
   // 分
   if (particleSizeType === 7) {
     return [{ value: '0', getTime: () => moment().format('HH:mm') }];
   }
+
   // 秒
   if (particleSizeType === 13) {
     return [{ value: '0', getTime: () => moment().format('HH:mm:ss') }];
   }
+
   return timeFormats;
 };
 
@@ -1985,9 +2109,11 @@ export const timeDataParticle = [
       if (showFormat === '0') {
         return moment().format('YYYY-MM');
       }
+
       if (showFormat === '1') {
         return moment().format(_l('YYYY年MM'));
       }
+
       return moment().format('YYYY/MM');
     },
   },
@@ -1999,9 +2125,11 @@ export const timeDataParticle = [
       if (showFormat === '0') {
         return moment().format('YYYY-MM-DD');
       }
+
       if (showFormat === '1') {
         return moment().format(_l('YYYY年MM月DD日'));
       }
+
       return moment().format('YYYY/MM/DD');
     },
   },
@@ -2012,9 +2140,11 @@ export const timeDataParticle = [
       if (showFormat === '0') {
         return moment().format('YYYY-MM-DD HH') + _l('时');
       }
+
       if (showFormat === '1') {
         return moment().format(_l('YYYY年MM月DD日 HH')) + _l('时');
       }
+
       return moment().format('YYYY/MM/DD HH') + _l('时');
     },
   },
@@ -2025,9 +2155,11 @@ export const timeDataParticle = [
       if (showFormat === '0') {
         return moment().format('YYYY-MM-DD HH:mm');
       }
+
       if (showFormat === '1') {
         return moment().format(_l('YYYY年MM月DD日 HH:mm'));
       }
+
       return moment().format('YYYY/MM/DD HH:mm');
     },
   },
@@ -2038,9 +2170,11 @@ export const timeDataParticle = [
       if (showFormat === '0') {
         return moment().format('YYYY-MM-DD HH:mm:ss');
       }
+
       if (showFormat === '1') {
         return moment().format(_l('YYYY年MM月DD日 HH:mm:ss'));
       }
+
       return moment().format('YYYY/MM/DD HH:mm:ss');
     },
   },
@@ -2051,6 +2185,7 @@ export const timeDataParticle = [
  */
 export const filterTimeData = (data, { showtype, controlType }) => {
   let timeDataParticle = [];
+
   if (controlType === WIDGETS_TO_API_TYPE_ENUM.DATE_TIME) {
     timeDataParticle = data.filter(item => ![13].includes(item.value));
   } else if (controlType === WIDGETS_TO_API_TYPE_ENUM.TIME) {
@@ -2058,14 +2193,17 @@ export const filterTimeData = (data, { showtype, controlType }) => {
   } else {
     timeDataParticle = data.filter(item => ![6, 7, 13].includes(item.value));
   }
+
   // 年
   if (showtype === '5') {
     return timeDataParticle.filter(item => [5].includes(item.value));
   }
+
   // 年-月
   if (showtype === '4') {
     return timeDataParticle.filter(item => [3, 4, 5].includes(item.value));
   }
+
   return timeDataParticle;
 };
 
@@ -2086,19 +2224,23 @@ export const timeGatherParticle = [
  */
 export const filterTimeGatherParticle = (data, { showtype, controlType }) => {
   let timeGatherParticle = [];
+
   if (controlType === WIDGETS_TO_API_TYPE_ENUM.TIME) {
     timeGatherParticle = data.filter(item => [11, 12, 14].includes(item.value));
   } else {
     timeGatherParticle = data.filter(item => ![12, 14].includes(item.value));
   }
+
   // 年
   if (showtype === '5') {
     return [];
   }
+
   // 年-月
   if (showtype === '4') {
     return timeGatherParticle.filter(item => ![10, 11].includes(item.value));
   }
+
   return timeGatherParticle;
 };
 
@@ -2126,15 +2268,19 @@ export const areaParticleSizeDropdownData = [
 export const filterAreaParticleSizeDropdownData = axis => {
   const { type, advancedSetting } = axis;
   const chooserange = _.get(advancedSetting, 'chooserange');
+
   if (type === 19) {
     return areaParticleSizeDropdownData.filter(a => ![2, 3, 4].includes(a.value));
   }
+
   if (type === 23 || (chooserange && chooserange !== 'CN')) {
     return areaParticleSizeDropdownData.filter(a => ![3, 4].includes(a.value));
   }
+
   if (chooserange === '') {
     return areaParticleSizeDropdownData.filter(a => ![3].includes(a.value));
   }
+
   return areaParticleSizeDropdownData.filter(a => ![4].includes(a.value));
 };
 
@@ -2269,6 +2415,7 @@ export const checkedDropdownItem = (value, list) => {
 export const formatrChartTimeText = ({ rangeType, rangeValue, dynamicFilter, today }) => {
   const typeName = _.find(dropdownScopeData, { value: rangeType }) || {};
   const text = isPastAndFuture(rangeType) ? typeName.text.replace(/(\...)/i, rangeValue) : typeName.text;
+
   if (rangeType === 20) {
     return rangeValue;
   } else if (rangeType === 21) {
@@ -2311,6 +2458,7 @@ function getFontRect(sum, el, px) {
 export function getPerfectFontSize(el, sum, size) {
   let width = el.clientWidth;
   let height = 0;
+
   switch (size) {
     case 0:
       height = $(el).parent().height() / 3;
@@ -2324,6 +2472,7 @@ export function getPerfectFontSize(el, sum, size) {
     default:
       height = $(el).parent().height() / 3;
   }
+
   let defaultProportion = 24;
   let sumSize = getFontRect(sum, el, 14);
   let proportion = sumSize.width / sumSize.height;
@@ -2346,6 +2495,7 @@ const hexToRgb = hex => {
   for (var i = 1; i < 7; i += 2) {
     rgb.push(parseInt('0x' + hex.slice(i, i + 2)));
   }
+
   return rgb;
 };
 
@@ -2380,6 +2530,7 @@ export const formatterTooltipTitle = (xaxes, key) => {
       return `${start} - ${end}`;
     };
   }
+
   return undefined;
 };
 

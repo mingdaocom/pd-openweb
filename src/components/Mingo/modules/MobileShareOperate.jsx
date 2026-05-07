@@ -101,6 +101,7 @@ const MobileShareOperate = ({
         appId,
         sourceId,
       });
+
       // 未开启分享
       if (!shareLink) {
         const res = await updatePublicShareStatus({
@@ -117,6 +118,7 @@ const MobileShareOperate = ({
 
         shareLink = res.shareLink;
       }
+
       setConfirmVisible(true);
       setShareUrl(shareLink);
     } catch (error) {

@@ -2,22 +2,12 @@ import React, { Fragment, useState } from 'react';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Dropdown, Icon, Radio } from 'ming-ui';
+import WeChatServiceAccount from 'src/components/WeChatServiceAccountsDialog';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import { AUTH_OPTIONS, COLLECT_WAY_OPTIONS, WECHAT_FIELD_KEY, WECHAT_MAPPING_SOURCE_FIELDS } from '../../enum';
 import AddControlDialog from '../components/AddControlDialog';
 import CommonSwitch from './CommonSwitch';
 import SectionTitle from './SectionTitle';
-
-const BindingTip = styled.div`
-  width: 410px;
-  padding: 16px;
-  margin: 16px 0;
-  background: var(--color-background-secondary);
-  border-radius: 6px;
-  .bindText {
-    color: var(--color-success);
-  }
-`;
 
 const AddControl = styled.div`
   :hover {
@@ -29,7 +19,15 @@ const AddControl = styled.div`
 `;
 
 export default function WeChatSettings(props) {
-  const { data, setState, projectId, addWorksheetControl, weChatBind } = props;
+  const {
+    data,
+    setState,
+    projectId,
+    appId,
+    addWorksheetControl,
+    weChatBind,
+    updateCurrentWeChatServiceAccount = () => {},
+  } = props;
   const {
     weChatSetting,
     originalControls,
@@ -147,21 +145,17 @@ export default function WeChatSettings(props) {
                       }
                     />
                   ))}
-                  {weChatSetting.collectChannel === 2 &&
-                    (!weChatBind.isBind ? (
-                      <BindingTip>
-                        <span className="textTertiary">{_l('暂未绑定认证的服务号, 请前往')}</span>
-                        <a className="colorPrimary pointer" href={`/admin/weixin/${projectId}`} target="_blank">
-                          {_l('组织后台')}
-                        </a>
-                        <span className="textTertiary">{_l('添加微信服务号')}</span>
-                      </BindingTip>
-                    ) : (
-                      <BindingTip>
-                        <span>{weChatBind.name}</span>
-                        <span className="bindText mLeft8">{_l('官方认证服务号')}</span>
-                      </BindingTip>
-                    ))}
+                  {weChatSetting.collectChannel === 2 && (
+                    <WeChatServiceAccount
+                      className="mTop16 mBottom16"
+                      projectId={projectId}
+                      appId={appId}
+                      selectedServiceAppId={weChatBind.appId}
+                      updateWeChatServiceInfo={({ weChatServiceAccounts, service, appId }) => {
+                        updateCurrentWeChatServiceAccount({ weChatServiceAccounts, service, appId });
+                      }}
+                    />
+                  )}
                   <p className="mTop24 mBottom16">{_l('获取填写信息')}</p>
                   {AUTH_OPTIONS.map((item, i) => (
                     <Radio

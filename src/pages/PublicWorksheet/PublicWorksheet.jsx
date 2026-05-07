@@ -55,6 +55,7 @@ export default class PublicWorksheet extends React.Component {
 
   componentDidMount() {
     const { isPreview, worksheetId } = this.props;
+
     if (isPreview) {
       getPublicWorksheetInfo(worksheetId, (err, info) => {
         this.setState({
@@ -122,6 +123,7 @@ export default class PublicWorksheet extends React.Component {
 
     const afterSubmit = safeParse(_.get(extendDatas, 'afterSubmit'));
     let jumpUrl = '';
+
     if (afterSubmit.action === 2) {
       const afterSubmitContent = safeParse(afterSubmit.content);
       const control = afterSubmitContent.isControl
@@ -246,6 +248,7 @@ export default class PublicWorksheet extends React.Component {
                       className="qrIcon icon icon-zendeskHelp-qrcode"
                       onMouseEnter={() => {
                         let qrurl = location.href;
+
                         if (isPreview) {
                           try {
                             qrurl = new URL(location.href).searchParams.get('url');
@@ -253,6 +256,7 @@ export default class PublicWorksheet extends React.Component {
                             console.error(err);
                           }
                         }
+
                         this.setState({ qrurl });
                       }}
                     >
@@ -368,6 +372,7 @@ export default class PublicWorksheet extends React.Component {
                       if (info.status === FILL_STATUS.NOT_IN_FILL_TIME) {
                         alert(_l('你访问的表单暂未开放!'), 3);
                       }
+
                       resolve(info);
                     } else {
                       reject();

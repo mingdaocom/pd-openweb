@@ -24,12 +24,14 @@ export default class VideoMessage extends Component {
     const { loading } = this.state;
     const { session, message } = this.props;
     const { video_pic } = message.msg.files;
+
     if (video_pic && !loading) {
       this._isMounted = true;
       this.handleLoadImage(video_pic).then(() => {
         if (!this._isMounted) {
           return;
         }
+
         this.setState(
           {
             loading: true,

@@ -114,11 +114,13 @@ export default class extends PureComponent {
 
   changePermissionWay = (permissionWay, clearExtendAttrs = false) => {
     const { onChange, roleDetail: { description, permissionWay: oldPermissionWay } = {} } = this.props;
+
     if (oldPermissionWay !== permissionWay) {
       let payload = {
         permissionWay: permissionWay,
         description: description === TEXTS[oldPermissionWay] ? TEXTS[permissionWay] : description,
       };
+
       if (PERMISSION_WAYS.OnlyViewAllRecord === permissionWay) {
         //对所有记录只有查看权限 同时 操作权限 不可新增
         payload = {
@@ -175,9 +177,11 @@ export default class extends PureComponent {
     const showCheckbox = PERMISSION_WAYS_WITH_CHECKBOX.indexOf(permissionWay) !== -1;
     const isChecked = showCheckbox && PERMISSION_WAYS_WITH_CHECKED.indexOf(permissionWay) !== -1;
     let actionListClone = this.state.actionList;
+
     if (PERMISSION_WAYS.OnlyViewAllRecord === permissionWay) {
       actionListClone = actionListClone.filter(o => o.key !== 'generalAdd');
     }
+
     return (
       <React.Fragment>
         <div className="Font14 mTop25 bold">{_l('分发哪些应用项？')}</div>
@@ -398,6 +402,7 @@ export default class extends PureComponent {
                 {AUTH.map((item, index) => {
                   let clearselected;
                   let checked;
+
                   if (item.operatorKey === 'READ') {
                     checked =
                       !sheets.filter(obj => obj.views.filter(o => !o[item.key]).length).length &&
@@ -422,6 +427,7 @@ export default class extends PureComponent {
                     checked = viewsData.length === allViews.length && allViews.length > 0;
                     clearselected = !checked && viewsData.length !== allViews.length && viewsData.length > 0;
                   }
+
                   return (
                     <div key={index} className={'tableHeaderItem tableHeaderOther'}>
                       <Checkbox
@@ -466,6 +472,7 @@ export default class extends PureComponent {
                       ...(_.get(this.props, 'roleDetail') || {}),
                       sheets: sheets.map(o => {
                         const info = data.find(it => it.sheetId === o.sheetId);
+
                         if (info) {
                           return { ...o, ...info };
                         } else {
@@ -515,12 +522,14 @@ export default class extends PureComponent {
   toggleAllViewAuth(key, checked) {
     const { roleDetail, onChange } = this.props;
     const sheets = (roleDetail.sheets || []).map(item => changeSheetModel(item, key, checked));
+
     if (key === 'READ') {
       const getDatas = data => {
         return _.cloneDeep(data).map(o => {
           return { ...o, checked, navigateHide: !checked ? false : o.navigateHide };
         });
       };
+
       onChange({
         ...roleDetail,
         sheets,
@@ -656,6 +665,7 @@ export default class extends PureComponent {
               if (saveLoading || (_.isEqual(this.props.roleDetail, roleDetailCache) && !!roleId)) {
                 return;
               }
+
               onSave();
             }}
           >

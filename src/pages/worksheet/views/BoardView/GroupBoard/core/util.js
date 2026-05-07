@@ -44,10 +44,12 @@ const processGradeFieldValue = (value, max = '10') => {
 const parseDoubleEncoded = raw => {
   try {
     const arr = safeParse(raw);
+
     // 如果元素是字符串且像 JSON 字符串（以 { 开头），可能需要再解析
     if (arr.length && typeof arr[0] === 'string' && arr[0].startsWith('{')) {
       return arr.map(item => safeParse(item));
     }
+
     // 其他情况直接返回
     return arr;
   } catch (error) {
@@ -73,6 +75,7 @@ const extractValues = (viewData, controlId, type, relationTitleControl) => {
         if (typeof v === 'number') {
           return [];
         }
+
         const parsed = parseDoubleEncoded(v);
         const parsedArray = _.isArray(parsed) ? parsed : [parsed];
 
@@ -117,11 +120,13 @@ export const groupByOptionKey = (viewData, view, control, options) => {
   const keySet = new Set(options.map(opt => opt.key));
   const groupViewData = {};
   const secondGroupTotal = {};
+
   for (const key of keySet) {
     groupViewData[key] = {};
     for (const gk of firstGroupKeys) {
       groupViewData[key][gk] = [];
     }
+
     secondGroupTotal[key] = 0;
   }
 
@@ -142,6 +147,7 @@ export const groupByOptionKey = (viewData, view, control, options) => {
         .filter(opt => opt.key !== '-1')
         .forEach(opt => {
           const key = opt.key;
+
           if (
             typeof valueStr === 'string' &&
             ((isOptionControl && (safeParse(valueStr) || [])[0] === key) ||
@@ -190,6 +196,7 @@ export const getGroupOpenKeys = (options, view, groupViewData, control) => {
   const { groupopen = '2', groupshow } = getAdvanceSetting(view);
   const { type } = control;
   let openKeys = [];
+
   switch (groupopen) {
     case '1':
       // 如果二级分组字段为选项、等级，且 groupshow = 1（有数据的项），展开第一项需要判断有数据的第一项
@@ -202,6 +209,7 @@ export const getGroupOpenKeys = (options, view, groupViewData, control) => {
       } else {
         openKeys = [options[0]?.key];
       }
+
       break;
     case '2':
       openKeys = options.map(item => item.key);
@@ -212,6 +220,7 @@ export const getGroupOpenKeys = (options, view, groupViewData, control) => {
     default:
       openKeys = options.map(item => item.key);
   }
+
   return openKeys;
 };
 
@@ -251,6 +260,7 @@ export const getGroupOptions = (viewData, view, control, otherParams = {}) => {
       const { max } = control.advancedSetting;
       options = generateKeyValuePairs(max);
     }
+
     // 如果有指定项，则按照指定项的顺序展示
     if (isGroupFilters) {
       const groupFilters = safeParse(groupfilters) || [];
@@ -295,6 +305,7 @@ export const getGroupOptions = (viewData, view, control, otherParams = {}) => {
 
   // 需要按照最初的顺序显示
   const { sortedOptionKeys, updateBoardViewSortedOptionKeys = () => {} } = otherParams;
+
   if (isComplexControl && !isGroupFilters && sortedOptionKeys) {
     if (sortedOptionKeys.length) {
       options = options.sort((a, b) => {
@@ -303,6 +314,7 @@ export const getGroupOptions = (viewData, view, control, otherParams = {}) => {
         return (indexA === -1 ? Infinity : indexA) - (indexB === -1 ? Infinity : indexB);
       });
     }
+
     let curKeys = options.map(item => item.key);
     updateBoardViewSortedOptionKeys(curKeys);
   }
@@ -332,6 +344,7 @@ export const getGroupOptions = (viewData, view, control, otherParams = {}) => {
 // 处理options，用于【移动到】相关参数
 export const parseGroupsByOptions = (type, options) => {
   let parseOptions = [];
+
   switch (type) {
     case 9:
     case 11:
@@ -347,5 +360,6 @@ export const parseGroupsByOptions = (type, options) => {
       parseOptions = options;
       break;
   }
+
   return parseOptions;
 };

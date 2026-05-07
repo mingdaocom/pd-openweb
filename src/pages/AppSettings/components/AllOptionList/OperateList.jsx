@@ -15,7 +15,6 @@ const OperateWrap = styled(Menu)`
   }
   .ming.MenuItem .Item-content:not(.disabled):hover {
     color: var(--color-text-title) !important;
-    background-color: var(--color-background-secondary) !important;
   }
   .ming.Item .Item-content:not(.disabled):hover .icon {
     color: var(--color-text-tertiary) !important;

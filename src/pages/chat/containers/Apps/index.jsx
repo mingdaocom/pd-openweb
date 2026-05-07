@@ -104,6 +104,7 @@ const Apps = props => {
   const getApps = () => {
     const api = commonAppShowType === 1 ? homeAppApi.recentApps : homeAppApi.marketApps;
     const projectId = getProjectId();
+
     if (projectId) {
       setLoading(true);
       api({
@@ -138,9 +139,11 @@ const Apps = props => {
         setAppShowCount(getShowAppsCount(_.get(appsWrap.current, 'clientHeight') || 0));
       }
     });
+
     if (appsWrap.current) {
       resizeObserver.observe(appsWrap.current);
     }
+
     return () => {
       if (appsWrap.current) {
         resizeObserver.unobserve(appsWrap.current);

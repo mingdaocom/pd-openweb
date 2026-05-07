@@ -24,7 +24,7 @@ const Wrap = styled.div`
   position: relative;
 
   .Dropdown--input {
-    background-color: var(--color-background-primary);
+    background-color: var(--color-background-input);
   }
   .ant-checkbox-input {
     position: absolute;
@@ -68,7 +68,7 @@ const FillColor = styled.div`
   width: 18px;
   height: 18px;
   border-radius: 2px;
-  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+  box-shadow: var(--shadow-lg);
   background-color: ${props => props.color};
 `;
 
@@ -155,6 +155,7 @@ function Setting(props) {
         })
         .then(res => {
           const { resultCode, views = [], template } = res;
+
           if (resultCode === 1) {
             const controls = replaceControlsTranslateInfo(appId, worksheetId, template.controls);
             setDataSource({
@@ -167,6 +168,7 @@ function Setting(props) {
               controls,
             });
           }
+
           setLoading(false);
         });
     } else {
@@ -215,7 +217,7 @@ function Setting(props) {
           value={viewId ? (_.find(views, { viewId }) ? viewId : _l('视图已删除')) : undefined}
           suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
           placeholder={_l('请选择视图')}
-          notFoundContent={<div className="valignWrapper">{_l('请先选择工作表')}</div>}
+          notFoundContent={<div className="valignWrapper textTertiary">{_l('请先选择工作表')}</div>}
           getPopupContainer={() => document.querySelector('.customPageCarouselWrap .setting')}
           filterOption={(searchValue, option) => {
             const { value } = option;
@@ -242,7 +244,7 @@ function Setting(props) {
           value={image ? (_.find(controls, { controlId: image }) ? image : _l('字段已删除')) : undefined}
           suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
           placeholder={_l('请选择字段')}
-          notFoundContent={<div className="valignWrapper">{_l('暂无字段')}</div>}
+          notFoundContent={<div className="valignWrapper textTertiary">{_l('暂无字段')}</div>}
           getPopupContainer={() => document.querySelector('.customPageCarouselWrap .setting')}
           onChange={value => {
             setComponentConfig({ image: value });
@@ -354,7 +356,7 @@ function Setting(props) {
           allowClear={true}
           clearIcon={<Icon icon="cancel" className="textDisabled Font20" />}
           placeholder={_l('请选择文本字段')}
-          notFoundContent={<div className="valignWrapper">{_l('暂无文本字段')}</div>}
+          notFoundContent={<div className="valignWrapper textTertiary">{_l('暂无文本字段')}</div>}
           getPopupContainer={() => document.querySelector('.customPageCarouselWrap .setting')}
           onChange={value => {
             setComponentConfig({ title: value });
@@ -381,7 +383,7 @@ function Setting(props) {
           placeholder={_l('请选择文本字段')}
           allowClear={true}
           clearIcon={<Icon icon="cancel" className="textDisabled Font20" />}
-          notFoundContent={<div className="valignWrapper">{_l('暂无文本字段')}</div>}
+          notFoundContent={<div className="valignWrapper textTertiary">{_l('暂无文本字段')}</div>}
           getPopupContainer={() => document.querySelector('.customPageCarouselWrap .setting')}
           onChange={value => {
             setComponentConfig({ subTitle: value });
@@ -408,9 +410,11 @@ function Setting(props) {
           getPopupContainer={() => document.querySelector('.customPageCarouselWrap .setting')}
           onChange={value => {
             const data = { action: value };
+
             if (value === 2) {
               data.openMode = 1;
             }
+
             setComponentConfig(data);
           }}
         >
@@ -429,7 +433,7 @@ function Setting(props) {
           value={url}
           suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
           placeholder={_l('请选择文本字段')}
-          notFoundContent={<div className="valignWrapper">{_l('暂无文本字段')}</div>}
+          notFoundContent={<div className="valignWrapper textTertiary">{_l('暂无文本字段')}</div>}
           getPopupContainer={() => document.querySelector('.customPageCarouselWrap .setting')}
           onChange={value => {
             setComponentConfig({ url: value });

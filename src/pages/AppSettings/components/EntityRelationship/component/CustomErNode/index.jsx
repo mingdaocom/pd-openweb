@@ -6,7 +6,7 @@ import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import sheetAjax from 'src/api/worksheet';
-import { dialogEditWorksheet } from 'src/pages/widgetConfig';
+import dialogEditWorksheet from 'src/pages/widgetConfig/components/dialogEditWorksheet';
 import { DEFAULT_CONFIG, WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import { renderDialog } from 'src/pages/widgetConfig/widgetSetting/components/WorksheetReference/index';
 import { getTranslateInfo } from 'src/utils/app';
@@ -118,7 +118,7 @@ export default function CustomErNode(props) {
           overflow: { adjustX: true, adjustY: true },
         }}
         popup={() => (
-          <Menu>
+          <Menu style={{ boxShadow: 'var(--shadow-lg)' }}>
             <li className="overflow_ellipsis Hand" onClick={openEdit}>
               {_l('编辑表单')}
             </li>

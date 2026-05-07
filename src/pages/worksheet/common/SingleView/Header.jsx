@@ -1,11 +1,12 @@
 import React from 'react';
 import { Button } from 'antd';
 import cx from 'classnames';
-import _, { get } from 'lodash';
+import _, { get, isEmpty } from 'lodash';
 import { bool, element, func, shape } from 'prop-types';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
+import SheetHeader from 'worksheet/common/Sheet/SheetHeader';
 import Pagination from 'worksheet/components/Pagination';
 import SearchInput from 'worksheet/components/SearchInput';
 import { VIEW_DISPLAY_TYPE } from 'worksheet/constants/enum';
@@ -21,6 +22,36 @@ const Con = styled.div`
   display: flex;
   padding: 6px 0;
   align-items: center;
+  .sheetHeader {
+    padding-right: 0;
+    .batchOperateCon,
+    .headerLeft,
+    .staticsEntry,
+    .discussionEntry,
+    .addRecordEntry {
+      display: none;
+    }
+  }
+  &.hideSearchRecord {
+    .worksheetQueryInput {
+      display: none;
+    }
+  }
+  &.hideFilter {
+    .filterEntry {
+      display: none;
+    }
+  }
+  &.hideImport {
+    .importEntry {
+      display: none;
+    }
+  }
+  &.hideDraft {
+    .draftEntry {
+      display: none;
+    }
+  }
   button.addRecord {
     border-color: var(--app-primary-color);
     background: var(--app-primary-color);
@@ -60,6 +91,11 @@ export default function Header(props) {
     sheetSwitchPermit,
     fromEmbed = false,
     isDraft,
+    isAddRecord = true,
+    searchRecord = true,
+    allowFilter = false,
+    allowDraft = false,
+    allowImport = false,
   } = props;
   const { changePageSize, changePageIndex, updateFiltersWithView, updateSearchRecord, refreshSheet, openNewRecord } =
     props;
@@ -108,8 +144,17 @@ export default function Header(props) {
   }
 
   return (
-    <Con className={cx('SingleViewHeader', { Border0: !_.isEmpty(view.fastFilters) })}>
+    <Con
+      className={cx('SingleViewHeader', {
+        Border0: !_.isEmpty(view.fastFilters),
+        hideSearchRecord: !searchRecord,
+        hideFilter: window.shareState.shareId ? true : !allowFilter,
+        hideImport: window.shareState.shareId ? true : !allowImport,
+        hideDraft: window.shareState.shareId ? true : !allowDraft,
+      })}
+    >
       {isOpenPermit(permitList.createButtonSwitch, sheetSwitchPermit) &&
+        isAddRecord &&
         allowAdd &&
         fromEmbed &&
         !_.isEmpty(view) &&
@@ -122,34 +167,38 @@ export default function Header(props) {
       {headerLeft}
 
       <Flex />
-      {[VIEW_DISPLAY_TYPE.structure, VIEW_DISPLAY_TYPE.gunter, VIEW_DISPLAY_TYPE.map].includes(viewType) &&
-      get(view, 'advancedSetting.hierarchyViewType') !== '3' &&
-      !showAsSheetView ? (
-        <SearchRecord
-          queryKey={searchData.queryKey}
-          data={handleSearchData()}
-          onSearch={record => {
-            updateSearchRecord(view, record);
-          }}
-          onClose={() => {
-            updateSearchRecord(view, null);
-          }}
-        >
-          <Tooltip placement="bottom" title={_l('查找')}>
-            <Icon icon="search" className="textTertiary Font22 pointer ThemeHoverColor3 mTop2 mRight15" />
-          </Tooltip>
-        </SearchRecord>
-      ) : (
-        <SearchInput
-          className="queryInput"
-          onOk={value => {
-            updateFiltersWithView({ keyWords: (value || '').trim() });
-          }}
-          onClear={() => {
-            updateFiltersWithView({ keyWords: '' });
-          }}
-        />
-      )}
+      {/** 其他头部操作走SheetHeader，搜索保存不变 */}
+      {searchRecord &&
+        ([VIEW_DISPLAY_TYPE.structure, VIEW_DISPLAY_TYPE.gunter, VIEW_DISPLAY_TYPE.map].includes(viewType) &&
+        get(view, 'advancedSetting.hierarchyViewType') !== '3' &&
+        !showAsSheetView ? (
+          <SearchRecord
+            queryKey={searchData.queryKey}
+            data={handleSearchData()}
+            onSearch={record => {
+              updateSearchRecord(view, record);
+            }}
+            onClose={() => {
+              updateSearchRecord(view, null);
+            }}
+          >
+            <Tooltip placement="bottom" title={_l('查找')}>
+              <Icon icon="search" className="textTertiary Font22 pointer ThemeHoverColor3 mTop2" />
+            </Tooltip>
+          </SearchRecord>
+        ) : (
+          <SearchInput
+            className="queryInput"
+            onOk={value => {
+              updateFiltersWithView({ keyWords: (value || '').trim() });
+            }}
+            onClear={() => {
+              updateFiltersWithView({ keyWords: '' });
+            }}
+          />
+        ))}
+      {!isEmpty(worksheetInfo) && !fromEmbed && <SheetHeader isSingleView={true} {...props} />}
+
       <Tooltip placement="bottom" title={_l('刷新')}>
         <Icon
           icon="task-later"
@@ -178,7 +227,7 @@ export default function Header(props) {
           }}
         />
       )}
-      {isOpenPermit(permitList.createButtonSwitch, sheetSwitchPermit) && allowAdd && !fromEmbed && (
+      {isOpenPermit(permitList.createButtonSwitch, sheetSwitchPermit) && isAddRecord && allowAdd && !fromEmbed && (
         <Button
           type="primary"
           shape="round"

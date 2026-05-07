@@ -92,6 +92,7 @@ var FolderSelect = function (param) {
   this.settings = $.extend(true, dafaults, param, options);
   this.init();
 };
+
 var $folderContent = null;
 $.extend(FolderSelect.prototype, {
   init: function () {
@@ -169,6 +170,7 @@ $.extend(FolderSelect.prototype, {
                   throw msg;
                 });
               }
+
               settings.rootFolder = {
                 id: selectedNode[0].id,
                 projectId: selectedNode[0].projectId,
@@ -177,6 +179,7 @@ $.extend(FolderSelect.prototype, {
               resultType = PICK_TYPE.CHILDNODE;
               resultNode = selectedNode[0];
             }
+
             folderSelect.settings.currentFolder = {
               node: {
                 id: resultNode.id,
@@ -216,6 +219,7 @@ $.extend(FolderSelect.prototype, {
                 rootName: currentRoot.name,
               });
             }
+
             folderSelect.savePos(resObj);
             folderSelect.savePos(resObj, true);
             settings.resolve(resObj);
@@ -248,12 +252,15 @@ $.extend(FolderSelect.prototype, {
               if (!nodeData) {
                 throw new Error();
               }
+
               let resObj = { type: parseInt(resultType), node: nodeData };
+
               if (resultType === PICK_TYPE.CHILDNODE && settings.reRootName) {
                 resObj = $.extend(resObj, {
                   rootName: currentRoot.name,
                 });
               }
+
               folderSelect.savePos(resObj);
               folderSelect.savePos(resObj, true);
               settings.resolve(resObj);
@@ -356,12 +363,14 @@ $.extend(FolderSelect.prototype, {
             $searchFolder.blur();
             return;
           }
+
           if (searchName && searchName.length && searchName != '请输入文件名称并回车') {
             settings.keywords = searchName;
             settings.skip = 0;
             folderSelect.getNodeList(null, null, true);
             return;
           }
+
           $searchFolder.val('').css({ width: 180, 'padding-right': '16px' });
           var prevWidth = 0;
           $folderContent
@@ -410,15 +419,18 @@ $.extend(FolderSelect.prototype, {
                 alert(_l('您无权限修改该文件的分享权限'), 3);
                 return false;
               }
+
               if ($this.hasClass('ThemeColor3')) {
                 return false;
               }
+
               ajax
                 .updateNode({ id: nodeData.id, visibleType: visibleId })
                 .then(function (result) {
                   if (!result) {
                     throw new Error();
                   }
+
                   alert(_l('修改成功'));
                   nodeData.visibleType = visibleId;
                   var $selectedNode = $folderContent
@@ -449,6 +461,7 @@ $.extend(FolderSelect.prototype, {
               } else {
                 $sharePermision.show();
               }
+
               evt.stopPropagation();
             },
           },
@@ -498,6 +511,7 @@ $.extend(FolderSelect.prototype, {
             return root.permission !== PERMISSION_TYPE.READONLY;
           });
         }
+
         var projectIds = md.global.Account.projects.map(function (project) {
           return project.projectId;
         });
@@ -508,9 +522,11 @@ $.extend(FolderSelect.prototype, {
               noProject.push(ele);
               return;
             }
+
             if (!projectMap[projectId]) {
               projectMap[projectId] = [];
             }
+
             projectMap[projectId].push(ele);
           } else {
             noProject.push(ele);
@@ -551,6 +567,7 @@ $.extend(FolderSelect.prototype, {
         throw msg;
       });
     }
+
     var folderSelect = this;
     var settings = folderSelect.settings;
     var $folderUrl = $folderContent.find('.folderUrl');
@@ -584,6 +601,7 @@ $.extend(FolderSelect.prototype, {
       settings.skip = 0;
       settings.parentCount = 0;
     }
+
     //获取nodeList的父元素
     var $folderHtml;
     if (isScroll) {
@@ -602,6 +620,7 @@ $.extend(FolderSelect.prototype, {
       } else {
         $folderUrl.find('.operation').show().find('.createFolder').hide();
       }
+
       //子节点的归属网络
       if ((type && (type == PICK_TYPE.ROOT || type == PICK_TYPE.MYFILE)) || (extra && extra.forceRenderNet)) {
         var _rootNode = extra && extra.forceRenderNet ? extra.rootFolder : rootNode;
@@ -615,6 +634,7 @@ $.extend(FolderSelect.prototype, {
             return root.id === _rootNode.id;
           })[0];
         }
+
         if (!_rootNode.id) {
           currentRoot.type = ROOT_TYPE.MY;
           currentRoot.value = '我';
@@ -626,12 +646,14 @@ $.extend(FolderSelect.prototype, {
           currentRoot.type = ROOT_TYPE.PROJECT;
           currentRoot.value = root && root.project && root.project.companyName;
         }
+
         folderSelect.settings.currentRoot = currentRoot;
         var projectId = _rootNode.projectId || '';
         var projectName = projectId ? '' : _l('个人');
         if (_type == PICK_TYPE.MYFILE) {
           projectName = _l('我的文件');
         }
+
         md.global.Account.projects.forEach(function (pjt) {
           if (pjt.projectId == projectId) {
             projectName = pjt.companyName;
@@ -640,6 +662,7 @@ $.extend(FolderSelect.prototype, {
         if (projectName === '' && projectId) {
           projectName = _l('个人');
         }
+
         if (!$folderNode.find('span[projectId="' + projectId + '"]').length) {
           $folderNode.prepend(
             '<span style="display:none;" class="homeNetWork ellipsis" projectId="' +
@@ -650,6 +673,7 @@ $.extend(FolderSelect.prototype, {
           );
         }
       }
+
       $folderHtml = $('<ul class="nodeList">' + loading + '</ul>');
       $folderNode.find('span.homeNetWork').nextAll().remove();
       $folderNode.append($folderHtml);
@@ -661,6 +685,7 @@ $.extend(FolderSelect.prototype, {
       folderSelect.getRootList();
       return;
     }
+
     folderSelect.isLoading = true;
     var getNodesListAjax = (folderSelect.getNodesListAjax = ajax.getNodes(
       {
@@ -683,6 +708,7 @@ $.extend(FolderSelect.prototype, {
         if (getNodesListAjax !== folderSelect.getNodesListAjax) {
           return;
         }
+
         settings.parentCount = result.totalCount;
         $folderNode.find('.nodeList >div').remove();
         if (result.totalCount > 0) {
@@ -700,6 +726,7 @@ $.extend(FolderSelect.prototype, {
                 ? '/' + ($levelNameLast.data('root').id || md.global.Account.accountId)
                 : $levelNameLast.data('path');
           }
+
           //var interText = doT.template('<li class="nodeItem" ><div class="leftContent"><span class="nodeType" ></span><span class="nodeName ellipsis" >{{= it.name }}</span>{{? it.type == 2 && it.ext}}<span class="nodeExt">{{= "."+it.ext}}</span>{{?}}</div>{{? it.type == 2 && it.canChangeSharable}}<input class="visibleType" nodeID="{{= it.id}}" type="hidden" value="" />{{?}}</li>');
           for (var i = 0; i < result.list.length; i++) {
             var item = result.list[i];
@@ -713,6 +740,7 @@ $.extend(FolderSelect.prototype, {
               parentPosition.length > 4 ? parentNameList.push('...') : null;
               parentPosition.length > 3 ? parentNameList.push(parentPosition[parentPosition.length - 2]) : null;
             }
+
             //无权限修改浏览权限的节点的 浏览权限名称
             if (item.type == NODE_TYPE.FILE && !item.canChangeSharable) {
               settings.visibleType.forEach(function (visible) {
@@ -721,6 +749,7 @@ $.extend(FolderSelect.prototype, {
                 }
               });
             }
+
             var liHtml = doT.template(nodeTpl)({
               node: item,
               visibleTypeName: visibleTypeName,
@@ -772,6 +801,7 @@ $.extend(FolderSelect.prototype, {
               if (projectName.length > 5) {
                 projectName = projectName.slice(0, 5) + '...';
               }
+
               // 如果存在id就需要归属，没有id就说明是“我的文件”，不需要归属
               if (data.root && data.root.id) {
                 $pathHtml.eq(1).attr('title', '(' + fullProjectName + ')' + $pathHtml.eq(1).html());
@@ -780,11 +810,13 @@ $.extend(FolderSelect.prototype, {
                 $pathHtml.eq(1).html($pathHtml.eq(1).html());
               }
             }
+
             $folderPath.append($pathHtml);
             if (settings.appointRoot) {
               // $folderPath.find('.startTag').remove().end().find('.levelBar:first').remove();
               $folderPath.find('.startTag').addClass('disable').removeClass('ThemeColor3');
             }
+
             if (settings.isFolderNode === SELECT_TYPE.FOLDER) {
               $selectedItem.html(rootNode.name);
             }
@@ -819,6 +851,7 @@ $.extend(FolderSelect.prototype, {
                     } else {
                       path = path.add($pathBefor);
                     }
+
                     isOmit = true;
                   }
                 }
@@ -836,6 +869,7 @@ $.extend(FolderSelect.prototype, {
                   ')' +
                   originalName;
               }
+
               let $pathHtml = $(pathTmp(rootFolder));
               $pathHtml
                 .filter('.levelName')
@@ -844,6 +878,7 @@ $.extend(FolderSelect.prototype, {
                 .attr('title', '(' + settings.currentRoot.value + ')' + originalName);
               $folderPath.append($pathHtml);
             }
+
             $folderPath.find('.myRoot, .shareRoot').removeClass('flex').nextAll().remove().end().after(path);
             //$folderPath.find('.myRoot, .shareRoot').after(path);
             if (settings.isFolderNode === SELECT_TYPE.FOLDER) {
@@ -856,6 +891,7 @@ $.extend(FolderSelect.prototype, {
         } else {
           settings.isFolderNode === SELECT_TYPE.FOLDER && rootNode ? $selectedItem.hide() : null; //$selectedItem.html(rootNode.name) : null;
         }
+
         //绑定列表操作事件
         folderSelect.bindNodeEvent(false);
 
@@ -941,6 +977,7 @@ $.extend(FolderSelect.prototype, {
               nodeData = $this.data('rootId');
               nodeName = $this.data('name');
             }
+
             //新建node时 重新获取
             $nodeItem = $nodeList.find('.nodeItem');
             if (settings.isFolderNode === SELECT_TYPE.FILE) {
@@ -1001,6 +1038,7 @@ $.extend(FolderSelect.prototype, {
               //获取根目录列表的类型
               settings.rootType = $this.data('rootType') ? $this.data('rootType') : null;
             }
+
             //根目录下双击 我的文件
             if (isRoot && settings.rootType && settings.rootType == PICK_TYPE.MYFILE) {
               folderSelect.getNodeList(PICK_TYPE.MYFILE, { id: null, name: _l('我的文件'), parendId: null });
@@ -1041,11 +1079,13 @@ $.extend(FolderSelect.prototype, {
               //$this.val('').focus();
               return false;
             }
+
             if (name && name.length > 255) {
               alert(_l('文件名称过长,请保持名称在255个字符以内'), 2);
               $this.select();
               return false;
             }
+
             var illegalChars = /[/\\:*?"<>|]/g,
               valid = illegalChars.test(name);
             if (valid) {
@@ -1054,6 +1094,7 @@ $.extend(FolderSelect.prototype, {
               $this.val(name).select();
               return false;
             }
+
             var $folderPath = $folderContent.find('.folderUrl .positionUrl');
             var $root = $folderPath.find('.myRoot, .shareRoot');
             var rootData = $root.data('root');
@@ -1101,6 +1142,7 @@ $.extend(FolderSelect.prototype, {
         if (folderSelect.isLoading) {
           return;
         }
+
         var listCount;
         var $nodeList = $('.folderSelectDialog .folderContent .folderNode');
         if (isRoot) {
@@ -1108,6 +1150,7 @@ $.extend(FolderSelect.prototype, {
         } else {
           listCount = $nodeList.find('.nodeItem').length;
         }
+
         if (!isRoot && !$nodeList.find('.project').length) {
           if (
             listCount < settings.parentCount &&
@@ -1132,6 +1175,7 @@ $.extend(FolderSelect.prototype, {
         if (!result) {
           throw new Error();
         }
+
         $this
           .closest('li.addNewFolder')
           .addClass('nodeItem')
@@ -1158,6 +1202,7 @@ $.extend(FolderSelect.prototype, {
         if (!$(this).hasClass('ThemeColor3')) {
           return;
         }
+
         folderSelect.removeSearch();
         folderSelect.getRootList();
         $(this).nextAll('span').remove();
@@ -1263,6 +1308,7 @@ $.extend(FolderSelect.prototype, {
         '<a class="updateTypeBtn ThemeColor3">' + (node.visibleType === 1 ? _l('开启') : _l('更改')) + '</a>';
       shareHtml += this.renderSharePermisionItem(node.visibleType, isBelongAccount);
     }
+
     let $el = $('<div>' + shareHtml + '</div>');
     $el.find('.updateTypeBtn').data('node', node);
     return $el;

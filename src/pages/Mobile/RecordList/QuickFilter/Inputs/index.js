@@ -96,9 +96,11 @@ export default function Input(props) {
   const { allowitem } = advancedSetting;
   const isMultiple = String(allowitem) === '2';
   const type = getType(props.control);
+
   if (_.isEmpty(props.control.controlName)) {
     props.control.controlName = _l('未命名');
   }
+
   const Condition = Comps[type];
   return Condition ? <Condition {...props} isMultiple={isMultiple} /> : <span />;
 }

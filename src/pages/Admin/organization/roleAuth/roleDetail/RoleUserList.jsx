@@ -92,6 +92,7 @@ export default function RoleUserList(props) {
     if (!fetchState.loading) {
       return;
     }
+
     roleApi
       .pagedRoleMembers({
         projectId,

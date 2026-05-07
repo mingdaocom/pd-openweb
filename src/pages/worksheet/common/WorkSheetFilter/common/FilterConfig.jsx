@@ -39,6 +39,7 @@ export default function SingleFilter(props) {
     urlParams,
     showCustom,
     widgetControlData,
+    disableAddCondition,
   } = props;
   let { columns } = props;
   const filterWhiteKeys = _.flatten(
@@ -54,6 +55,7 @@ export default function SingleFilter(props) {
       .filter(column => !_.find(SYSTEM_CONTROLS, c => c.controlId === column.controlId))
       .concat(SYSTEM_CONTROLS);
   }
+
   columns = columns.sort((a, b) => (a.row * 10 + a.col > b.row * 10 + b.col ? 1 : -1));
   const [state = {}, dispatch] = useReducer(createReducer, {
     ...initialState,
@@ -66,6 +68,7 @@ export default function SingleFilter(props) {
     projectId,
   };
   const showWorkflowControl = isOpenPermit(permitList.sysControlSwitch, sheetSwitchPermit, viewId);
+
   function filterAddConditionControls(controls) {
     return filterOnlyShowField(
       showWorkflowControl
@@ -79,9 +82,11 @@ export default function SingleFilter(props) {
           ),
     );
   }
+
   useEffect(() => {
     if (/^(ADD_|UPDATE_|DELETE_)/.test(state.lastAction)) {
       const formattedValues = formatForSave(state.editingFilter, { returnFullValues: feOnly, noCheck: true });
+
       if (formattedValues) {
         onConditionsChange(formattedValues.filter(_.identity));
       }
@@ -91,6 +96,7 @@ export default function SingleFilter(props) {
     if (!version) {
       return;
     }
+
     actions.editFilter(formatOriginFilterGroupValue({ items: conditions }));
   }, [version]);
   return (
@@ -117,6 +123,7 @@ export default function SingleFilter(props) {
           globalSheetControls,
           widgetControlData,
           urlParams,
+          disableAddCondition,
         }}
       />
     </Con>

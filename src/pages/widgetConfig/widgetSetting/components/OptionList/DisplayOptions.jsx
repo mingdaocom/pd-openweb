@@ -54,6 +54,7 @@ export default function DisplayOptions({ data, onChange }) {
                 if (value < 80) {
                   value = 80;
                 }
+
                 setTempWidth(value);
                 onChange(handleAdvancedSettingChange(data, { width: value }));
               }}

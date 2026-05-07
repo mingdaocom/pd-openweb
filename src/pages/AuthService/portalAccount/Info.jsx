@@ -114,12 +114,14 @@ export default function Info(props) {
           if (o.type === 36) {
             //检查框默认值处理
             let defsource = _.get(o, ['advancedSetting', 'defsource']);
+
             try {
               defsource = safeParse(defsource, 'array')[0] || {};
             } catch (error) {
               console.log(error);
               defsource = {};
             }
+
             let { staticValue = '' } = defsource;
             return { ...o, value: staticValue || o.value };
           } else if (o.type === 29) {
@@ -155,6 +157,7 @@ export default function Info(props) {
           setAutoLoginKey({ ...res, appId });
           // accountResult 为1则代表正常登录，会返回sessoinId，accountId，appId，projectId，正常进行登录转跳即可；accountResult 为3代表待审核
           const { accountResult } = res;
+
           if (statusList.includes(accountResult)) {
             setStatus(accountResult);
           } else if ([20].includes(accountResult)) {
@@ -172,6 +175,7 @@ export default function Info(props) {
         });
     }, 500);
   };
+
   return (
     <Wrap
       className={cx('infoCon', {
@@ -195,14 +199,18 @@ export default function Info(props) {
               if (sending) {
                 return;
               }
+
               let { data = [], hasError } = customwidget.current.getSubmitData();
+
               if (data.find(o => o.type === 29 && safeParse(o.value, 'array').length > 5)) {
                 alert(_l('最多只能关联 5 条记录'), 3);
                 return;
               }
+
               if (hasError) {
                 return;
               }
+
               onLogin(data);
             }}
           >

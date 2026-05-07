@@ -27,6 +27,7 @@ function InputForShare(props) {
         onBlur={e => {
           e.stopPropagation();
           const newValue = e.target.value;
+
           if (!_.isEqual(defaultValue, newValue)) {
             onChangeValue(newValue);
           }

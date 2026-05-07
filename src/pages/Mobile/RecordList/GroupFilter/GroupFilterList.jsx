@@ -142,6 +142,7 @@ const GroupFilterList = props => {
     } else {
       let obj = _.omit(navGroup, ['isAsc']);
       let filterType = 2; //选项的选中
+
       if ([29, 35].includes(source.type)) {
         if (source.type === 29 && !navGroup.viewId) {
           //未选择了层级视图 按是筛选
@@ -150,10 +151,12 @@ const GroupFilterList = props => {
           filterType = navGroup.filterType === 11 ? navGroup.filterType : 24; //筛选方式 24是 | 11包含 老数据是0 按照24走
         }
       }
+
       if (rowIdForFilter === 'null') {
         //为空
         filterType = FILTER_CONDITION_TYPE.ISNULL;
       }
+
       updateGroupFilter(
         [
           {
@@ -171,9 +174,11 @@ const GroupFilterList = props => {
 
   const fetch = () => {
     let { navfilters = '[]', navshow } = getAdvanceSetting(view);
+
     if (navGroup.controlId === 'wfstatus' && !isOpenPermit(permitList.sysControlSwitch, sheetSwitchPermit)) {
       navshow = '0';
     }
+
     if (!navGroup.controlId) {
       setGroupFilterData([]);
       return;
@@ -184,6 +189,7 @@ const GroupFilterList = props => {
         console.log(error);
         navfilters = [];
       }
+
       if (navshow === '2' && navfilters.length <= 0) {
         //设置了显示项=显示指定项 且 未指定 按空处理
         setLoading(false);
@@ -237,6 +243,7 @@ const GroupFilterList = props => {
       });
     } else {
       let data = formatData(source, navGroup, controls, view);
+
       if (keywords) {
         data = data.filter(o => o.txt.includes(keywords));
       }
@@ -252,6 +259,7 @@ const GroupFilterList = props => {
     if (apiRequest && apiRequest.abort) {
       apiRequest.abort();
     }
+
     apiRequest = makeApiRequest({ worksheetId, viewId, rowId, params: requestParams });
     apiRequest.then(result => {
       cleanupRequest();
@@ -269,6 +277,7 @@ const GroupFilterList = props => {
     ) {
       getNavGroupRequest.abort();
     }
+
     // 将当前工作表添加到预处理列表
     preWorksheetIds.push(`${base.worksheetId}-${base.viewId}`);
   };
@@ -330,6 +339,7 @@ const GroupFilterList = props => {
     if (result.resultCode === 4) {
       return fetchData({ worksheetId, viewId: '', rowId, cb });
     }
+
     // 处理无权限情况
     if (result.resultCode === 7) {
       return updateNavGroupData({ filterData: navGroupData, data: [], rowId, cb });
@@ -359,6 +369,7 @@ const GroupFilterList = props => {
       let data = result.data || [];
       const controls = _.get(result, ['template', 'controls']) || [];
       const control = controls.find(item => item.attribute === 1);
+
       if (navlayer && Number(navlayer) > 1 && !rowId) {
         //配置了默认展开层级 接口一次性的返回对于数据 处理成相关结果
         responseData = getListByNavlayer(data, Number(navlayer), {
@@ -370,10 +381,12 @@ const GroupFilterList = props => {
         });
       } else {
         let data = result.data || [];
+
         if (source.type !== 35 && filters.length > 0 && navshow === '2') {
           const ids = filters.map(value => safeParse(value).id);
           data = ids.map(id => data.find(o => o.rowid === id)).filter(Boolean);
         }
+
         responseData = data.map(item => ({
           value: item.rowid,
           txt: renderTxt(source, keywords, item, control, viewId, navGroup), // 渲染显示文本
@@ -419,6 +432,7 @@ const GroupFilterList = props => {
     } else {
       !notUpdate && setGroupFilterData(data);
     }
+
     setLoading(false);
     cb && cb();
   };
@@ -457,18 +471,22 @@ const GroupFilterList = props => {
             : navData;
       }
     }
+
     let isOption = [9, 10, 11, 28].includes(source.type) || [9, 10, 11, 28].includes(source.sourceControlType); //是否选项
     let { navfilters = '[]', navshow } = getAdvanceSetting(view);
+
     try {
       navfilters = JSON.parse(navfilters);
     } catch (error) {
       console.log(error);
       navfilters = [];
     }
+
     //系统字段关闭，且为状态时，默认显示成 全部
     if (navGroup.controlId === 'wfstatus' && !isOpenPermit(permitList.sysControlSwitch, sheetSwitchPermit)) {
       navshow = '0';
     }
+
     if (navfilters.length > 0 && navshow === '2') {
       // 显示 指定项 //加上全部和空
       if (isOption) {
@@ -509,6 +527,7 @@ const GroupFilterList = props => {
       });
     }
   };
+
   const renderBreadcrumb = () => {
     let breadlist = (getParentId(navGroupData, currentNodeId) || []).map(item => {
       return {
@@ -537,6 +556,7 @@ const GroupFilterList = props => {
                         isNext: true,
                       });
                     }
+
                     setCurrentNodeId(item.value);
                   }}
                 >
@@ -550,11 +570,13 @@ const GroupFilterList = props => {
       );
     }
   };
+
   const toList = item => {
     handleClickItem(item);
     setCurrentGroup(item);
     let obj = _.omit(navGroup, ['isAsc']);
     let filterType = 2; //选项的选中
+
     if ([29, 35].includes(source.type)) {
       if (source.type === 29 && !navGroup.viewId) {
         //未选择了层级视图 按是筛选
@@ -563,6 +585,7 @@ const GroupFilterList = props => {
         filterType = navGroup.filterType === 11 ? navGroup.filterType : 24; //筛选方式 24是 | 11包含 老数据是0 按照24走
       }
     }
+
     if (item.value === 'null') {
       //为空
       filterType = FILTER_CONDITION_TYPE.ISNULL;
@@ -577,6 +600,7 @@ const GroupFilterList = props => {
         navNames: [item.txt],
       },
     ];
+
     if (!item.value) {
       props.changeMobileGroupFilters([]);
       if (view.viewType === 8) {
@@ -593,6 +617,7 @@ const GroupFilterList = props => {
       }
     }
   };
+
   const renderContent = data => {
     return data.map(item => {
       const { count } = item;
@@ -658,23 +683,28 @@ const GroupFilterList = props => {
       }
     });
   };
+
   const getParentId = (list, id) => {
     for (let i in list) {
       if (list[i].value == id) {
         return [list[i]];
       }
+
       if (list[i].children) {
         let node = getParentId(list[i].children, id);
+
         if (node !== undefined) {
           return node.concat(list[i]);
         }
       }
     }
   };
+
   const conRender = () => {
     if (loading) {
       return <LoadDiv />;
     }
+
     if (_.isEmpty(navGroupData) && _.isEmpty(searchRecordList) && keywords) {
       return (
         <div className="mobileSearchNoData noData mTop35 TxtCenter textTertiary">
@@ -719,6 +749,7 @@ const GroupFilterList = props => {
       </ScrollView>
     );
   };
+
   const getSearchRecordResult = keywords => {
     let param = keywords
       ? {}
@@ -734,6 +765,7 @@ const GroupFilterList = props => {
     if (ajaxRequest && ajaxRequest.abort) {
       ajaxRequest.abort();
     }
+
     ajaxRequest = sheetAjax.getFilterRows({
       worksheetId: base.worksheetId,
       viewId: view.viewId,

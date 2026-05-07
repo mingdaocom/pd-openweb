@@ -10,6 +10,7 @@ import DefaultValue from '../DefaultValue';
 export default function DefCom(props) {
   const { dataType, control, dataControls, worksheetControls, advancedSetting, view, currentSheetInfo, updateViewSet } =
     props;
+
   const getDefsource = () => {
     const { dynamicSource = [], values = [], maxValue, minValue, value, dateRange } = control;
 
@@ -22,33 +23,42 @@ export default function DefCom(props) {
       const keyStr = [6, 8].includes(dataType) && control.filterType === 11 ? '~' : '-';
       return [{ cid: '', rcid: '', staticValue: `${minValue}${keyStr}${maxValue}` }];
     }
+
     if (dynamicSource.length > 0) return dynamicSource;
     if ([15, 16, 17, 18].includes(dataType) && dateRange !== 18 && !!dateRange) {
       return [{ cid: dateRange, rcid: 'dateRange', staticValue: '' }];
     }
+
     if ([15, 16, 17, 18].includes(dataType) && control.filterType === 31 && !maxValue && !minValue) {
       return [{ cid: '', rcid: '', staticValue: '' }];
     }
+
     if (([6, 8].includes(dataType) && control.filterType === 2) || [15, 16, 17, 18].includes(dataType)) {
       if (!value) {
         return '';
       }
+
       return [{ cid: '', rcid: '', staticValue: value }];
     }
+
     if (36 === dataType) {
       if ([2, 6].includes(control.filterType)) {
         return [{ cid: '', rcid: '', staticValue: control.filterType === 2 ? '1' : '0' }];
       }
+
       //检查框 默认为空值
       return [];
     }
+
     return values.map(o => {
       let staticValue = o;
+
       if ([29, 35].includes(dataType)) {
         const data = safeParse(staticValue);
         staticValue = JSON.stringify([data.id]);
         return { cid: '', rcid: '', staticValue, relateSheetName: data.name };
       }
+
       if ([26, 27, 48].includes(dataType)) {
         const key = dataType === 26 ? 'accountId' : dataType === 27 ? 'departmentId' : 'organizeId';
         const nameKey = dataType === 26 ? 'fullname' : dataType === 27 ? 'departmentName' : 'organizeName';
@@ -64,6 +74,7 @@ export default function DefCom(props) {
           });
         }
       }
+
       return { cid: '', rcid: '', staticValue };
     });
   };
@@ -106,6 +117,7 @@ export default function DefCom(props) {
           const { advancedSetting = {} } = d;
           let { defsource } = advancedSetting;
           const data = safeParse(defsource, 'array');
+
           if (data.length <= 0) {
             updateViewSet({
               dynamicSource: [],
@@ -142,6 +154,7 @@ export default function DefCom(props) {
                   : {}),
               });
             }
+
             if (([6, 8].includes(dataType) && control.filterType === 2) || [17, 18].includes(dataType)) {
               return updateViewSet({
                 values: [],
@@ -152,6 +165,7 @@ export default function DefCom(props) {
                 minValue: '',
               });
             }
+
             if ([15, 16].includes(dataType)) {
               return updateViewSet({
                 values: [],
@@ -164,6 +178,7 @@ export default function DefCom(props) {
                 minValue: '',
               });
             }
+
             //检查项
             if (36 === dataType) {
               const { staticValue = '' } = data[0];
@@ -174,6 +189,7 @@ export default function DefCom(props) {
                 ...(staticValue === '1' ? { filterType: 2 } : staticValue === '0' ? { filterType: 6 } : {}),
               });
             }
+
             if ([29, 35].includes(dataType)) {
               return updateViewSet({
                 values: _.uniq(
@@ -187,6 +203,7 @@ export default function DefCom(props) {
                 minValue: undefined,
               });
             }
+
             if ([26, 27, 48].includes(dataType)) {
               const key = dataType === 26 ? 'accountId' : dataType === 27 ? 'departmentId' : 'organizeId';
               return updateViewSet({
@@ -196,6 +213,7 @@ export default function DefCom(props) {
                 minValue: undefined,
               });
             }
+
             updateViewSet({
               values: data.map(o => o.staticValue),
               dynamicSource: [],
@@ -213,10 +231,13 @@ export default function DefCom(props) {
               });
               return;
             }
+
             let param = {};
+
             if ([15, 16].includes(dataType)) {
               param = { dateRange: 18 };
             }
+
             updateViewSet({
               dynamicSource: safeParse(defsource, 'array'),
               values: [],

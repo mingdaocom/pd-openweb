@@ -1,9 +1,12 @@
 .processTabs {
   color: var(--color-text-tertiary);
-  background-color: var(--color-background-primary);
+  background-color: var(--color-background-secondary);
   box-shadow: var(--shadow-md);
   .adm-tabs-header {
     border-bottom: initial;
+  }
+  &.bottomProcessTabs {
+    box-shadow: none;
   }
 }
 
@@ -58,7 +61,8 @@
       background-color: var(--color-background-primary);
       position: relative;
     }
-    .filterWrap {
+    .filterWrap,
+    .sortWrap {
       background-color: var(--color-background-primary);
       border-radius: 50%;
       width: 36px;

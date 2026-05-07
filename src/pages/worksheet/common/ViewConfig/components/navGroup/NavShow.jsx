@@ -158,19 +158,23 @@ export default function NavShow(props) {
 
   useEffect(() => {
     let navfilters = [];
+
     try {
       navfilters = safeParse(props.navfilters, 'array');
     } catch (error) {
       console.log(error);
       navfilters = [];
     }
+
     setState({
       filters: navfilters,
     });
     const { columns = [], navGroupId, relateControls } = filterInfo;
+
     if (relateControls) {
       setState({ relateControls });
     }
+
     setState({ data: columns.find(o => o.controlId === navGroupId) || {} });
     if (!isOpenPermit(permitList.sysControlSwitch, _.get(filterInfo, 'globalSheetInfo.switches') || [])) {
       setState({
@@ -184,7 +188,9 @@ export default function NavShow(props) {
       if (!data.dataSource) {
         return;
       }
+
       const { relateControls } = filterInfo;
+
       if (relateControls) {
         setState({ relateControls });
       } else {
@@ -210,6 +216,7 @@ export default function NavShow(props) {
 
   const onFormatChange = newValue => {
     const { navfilters } = newValue;
+
     if (navfilters) {
       onChange(newValue);
     } else {
@@ -236,14 +243,21 @@ export default function NavShow(props) {
   };
 
   const handleDropdownChange = valueNew => {
+    if (value === '3' && valueNew === '3') {
+      pendingFilterVisible = false;
+      setState({ filterVisible: true });
+      return;
+    }
+
     onFormatChange({
       navshow: valueNew,
       navfilters: JSON.stringify([]),
       showNextGroup: valueNew === '2' && canShowAllNavLayer ? '999' : undefined,
     });
+    // 切换到「筛选」时只清空 filters，不立刻打开弹层，避免弹层在 props 未同步前挂载导致内容错误
     setState({
       filters: [],
-      filterVisible: valueNew === '3',
+      filterVisible: false,
     });
     pendingFilterVisible = valueNew === '3';
   };
@@ -292,6 +306,7 @@ export default function NavShow(props) {
           onChange={infos => {
             let values = [];
             const type = data.type === 30 ? data.sourceControlType : data.type;
+
             switch (type) {
               case 29:
               case 26:
@@ -305,6 +320,7 @@ export default function NavShow(props) {
                 values = infos;
                 break;
             }
+
             onChange({
               navfilters: JSON.stringify(values),
             });
@@ -428,6 +444,7 @@ export default function NavShow(props) {
                 nullitemname: value.trim(),
               });
             }
+
             setState({ showChangeName: false, showName: '' });
           }}
           name={showName !== 'shownullitem' ? advancedSetting.allitemname : advancedSetting.nullitemname}

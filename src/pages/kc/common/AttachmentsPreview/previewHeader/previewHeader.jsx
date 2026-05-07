@@ -57,6 +57,7 @@ class PreviewHeader extends React.Component {
       };
       const sourceNode = attachment.sourceNode;
       const isPicture = attachment.previewType === PREVIEW_TYPE.PICTURE;
+
       if (attachment.previewAttachmentType === 'KC') {
         params.id = sourceNode.id;
         params.name = sourceNode.name;
@@ -79,6 +80,7 @@ class PreviewHeader extends React.Component {
         params.qiniuPath = sourceNode.path;
         params.node = sourceNode;
       }
+
       share.default(params, {
         performUpdateItem: visibleType => {
           if (visibleType) {
@@ -100,6 +102,7 @@ class PreviewHeader extends React.Component {
       hideFunctions: this.props.hideFunctions,
       fromType: this.props.fromType,
     });
+
     if (canDownload) {
       if (downloadUrl) {
         window.open(downloadUrl);
@@ -191,6 +194,7 @@ class PreviewHeader extends React.Component {
               buriedUpgradeVersionDialog(projectId, VersionProductType.editAttachment);
               return;
             }
+
             if (this.props.onClose) {
               this.props.onClose();
               window.open(wpsEditUrl);
@@ -203,8 +207,10 @@ class PreviewHeader extends React.Component {
           this.props.replaceAttachment(item, this.props.index, 'kc');
           this.props.performUpdateItem(item);
           const mdReplaceAttachment = this.props.extra.mdReplaceAttachment;
+
           if (typeof mdReplaceAttachment === 'function') {
             const originAttachment = this.props.originAttachments[this.props.index];
+
             if (originAttachment) {
               mdReplaceAttachment(
                 Object.assign({}, originAttachment, {

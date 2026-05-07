@@ -26,12 +26,10 @@
 
     &.focused:not(.disabled) {
       border-color: var(--color-primary) !important;
-      background-color: transparent !important;
     }
 
     &.disabled {
       cursor: not-allowed;
-      background-color: transparent !important;
       border-color: transparent !important;
       padding: 0 !important;
       .cascader-selected-value {
@@ -80,8 +78,8 @@
           margin-bottom: 2px;
           line-height: 24px;
           height: 24px;
-          border: 1px solid #f0f0f0;
-          background: #f5f5f5;
+          border: 1px solid var(--color-border-secondary);
+          background: var(--color-border-secondary);
           flex-shrink: 0;
           max-width: 97%;
           .cascader-selected-tag-label {
@@ -110,6 +108,7 @@
         border: none !important;
         box-shadow: none !important;
         padding: 0;
+        background-color: transparent !important;
 
         &:focus,
         &:hover {
@@ -178,7 +177,6 @@
         align-items: center;
         height: 12px;
         margin-top: -6px;
-        color: rgba(0, 0, 0, 0.25);
         font-size: 12px;
         line-height: 1;
         text-align: center;
@@ -201,13 +199,10 @@
     overflow: hidden;
     font-size: 14px;
     font-variant: initial;
-    background-color: #fff;
+    background-color: var(--color-background-card);
     border-radius: 2px;
     outline: none;
-    box-shadow:
-      0 3px 6px -4px #0000001f,
-      0 6px 16px #00000014,
-      0 9px 28px 8px #0000000d;
+    box-shadow: var(--shadow-xl);
     display: flex;
 
     .cascader-not-found-content {
@@ -227,7 +222,7 @@
       overflow-y: auto;
       vertical-align: top;
       list-style: none;
-      border-right: 1px solid rgba(0, 0, 0, 0.06);
+      border-right: 1px solid var(--color-background-secondary);
       flex-shrink: 0;
       display: flex;
       flex-direction: column;
@@ -246,7 +241,7 @@
         flex-shrink: 0;
         max-width: 1000px;
         &:hover {
-          background-color: #f5f5f5;
+          background-color: var(--color-background-hover);
         }
 
         .cascader-checkbox {
@@ -255,12 +250,11 @@
 
         .cascader-option-label {
           flex: auto;
-          color: rgba(0, 0, 0, 0.85);
           font-size: 14px;
           border-radius: 2px;
           padding: 0 4px;
           &.cascader-option-label-selected {
-            background-color: #bae7ff;
+            background-color: var(--color-primary-transparent);
           }
         }
 

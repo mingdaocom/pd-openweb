@@ -10,24 +10,6 @@ const Config = {
 
 Config.AdminController = AdminController;
 
-Config.templates = {
-  withTopMenu:
-    '<div class="subMenuList"></div>' +
-    '<div class="mainContent">' +
-    '<div class="h100" style="overflow-y: auto;"></div>' +
-    '</div>',
-
-  withSubMenu:
-    '<div class="subMenuList"></div>' +
-    '<div class="mainContent">' +
-    '<div class="h100" style="overflow-y: auto;">' +
-    '<div class="card mTop0 mAll20">' +
-    '<div class="subMenu"></div>' +
-    '<div class="moduleContent"></div>' +
-    '</div>' +
-    '</div>',
-};
-
 Config.getParams = function () {
   const reqArray = location.pathname.split('/');
   const controlIndex = _.indexOf(reqArray, 'admin');
@@ -51,16 +33,6 @@ Config.getTitle = function (prefix) {
   const project = getCurrentProject(Config.projectId, true);
   const companyName = project?.companyName;
   return _.filter([_l('组织管理'), prefix, companyName]).join(' - ');
-};
-
-Config.EVENTS = {
-  transitionEnd: 'transitionend',
-};
-
-Config.abortRequest = function (request) {
-  if (request && request.abort) {
-    request.abort();
-  }
 };
 
 Config.DATE_FILTER = [

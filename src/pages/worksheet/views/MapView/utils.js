@@ -34,12 +34,15 @@ export function calculateZoomLevel(coordinates, mapWidth, mapHeight, paddingPerc
     if (lat > maxLat) {
       maxLat = lat;
     }
+
     if (lat < minLat) {
       minLat = lat;
     }
+
     if (lng > maxLng) {
       maxLng = lng;
     }
+
     if (lng < minLng) {
       minLng = lng;
     }
@@ -73,12 +76,15 @@ export function calculatePoleCenter(coordinates) {
     if (latitude < minLatitude) {
       minLatitude = latitude;
     }
+
     if (latitude > maxLatitude) {
       maxLatitude = latitude;
     }
+
     if (longitude < minLongitude) {
       minLongitude = longitude;
     }
+
     if (longitude > maxLongitude) {
       maxLongitude = longitude;
     }

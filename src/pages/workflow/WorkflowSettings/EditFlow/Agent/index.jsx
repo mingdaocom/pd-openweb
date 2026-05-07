@@ -115,7 +115,7 @@ export default class Agent extends Component {
               nodeClassName="BGDarkViolet"
               {...this.props}
               noDelete={
-                (data[startEventId].appType === APP_TYPE.CHATBOT && data[startEventId].nextId === item.id) ||
+                (data[startEventId]?.appType === APP_TYPE.CHATBOT && data[startEventId].nextId === item.id) ||
                 moduleType === 1
               }
             />

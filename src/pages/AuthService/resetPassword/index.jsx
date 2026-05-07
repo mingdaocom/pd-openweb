@@ -84,10 +84,12 @@ export default class ResetPassword extends React.Component {
     const { password = '', passwordCopy = '' } = this.state;
     let isRight = true;
     let warnList = [];
+
     if (!password) {
       warnList.push({ tipDom: 'passwordIcon', warnTxt: _l('请输入密码') });
       isRight = false;
     }
+
     if (isRight && !this.isPasswordRule(password)) {
       warnList.push({
         tipDom: 'passwordIcon',
@@ -95,14 +97,17 @@ export default class ResetPassword extends React.Component {
       });
       isRight = false;
     }
+
     if (!passwordCopy && isRight) {
       warnList.push({ tipDom: 'passwordCopy', warnTxt: _l('请输入确认密码') });
       isRight = false;
     }
+
     if (passwordCopy !== password && isRight) {
       warnList.push({ tipDom: 'passwordCopy', warnTxt: _l('请确保确认密码与密码一致') });
       isRight = false;
     }
+
     this.setState({ warnList });
     return isRight;
   };
@@ -110,9 +115,11 @@ export default class ResetPassword extends React.Component {
   sendPassword = async () => {
     const { password } = this.state;
     const isV = await this.isValid();
+
     if (!isV) {
       return;
     }
+
     this.setState({ sending: true });
     registerAjax
       .resetPasswordByState({
@@ -146,11 +153,13 @@ export default class ResetPassword extends React.Component {
 
   renderCon = () => {
     const { type, warnList, focusDiv, password, passwordCopy, sending } = this.state;
+
     const renderWarn = key => {
       const warn = warnList.find(o => o.tipDom === key);
       if (!warn) return;
       return <div className={cx('warnTips')}>{warn.warnTxt}</div>;
     };
+
     const renderClassName = (key, value) => {
       const warn = warnList.find(o => o.tipDom === key);
       return {
@@ -160,6 +169,7 @@ export default class ResetPassword extends React.Component {
         errorDivCu: !!focusDiv && focusDiv === key,
       };
     };
+
     return (
       <div className="pBottom100">
         <span

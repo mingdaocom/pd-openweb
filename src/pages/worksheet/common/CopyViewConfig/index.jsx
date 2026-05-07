@@ -117,10 +117,12 @@ export default function CopyViewConfig(props) {
   const getFilters = filterView => {
     const filterList = _.get(VIEW_TYPE_FILTER_CONFIG, VIEW_DISPLAY_TYPE[filterView.viewType]);
     const { worksheetId, viewId } = filterView;
+
     if (worksheetId === viewId) {
       //管理视图
       return filterList.concat(['CardSet', 'Filter', 'Controls', 'Print', 'MobileSet', 'urlParams']);
     }
+
     switch (VIEW_DISPLAY_TYPE[filterView.viewType]) {
       case 'detail':
         return filterView.childType === 1 ? filterList.concat(['FastFilter', 'CardSet']) : filterList;
@@ -344,6 +346,7 @@ export default function CopyViewConfig(props) {
         </div>
         {COPY_CONFIGS_BY_GROUP.map(o => {
           let list = configs.filter(it => o.types.includes(it.key));
+
           if (list.length > 0) {
             return (
               <>

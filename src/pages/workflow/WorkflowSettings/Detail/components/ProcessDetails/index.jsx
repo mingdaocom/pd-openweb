@@ -39,7 +39,7 @@ export default props => {
         value={fieldId}
         renderTitle={
           !fieldId
-            ? () => <span className="textSecondary">{_l('请选择')}</span>
+            ? () => <span className="textPlaceholder">{_l('请选择')}</span>
             : fieldId && !item
               ? () => <span className="errorColor">{_l('字段不存在或已删除')}</span>
               : () => (

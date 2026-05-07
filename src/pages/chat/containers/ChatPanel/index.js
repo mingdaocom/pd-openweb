@@ -50,22 +50,27 @@ class ChatPanel extends Component {
   }
   shouldComponentUpdate(nextProps) {
     const { currentSession } = nextProps;
+
     if ('isRender' in currentSession && !currentSession.isRender) {
       return false;
     }
+
     // 个人聊天不是好友，每次点击时拉取数据
     if ('isContact' in currentSession && !currentSession.isContact) {
       return true;
     }
+
     if (!_.isEqual(nextProps.toolbarConfig, this.props.toolbarConfig)) {
       return true;
     }
+
     if (
       nextProps.toolbarConfig.sessionListVisible !== this.props.toolbarConfig.sessionListVisible &&
       (!currentSession.value || currentSession.value !== this.props.currentSession.value)
     ) {
       return false;
     }
+
     return true;
   }
   componentWillReceiveProps(nextProps) {
@@ -76,6 +81,7 @@ class ChatPanel extends Component {
     );
     const inboxSuperfluous = currentInboxList.filter(item => item.id === newCurrentSession.value);
     const isExist = sessionSuperfluous.length || inboxSuperfluous.length;
+
     if (
       isExist &&
       'isContact' in newCurrentSession &&
@@ -86,9 +92,11 @@ class ChatPanel extends Component {
       this.props.dispatch(actions.removeMessages(newCurrentSession.value));
       this.chatSessionItem(newCurrentSession);
     }
+
     if (isExist || _.isEmpty(newCurrentSession)) {
       return;
     }
+
     if (newCurrentSession.value !== currentSession.value) {
       if (newCurrentSession.iconType) {
         this.inboxSessionItem(newCurrentSession);
@@ -102,6 +110,7 @@ class ChatPanel extends Component {
     if (this.ajax && this.ajax.abort) {
       this.ajax.abort();
     }
+
     this.ajax = ajax.chatSessionItem(session);
     this.ajax
       .then(result => {
@@ -112,16 +121,19 @@ class ChatPanel extends Component {
             this.handleClosePanel();
             return;
           }
+
           if (result.groupId && result.status !== 1) {
             alert(_l('该群组已关闭或删除'), 2);
             this.handleClosePanel();
             return;
           }
+
           this.props.dispatch(actions.addCurrentSession(result));
         } else if (result.accountId) {
           if (result.accountId === 'file-transfer') {
             result.isContact = true;
           }
+
           this.props.dispatch(actions.addCurrentSession(result));
           if (!result.isContact) {
             this.props.dispatch(
@@ -158,18 +170,22 @@ class ChatPanel extends Component {
   getRightValue = () => {
     const { toolbarConfig } = this.props;
     const rightToolbarWidth = 56;
+
     if (toolbarConfig.sessionListVisible) {
       const drawerWidth = Number(localStorage.getItem(`sessionListDrawerWidth`) || 0) || 250;
       return drawerWidth + rightToolbarWidth;
     }
+
     if (toolbarConfig.mingoVisible) {
       const drawerWidth = Number(localStorage.getItem(`mingoDrawerWidth`) || 0) || 400;
       return drawerWidth + rightToolbarWidth;
     }
+
     if (toolbarConfig.favoriteVisible) {
       const drawerWidth = Number(localStorage.getItem(`favoriteDrawerWidth`) || 0) || 400;
       return drawerWidth + rightToolbarWidth;
     }
+
     return undefined;
   };
   renderInbox(item) {

@@ -48,12 +48,14 @@ export default function HapAiDialog({ visible, onCancel = () => {} }) {
 
   useEffect(() => {
     const iframe = iframeRef.current;
+
     if (iframe) {
       iframe.addEventListener('load', () => setIframeLoaded(true));
       return () => {
         if (iframeRef.current) {
           iframeRef.current.src = '';
         }
+
         iframe.removeEventListener('load', () => setIframeLoaded(false));
       };
     }

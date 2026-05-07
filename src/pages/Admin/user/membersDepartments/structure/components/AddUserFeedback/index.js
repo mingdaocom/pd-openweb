@@ -4,7 +4,7 @@ import { Button, Dialog, UserHead } from 'ming-ui';
 import Confirm from 'ming-ui/components/Dialog/Confirm';
 import FunctionWrap from 'ming-ui/components/FunctionWrap';
 import userController from 'src/api/user';
-import { getCurrentProject } from 'src/utils/project';
+import UserCountLimitLink from 'src/pages/Admin/user/membersDepartments/UserCountLimitLink';
 import { feedbackTypes } from '../../constant';
 import { refuseUserJoinFunc } from '../refuseUserJoinDia';
 
@@ -22,33 +22,22 @@ const FeedbackDialog = styled(Dialog)`
     }
   }
 `;
+
 // 恢复权限
 const recovery = ({ accountId, fullname, projectId, callback = () => {} }) => {
   Confirm({
     title: _l('确定恢复 %0 权限吗？', fullname),
     onOk: () => {
-      userController
-        .recoveryUser({
-          accountId,
-          projectId,
-        })
-        .then(data => {
-          if (data == 1) {
-            alert(_l('恢复成功'));
-            callback();
-          } else if (data == 4) {
-            const { licenseType } = getCurrentProject(projectId, true);
-            let link = '';
-            if (licenseType === 0) {
-              link = <span>{_l('当前用户数已超出人数限制')}</span>;
-            } else {
-              link = <span>{_l('当前用户数已超出人数限制')}</span>;
-            }
-            alert(link, 3);
-          } else {
-            alert(_l('恢复失败'), 2);
-          }
-        });
+      userController.recoveryUser({ accountId, projectId }).then(data => {
+        if (data == 1) {
+          alert(_l('恢复成功'));
+          callback();
+        } else if (data == 4) {
+          alert(<UserCountLimitLink projectId={projectId} />, 3);
+        } else {
+          alert(_l('恢复失败'), 2);
+        }
+      });
     },
   });
 };
@@ -71,7 +60,7 @@ const agreeJoin = ({ projectId, accountId, jobIds, departmentIds, workSiteId, jo
           alert(_l('批准成功'));
           callback();
         } else if (result === 4) {
-          alert(_l('当前用户数已超出人数限制'), 3);
+          alert(<UserCountLimitLink projectId={projectId} />, 3);
         } else {
           alert(_l('操作失败'), 2);
         }

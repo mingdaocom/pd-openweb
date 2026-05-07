@@ -15,6 +15,7 @@ const getNodeTypeForSupportHref = ({ actionId, appType, pushType }, selectNodeTy
     if (actionId === '1' || appType === 102) {
       return `${String(selectNodeType)}-${actionId}-${String(appType)}`;
     }
+
     return `${String(selectNodeType)}-${actionId}`;
   }
 

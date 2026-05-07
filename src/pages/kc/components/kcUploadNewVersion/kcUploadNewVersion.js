@@ -30,6 +30,7 @@ UploadNewVersion.prototype = {
     } else {
       NV.name = fullname;
     }
+
     var html = doT.template(mainTpl)();
     NV.dialogBoxID = 'uploadNewVersion_' + Math.random().toString(16).slice(2);
 
@@ -83,13 +84,16 @@ UploadNewVersion.prototype = {
       alert(_l('正在上传中，无法执行此操作'), 3);
       return false;
     }
+
     if (!versionName) {
       alert(_l('请输入新版本文件名'), 3);
       return false;
     }
+
     if (!NV.validate(versionName) || !NV.validate(versionDes)) {
       return false;
     }
+
     kcAjax
       .addMultiVersionFile({
         id: NV.item.id,
@@ -148,6 +152,7 @@ UploadNewVersion.prototype = {
     if (NV.file) {
       reader.readAsDataURL(NV.file.getNative());
     }
+
     NV.$thumbnail.append(img).show();
   },
   validate: function (str) {
@@ -157,6 +162,7 @@ UploadNewVersion.prototype = {
       alert(_l('名称和详情描述里不能包含以下字符：') + '\\ / : * ? " < > |', 3);
       return false;
     }
+
     return true;
   },
 };

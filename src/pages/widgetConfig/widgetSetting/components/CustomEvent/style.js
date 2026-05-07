@@ -64,7 +64,7 @@ export const EventActionWrap = styled.div`
       line-height: 16px;
       background: ${props => props.bgColor};
       margin-right: 10px;
-      color: var(--color-text-primary);
+      color: var(--color-black);
     }
     .titleEvent {
       color: ${props => props.eventColor};
@@ -203,6 +203,7 @@ export const DynamicBtn = styled.div`
       color: var(--color-link-hover);
     }
     color: var(--color-link-hover);
+    background: var(--color-background-hover);
   }
 
   &.disabled {
@@ -214,6 +215,7 @@ export const DynamicBtn = styled.div`
 export const ActionWrap = styled.div`
   padding: 8px 12px;
   background: var(--color-background-secondary);
+  border: 1px solid var(--color-border-secondary);
   border-radius: 4px;
   margin-top: 10px;
   cursor: pointer;

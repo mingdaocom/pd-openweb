@@ -49,6 +49,7 @@ const MenuWrap = styled(Menu)`
     color: var(--color-text-secondary);
   }
 `;
+
 export default function DropOption(props) {
   const { forGroup } = props;
   const [{ popupVisible }, setState] = useSetState({
@@ -65,6 +66,7 @@ export default function DropOption(props) {
         if (!props.value && !popupVisible) {
           return alert(_l('请选择类型'), 3);
         }
+
         setState({ popupVisible });
       }}
       popupAlign={{
@@ -92,6 +94,7 @@ export default function DropOption(props) {
                   if (value !== props.value) {
                     props.handleChangeType(value);
                   }
+
                   setState({ popupVisible: false });
                 }}
                 disabled={disabled}

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+﻿import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { withRouter } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
@@ -16,6 +16,8 @@ const Con = styled.div`
 `;
 
 const hideHeader = window.hideHeader || new URL(location.href).searchParams.get('header') === '0';
+const callFromHelp = new URL(location.href).searchParams.get('help') === 'true';
+
 if (hideHeader) {
   window.hideHeader = true;
 }
@@ -66,7 +68,7 @@ const MingoLand = withRouter(props => {
             emitter={emitter}
             currentChatId={currentChatId}
             onSelect={chatItem => {
-              navigateTo(`/mingo/chat/${chatItem.chatId}${hideHeader ? '?header=0' : ''}`);
+              navigateTo(`/mingo/chat/${chatItem.chatId}${hideHeader ? location.search : ''}`);
             }}
             handleNewChatClick={handleNewChatClick}
             onExpand={() => {
@@ -82,6 +84,7 @@ const MingoLand = withRouter(props => {
           currentChatId={currentChatId}
           onNewChatClick={handleNewChatClick}
           hideHeader={hideHeader}
+          callFromHelp={callFromHelp}
         />
       </div>
     </Con>

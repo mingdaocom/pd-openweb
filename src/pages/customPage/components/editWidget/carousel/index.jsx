@@ -8,7 +8,6 @@ import Preview from './Preview';
 import Setting from './Setting';
 
 const Wrap = styled.div`
-  background-color: var(--color-border-secondary);
   height: 100%;
   display: flex;
 
@@ -16,7 +15,7 @@ const Wrap = styled.div`
     display: flex;
     border-radius: 3px;
     padding: 3px;
-    background-color: var(--color-border-secondary);
+    background-color: var(--color-background-disabled);
     .item {
       display: flex;
       align-items: center;
@@ -28,14 +27,14 @@ const Wrap = styled.div`
       color: var(--color-text-tertiary);
       font-size: 20px;
       cursor: pointer;
+      font-weight: bold;
       &:last-child {
         border: none;
       }
       &.active {
         color: var(--color-primary);
-        font-weight: bold;
         border-radius: 3px;
-        background-color: var(--color-background-primary);
+        background-color: var(--color-background-card);
       }
     }
   }

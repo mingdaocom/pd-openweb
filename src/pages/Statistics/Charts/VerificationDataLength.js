@@ -8,32 +8,38 @@ const verificationDataLength = Component => {
     get isOverload() {
       const { reportData } = this.props;
       const { map = [], contrastMap = [] } = reportData;
+
       if ([reportTypes.BarChart, reportTypes.LineChart, reportTypes.DualAxes].includes(reportData.reportType)) {
         const max = 10000;
         const length = map.length * (_.get(map[0], ['value', 'length']) || 1);
         return length > max;
       }
+
       if ([reportTypes.LineChart, reportTypes.DualAxes].includes(reportData.reportType)) {
         const max = 10000;
         const length = contrastMap.length * (_.get(contrastMap[0], ['value', 'length']) || 1);
         return length > max;
       }
+
       if ([reportTypes.RadarChart].includes(reportData.reportType)) {
         const max = 5000;
         const length = map.length * (_.get(map[0], ['value', 'length']) || 1);
         return length > max;
       }
+
       if ([reportTypes.FunnelChart].includes(reportData.reportType)) {
         const max = 5000;
         const mapLength = map.length * (_.get(map[0], ['value', 'length']) || 1);
         const contrastMapLength = contrastMap.length * (_.get(contrastMap[0], ['value', 'length']) || 1);
         return mapLength > max || contrastMapLength > max;
       }
+
       if ([reportTypes.PieChart, reportTypes.WordCloudChart].includes(reportData.reportType)) {
         const max = 500;
         const length = _.get(map[0], 'value.length') || 0;
         return length > max;
       }
+
       return false;
     }
     render() {

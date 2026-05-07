@@ -1,16 +1,19 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, useState } from 'react';
 import _ from 'lodash';
 import { Checkbox } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import { getAdvanceSetting, handleAdvancedSettingChange, updateConfig } from '../../../../util/setting';
 import SetHiddenControls from '../components/SetHiddenControls';
+import SubListSummaryWidget from '../components/SubListSummaryWidget';
 
 export default function SubListConfig(props) {
   const { data, onChange } = props;
   const { controlId = [], strDefault } = data;
-  const { showcount = '0', layercontrolid, openstatistics } = getAdvanceSetting(data);
+  const { showcount = '0', layercontrolid, openstatistics, statisticsseting } = getAdvanceSetting(data);
   const { mode, sheetInfo = {} } = window.subListSheetConfig[controlId] || {};
   const [isHiddenOtherViewRecord] = (strDefault || '000').split('');
+  const [visible, setVisible] = useState(false);
+  const controls = _.get(sheetInfo, 'template.controls') || _.get(sheetInfo, 'relationControls');
 
   return (
     <Fragment>
@@ -35,20 +38,28 @@ export default function SubListConfig(props) {
               </Tooltip>
             </Checkbox>
           </div>
-          <div className="labelWrap">
+          <div className="labelWrap labelBetween">
             <Checkbox
               className="allowSelectRecords"
               size="small"
               text={_l('显示统计行')}
               checked={openstatistics === '1'}
-              onClick={checked =>
+              onClick={checked => {
+                if (!checked) setVisible(true);
                 onChange(
                   handleAdvancedSettingChange(data, {
                     openstatistics: checked ? '0' : '1',
+                    ...(checked && statisticsseting ? { statisticsseting: '' } : {}),
                   }),
-                )
-              }
+                );
+              }}
             />
+            {openstatistics === '1' && (
+              <i
+                className="icon-settings textTertiary Font16 Hand Right ThemeHoverColor3"
+                onClick={() => setVisible(true)}
+              ></i>
+            )}
           </div>
         </Fragment>
       )}
@@ -86,9 +97,11 @@ export default function SubListConfig(props) {
             </div>
           )}
 
-          <SetHiddenControls {...props} controls={_.get(sheetInfo, 'template.controls')} />
+          <SetHiddenControls {...props} controls={controls} />
         </Fragment>
       )}
+
+      {visible && <SubListSummaryWidget {...props} controls={controls} onClose={() => setVisible(false)} />}
     </Fragment>
   );
 }

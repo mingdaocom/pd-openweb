@@ -42,6 +42,7 @@ export default function ({ controls, hidedControlIds, disabledControlIds, onAdd 
             const isExpand = _.includes(expandIds, c.controlId);
             let isCheck = !hidedControlIds.includes(c.controlId);
             let sectionList = [];
+
             if (c.type === 52) {
               sectionList = controls.filter(
                 item => item.sectionId === c.controlId && !disabledControlIds.includes(item.controlId),
@@ -54,6 +55,7 @@ export default function ({ controls, hidedControlIds, disabledControlIds, onAdd 
                 }
               }
             }
+
             return (
               <div key={c.controlId} className={cx('Relative', { mLeft25: !!c.sectionId })}>
                 <Checkbox
@@ -69,17 +71,20 @@ export default function ({ controls, hidedControlIds, disabledControlIds, onAdd 
                         onAdd(updateControls);
                       } else {
                         const updateControls = [c];
+
                         if (c.sectionId) {
                           const tabControl = controls.filter(item => item.controlId === c.sectionId)[0] || {};
                           const showTabSectionList = controls.filter(
                             item =>
                               item.sectionId === tabControl.controlId && !hidedControlIds.includes(item.controlId),
                           );
+
                           if (!showTabSectionList.length) {
                             //勾选标签页内第一个字段，则勾选标签页
                             updateControls.push(tabControl);
                           }
                         }
+
                         onAdd(updateControls);
                       }
                     }

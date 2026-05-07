@@ -53,6 +53,7 @@ const RadioWidget = props => {
     formItemId,
     useCallback(data => {
       const { triggerType } = data;
+
       switch (triggerType) {
         case 'trigger_tab_enter':
           setActiveIndex(1);
@@ -71,9 +72,11 @@ const RadioWidget = props => {
             const optionElements = radioRef.current.querySelectorAll('.ming.Radio');
             const options = [...optionElements];
             const activeElement = options[prevIndex - 1];
+
             if (activeElement) {
               activeElement.click();
             }
+
             return prevIndex;
           });
           break;
@@ -86,10 +89,12 @@ const RadioWidget = props => {
   const getItemWidth = displayOptions => {
     const { width: settingWidth = '200', direction: settingDirection = '2' } = advancedSetting || {};
     let itemWidth = 100;
+
     if (boxWidth && settingDirection === '0') {
       const num = Math.floor(boxWidth / Number(settingWidth)) || 1;
       itemWidth = 100 / (num > displayOptions.length ? displayOptions.length : num);
     }
+
     return `${itemWidth}%`;
   };
 

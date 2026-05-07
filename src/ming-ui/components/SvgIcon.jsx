@@ -13,6 +13,7 @@ export default ({ url = '', size = 24, fill = '#1677ff', className, addClassName
 
         const styleTags = svg.querySelectorAll('style');
         const styleTagArray = styleTags.length !== undefined ? styleTags : [styleTags];
+
         if (styleTagArray.length) {
           const uniqKey = 'svg_' + Math.random().toString(36).substring(2, 10);
           svg.classList.add(uniqKey);

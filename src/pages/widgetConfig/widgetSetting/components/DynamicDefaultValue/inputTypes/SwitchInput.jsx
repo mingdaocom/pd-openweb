@@ -17,9 +17,11 @@ export default function (props) {
     onDynamicValueChange([{ cid: '', rcid: '', staticValue: type.id }]);
     setVisible(false);
   };
+
   const onTriggerClick = () => {
     defaultType && $wrap.current.triggerClick();
   };
+
   return (
     <Fragment>
       <DynamicValueInputWrap>

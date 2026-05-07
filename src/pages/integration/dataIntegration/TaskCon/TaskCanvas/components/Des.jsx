@@ -20,6 +20,7 @@ export default function Des(props) {
 
   const renderDes = () => {
     let txt = '';
+
     switch (nodeData.nodeType) {
       case 'UNION':
         txt = (UNION_TYPE_LIST.find(o => o.type === (_.get(nodeData, 'nodeConfig.config.unionType') || 'UNION')) || {})
@@ -45,10 +46,12 @@ export default function Des(props) {
         } else {
           txt = <span className="ThemeColor3">{_l('设置此节点')}</span>;
         }
+
         break;
       case 'AGGREGATE':
         let groupFields = _.get(nodeData, 'nodeConfig.config.groupFields') || [];
         let aggregateFields = _.get(nodeData, 'nodeConfig.config.aggregateFields') || [];
+
         if (groupFields.length > 0 && aggregateFields.length > 0) {
           txt = _l('分类 %0个字段，汇总 %1个字段', groupFields.length, aggregateFields.length);
         } else if (groupFields.length > 0) {
@@ -56,8 +59,10 @@ export default function Des(props) {
         } else if (aggregateFields.length > 0) {
           txt = _l('汇总 %0个字段', aggregateFields.length);
         }
+
         break;
     }
+
     if (!txt) {
       if (props.showEdit) {
         return <div className="des Font12 ThemeColor3 overflow_ellipsis WordBreak"> {_l('设置此节点')}</div>;
@@ -65,11 +70,14 @@ export default function Des(props) {
         return '';
       }
     }
+
     return <div className={`des overflow_ellipsis WordBreak ${props.className}`}>{txt}</div>;
   };
+
   if (isAct) {
     return renderDes();
   }
+
   let tableName = _.get(nodeData, 'nodeConfig.config.tableName');
   return tableName ? ( //工作表名称
     <div className={`des overflow_ellipsis WordBreak ${props.className}`}>{tableName}</div>

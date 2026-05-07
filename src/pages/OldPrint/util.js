@@ -20,9 +20,11 @@ export const getShowControl = (controls = []) => {
   if (controls.length <= 0) {
     return [];
   }
+
   let list = controls.map(control => {
     let { fieldPermission = '111' } = control;
     const [visible] = fieldPermission.split('');
+
     if (visible === '0') {
       return {
         ...control,
@@ -40,6 +42,7 @@ export const sortByShowControls = list => {
   let controls = [];
   list.showControls.map(id => {
     let l = list.relationControls.find(it => id === it.controlId);
+
     if (l && isVisible(l)) {
       controls.push(l);
     }
@@ -113,12 +116,12 @@ export const getFormData = (controls, data) => {
 };
 
 export const getDownLoadUrl = async (downLoadUrl, data, callback) => {
-  const { worksheetId, rowId, printId, projectId, appId, viewId, fileTypeNum, download = 0 } = data;
+  const { worksheetId, rowId, printId, projectId, appId, viewId, fileTypeNum, download = 0, rowIds = [] } = data;
   //功能模块 token枚举，3 = 导出excel，4 = 导入excel生成表，5= word打印
   const token = await appManagementAjax.getToken({ worksheetId, viewId, tokenType: 5 });
   let payload = {
     id: printId,
-    rowId: rowId,
+    rowId: rowIds.length ? rowIds.join(',') : rowId,
     accountId: md.global.Account.accountId,
     worksheetId,
     appId,

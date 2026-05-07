@@ -48,7 +48,7 @@ const ParamsDropdown = styled(Dropdown)`
     line-height: 22px;
     padding: 0 12px;
     border-radius: 16px;
-    color: var(--color-link-hover);
+    color: var(--color-link);
     background: #d8eeff;
     border: 1px solid var(--color-primary-transparent);
     font-size: 12px;
@@ -99,6 +99,7 @@ export default class Condition extends Component {
   setIsDynamicsourceFn = () => {
     const { condition = [], from } = this.props;
     let { dynamicSource, isDynamicsource } = condition;
+
     if (dynamicSource && dynamicSource.length > 0) {
       if (isDynamicsource === undefined) {
         isDynamicsource = true;
@@ -112,6 +113,7 @@ export default class Condition extends Component {
             : false;
       }
     }
+
     return isDynamicsource;
   };
 
@@ -138,12 +140,14 @@ export default class Condition extends Component {
           : !_.includes(listType, type);
       }
     }
+
     return true;
   };
 
   changeConditionType = type => {
     const { control, condition, onChange, from } = this.props;
     const overrideValue = getConditionOverrideValue(type, { ...condition, control }, this.state.valueType, from);
+
     if (
       includes([FILTER_CONDITION_TYPE.DATE_BETWEEN, FILTER_CONDITION_TYPE.DATE_NBETWEEN], type) &&
       condition.maxValue &&
@@ -152,6 +156,7 @@ export default class Condition extends Component {
       overrideValue.minValue = condition.minValue;
       overrideValue.maxValue = condition.maxValue;
     }
+
     onChange(overrideValue);
 
     if (!this.isCanDynamicsource({ condition: { ...overrideValue, controlType: condition.controlType }, from })) {
@@ -310,23 +315,27 @@ export default class Condition extends Component {
     // 单选下拉menu隐藏【等于】、【不等于】
     const hiddenValue =
       control && _.includes([9, 11], control.type) ? [FILTER_CONDITION_TYPE.ARREQ, FILTER_CONDITION_TYPE.ARRNE] : [];
+
     if (isRules && control) {
       if (control.type === 29 && control.enumDefault === 2) {
         if (!_.find(conditionFilterTypes, type => type.value === condition.type) && condition.control) {
           this.changeConditionType(conditionFilterTypes[0].value);
         }
       }
+
       if (control.type === 35 || control.type === 27) {
         conditionFilterTypes = conditionFilterTypes.filter(
           type => !_.includes([FILTER_CONDITION_TYPE.BETWEEN, FILTER_CONDITION_TYPE.NBETWEEN], type.value),
         );
       }
     }
+
     if (filterDept && control && control.type === 27) {
       conditionFilterTypes = conditionFilterTypes.filter(
         type => !_.includes([FILTER_CONDITION_TYPE.BETWEEN, FILTER_CONDITION_TYPE.NBETWEEN], type.value),
       );
     }
+
     if (from === 'subTotal' && control && _.includes([19, 23, 24, 27, 35], control.type)) {
       conditionFilterTypes = conditionFilterTypes.filter(
         type =>
@@ -341,6 +350,7 @@ export default class Condition extends Component {
           ),
       );
     }
+
     const isDynamicStyle = _.includes(['relateSheet', 'rule', 'fastFilter'], from); // 动态值选择的特定样式
     const isDynamicValue = this.isCanDynamicsource();
     return (

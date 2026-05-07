@@ -36,6 +36,7 @@ export default class Delay extends Component {
   renderDelayDateText(timerNode) {
     let { executeTimeType } = timerNode;
     const { fieldValue, fieldControlName, number, time, unit } = timerNode;
+
     // 若设为指定日期的前后0天则仍显示为当天
     if (!number) {
       executeTimeType = 0;
@@ -56,6 +57,7 @@ export default class Delay extends Component {
 
   renderDelayTimeText(timerNode) {
     const { numberFieldValue, hourFieldValue, minuteFieldValue, secondFieldValue } = timerNode;
+
     const getDesc = ({ fieldValue, fieldControlId, fieldControlName }, label) => {
       if (!fieldValue && !fieldControlId) {
         return '';

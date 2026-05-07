@@ -54,13 +54,16 @@ export default function (props) {
 
   const onLogin = async frequentLogin => {
     const { modeType } = props;
+
     if (loginDisabled) {
       return;
     }
+
     let callback = (res = {}) => {
       if (frequentLogin && res.ret !== 0) {
         return;
       }
+
       onChange({
         loginDisabled: true,
       });
@@ -70,6 +73,7 @@ export default function (props) {
         sendForVerifyCodeLogin(res);
       }
     };
+
     const validationData = validation({
       isForSendCode: false,
       keys:
@@ -140,11 +144,13 @@ export default function (props) {
       password: encrypt(password),
       isCookie: isCheck,
     };
+
     if (res) {
       params.ticket = res.ticket;
       params.randStr = res.randstr;
       params.captchaType = md.global.getCaptchaType();
     }
+
     removePssId();
     let cb = data => {
       onChange({ loginDisabled: false });
@@ -159,7 +165,9 @@ export default function (props) {
         },
       });
     };
+
     const request = getRequest();
+
     if (modeType === 2) {
       params.projectId = projectId;
       params.userName = encrypt(account);
@@ -203,6 +211,7 @@ export default function (props) {
           modeType === 1 ? maskValue(dialCode + emailOrTel, isTel(emailOrTel) ? 'mobilePhone' : '') : fullName;
         return <IntegrationLogin {...props} account={account} />;
       }
+
       default:
         const { unionId, state, tpType, loginMode } = getRequest();
         return (
@@ -268,16 +277,19 @@ export default function (props) {
       window.md_js.back({ closeAll: true, next: 'register' });
       return;
     }
+
     const request = getRequest();
     onChange({ warnList: [] });
     if (window.platformENV.isPlatform) {
-      //平台版=>/register
-      navigateTo('/register');
+      // 平台版=>/register，链接上有 ReturnUrl 也带上（经 getDataByFilterXSS 过滤）
+      const returnUrl = getDataByFilterXSS(request.ReturnUrl || '');
+      navigateTo(request.ReturnUrl ? '/register?ReturnUrl=' + encodeURIComponent(returnUrl) : '/register');
     } else if (linkInvite) {
       onChange({ isLink: true, projectId: projectId });
       navigateTo(linkInvite);
     } else {
       let returnUrl = getDataByFilterXSS(request.ReturnUrl || '');
+
       if (returnUrl.indexOf('type=privatekey') > -1) {
         navigateTo('/register?ReturnUrl=' + encodeURIComponent(returnUrl));
       } else if (request.ReturnUrl && request.from) {

@@ -18,18 +18,22 @@ export default class WorksheetFileMessage extends Component {
   loadFrom() {
     const { card = {} } = this.props.message;
     const { from, appId, worksheetId } = card.extra || {};
+
     if (!appId && !worksheetId) {
       this.setState({
         from: _l('应用'),
       });
       return;
     }
+
     let promise;
+
     if (_.includes(['report', 'customPage', 'chatbot'], from)) {
       promise = homeAppAjax.getApp({ appId }).then(data => _l('"%0"应用', data.name));
     } else {
       promise = worksheetAjax.getWorksheetInfo({ worksheetId }).then(data => _l('"%0"工作表', data.name));
     }
+
     Promise.all([promise])
       .then(name => {
         this.setState({ from: name });

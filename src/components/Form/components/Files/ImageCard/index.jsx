@@ -48,6 +48,7 @@ const ImageCard = props => {
   const [deleteConfirmVisible, setDeleteConfirmVisible] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
   const [imgClassName, setImgClassName] = useState('w100');
+  const wrapRef = useRef(null);
   const ref = useRef(null);
   const [isPicture, setIsPicture] = useState(props.isPicture);
   const allowReset = allowEditName && !isKc;
@@ -65,6 +66,13 @@ const ImageCard = props => {
         });
     }
   }, []);
+
+  useEffect(() => {
+    if (allowReset && wrapRef && wrapRef.current) {
+      const el = wrapRef.current.parentNode.parentNode;
+      el && (el.draggable = !isEdit);
+    }
+  }, [isEdit]);
 
   const renderDropdownOverlay = (
     <Menu style={{ width: 150 }} className="Relative" onClick={e => e.stopPropagation()}>
@@ -146,6 +154,7 @@ const ImageCard = props => {
 
   return (
     <div
+      ref={wrapRef}
       className={cx('attachmentFile', { hover: dropdownVisible || isEdit })}
       onClick={e => {
         e.stopPropagation();
@@ -154,9 +163,11 @@ const ImageCard = props => {
             onOpenControlAttachmentInNewTab(data.fileID);
             return;
           }
+
           onMDPreview(data);
           return;
         }
+
         alert(_l('您权限不足，无法预览，请联系管理员或文件上传者'), 3);
       }}
     >
@@ -347,7 +358,15 @@ const NotSaveImageCard = props => {
   const [isEdit, setIsEdit] = useState(false);
   const [isPicture, setIsPicture] = useState(props.isPicture);
   const [imgClassName, setImgClassName] = useState('w100');
+  const wrapRef = useRef(null);
   const ref = useRef(null);
+
+  useEffect(() => {
+    if (wrapRef && wrapRef.current) {
+      const el = wrapRef.current.parentNode.parentNode;
+      el && (el.draggable = !isEdit);
+    }
+  }, [isEdit]);
 
   useEffect(() => {
     if (isPicture) {
@@ -370,6 +389,7 @@ const NotSaveImageCard = props => {
 
   return (
     <div
+      ref={wrapRef}
       className={cx('attachmentFile', { hover: isEdit })}
       onClick={e => {
         e.stopPropagation();

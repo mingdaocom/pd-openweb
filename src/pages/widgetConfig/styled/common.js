@@ -24,11 +24,11 @@ export const DropdownOverlay = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  background-color: var(--color-background-primary);
+  background-color: var(--color-background-card);
   min-height: 36px;
   overflow: auto;
   border-radius: 3px;
-  box-shadow: 0px 4px 16px 0px rgba(0, 0, 0, 0.24);
+  box-shadow: var(--shadow-lg);
   padding: 6px 0;
   max-width: 310px;
   .searchWrap {

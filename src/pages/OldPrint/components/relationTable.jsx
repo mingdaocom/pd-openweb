@@ -196,12 +196,14 @@ export default class TableRelation extends React.Component {
     let has = false;
     dataSource.map(it => {
       let attachments;
+
       try {
         attachments = JSON.parse(it[id]);
       } catch (err) {
         console.log(err);
         return;
       }
+
       const pictureAttachments = attachments.filter(attachment => RegExpValidator.fileIsPicture(attachment.ext));
       const otherAttachments = attachments.filter(attachment => !RegExpValidator.fileIsPicture(attachment.ext));
       has = pictureAttachments.length > 0 || otherAttachments.length > 0;
@@ -263,11 +265,14 @@ export default class TableRelation extends React.Component {
     const { printData, id } = this.props;
     let { controlStyles = [] } = printData;
     let data = [];
+
     if (dataList) {
       controlStyles = dataList;
     }
+
     //存的时候 `${controlId}-${id}`
     let isData = controlStyles.map(it => it.controlId).includes(`${controlId}-${id}`);
+
     if (isData) {
       controlStyles.map(it => {
         if (it.controlId === `${controlId}-${id}`) {
@@ -286,6 +291,7 @@ export default class TableRelation extends React.Component {
         width: w,
       });
     }
+
     return data;
   };
 

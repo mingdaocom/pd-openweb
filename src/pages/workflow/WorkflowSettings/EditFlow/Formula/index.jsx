@@ -100,6 +100,7 @@ export default class Formula extends Component {
 
     if (actionId !== ACTION_ID.DATE_DIFF_FORMULA) {
       const arr = formulaValue.match(/\$[^ \r\n]+?\$/g);
+
       if (arr) {
         arr.forEach(obj => {
           formulaValue = formulaValue.replace(
@@ -116,6 +117,7 @@ export default class Formula extends Component {
           );
         });
       }
+
       formulaValue = formulaValue
         .replace(/\+/g, ' + ')
         .replace(/-/g, ' - ')

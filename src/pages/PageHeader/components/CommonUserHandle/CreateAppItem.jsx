@@ -36,6 +36,7 @@ function CreateAppItem(props) {
         getSheetList({ appId, appSectionId: appItem ? appItem.parentGroupId || appItem.parentId : groupId }),
       );
     };
+
     return () => {
       delete window.__worksheetLeftReLoad;
     };
@@ -53,6 +54,7 @@ function CreateAppItem(props) {
         }),
       );
     }
+
     setCreateType('');
   };
 
@@ -62,11 +64,13 @@ function CreateAppItem(props) {
       setDialogImportExcel(true);
       return;
     }
+
     if (type === 'group') {
       addFirstAppSection();
       setCreateMenuVisible(false);
       return;
     }
+
     setCreateType(type);
     setCreateMenuVisible(false);
   };
@@ -94,6 +98,7 @@ function CreateAppItem(props) {
                   if (item.createType === 'chatbot') {
                     return workflowAgentFeatureType === '1' && !md.global?.SysSettings?.hideAIBasicFun;
                   }
+
                   return true;
                 }).map((item, index) => (
                   <Fragment key={index}>

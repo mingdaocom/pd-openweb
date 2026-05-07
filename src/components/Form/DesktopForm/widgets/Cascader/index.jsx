@@ -18,6 +18,7 @@ const dealValue = value => {
   if (checkCellIsEmpty(value)) {
     return [];
   }
+
   return safeParse(value, 'array') || [];
 };
 
@@ -103,6 +104,7 @@ export default function CascaderWidget(props) {
     function getCurrent(data, currentLayer) {
       for (let i = 0; i < data.length; i++) {
         const item = data[i];
+
         if (item.value === rowId) {
           return { currentItem: item, currentLayer };
         } else if (_.isArray(item.children)) {
@@ -125,6 +127,7 @@ export default function CascaderWidget(props) {
       const { currentLayer = 0 } = getLayer(rowId) || {};
       return limitLayer - currentLayer === 1;
     }
+
     return false;
   };
 
@@ -133,6 +136,7 @@ export default function CascaderWidget(props) {
    */
   const deepDataUpdate = (key, options, data, rowId) => {
     let newOptions = [].concat(options);
+
     if (rowId) {
       newOptions.forEach(item => {
         if (item.value === rowId) {
@@ -168,6 +172,7 @@ export default function CascaderWidget(props) {
     // 数据源筛选
     const filterControls = getFilter({ control: props, formData, appId }) || [];
     let navGroupFilters = [];
+
     // 开始筛选范围处理
     if (topshow === '3' && !rowId) {
       navGroupFilters = getFilter({ control: props, formData, filterKey: 'topfilters', appId }) || [];
@@ -241,6 +246,7 @@ export default function CascaderWidget(props) {
       if (minLayer) {
         return (currentLayer < minLayer && currentItem.isLeaf) || currentLayer >= minLayer;
       }
+
       return true;
     } else {
       return _.isEmpty(currentItem) || currentItem.isLeaf;
@@ -270,6 +276,7 @@ export default function CascaderWidget(props) {
     ids.map(i => {
       let path;
       let newName;
+
       if (i.value) {
         const originCurItem = widgetValue.find(item => item.sid === i.value);
 
@@ -278,16 +285,19 @@ export default function CascaderWidget(props) {
         } else {
           if (keywords) {
             const curItem = cacheDataRef.current.find(item => item.rowid === i.value);
+
             if (curItem) {
               path = JSON.parse(curItem.path || '[]');
             } else {
               path = originCurItem?.name?.split(' / ') || [];
             }
+
             newName = +allpath ? path.join(' / ') : path[path.length - 1];
           } else {
             const nameArr = (sourcePathRef.current[i.value] || '').split(' / ');
             newName = nameArr.slice(+allpath ? 0 : nameArr.length - 1).join(' / ');
           }
+
           newValues.push({
             sid: i.value,
             name: newName,
@@ -332,6 +342,7 @@ export default function CascaderWidget(props) {
     ids.map(i => {
       let path;
       let newName;
+
       if (i.value) {
         const originCurItem = widgetValue.find(item => item.sid === i.value);
 
@@ -340,16 +351,19 @@ export default function CascaderWidget(props) {
         } else {
           if (keywords) {
             const curItem = cacheDataRef.current.find(item => item.rowid === i.value);
+
             if (curItem) {
               path = JSON.parse(curItem.path || '[]');
             } else {
               path = originCurItem?.name?.split(' / ') || [];
             }
+
             newName = +allpath ? path.join(' / ') : path[path.length - 1];
           } else {
             const nameArr = (sourcePathRef.current[i.value] || '').split(' / ');
             newName = nameArr.slice(+allpath ? 0 : nameArr.length - 1).join(' / ');
           }
+
           newValues.push({
             sid: i.value,
             name: newName,
@@ -393,6 +407,7 @@ export default function CascaderWidget(props) {
         if (treeSelectCompRef.current) {
           treeSelectCompRef.current.focus();
         }
+
         if (cascaderRef.current) {
           cascaderRef.current.focus();
         }
@@ -411,6 +426,7 @@ export default function CascaderWidget(props) {
     useCallback(
       data => {
         const { triggerType } = data;
+
         switch (triggerType) {
           case 'Enter':
             setPopupVisible(true);
@@ -421,6 +437,7 @@ export default function CascaderWidget(props) {
             } else {
               cascaderRef.current && cascaderRef.current.focus();
             }
+
             break;
           case 'trigger_tab_leave':
             if (showtype === '4') {
@@ -429,6 +446,7 @@ export default function CascaderWidget(props) {
               cascaderRef.current && cascaderRef.current.blur();
               setPopupVisible(false);
             }
+
             break;
           default:
             break;
@@ -440,6 +458,7 @@ export default function CascaderWidget(props) {
 
   useEffect(() => {
     const newWidgetValue = dealValue(value);
+
     if (!_.isEqual(newWidgetValue, widgetValue)) {
       setWidgetValue(newWidgetValue);
     }
@@ -475,7 +494,7 @@ export default function CascaderWidget(props) {
     return (
       <TreeSelect
         className="w100 customAntSelect customTreeSelect"
-        dropdownClassName={cx(popupClassName, `treeSelect_${controlId}`)}
+        dropdownClassName={cx('customTreeSelectDropdown', popupClassName, `treeSelect_${controlId}`)}
         dropdownPopupAlign={treePopupAlign}
         ref={treeSelectCompRef}
         disabled={disabled}

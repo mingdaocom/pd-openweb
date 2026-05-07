@@ -56,6 +56,7 @@ class CheckboxGroup extends Component {
 
   handleClick(checked, value) {
     const { onChange } = this.props;
+
     if (onChange) {
       onChange(value);
     }
@@ -69,6 +70,7 @@ class CheckboxGroup extends Component {
       } else {
         item.checked = false;
       }
+
       return item;
     });
     this.setState({

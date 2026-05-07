@@ -141,6 +141,7 @@ export default function RelateSheet(props) {
     choosecovertype = '0',
     allowdrag = '0',
     openfastfilters,
+    chooselisttype,
   } = getAdvanceSetting(data);
   const strDefault = data.strDefault || '000';
   const sorts = _.isArray(getAdvanceSetting(data, 'sorts')) ? getAdvanceSetting(data, 'sorts') : [];
@@ -181,6 +182,7 @@ export default function RelateSheet(props) {
         showControls: getShowControls(controls),
       });
     }
+
     if (!getAdvanceSetting(data, 'showtype')) {
       onChange(handleAdvancedSettingChange(data, { showtype: '1' }));
     }
@@ -228,6 +230,7 @@ export default function RelateSheet(props) {
   // 显示字段
   const renderShowControl = (isExtra, hideTitle) => {
     const coverId = isExtra ? choosecoverid : coverCid;
+
     const renderCover = () => {
       const coverType = isExtra ? choosecovertype : covertype;
       const typeKey = isExtra ? 'choosecovertype' : 'covertype';
@@ -243,6 +246,7 @@ export default function RelateSheet(props) {
                     onChange(handleAdvancedSettingChange(data, { choosecoverid: '', choosecovertype: '0' }));
                     return;
                   }
+
                   onChange({ ...handleAdvancedSettingChange(data, { covertype: '0' }), coverCid: '' });
                 }}
               >
@@ -267,6 +271,7 @@ export default function RelateSheet(props) {
                 onChange(handleAdvancedSettingChange(data, { choosecoverid: value }));
                 return;
               }
+
               onChange({ coverCid: value });
             }}
           />
@@ -316,6 +321,7 @@ export default function RelateSheet(props) {
                 );
                 return;
               }
+
               onChange(
                 _.assign(
                   {},
@@ -363,6 +369,7 @@ export default function RelateSheet(props) {
           onOk={({ sheetId, control, sheetName }) => {
             const path = getPathById(widgets, controlId);
             let para = { dataSource: sheetId, size: WHOLE_SIZE };
+
             // 关联本表
             if (sheetId === sourceId) {
               onChange({ ...para, controlName: _l('父'), enumDefault2: 0 }, widgets => {
@@ -371,6 +378,7 @@ export default function RelateSheet(props) {
             } else {
               onChange(sheetName ? { ...para, controlName: sheetName } : para);
             }
+
             // 使用关联控件
             if (!_.isEmpty(control)) {
               const nextData = update(control, {
@@ -394,15 +402,18 @@ export default function RelateSheet(props) {
               onClick={() => {
                 if (value === 1) {
                   let nextData = { ...data, enumDefault: 1 };
+
                   // 从关联多条列表切换到关联单条自动切换为单条卡片
                   if (isSheetDisplay()) {
                     nextData = handleAdvancedSettingChange(nextData, { showtype: '1', choosetype: '1' });
                   }
+
                   // 关联单条不支持一下操作
                   nextData = handleAdvancedSettingChange(nextData, { sorts: '', allowcancel: '1', choosesorts: '' });
                   onChange(nextData);
                   return;
                 }
+
                 // 多条清掉不允许重复配置
                 onChange({
                   ...handleAdvancedSettingChange(data, { choosetype: '2' }),
@@ -434,6 +445,7 @@ export default function RelateSheet(props) {
                         chooseshowids: value === '3' ? JSON.stringify(showControls) : '',
                         ddset: '0',
                         ...(value !== '3' && openfastfilters === '0' ? { openfastfilters: '1' } : {}),
+                        ...(value === '3' && chooselisttype === '2' ? { chooselisttype: '1' } : {}),
                       }),
                       strDefault: updateConfig({
                         config: strDefault,
@@ -467,6 +479,7 @@ export default function RelateSheet(props) {
             }
             onChange={value => {
               let nextData = handleAdvancedSettingChange(data, { showtype: value });
+
               // 非卡片 铺满整行
               if (value !== '3') {
                 nextData = { ...nextData, showControls: getShowControls(nextData.relationControls, value) };
@@ -477,10 +490,15 @@ export default function RelateSheet(props) {
               } else {
                 // 下拉框清空
                 nextData = {
-                  ...handleAdvancedSettingChange(nextData, { searchfilters: '', choosesorts: '' }),
+                  ...handleAdvancedSettingChange(nextData, {
+                    searchfilters: '',
+                    choosesorts: '',
+                    ...(chooselisttype === '2' ? { chooselisttype: '1' } : {}),
+                  }),
                   showControls: [],
                 };
               }
+
               // 切换为列表 必填置为false,标题样式、动态默认值清空
               if (isSheetDisplay(value)) {
                 const newDefsource = safeParse(_.get(nextData, 'advancedSetting.defsource') || '[]');
@@ -518,6 +536,7 @@ export default function RelateSheet(props) {
                   }),
                 };
               }
+
               onChange(nextData);
             }}
           />

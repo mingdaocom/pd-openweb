@@ -30,6 +30,7 @@ let whiteListClone = Object.assign({}, whiteList, {
   iframe: ['src'],
 });
 let newWhiteList = {};
+
 for (let key in whiteListClone) {
   newWhiteList[key] = [
     ...new Set([
@@ -54,6 +55,7 @@ for (let key in whiteListClone) {
     ]),
   ];
 }
+
 const Wrapper = styled.div(
   ({ minHeight, maxWidth, maxHeight, dropdownPanelPosition = {}, width }) => `
   --ck-color-button-default-hover-background: rgba(0, 0, 0, 0.1);
@@ -297,6 +299,7 @@ class MyUploadAdapter {
       );
       this.xhr.addEventListener('load', () => {
         const response = this.xhr.response;
+
         if (!response || response.error) {
           return reject(response && response.error ? response.error.message : "Couldn't upload file");
         }
@@ -370,12 +373,15 @@ const RichText = forwardRef((props, ref) => {
       }
     },
     blur: () => {
-      if (editorDom.current) {
-        if (editorDom.current.editor.editing.view.document.isFocused) {
-          const editorElement = editorDom.current.editor.ui.getEditableElement();
-          if (editorElement) {
-            editorElement.blur();
-          }
+      const editor = editorDom.current?.editor;
+      if (!editor) return;
+      const viewDoc = editor.editing?.view?.document;
+
+      if (viewDoc?.isFocused) {
+        const editorElement = editor.ui?.getEditableElement?.();
+
+        if (editorElement) {
+          editorElement.blur();
         }
       }
     },
@@ -383,6 +389,7 @@ const RichText = forwardRef((props, ref) => {
 
   const lang = () => {
     const lang = getCookie('i18n_langtag') || md.global.Config.DefaultLang;
+
     if (lang === 'zh-Hant') {
       return 'zh';
     } else if (lang === 'ja') {
@@ -393,6 +400,7 @@ const RichText = forwardRef((props, ref) => {
       return 'en';
     }
   };
+
   const tokenArgs = {
     projectId,
     appId,
@@ -407,6 +415,7 @@ const RichText = forwardRef((props, ref) => {
           editorDom.current.editor.plugins.get('FileRepository').createUploadAdapter = loader => {
             return new MyUploadAdapter(loader, tokenArgs, { bucket });
           };
+
           if (clickInit || autoFocus) {
             editorDom.current.editor.focus();
             editorDom.current.editor.model.change(writer => {
@@ -429,6 +438,7 @@ const RichText = forwardRef((props, ref) => {
   }, [data]);
 
   let content;
+
   if (disabled || !MDEditor) {
     content = (
       <div className="ck ck-reset ck-editor ck-rounded-corners ckByHtml" role="application" dir="ltr" lang="zh-cn">
@@ -608,9 +618,11 @@ const RichText = forwardRef((props, ref) => {
             // 通过检查特定的 Word 样式或标记来判断
             return html.toLowerCase().startsWith('<html xmlns:o="urn:schemas-microsoft-com:office:office"');
           }
+
           if (get(editorDom, 'current.editor.editing.view.document')) {
             editorDom.current.editor.editing.view.document.on('clipboardInput', (evt, data) => {
               const clipboardData = data.dataTransfer.getData('text/html'); // 获取粘贴的 HTML 内容
+
               if (clipboardData && isWordContent(clipboardData)) {
                 // 弹出提示框，询问用户是否去掉格式
                 const userChoice = window.confirm(
@@ -626,6 +638,7 @@ const RichText = forwardRef((props, ref) => {
               }
             });
           }
+
           if (editor && editor.plugins) {
             editor.plugins.get('FileRepository').createUploadAdapter = loader => {
               return new MyUploadAdapter(loader, tokenArgs);
@@ -649,6 +662,7 @@ const RichText = forwardRef((props, ref) => {
             lastSavedContentRef.current = currentData;
             onSave(currentData);
           }
+
           onBlur();
         }}
         onFocus={() => {
@@ -661,6 +675,7 @@ const RichText = forwardRef((props, ref) => {
       />
     );
   }
+
   return (
     <Wrapper
       className={cx(className, {
@@ -680,6 +695,7 @@ const RichText = forwardRef((props, ref) => {
         if (disabled && _.isFunction(onClickNull)) {
           onClickNull();
         }
+
         if (!disabled && !MDEditor && clickInit) {
           if (!disabled && !MDEditor) {
             initEditor();

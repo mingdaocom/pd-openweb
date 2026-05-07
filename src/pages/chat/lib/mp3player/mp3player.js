@@ -55,6 +55,7 @@ function MP3Player(_options) {
       this.object += '<source src="' + this.options.wav_url + '">';
       this.object += '</audio>';
     }
+
     $('body').append(this.object);
     this.video = $("[name='" + this.options.mp3_url + "']")[0];
 
@@ -80,6 +81,7 @@ function MP3Player(_options) {
   } else {
     this.video = $('#' + this.options.mp3_url);
   }
+
   this.play = function () {
     if (typeof Worker === 'undefined') {
       this.video.controls.play();
@@ -87,6 +89,7 @@ function MP3Player(_options) {
       this.video.play();
     }
   };
+
   this.stop = function () {
     if (typeof Worker === 'undefined') {
       this.video.controls.stop();
@@ -95,9 +98,11 @@ function MP3Player(_options) {
       if (this.video.currentTime > 0) {
         this.video.currentTime = 0;
       }
+
       this.options.onStop();
     }
   };
+
   this.pause = function () {
     if (typeof Worker === 'undefined') {
       this.video.controls.pause();
@@ -105,28 +110,35 @@ function MP3Player(_options) {
       this.video.pause();
     }
   };
+
   this.getAllTime = function () {
     if (typeof Worker === 'undefined') {
       const media = this.video.currentMedia;
+
       if (media) {
         return media.duration;
       }
+
       return 0;
     } else {
       return this.video.duration;
     }
   };
+
   this.getCurrentTime = function () {
     if (typeof Worker === 'undefined') {
       const media = this.video.currentMedia;
+
       if (media) {
         return media.currentTime;
       }
+
       return 0;
     } else {
       return this.video.currentTime;
     }
   };
 }
+
 export default MP3Player;
 window.MP3Player = MP3Player;

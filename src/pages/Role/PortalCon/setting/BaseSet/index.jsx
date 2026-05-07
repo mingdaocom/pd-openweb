@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Checkbox, PriceTip, Radio } from 'ming-ui';
-import AppManagement from 'src/api/appManagement';
+import WeChatServiceAccount from 'src/components/WeChatServiceAccountsDialog';
 import { LOGIN_WAY, REJISTER_WAY } from 'src/pages/Role/config.js';
 import BasicSet from './BasicSet';
 import CardSet from './CardSet';
@@ -23,7 +22,6 @@ export default function BaseSet(props) {
   const [exAccountSmsNotice, setExAccountSmsNotice] = useState(noticeScope.exAccountSmsNotice || false); //审核结果短信通知外部用户
   const [authorizerInfo, setAuthorizerInfo] = useState(portalSet.authorizerInfo || {});
   const [customizeName, setcustomizeName] = useState(portalSetModel.customizeName);
-  const [{ loading }, setCommonState] = useSetState({ loading: true });
   const [businessCardOption, setBusinessCardOption] = useState([]);
   const [externalControls, setExternalControls] = useState([]);
   const [internalControls, setInternalControls] = useState([]);
@@ -57,27 +55,6 @@ export default function BaseSet(props) {
     setInternalControls((portalSetModel.internalControls || []).filter(l => _controls.find(m => m.value === l)));
   }, [_.get(props, ['portalSet', 'portalSetModel'])]);
 
-  useEffect(() => {
-    if (_.get(props, ['portalSet', 'portalSetModel', 'loginMode', 'weChat']) && !isWXExist && !authorizerInfo.appId) {
-      AppManagement.getWeiXinBindingInfo({ appId: props.appId }).then(res => {
-        setIsWXExist(res && res.length > 0);
-        setAuthorizerInfo(res && res.length > 0 ? res[0] : {});
-        setCommonState({ loading: false });
-        onChangePortalSet(
-          {
-            authorizerInfo: {
-              ...authorizerInfo,
-              ...(res && res.length > 0 ? res[0] : {}),
-            },
-          },
-          false,
-        );
-      });
-    } else {
-      setCommonState({ loading: false });
-    }
-  }, [_.get(props, ['portalSet', 'portalSetModel', 'loginMode', 'weChat'])]);
-
   const changeMode = (checked, oKey, key, WAY, cb) => {
     const { portalSet = {} } = props;
     const { portalSetModel = {} } = portalSet;
@@ -106,6 +83,7 @@ export default function BaseSet(props) {
       cb();
     }
   };
+
   //微信登录方式受开关hideWeixin控制
   const LOGIN_WAY_LIST = LOGIN_WAY.filter(o => o.key !== 'weChat' || !md.global.SysSettings.hideWeixin);
 
@@ -151,6 +129,7 @@ export default function BaseSet(props) {
                   if (registerMode[o.key]) {
                     alert(_l('取消手机号/邮箱注册后，外部用户将不能使用原账号登录，请您谨慎配置'), 3);
                   }
+
                   changeMode(!registerMode[o.key], o.key, 'registerMode', REJISTER_WAY, () => {
                     alert(_l('至少选择一种注册方式'), 3);
                   });
@@ -181,33 +160,37 @@ export default function BaseSet(props) {
           {!md.global.SysSettings.hideWeixin && (
             <>
               <br />
-              {_.get(props, ['portalSet', 'portalSetModel', 'loginMode', 'weChat']) && !loading && (
-                <div className={cx('textTertiary mTop4 InlineBlock', { noWX: !isWXExist, WX: !!isWXExist })}>
-                  {!isWXExist ? (
-                    <React.Fragment>
-                      {_l('暂未绑定服务号，请前往')}
-                      <a
-                        className="Hand mLeft5 mRight5 InlineBlock"
-                        href={`/admin/weixin/${projectId}`}
-                        target="_blank"
-                      >
-                        {_l('组织管理')}
-                      </a>
-                      {_l('添加微信服务号')}
-                    </React.Fragment>
-                  ) : (
-                    <React.Fragment>
-                      {_l('官方认证服务号')}
-                      <a className="mLeft5">{authorizerInfo.nickName}</a>
-                    </React.Fragment>
-                  )}
-                </div>
+              {_.get(props, ['portalSet', 'portalSetModel', 'loginMode', 'weChat']) && (
+                <WeChatServiceAccount
+                  className="mTop4"
+                  projectId={projectId}
+                  appId={props.appId}
+                  selectedServiceAppId={portalSet.authorizerInfo.appId || 'delete'}
+                  updateWeChatServiceInfo={({ weChatServiceAccounts = [], service }) => {
+                    service.isUnBind = !weChatServiceAccounts.length;
+
+                    if (
+                      _.get(props, ['portalSet', 'portalSetModel', 'loginMode', 'weChat']) &&
+                      !isWXExist &&
+                      !authorizerInfo.appId
+                    ) {
+                      setIsWXExist(weChatServiceAccounts && weChatServiceAccounts.length);
+                      onChangePortalSet({ authorizerInfo: { ...authorizerInfo, ...service } }, false);
+                    } else {
+                      setAuthorizerInfo({ ...authorizerInfo, ...service });
+                      onChangePortalSet({ authorizerInfo: { ...authorizerInfo, ...service } }, true);
+                    }
+                  }}
+                />
               )}
               <p className="Font12 textTertiary mTop4 LineHeight18">
                 <PriceTip
-                  text={_l(
-                    '只勾选微信登录时首次扫码后需要输入手机号与微信绑定，后续可单独微信扫码快速登录。发送验证码的短信或邮件费用将自动从组织信用点中扣除。',
-                  )}
+                  text={
+                    _l('只勾选微信登录时首次扫码后需要输入手机号与微信绑定，后续可单独微信扫码快速登录。') +
+                    window.platformENV.isPlatform
+                      ? _l('发送验证码的短信或邮件费用将自动从组织信用点中扣除。')
+                      : ''
+                  }
                 />
               </p>
             </>

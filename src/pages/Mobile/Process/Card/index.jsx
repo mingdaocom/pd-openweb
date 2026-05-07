@@ -117,6 +117,7 @@ export default class Card extends Component {
       if (item.executeTime) {
         currentAccountNotified = true;
       }
+
       return _.includes([3, 4], item.type) && !item.operationTime && item.dueTime;
     });
 
@@ -151,6 +152,7 @@ export default class Card extends Component {
     if (consumingWorkItems.length) {
       return this.renderTimeConsuming();
     }
+
     if (surplusTimeWorkItems.length) {
       return this.renderSurplusTime();
     }
@@ -194,10 +196,12 @@ export default class Card extends Component {
     const { flowNode, flowNodeType, workItem } = item;
     const { fastApprove, btnMap } = flowNode;
     const { operationType } = workItem;
+
     if (currentTab === 'waitingApproval') {
       if (batchApproval) {
         return null;
       }
+
       return (
         <div className="valignWrapper mLeft10 approveBtnWrapper">
           {!fastApprove && (
@@ -232,9 +236,11 @@ export default class Card extends Component {
         </div>
       );
     }
+
     if (currentTab === 'mySponsor') {
       return <div className="Font13 mLeft10 bold textSecondary">{_l('处理中…')}</div>;
     }
+
     if (['all', 'already', 'unread'].includes(currentTab)) {
       const { text, color } = FLOW_NODE_TYPE_STATUS[flowNodeType][operationType];
       const isAlready = flowNodeType === 5 && operationType === 1;
@@ -244,6 +250,7 @@ export default class Card extends Component {
         </div>
       );
     }
+
     return null;
   }
   renderNodeState() {
@@ -251,6 +258,7 @@ export default class Card extends Component {
     const { flowNodeType, workItem } = item;
     const { operationType } = workItem;
     const node = FLOW_NODE_TYPE_STATUS[flowNodeType][operationType];
+
     if (node) {
       const { text, color, shallowBg } = node;
       return (
@@ -310,12 +318,14 @@ export default class Card extends Component {
           <span className="textTertiary Font13 mTop8 ellipsis">{item.workItem.opinion}</span>
         )}
         <div className="flexColumn mTop10">
-          {controls.map(item => (
-            <div key={item.controlId} className="Font12 flexRow mTop4">
-              <div className="textTertiary mRight10 overflow_ellipsis maxWidth80">{item.controlName}</div>
-              <div className="flex overflow_ellipsis_line3">{item.value || '--'}</div>
-            </div>
-          ))}
+          {controls
+            .filter(item => item.controlName)
+            .map(item => (
+              <div key={item.controlId} className="Font12 flexRow mTop4">
+                <div className="textTertiary mRight10 overflow_ellipsis maxWidth80">{item.controlName}</div>
+                <div className="flex overflow_ellipsis_line3">{item.value || '--'}</div>
+              </div>
+            ))}
         </div>
       </div>
     );

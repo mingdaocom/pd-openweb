@@ -114,7 +114,7 @@ const Wrap = styled.div`
       align-items: center;
       height: 50px;
       justify-content: space-between;
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.24);
+      box-shadow: var(--shadow-md);
     }
     .appName {
       margin: 0 2px;
@@ -225,6 +225,7 @@ export default class UpgradeStatus extends Component {
           </div>
         );
       };
+
       return (
         <div className="appInfoWrap flexColumn pLeft10 pRight10 mBottom8">
           <div className="flexRow alignItemsCenter pTop10">
@@ -270,6 +271,7 @@ export default class UpgradeStatus extends Component {
   render() {
     const { appPkg } = this.props;
     const { pcNaviStyle } = appPkg;
+
     if (pcNaviStyle === 1) {
       return (
         <Wrap className="leftWrap flexRow">
@@ -280,6 +282,7 @@ export default class UpgradeStatus extends Component {
         </Wrap>
       );
     }
+
     return (
       <Wrap className="flexColumn commonWrap">
         {this.renderHeader()}

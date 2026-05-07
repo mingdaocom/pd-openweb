@@ -170,22 +170,22 @@ export const HIERARCHY_VIEW_TYPE = [
   {
     text: _l('横向显示'),
     value: '0',
-    key: 'horizontal',
+    icon: 'Horizontal',
   },
   {
     text: _l('竖向显示'),
     value: '1',
-    key: 'vertically',
+    icon: 'Vertical',
   },
   {
     text: _l('混合显示'),
     value: '2',
-    key: 'mix',
+    icon: 'Mixed',
   },
   {
     text: _l('树形表格'),
     value: '3',
-    key: 'tree',
+    icon: 'Tree_shaped',
   },
 ];
 

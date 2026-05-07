@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import ClipboardButton from 'react-clipboard.js';
+import copy from 'copy-to-clipboard';
 import _ from 'lodash';
 import { Dropdown, Icon, LoadDiv } from 'ming-ui';
 import InviteController from 'src/api/invitation';
@@ -81,10 +81,6 @@ export default class PublicLink extends Component {
     );
   };
 
-  handleCopyTextSuccess = () => {
-    alert(_l('复制成功'));
-  };
-
   render() {
     const { projectId, fromType, setDetailMode, code, url, showInviteRules } = this.props;
     const { loading, expireHours, showDialogSettingInviteRules } = this.state;
@@ -149,15 +145,16 @@ export default class PublicLink extends Component {
                 {/* <Support type={3} text={_l('帮助')} herf={''} /> */}
               </div>
               <div className="numberBox">
-                <ClipboardButton
+                <span
                   className="Hand"
-                  component="span"
-                  data-clipboard-text={code}
-                  onSuccess={this.handleCopyTextSuccess}
+                  onClick={() => {
+                    copy(code);
+                    alert(_l('复制成功'));
+                  }}
                 >
                   <span className="Font24">{code}</span>
                   <Icon icon="content-copy" className="Font16 mLeft15" />
-                </ClipboardButton>
+                </span>
               </div>
             </Fragment>
           )}

@@ -18,6 +18,7 @@ export default class MessageRetry extends Component {
   }
   setStatus() {
     const { message } = this.props;
+
     if (message.waitingId) {
       this.loadingTime = setTimeout(() => {
         this.setState({
@@ -26,6 +27,7 @@ export default class MessageRetry extends Component {
       }, 200);
       this.errorTime = setTimeout(() => {
         const { status } = this.state;
+
         if (status === 'loading') {
           this.setState({
             status: 'error',

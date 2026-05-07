@@ -67,6 +67,7 @@ export default function FormHeader(props) {
   );
 
   let isOpenLogs = true;
+
   if (!isOpenPermit(permitList.recordLogSwitch, sheetSwitchPermit, viewId)) {
     isOpenLogs = false;
   }
@@ -127,6 +128,7 @@ export default function FormHeader(props) {
                               alert(_l('%0已锁定，修改失败', entityName), 3);
                               return;
                             }
+
                             console.log(err);
                             alert(_l('修改失败'), 2);
                           }

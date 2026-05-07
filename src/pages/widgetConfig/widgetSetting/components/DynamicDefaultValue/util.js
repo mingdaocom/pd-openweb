@@ -76,6 +76,7 @@ export const showClear = (data = {}, dynamicValue) => {
     const transferValue = typeof staticValue === 'string' ? safeParse(staticValue || '{}') : staticValue;
     return _.includes(['user-self'], (transferValue || {}).accountId);
   }
+
   return false;
 };
 
@@ -112,10 +113,12 @@ export const isFormulaResultAsNumber = (item = {}) => {
     item.type === 31 || (item.type === 38 && item.enumDefault === 1) || (item.type === 53 && item.enumDefault2 === 6)
   );
 };
+
 // 他表字段值为数值的
 const relateSheetFiledIsNumber = (item = {}) => {
   return item.type === 30 && _.includes(CAN_AS_NUMBER_DYNAMIC_FIELD, _.get(item, ['sourceControl', 'type']));
 };
+
 // 公式控件计算为日期时间的
 export const isFormulaResultAsDateTime = (item = {}) => {
   return (
@@ -221,6 +224,7 @@ export const filterControls = (data = {}, controls = []) => {
 export const getControls = ({ data = {}, controls, isCurrent, from }) => {
   const { type, enumDefault, dataSource, advancedSetting: { usertype } = {} } = data;
   const filterFn = FILTER[type];
+
   if (
     _.includes(
       [
@@ -234,6 +238,7 @@ export const getControls = ({ data = {}, controls, isCurrent, from }) => {
   ) {
     controls = controls.map(c => (c.type === 30 ? { ...c, type: c.sourceControlType, originType: c.type } : c));
   }
+
   //文本字段值可选 关联记录自动编号，不能是当前表单,查询工作表都可
   if (
     _.includes([2], type) &&
@@ -242,6 +247,7 @@ export const getControls = ({ data = {}, controls, isCurrent, from }) => {
   ) {
     controls = controls.filter(con => con.type !== 33);
   }
+
   // 富文本不支持当前记录的自动编号、文本组合、条码
   if (type === 41 && isCurrent && !_.includes([DYNAMIC_FROM_MODE.SEARCH_WORKSHEET], from)) {
     controls = controls.filter(con => !_.includes([32, 33, 47], con.type));
@@ -278,6 +284,7 @@ export const getControls = ({ data = {}, controls, isCurrent, from }) => {
       : _.filter(controls, item => !_.includes([27, 48], item.type));
     return _.filter(controls, item => filterFn(item, enumDefault) && isSameUser(item, usertype));
   }
+
   // 默认值部门可选成员字段、查询配置中不可选成员字段
   if (_.includes([27], type)) {
     return _.includes(
@@ -287,6 +294,7 @@ export const getControls = ({ data = {}, controls, isCurrent, from }) => {
       ? _.filter(controls, item => _.includes([27], item.type))
       : _.filter(controls, filterFn);
   }
+
   // 默认值支持成员，选择范围不支持成员
   if (_.includes([48], type)) {
     return _.includes(
@@ -301,13 +309,16 @@ export const getControls = ({ data = {}, controls, isCurrent, from }) => {
       ? _.filter(controls, item => _.includes([48], item.type))
       : _.filter(controls, filterFn);
   }
+
   if (_.includes([29], type)) {
     const newControls = filterControls(data, controls);
     return _.filter(newControls, item => item.dataSource === dataSource);
   }
+
   if (_.includes([35], type)) {
     return _.filter(controls, item => item.dataSource === dataSource && item.type === 35);
   }
+
   return controls;
 };
 
@@ -316,6 +327,7 @@ export const transferValue = (value = '') => {
   const defaultValue = _.filter(value.split('$'), v => !_.isEmpty(v));
   const defsource = defaultValue.map(item => {
     const defaultData = { cid: '', rcid: '', staticValue: '' };
+
     if (_.includes(controlFields, `$${item}$`)) {
       const [cid = '', rcid = ''] = item.split('~');
       return { ...defaultData, cid, rcid };
@@ -332,6 +344,7 @@ export const isIframeControl = item => {
 
 export const getTypeList = (data = {}) => {
   const { advancedSetting: { showtype } = {} } = data;
+
   if (showtype === '1') {
     return [
       { id: '1', text: _l('开启') },
@@ -349,9 +362,11 @@ export const getTypeList = (data = {}) => {
 
 export const getOtherSelectField = (control, value) => {
   let data = [];
+
   if (control.type === 45 && control.enumDefault === 1) {
     data = EMEBD_FIELDS;
   }
+
   return value
     ? data.map(item => {
         return { ...item, list: (item.list || []).filter(i => _.includes(i.text, value)) };
@@ -389,6 +404,7 @@ export const getMapControls = (item, controls = []) => {
     const totalControls = controls.concat(subControl);
     return _.filter(totalControls, MAP_FILTER[item.originType]);
   }
+
   const filterFn = MAP_FILTER[item.type];
   return _.filter(controls, filterFn);
 };

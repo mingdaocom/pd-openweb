@@ -20,6 +20,7 @@ const DateCalc = ({ value, enumDefault, unit, advancedSetting, dot }) => {
     const suffix = prefix ? '' : advancedSetting.suffix || UNIT_TO_TEXT[unit] || '';
     const hideUnit = !!prefix || !!suffix;
     let formatValue = toFixed(value, dot);
+
     if (advancedSetting.dotformat === '1') {
       formatValue = formatStrZero(formatValue);
     }
@@ -27,6 +28,7 @@ const DateCalc = ({ value, enumDefault, unit, advancedSetting, dot }) => {
     content = hideUnit ? (prefix ? `${prefix} ` : '') + formatValue + (suffix ? ` ${suffix}` : '') : formatValue;
   } else {
     const showFormat = getShowFormat({ advancedSetting: { ...advancedSetting, showtype: unit || '1' } });
+
     if (includes(showFormat, ':')) {
       content = moment(value).year()
         ? getDateToEn(showFormat, dateConvertToUserZone(moment(moment(value), showFormat)), advancedSetting.showformat)

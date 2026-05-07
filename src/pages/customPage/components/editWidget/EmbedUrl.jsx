@@ -22,7 +22,7 @@ const ContentWrap = styled(FlexCenter)`
     color: var(--color-text-tertiary);
     font-size: 15px;
     flex: 1;
-    background-color: var(--color-border-secondary);
+    background-color: var(--color-background-tertiary);
     padding: 24px;
   }
   .configWrap {
@@ -49,11 +49,12 @@ const ContentWrap = styled(FlexCenter)`
   .previewBtn {
     height: 36px;
     padding: 0 15px;
-    color: var(--color-primary-light);
+    color: var(--color-primary);
+    background-color: var(--color-background-card);
     border: none;
     border-radius: 24px;
     &:hover {
-      color: var(--color-link-hover);
+      color: var(--color-primary-dark);
     }
   }
 `;
@@ -66,13 +67,16 @@ function EmbedUrl({ onClose, onEdit, widget = {}, info }) {
   const [config, setConfig] = useState(widget.config || {});
   const { reload = false, newTab = false } = config;
   let urlWithPara = genUrl(url, paras, info);
+
   const handleSave = () => {
     if (!url) {
       alert(_l('url不能为空'), 3);
       return;
     }
+
     onEdit({ value: url, param: paras, config });
   };
+
   return (
     <Modal
       className="editWidgetDialogWrap"
@@ -136,6 +140,7 @@ function EmbedUrl({ onClose, onEdit, widget = {}, info }) {
     </Modal>
   );
 }
+
 export default connect(({ sheet, appPkg, customPage }) => ({
   info: {
     ...sheet.base,

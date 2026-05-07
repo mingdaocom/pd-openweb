@@ -35,6 +35,7 @@ function WorksheetRecordLogDiffText(props) {
   let diff = null;
   let _oldValue = oldValue.slice(0, TEXT_MAX_LENGTH);
   let _newValue = newValue.slice(0, TEXT_MAX_LENGTH);
+
   if (type === 'rich_text') {
     diff = diffChars(
       _oldValue.replace(/<[^>]+>|&[^>]+;/g, '').trim(),
@@ -43,6 +44,7 @@ function WorksheetRecordLogDiffText(props) {
   } else {
     diff = diffChars(_oldValue, _newValue);
   }
+
   const [diff2, setDiff2] = useState(diff);
 
   useEffect(() => {
@@ -50,6 +52,7 @@ function WorksheetRecordLogDiffText(props) {
       let textComputeStyle = getComputedStyle(textRef.current);
       let textHeight = Number(textComputeStyle.height.replace('px', ''));
       let lineHeight = Number(textComputeStyle.lineHeight.replace('px', ''));
+
       if (textHeight > lineHeight * 5) {
         setNeedOpen(true);
       }
@@ -68,6 +71,7 @@ function WorksheetRecordLogDiffText(props) {
       setOpen(false);
       return;
     }
+
     if (sign === 1) {
       if (
         oldValue.length > TEXT_MAX_LENGTH + (diffCount - 1) * LOAD_COUNT ||
@@ -96,6 +100,7 @@ function WorksheetRecordLogDiffText(props) {
         } else {
           _diff = diff2.concat(diffChars(_oldValue, _newValue));
         }
+
         setDiff2(_diff);
       } else {
         setOpen(true);
@@ -202,5 +207,6 @@ export default React.memo(WorksheetRecordLogDiffText, (prevProps, nextProps) => 
   ) {
     return true;
   }
+
   return false;
 });

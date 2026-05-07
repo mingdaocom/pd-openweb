@@ -35,6 +35,7 @@ function cutStringByLine(str, length = 500) {
         .join('\n')
     : str;
 }
+
 export default function PasteDialog(props) {
   const { keywords = '', onClose, onChange } = props;
   const [value, setValue] = useState(cutStringByLine(keywords));

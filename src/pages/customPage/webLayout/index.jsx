@@ -79,22 +79,27 @@ const getTabsContainerForCard = event => {
   const otherContainers = [...document.querySelectorAll('.widgetContent')]
     .filter(el => !(el.classList.contains('tabs') || el.classList.contains('card')))
     .map(el => el.parentNode);
+
   for (let container of otherContainers) {
     if (container.contains(event.target)) {
       return null;
     }
   }
+
   for (let container of tabContainers) {
     if (container.contains(event.target)) {
       return container.querySelector('.tabs') || container.querySelector('.card');
     }
   }
+
   return null;
 };
+
 const getTabsIdentifierId = (classNames = '') => {
   const match = classNames.match(/tabs-([a-f0-9-]+)/) || classNames.match(/card-([a-f0-9-]+)/);
   return match ? match[1] : null;
 };
+
 const getTabIdentifierId = (classNames = '') => {
   const match = classNames.match(/tab-([a-f0-9-]+)/);
   return match ? match[1] : null;
@@ -117,8 +122,10 @@ function WebLayout(props) {
 
   useEffect(() => {
     const componentsWrap = document.querySelector('#componentsWrap');
+
     const handleClickActiveWrap = event => {
       const tabsContainer = getTabsContainerForCard(event);
+
       if (tabsContainer) {
         const sectionId = getTabsIdentifierId(tabsContainer.className);
         const tabId = event.target.classList.contains('tab')
@@ -142,9 +149,11 @@ function WebLayout(props) {
         });
       }
     };
+
     if (editable) {
       componentsWrap.addEventListener('click', handleClickActiveWrap);
     }
+
     return () => {
       componentsWrap.removeEventListener('click', handleClickActiveWrap);
     };
@@ -166,6 +175,7 @@ function WebLayout(props) {
 
   const renderGrid = () => {
     const el = _.get($ref, 'current') ? $ref.current.querySelector('.componentsWrap') : null;
+
     if (el) {
       const clientWidth = el.clientWidth - 10;
       const cols = 48;
@@ -203,7 +213,7 @@ function WebLayout(props) {
           '--title-color': bgIsDark ? '#ffffffcc' : '#333',
           '--icon-color': bgIsDark ? '#ffffffcc' : '#9e9e9e',
           '--bg-color': bgIsDark ? '#e6e6e633' : '#e6e6e6',
-          '--auxiliaryLine-color': bgIsDark ? 'rgb(255 255 255 / 2%)' : 'rgb(0 0 0 / 2%)',
+          '--auxiliaryLine-color': bgIsDark ? 'rgb(255 255 255 / 10%)' : 'rgb(0 0 0 / 2%)',
           '--widget-color': pageConfig.widgetBgColor,
           '--widget-title-color': widgetIsDark ? '#ffffffcc' : '#333',
           '--widget-icon-color': widgetIsDark ? '#ffffffcc' : '#9e9e9e',

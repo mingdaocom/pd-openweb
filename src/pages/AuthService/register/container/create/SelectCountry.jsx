@@ -28,6 +28,7 @@ export default function RegionDropdown(props) {
         })
         .then(res => {
           const countryData = _.get(res, 'citys', []).map(l => ({ ...l, text: l.name, value: l.id }));
+
           if (searchKeywords) {
             setState({ searchResultCountry: countryData, loading: false });
           } else {

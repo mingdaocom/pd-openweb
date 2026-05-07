@@ -138,6 +138,7 @@ class Con extends React.Component {
     } = this.props;
     const { roleInfos = [] } = appRole;
     const { quickTag } = appRole;
+
     if (quickTag.roleId) {
       this.setState({
         roleId: editType || quickTag.roleId,
@@ -145,10 +146,12 @@ class Con extends React.Component {
     } else {
       setRoleId(editType ? editType : appRole.roleId ? appRole.roleId : 'all');
     }
+
     if (!!editType && editType !== 'all') {
       //申请加入等地址，获取全部项计数
       getUserList({ appId }, true);
     }
+
     if ((appDetail.debugRole || {}).canDebug) {
       this.setState({
         selectDebugRole: appDetail.debugRole.selectedRoles,
@@ -175,12 +178,15 @@ class Con extends React.Component {
         },
       );
     }
+
     const editType = _.get(nextProps, ['match', 'params', 'editType']);
+
     if (!!editType && !_.isEqual(editType, _.get(this.props, ['match', 'params', 'editType']))) {
       this.setState({
         roleId: editType,
       });
     }
+
     if (nextProps.appRole.roleInfos !== this.props.appRole.roleInfos) {
       this.setState({
         roleList: nextProps.appRole.roleInfos,
@@ -193,6 +199,7 @@ class Con extends React.Component {
       if ([APP_ROLE_TYPE.DEVELOPERS_ROLE].includes(_.get(this.props, 'appDetail.permissionType'))) {
         return alert(_l('当前角色已有成员，请移出所有成员后再删除'), 3);
       }
+
       this.setState({ showDeleRoleByMoveUser: true, delId: data.roleId });
     } else {
       return Dialog.confirm({
@@ -245,6 +252,7 @@ class Con extends React.Component {
           if (this.state.roleList.filter(it => it.isMyRole).length <= 1) {
             navigateTo(`/app/${appId}`);
           }
+
           location.reload();
         } else {
           Dialog.confirm({
@@ -281,9 +289,11 @@ class Con extends React.Component {
     const { roleList, showDeleRoleByMoveUser, delId, selectDebugRole } = this.state;
     const { appRole = {} } = this.props;
     const { pageLoading } = appRole;
+
     if (pageLoading) {
       return <LoadDiv />;
     }
+
     return (
       <Wrap className="flexRow">
         <RoleNav

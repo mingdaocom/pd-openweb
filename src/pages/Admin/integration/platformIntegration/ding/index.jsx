@@ -104,6 +104,7 @@ export default class Ding extends React.Component {
       alert(_l('请输入相关信息'), 2);
       return;
     }
+
     Ajax.editDDProjectSetting({
       projectId: this.props.projectId,
       appKey: this.state.AppKey,
@@ -133,17 +134,21 @@ export default class Ding extends React.Component {
   formatStr = str => {
     if (!str) return;
     let newStr;
+
     if (str.length === 4) {
       newStr = str.substr(0, 3) + '*';
     } else if (str.length > 4) {
       let char = '';
+
       for (let i = 0, len = str.length - 4; i < len; i++) {
         char += '*';
       }
+
       newStr = str.substr(0, 3) + char + str.substr(-3, 3);
     } else {
       newStr = str;
     }
+
     return newStr;
   };
 
@@ -239,7 +244,14 @@ export default class Ding extends React.Component {
           )}
           {this.state.isHasInfo && this.state.show2 && (
             <span className="Font13 textSecondary Right closeDing">
-              <Tooltip title={_l('关闭钉钉集成后，无法再从钉钉处进入应用')} placement="bottomLeft">
+              <Tooltip
+                title={
+                  !window.platformENV.isOverseas && !window.platformENV.isLocal
+                    ? _l('关闭钉钉集成后，无法再从钉钉处进入明道云应用')
+                    : _l('关闭钉钉集成后，无法再从钉钉处进入应用')
+                }
+                placement="bottomLeft"
+              >
                 <span className="mLeft10 switchBtn">
                   <Switch
                     checked={!this.state.isCloseDing}
@@ -318,6 +330,7 @@ export default class Ding extends React.Component {
           this.props.onClose();
           alert(_l('取消成功'));
         }
+
         if (!_.isUndefined(isProxy)) {
           alert(_l('设置成功'));
         }
@@ -479,6 +492,7 @@ export default class Ding extends React.Component {
     if (this.state.pageLoading) {
       return <LoadDiv className="mTop80" />;
     }
+
     return (
       <div className="orgManagementWrap dingMainContent platformIntegrationContent">
         <div className="orgManagementHeader">
@@ -569,12 +583,26 @@ export default class Ding extends React.Component {
                     </span>
                     <span className="Block textPrimary">
                       <span className="Bold">{_l('注意：')}</span>
-                      <span>此功能需要在钉钉中开启添加待办任务接口权限。</span>
-                      <Support
-                        text={_l('如何开启？')}
-                        type={3}
-                        href="https://help.mingdao.com/dingtalk/integration-guide#pending"
-                      />
+                      {!window.platformENV.isOverseas && !window.platformENV.isLocal ? (
+                        <span
+                          dangerouslySetInnerHTML={{
+                            __html: _l(
+                              '此功能需要在钉钉中开启添加待办任务接口权限。%0如何开启？%1',
+                              '<a href="https://help.mingdao.com/dingtalk/integration-guide#pending" target="_blank">',
+                              '</a>',
+                            ),
+                          }}
+                        ></span>
+                      ) : (
+                        <Fragment>
+                          <span>{_l('此功能需要在钉钉中开启添加待办任务接口权限。')}</span>
+                          <Support
+                            text={_l('如何开启？')}
+                            type={3}
+                            href="https://help.mingdao.com/dingtalk/integration-guide#pending"
+                          />
+                        </Fragment>
+                      )}
                     </span>
                   </div>
                 </div>

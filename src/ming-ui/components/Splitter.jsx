@@ -6,6 +6,7 @@ import './less/Splitter.less';
 function Splitter(props) {
   return <hr {...props} className={cx(props.className, 'ming Splitter')} />;
 }
+
 Splitter.propTypes = {
   /**
    * 分割线的类名

@@ -109,11 +109,13 @@ export default ({ companyId, processId, relationId, selectNodeId, promptSound, f
   const [uploading, setUploading] = useState(false);
   const [audioEnd, setAudioEnd] = useState(true);
   const audioRef = useRef(null);
+
   const playAudio = src => {
     audioRef.current.src = src;
     audioRef.current.play();
     setAudioEnd(false);
   };
+
   const renderCustomAudio = () => {
     const file = JSON.parse(promptSound.file)[0];
 

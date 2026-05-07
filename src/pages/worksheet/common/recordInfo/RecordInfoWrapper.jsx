@@ -50,6 +50,7 @@ export default class RecordInfoWrapper extends Component {
   async init() {
     const { instanceId, workId } = this.props;
     let { worksheetId, recordId, sheetSwitchPermit, viewId = '' } = this.props;
+
     if (this.props.from === RECORD_INFO_FROM.WORKFLOW && (!worksheetId || !recordId)) {
       // 获取记录信息
       try {
@@ -57,6 +58,7 @@ export default class RecordInfoWrapper extends Component {
           instanceId,
           workId,
         });
+
         if (res.worksheetId && res.rowId) {
           worksheetId = res.worksheetId;
           recordId = res.rowId;
@@ -72,6 +74,7 @@ export default class RecordInfoWrapper extends Component {
         return;
       }
     }
+
     if ((!sheetSwitchPermit || _.isEmpty(sheetSwitchPermit)) && worksheetId && md.global.Account.accountId) {
       // 获取权限
       try {
@@ -81,6 +84,7 @@ export default class RecordInfoWrapper extends Component {
         sheetSwitchPermit = [];
       }
     }
+
     this.setState({
       loading: false,
       worksheetId,
@@ -93,6 +97,7 @@ export default class RecordInfoWrapper extends Component {
   handleCancel = e => {
     e.stopPropagation();
     const { hideRecordInfo } = this.props;
+
     if (this.recordinfo.current) {
       this.recordinfo.current.handleCancel();
     } else {
@@ -105,6 +110,7 @@ export default class RecordInfoWrapper extends Component {
     const { loading, error, errorMsg, worksheetId, recordId, viewId, modalRightComp } = this.state;
     const extendsProps = {};
     let dialogWidth = width || (window.innerWidth - 32 * 2 > 1600 ? 1600 : window.innerWidth - 32 * 2);
+
     if (from === RECORD_INFO_FROM.WORKFLOW) {
       extendsProps.worksheetId = worksheetId;
       extendsProps.recordId = recordId;
@@ -112,6 +118,7 @@ export default class RecordInfoWrapper extends Component {
       extendsProps.workId = workId;
       extendsProps.viewId = viewId;
     }
+
     const dialogProps = {
       className: cx('workSheetRecordInfo withSaveShortcut', `createTimestamp-${this.didMountTimestamp}`),
       dislocate: true,
@@ -138,17 +145,21 @@ export default class RecordInfoWrapper extends Component {
           }
         : {}),
     };
+
     if (dialogProps.fullScreen) {
       dialogWidth = window.innerWidth;
       dialogProps.width = dialogWidth;
     }
+
     if (dialogProps.renderModalRightComp) {
       dialogWidth = dialogWidth - 420;
       dialogProps.width = dialogWidth;
     }
+
     let content;
     let sheetSwitchPermit = this.props.sheetSwitchPermit || this.state.sheetSwitchPermit;
     let RecordInfoComp = notDialog ? AutoSizeRecordInfo : RecordInfo;
+
     if (error) {
       content = <TextAbsoluteCenter className="error textTertiary">{errorMsg}</TextAbsoluteCenter>;
     } else {
@@ -173,6 +184,7 @@ export default class RecordInfoWrapper extends Component {
                   },
                 });
               }
+
               if (isFunction(this.props.hideRecordInfo)) {
                 this.props.hideRecordInfo(...args);
               }
@@ -190,6 +202,7 @@ export default class RecordInfoWrapper extends Component {
         />
       );
     }
+
     return !notDialog ? (
       <Modal
         {...dialogProps}

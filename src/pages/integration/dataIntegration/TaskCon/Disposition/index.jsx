@@ -157,6 +157,7 @@ const WrapCon = styled.div`
     cursor: not-allowed;
   }
 `;
+
 //配置
 function Disposition(props) {
   const [{ loading, flowId, flowData, ownerInfoList, flowConfigClone, cloneFlowData, flowNodes }, setState] =
@@ -181,6 +182,7 @@ function Disposition(props) {
   }, [props.flowData]);
   const destData = _.values(flowNodes).find(o => _.get(o, 'nodeType') === 'DEST_TABLE') || {};
   const showFlowSet = _.get(destData, 'nodeConfig.config.dsType') === DATABASE_TYPE.APPLICATION_WORKSHEET;
+
   const saveProcessConfigInfo = () => {
     const { currentProjectId: projectId } = props;
     const data = {
@@ -246,6 +248,7 @@ function Disposition(props) {
   const updateSource = data => {
     setState({ flowData: { ...flowData, ...data } });
   };
+
   /**
    * 添加普通成员
    */
@@ -273,9 +276,11 @@ function Disposition(props) {
       },
     });
   };
+
   if (loading) {
     return <LoadDiv />;
   }
+
   return (
     <Wrap className="">
       <Con>
@@ -401,6 +406,7 @@ function Disposition(props) {
                 ) {
                   return;
                 }
+
                 saveProcessConfigInfo();
               }}
             >

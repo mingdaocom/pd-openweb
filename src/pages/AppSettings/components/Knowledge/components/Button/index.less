@@ -1,0 +1,51 @@
+.custom-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 32px;
+  font-size: 14px;
+  font-weight: bold;
+  border-radius: 3px;
+  cursor: pointer;
+
+  &.is-disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+}
+
+/* primary */
+.custom-btn-primary {
+  background: var(--color-primary);
+  color: var(--color-white);
+
+  &:hover {
+    background: var(--color-primary-dark);
+  }
+}
+
+/* text */
+.custom-btn-text {
+  color: var(--color-text-secondary);
+  background: transparent;
+  &:hover {
+    color: var(--color-primary-dark);
+    background: var(--color-background-hover);
+  }
+}
+
+/* loading 状态下 icon 旋转 */
+.custom-btn.is-loading .icon {
+  animation: btn-rotate 0.8s linear infinite;
+}
+
+@keyframes btn-rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

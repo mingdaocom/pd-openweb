@@ -28,9 +28,11 @@ const updateTarget = (groups, targetId, data) => {
 const removeTarget = (groups, data) => {
   return groups.filter(item => {
     const { items = [] } = item;
+
     if (item.id === data.id) {
       return false;
     }
+
     item.items = removeTarget(items, data);
     return true;
   });
@@ -38,6 +40,7 @@ const removeTarget = (groups, data) => {
 
 const spliceTarget = (groups, target, data) => {
   const index = _.findIndex(groups, { id: target.id });
+
   if (index == -1) {
     return groups.map(item => {
       const { items = [] } = item;
@@ -50,6 +53,7 @@ const spliceTarget = (groups, target, data) => {
     if (!target.parentId) {
       data.parentId = undefined;
     }
+
     groups.splice(data.first ? index : index + 1, 0, data);
     return groups;
   }
@@ -58,6 +62,7 @@ const spliceTarget = (groups, target, data) => {
 const pushTarget = (groups, target, data) => {
   return groups.map(item => {
     const { items = [] } = item;
+
     if (item.id === target.id) {
       return {
         ...item,
@@ -90,13 +95,16 @@ const Group = props => {
     drop(item) {
       const current = item.data;
       const target = data;
+
       if (current.id === target.id) {
         return undefined;
       }
+
       if (active || activeGroup) {
         current.first = activeFirst;
         onMoveGroup(item.data, data, activeGroup);
       }
+
       return undefined;
     },
     hover(item, monitor) {
@@ -135,22 +143,26 @@ const Group = props => {
         if (current.layerIndex === 0 && target.layerIndex === 0) {
           setActive(true);
         }
+
         // 二级分组
         if (current.layerIndex && !current.isAppItem) {
           if (!target.isAppItem && [0].includes(target.layerIndex)) {
             const isPushGroup = getIsPushGroup();
             setActiveGroup(isPushGroup);
           }
+
           if ([0, 1].includes(target.layerIndex)) {
             setActive(true);
           }
         }
+
         // 二级应用
         if (current.layerIndex && current.isAppItem) {
           if (!target.isAppItem) {
             const isPushGroup = getIsPushGroup();
             setActiveGroup(isPushGroup);
           }
+
           if (target.layerIndex) {
             setActive(true);
           }
@@ -324,6 +336,7 @@ const Group = props => {
                     if (data.parentStatus === 2) {
                       return;
                     }
+
                     onUpdateAppItem(data, { status: data.status === 1 ? 2 : 1 });
                   }}
                 />
@@ -366,6 +379,7 @@ const Container = props => {
                   return appItem;
                 });
               }
+
               appItem.id = appItem.workSheetId;
               appItem.name = appItem.workSheetName;
               return appItem;
@@ -412,6 +426,7 @@ const Container = props => {
           });
       }
     }
+
     // 修改可见状态
     if (data.status) {
       homeAppApi
@@ -427,8 +442,10 @@ const Container = props => {
         });
     }
   };
+
   const handleMoveGroup = (dragData, targetData, pushGroup) => {
     const groups = removeTarget(_.cloneDeep(navigationGroup), dragData);
+
     if (pushGroup) {
       // 移动应用项
       appManagementApi
@@ -488,6 +505,7 @@ const Container = props => {
                   appSectionIds: res.map(data => data.id),
                 });
               }
+
               if (targetData.layerIndex === 1) {
                 const workSheetIds = _.find(res, { id: targetDataParentId }).items.map(data => data.id);
                 homeAppApi.updateSectionChildSort({
@@ -496,6 +514,7 @@ const Container = props => {
                   workSheetIds,
                 });
               }
+
               if (targetData.layerIndex === 2) {
                 const { items = [] } = res.filter(data => _.find(data.items, { id: targetDataParentId }))[0] || {};
                 const workSheetIds = _.find(items, { id: targetDataParentId }).items.map(data => data.id);
@@ -511,6 +530,7 @@ const Container = props => {
           });
         return;
       }
+
       // 一级分组排序
       if (dragData.layerIndex === 0 && dragData.parentId === targetData.parentId) {
         homeAppApi
@@ -524,6 +544,7 @@ const Container = props => {
             }
           });
       }
+
       // 二级分组排序
       if (dragData.layerIndex === 1 && dragData.parentId === targetData.parentId) {
         const workSheetIds = _.find(res, { id: dragData.parentId }).items.map(data => data.id);
@@ -539,6 +560,7 @@ const Container = props => {
             }
           });
       }
+
       // 三级排序
       if (dragData.layerIndex === 2 && dragData.parentId === targetData.parentId) {
         const { items = [] } = res.filter(data => _.find(data.items, { id: dragData.parentId }))[0] || {};
@@ -557,6 +579,7 @@ const Container = props => {
       }
     }
   };
+
   const handleAddGroup = target => {
     const name = _l('未命名分组');
     const icon = target ? '8_4_folder' : undefined;
@@ -595,8 +618,10 @@ const Container = props => {
         }
       });
   };
+
   const handleDeleteGroup = (data, parentId) => {
     const { id, layerIndex, items = [] } = data;
+
     if (layerIndex === 0 && (navigationGroup.length === 1 || items.length)) {
       if (navigationGroup.length === 1) {
         handleSetNavigationGroup(navigationGroup.map(data => Object.assign(data, { name: '' })));

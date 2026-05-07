@@ -1,4 +1,4 @@
-﻿import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
+import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _, { get, noop } from 'lodash';
@@ -14,16 +14,10 @@ import useTableWidth from 'worksheet/hooks/useTableWidth';
 import { emitter } from 'src/utils/common';
 import { getScrollBarWidth } from 'src/utils/common';
 import { getControlStyles } from 'src/utils/control';
-import { filterEmptyChildTableRows } from 'src/utils/record';
+import { filterEmptyChildTableRows, getRecordControlStyles } from 'src/utils/record';
 import { checkRulesErrorOfRowControl } from 'src/utils/rule';
 import { Cell, NoRecords, NoSearch } from './components';
-import {
-  checkCellFullVisible,
-  getControlFieldPermissionsAfterRules,
-  getRulePermissions,
-  getTableHeadHeight,
-  handleLifeEffect,
-} from './util';
+import { checkCellFullVisible, getRulePermissions, getTableHeadHeight, handleLifeEffect } from './util';
 import './style.less';
 
 const StyledFixedTable = styled(FixedTable)`
@@ -106,6 +100,7 @@ const StyledFixedTable = styled(FixedTable)`
     overflow: hidden;
   }
   ${({ controlStyles }) => controlStyles || ''}
+  ${({ recordControlStyles }) => recordControlStyles || ''}
   &.isChangeColumnWidth {
     * {
       user-select: none !important;
@@ -125,7 +120,7 @@ const StyledFixedTable = styled(FixedTable)`
   }
   &.showAsZebra {
     .cell.oddRow {
-      background-color: var(--color-background-secondary);
+      background-color: var(--color-background-tertiary);
     }
   }
   &:not(.classic) {
@@ -206,6 +201,7 @@ function WorksheetTable(props, ref) {
     showLoadingMask,
     loadingMaskChildren,
     isSubList,
+    formItemId,
     isRelateRecordList,
     readonly,
     controls,
@@ -300,7 +296,7 @@ function WorksheetTable(props, ref) {
   } = state;
   const [cache, setCache] = useRefStore({});
   const [cellRefs, setCellRefs] = useRefStore({});
-  const defaultRulePermissions = useMemo(
+  const defaultRuleState = useMemo(
     () =>
       rules.length
         ? getRulePermissions({
@@ -310,15 +306,30 @@ function WorksheetTable(props, ref) {
             rules: rules,
             data,
           })
-        : {},
+        : { fieldPermissions: {}, ruleControlAdvancedSettings: {}, touchedRowIds: [] },
     [],
   );
-  const [rulePermissions, updateRulePermissions] = useState(defaultRulePermissions);
+  const [rulePermissions, updateRulePermissions] = useState(() => defaultRuleState.fieldPermissions);
+  const [ruleControlAdvancedSettings, updateRuleControlAdvancedSettings] = useState(
+    () => defaultRuleState.ruleControlAdvancedSettings,
+  );
   const [xIsScroll, setXIsScroll] = useState(false);
   const tableRef = useRef();
   window.tableRef = tableRef;
-  const handleUpdateRulePermissions = useCallback(newRulePermissions => {
-    updateRulePermissions(old => ({ ...(old || {}), ...newRulePermissions }));
+  const handleUpdateRuleState = useCallback(updates => {
+    const { fieldPermissions = {}, ruleControlAdvancedSettings: adv = {}, touchedRowIds = [] } = updates || {};
+    updateRulePermissions(old => ({ ...(old || {}), ...fieldPermissions }));
+    updateRuleControlAdvancedSettings(old => {
+      const next = { ...old };
+      touchedRowIds.forEach(rid => {
+        Object.keys(next).forEach(k => {
+          if (k.startsWith(`${rid}-`)) {
+            delete next[k];
+          }
+        });
+      });
+      return { ...next, ...adv };
+    });
   }, []);
   const visibleColumns = useMemo(
     () =>
@@ -333,17 +344,22 @@ function WorksheetTable(props, ref) {
     [direction, columns, rowHeadWidth],
   );
   let tableRowCount = rowCount || data.length;
+
   if (minRowCount && tableRowCount < minRowCount) {
     tableRowCount = minRowCount;
   }
+
   let columnsCount = visibleColumns.length;
+
   if (direction === 'vertical') {
     columnsCount = tableRowCount + 1;
     if (!readonly && lineEditable && cellProps.renderVerticalAddLine) {
       columnsCount += 1;
     }
+
     tableRowCount = visibleColumns.length;
   }
+
   const subListDataLength = isSubList && data.filter(r => r.rowid).length;
   const cellColumnCount =
     columnsCount -
@@ -377,10 +393,12 @@ function WorksheetTable(props, ref) {
     if (!wrapControlName) {
       return 34;
     }
+
     const headHeight = getTableHeadHeight(visibleColumns.map((c, i) => ({ ...c, width: getColumnWidth(i) })));
     onColumnHeadHeightUpdate(headHeight + 16);
     return headHeight + 16;
   }, [visibleColumns]);
+
   // 按照传入记录数计算宽度
   if (setHeightAsRowCount || !_.isUndefined(rowCount)) {
     const XIsScroll =
@@ -389,9 +407,11 @@ function WorksheetTable(props, ref) {
           .fill(0)
           .map((a, i) => getColumnWidth(i, true) || 200),
       ) > width;
+
     if (xIsScroll !== XIsScroll) {
       setXIsScroll(XIsScroll);
     }
+
     tableHeight =
       _.sum(new Array(tableRowCount).fill(0).map((a, i) => getRowHeight(i) || 34)) +
       (showHead && direction === 'horizontal' ? columnHeadHeight : 0) +
@@ -399,19 +419,27 @@ function WorksheetTable(props, ref) {
     if (showSummary) {
       tableHeight += 28;
     }
+
     if (isSubList && (_.last(data) || {}).isSubListFooter) {
       tableHeight -= rowHeight - 26;
     }
   }
+
   const tableDataWithRowFormData = data.map(row => {
     return (controls || columns)
-      .map(c => ({
-        ...c,
-        value: row[c.controlId],
-        fieldPermission: rulePermissions[`${row.rowid}-${c.controlId}`] || c.fieldPermission,
-      }))
+      .map(c => {
+        const k = `${row.rowid}-${c.controlId}`;
+        const adv = ruleControlAdvancedSettings[k];
+        return {
+          ...c,
+          value: row[c.controlId],
+          fieldPermission: rulePermissions[k] || c.fieldPermission,
+          ...(adv ? { advancedSetting: adv } : {}),
+        };
+      })
       .concat(masterFormData().filter(c => c.controlId.length === 24));
   });
+
   function showColumnWidthChangeMask({ columnWidth, defaultLeft, maskMinLeft, callback }) {
     setState({
       maskVisible: true,
@@ -434,6 +462,7 @@ function WorksheetTable(props, ref) {
       },
     });
   }
+
   function addHighlightClassOfRow(rowIndex) {
     const tableDom = tableRef.current && tableRef.current.dom && tableRef.current.dom.current;
     if (!tableDom) {
@@ -444,6 +473,7 @@ function WorksheetTable(props, ref) {
     ].forEach(ele => ele.classList.add('highlight'));
     window[`activeRowIndex-${tableId}`] = rowIndex;
   }
+
   function removeHighlightClassOfRow() {
     const tableDom = tableRef.current && tableRef.current.dom && tableRef.current.dom.current;
     if (!tableDom) {
@@ -454,6 +484,7 @@ function WorksheetTable(props, ref) {
     });
     window[`activeRowIndex-${tableId}`] = -10000;
   }
+
   function focusCell(newIndex, { noTriggerHandFocusCell = false } = {}) {
     setCache('focusIndex', newIndex > 0 ? newIndex : undefined);
     const tableDom = tableRef.current && tableRef.current.dom && tableRef.current.dom.current;
@@ -465,6 +496,7 @@ function WorksheetTable(props, ref) {
       ele.classList.remove('highlight');
       ele.classList.remove('rowHadFocus');
       const input = ele.querySelector('input');
+
       if (input) {
         try {
           ele.removeChild(input);
@@ -477,6 +509,7 @@ function WorksheetTable(props, ref) {
     if (newIndex === -10000) {
       return;
     }
+
     window.activeTableId = tableId;
     const focusElement = tableDom.querySelector(`.cell-${newIndex}`);
     if (isSubList && !noTriggerHandFocusCell) {
@@ -490,6 +523,7 @@ function WorksheetTable(props, ref) {
     if (focusElement) {
       const rowIndex = _.get(focusElement.className.match(direction === 'horizontal' ? /row-(\d+)/ : /col-(\d+)/), 1);
       const checkResult = checkCellFullVisible(focusElement);
+
       if (!checkResult.fullvisible) {
         tableRef.current.setScroll(checkResult.newLeft);
         setTimeout(() => {
@@ -498,6 +532,7 @@ function WorksheetTable(props, ref) {
       } else {
         addHighlightClassOfRow(rowIndex);
       }
+
       focusElement.classList.add('focus');
       if (focusElement.classList.contains('focusInput')) {
         const input = document.createElement('input');
@@ -518,8 +553,10 @@ function WorksheetTable(props, ref) {
           if (e.keyCode !== 229) {
             return;
           }
+
           e.stopPropagation();
         };
+
         input.focus({ preventScroll: true });
       }
       if (focusRowHeadElement) {
@@ -527,11 +564,14 @@ function WorksheetTable(props, ref) {
       }
     }
   }
+
   function handleTableKeyDown(editIndex, e) {
     if (_.isUndefined(editIndex)) {
       return;
     }
+
     const cell = cellRefs[editIndex];
+
     if (
       !e.isInputValue &&
       ((e.target && e.target.classList.contains('stopPropagation')) ||
@@ -545,20 +585,24 @@ function WorksheetTable(props, ref) {
     ) {
       return;
     }
+
     if (cell && _.isFunction(cell.handleTableKeyDown)) {
       cell.handleTableKeyDown(e, cache);
     }
   }
+
   function focusRow(rowIndex) {
     const contentHeight = document.querySelector(`.sheetViewTable.id-${tableId}-id .main-center`).clientHeight;
     const contentScrollTop = document.querySelector(`.sheetViewTable.id-${tableId}-id .scroll-y`).scrollTop;
     const targetRowFullVisible =
       rowIndex * rowHeight >= contentScrollTop && (rowIndex + 1) * rowHeight < contentScrollTop + contentHeight;
     const closeToBottom = rowIndex * rowHeight - contentScrollTop > contentHeight / 2;
+
     if (!targetRowFullVisible) {
       tableRef.current.setScroll(0, closeToBottom ? (rowIndex + 1) * rowHeight - contentHeight : rowIndex * rowHeight);
     }
   }
+
   function onHoverColumnChange(columnIndex) {
     if (typeof columnIndex === 'undefined') {
       emitter.emit('TRIGGER_CELL_POPUP_OPERATE_VISIBLE_' + tableId, { visible: false });
@@ -569,6 +613,7 @@ function WorksheetTable(props, ref) {
       });
     }
   }
+
   useImperativeHandle(ref, () => ({
     refs: tableRef.current,
     focusRow,
@@ -579,6 +624,7 @@ function WorksheetTable(props, ref) {
     if (!worksheetId) {
       return;
     }
+
     worksheetApi
       .getControlRules({
         type: 1,
@@ -587,7 +633,7 @@ function WorksheetTable(props, ref) {
       .then(newRules => {
         if (newRules.length) {
           onUpdateRules(newRules);
-          handleUpdateRulePermissions(
+          handleUpdateRuleState(
             getRulePermissions({
               isSubList,
               columns,
@@ -607,11 +653,14 @@ function WorksheetTable(props, ref) {
         }
       });
   }
+
   useEffect(() => {
     let tableRowCountForCache = tableRowCount;
+
     if (isSubList && _.find(data, r => r.isSubListFooter)) {
       tableRowCountForCache -= 1;
     }
+
     setCache('columnCount', cellColumnCount);
     setCache('rowCount', tableRowCountForCache);
     setCache('fixedColumnCount', fixedColumnCount);
@@ -639,6 +688,7 @@ function WorksheetTable(props, ref) {
     const propsData = props.data.filter(r => !r.isSubListFooter);
     const filteredData = data.filter(r => !r.isSubListFooter);
     let updatedRows = [];
+
     if (
       cache.prevColumns &&
       !_.isEqual(
@@ -663,14 +713,16 @@ function WorksheetTable(props, ref) {
     } else {
       props.data.forEach(row => {
         const oldRow = _.find(data, r => r.rowid === row.rowid);
+
         if (oldRow && !_.isEqual(oldRow, row)) {
           updatedRows.push(row);
         }
       });
     }
+
     setState({ data: props.data });
     if (updatedRows.length && rules.length) {
-      handleUpdateRulePermissions(
+      handleUpdateRuleState(
         getRulePermissions({
           isSubList,
           columns,
@@ -694,6 +746,7 @@ function WorksheetTable(props, ref) {
       tableType,
       direction,
       isSubList,
+      formItemId,
       isRelateRecordList,
       showColumnWidthChangeMask,
       focusCell,
@@ -715,6 +768,7 @@ function WorksheetTable(props, ref) {
                   window.enterColumnPopup = true;
                   return;
                 }
+
                 setCache('hoverColumnIndex', undefined);
                 onHoverColumnChange(undefined);
               }
@@ -724,15 +778,19 @@ function WorksheetTable(props, ref) {
           ? noop
           : e => {
               let hoverCell = e.target.closest('.cell,.cellForOperate');
+
               if (!hoverCell && e.target.previousSibling && e.target.previousSibling.classList.contains('cell')) {
                 hoverCell = e.target.previousSibling;
               }
+
               if (hoverCell) {
                 const columnIndex = hoverCell.className.match(/col-(\d+)/)?.[1];
+
                 if (columnIndex !== cache.hoverColumnIndex || window.enterColumnPopup) {
                   if (window.enterColumnPopup) {
                     window.enterColumnPopup = false;
                   }
+
                   setCache('hoverColumnIndex', columnIndex);
                   onHoverColumnChange(columnIndex);
                 }
@@ -742,6 +800,7 @@ function WorksheetTable(props, ref) {
                     window.enterColumnPopup = true;
                     return;
                   }
+
                   setCache('hoverColumnIndex', undefined);
                   onHoverColumnChange(undefined);
                 }
@@ -754,15 +813,19 @@ function WorksheetTable(props, ref) {
     if (state.rulesLoading) {
       loadRules();
     }
+
     setCache('didMount', true);
   }, []);
+  const controlStyles = showControlStyle && getControlStyles(visibleColumns);
+  const recordControlStyles = showControlStyle && getRecordControlStyles(ruleControlAdvancedSettings);
   return (
     <React.Fragment>
       {maskVisible && <DragMask value={maskLeft} min={maskMinLeft} max={maskMaxLeft} onChange={maskOnChange} />}
       <StyledFixedTable
         isGroupTableView={isGroupTableView}
         isSubList={isSubList}
-        controlStyles={showControlStyle && getControlStyles(visibleColumns)}
+        controlStyles={controlStyles}
+        recordControlStyles={recordControlStyles}
         disablePanVertical={disablePanVertical}
         noRenderEmpty={noRenderEmpty}
         loading={loading}
@@ -836,6 +899,7 @@ function WorksheetTable(props, ref) {
           lineEditable: !readonly && lineEditable,
           disableQuickEdit,
           rulePermissions,
+          showControlStyle,
           masterData,
           masterFormData,
           sheetViewHighlightRows,
@@ -864,6 +928,7 @@ function WorksheetTable(props, ref) {
             if (cellPopupContainer) {
               return cellPopupContainer;
             }
+
             return (
               document.querySelector(`.sheetViewTable.id-${tableId}-id ${isFixed ? '.main-left' : '.main-center'}`) ||
               document.body
@@ -913,15 +978,15 @@ function WorksheetTable(props, ref) {
               debounceTime: 0,
               updateSuccessCb: async newRow => {
                 if (rules.length && !_.isEqual(row[cell.controlId] || '', newRow[cell.controlId] || '')) {
-                  handleUpdateRulePermissions(
-                    getControlFieldPermissionsAfterRules(
-                      newRow,
-                      (isSubList ? columns : controls).map(c => ({
+                  handleUpdateRuleState(
+                    getRulePermissions({
+                      data: [newRow],
+                      controls: (isSubList ? columns : controls).map(c => ({
                         ...c,
                         fieldPermission: c.fieldPermission,
                       })),
                       rules,
-                    ),
+                    }),
                   );
                 }
               },
@@ -947,6 +1012,7 @@ function WorksheetTable(props, ref) {
           if (keyWords && showSearchEmpty) {
             return;
           }
+
           return (
             <NoRecords
               icon={emptyIcon}
@@ -968,4 +1034,5 @@ function WorksheetTable(props, ref) {
     </React.Fragment>
   );
 }
+
 export default autoSize(forwardRef(WorksheetTable));

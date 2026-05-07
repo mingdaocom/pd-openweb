@@ -35,7 +35,7 @@ export const DROPDOWN_APP_CONFIG = [
     text: _l('导航设置%02051'),
   },
   { type: 'editIntro', icon: 'info', text: _l('应用说明'), action: 'editAppIntroVisible' },
-  { type: 'copyId', icon: 'ID', text: _l('复制ID'), action: 'copyId' },
+  { type: 'copyId', icon: 'ID', text: _l('复制 ID'), action: 'copyId' },
   { type: 'appAnalytics', icon: 'poll', text: _l('使用分析%02049'), action: 'appAnalyticsVisible', featureId: 17 },
   { type: 'appLogs', icon: 'wysiwyg', text: _l('日志'), featureId: 31 },
   { type: 'copy', icon: 'content-copy', text: _l('复制'), action: 'copyAppVisible' },

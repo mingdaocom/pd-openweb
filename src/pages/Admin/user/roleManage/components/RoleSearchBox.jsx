@@ -44,6 +44,7 @@ export default class RoleSearchBox extends Component {
               this.ajaxObj.abort();
               this.ajaxObj = null;
             }
+
             this.handChange(e.target.value.trim());
           }}
           onFocus={this.handleFocus}

@@ -8,9 +8,9 @@ const FooterWrap = styled.div`
   align-items: center;
   width: 100%;
   height: 66px;
-  background: var(--color-background-secondary);
   padding: 0 24px;
   box-sizing: border-box;
+  background-color: var(--color-background-card) !important;
   .saveBtn {
     display: inline-block;
     padding: 0 32px;

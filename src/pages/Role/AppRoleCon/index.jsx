@@ -32,6 +32,7 @@ const getTabList = () => {
   const currentProjectId =
     localStorage.getItem('currentProjectId') || ((_.get(md, 'global.Account.projects') || [])[0] || {}).projectId;
   const FEATURE_STATUS = getFeatureStatus(currentProjectId, VersionProductType.userExtensionInformation);
+
   if (FEATURE_STATUS) {
     return conList.concat({
       url: '/others',
@@ -39,6 +40,7 @@ const getTabList = () => {
       txt: _l('扩展'),
     });
   }
+
   return conList;
 };
 
@@ -127,6 +129,7 @@ class Con extends React.Component {
   };
   renderCon = () => {
     const { tab } = this.state;
+
     switch (tab) {
       case 'roleSet':
         return <RoleCon {...this.props} tab={tab} />;
@@ -185,9 +188,11 @@ class Con extends React.Component {
     } = this.props;
     const { notify, rolesVisibleConfig } = this.state;
     const { pageLoading, appRolePagingModel } = appRole;
+
     if (pageLoading) {
       return <LoadDiv />;
     }
+
     return (
       <WrapCon className="flexColumn overflowHidden">
         {(canEditApp || canEditUser) && (

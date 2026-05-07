@@ -95,6 +95,7 @@ export default function DataCon(props) {
       </div>
     );
   };
+
   return (
     <Wrap width={props.directoryWidth} className={cx('resourceViewLeftCon', { mobileResourceViewLeftCon: isMobile })}>
       {!loading &&

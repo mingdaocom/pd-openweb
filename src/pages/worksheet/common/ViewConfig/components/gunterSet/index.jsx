@@ -45,6 +45,7 @@ export default function GunterSet(props) {
       editAttrs: ['advancedSetting'],
     });
   };
+
   useEffect(() => {
     setTimeControls(getControlsForGunter(worksheetControls));
   }, [worksheetControls]);
@@ -60,6 +61,7 @@ export default function GunterSet(props) {
           const { begindate } = obj;
           const { moreSort, displayControls } = view;
           const filterDate = [obj.begindate, obj.enddate].filter(n => n);
+
           // 第一次创建Gunter时，配置排序数据
           if (!!begindate && !moreSort) {
             let data = {};
@@ -115,6 +117,7 @@ export default function GunterSet(props) {
       <TitleControl
         {...props}
         isCard={true}
+        cancelAble={true}
         className="mTop32"
         advancedSetting={{ ..._.get(view, 'advancedSetting'), viewtitle: _.get(view, 'advancedSetting.navtitle') }}
         handleChange={value => {
@@ -204,6 +207,7 @@ export default function GunterSet(props) {
             } else {
               handleChange({ unweekday: '' });
             }
+
             setCheckedWorkDate(e);
           }}
           text={_l('只显示工作日')}
@@ -217,15 +221,18 @@ export default function GunterSet(props) {
                   className={cx('animaItem overflow_ellipsis', { active: unweekday.indexOf(n) < 0 })}
                   onClick={() => {
                     let str = unweekday;
+
                     if (unweekday.indexOf(n) >= 0) {
                       str = str.replace(n, '');
                     } else {
                       str = `${str}` + n;
                     }
+
                     if (str.length >= 7) {
                       //不能全部选中
                       return;
                     }
+
                     handleChange({ unweekday: str });
                   }}
                 >

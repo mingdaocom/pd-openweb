@@ -13,6 +13,7 @@ function Location(props, ref) {
   const isediting = props.isediting && !onlyCanAppUse;
   let { value } = cell;
   let locationData;
+
   try {
     locationData = JSON.parse(value);
   } catch (err) {
@@ -35,6 +36,7 @@ function Location(props, ref) {
           if (!isKeyBoardInputChar(e.key)) {
             return;
           }
+
           updateEditingStatus(true);
           e.stopPropagation();
           break;

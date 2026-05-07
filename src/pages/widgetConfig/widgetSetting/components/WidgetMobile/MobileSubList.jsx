@@ -24,14 +24,14 @@ const MobileSubListWrap = styled.div`
 
 const DISPLAY_OPTIONS = [
   {
-    text: _l('列表'),
+    text: _l('摘要'),
     img: 'list',
     size: 'Font32',
     value: '1',
     tips: _l('列表中仅显示设置的摘要字段，点击单条明细后查看详情'),
   },
   {
-    text: _l('平铺'),
+    text: _l('卡片'),
     img: 'tile',
     size: 'Font40',
     value: '2',

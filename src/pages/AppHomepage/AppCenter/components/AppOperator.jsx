@@ -101,6 +101,7 @@ export default ({
     if (!isGoodsStatus) {
       _.remove(list, o => o.type === 'edit');
     }
+
     if (!_.find(list, { type: 'del' })) {
       list.push(EXTERNAL_LINK_OPERATION[2]);
     }

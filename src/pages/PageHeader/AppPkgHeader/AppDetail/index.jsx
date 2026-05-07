@@ -83,7 +83,16 @@ const mapDispatchToProps = dispatch => ({
 const rowInfoReg = /\/app\/(.*)\/(.*)(\/(.*))?\/row\/(.*)|\/app\/(.*)\/newrecord\/(.*)\/(.*)/;
 const workflowDetailReg = /\/app\/(.*)\/workflowdetail\/record\/(.*)\/(.*)/;
 const checkRecordInfo = url => rowInfoReg.test(url) || workflowDetailReg.test(url);
-const appCacheList = ['icon', 'iconUrl', 'iconColor', 'navColor', 'name', 'pcNaviStyle', 'currentPcNaviStyle'];
+const appCacheList = [
+  'icon',
+  'iconUrl',
+  'iconColor',
+  'navColor',
+  'name',
+  'pcNaviStyle',
+  'currentPcNaviStyle',
+  'lightThemeModeNavColor',
+];
 
 let mousePosition = { x: 139, y: 23 };
 @connect(mapStateToProps, mapDispatchToProps)
@@ -106,7 +115,18 @@ export default class AppInfo extends Component {
     const { appId } = getIds(props);
     const openedApps = safeParse(localStorage.getItem('openedApps'), 'array');
     const isRowInfo = checkRecordInfo(props.location.pathname);
-    const appCacheData = localStorage.getItem(`appCache-${appId}`);
+    const appCacheData = window.safeParse(localStorage.getItem(`appCache-${appId}`));
+
+    if (appCacheData.navColor) {
+      if (window.themeMode === 'light' && appCacheData.lightThemeModeNavColor) {
+        appCacheData.navColor = appCacheData.lightThemeModeNavColor;
+      }
+
+      if (window.themeMode === 'dark') {
+        appCacheData.navColor = '#1b2025';
+      }
+    }
+
     this.state = {
       indexSideVisible: false,
       appConfigVisible: false,
@@ -115,7 +135,7 @@ export default class AppInfo extends Component {
       isShowAppIntroFirst: !_.includes(openedApps, appId) && !isRowInfo,
       navigationConfigVisible: false,
       copyAppVisible: false,
-      data: appCacheData ? window.safeParse(appCacheData) : {},
+      data: appCacheData,
       hasChange: false,
       noUseBackupRestore: false,
       appAnalyticsVisible: false,
@@ -138,18 +158,23 @@ export default class AppInfo extends Component {
     window.updateAppGroups = this.getData;
     const openedApps = safeParse(localStorage.getItem('openedApps'), 'array');
     const { appId } = this.ids;
+
     if (!_.includes(openedApps, appId)) {
       safeLocalStorageSetItem('openedApps', JSON.stringify(openedApps.concat(appId)));
     }
+
     emitter.addListener('CHANGE_THEME_MODE', this.handleChangeThemeMode);
+    emitter.addListener('REFRESH_APP_DETAIL', this.getData);
   }
 
   componentWillReceiveProps(nextProps) {
     this.ids = getIds(nextProps);
     const { data } = this.state;
+
     if (compareProps(nextProps.match.params, this.props.match.params, ['appId'])) {
       this.getData(nextProps);
     }
+
     if (data.id === getIds(this.props).appId) {
       const isRowInfo = checkRecordInfo(nextProps.location.pathname);
       const currentPcNaviStyle = isRowInfo ? 0 : data.pcNaviStyle;
@@ -170,6 +195,7 @@ export default class AppInfo extends Component {
       this.props.setAppStatus(appStatus);
       this.checkNavigationStyle(currentPcNaviStyle);
     }
+
     if (
       this.ids.appId === getIds(this.props).appId &&
       compareProps(nextProps.match.params, this.props.match.params, ['worksheetId'])
@@ -186,6 +212,7 @@ export default class AppInfo extends Component {
     this.props.clearAppDetail();
     emitter.removeListener('CHANGE_THEME_MODE', this.handleChangeThemeMode);
     delete window.updateAppGroups;
+    emitter.removeListener('REFRESH_APP_DETAIL', this.getData);
   }
 
   checkIsFull = worksheetId => {
@@ -207,17 +234,21 @@ export default class AppInfo extends Component {
 
   getThemeType = (iconColor = '#616161', navColor) => {
     const lightColor = generate(iconColor)[0];
+
     if ([lightColor, '#ffffff', '#f5f6f7'].includes(navColor)) {
       return 'light';
     }
+
     if ('#1b2025' === navColor) {
       return 'black';
     }
+
     return 'theme';
   };
 
   handleChangeThemeMode = value => {
     const { iconColor, lightThemeModeNavColor } = this.state.data;
+
     if (value === 'dark') {
       const navColor = '#1b2025';
       this.handleModify({
@@ -251,6 +282,7 @@ export default class AppInfo extends Component {
     emitter.emit('UPDATE_GLOBAL_STORE', 'appInfo', data);
 
     const { langInfo } = data;
+
     if (langInfo && langInfo.appLangId && langInfo.version !== window[`langVersion-${appId}`]) {
       const lang = await appManagementApi.getAppLangDetail({
         projectId: data.projectId,
@@ -260,6 +292,7 @@ export default class AppInfo extends Component {
       window[`langData-${appId}`] = lang.items;
       window[`langVersion-${appId}`] = langInfo.version;
     }
+
     if (_.isEmpty(langInfo)) {
       window[`langData-${appId}`] = undefined;
       window[`langVersion-${appId}`] = undefined;
@@ -273,12 +306,15 @@ export default class AppInfo extends Component {
     if (window.themeMode === 'dark') {
       data.navColor = '#1b2025';
     }
+
     data.themeType = this.getThemeType(data.iconColor, data.navColor);
 
     const accessPolicyStatus = localStorage.getItem('accessPolicyStatus');
+
     if (accessPolicyStatus === '300016') {
       data.appStatus = 300016;
     }
+
     this.props.setAppStatus(accessPolicyStatus === '300016' ? 300016 : data.appStatus);
     localStorage.removeItem('accessPolicyStatus');
 
@@ -320,6 +356,7 @@ export default class AppInfo extends Component {
     } else {
       document.querySelector('#wrapper').classList.remove('fullWrapper');
     }
+
     window.appInfo = data;
     this.dataCache = _.pick(data, appCacheList);
     safeLocalStorageSetItem(`appCache-${data.id}`, JSON.stringify(this.dataCache));
@@ -342,6 +379,7 @@ export default class AppInfo extends Component {
 
   handleAppIconAndNameChange = obj => {
     const isSame = this.dataCache && Object.keys(obj).every(key => obj[key] === this.dataCache[key]);
+
     if (!isSame) {
       this.updateAppDetail(obj);
     }
@@ -383,13 +421,16 @@ export default class AppInfo extends Component {
     if (obj.name === '') {
       obj = { ...obj, name: this.dataCache.name };
     }
+
     if (obj.iconColor) {
       this.props.updateColor(obj.iconColor);
     }
+
     if (obj.navColor) {
       this.props.updateNavColor(obj.navColor);
       obj.themeType = this.getThemeType(obj.iconColor, obj.navColor);
     }
+
     this.props.syncAppDetail(obj);
     this.updateData(obj);
   };
@@ -399,10 +440,12 @@ export default class AppInfo extends Component {
     const { currentPcNaviStyle } = this.state.data;
     const { location, sheet, sheetList } = this.props;
     const { appId } = getIds(this.props);
+
     if (/row|role|workflow|newrecord/.test(location.pathname)) {
       navigateTo(`/app/${appId}`);
       return;
     }
+
     const { base, views, isCharge } = sheet;
     const { data, appSectionDetail } = sheetList;
     const { worksheetId, viewId, groupId = '' } = base;
@@ -415,7 +458,9 @@ export default class AppInfo extends Component {
       navigateTo(`/app/${appId}/${groupId}/${firstSheetId}`);
       return;
     }
+
     const { viewId: firstViewId } = _.head(views) || {};
+
     if (appId && worksheetId === firstSheetId && viewId !== firstViewId) {
       navigateTo(`/app/${appId}/${groupId}/${firstSheetId}/${firstViewId}`);
     }
@@ -481,23 +526,28 @@ export default class AppInfo extends Component {
             this.setState({ editAppIntroVisible: true, isEditing: true });
             return;
           }
+
           if (_.includes(['appAnalytics', 'appLogs'], type) && getFeatureStatus(projectId, rest.featureId) === '2') {
             buriedUpgradeVersionDialog(projectId, rest.featureId);
             return;
           }
+
           if (type === 'copyId') {
             copy(appId);
             alert(_l('复制成功'), 1);
             return;
           }
+
           if (type === 'appAnalytics') {
             window.open(`/app/${appId}/analytics/${projectId}`, '__blank');
             return;
           }
+
           if (type === 'appLogs') {
             window.open(`/app/${appId}/logs/${projectId}`, '__blank');
             return;
           }
+
           if (type === 'modifyAppLockPassword') {
             unlockAppLockPassword({
               appId,
@@ -511,11 +561,13 @@ export default class AppInfo extends Component {
             });
             return;
           }
+
           // API开发文档
           if (type === 'worksheetapi') {
             window.open(`/worksheetapi/${appId}`);
             return;
           }
+
           if (type === 'appManageMenu') {
             const appManageMenuType = localStorage.getItem('appManageMenu');
             const isMarketAstrict = sourceType === 60 ? (license.licenseType ? true : isLock) : false;
@@ -622,6 +674,7 @@ export default class AppInfo extends Component {
     if ((_.find(md.global.Account.projects, o => o.projectId === projectId) || {}).cannotCreateApp) {
       _.remove(list, o => o.type === 'copy');
     }
+
     // 加锁应用不限制 修改应用名称和外观、应用说明、使用说明、日志（8.2）
     if (isLock && isPassword && canLock) {
       list = _.filter(list, it =>
@@ -630,12 +683,14 @@ export default class AppInfo extends Component {
     } else {
       list = _.filter(list, it => !_.includes(['modifyAppLockPassword'], it.type));
     }
+
     // 应用市场
     if (sourceType === 60) {
       !exported && _.remove(list, o => o.type === 'copy');
     } else {
       _.remove(list, o => o.type === 'appLicense');
     }
+
     // 应用市场，应用已过期
     if (appStatus === 20) {
       _.remove(list, o => ['modify', 'editNavigation', 'editIntro', 'appManageMenu'].includes(o.type));
@@ -651,6 +706,7 @@ export default class AppInfo extends Component {
                 location.href = ssoAddress;
                 return;
               }
+
               navigateTo('/dashboard');
             }}
           >
@@ -776,6 +832,7 @@ export default class AppInfo extends Component {
           </div>
         );
       };
+
       return (
         <div className="appInfoWrap flexColumn pLeft10 pRight10 mBottom8">
           <div className="flexRow alignItemsCenter pTop10">

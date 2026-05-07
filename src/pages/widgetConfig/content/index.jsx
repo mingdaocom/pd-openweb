@@ -36,6 +36,7 @@ export default function Content(props) {
       setVisible({ widgetVisible: false, settingVisible: false });
       return;
     }
+
     const tempInfo = safeParse(
       window.localStorage.getItem(`worksheetPanelFixed-${globalSheetInfo.worksheetId}`) || '{}',
     );
@@ -47,6 +48,7 @@ export default function Content(props) {
   useEffect(() => {
     const handleKeyDown = e => {
       const { key, metaKey, ctrlKey } = e;
+
       if (!widgetPanelFixed && (window.isMacOs ? metaKey : ctrlKey) && key === '/') {
         e.preventDefault();
         setVisible({ widgetVisible: true });
@@ -64,6 +66,7 @@ export default function Content(props) {
       if (!_.isEmpty(activeWidget) && !settingVisible && !window.lastAddWidgetsTriggerByMingo) {
         setVisible({ settingVisible: true });
       }
+
       delete window.lastAddWidgetsTriggerByMingo;
     }, 100);
   }, [activeWidget.controlId]);
@@ -78,6 +81,7 @@ export default function Content(props) {
   useEffect(() => {
     const handleKeyDown = e => {
       const { code, metaKey, ctrlKey } = e;
+
       if (!fixedInfo.widgetPanelFixed && (window.isMacOs ? metaKey : ctrlKey) && code === 'Slash') {
         setVisible({ widgetVisible: true });
       }
@@ -144,6 +148,7 @@ export default function Content(props) {
   const renderWidgetSetting = () => {
     function handleClose(target) {
       const $el = $(target);
+
       if (
         $el &&
         ($el.closest('.displayHeader').length || $el.closest('.worksheetConfigHeader').length) &&
@@ -177,6 +182,7 @@ export default function Content(props) {
         </ClickAwayable>
       );
     }
+
     return (
       <ClickAwayable
         onClickAway={handleClose}
@@ -188,6 +194,7 @@ export default function Content(props) {
           '.goback',
           '.configPageName',
           '.worksheetConfigHeader .tabs',
+          '.widgetColumnRulesDrawer',
         ]}
       >
         <WidgetSetting {...baseProps} />

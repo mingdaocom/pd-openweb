@@ -17,6 +17,7 @@ export default class KcFileMessage extends Component {
   getNodeDetail() {
     const { message } = this.props;
     const { entityid } = message.card;
+
     if (!message.kcFile) {
       kc.getNodeDetail({
         id: entityid,

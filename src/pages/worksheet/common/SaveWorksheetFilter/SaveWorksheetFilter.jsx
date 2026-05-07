@@ -43,6 +43,7 @@ export default class SaveWorksheetFilter extends Component {
             alert(_l('请输入筛选器名称'), 3);
             return;
           }
+
           onSave({ filterName, filterType });
           onClose();
         }}

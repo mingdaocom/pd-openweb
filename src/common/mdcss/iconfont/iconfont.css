@@ -1,8 +1,8 @@
 @font-face {
   font-family: "MD_Icon"; /* Project id 2032949 */
-  src: url('iconfont.woff2?t=1768298693173') format('woff2'),
-       url('iconfont.woff?t=1768298693173') format('woff'),
-       url('iconfont.ttf?t=1768298693173') format('truetype');
+  src: url('iconfont.woff2?t=1775209864095') format('woff2'),
+       url('iconfont.woff?t=1775209864095') format('woff'),
+       url('iconfont.ttf?t=1775209864095') format('truetype');
 }
 
 .MD_Icon {
@@ -11,6 +11,106 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-worksheet_export:before {
+  content: "\ed1b";
+}
+
+.icon-worksheet_import:before {
+  content: "\ed1a";
+}
+
+.icon-filePRO:before {
+  content: "\ed19";
+}
+
+.icon-group_swipe:before {
+  content: "\e6a4";
+}
+
+.icon-group_navigation:before {
+  content: "\e6a5";
+}
+
+.icon-grouping_columns:before {
+  content: "\e6a6";
+}
+
+.icon-cancel_line:before {
+  content: "\ed18";
+}
+
+.icon-cloud_printing:before {
+  content: "\e6a3";
+}
+
+.icon-a-knowledge_search:before {
+  content: "\ed17";
+}
+
+.icon-ai_app_data:before {
+  content: "\ed16";
+}
+
+.icon-oauth:before {
+  content: "\ed15";
+}
+
+.icon-web_tree:before {
+  content: "\ed13";
+}
+
+.icon-web_classic:before {
+  content: "\ed14";
+}
+
+.icon-web_card:before {
+  content: "\ed11";
+}
+
+.icon-web_group:before {
+  content: "\ed12";
+}
+
+.icon-Horizontal:before {
+  content: "\e69f";
+}
+
+.icon-App_Card1:before {
+  content: "\e68e";
+}
+
+.icon-Tree_shaped:before {
+  content: "\e68f";
+}
+
+.icon-App_Card3:before {
+  content: "\e690";
+}
+
+.icon-App_Card2:before {
+  content: "\e691";
+}
+
+.icon-Mixed:before {
+  content: "\e693";
+}
+
+.icon-Vertical:before {
+  content: "\e695";
+}
+
+.icon-Application_List:before {
+  content: "\e696";
+}
+
+.icon-Application_Bottom:before {
+  content: "\e698";
+}
+
+.icon-Application_Grid:before {
+  content: "\e699";
 }
 
 .icon-platform_admin:before {

@@ -7,20 +7,17 @@ const mobileNavList = [
   {
     name: _l('列表'),
     value: 0,
-    style: 'list',
-    activeStyle: 'list_active',
+    icon: 'Application_List',
   },
   {
     name: _l('宫格'),
     value: 1,
-    style: 'sudoku',
-    activeStyle: 'sudoku_active',
+    icon: 'Application_Bottom',
   },
   {
     name: _l('底部导航'),
     value: 2,
-    style: 'nav',
-    activeStyle: 'nav_active',
+    icon: 'Application_Grid',
   },
 ];
 
@@ -28,29 +25,25 @@ export const pcNavList = [
   {
     name: _l('经典'),
     value: 0,
-    style: 'classic',
-    activeStyle: 'classic_active',
+    icon: 'web_classic',
     defaultDisplayIcon: '011',
   },
   {
     name: _l('分组列表'),
     value: 1,
-    style: 'left_group',
-    activeStyle: 'left_group_active',
+    icon: 'web_group',
     defaultDisplayIcon: '011',
   },
   {
     name: _l('树形列表'),
     value: 3,
-    style: 'left_tree',
-    activeStyle: 'left_tree_active',
+    icon: 'web_tree',
     defaultDisplayIcon: '100',
   },
   {
     name: _l('卡片'),
     value: 2,
-    style: 'card',
-    activeStyle: 'card_active',
+    icon: 'web_card',
     defaultDisplayIcon: '011',
   },
 ];
@@ -62,15 +55,12 @@ export default function AppNavStyle(props) {
 
   const handleEditAppINfo = item => {
     const data = { [type]: item.value };
+
     if (item.defaultDisplayIcon) {
       data.displayIcon = item.defaultDisplayIcon;
     }
+
     onChangeApp(data);
-    // homeApp.editAppInfo({
-    //   projectId,
-    //   appId: id,
-    //   [type]: value
-    // }).then(res => {});
   };
 
   return (
@@ -90,7 +80,13 @@ export default function AppNavStyle(props) {
                 <Icon icon="done" />
               </div>
             )}
-            <div className={cx('navImg', type, naviStyle === item.value ? item.activeStyle : item.style)}></div>
+            <div
+              className={cx('navImg flexRow alignItemsCenter justifyContentCenter', type, {
+                activeNav: naviStyle === item.value,
+              })}
+            >
+              <Icon icon={item.icon} style={{ fontSize: 90 }} />
+            </div>
             <span className={cx({ colorPrimary: naviStyle === item.value })}>{item.name}</span>
           </div>
         ))}

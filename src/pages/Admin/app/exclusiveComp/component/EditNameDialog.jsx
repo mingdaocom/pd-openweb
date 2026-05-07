@@ -32,6 +32,7 @@ function EditNameDialog(props) {
           alert(_l('名称不能为空'), 2);
           return;
         }
+
         onOk(value);
       }}
     >

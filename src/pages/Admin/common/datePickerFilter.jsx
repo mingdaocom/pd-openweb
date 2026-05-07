@@ -8,10 +8,12 @@ export default props => {
   const { updateData, dataConfig, ...rest } = props;
   const $ref = useRef(null);
   const formatDate = date => date.format('YYYY-MM-DD');
+
   const getDateFilter = (id, pastDays) => {
     const today = formatDate(moment());
     const yesterday = formatDate(moment().subtract(1, 'day'));
     const beginOfCurrentMonth = moment().startOf('M');
+
     switch (id) {
       case 'today':
         return { startDate: today, endDate: today };
@@ -33,10 +35,12 @@ export default props => {
         };
     }
   };
+
   const handleClick = (id, pastDays) => {
     const data = getDateFilter(id, pastDays);
     updateData({ ...data, dateItem: id });
   };
+
   return (
     <DatePickerFilterWrap ref={$ref}>
       {(dataConfig || Config.DATE_FILTER).map(({ id, text, pastDays }) =>

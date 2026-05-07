@@ -11,6 +11,7 @@ let preWorksheetIds = [];
 const pageSizeForGroup = 20;
 const pageSizeForGroupKan = 50;
 const pageSize = 100;
+
 export const fetch = index => {
   return (dispatch, getState) => {
     const { base, filters, galleryview, quickFilter, navGroupFilters, controls, views = [] } = getState().sheet;
@@ -23,6 +24,7 @@ export const fetch = index => {
     } else {
       dispatch({ type: 'CHANGE_GALLERY_LOADING', loading: true });
     }
+
     const groupControlId = getGroupControlId(currentView);
     const groupControl = _.find(controls, { controlId: groupControlId });
     const args = {
@@ -39,10 +41,12 @@ export const fetch = index => {
       relationWorksheetId: _.get(currentView, 'advancedSetting.groupsetting') ? groupControl?.dataSource : '',
       langType: window.shareState.shareId ? getCurrentLangCode() : undefined,
     };
+
     if (groupControl) {
       args.kanbanIndex = 1;
       args.kanbanSize = pageSizeForGroupKan;
     }
+
     if (maxCount) {
       args.pageIndex = 1;
       args.pageSize = maxCount;
@@ -55,6 +59,7 @@ export const fetch = index => {
     ) {
       getGalleryRequest.abort();
     }
+
     preWorksheetIds.push(`${base.worksheetId}-${base.viewId}`);
     getGalleryRequest = worksheetAjax.getFilterRows(getFilledRequestParams(args));
     getGalleryRequest.then(res => {
@@ -151,6 +156,7 @@ export const updateRow = (data, groupId) => {
   return (dispatch, getState) => {
     const { galleryview } = getState().sheet;
     let { gallery } = galleryview;
+
     if (groupId) {
       dispatch({
         type: 'CHANGE_GALLERY_VIEW_DATA',
@@ -165,6 +171,7 @@ export const updateRow = (data, groupId) => {
                     if (safeParse(it).rowid === data.rowid) {
                       return JSON.stringify({ ..._.pick(safeParse(it), ['allowedit', 'allowdelete']), ...data });
                     }
+
                     return it;
                   })
                 : o.rows.concat(JSON.stringify(data)),
@@ -177,7 +184,9 @@ export const updateRow = (data, groupId) => {
       });
       return;
     }
+
     const l = gallery.find(o => o.rowid === data.rowid);
+
     if (!l) {
       dispatch({
         type: 'CHANGE_GALLERY_VIEW_DATA',
@@ -195,6 +204,7 @@ export const updateRow = (data, groupId) => {
         }),
       });
     }
+
     dispatch(getNavGroupCount());
   };
 };
@@ -204,6 +214,7 @@ export const deleteRow = (id, groupId) => {
   return (dispatch, getState) => {
     const { galleryview } = getState().sheet;
     let { gallery } = galleryview;
+
     if (groupId) {
       dispatch({
         type: 'CHANGE_GALLERY_VIEW_DATA',
@@ -217,6 +228,7 @@ export const deleteRow = (id, groupId) => {
       });
       return;
     }
+
     const l = gallery.filter(o => o.rowid !== id);
     dispatch({
       type: 'CHANGE_GALLERY_VIEW_DATA',

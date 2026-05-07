@@ -22,6 +22,13 @@ export const routerConfigs = [
     component: () => import('./components/AppGlobalVariable'),
   },
   {
+    type: 'knowledge',
+    icon: 'database',
+    text: _l('向量知识库'),
+    featureId: 55,
+    component: () => import('./components/Knowledge'),
+  },
+  {
     type: 'relationship',
     icon: 'circle_three',
     text: _l('关系图'),

@@ -173,6 +173,7 @@ Calendar.Method = {
         if ($('.fc-highlight').length > 1 || $('.fc-highlight').attr('colspan') > 1) {
           multiSelectDay = true; // 全天事件多选
         }
+
         // 判断是否是多选事件
         if ($('.fc-month-view').length > 0 && multiSelectDay) {
           // 月多选
@@ -245,6 +246,7 @@ Calendar.Method = {
                 settings.Start = date.format(); // 开始时间
                 settings.End = date.add(30, 'm').format(); // 结束时间计算
               }
+
               $.CreateCalendar(settings);
             }
 
@@ -269,6 +271,7 @@ Calendar.Method = {
         } else {
           Calendar.settings.isRangeTime[1] = +new Date();
         }
+
         Calendar.settings.lastDate = date;
         Calendar.settings.isRange++;
 
@@ -366,6 +369,7 @@ Calendar.Method = {
           ) {
             return;
           }
+
           var pointX = event.clientX;
           var pointY = event.clientY;
 
@@ -400,6 +404,7 @@ Calendar.Method = {
         $('.hoverTitleMessage,.showActiveTitleMessage').hide();
         return;
       }
+
       $('.showActiveTitleMessage,.hoverTitleMessage').hide();
       hoverTitleTimer = setTimeout(function () {
         var title = $this.find('.fc-title').html();
@@ -722,6 +727,7 @@ Calendar.Method = {
     } else if (window.localStorage.getItem('categorys') != '') {
       ctegoryIDs = 'All';
     }
+
     return ctegoryIDs;
   },
 
@@ -732,33 +738,40 @@ Calendar.Method = {
         // 红色
         return '#F44336';
       }
+
       if (rgbColor.indexOf('rgb(206, 147, 216)') >= 0) {
         // 紫色
         return '#9C27B0';
       }
+
       if (rgbColor.indexOf('rgb(188, 170, 164)') >= 0) {
         // 褐色
         return '#795548';
       }
+
       if (rgbColor.indexOf('rgb(255, 204, 128)') >= 0) {
         // 橙色
         return '#FF9800';
       }
+
       if (rgbColor.indexOf('rgb(144, 202, 249)') >= 0) {
         // 蓝色
         return '#1E88E5';
       }
+
       if (rgbColor.indexOf('rgb(165, 214, 167)') >= 0) {
         // 绿色
         return '#4CAF50';
       }
+
       if (rgbColor.indexOf('rgb(255, 245, 157)') >= 0) {
         // 黄色
         return '#FFEB3B';
       }
+
       if (rgbColor.indexOf('rgb(230, 230, 230)') >= 0) {
         // 灰色
-        return '#B4B4B4';
+        return '#DADADA';
       }
     }
   },
@@ -770,31 +783,38 @@ Calendar.Method = {
         // 红色
         return '#EF9A9A';
       }
+
       if (rgbColor.indexOf('rgb(156, 39, 176)') >= 0) {
         // 紫色
         return '#CE93D8';
       }
+
       if (rgbColor.indexOf('rgb(121, 85, 72)') >= 0) {
         // 褐色
         return '#BCAAA4';
       }
+
       if (rgbColor.indexOf('rgb(255, 152, 0)') >= 0) {
         // 橙色
         return '#FFCC80';
       }
+
       if (rgbColor.indexOf('rgb(30, 136, 229)') >= 0) {
         // 蓝色
         return '#90CAF9';
       }
+
       if (rgbColor.indexOf('rgb(76, 175, 80)') >= 0) {
         // 绿色
         return '#A5D6A7';
       }
+
       if (rgbColor.indexOf('rgb(255, 235, 59)') >= 0) {
         // 黄色
         return '#FFF59D';
       }
-      if (rgbColor.indexOf('rgb(180, 180, 180)') >= 0) {
+
+      if (rgbColor.indexOf('rgb(218, 218, 218)') >= 0) {
         // 灰色
         return '#E6E6E6';
       }
@@ -858,6 +878,7 @@ Calendar.Method = {
     if (Calendar.Method.getViewName == 'list') {
       $('#calendarList').show();
     }
+
     $('#invitedMain').hide();
 
     Calendar.settings.lastTime = $('#calendar').fullCalendar('getDate');
@@ -908,6 +929,7 @@ Calendar.Method = {
             if (parseInt(data.restCalCount, 10) == 0) {
               $('.calendarListMore').hide();
             }
+
             $('#calendarListMoreData').html(queryend);
             if (data.calendars) {
               $('#calendarList .calendarListMore').before(

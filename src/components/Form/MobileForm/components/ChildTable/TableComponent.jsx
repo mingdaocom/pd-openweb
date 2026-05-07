@@ -70,26 +70,44 @@ const TableWrap = styled(Table)`
       margin: 0 !important;
     }
   }
+  .mobileRelateRecordWrap {
+    display: block;
+    overflow: hidden;
+    word-break: break-all;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    vertical-align: top;
+  }
   /* 中等 */
   .mediumTable {
     height: 64px;
     .cell,
-    .cell .ellipsis {
+    .cell .ellipsis,
+    .mobileRelateRecordWrap {
       display: -webkit-box !important;
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
       white-space: pre-wrap;
+    }
+    .relateMultiple {
+      display: flex !important;
+      align-items: center;
     }
   }
   /* 高 */
   .heightTable {
     height: 88px;
     .cell,
-    .cell .ellipsis {
+    .cell .ellipsis,
+    .mobileRelateRecordWrap {
       display: -webkit-box !important;
       -webkit-line-clamp: 3;
       -webkit-box-orient: vertical;
       white-space: pre-wrap;
+    }
+    .relateMultiple {
+      display: flex !important;
+      align-items: center;
     }
   }
   /* 自适应 */
@@ -104,7 +122,9 @@ const TableWrap = styled(Table)`
       -webkit-box-orient: vertical;
       white-space: pre-wrap;
     }
-
+    .mobileRelateRecordWrap {
+      white-space: pre-line;
+    }
     .customFormNull {
       width: 22px;
       height: 6px;
@@ -132,6 +152,7 @@ const TableWrap = styled(Table)`
       white-space: nowrap !important;
     }
   }
+
   ${({ controlStyles }) => controlStyles || ''}
 `;
 
@@ -154,6 +175,7 @@ const Pagination = styled.div`
     }
   }
 `;
+
 function TableComponent(props) {
   const {
     disabled,
@@ -173,6 +195,7 @@ function TableComponent(props) {
     showExpand,
     rules,
     appId,
+    control,
     pagination = {},
     onSave = () => {},
     submitChildTableCheckData = () => {},
@@ -204,6 +227,7 @@ function TableComponent(props) {
     if ((type === 'prev' && pageIndex === 1) || (type === 'next' && pageIndex >= totalPage)) {
       return;
     }
+
     updatePagination({ pageIndex: type === 'prev' ? pageIndex - 1 : pageIndex + 1 });
   };
 
@@ -272,7 +296,10 @@ function TableComponent(props) {
               return (
                 <CellControl
                   isMobileTable
-                  className="cell flex ellipsis"
+                  className={cx('cell flex', {
+                    ellipsis: item.type !== 29,
+                    relateMultiple: item.type === 29 && item.enumDefault === 2,
+                  })}
                   sheetSwitchPermit={sheetSwitchPermit}
                   cell={{
                     ...item,
@@ -281,7 +308,7 @@ function TableComponent(props) {
                       item.type === 36 ? { ...getAdvanceSetting(item), showtype: '0' } : item.advancedSetting,
                   }}
                   row={record}
-                  from={item.type == 29 ? 3 : 4}
+                  from={item.type == 29 && item.enumDefault === 2 ? 3 : 4}
                   appId={appId}
                   style={
                     _.includes([29, 51], item.type)
@@ -305,7 +332,7 @@ function TableComponent(props) {
                   rowFormData={() => controls.map(c => Object.assign({}, c, { value: record[c.controlId] }))}
                   projectId={projectId}
                   worksheetId={worksheetId}
-                  canedit={item.type === 36 && controlPermission.editable}
+                  canedit={item.type === 36 && controlPermission.editable && !control.mobileCheckRuleLocked}
                   updateCell={({ value }) => {
                     if (item.type !== 36) return;
 
@@ -314,7 +341,7 @@ function TableComponent(props) {
                     if (isEdit) return;
                     clearTimeout(timer);
                     timer = setTimeout(() => {
-                      submitChildTableCheckData();
+                      submitChildTableCheckData({ isQuickUpdateCheck: true });
                     }, 500);
                   }}
                 />

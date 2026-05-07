@@ -54,6 +54,7 @@ function GetHelp(props) {
       res && setOwner(res);
       setLoading(false);
     }
+
     setTimeout(() => {
       textareaRef?.current?.focus();
     }, 100);

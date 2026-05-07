@@ -80,7 +80,7 @@ export const HomePageWrap = styled.div`
       .blueBtn {
         padding: 6px 21px;
         font-size: 14px;
-        color: var(--color-white);
+        color: var(--color-white) !important;
         border-radius: 16px;
         background: var(--color-primary);
         cursor: pointer;

@@ -198,6 +198,7 @@ function FilterContent(props) {
           // worksheetId={ids.worksheetId}
           projectId={apk.projectId}
           enableBtn={filtersGroup.enableBtn}
+          advancedSetting={filtersGroup.advancedSetting}
           filters={filters.filter(
             c => c.control && !(window.shareState.shareId && _.includes([26, 27, 48], c.control.type)),
           )}

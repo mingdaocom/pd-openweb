@@ -30,9 +30,7 @@ const AddWorkflowDialogContentWrap = styled.div`
   display: flex;
   flex-direction: column;
   min-height: 0;
-  .Grey_21 {
-    color: var(--color-white);
-  }
+
   .selectItem {
     width: 100%;
     height: 48px;
@@ -95,7 +93,6 @@ const AddWorkflowDialogContentWrap = styled.div`
   .workflowListWrap .listItem .columnName {
     display: flex;
     align-items: center;
-    color: var(--color-white);
     .workflowInfoWrap {
       align-items: center;
       width: 100%;
@@ -106,7 +103,6 @@ const AddWorkflowDialogContentWrap = styled.div`
         justify-content: center;
         align-items: center;
         .icon {
-          color: var(--color-white);
           font-size: 24px;
         }
       }
@@ -194,7 +190,6 @@ const CheckedWorkflowWrap = styled.div`
       justify-content: center;
       width: 36px;
       .icon {
-        color: var(--color-white);
         font-size: 24px;
       }
     }
@@ -501,10 +496,12 @@ function AddWorkflowDialog(props) {
         okText={value.length === 0 ? _l('添加') : _l('添加(%0)', value.length)}
         onOk={() => {
           let _value = value;
+
           if (_value.length === 0) {
             alert(_l('未选择工作流'), 3);
             return;
           }
+
           addWorkflow(_value);
         }}
         onCancel={() => {
@@ -513,7 +510,7 @@ function AddWorkflowDialog(props) {
         }}
       >
         <AddWorkflowDialogContentWrap>
-          <div className="mTop8 bold Grey_21">{_l('选择应用')}</div>
+          <div className="mTop8 bold">{_l('选择应用')}</div>
           <Select
             className="selectItem mTop16 mBottom32"
             size="large"
@@ -613,6 +610,7 @@ function AddWorkflowDialog(props) {
                   text={null}
                   onClick={checkd => {
                     let ids = [];
+
                     if (checkd) {
                       ids = workflowList
                         .filter(
@@ -621,6 +619,7 @@ function AddWorkflowDialog(props) {
                         )
                         .map(l => l.id);
                     }
+
                     setValue(ids);
                   }}
                 />

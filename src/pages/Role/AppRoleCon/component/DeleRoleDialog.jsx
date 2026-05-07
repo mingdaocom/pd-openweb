@@ -96,10 +96,12 @@ export default class extends React.PureComponent {
   handleMoveUser = () => {
     const { selectedRole, deleteType } = this.state;
     const { roleList, onOk } = this.props;
+
     if (deleteType === DELETE_TYPES.MOVE && !selectedRole) {
       alert('请选择要移动到的角色');
       return;
     }
+
     const firstRole = (roleList && roleList.length && roleList[0].roleId) || '';
     return onOk(deleteType === DELETE_TYPES.MOVE ? selectedRole || firstRole : '');
   };

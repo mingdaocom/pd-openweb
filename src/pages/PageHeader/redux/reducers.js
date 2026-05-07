@@ -11,6 +11,7 @@ const defaultState = { iconColor: '#1677ff', projectId: '', appGroups: [], appSt
 
 export default function appDetailState(state = defaultState, action) {
   const { type, iconColor, navColor, detail, appGroups = [], status = 0 } = action;
+
   switch (type) {
     case SYNC_APP_DETAIL:
       return { ...state, ...detail };

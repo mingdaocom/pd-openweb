@@ -23,6 +23,7 @@ const checkFuncs = {
     const { global = {} } = md;
     const { SysSettings = {} } = global;
     const { passwordRegexTip } = SysSettings;
+
     if (!(pwd && RegExpValidator.isPasswordValid(pwd))) {
       return passwordRegexTip || _l('密码，至少8-20位，且含字母+数字');
     }
@@ -75,16 +76,20 @@ export default class InitBindAccountDialog extends Component {
   handleFieldBlur(field) {
     return e => {
       let value;
+
       if (typeof e !== 'undefined') {
         value = field === 'account' ? [this.mobile, this.iti] : e.target.value;
       } else {
         value = field === 'account' ? [this.mobile, this.iti] : this.state[field];
       }
+
       const errorMsg = this.state.errorMsg || {};
       const checkResult = checkFuncs[field](value);
+
       if (checkResult) {
         errorMsg[field] = checkResult;
       }
+
       this.setState({ errorMsg });
     };
   }
@@ -126,6 +131,7 @@ export default class InitBindAccountDialog extends Component {
                 } else if (data === 8) {
                   alert(_l('验证码错误'), 3);
                 }
+
                 if (data === 12) {
                   alert(_l('此手机号已被其它账号绑定'), 2);
                   _this.mobile.focus();
@@ -146,9 +152,11 @@ export default class InitBindAccountDialog extends Component {
 
   countdown = () => {
     const _this = this;
+
     if (verifyCodeTimer) {
       clearInterval(verifyCodeTimer);
     }
+
     let verifyCodeTimer = setInterval(function () {
       if (_this.state.seconds <= 0) {
         _this.setState({ isSendVerify: false });
@@ -180,6 +188,7 @@ export default class InitBindAccountDialog extends Component {
       } else if (data === 0) {
         alert(_l('操作失败'), 2);
       }
+
       this.setState({ loading: false });
     });
   }

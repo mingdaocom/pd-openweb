@@ -16,8 +16,8 @@ const Wrap = styled.div`
 `;
 
 const RangeBox = styled.div`
-  background: var(--color-background-primary) 0% 0% no-repeat padding-box;
-  box-shadow: 0px 12px 24px #0000003d;
+  background: var(--color-background-card) 0% 0% no-repeat padding-box;
+  box-shadow: var(--shadow-lg);
   box-sizing: border-box;
   line-height: 1;
   font-size: 14px;
@@ -95,6 +95,7 @@ export default function FilterViewRange(props) {
           alert('至少选中一个视图！', 3);
           return;
         }
+
         setShowRange(showRange);
       }}
       popupStyle={{ width: ref && ref.current ? ref.current.clientWidth : 'auto' }}

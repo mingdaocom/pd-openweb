@@ -90,6 +90,7 @@ export function ShowFormatDialog(props) {
       if (value === tempValue) return 2;
       return 0;
     }
+
     return 0;
   };
 
@@ -195,6 +196,7 @@ export function ShowFormat(props) {
             if (value) {
               onChange(handleAdvancedSettingChange(data, { showformat: value }));
             }
+
             setVisible(false);
           }}
         />
@@ -231,6 +233,7 @@ function StartEndTime(props) {
   const handleValueChange = (value, mode) => {
     onChange(handleAdvancedSettingChange(data, { [mode]: JSON.stringify(value) }));
   };
+
   return (
     <TimeDynamicWrap>
       <div className={cx('labelWrap mTop8', { mBottom8: min })}>
@@ -313,6 +316,7 @@ export default function DateConfig(props) {
       </Fragment>
     );
   }
+
   if (type === 16) {
     return (
       <Fragment>

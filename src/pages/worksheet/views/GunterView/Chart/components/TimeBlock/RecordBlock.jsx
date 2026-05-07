@@ -22,34 +22,42 @@ const getAssignWorkDays = (value, time, dayOff) => {
   const result = [];
   const target = Math.abs(value);
   let count = value >= 0 ? 1 : -1;
+
   while (result.length !== target) {
     const date = moment(time).add(count, 'd');
     const day = date.day();
+
     if (value >= 0) {
       count = count + 1;
     } else {
       count = count - 1;
     }
+
     if (!dayOff.includes(day)) {
       result.push(date.format('YYYY-MM-DD'));
     }
   }
+
   return result;
 };
 
 const getNextWorkStartTime = (time, dayOff) => {
   let current = moment(time);
+
   while (dayOff.includes(current.day())) {
     current = current.add(1, 'd');
   }
+
   return current.format('YYYY-MM-DD');
 };
 
 const getLastWorkEndTime = (time, dayOff) => {
   let current = moment(time);
+
   while (dayOff.includes(current.day())) {
     current = current.add(-1, 'd');
   }
+
   return current.format('YYYY-MM-DD');
 };
 
@@ -81,6 +89,7 @@ export default class RowBlock extends Component {
     if (!_.isEqual(nextProps.style, this.props.style)) {
       this.$ref.current.style.transform = null;
     }
+
     if (nextProps.row.resetTime !== this.props.row.resetTime) {
       this.$ref.current.style.transform = null;
       this.$ref.current.style.left = `${nextProps.row.left}px`;
@@ -91,36 +100,45 @@ export default class RowBlock extends Component {
     const { left, right } = this.gunterChartWrapperEl.getBoundingClientRect();
     const { chartScroll, viewConfig, row } = this.props;
     const diff = 30;
+
     if (x < left + diff) {
       if (!this.isScroll) {
         this.isScroll = true;
         this.timer = setInterval(() => {
           const { dragStartTime, dragEndTime } = this.state;
+
           if (!dragStartTime || !dragEndTime) {
             this.handleChange(changValue);
           }
+
           this.handleAutoUpdateTime(-1);
           chartScroll.scrollTo(chartScroll.x + viewConfig.minDayWidth, 0);
           chartScroll._execEvent('scroll');
         }, 200);
       }
+
       return;
     }
+
     if (x > right - diff) {
       if (!this.isScroll) {
         this.isScroll = true;
         this.timer = setInterval(() => {
           const { dragStartTime, dragEndTime } = this.state;
+
           if (!dragStartTime || !dragEndTime) {
             this.handleChange(changValue);
           }
+
           this.handleAutoUpdateTime(1);
           chartScroll.scrollTo(chartScroll.x - viewConfig.minDayWidth, 0);
           chartScroll._execEvent('scroll');
         }, 200);
       }
+
       return;
     }
+
     if (this.isScroll) {
       row.dragStartTime = null;
       row.dragEndTime = null;
@@ -156,6 +174,7 @@ export default class RowBlock extends Component {
     const { minDayWidth, onlyWorkDay, periodType, startType, endType, startFormat, endFormat, dayOff } = viewConfig;
     const day = parseInt(value / minDayWidth);
     const isHours = startType === 16 && endType === 16 && periodType === PERIOD_TYPE.day;
+
     if (onlyWorkDay) {
       const isStartDayOff = dayOff.includes(moment(row.startTime).days());
       const isEndDayOff = dayOff.includes(moment(row.endTime).days());
@@ -165,6 +184,7 @@ export default class RowBlock extends Component {
       const ends = getAssignWorkDays(day, getLastWorkEndTime(row.endTime, dayOff), dayOff);
       let startTime = starts[starts.length - 1];
       let endTime = ends[ends.length - 1];
+
       if (isHours) {
         const startIsZero = !moment(row.startTime).minute() && !moment(row.startTime).hour();
         const startIsDayOff = dayOff.includes(moment(row.startTime).days());
@@ -214,10 +234,12 @@ export default class RowBlock extends Component {
           const [, hour] = row.startTime.split(' ');
           startTime = `${startTime} ${hour}`;
         }
+
         if (isEndHour && !isEndDayOff) {
           const [, hour] = row.endTime.split(' ');
           endTime = `${endTime} ${hour}`;
         }
+
         return [startTime, endTime];
       } else {
         return [startTime, endTime];
@@ -246,6 +268,7 @@ export default class RowBlock extends Component {
   getStartTime(value) {
     const { row, viewConfig } = this.props;
     const { minDayWidth, onlyWorkDay, periodType, startType, startFormat, dayOff } = viewConfig;
+
     if (startType === 16 && periodType === PERIOD_TYPE.day) {
       if (onlyWorkDay) {
         const startIsZero = !moment(row.startTime).minute() && !moment(row.startTime).hour();
@@ -276,7 +299,9 @@ export default class RowBlock extends Component {
         return [startTime, null];
       }
     }
+
     const day = parseInt(value / minDayWidth);
+
     if (onlyWorkDay) {
       const starts = getAssignWorkDays(day, getNextWorkStartTime(row.startTime, dayOff), dayOff);
       const startTime = starts[starts.length - 1];
@@ -293,8 +318,10 @@ export default class RowBlock extends Component {
   getEndTime(value) {
     const { row, viewConfig } = this.props;
     const { minDayWidth, onlyWorkDay, periodType, endType, endFormat, dayOff } = viewConfig;
+
     if (endType === 16 && periodType === PERIOD_TYPE.day) {
       const endIsZero = !moment(row.endTime).minute() && !moment(row.endTime).hour();
+
       if (onlyWorkDay) {
         const endIsDayOff = dayOff.includes(moment(row.endTime).days());
         const endHoursWidth = endIsZero ? minDayWidth : timeToPercentage(row.endTime, minDayWidth);
@@ -325,7 +352,9 @@ export default class RowBlock extends Component {
         return [null, endTime];
       }
     }
+
     const day = parseInt(value / minDayWidth);
+
     if (onlyWorkDay) {
       const ends = getAssignWorkDays(day, getLastWorkEndTime(row.endTime, dayOff), dayOff);
       const endTime = ends[ends.length - 1];
@@ -343,9 +372,11 @@ export default class RowBlock extends Component {
   }
   getIsSurpassBoundary(x) {
     const { left, right } = this.gunterChartWrapperEl.getBoundingClientRect();
+
     if (x > right || x < left) {
       return true;
     }
+
     return false;
   }
   handleMouseDown = event => {
@@ -359,6 +390,7 @@ export default class RowBlock extends Component {
     let changValue = null;
     let { left } = $(this.$ref.current).position();
     let x = event.clientX - left;
+
     document.onmousemove = event => {
       if (this.getIsSurpassBoundary(event.clientX)) return;
       if (this.isScroll) {
@@ -380,6 +412,7 @@ export default class RowBlock extends Component {
       }
       // this.openScroll(event.clientX, changValue);
     };
+
     document.onmouseup = () => {
       // this.closeScroll();
       changValue && this.handleChange(changValue);
@@ -398,13 +431,16 @@ export default class RowBlock extends Component {
     const isHours = startType === 16 && periodType === PERIOD_TYPE.day;
     const x = event.clientX;
     let changValue = null;
+
     document.onmousemove = event => {
       const originalLeft = event.clientX - (x - left);
       const newLeft = isHours ? originalLeft : this.formatRemainder(originalLeft);
       const newWidth = width + (x - event.clientX) + (originalLeft - newLeft);
+
       if (newWidth < (isHours ? 5 : minDayWidth)) {
         return;
       }
+
       changValue = newLeft - left;
       const { left: refLeft } = this.$ref.current.getBoundingClientRect();
       const [start, end] = this.getStartTime(changValue);
@@ -417,6 +453,7 @@ export default class RowBlock extends Component {
       this.$ref.current.style.width = `${newWidth}px`;
       this.$ref.current.style.left = `${newLeft}px`;
     };
+
     document.onmouseup = () => {
       changValue && this.handleChangeStart(changValue);
       this.setState({ tooltipVisible: false, currentChangeStartTime: null, currentChangeEndTime: null });
@@ -434,12 +471,15 @@ export default class RowBlock extends Component {
     const isHours = endType === 16 && periodType === PERIOD_TYPE.day;
     const { width } = this.props.style;
     let changValue = null;
+
     document.onmousemove = event => {
       const originalLeft = event.clientX - x + width;
       const newWidth = isHours ? originalLeft : this.formatRemainder(originalLeft);
+
       if (newWidth < (isHours ? 5 : minDayWidth)) {
         return;
       }
+
       changValue = newWidth - width;
       const { left } = this.$ref.current.getBoundingClientRect();
       const [start, end] = this.getEndTime(changValue);
@@ -451,6 +491,7 @@ export default class RowBlock extends Component {
       });
       this.$ref.current.style.width = `${newWidth}px`;
     };
+
     document.onmouseup = () => {
       changValue && this.handleChangeEnd(changValue);
       this.setState({ tooltipVisible: false, currentChangeStartTime: null, currentChangeEndTime: null });
@@ -478,6 +519,7 @@ export default class RowBlock extends Component {
       worksheetInfo,
       views,
       removeRecord = () => {},
+      buttonsCheckStatus,
     } = this.props;
     const newRow = {
       ...row,
@@ -502,6 +544,7 @@ export default class RowBlock extends Component {
       view.controlsSorts || [],
     );
     let coverUrl;
+
     try {
       coverUrl = safeParse(cover, 'array')[0] ? safeParse(cover, 'array')[0].previewUrl : '';
     } catch (err) {
@@ -552,6 +595,7 @@ export default class RowBlock extends Component {
           const index = _.findIndex(rows, { rowid: row.rowid });
           this.props.addNewRecord(data, index + 1);
         }}
+        buttonsCheckStatus={buttonsCheckStatus}
       />
     );
   }

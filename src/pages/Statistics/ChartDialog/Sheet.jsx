@@ -90,15 +90,18 @@ export default class ChartSheet extends Component {
   }
   componentDidMount() {
     const { loading } = this.props;
+
     if (!loading) {
       this.getTableData(this.props);
     }
   }
   getTableData(props) {
     const { base, getTableData } = props;
+
     if (this.isRequestTableData) {
       getTableData();
     }
+
     this.setState({
       reutrnVisible: base.match ? false : true,
     });
@@ -113,7 +116,7 @@ export default class ChartSheet extends Component {
       return yaxisList[0].controlName;
     }
 
-    const { match } = base;
+    const match = base.match || {};
     const { lines = [], columns = [], valueMap = {} } = isPivotTable ? reportData : tableData;
     const linesNames = lines
       .map(item => {
@@ -150,6 +153,7 @@ export default class ChartSheet extends Component {
   renderHeaderName() {
     const { base, currentReport } = this.props;
     const beforeVisible = ![reportTypes.PivotTable, reportTypes.NumberChart].includes(currentReport.reportType);
+
     if (base.reportSingleCacheId) {
       const title = this.getTitle();
       return (

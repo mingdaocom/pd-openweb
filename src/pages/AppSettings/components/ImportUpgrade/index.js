@@ -70,6 +70,7 @@ export default class AppImportUpgrade extends Component {
       buriedUpgradeVersionDialog(projectId, VersionProductType.appBackupRestore);
       return;
     }
+
     this.setState({ showUpgradeProcess: true });
   };
   render() {

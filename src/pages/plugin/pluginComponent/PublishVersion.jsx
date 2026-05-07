@@ -93,6 +93,7 @@ export default function PublishVersion(props) {
     if (!fetchState.loading) {
       return;
     }
+
     pluginApi
       .getCommitHistory({ id: pluginId, pageSize: 50, pageIndex: fetchState.pageIndex, source }, API_EXTENDS)
       .then(res => {
@@ -108,6 +109,7 @@ export default function PublishVersion(props) {
       setFormData({ [objName]: '' });
       return;
     }
+
     setFormData({ [objName]: isNaN(parseInt(value)) ? 0 : parseInt(value) });
   };
 
@@ -121,6 +123,7 @@ export default function PublishVersion(props) {
         return newParts[i] > oldParts[i];
       }
     }
+
     return false; // 版本号相同
   };
 
@@ -129,6 +132,7 @@ export default function PublishVersion(props) {
       alert(_l('请选择一个已提交的代码'), 3);
       return;
     }
+
     if (_.includes([formData.v1, formData.v2, formData.v3], '')) {
       alert(_l('请正确填写版本号'), 3);
       return;
@@ -136,6 +140,7 @@ export default function PublishVersion(props) {
 
     if (latestVersion) {
       const newVersion = [formData.v1, formData.v2, formData.v3].join('.');
+
       if (!compareVersion(newVersion, latestVersion)) {
         alert(_l(`版本号必须大于${latestVersion}`), 3);
         return;
@@ -146,10 +151,12 @@ export default function PublishVersion(props) {
       alert(_l('发布说明不能为空'), 3);
       return;
     }
+
     if (formData.description.length > 150) {
       alert(_l('发布说明最多150个字符'), 3);
       return;
     }
+
     if (
       !isWorkflowPlugin &&
       !!formData.configuration.replace(/\s/g, '') &&

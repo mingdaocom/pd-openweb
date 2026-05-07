@@ -89,6 +89,7 @@ export default function ExportRecords({ projectId, type }) {
                 [`show_${passwordType}`]: true,
               };
             }
+
             return item;
           }),
         }));
@@ -113,6 +114,7 @@ export default function ExportRecords({ projectId, type }) {
                 [`show_${passwordType}`]: !showPassword,
               };
             }
+
             return item;
           }),
         }));

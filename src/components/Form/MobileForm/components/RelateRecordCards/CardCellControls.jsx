@@ -119,6 +119,7 @@ export default function CardCellControls(props) {
     isCharge,
     sheetSwitchPermit,
     appId,
+    isMobileTable,
   } = props;
 
   return (
@@ -152,6 +153,7 @@ export default function CardCellControls(props) {
             >
               {isNotEmpty ? (
                 <CellControl
+                  isMobileTable={isMobileTable}
                   cell={Object.assign({}, control, { value: data[control.controlId] })}
                   row={data}
                   worksheetId={worksheetId}

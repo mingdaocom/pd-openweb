@@ -124,7 +124,7 @@ export default class File extends Component {
         </div>
 
         <div className="mTop20 bold">{_l('打印对象')}</div>
-        <div className="textSecondary mTop5">{_l('当前流程中的节点对象')}</div>
+        <div className="Font13 textSecondary mTop5">{_l('当前流程中的节点对象')}</div>
 
         <SelectNodeObject
           appList={data.flowNodeList}
@@ -134,7 +134,7 @@ export default class File extends Component {
         />
 
         <div className="mTop20 bold">{_l('打印模板')}</div>
-        <div className="textSecondary mTop5">
+        <div className="Font13 textSecondary mTop5">
           {_l('仅支持选择自定义打印模板（Word 或 Excel），暂不支持使用系统模板')}
         </div>
         <Dropdown
@@ -143,7 +143,7 @@ export default class File extends Component {
           value={data.appId}
           renderTitle={
             !data.appId
-              ? () => <span className="textSecondary">{_l('请选择')}</span>
+              ? () => <span className="textPlaceholder">{_l('请选择')}</span>
               : data.appId && !selectAppItem
                 ? () => <span className="errorColor">{_l('模板已删除')}</span>
                 : () => <span>{selectAppItem.text}</span>
@@ -155,7 +155,7 @@ export default class File extends Component {
         />
 
         <div className="mTop20 bold">{_l('文件名')}</div>
-        <div className="textSecondary mTop5">
+        <div className="Font13 textSecondary mTop5">
           {_l('系统默认使用记录标题作为文件名，自定义名称时不得包含英文字符/:*?"<>|')}
         </div>
         <CustomTextarea

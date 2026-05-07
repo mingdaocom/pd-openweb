@@ -7,15 +7,19 @@ import { supportTabKeyDown } from '../core/utils';
 // rememberText 该文本控制是否能作为tab标记开始控件
 const isTextInput = (data = {}, rememberText = false) => {
   let textTypes = [2, 3, 4, 5, 6, 7, 8, 11, 15, 16, 24, 41, 46];
+
   if (!rememberText) {
     textTypes = textTypes.filter(type => !_.includes([15, 16, 46], type));
   }
+
   if (_.includes(textTypes, data.type)) {
     return true;
   }
+
   if (data.type === 10 && _.get(data, 'advancedSetting.checktype') === '1') {
     return true;
   }
+
   return false;
 };
 
@@ -58,11 +62,13 @@ class WidgetEventManager {
     if (instanceId) {
       // 清理包含特定instanceId的controlId
       const keysToDelete = [];
+
       for (const [controlId] of this.subscribers) {
         if (controlId.includes(instanceId)) {
           keysToDelete.push(controlId);
         }
       }
+
       keysToDelete.forEach(key => this.subscribers.delete(key));
     } else {
       // 如果没有传入instanceId，清理所有订阅
@@ -143,6 +149,7 @@ export class WidgetEventHelper {
       this.unsubscribe();
       this.unsubscribe = null;
     }
+
     this.callback = null;
   }
 
@@ -154,6 +161,7 @@ export class WidgetEventHelper {
     if (!this.controlId) {
       return;
     }
+
     widgetEventManager.publish(this.controlId, data);
   }
 
@@ -183,49 +191,29 @@ export const useFormEventManager = ({ containerRef, stateRef, from, disabledTabs
     return id;
   }, []);
 
-  // Tab事件处理
-  const handleTabChange = useCallback(event => {
-    const renderData = _.get(stateRef, 'current.renderData') || [];
-    if (!containerRef.current || !renderData.length) return;
-    // 不是当前页面的事件不响应
-    if (_.last(window.FormActiveTabId || []) !== instanceId) return;
-    // 已经进入子表tab事件，不处理
-    if (window.activeTableId || disabledTabs) return;
-
-    if (_.includes(['Enter', 'ArrowRight', 'ArrowLeft'], event.key) && _.get(tabFocusArrRef, 'current.0')) {
-      widgetEventManager.publish(tabFocusArrRef.current[0], {
-        triggerType: event.key,
-        originalEvent: event,
-      });
-    } else if (event.key === 'Tab') {
-      event.preventDefault();
-      // 获取当前表单页面已渲染的控件key
+  // 从当前控件移到下一个支持 Tab 的控件（子表最后一格 Tab 退出时复用）
+  const moveToNextFormItem = useCallback(
+    (currentTabFocusId, originalEvent) => {
+      const renderData = _.get(stateRef, 'current.renderData') || [];
+      if (!containerRef.current || !renderData.length) return;
       const allElements = containerRef.current.querySelectorAll('.customFormItem');
       const allElementKeys = [...allElements]
         .filter(i => !i.querySelector('.customFormNull'))
         .map(i => i.getAttribute('data-instance-id'));
-
-      if (allElementKeys.length === 0) {
-        return;
-      }
-
-      const currentTabFocusId = tabFocusArrRef.current[0] || tabFocusArrRef.current[1] || '';
+      if (allElementKeys.length === 0) return;
       const currentIndex = currentTabFocusId ? allElementKeys.indexOf(currentTabFocusId) : -1;
-      // 没有tab记录，或当前切换到最后一个，自动进入第一个
       let nextIndex = currentIndex === -1 || currentIndex === allElementKeys.length - 1 ? 0 : currentIndex + 1;
-
-      // 循环查找支持Tab键的控件，添加最大循环次数防止无限循环
       let loopCount = 0;
+
       while (loopCount < allElementKeys.length) {
         const id = allElementKeys[nextIndex].split('~')[1];
         const controlData = _.find(renderData, { controlId: id });
 
         if (supportTabKeyDown(controlData, from, disabledChildTableCheck)) {
-          // 离开当前控件
           if (currentTabFocusId) {
             widgetEventManager.publish(currentTabFocusId, {
               triggerType: 'trigger_tab_leave',
-              originalEvent: event,
+              originalEvent,
             });
           }
 
@@ -234,10 +222,9 @@ export const useFormEventManager = ({ containerRef, stateRef, from, disabledTabs
             break;
           }
 
-          // 进入下一个控件
           widgetEventManager.publish(allElementKeys[nextIndex], {
             triggerType: 'trigger_tab_enter',
-            originalEvent: event,
+            originalEvent,
           });
           setTabFocusArr([allElementKeys[nextIndex], currentTabFocusId]);
           break;
@@ -246,20 +233,57 @@ export const useFormEventManager = ({ containerRef, stateRef, from, disabledTabs
           loopCount++;
         }
       }
-    } else {
-      // 通过tab激活或者直接点击激活的控件，其他快捷操作引起的清除
-      if (
-        _.includes(['Escape'], event.key) ||
-        ((window.isMacOs ? event.metaKey : event.ctrlKey) && ['s', 'S'].includes(event.key)) ||
-        ((window.isMacOs ? event.metaKey : event.ctrlKey) && event.shiftKey && event.key === 'Enter')
-      ) {
-        publishTabFocusLeave();
+    },
+    [from, disabledChildTableCheck],
+  );
+
+  // Tab事件处理
+  const handleTabChange = useCallback(
+    event => {
+      const renderData = _.get(stateRef, 'current.renderData') || [];
+      if (!containerRef.current || !renderData.length) return;
+      if (_.last(window.FormActiveTabId || []) !== instanceId) return;
+      if (window.activeTableId || disabledTabs) return;
+
+      if (_.includes(['Enter', 'ArrowRight', 'ArrowLeft'], event.key) && _.get(tabFocusArrRef, 'current.0')) {
+        widgetEventManager.publish(tabFocusArrRef.current[0], {
+          triggerType: event.key,
+          originalEvent: event,
+        });
+      } else if (event.key === 'Tab') {
+        event.preventDefault();
+        const currentTabFocusId = tabFocusArrRef.current[0] || tabFocusArrRef.current[1] || '';
+        moveToNextFormItem(currentTabFocusId, event);
+      } else {
+        // 通过tab激活或者直接点击激活的控件，其他快捷操作引起的清除
+        if (
+          _.includes(['Escape'], event.key) ||
+          ((window.isMacOs ? event.metaKey : event.ctrlKey) && ['s', 'S'].includes(event.key)) ||
+          ((window.isMacOs ? event.metaKey : event.ctrlKey) && event.shiftKey && event.key === 'Enter')
+        ) {
+          publishTabFocusLeave();
+        }
       }
-    }
-  }, []);
+    },
+    [moveToNextFormItem],
+  );
+
+  // 子表最后一格 Tab 时请求退出到外层 Tab：执行移至下一个表单控件
+  useEffect(() => {
+    const handler = e => {
+      const { formItemId: fromFormItemId } = e.detail || {};
+      if (!fromFormItemId || tabFocusArrRef.current[0] !== fromFormItemId) return;
+      if (_.last(window.FormActiveTabId || []) !== instanceId) return;
+      moveToNextFormItem(fromFormItemId, null);
+    };
+
+    window.addEventListener('form-request-tab-to-next', handler);
+    return () => window.removeEventListener('form-request-tab-to-next', handler);
+  }, [instanceId, moveToNextFormItem]);
 
   const publishTabFocusLeave = useCallback(() => {
     const activeTabFocusId = tabFocusArrRef.current[0] || tabFocusArrRef.current[1];
+
     if (activeTabFocusId) {
       widgetEventManager.publish(activeTabFocusId, {
         triggerType: 'trigger_tab_leave',
@@ -322,6 +346,7 @@ export const useFormEventManager = ({ containerRef, stateRef, from, disabledTabs
       ) {
         return;
       }
+
       publishTabFocusLeave();
     }
   }, []);
@@ -332,6 +357,7 @@ export const useFormEventManager = ({ containerRef, stateRef, from, disabledTabs
     if (tabFocusArr[0]) {
       if (containerRef.current) {
         const element = containerRef.current.querySelector(`[data-instance-id="${tabFocusArr[0]}"]`);
+
         if (element) {
           element.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }

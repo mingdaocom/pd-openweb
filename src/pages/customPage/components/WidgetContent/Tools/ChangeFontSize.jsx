@@ -38,12 +38,15 @@ export default props => {
             }}
             onBlur={() => {
               let value = fontSize;
+
               if (value <= 12) {
                 value = 12;
               }
+
               if (value >= 28) {
                 value = 28;
               }
+
               setFontSize(value);
               handleToolClick(type, {
                 config: {

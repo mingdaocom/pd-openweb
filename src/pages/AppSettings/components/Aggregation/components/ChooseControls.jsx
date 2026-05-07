@@ -52,7 +52,7 @@ const Wrap = styled.div`
       background: var(--color-background-hover);
     }
     &.hs {
-      background: var(--color-background-secondary);
+      background: var(--color-background-hover);
       color: var(--color-primary);
     }
     &.disable {
@@ -116,9 +116,11 @@ function ChooseControl(props) {
             controlsByKey.map(o => {
               const isFull =
                 o.isFull || ([29, 34, 35].includes(o.type) && !canChooseForParent(props.flowData, o.dataSource));
+
               const isValidName = name => {
-                return /^[^`~!@#$%^&*()\-+=<>?:"{}|,./;'[\]·！￥…（）—《》？：“”【】、；‘，。\s\\]+$/.test(name);
+                return /^(?!.*@@)[^`]+$/.test(name);
               };
+
               const disable = o.disableChoose || o.isLimit || isFull || !isValidName(o.controlName);
               const hs = controlId === o.controlId;
               return (
@@ -133,14 +135,17 @@ function ChooseControl(props) {
                       sourceIsMax(_.get(props, 'flowData.projectId'));
                       return;
                     }
+
                     if (disable) {
                       return;
                     }
+
                     if ([29, 34, 35].includes(o.type) && !parentName) {
                       //关联记录、级连选择、子表 (一级)只支持选下集
                       showNext(o.controlId);
                       return;
                     }
+
                     onChange(o);
                   }}
                 >
@@ -166,6 +171,7 @@ function ChooseControl(props) {
                         if (disable) {
                           return;
                         }
+
                         e.stopPropagation();
                         showNext(o.controlId);
                       }}
@@ -179,6 +185,7 @@ function ChooseControl(props) {
       </React.Fragment>
     );
   };
+
   return <Wrap className="flexColumn">{renderDrop()}</Wrap>;
 }
 
@@ -230,6 +237,7 @@ export default function ChooseControls(props) {
               const parent = controls.find(o => o.controlId === controlId) || {};
               const isFull =
                 [29, 34, 35].includes(parent.type) && !canChooseForParent(props.flowData, parent.dataSource);
+
               if (
                 isIn(
                   props.flowData,
@@ -243,6 +251,7 @@ export default function ChooseControls(props) {
               ) {
                 return { ...oo, disableChoose: true, isFull };
               }
+
               return { ...oo, disableChoose: false, isFull };
             })}
             parentName={_l('关联')}

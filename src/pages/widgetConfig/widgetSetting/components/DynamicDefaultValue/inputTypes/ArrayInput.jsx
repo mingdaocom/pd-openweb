@@ -21,6 +21,7 @@ export default class ArrayInput extends Component {
   componentDidMount() {
     const { dynamicValue, data, clearOldDefault, onDynamicValueChange } = this.props;
     const { default: defaultValue } = data;
+
     if (defaultValue) {
       onDynamicValueChange(dynamicValue.concat({ cid: '', rcid: '', staticValue: defaultValue }));
       clearOldDefault();
@@ -45,6 +46,7 @@ export default class ArrayInput extends Component {
 
     dynamicValue.forEach(item => {
       const { cid, rcid, staticValue } = item;
+
       if (cid) {
         fields += rcid ? `$${cid}~${rcid}$` : `$${cid}$`;
       } else {

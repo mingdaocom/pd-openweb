@@ -128,6 +128,7 @@
       align-items: center;
       flex-wrap: wrap;
       gap: 10px;
+      background: var(--color-background-input) !important;
     }
 
     &.controlDisabled {
@@ -153,7 +154,12 @@
       align-items: center;
       white-space: nowrap;
       overflow: hidden;
-      color: var(--color-text-disabled);
+      color: var(--color-text-input);
+      background: var(--color-background-input);
+    }
+    &.customFormControlInputView.phoneDisabled,
+    &.customFormControlInputView.controlDisabled {
+      background: var(--color-background-primary) !important;
     }
 
     // 人员/部门/组织角色 多选边框无色
@@ -170,9 +176,10 @@
   .customFormTextarea {
     &:focus {
       border-color: var(--color-primary);
+      background: var(--color-background-input);
     }
     &:disabled {
-      background: var(--color-background-secondary);
+      background: var(--color-background-disabled);
     }
     &::placeholder {
       color: var(--color-text-disabled);
@@ -241,7 +248,7 @@
     }
 
     &.readonlyRefresh {
-      background: var(--color-background-secondary) !important;
+      background: var(--color-background-disabled) !important;
     }
   }
 
@@ -358,7 +365,7 @@
     width: 100%;
     box-shadow: var(--shadow-sm);
     border-radius: 4px;
-    background: var(--color-background-primary) center / contain no-repeat;
+    background: var(--color-background-card) center / contain no-repeat;
 
     .removeBtn {
       position: absolute;
@@ -390,8 +397,8 @@
   display: inline-block;
   padding: 2px 12px;
   border-radius: 16px;
-  background: var(--color-background-secondary);
-  border: 1px solid var(--color-background-secondary);
+  background: var(--color-background-tertiary);
+  border: 1px solid var(--color-background-tertiary);
   word-break: break-all;
   white-space: pre-wrap;
 

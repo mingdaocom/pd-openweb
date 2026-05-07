@@ -130,9 +130,11 @@ function EntityRelationship(props) {
         if (edgeRef.current) {
           cancelEdgeLight();
         }
+
         if (_.endsWith(edge.id, '-null')) {
           return;
         }
+
         edgeRef.current = edge.id;
         edge.updateAttrs({
           line: {
@@ -150,6 +152,7 @@ function EntityRelationship(props) {
         setPercent(sx.toFixed(2));
       });
     }
+
     loadComp();
 
     return () => {
@@ -189,6 +192,7 @@ function EntityRelationship(props) {
       event.preventDefault();
       onFitRect();
     }
+
     return false;
   };
 
@@ -515,6 +519,7 @@ function EntityRelationship(props) {
     if (current) {
       $('.searchCurrent').removeClass('searchCurrent');
     }
+
     setCurrent(id);
     $(`#customErNode-${id}`).addClass('searchCurrent');
     graphRef.current.zoomTo(1);

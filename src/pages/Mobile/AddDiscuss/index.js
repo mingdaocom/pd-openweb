@@ -18,6 +18,7 @@ const formatEmpty = value => {
   if (value === 'undefined' || value === 'null') {
     return '';
   }
+
   return value || '';
 };
 
@@ -105,12 +106,15 @@ class AddDiscuss extends Component {
     const { replyId } = discussionInfo;
     if (!value) return;
     let newValue = value.replace(_.isEmpty(newRowId) ? SHEET_AT_ALL : ROW_AT_ALL, '[all]atAll[/all]');
+
     if (members.length) {
       members.forEach(item => {
         newValue = newValue.replace(`@${item.fullname}`, `[aid]${item.accountId}[/aid]`);
       });
     }
+
     let entityType = 0;
+
     //外部用户且未开启讨论 不能内部讨论
     if (md.global.Account.isPortal && allowExAccountDiscuss && exAccountDiscussEnum === 1) {
       entityType = 2;
@@ -145,6 +149,7 @@ class AddDiscuss extends Component {
             this.setState({ temporaryDiscuss: {} });
             this.props.handleTemporaryDiscuss({});
           }
+
           this.props.onAdd(result.data);
         }
       })
@@ -200,9 +205,11 @@ class AddDiscuss extends Component {
           value={value}
           onChange={value => {
             const temp = _.assign(temporaryDiscuss, { [replyId || 'empty']: { replyId, content: value, replyName } });
+
             if (!_.trim(value)) {
               delete temp[replyId || 'empty'];
             }
+
             handleTemporaryDiscuss(temp);
             this.setState({ value, temporaryDiscuss: temp });
           }}

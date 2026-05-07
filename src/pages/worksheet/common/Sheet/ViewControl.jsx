@@ -130,6 +130,7 @@ function ViewControl(props) {
     if (['gallery', 'board'].includes(VIEW_DISPLAY_TYPE[props.view.viewType])) {
       const showcount = _.get(props.view, 'advancedSetting.showcount');
       const storageCount = localStorage.getItem('showcount_' + viewId);
+
       if (!storageCount || storageCount === 'undefined' || !showcount) {
         updateViewShowcount(showcount);
       } else if (storageCount !== props.fieldShowCount) {
@@ -215,6 +216,7 @@ function ViewControl(props) {
   if (type == 'exportSheetButton') {
     return null;
   }
+
   return (
     <Con>
       <ViewItems
@@ -244,6 +246,7 @@ function ViewControl(props) {
           if ([0, 3, 6, 21].includes(Number(newView.viewType)) && newView.viewId !== worksheetId) {
             setViewConfigVisible(true);
           }
+
           navigateTo(`/app/${appId}/${groupId}/${worksheetId}/${newView.viewId}`);
         }}
         onShare={() => {
@@ -336,6 +339,7 @@ function ViewControl(props) {
               alert(_l('刷新过于频繁，请稍后再试'), 3);
               return;
             }
+
             refreshSheet(view, { updateWorksheetControls: true, isRefreshBtn: true });
             cache.current.isRefreshing = true;
             setTimeout(() => {
@@ -451,6 +455,7 @@ function ViewControl(props) {
             if (isShowWorkflowSys) {
               return item.viewDisplay || !('viewDisplay' in item);
             }
+
             return (
               (item.viewDisplay || !('viewDisplay' in item)) &&
               !_.includes(

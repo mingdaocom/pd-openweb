@@ -44,6 +44,7 @@ class VersionList extends React.Component {
     if (version.versionId === this.state.activeVersionId) {
       return;
     }
+
     this.setState({
       activeVersionId: version.versionId,
     });
@@ -54,6 +55,7 @@ class VersionList extends React.Component {
     const isFirst = versionFile.versionId === this.state.versionList[0].versionId;
     const isLastLeft =
       this.state.versionList.length === 1 && versionFile.versionId === this.state.versionList[0].versionId;
+
     if (confirm(!isLastLeft ? '确认删除该版本？' : '这是该文件的最后一个版本，确认删除？')) {
       const removedVersionId = versionFile.versionId;
       kcAjax
@@ -68,6 +70,7 @@ class VersionList extends React.Component {
             this.props.performRemoveItems && this.props.performRemoveItems([versionFile.id]);
             return;
           }
+
           const versionList = this.state.versionList;
           _.remove(versionList, version => version.versionId === removedVersionId);
           this.setState(
@@ -82,11 +85,13 @@ class VersionList extends React.Component {
                 this.setState({ activeVersionId: nextVersion.versionId || '' });
               } else if (this.state.activeVersionId === versionFile.versionId) {
                 let nextVersion;
+
                 if (this.state.versionList[i]) {
                   nextVersion = this.state.versionList[i];
                 } else {
                   nextVersion = this.state.versionList[i - 1];
                 }
+
                 this.props.replaceAttachment(nextVersion);
                 this.setState({ activeVersionId: nextVersion.versionId || '' });
               }
@@ -160,11 +165,13 @@ class VersionList extends React.Component {
 
   render() {
     let listContent;
+
     if (!this.state.versionList) {
       listContent = <LoadDiv />;
     } else {
       listContent = this.renderList(this.state.versionList);
     }
+
     return <div className="versionList">{listContent}</div>;
   }
 }

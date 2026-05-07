@@ -1,5 +1,5 @@
 import React from 'react';
-import Clipboard from 'react-clipboard.js';
+import copy from 'copy-to-clipboard';
 import moment from 'moment';
 import { compareProps } from 'pages/PageHeader/util.js';
 import { LoadDiv } from 'ming-ui';
@@ -24,9 +24,11 @@ export default class WelinkSyncCourse extends React.Component {
 
   componentDidMount() {
     let match = this.props.match;
+
     if (!match.params.projectId) {
       return;
     }
+
     Ajax.getWelinkSsoUrlInfo({
       projectId: match.params.projectId,
     }).then(result => {
@@ -81,16 +83,15 @@ export default class WelinkSyncCourse extends React.Component {
         <div className="inputList mTop20">
           <span className="inputTitle">{_l('应用主页：')}</span>
           <input type="text" className="inputBox" readOnly value={homeUrl} />
-          <Clipboard
+          <span
             className="copyBtn"
-            component="span"
-            data-clipboard-text={homeUrl}
-            onSuccess={() => {
+            onClick={() => {
+              copy(homeUrl);
               alert(_l('已经复制到粘贴板，你可以使用Ctrl+V 贴到需要的地方去了哦'));
             }}
           >
             {_l('复制')}
-          </Clipboard>
+          </span>
         </div>
         <img src={welinkPng5} />
         <p className="Font14 textSecondary mTop24 LineHeight22">
@@ -115,6 +116,7 @@ export default class WelinkSyncCourse extends React.Component {
         </div>
       );
     }
+
     return (
       <div className="welinkSyncCourse card">
         <h1 className="textPrimary">{_l('获取对接信息')}</h1>

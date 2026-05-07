@@ -13,6 +13,7 @@ class DateTHead extends Component {
     const weekDays = [];
     const firstDayOfWeek = localeData.firstDayOfWeek();
     const now = moment();
+
     for (let dateColIndex = 0; dateColIndex < DATE_COL_COUNT; dateColIndex++) {
       const index = (firstDayOfWeek + dateColIndex) % DATE_COL_COUNT;
       now.day(index);

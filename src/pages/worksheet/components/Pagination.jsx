@@ -130,25 +130,41 @@ export default class Pagination extends React.Component {
   conRef = React.createRef();
   jumpInputRef = React.createRef();
 
+  get displayCount() {
+    const { allCount, countForShow } = this.props;
+
+    const hasCountForShow = typeof countForShow === 'number';
+    const hasAllCount = typeof allCount === 'number';
+
+    if (hasCountForShow) return countForShow;
+    if (hasAllCount) return allCount;
+
+    return 0;
+  }
+
   get pageNum() {
-    return Math.ceil(this.props.allCount / this.props.pageSize);
+    return Math.ceil((this.displayCount || 0) / this.props.pageSize);
   }
 
   renderPopup() {
     const { abnormalMode, pageIndex, pageSize, allowChangePageSize, changePageIndex, changePageSize } = this.props;
     let minShowPage = pageIndex - 2;
     let isEnd;
+
     if (minShowPage + 5 >= this.pageNum - 1 && !abnormalMode) {
       minShowPage = this.pageNum - 1 - 5;
       isEnd = true;
     }
+
     if (minShowPage <= 3 && !abnormalMode) {
       minShowPage = 2;
       isEnd = true;
     }
+
     if (minShowPage < 2) {
       minShowPage = 2;
     }
+
     return (
       <Popup className="flexColumn">
         <PageList>
@@ -215,6 +231,7 @@ export default class Pagination extends React.Component {
             onKeyDown={e => {
               if (e.keyCode === 13 && this.jumpInputRef.current && this.jumpInputRef.current.value) {
                 const jumpPage = parseInt(this.jumpInputRef.current.value, 10);
+
                 if (!_.isNaN(jumpPage)) {
                   if ((jumpPage > 0 && jumpPage <= this.pageNum) || abnormalMode) {
                     changePageIndex(jumpPage);
@@ -239,35 +256,37 @@ export default class Pagination extends React.Component {
       pageIndex,
       onlyShowCount,
       maxCount,
-      allCount,
       appendToBody,
       showCount,
-      countForShow,
       onPrev,
       onNext,
     } = this.props;
     const { popupVisible } = this.state;
+
     if (onlyShowCount) {
       return (
         <Con className={className}>
-          <NoData>{_l('共%0条', countForShow || allCount)}</NoData>
+          <NoData>{_l('共%0条', this.displayCount)}</NoData>
         </Con>
       );
     }
+
     if (maxCount) {
       return (
         <Con className={className}>
-          <NoData>{_l('共%0行', allCount > maxCount ? maxCount : allCount)}</NoData>
+          <NoData>{_l('共%0行', this.displayCount > maxCount ? maxCount : this.displayCount)}</NoData>
         </Con>
       );
     }
-    if (!allCount && !abnormalMode) {
+
+    if (!this.displayCount && !abnormalMode) {
       return (
         <Con className={className}>
           <NoData>{_l('共0行')}</NoData>
         </Con>
       );
     }
+
     return (
       <Con className={className} ref={this.conRef}>
         <Trigger
@@ -290,12 +309,7 @@ export default class Pagination extends React.Component {
               ? _l('第%0页', pageIndex)
               : !showCount
                 ? _l('%0/%1页', pageIndex, this.pageNum)
-                : _l(
-                    '共%0行，%1/%2页',
-                    typeof countForShow !== 'undefined' ? countForShow : allCount,
-                    pageIndex,
-                    this.pageNum,
-                  )}
+                : _l('共%0行，%1/%2页', this.displayCount, pageIndex, this.pageNum)}
           </PageNum>
         </Trigger>
         <Btn className={pageIndex === 1 && 'disabled'} onClick={pageIndex === 1 ? () => {} : onPrev}>

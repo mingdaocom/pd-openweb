@@ -141,6 +141,7 @@ const ITEMS = [
   { title: _l('升级范围'), key: 'renderUpgradeScope' },
   { title: _l('开始导入') },
 ];
+
 function Upgrade(props) {
   const { onClose = () => {}, info, onUpgrade, projectId } = props;
   const [
@@ -186,6 +187,7 @@ function Upgrade(props) {
     )
       .then(res => {
         const { resultCode, contrasts = {}, id } = res;
+
         if (resultCode === 0) {
           setState({
             current: 1,
@@ -297,6 +299,7 @@ function Upgrade(props) {
       </Fragment>
     );
   };
+
   const renderUpgradeScope = () => {
     return (
       <div className={cx('pBottom68', { h100: batchCheckUpgradeLoading })}>
@@ -316,6 +319,7 @@ function Upgrade(props) {
       </div>
     );
   };
+
   //导入
   const handleUpgrade = () => {
     AppManagementAjax.importApi(
@@ -328,6 +332,7 @@ function Upgrade(props) {
     onUpgrade();
     onClose();
   };
+
   const renderFooter = () => {
     return (
       <div className="upgradeProcessFooter">
@@ -339,6 +344,7 @@ function Upgrade(props) {
       </div>
     );
   };
+
   const renderCon = () => {
     switch (current) {
       case 0:
@@ -347,6 +353,7 @@ function Upgrade(props) {
         return renderUpgradeScope();
     }
   };
+
   return (
     <FullScreenCurtain>
       <Wrap className="">

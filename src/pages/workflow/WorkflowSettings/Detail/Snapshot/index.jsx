@@ -204,7 +204,7 @@ export default class Snapshot extends Component {
                       : `${data.appDetails.appName}-${data.appDetails.reportName}(${data.appDetails.apkName})`}
                 </span>
               ) : (
-                <span className="textSecondary">{_l('请选择')}</span>
+                <span className="textPlaceholder">{_l('请选择')}</span>
               )}
             </div>
           </Fragment>

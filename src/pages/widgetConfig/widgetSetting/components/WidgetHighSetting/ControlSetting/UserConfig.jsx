@@ -55,6 +55,7 @@ export default function UserConfig(props) {
         },
       });
     }
+
     if (item.id === 'assignUser') {
       const handleUserChange = users => {
         const availUsers = users
@@ -83,6 +84,7 @@ export default function UserConfig(props) {
         },
       });
     }
+
     if (item.id === 'assignOrg') {
       dialogSelectOrgRole({
         projectId: globalSheetInfo.projectId,
@@ -143,6 +145,7 @@ export default function UserConfig(props) {
 
   const handleRemove = item => {
     const index = existIndex(item);
+
     if (index > -1) {
       const nextValue = update(chooseRange, { $splice: [[index, 1]] });
       onChange(handleAdvancedSettingChange(data, { chooserange: JSON.stringify(nextValue) }));
@@ -237,6 +240,7 @@ export default function UserConfig(props) {
                             />
                           );
                         }
+
                         return getUserDisplay(item);
                       })}
                     </Fragment>

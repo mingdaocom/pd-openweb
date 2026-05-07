@@ -22,6 +22,7 @@ const initialState = {
 
 const mergeDepartmentUsers = (department, payload) => {
   const { departmentId } = department;
+
   if (departmentId === '') {
     const {
       listUser: { list },
@@ -45,6 +46,7 @@ const mergeDepartments = (state, action) => {
   const { departments } = state;
   const department = departments[departmentId];
   let originData = response;
+
   if (
     typeof department !== 'undefined' ||
     type === ACTIONS.APPROVAL_USER_SUCCESS ||
@@ -121,24 +123,31 @@ const entities = (state = initialState, action) => {
   if (type === 'UPDATE_APPLY_DATE_ORDER_BY') {
     return { ...state, applyDateOrderBy };
   }
+
   if (type === 'UPDATE_SHOW_DISABLED_DEPARTMENT') {
     return { ...state, showDisabledDepartment };
   }
+
   if (type === 'UPDATE_NEW_DEPARTMENT') {
     return { ...state, newDepartments, departments: getFlatDepartments(newDepartments) };
   }
+
   if (type === 'UPDATE_SEARCH_USERS') {
     return { ...state, searchUsers };
   }
+
   if (type === 'UPDATE_IMPORT_EXPORT_RESULT') {
     return { ...state, importExportResult };
   }
+
   if (type === 'UPDATE_SHOW_EXPORT') {
     return { ...state, isShowExport };
   }
+
   if (type === 'UPDATE_IMPORT_EXPORT_TYPE') {
     return { ...state, importExportType };
   }
+
   if (type === 'PROJECT_ID_CHANGED') return initialState;
   if (typeof ACTIONS[type] === 'undefined') return state;
 
@@ -154,12 +163,14 @@ const entities = (state = initialState, action) => {
         newDepartments: action.newDepartments,
       };
     }
+
     return {
       ...state,
       newDepartments: action.newDepartments,
       departments: getFlatDepartments(action.newDepartments),
     };
   }
+
   if (type === ACTIONS.EXPANDED_KEYS_UPDATE) {
     return {
       ...state,

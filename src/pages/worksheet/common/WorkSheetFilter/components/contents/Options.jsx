@@ -78,9 +78,11 @@ export default class Options extends Component {
   }
   getAreaLevel(enumDefault2, filterType) {
     const isAreaContain = _.includes([FILTER_CONDITION_TYPE.LIKE, FILTER_CONDITION_TYPE.NCONTAIN], filterType);
+
     if (isAreaContain) {
       return 3;
     }
+
     return enumDefault2;
   }
 
@@ -155,9 +157,11 @@ export default class Options extends Component {
   renderSelect = () => {
     const { type, disabled, folded, control, projectId, onChange, from } = this.props;
     const { selectedOptions, search, keywords } = this.state;
+
     if (disabled) {
       return <TagCon disabled={disabled} data={selectedOptions} onRemove={this.removeItem} />;
     }
+
     if (_.includes([19, 23, 24], control.type)) {
       const areaLevel = this.getAreaLevel(control.enumDefault2, type);
       const { chooserange = 'CN', commcountries } = control.advancedSetting || {};
@@ -190,6 +194,7 @@ export default class Options extends Component {
                   name: this.tempArea.name,
                 });
               }
+
               setTimeout(this.clearTemp, 10);
               search && this.setState({ keywords: undefined, search: '' });
             }}
@@ -216,6 +221,7 @@ export default class Options extends Component {
               alert(_l('您不是该组织成员，无法获取其部门列表，请联系组织管理员'), 3);
               return;
             }
+
             quickSelectDept(e.target, {
               unique: selectSingle,
               projectId,
@@ -226,6 +232,7 @@ export default class Options extends Component {
                 if (!data.length) {
                   return;
                 }
+
                 this.addItem(
                   (selectSingle ? data.slice(0, 1) : data).map(item => ({
                     id: item.departmentId,
@@ -251,6 +258,7 @@ export default class Options extends Component {
               alert(_l('您不是该组织成员，无法获取其部门列表，请联系组织管理员'), 3);
               return;
             }
+
             quickSelectRole(e.target, {
               projectId,
               unique: selectSingle,
@@ -261,6 +269,7 @@ export default class Options extends Component {
                 if (!data.length) {
                   return;
                 }
+
                 this.addItem(
                   (selectSingle ? data.slice(0, 1) : data).map(item => ({
                     id: item.organizeId,
@@ -283,6 +292,7 @@ export default class Options extends Component {
           type,
         ) && controlIsSingle;
       let options = [];
+
       if (_.includes([9, 10, 11], control.type)) {
         options = control.options
           .filter(option => !option.isDeleted || _.find(selectedOptions, o => o.id === option.key))
@@ -294,10 +304,13 @@ export default class Options extends Component {
           name: SCORE_TEXT[i],
         }));
       }
+
       let shortOptions = options;
+
       if (folded && options.length > 5) {
         shortOptions = options.slice(0, 5);
       }
+
       return (
         <div className="optionCheckboxs">
           {shortOptions.map((option, i) => (
@@ -314,6 +327,7 @@ export default class Options extends Component {
                 }
 
                 const checked = _.find(selectedOptions, o => o.id === option.id);
+
                 if (checked) {
                   this.removeItem(option);
                 } else {

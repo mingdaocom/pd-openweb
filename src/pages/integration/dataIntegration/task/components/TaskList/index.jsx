@@ -45,9 +45,6 @@ const TaskListBox = styled.div`
         .titleText {
           color: var(--color-primary) !important;
         }
-        .optionIcon {
-          background: rgba(247, 247, 247, 1);
-        }
       }
     }
   }
@@ -66,7 +63,7 @@ const TaskListBox = styled.div`
     .arrowIcon {
       transform: rotate(-90deg);
       margin-right: 8px;
-      color: var(--color-border-primary);
+      color: var(--color-text-placeholder);
       font-size: 20px;
     }
     .titleText {
@@ -172,10 +169,8 @@ const TaskIcon = styled.div`
   border-radius: 50%;
   margin-right: 8px;
   font-size: 22px;
-  background: var(--color-background-primary);
-  box-shadow:
-    rgba(0, 0, 0, 0.16) 0px 0px 1px,
-    rgba(0, 0, 0, 0.06) 0px 1px 3px;
+  background: var(--color-background-card);
+  box-shadow: var(--shadow-sm);
 
   .svg-icon {
     width: 24px;
@@ -622,6 +617,7 @@ export default function TaskList({ projectId, onRefreshComponents }) {
               } else {
                 sortFlag = sortFlag === 2 ? 0 : sortFlag + 1;
               }
+
               setFetchState({
                 loading: true,
                 pageNo: 0,
@@ -663,6 +659,7 @@ export default function TaskList({ projectId, onRefreshComponents }) {
               } else {
                 sortFlag = sortFlag === 2 ? 0 : sortFlag + 1;
               }
+
               setFetchState({
                 loading: true,
                 pageNo: 0,
@@ -715,6 +712,7 @@ export default function TaskList({ projectId, onRefreshComponents }) {
               } else {
                 sortFlag = sortFlag === 2 ? 0 : sortFlag + 1;
               }
+
               setFetchState({
                 loading: true,
                 pageNo: 0,

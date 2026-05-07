@@ -65,6 +65,7 @@ const AutoHeightTextArea = forwardRef(
       if (onChange) {
         onChange(e);
       }
+
       // 延迟调整高度，确保DOM已更新
       setTimeout(adjustHeight, 0);
     };
@@ -74,6 +75,7 @@ const AutoHeightTextArea = forwardRef(
       if (onKeyDown) {
         onKeyDown(e);
       }
+
       // 延迟调整高度
       setTimeout(adjustHeight, 0);
     };

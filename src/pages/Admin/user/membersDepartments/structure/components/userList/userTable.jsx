@@ -129,6 +129,7 @@ class UserTable extends React.Component {
               onClick={() => {
                 if (isLoading) return;
                 let accountIds = _.map(selectDatas, user => user.accountId);
+
                 if (!isCheck) {
                   dispatch(addUserToSet(accountIds));
                 } else {
@@ -243,6 +244,7 @@ class UserTable extends React.Component {
       if (this.tbodyContainer && this.tbodyContainer.scrollLeft !== savedScrollLeft) {
         this.tbodyContainer.scrollLeft = savedScrollLeft;
       }
+
       if (this.headContainer && this.headContainer.scrollLeft !== savedScrollLeft) {
         this.headContainer.scrollLeft = savedScrollLeft;
       }
@@ -253,6 +255,7 @@ class UserTable extends React.Component {
         if (this.tbodyContainer) {
           this.tbodyContainer.scrollLeft = savedScrollLeft;
         }
+
         if (this.headContainer) {
           this.headContainer.scrollLeft = savedScrollLeft;
         }
@@ -261,9 +264,11 @@ class UserTable extends React.Component {
           if (this.tbodyContainer && this.tbodyContainer.scrollLeft !== savedScrollLeft) {
             this.tbodyContainer.scrollLeft = savedScrollLeft;
           }
+
           if (this.headContainer && this.headContainer.scrollLeft !== savedScrollLeft) {
             this.headContainer.scrollLeft = savedScrollLeft;
           }
+
           this.setState({ savedScrollLeft: 0 });
         });
       });
@@ -301,16 +306,19 @@ class UserTable extends React.Component {
   handleClickStastics = checked => {
     let { columnsInfo } = this.state;
     let copyColumnsInfo = [];
+
     if (checked) {
       copyColumnsInfo = columnsInfo.map(item => {
         if (item.value !== 'name') {
           return { ...item, checked: false };
         }
+
         return item;
       });
     } else {
       copyColumnsInfo = columnsInfo.map(item => ({ ...item, checked: true }));
     }
+
     safeLocalStorageSetItem('columnsInfoData', JSON.stringify(copyColumnsInfo));
     this.setState({ columnsInfo: copyColumnsInfo });
   };
@@ -322,6 +330,7 @@ class UserTable extends React.Component {
       if (item.value === value) {
         return { ...item, checked: !checked };
       }
+
       return item;
     });
     safeLocalStorageSetItem('columnsInfoData', JSON.stringify(copyColumnsInfo));
@@ -422,6 +431,7 @@ class UserTable extends React.Component {
     let columnsInfoData = JSON.parse(localStorage.getItem('columnsInfoData')) || [];
     let temp = (!_.isEmpty(columnsInfoData) && columnsInfoData) || columnsInfo;
     let { usersCurrentPage = [], projectId, searchAccountIds, searchId = [], isSearch, authority = [] } = props;
+
     if (isSearch && !!searchId[0] && searchAccountIds.length > 0) {
       usersCurrentPage = searchAccountIds.filter(user => user.accountId === searchId[0]);
     }
@@ -469,16 +479,20 @@ class UserTable extends React.Component {
       if (this.tbodyContainer && this.tbodyContainer.scrollLeft !== savedScrollLeft) {
         this.tbodyContainer.scrollLeft = savedScrollLeft;
       }
+
       if (this.headContainer && this.headContainer.scrollLeft !== savedScrollLeft) {
         this.headContainer.scrollLeft = savedScrollLeft;
       }
+
       return;
     }
 
     let bodyScrollLeft = this.tbodyContainer && this.tbodyContainer.scrollLeft;
+
     if (this.headContainer) {
       this.headContainer.scrollLeft = bodyScrollLeft;
     }
+
     if (bodyScrollLeft > 0) {
       $('.nameTh').addClass('fixedLeft');
     } else if (bodyScrollLeft === 0) {
@@ -500,16 +514,20 @@ class UserTable extends React.Component {
       if (this.tbodyContainer && this.tbodyContainer.scrollLeft !== savedScrollLeft) {
         this.tbodyContainer.scrollLeft = savedScrollLeft;
       }
+
       if (this.headContainer && this.headContainer.scrollLeft !== savedScrollLeft) {
         this.headContainer.scrollLeft = savedScrollLeft;
       }
+
       return;
     }
 
     let headScrollLeft = this.headContainer && this.headContainer.scrollLeft;
+
     if (this.headContainer) {
       this.tbodyContainer.scrollLeft = headScrollLeft;
     }
+
     if (headScrollLeft > 0) {
       $('.nameTh').addClass('fixedLeft');
     } else if (headScrollLeft === 0) {

@@ -301,7 +301,18 @@ export default class WriteFields extends Component {
                     data.filter(item => item.datamask === '1').length
                 }
                 checked={data.filter(item => item.datamask === '1' && item.isdecrypt === '1').length}
-                onClick={checked => this.updateAllSettings({ key: 'DECRYPT', checked: checked ? '0' : '1' })}
+                onClick={checked =>
+                  this.updateAllSettings({
+                    key: 'DECRYPT',
+                    checked:
+                      (checked &&
+                        data.filter(item => item.datamask === '1' && item.isdecrypt === '1').length !==
+                          data.filter(item => item.datamask === '1').length) ||
+                      !checked
+                        ? '1'
+                        : '0',
+                  })
+                }
               />
             )}
           </div>
@@ -513,7 +524,7 @@ export default class WriteFields extends Component {
                 }
               />
             </div>
-            <div className="textSecondary mTop5">
+            <div className="Font13 textSecondary mTop5">
               {_l('未开启时按照子表本身权限，开启后可配置子表的细分操作和列权限')}
             </div>
 

@@ -93,9 +93,11 @@ class TimePicker extends Component {
     super(props);
 
     let value;
+
     if ('defaultValue' in props) {
       value = props.defaultValue;
     }
+
     if ('value' in props) {
       value = props.value;
     }
@@ -151,6 +153,7 @@ class TimePicker extends Component {
 
   getFormat = value => {
     const { showHour, showMinute, showSecond } = this.props;
+
     if (this.props.resultFormatter) {
       return this.props.resultFormatter(value, showHour, showMinute, showSecond);
     } else {
@@ -183,6 +186,7 @@ class TimePicker extends Component {
     if (this.props.disabled) {
       return;
     }
+
     const bounding = this._timepicker.getBoundingClientRect();
     const iptHeight = parseInt(getComputedStyle(this._timepicker, 'height'), 10);
 
@@ -205,6 +209,7 @@ class TimePicker extends Component {
     if (!('value' in this.props)) {
       this.setState({ value });
     }
+
     this.props.onChange(value);
   };
 
@@ -212,6 +217,7 @@ class TimePicker extends Component {
     if (!('value' in this.props)) {
       this.setState({ value: null });
     }
+
     this.props.onChange(null);
     this.setState({ visible: false });
   };

@@ -9,6 +9,7 @@ export const getIndex = (state, data) => {
   const keyIndex = _.findIndex(state, item => item.key === key);
   if (keyIndex < 0) return null;
   const rows = _.get(state, [keyIndex, 'rows']);
+
   try {
     const rowIndex = _.findIndex(rows, row => JSON.parse(row).rowid === rowId);
     if (rowIndex < 0) return null;
@@ -18,6 +19,7 @@ export const getIndex = (state, data) => {
     return null;
   }
 };
+
 // 删除记录
 export const delRecord = (state, data) => {
   const indexList = getIndex(state, data);
@@ -56,6 +58,7 @@ const sortBoardRecord = (state, data) => {
     ...(firstGroupChange ? { [firstGroupControlId]: value } : {}),
     ...(secondGroupChange ? { [secondGroupControlId]: secondGroupValue } : {}),
   };
+
   if (key === targetKey) {
     return update(state, {
       [keyIndex]: {
@@ -65,6 +68,7 @@ const sortBoardRecord = (state, data) => {
       },
     });
   }
+
   return update(state, {
     [keyIndex]: { rows: { $splice: [[rowIndex, 1]] } },
     [targetIndex]: { rows: { $unshift: [JSON.stringify({ ...originData, ...updateValue })] } },
@@ -84,12 +88,15 @@ const getKeyAndName = data => {
 
   const dealFn = parseData => {
     const firstItem = head(parseData);
+
     if (_.includes([26, 27, 48], type)) {
       return { name: JSON.stringify(firstItem), targetKey: _.get(firstItem, WIDGET_VALUE_ID[type]) };
     }
+
     if (type === 29) {
       return { name: firstItem.name, targetKey: _.get(firstItem, 'sid') };
     }
+
     if ([9, 11].includes(type)) {
       return { targetKey: firstItem };
     }
@@ -98,16 +105,19 @@ const getKeyAndName = data => {
   if ([9, 11, 26, 29].includes(type)) {
     try {
       const parseData = JSON.parse(target);
+
       if (Array.isArray(parseData)) {
         if (parseData.length < 1) return defaultPara;
         return dealFn(parseData);
       }
+
       return defaultPara;
     } catch (error) {
       console.log(error);
       return defaultPara;
     }
   }
+
   return defaultPara;
 };
 
@@ -117,6 +127,7 @@ export const updateRecord = (state, data) => {
   if (!indexList) return state;
   const [keyIndex, rowIndex] = indexList;
   let oldItem = _.get(state, `${keyIndex}.rows.${rowIndex}`);
+
   if (oldItem) {
     try {
       oldItem = JSON.parse(oldItem);
@@ -125,10 +136,12 @@ export const updateRecord = (state, data) => {
       console.error(err);
     }
   }
+
   if (data.target !== undefined) {
     let { name, targetKey } = getKeyAndName(data);
     if (targetKey === 'user-undefined') targetKey = '-1';
     const targetIndex = _.findIndex(state, item => item.key === targetKey);
+
     if (targetIndex < 0) {
       // 当使用关联表作为看板分组 且清空对应字段关联表时
       if (targetKey === '-1') {
@@ -137,6 +150,7 @@ export const updateRecord = (state, data) => {
           $unshift: [{ key: '-1', rows: [JSON.stringify(data.item)], totalNum: 1 }],
         });
       }
+
       if (targetKey) {
         const currentItem = JSON.stringify(data.item);
         let nextBoard = {
@@ -151,6 +165,7 @@ export const updateRecord = (state, data) => {
           $push: [nextBoard],
         });
       }
+
       return state;
     }
 
@@ -159,6 +174,7 @@ export const updateRecord = (state, data) => {
       [targetIndex]: { rows: { $unshift: [JSON.stringify(data.item)] } },
     });
   }
+
   return update(state, { [keyIndex]: { rows: { $splice: [[rowIndex, 1, JSON.stringify(data.item)]] } } });
 };
 
@@ -168,6 +184,7 @@ export const addRecord = (state, data) => {
   if (keyIndex < 0) return state;
   return update(state, { [keyIndex]: { rows: { $unshift: [JSON.stringify(item)] } } });
 };
+
 const updateTitleData = (state, obj) => {
   const { key, index, data } = obj;
   const keyIndex = _.findIndex(state, item => item.key === key);
@@ -199,9 +216,11 @@ export function updateMultiSelectBoard(boardData, data) {
    */
   const addRecordKeys = currKeys.length > 0 ? currKeys.filter(key => !prevKeys.includes(key)) : ['-1'];
   const removeRecordKeys = prevKeys.length > 0 ? prevKeys.filter(key => !currKeys.includes(key)) : ['-1'];
+
   if (addRecordKeys.length) {
     addRecordKeys.forEach(key => {
       const index = boardData.findIndex(item => item.key === key);
+
       if (index > 0) {
         boardData = update(boardData, {
           [index]: { totalNum: { $apply: item => item + 1 }, rows: { $push: [JSON.stringify(item)] } },
@@ -214,9 +233,11 @@ export function updateMultiSelectBoard(boardData, data) {
       }
     });
   }
+
   if (removeRecordKeys.length) {
     removeRecordKeys.forEach(key => {
       const index = boardData.findIndex(item => item.key === key);
+
       if (index > 0) {
         boardData = update(boardData, {
           [index]: {
@@ -233,9 +254,11 @@ export function updateMultiSelectBoard(boardData, data) {
       }
     });
   }
+
   // 更新当前存在的记录
   currKeys.forEach(key => {
     const index = boardData.findIndex(item => item.key === key);
+
     if (index > 0) {
       boardData = update(boardData, {
         [index]: {
@@ -264,9 +287,11 @@ const INIT_STATE = {
   },
   sortedOptionKeys: [],
 };
+
 export default function boardView(state = INIT_STATE, action) {
   const { type, data } = action;
   const { boardData, boardViewState, boardViewRecordCount, boardViewCard } = state;
+
   switch (type) {
     case 'CHANGE_BOARD_VIEW_DATA':
     case 'UPDATE_BOARD_VIEW_DATA':

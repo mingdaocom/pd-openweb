@@ -7,7 +7,7 @@ import { controlState, getValueStyle, isRelateRecordTableControl } from 'src/uti
 import { addBehaviorLog } from 'src/utils/project.js';
 import FreeField from '../../components/FreeField';
 import WidgetsDesc from '../../components/WidgetsDesc';
-import { FROM } from '../../core/config';
+import { FROM, MASK_ADVANCEDSETTING } from '../../core/config';
 import { ADD_EVENT_ENUM } from '../../core/enum';
 import { convertControl, getControlDisabled, isUnTextWidget, showRefreshBtn } from '../../core/utils';
 import { CustomFormItemControlWrap } from '../style';
@@ -19,6 +19,7 @@ const createEventHandler = (event, customHandler) => {
   if (event.key === 'Tab') {
     event.preventDefault();
   }
+
   // 自定义处理器--留给其他事件
   if (customHandler) {
     customHandler(event);
@@ -82,23 +83,15 @@ export default function DeskFormWidget(props) {
       newItem.disabled = true;
       newItem.advancedSetting = {
         ...((newItem.sourceControl || {}).advancedSetting || {}),
-        ..._.pick(originItem.advancedSetting, [
-          'datamask',
-          'isdecrypt',
-          'masktype',
-          'maskbegin',
-          'mdchar',
-          'maskend',
-          'mechar',
-          'maskmid',
-          'masklen',
-        ]),
+        ..._.pick(originItem.advancedSetting, MASK_ADVANCEDSETTING),
       };
       if (newItem.type === 46) {
         newItem.unit = _.includes(['6', '9'], (newItem.sourceControl || {}).unit) ? '6' : '1';
       }
+
       return newItem;
     }
+
     return originItem;
   }, [originItem]);
 
@@ -108,7 +101,7 @@ export default function DeskFormWidget(props) {
   const isEditable = controlState(item, from).editable;
   const controlDisabled = getControlDisabled(item, from, disabledChildTableCheck);
   const isShowRefreshBtn = showRefreshBtn({
-    ..._.pick(props, ['disabledFunctions', 'recordId', 'from']),
+    ..._.pick(props, ['disabledFunctions', 'recordId', 'from', 'isEditing']),
     item: originItem,
   });
 
@@ -144,6 +137,7 @@ export default function DeskFormWidget(props) {
         />
       );
     }
+
     return null;
   };
 
@@ -156,6 +150,7 @@ export default function DeskFormWidget(props) {
           controlId: controlId,
         });
       }
+
       setShowMaskValue(!showMaskValue);
     }
   };
@@ -182,6 +177,7 @@ export default function DeskFormWidget(props) {
     const widgetName = convertControl(item.type);
     const isFreeField = isCustomWidget(item);
     let Widgets;
+
     if (isFreeField) {
       Widgets = FreeField;
     } else if (widgetName === 'CustomWidgets') {
@@ -288,15 +284,18 @@ export default function DeskFormWidget(props) {
             ? `${currentItem.value || ''}`.trim()
             : ''
           : newVal;
+
         if (currentItem.unique && newValue) {
           checkControlUnique(controlId, currentItem.type, newValue);
         }
+
         if (newValue && newValue !== originValue) {
           dataFormat.current.updateDataBySearchConfigs({
             control: { ...currentItem, value: newValue },
             searchType: 'onBlur',
           });
         }
+
         // 文本类失焦触发自定义事件
         if (newValue !== originValue && !isUnTextWidget(currentItem)) {
           triggerCustomEvent({
@@ -305,6 +304,7 @@ export default function DeskFormWidget(props) {
             triggerType: ADD_EVENT_ENUM.CHANGE,
           });
         }
+
         onBlur(controlId);
         triggerCustomEvent({
           ...currentItem,

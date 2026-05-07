@@ -235,6 +235,7 @@ export default class StatTable extends React.Component {
 
   componentWillUpdate(nextProps, nextState) {
     const { sortField, sortType, pageIndex, pageSize } = this.state;
+
     if (
       sortField !== nextState.sortField ||
       sortType !== nextState.sortType ||
@@ -268,6 +269,7 @@ export default class StatTable extends React.Component {
       isLoading: true,
     });
     let requestFunc;
+
     switch (reportType) {
       case REPOREPORT_TYPES.USER:
         requestFunc = statisticController.getUserReport;
@@ -331,6 +333,7 @@ export default class StatTable extends React.Component {
         {_.map(fields, (field, index) => {
           const widthProps = field.width ? { width: field.width } : {};
           const icon = field.sortField === sortField && sortType === SORT_TYPES.DESC ? 'arrow-up' : 'arrow-down';
+
           if (field.sortField) {
             const clickHander = () => {
               if (field.sortField === sortField) {
@@ -342,10 +345,12 @@ export default class StatTable extends React.Component {
                   sortType: SORT_TYPES.DESC,
                 });
               }
+
               this.setState({
                 sortField: field.sortField,
               });
             };
+
             return (
               <th className="TxtCenter" key={index}>
                 <span title={field.title} className="Hand" onClick={clickHander}>
@@ -369,6 +374,7 @@ export default class StatTable extends React.Component {
   renderTds(item, index) {
     const { reportType, projectId } = this.props;
     const { user: { accountId, fullname, department, userId } = {} } = item;
+
     if (reportType === REPOREPORT_TYPES.USER) {
       return (
         <React.Fragment>

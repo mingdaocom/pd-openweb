@@ -26,11 +26,13 @@ class RoleUserList extends Component {
               checked={isSelectAll || !_.isEmpty(temp)}
               onClick={checked => {
                 let ids = [];
+
                 if (!checked || (!_.isEmpty(selectUserIds) && selectUserIds.length !== userList.length)) {
                   ids = userList.map(item => item.accountId);
                 } else {
                   ids = [];
                 }
+
                 this.props.updateSelectUserIds(ids);
               }}
             />
@@ -51,11 +53,13 @@ class RoleUserList extends Component {
               checked={_.includes(selectUserIds, item.accountId)}
               onClick={checked => {
                 let ids = [...selectUserIds];
+
                 if (!checked) {
                   ids.push(item.accountId);
                 } else {
                   ids = ids.filter(it => item.accountId !== it);
                 }
+
                 this.props.updateSelectUserIds(ids);
               }}
             />
@@ -86,6 +90,7 @@ class RoleUserList extends Component {
               if (item.departments.length - 1 > i) {
                 return `${it.name};`;
               }
+
               return `${it.name}`;
             })}
           >
@@ -93,6 +98,7 @@ class RoleUserList extends Component {
               if (item.departments.length - 1 > i) {
                 return `${it.name};`;
               }
+
               return `${it.name}`;
             })}
           </td>

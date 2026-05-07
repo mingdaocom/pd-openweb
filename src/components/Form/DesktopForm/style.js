@@ -85,8 +85,8 @@ export const ControlLabel = styled.div`
     }
   }}
 ${({ displayRow }) => (displayRow ? 'padding-top: 6px !important;padding-bottom: 6px !important;' : '')}
-line-height: ${({ valuesize }) => {
-    const valueHeight = valuesize !== '0' ? (parseInt(valuesize) - 1) * 2 + 40 : 36;
+line-height: ${({ titlesize }) => {
+    const valueHeight = titlesize !== '0' ? (parseInt(titlesize) - 1) * 2 + 40 : 36;
     return `${valueHeight - 12}px !important`;
   }}
 ${({ item, showTitle }) =>
@@ -97,6 +97,7 @@ ${({ item, showTitle }) =>
         if (!showTitle) {
           return 'display: none;';
         }
+
         return align_pc === '1' ? 'text-align: left;' : 'text-align: right;flex: 1;';
       } else {
         if (!showTitle) {
@@ -104,13 +105,13 @@ ${({ item, showTitle }) =>
         }
       }
     }}
-    font-size: ${props => props.titleSize};
-    color: ${props => props.titleColor};
+    font-size: ${props => props.titleSize} !important;
+    color: ${props => props.titleColor} !important;
     ${props => props.titleStyle || ''};
   }
   .requiredBtnBox .customFormItemLoading {
-    line-height: ${({ valuesize }) => {
-      const valueHeight = valuesize !== '0' ? (parseInt(valuesize) - 1) * 2 + 40 : 36;
+    line-height: ${({ titlesize }) => {
+      const valueHeight = titlesize !== '0' ? (parseInt(titlesize) - 1) * 2 + 40 : 36;
       return `${valueHeight - 12}px !important`;
     }};
   }

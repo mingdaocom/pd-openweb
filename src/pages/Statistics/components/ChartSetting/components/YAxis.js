@@ -33,6 +33,7 @@ function arrayMove(array, oldIndex, newIndex) {
   if (oldIndex < 0 || oldIndex >= array.length || newIndex < 0 || newIndex >= array.length) {
     return array;
   }
+
   const newArray = [...array];
   const [movedItem] = newArray.splice(oldIndex, 1);
   newArray.splice(newIndex, 0, movedItem);
@@ -195,6 +196,7 @@ export default class YAxis extends Component {
 
     if (reportTypes.DualAxes === reportType) {
       const yList = yaxisList.concat(rightY.yaxisList);
+
       if (_.find(yList, { controlId: data.controlId })) {
         isAlert && alert(_l('字段不可重复添加，如需使用，请使用“计算字段”添加'), 2);
         isAlert && addCalculateControlHighlight();
@@ -255,6 +257,7 @@ export default class YAxis extends Component {
       if (item.controlId === id) {
         item.normType = value;
       }
+
       return item;
     });
     onChangeCurrentReport({
@@ -267,6 +270,7 @@ export default class YAxis extends Component {
       if (item.controlId === id) {
         item.emptyShowType = value;
       }
+
       return item;
     });
     onChangeCurrentReport({
@@ -283,6 +287,7 @@ export default class YAxis extends Component {
       if (item.controlId === currentControlId) {
         item.rename = name;
       }
+
       return item;
     });
     onChangeCurrentReport({
@@ -293,6 +298,7 @@ export default class YAxis extends Component {
     const { currentReport, onChangeCurrentReport } = this.props;
     const { reportType, config } = currentReport;
     const data = { yaxisList: list };
+
     if (reportType === reportTypes.ProgressChart) {
       const targetList = config.targetList || [];
       data.config = {
@@ -300,6 +306,7 @@ export default class YAxis extends Component {
         targetList: arrayMove(targetList, oldIndex, newIndex),
       };
     }
+
     onChangeCurrentReport(data);
   };
   renderModal() {
@@ -364,6 +371,7 @@ export default class YAxis extends Component {
       onChangeControlId: this.handleChangeControlId,
       onChangeCurrentReport: this.props.onChangeCurrentReport,
     };
+
     const renderInheritLastYaxis = () => {
       const isScatterChart = reportTypes.ScatterChart === reportType;
       const { inheritLastYaxisIndex = 0 } = style;
@@ -426,9 +434,11 @@ export default class YAxis extends Component {
                 const data = {
                   inheritLastYaxis: checked,
                 };
+
                 if (!checked) {
                   data.inheritLastYaxisIndex = undefined;
                 }
+
                 this.props.onChangeStyle(data);
               }}
             >

@@ -41,10 +41,12 @@ export default class Cancellation extends Component {
     const { state, createStateTime = moment().format('YYYY-MM-DD HH:mm:ss') } = localStorage.getItem('loginStatus')
       ? JSON.parse(localStorage.getItem('loginStatus'))
       : {};
+
     if (!state) {
       this.setState({ loading: false, step: 1 });
       return;
     }
+
     this.setState({ loading: true });
     accountAjax
       .getApplyLogOffAccount({ state })
@@ -101,6 +103,7 @@ export default class Cancellation extends Component {
   getCountDown = () => {
     this.timer = setInterval(() => {
       const { second } = this.state;
+
       if (second <= 0) {
         clearInterval(this.timer);
       } else {
@@ -137,6 +140,7 @@ export default class Cancellation extends Component {
               if (res === 1) {
                 window.location.href = '/login';
               }
+
               if (window.isMingDaoApp) {
                 mdAppResponse({
                   type: 'native',
@@ -176,10 +180,12 @@ export default class Cancellation extends Component {
   };
   getLoginStateCountDown = () => {
     const { overdueDiff } = this.state;
+
     if (overdueDiff <= 0) {
       clearInterval(this.loginStateTimer);
       this.loginStateTimer = null;
     }
+
     this.loginStateTimer = setInterval(() => {
       this.countDown();
     }, 1000);

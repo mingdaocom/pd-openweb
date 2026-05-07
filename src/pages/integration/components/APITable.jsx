@@ -16,7 +16,7 @@ const Wrap = styled.div(
     }
     align-items: center;
     padding: 13px 0;
-    border-bottom: 1px solid rgba(224, 224, 224, 1);
+    border-bottom: 1px solid var(--color-border-primary);
     display: flex;
     & > div.checkCon{
       max-width: 35px;
@@ -54,7 +54,7 @@ const Wrap = styled.div(
   }
   .conTr {
     &:hover {
-      background: rgba(245, 245, 245, 1);
+      background: var(--color-background-hover);
     }
   }
   .noData {
@@ -113,14 +113,17 @@ const keysDef = [
     },
   },
 ];
+
 function APITable(props) {
   const WrapRef = useRef();
   const WrapBotttomRef = useRef();
   const { list = [], onChange, selectedList, noDataIcon } = props;
   const keys = props.keys || keysDef;
+
   const handleSelect = id => {
     onChange(selectedList.includes(id) ? selectedList.filter(o => o !== id) : selectedList.concat(id));
   };
+
   useEffect(() => {
     document.removeEventListener('scroll', HandleScroll, true);
     document.addEventListener('scroll', HandleScroll, true);
@@ -133,6 +136,7 @@ function APITable(props) {
       props.onScrollEnd && props.onScrollEnd();
     }
   };
+
   return (
     <Wrap maxHeight={props.maxHeight} minHeight={props.minHeight}>
       <div className="tableCon flexColumn flex">

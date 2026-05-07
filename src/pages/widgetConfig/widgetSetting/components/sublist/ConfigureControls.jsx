@@ -44,7 +44,6 @@ const AllWidgetsWrap = styled.div`
   .ming.Item.widgetMenuItem {
     height: 36px;
     line-height: 36px;
-    margin-bottom: 6px;
   }
   .ming.Menu {
     width: 100%;
@@ -148,6 +147,7 @@ const getFilterData = value => {
     const { widgets = {}, title } = WIDGET_GROUP_TYPE[key];
     _.map(widgets, (widget = {}, itemKey) => {
       const type = enumWidgetType[itemKey];
+
       if (widget.widgetName.includes(value) && !_.includes([22, 34, 43, 45, 49, 51, 52], type)) {
         filterWidgets[itemKey] = widget;
       }
@@ -272,16 +272,20 @@ export default function ConfigureControl(props) {
                             alert(_l('最多添加100个字段'), 3);
                             return;
                           }
+
                           const err = checkWidgetMaxNumErr(data, controls);
+
                           if (err) {
                             alert(err, 3);
                             return;
                           }
+
                           if (type === 35) {
                             setValue(false);
                             setVisible({ selectCascadeDataSourceVisible: true });
                             return;
                           }
+
                           if (type === 29) {
                             setValue(false);
                             Dialog.confirm({
@@ -323,11 +327,13 @@ export default function ConfigureControl(props) {
                                     });
                                   return;
                                 }
+
                                 alert(_l('没有选择工作表'), 3);
                               },
                             });
                             return;
                           }
+
                           if (type === 54) {
                             setValue(false);
                             addCustomDialog({
@@ -399,10 +405,12 @@ export default function ConfigureControl(props) {
               alert(_l('没有选择工作表'), 3);
               return;
             }
+
             if (!viewId) {
               alert(_l('没有选择视图'), 3);
               return;
             }
+
             addControl({
               ...defaultData,
               type: 35,

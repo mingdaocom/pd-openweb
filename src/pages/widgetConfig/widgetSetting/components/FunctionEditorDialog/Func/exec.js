@@ -47,6 +47,7 @@ class Runner {
   }
   getWorker() {
     const idleWorker = this.workers.filter(w => w.idle)[0];
+
     if (idleWorker) {
       return idleWorker;
     } else if (this.workers.length < this.max) {
@@ -61,14 +62,18 @@ class Runner {
   }
   run() {
     const workerObj = this.getWorker();
+
     if (!workerObj) {
       return;
     }
+
     const item = this.list.shift();
+
     if (!item) {
       this.isRunning = false;
       return;
     }
+
     const { code, cb, timeout } = item;
     workerObj.idle = false;
     this.isRunning = true;
@@ -78,7 +83,9 @@ class Runner {
       this.runningCount--;
       this.run();
     };
+
     let timer;
+
     workerObj.worker.onmessage = msg => {
       if (msg.data.type === 'begin') {
         timer = setTimeout(() => {
@@ -88,12 +95,14 @@ class Runner {
           cb(timeout + 'ms time out');
         }, timeout);
       }
+
       if (msg.data.type === 'over') {
         afterRun();
 
         cb(null, msg.data.value);
         clearTimeout(timer);
       }
+
       if (msg.data.type === 'error') {
         console.error(msg.err || get(msg, 'data.err'));
         afterRun();
@@ -101,6 +110,7 @@ class Runner {
         clearTimeout(timer);
       }
     };
+
     workerObj.worker.postMessage(code);
   }
   push({ code, cb, timeout }) {
@@ -127,19 +137,23 @@ function asyncRun(code, cb, { timeout = 1000 } = {}) {
   // cb(null, result);
 }
 
-function replaceControlIdToValue(expression, formData, inString) {
+function replaceControlIdToValue(expression, formData, nullzero = '0', inString) {
   expression = expression.replace(/\$(.+?)\$/g, matched => {
     const controlId = matched.match(/\$(.+?)\$/)[1];
     const control = _.find(formData, obj => obj.controlId === controlId);
+
     if (!control) {
       return;
     }
-    let value = formatControlValue(control);
+
+    let value = formatControlValue(control, nullzero);
+
     if (typeof value === 'string' && !inString) {
       value = `'${value.replace(/'/g, "\\'").replace(/\n/g, '\\n')}'`;
     } else if (typeof value === 'object') {
       value = JSON.stringify(value);
     }
+
     return typeof value === 'string' ? value : `(${value})`;
   });
   if (expression.indexOf('SYSTEM_URL_PARAMS') > -1) {
@@ -149,12 +163,14 @@ function replaceControlIdToValue(expression, formData, inString) {
       console.log(err);
     }
   }
+
   return expression;
 }
 
 function formatFunctionResult(control, value) {
   const controlType = _.get(control, 'type') === 53 ? _.get(control, 'enumDefault2') : control.type;
   let result = value;
+
   switch (controlType) {
     case WIDGETS_TO_API_TYPE_ENUM.TEXT:
       result = _.isUndefined(result) ? '' : result;
@@ -169,6 +185,7 @@ function formatFunctionResult(control, value) {
           if (typeof result === 'string' && /[^0-9.-]/.test(result || '')) {
             result = (result || '').match(/^-?[\d.]+/)[0];
           }
+
           result = (typeof (result || 0) === 'string' ? Number(result || 0) : result || 0)
             .toFixed(12)
             .toString()
@@ -180,6 +197,7 @@ function formatFunctionResult(control, value) {
       } catch (err) {
         (() => {})(err);
       }
+
       break;
     case WIDGETS_TO_API_TYPE_ENUM.DATE:
       result = result && dayjs(result).isValid() ? dayjs(result).format('YYYY-MM-DD') : undefined;
@@ -209,9 +227,10 @@ function formatFunctionResult(control, value) {
           ? dayjs(result).format(formatMode)
           : dayjs(result, dayjs(result).second() ? 'HH:mm:ss' : 'HH:mm').format(formatMode)
         : undefined;
-      if (result === 'Invalid date') {
+      if (result && result.toString().toLowerCase().includes('invalid date')) {
         result = undefined;
       }
+
       break;
     case WIDGETS_TO_API_TYPE_ENUM.LOCATION:
       const resultArr = _.isString(result) ? result.split(',') : [].concat(result);
@@ -219,23 +238,29 @@ function formatFunctionResult(control, value) {
       result = x && y && !_.isNaN(Number(x)) && !_.isNaN(Number(y)) ? JSON.stringify({ x, y, title, address }) : '';
       break;
   }
+
   return result;
 }
 
 export default function (control, formData, { update, type, forceSyncRun = false, defaultExpression } = {}) {
   const run = functions;
   let expressionData = {};
+
   try {
     expressionData = JSON.parse(control.advancedSetting.defaultfunc);
   } catch (err) {
     console.log(err);
   }
+
   let expression = defaultExpression || _.get(expressionData, 'expression');
   let fnType = _.get(expressionData, 'type');
+
   if (!expression) {
     throw new Error('expression is undefined');
   }
+
   let existDeletedControl, existUndefinedFunction;
+
   if (fnType !== 'javascript') {
     expression = expression.replace(/([A-Z_]+)(?=\()/g, name => {
       if (run[name]) {
@@ -247,6 +272,7 @@ export default function (control, formData, { update, type, forceSyncRun = false
       }
     });
   }
+
   if (existUndefinedFunction) {
     return {
       error: 'EXIST_UNDEFINED_FUNCTION',
@@ -254,13 +280,14 @@ export default function (control, formData, { update, type, forceSyncRun = false
     };
   }
 
-  expression = replaceControlIdToValue(expression, formData);
+  expression = replaceControlIdToValue(expression, formData, _.get(control, 'advancedSetting.nullzero'));
   if (!expression || existDeletedControl) {
     return {
       error: 'EXIST_UNDEFINED_CONTROL_OR_VALUE',
       expression,
     };
   }
+
   return (function () {
     try {
       let result;
@@ -275,6 +302,7 @@ export default function (control, formData, { update, type, forceSyncRun = false
         );
         return;
       }
+
       if (type === 'lib' || forceSyncRun) {
         result = eval(fnType === 'javascript' ? 'function run() { ' + expression + ' } run()' : expression);
       } else {
@@ -299,13 +327,16 @@ export default function (control, formData, { update, type, forceSyncRun = false
           result = eval(expression);
         }
       }
+
       result = formatFunctionResult(control, result);
       if (_.isNaN(result)) {
         result = undefined;
       }
+
       if (type === 'lib' && typeof result === 'undefined') {
         result = '';
       }
+
       return {
         value: result,
         expression,

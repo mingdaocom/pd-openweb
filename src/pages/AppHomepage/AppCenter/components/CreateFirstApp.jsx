@@ -115,6 +115,7 @@ export default function CreateFirstApp(props) {
                     setDialogImportExcel(true);
                     return;
                   }
+
                   if (type === 'create') {
                     const COLORS = getThemeColors(projectId);
                     homeAppAjax
@@ -144,6 +145,7 @@ export default function CreateFirstApp(props) {
                       });
                     return;
                   }
+
                   if (type === 'solution') {
                     navigateTo(href, '__blank');
                     return;

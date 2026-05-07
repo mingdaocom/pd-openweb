@@ -5,6 +5,7 @@ import { DEPARTMENT_ORGANIZE, RELATION_TYPE, USER_ORGANIZE, USER_TYPE } from '..
 
 export default ({ accounts, multipleLevelAccounts, relationType, relationId }) => {
   const appId = relationType === RELATION_TYPE.APP ? relationId : '';
+
   const getMemberNames = data => {
     return data.map((obj, i) => {
       const split = i !== data.length - 1 ? '、' : '';
@@ -74,6 +75,7 @@ export default ({ accounts, multipleLevelAccounts, relationType, relationId }) =
             </Fragment>
           );
         }
+
         return text + department + split;
       }
 

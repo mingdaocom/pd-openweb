@@ -20,6 +20,7 @@ if (source === 'wxwork') {
       async: true,
       success: result => {
         const { accountResult, sessionId } = result.data;
+
         if (accountResult === 1) {
           getGlobalMeta().then(() => {
             setPssId(sessionId);
@@ -53,6 +54,7 @@ if (source === 'wxwork') {
       async: true,
       success: result => {
         const { accountResult, sessionId } = result.data;
+
         if (accountResult === 1) {
           setPssId(sessionId);
           if (checkOriginUrl(ret)) {

@@ -17,6 +17,7 @@ class Home extends Component {
     const { clientHeight, scrollHeight, scrollTop } = event.target;
     const targetVlaue = scrollHeight - clientHeight - 30;
     const { loading, isMore, pageIndex } = loadParams;
+
     if (targetVlaue <= scrollTop && !loading && isMore) {
       updatePageIndex(pageIndex + 1);
     }

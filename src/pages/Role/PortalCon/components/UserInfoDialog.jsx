@@ -15,6 +15,7 @@ const UserInfoDialogWrap = styled.div`
   .customFormErrorMessage {
   }
 `;
+
 export default function UserInfoDialog(props) {
   const { setShow, show, title, classNames, currentData = [], appId } = props;
   const customwidget = useRef(null);
@@ -34,13 +35,16 @@ export default function UserInfoDialog(props) {
       }}
       onOk={() => {
         let { data = [], hasError } = customwidget.current.getSubmitData();
+
         if (hasError) {
           return;
         }
+
         if (data.find(o => o.type === 29 && safeParse(o.value, 'array').length > 5)) {
           alert(_l('最多只能关联 5 条记录'), 3);
           return;
         }
+
         props.onOk(data, ids);
         setShow(false);
       }}

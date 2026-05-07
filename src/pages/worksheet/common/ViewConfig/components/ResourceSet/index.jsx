@@ -34,6 +34,7 @@ const Wrap = styled.div`
     }
   }
 `;
+
 export default function ResourceSet(props) {
   const { appId, view, updateCurrentView } = props;
   const { rowHeight = 0 } = view;
@@ -72,6 +73,7 @@ export default function ResourceSet(props) {
         marginLeft: parseInt($('.ant-picker-range-arrow').css('left')),
       });
     };
+
     setTimeout(() => {
       $('.ant-picker-input input').on({
         click: () => changeLeft(),
@@ -147,6 +149,7 @@ export default function ResourceSet(props) {
                 })}
                 onClick={() => {
                   const { value } = item;
+
                   if (rowHeight !== value) {
                     updateCurrentView({
                       ...view,
@@ -177,6 +180,7 @@ export default function ResourceSet(props) {
                 })}
                 onClick={() => {
                   const { value } = item;
+
                   if (calendarType !== value) {
                     safeLocalStorageSetItem(
                       `${view.viewId}_resource_type`,
@@ -213,9 +217,11 @@ export default function ResourceSet(props) {
             const weekbegin = !_.get(props, 'view.advancedSetting.weekbegin')
               ? '0'
               : _.get(props, 'view.advancedSetting.weekbegin');
+
             if (value === weekbegin) {
               return;
             }
+
             updateCurrentView({
               ...view,
               appId,
@@ -260,15 +266,18 @@ export default function ResourceSet(props) {
                   })}
                   onClick={() => {
                     let str = _.get(props, 'view.advancedSetting.unweekday');
+
                     if ((_.get(props, 'view.advancedSetting.unweekday') || '').indexOf(n) >= 0) {
                       str = str.replace(n, '');
                     } else {
                       str = `${str}` + n;
                     }
+
                     if (str.length >= 7) {
                       //不能全部选中
                       return;
                     }
+
                     updateCurrentView({
                       ...view,
                       appId,
@@ -292,6 +301,7 @@ export default function ResourceSet(props) {
           if (!_.get(props, 'view.advancedSetting.showtime')) {
             return setState({ show: true });
           }
+
           updateCurrentView({
             ...view,
             appId,

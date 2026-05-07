@@ -130,6 +130,7 @@ export const Contact = {
         default:
           break;
       }
+
       if (param.type <= 2) {
         IM.socket.emit(
           'clear unread',

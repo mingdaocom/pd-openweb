@@ -17,9 +17,11 @@ export default function WidgetName(props) {
   useEffect(() => {
     if ($ref.current && !isRecycle) {
       const $dom = $ref.current.input;
+
       if (controlId.includes('-')) {
         $dom.setSelectionRange(0, $dom.value.length);
       }
+
       $dom.focus();
     }
   }, [data.controlId]);

@@ -8,7 +8,7 @@ import functionWrap from 'ming-ui/components/FunctionWrap';
 import worksheetAjax from 'src/api/worksheet';
 import { checkConditionCanSave } from 'src/pages/FormSet/components/columnRules/config';
 import { DEFAULT_CONFIG } from 'src/pages/widgetConfig/config/widget';
-import { enumWidgetType, filterSysControls, isSheetDisplay, toEditWidgetPage } from 'src/pages/widgetConfig/util';
+import { enumWidgetType, filterSysControls, toEditWidgetPage } from 'src/pages/widgetConfig/util';
 import { getAdvanceSetting } from 'src/pages/widgetConfig/util/setting';
 import FilterConfig from 'src/pages/worksheet/common/WorkSheetFilter/common/FilterConfig';
 import { redefineComplexControl } from 'src/pages/worksheet/common/WorkSheetFilter/util';
@@ -44,15 +44,12 @@ function FilterRelateSearch(props) {
 
   const isRelate = _.find(relationControls, r => _.includes([29, 34], r.type) && r.dataSource === worksheetId);
 
-  const currentColumns = allControls
-    .map(redefineComplexControl)
-    .filter(i => !isSheetDisplay(i))
-    .concat({
-      controlId: 'current-rowid',
-      controlName: _l('当前记录'),
-      dataSource: worksheetId,
-      type: 29,
-    });
+  const currentColumns = allControls.map(redefineComplexControl).concat({
+    controlId: 'current-rowid',
+    controlName: _l('当前记录'),
+    dataSource: worksheetId,
+    type: 29,
+  });
 
   const renderContent = () => {
     return (
@@ -167,8 +164,10 @@ export function RelateSearchWorksheet(props) {
             selectedControl: {},
           });
         }
+
         return;
       }
+
       if (loading || (relateType === 'new' ? !sheetId : !_.isEmpty(controls))) return;
       setState({ loading: true });
       worksheetAjax
@@ -214,6 +213,7 @@ export function RelateSearchWorksheet(props) {
     const reControls = (newControls || controls || []).filter(
       i => i.dataSource === sheetId && _.get(i, 'sourceControl.advancedSetting.hide') !== '1',
     );
+
     // 配置回显
     if (!_.isEmpty(resultFilters) && _.isUndefined(open)) {
       const index = _.findIndex(
@@ -230,6 +230,7 @@ export function RelateSearchWorksheet(props) {
       });
       return;
     }
+
     setFields({
       relateFields: reControls,
       open: _.isUndefined(open) ? !_.isEmpty(reControls) : open,
@@ -291,6 +292,7 @@ export function RelateSearchWorksheet(props) {
         </div>
       );
     }
+
     if (loading) return <LoadDiv />;
     return (
       <div className="existRelateWrap">
@@ -432,6 +434,7 @@ export function RelateSearchWorksheet(props) {
                         groupFilters: condition.groupFilters.map(formatCondition),
                       };
                     }
+
                     return { ...condition, emptyRule: ruleRef.current };
                   }
 
@@ -447,6 +450,7 @@ export function RelateSearchWorksheet(props) {
                 } else {
                   setState({ relateType: 'filter', loading: true });
                   let resultFilters = [];
+
                   // 为关联表时，筛选条件有默认值
                   if (sourceControlId || (selectedControl || {}).sourceControl) {
                     const selectControl =
@@ -471,6 +475,7 @@ export function RelateSearchWorksheet(props) {
                       resultFilters = [{ isGroup: true, spliceType: 2, groupFilters }];
                     }
                   }
+
                   setInfo({ resultFilters });
                 }
               }}

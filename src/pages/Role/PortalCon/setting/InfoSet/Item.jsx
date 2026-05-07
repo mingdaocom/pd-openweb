@@ -47,6 +47,7 @@ export default function Item(props) {
             if (newValue === 'RELATE_SHEET') {
               setState({ showCreateRelateControlId: controlId });
             }
+
             onChange(initData(newValue, null, controlId));
           }}
           placeholder={_l('类型')}
@@ -92,6 +93,7 @@ export default function Item(props) {
             alert(_l('请选择字段类型'), 3);
             return;
           }
+
           showEditDialog(controlId, type);
         }}
       />

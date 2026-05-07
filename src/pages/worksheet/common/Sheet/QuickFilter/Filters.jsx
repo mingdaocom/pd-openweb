@@ -6,12 +6,13 @@ export default function Filters(props) {
   const {
     projectId,
     showTextAdvanced,
+    defaultTriggerUpdate,
     isDark,
     appId,
     mode,
     filters,
     controls,
-    enableBtn,
+    advancedSetting = {},
     activeFilterId,
     updateQuickFilter = () => {},
     resetQuickFilter = () => {},
@@ -20,13 +21,14 @@ export default function Filters(props) {
   return (
     <QuickFilter
       showTextAdvanced={showTextAdvanced}
+      defaultTriggerUpdate={defaultTriggerUpdate}
       isDark={isDark}
       projectId={projectId}
       appId={appId}
       mode={mode}
       from="filterComp"
       noExpand
-      view={{ advancedSetting: { enablebtn: enableBtn ? '1' : '0' } }}
+      view={{ advancedSetting }}
       activeFilterId={activeFilterId}
       filters={filters.map(f => ({ ...f, id: f.id || f.filterId }))}
       controls={controls}
@@ -41,7 +43,7 @@ Filters.propTypes = {
   projectId: propTypes.string, // 网络 id
   appId: propTypes.string, // 应用 id
   mode: propTypes.string, // 为 "config" 时设置模式
-  enableBtn: propTypes.bool, // 是否显示查询按钮
+  advancedSetting: propTypes.object, // view advancedSetting 配置
   activeFilterId: propTypes.string, // 当前激活筛选器 id
   filters: propTypes.arrayOf(propTypes.shape({})), // 筛选数据 --同快速筛选配置
   controls: propTypes.arrayOf(propTypes.shape({})), // 字段数据

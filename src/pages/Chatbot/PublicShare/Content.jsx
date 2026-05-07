@@ -26,6 +26,7 @@ const MessageListHeader = styled.div`
     padding-top: 2px;
   }
 `;
+
 export default function Content({ isSmallMode, title, updateTime, chatbotId, conversationId }) {
   const [isLoading, setIsLoading] = useState(false);
   const [messages, setMessages] = useState([]);
@@ -46,6 +47,7 @@ export default function Content({ isSmallMode, title, updateTime, chatbotId, con
       </div>
     );
   }
+
   return (
     <div className="t-flex t-flex-col t-flex-1 t-overflow-hidden">
       <WorkflowChatBot

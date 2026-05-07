@@ -64,10 +64,12 @@ export const EditExternalLink = props => {
   const handleSave = () => {
     const { currentPcNaviStyle } = store.getState().appPkg;
     const protocolReg = /^https?:\/\/.+$/;
+
     if (!protocolReg.test(data.urlTemplate)) {
       alert(_l('请输入正确的url'), 3);
       return;
     }
+
     appManagementApi
       .editWorkSheetInfoForApp({
         type: 1,
@@ -124,6 +126,7 @@ const ExternalLink = props => {
     if (err) {
       return;
     }
+
     setUrlTemplate(value);
   };
 

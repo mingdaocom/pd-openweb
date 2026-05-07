@@ -37,8 +37,8 @@ export default class Account extends Component {
 
     return (
       <div className="orgManagementWrap">
-        <AdminTitle prefix={_l('安全 - 账号')} />
-        <div className="orgManagementHeader Font17">{_l('账号')}</div>
+        <AdminTitle prefix={_l('安全 - 通讯录')} />
+        <div className="orgManagementHeader Font17">{_l('通讯录')}</div>
         <FeatureListWrap
           projectId={projectId}
           configs={[

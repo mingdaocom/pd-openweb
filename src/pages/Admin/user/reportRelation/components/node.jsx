@@ -108,6 +108,7 @@ class Node extends Component {
 
   renderToggleButton() {
     const { collapsed, id, hasSub, dataFromProps, onChangeData, subordinates } = this.props;
+
     if (hasSub || (subordinates && subordinates.length)) {
       const font = collapsed ? 'plus' : 'minus';
       return (
@@ -131,9 +132,11 @@ class Node extends Component {
       accountId: id,
       callback: accounts => {
         let param = { id, accounts };
+
         if (dataFromProps) {
           param.callback = () => onChangeData({ type: 'ADD', value: accounts, id });
         }
+
         dispatch(addSubordinates(param));
       },
     });
@@ -151,9 +154,11 @@ class Node extends Component {
           account: accounts[0],
           replacedAccountId: id,
         };
+
         if (dataFromProps) {
           param.callback = () => onChangeData({ type: 'REPLACE', value: accounts[0], id: parentId });
         }
+
         dispatch(replaceStructure(param));
       },
     });
@@ -169,9 +174,11 @@ class Node extends Component {
           parentId,
           accountId: id,
         };
+
         if (dataFromProps) {
           param.callback = () => onChangeData({ type: 'REMOVE', id: parentId, values: id });
         }
+
         dispatch(removeStructure(param));
       },
     });
@@ -205,6 +212,7 @@ class Node extends Component {
 
   render() {
     const { isFirst, isLast, id, subordinates, auth, isLoading, pageIndex } = this.props;
+
     if (isLoading && !id && pageIndex === 1) {
       return (
         <LoadWrap>
@@ -212,6 +220,7 @@ class Node extends Component {
         </LoadWrap>
       );
     }
+
     if (!id) {
       return (
         <div className="rootNodeItem">

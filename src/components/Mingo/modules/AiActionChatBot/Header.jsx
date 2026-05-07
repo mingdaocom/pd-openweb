@@ -65,6 +65,7 @@ export default function Header({
   onClose = () => {},
 }) {
   const cache = useRef({});
+
   const renderRecordTitle = () => {
     if (!title) return null;
 

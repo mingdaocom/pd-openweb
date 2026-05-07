@@ -21,6 +21,7 @@ const types = {
   13: 'Google',
   14: 'Microsoft',
 };
+
 export default function () {
   const [{ loading, name, avatar }, setState] = useSetState({ loading: true, name: '', avatar: '' });
   useEffect(() => {

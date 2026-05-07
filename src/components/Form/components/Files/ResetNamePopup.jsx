@@ -56,6 +56,7 @@ export default props => {
                   alert(_l('名称不能为空'), 2);
                   return;
                 }
+
                 onSave(fileName);
                 setIsEdit(false);
               }}

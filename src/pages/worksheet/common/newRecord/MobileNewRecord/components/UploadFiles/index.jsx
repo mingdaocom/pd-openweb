@@ -65,6 +65,7 @@ function UploadFiles(
           });
           return;
         }
+
         setFiles([
           ...files.map(f => ({
             id: f.id,

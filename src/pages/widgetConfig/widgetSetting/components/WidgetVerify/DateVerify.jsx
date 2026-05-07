@@ -76,25 +76,33 @@ export default function DateVerify({ data, onChange }) {
     startTime: originStart,
     endTime: originEnd,
   });
+
   const handleWeekChange = key => {
     const weeks = allowweek.split('');
+
     if (isEmpty(weeks)) {
       return key;
     }
+
     const index = findIndex(weeks, item => item === key);
+
     if (index > -1) {
       return update(weeks, { $splice: [[index, 1]] }).join('');
     }
+
     const idx = findIndex(weeks, item => +item > +key);
     return update(weeks, { $splice: [[idx, 0, key]] }).join('');
   };
+
   const handleTimeChange = (e, key) => {
     let value = e.target.value.trim();
     const reg = /^\D*(?:\d{0,2}(?::\d{0,2})?)$/;
+
     if (value === '' || reg.test(value)) {
       setTime({ [key]: value });
     }
   };
+
   const handleTimeBlur = (e, key) => {
     const value = e.target.value.trim();
     const formatValue = value
@@ -102,17 +110,21 @@ export default function DateVerify({ data, onChange }) {
       .map(c => c.padStart(2, 0))
       .join(':');
     let [startVal, endVal] = allowtime.split('-');
+
     if (/^([01]\d|2[0-3]):([0-5]\d)$/.test(formatValue)) {
       if (key === 'startTime' && compareWithTime(formatValue, endVal, 'isBefore')) {
         startVal = formatValue;
       }
+
       if (key === 'endTime' && compareWithTime(startVal, formatValue, 'isBefore')) {
         endVal = formatValue;
       }
     }
+
     setTime({ startTime: startVal, endTime: endVal });
     onChange(handleAdvancedSettingChange(data, { allowtime: `${startVal}-${endVal}` }));
   };
+
   useEffect(() => {
     setTime({
       startTime: originStart,

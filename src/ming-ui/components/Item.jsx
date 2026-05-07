@@ -24,6 +24,7 @@ function Item(props) {
     </li>
   );
 }
+
 Item.propTypes = {
   icon: PropTypes.element,
   iconAtEnd: PropTypes.bool,

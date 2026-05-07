@@ -7,8 +7,8 @@ import { getShowViews } from 'src/pages/worksheet/views/util';
 
 const Wrap = styled.div`
   width: 320px;
-  background: var(--color-background-primary);
-  box-shadow: 0px 4px 16px 1px rgba(0, 0, 0, 0.24);
+  background: var(--color-background-card);
+  box-shadow: var(--shadow-lg);
   border-radius: 3px 3px 3px 3px;
   .viewList {
     border-top: 1px solid var(--color-background-secondary);
@@ -38,6 +38,7 @@ const HeaderRange = styled.div`
     color: var(--color-primary) !important;
   }
 `;
+
 export default function BtnRangeDrop(props) {
   const { onClose, data, onChange, views } = props;
 

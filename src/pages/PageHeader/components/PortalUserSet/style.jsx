@@ -25,11 +25,6 @@ export const WrapHeader = styled.div`
       min-width: 100% !important;
     }
   }
-  .headerCenter {
-    flex: 1;
-    display: flex;
-    align-items: center;
-  }
   .appNameHeaderBoxPortal {
     top: 0;
     width: 100%;
@@ -47,9 +42,6 @@ export const WrapHeader = styled.div`
       height: 100%;
       width: 100%;
       max-width: 188px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
       &.isFixed {
         width: auto;
       }
@@ -62,9 +54,6 @@ export const WrapHeader = styled.div`
       }
     }
     .appItemsOuterWrap {
-      &.Hidden {
-        display: none;
-      }
       display: flex;
       height: 100%;
       align-items: center;
@@ -156,19 +145,15 @@ export const Wrap = styled.div`
   }
   .userName {
     line-height: 56px;
-    word-wrap: break-word;
-    word-break: break-all;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: inline-block;
   }
   .title {
-    width: 60px;
-    padding-right: 5px;
+    width: 100px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
   .rInfo {
-    width: calc(100% - 56px);
+    max-width: calc(100% - 56px);
     &.isOption {
       .editableCellCon {
         padding-left: 0px !important;
@@ -176,39 +161,44 @@ export const Wrap = styled.div`
     }
   }
   .logoutBox {
-    display: flex;
+    padding: 16px 24px 24px;
+    gap: 10px;
   }
   .opt {
     height: 36px;
     width: 36px;
-    margin: 16px 16px 16px 10px;
-    background: var(--color-background-secondary);
-    border-radius: 3px;
+    margin: 0;
+    padding: 0;
+    background: #f0f0f0;
+    border: none;
+    border-radius: 6px;
     .icon {
-      margin: 0 auto;
-      color: var(--color-text-tertiary);
-      line-height: 36px;
+      color: var(--color-text-secondary);
+      font-size: 18px;
     }
     &:hover {
-      .icon {
-        color: var(--color-primary);
-      }
+      background: #e8e8e8;
     }
   }
   .logout {
-    flex: 1;
     height: 36px;
-    background: rgba(33, 150, 243, 0.1);
-    color: var(--color-primary);
-    border-radius: 3px;
-    line-height: 36px;
-    text-align: center;
-    margin: 16px 0px 16px 16px;
+    margin: 0;
+    border: none;
+    background: #e6f7ff;
+    color: #1890ff;
+    border-radius: 6px;
+    .icon {
+      color: #1890ff;
+    }
     .icon:before {
       vertical-align: middle;
     }
     &:hover {
-      background: var(--color-primary-transparent);
+      background: #bae7ff;
+      color: #1890ff;
+      .icon {
+        color: #1890ff;
+      }
     }
   }
   .userImage {
@@ -241,24 +231,31 @@ export const Wrap = styled.div`
         display: block;
       }
     }
-  }
-  .languagueSetting {
-    border: 1px solid var(--color-border-secondary);
-    border-radius: 3px;
-    overflow: hidden;
-    .languagueItem {
-      height: 32px;
-      line-height: 32px;
-      text-align: center;
-      border-right: 1px solid var(--color-border-secondary);
-      background: var(--color-background-primary);
-      color: var(--color-text-disabled);
-      &:last-child {
-        border-right: none;
+    &.noEditAvatar {
+      cursor: default;
+      &:hover .hoverAvatar {
+        display: none;
       }
+    }
+  }
+  .langSettingDropdown {
+    width: auto;
+    min-width: 100px;
+    .Dropdown--input .value,
+    .Dropdown--border .value {
+      color: var(--color-text-primary);
+    }
+  }
+  .themeSwitcher {
+    background: var(--color-background-tertiary);
+    padding: 0 5px;
+    border-radius: 4px;
+    height: 36px;
+    .themeSwitcherItem {
+      padding: 4px 12px;
+      border-radius: 4px;
       &.active {
-        background: var(--color-primary);
-        color: var(--color-white);
+        background: var(--color-background-card);
       }
     }
   }
@@ -268,13 +265,10 @@ export const ModalWrap = styled(Popup)`
   &.appMoreActionWrap {
     .header {
       line-height: 24px;
-      margin-bottom: 20px;
-      text-align: left;
       padding: 20px 15px 0;
       .closeIcon {
         width: 24px;
         height: 24px;
-        text-align: center;
         border-radius: 50%;
         background-color: var(--color-border-secondary);
         .icon {
@@ -286,8 +280,6 @@ export const ModalWrap = styled(Popup)`
       padding-left: 20px;
       color: var(--color-text-primary);
       line-height: 50px;
-      text-align: left;
-      font-weight: 600;
       padding-bottom: 15px;
     }
     .RedMenuItem {

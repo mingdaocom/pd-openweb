@@ -107,6 +107,7 @@ const Wrap = styled.div`
     }
   }
 `;
+
 //回收站
 export default function TrashDialog(props) {
   const [{ loading, pageSize, list }, setState] = useSetState({
@@ -124,6 +125,7 @@ export default function TrashDialog(props) {
     cache.current.isMore = true;
     getList();
   };
+
   const getList = () => {
     if (
       (cache.current.pgIndex > 1 && ((loading && cache.current.isMore) || !cache.current.isMore)) ||
@@ -131,6 +133,7 @@ export default function TrashDialog(props) {
     ) {
       return;
     }
+
     setState({ loading: true });
     processAjax
       .list({
@@ -166,6 +169,7 @@ export default function TrashDialog(props) {
         }
       });
   };
+
   const removeProcess = processId => {
     processAjax.removeProcess({ processId }).then(res => {
       if (res) {
@@ -176,6 +180,7 @@ export default function TrashDialog(props) {
       }
     });
   };
+
   const columns = [
     {
       id: 'name',
@@ -291,6 +296,7 @@ export default function TrashDialog(props) {
       </div>
     );
   };
+
   const renderHeader = () => {
     return (
       <div className="flexRow trashHeader alignItemsCenter">
@@ -300,6 +306,7 @@ export default function TrashDialog(props) {
       </div>
     );
   };
+
   const renderCon = () => {
     return (
       <React.Fragment>
@@ -310,6 +317,7 @@ export default function TrashDialog(props) {
             if (loading) {
               return;
             }
+
             cache.current.pgIndex = cache.current.pgIndex + 1;
             getList();
           }}
@@ -327,6 +335,7 @@ export default function TrashDialog(props) {
     cache.current.isMore = true;
     getList();
   };
+
   const onSearch = _.debounce(keywords => handleSearch(keywords), 500);
 
   return (

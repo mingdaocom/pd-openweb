@@ -42,6 +42,7 @@ export default function AccessConditions(props) {
       alert(_l('最多添加10个请求头'), 3);
       return;
     }
+
     setHearderRule([...hearderRule, { index: hearderRule.length + 1, key: '', value: '' }]);
   };
 
@@ -64,6 +65,7 @@ export default function AccessConditions(props) {
     if (!actionRecord || _.isEmpty(actionRecord)) {
       return;
     }
+
     setAccessType(actionRecord.accessType);
     setAccessPass(actionRecord.accessPass ? 1 : 0);
     setIpRule(actionRecord.ipRule || []);
@@ -96,10 +98,12 @@ export default function AccessConditions(props) {
               value={ipRule.join(',')}
               onChange={value => {
                 const ipList = value.trim().split(',');
+
                 if (ipList.length > 50) {
                   alert(_l('最多添加50个地址'), 3);
                   return;
                 }
+
                 setIpRule(value.trim().split(','));
               }}
               minHeight={80}

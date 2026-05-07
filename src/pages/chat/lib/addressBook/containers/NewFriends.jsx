@@ -48,9 +48,11 @@ export default class NewFriends extends React.Component {
 
   renderContent() {
     const { firstLoading, loadedApplys, loadedRecommends, haveRecommends, haveApplys } = this.state;
+
     if (loadedApplys && loadedRecommends && !haveApplys && !haveRecommends) {
       return <ListNull type="newfriends" />;
     }
+
     return (
       <ScrollView>
         <div className="pAll20">

@@ -154,6 +154,7 @@ Common.getInvoiceStatusStr = function (input) {
 
   return result;
 };
+
 /**
  * [orderRecordStatus 订单状态]
  * @type {Object}

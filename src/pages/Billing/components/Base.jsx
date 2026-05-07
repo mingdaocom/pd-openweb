@@ -18,7 +18,6 @@ const Base = () => {
       .catch(error => {
         console.error('获取基础功能定价策略失败:', error);
         setOriginalData([]);
-        setLoading(false);
       })
       .finally(() => {
         setLoading(false);
@@ -30,7 +29,7 @@ const Base = () => {
   }, []);
 
   return (
-    <EditableTable className="cardWrap flexColumn">
+    <EditableTable className="cardWrap flexColumn mTop16">
       <div className="flexRow alignItemsCenter justifyContentSpaceBetween">
         <div className="Font17 bold mBottom8 flex">{_l('基础功能')}</div>
       </div>

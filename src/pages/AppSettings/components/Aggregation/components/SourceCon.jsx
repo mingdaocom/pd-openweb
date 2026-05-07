@@ -38,6 +38,7 @@ export default function SourceCon(props) {
         </div>
       );
     }
+
     const sourceDt = getNodeInfo(props.flowData, 'DATASOURCE');
     const groupDt = getNodeInfo(props.flowData, 'GROUP');
     const appName = dataInfo.appName
@@ -159,6 +160,7 @@ export default function SourceCon(props) {
       </Fragment>
     );
   };
+
   const renderDropdownElement = () => {
     const sourceDt = getNodeInfo(props.flowData, 'DATASOURCE');
     const sourceTablesData = _.get(sourceDt, 'nodeConfig.config.sourceTables') || [];
@@ -257,6 +259,7 @@ export default function SourceCon(props) {
                       sourceIsMax(projectId);
                       return;
                     }
+
                     setState({ isChange: false });
                   }}
                 >
@@ -275,8 +278,10 @@ export default function SourceCon(props) {
       </WrapSelectCon>
     );
   };
+
   const onChangeSource = (newappId, worksheetId, worksheet) => {
     const sourceDt = getNodeInfo(props.flowData, 'DATASOURCE');
+
     // 当前应用或其他应用下的工作表（一个工作表只能选择一次）
     if (
       ((_.get(sourceDt, 'nodeConfig.config.sourceTables') || []).map(o => o.workSheetId) || []).includes(worksheetId)
@@ -284,6 +289,7 @@ export default function SourceCon(props) {
       alert(_l('一个聚合表不能添加相同的数据源'), 3);
       return;
     }
+
     const ids = (_.get(sourceDt, 'nodeConfig.config.sourceTables') || []).map(o => o.workSheetId);
     getWorksheets(
       !isChange ? ids.concat(worksheetId) : [worksheetId],
@@ -300,6 +306,7 @@ export default function SourceCon(props) {
       workSheetId: worksheetId,
       filterConfig: null,
     };
+
     const updateSource = (flowData = props.flowData) => {
       const sourceDt = getNodeInfo(flowData, 'DATASOURCE');
       onChange(
@@ -313,12 +320,14 @@ export default function SourceCon(props) {
         { flowData },
       );
     };
+
     if (!_.get(props, 'flowData.id')) {
       onChangeByInit(flowData => updateSource(flowData));
     } else {
       updateSource();
     }
   };
+
   const renderSelectWorksheet = () => {
     const sourceDt = getNodeInfo(props.flowData, 'DATASOURCE');
     const sourceTablesData = _.get(sourceDt, 'nodeConfig.config.sourceTables') || [];
@@ -335,10 +344,12 @@ export default function SourceCon(props) {
       />
     );
   };
+
   const renderFilterDialog = () => {
     if (!filterVisible) {
       return '';
     }
+
     const sourceDt = getNodeInfo(props.flowData, 'DATASOURCE');
     const dataInfo = (_.get(sourceDt, 'nodeConfig.config.sourceTables') || []).find(
       o => o.workSheetId === filterVisibleId,
@@ -370,11 +381,13 @@ export default function SourceCon(props) {
         sourceTables: (_.get(sourceDt, 'nodeConfig.config.sourceTables') || []).map(o => {
           if (o.workSheetId === filterVisibleId) {
             let param = {};
+
             if (items.length > 0) {
               param.filterConfig = {
                 items,
               };
             }
+
             return {
               ...o,
               ...param,
@@ -408,6 +421,7 @@ export default function SourceCon(props) {
       />
     );
   };
+
   return (
     <WrapSource className={cx({ isTopChild: isChange })}>
       {renderSelectWorksheet()}

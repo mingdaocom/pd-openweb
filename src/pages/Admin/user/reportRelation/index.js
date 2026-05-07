@@ -11,7 +11,7 @@ export default class App extends React.Component {
     if (props.from && props.projectId) {
       Config.projectId = props.projectId;
     } else {
-      Config.setPageTitle(_l('汇报关系'));
+      Config.setPageTitle(_l('用户 - 汇报关系'));
     }
   }
 

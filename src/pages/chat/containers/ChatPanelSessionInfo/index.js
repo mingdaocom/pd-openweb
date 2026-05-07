@@ -28,6 +28,7 @@ class ChatPanelSessionInfo extends Component {
       this.first = true;
     } else {
       const { panelVisible } = this.state;
+
       if (panelVisible) {
         this.setState({
           panelType: '',
@@ -35,6 +36,7 @@ class ChatPanelSessionInfo extends Component {
         });
       }
     }
+
     // 搜索聊天&文件&成员
     if (nextProps.searchText) {
       this.setState({
@@ -43,6 +45,7 @@ class ChatPanelSessionInfo extends Component {
       });
     } else {
       const { panelType } = this.state;
+
       if (panelType === 'search') {
         this.setState({
           panelVisible: false,
@@ -50,6 +53,7 @@ class ChatPanelSessionInfo extends Component {
         });
       }
     }
+
     // 打开文件
     if (nextProps.isOpenFile) {
       this.setState({
@@ -58,6 +62,7 @@ class ChatPanelSessionInfo extends Component {
       });
     } else {
       const { panelType } = this.state;
+
       if (panelType === 'files' && nextProps.searchText == '') {
         this.setState({
           panelVisible: false,
@@ -70,6 +75,7 @@ class ChatPanelSessionInfo extends Component {
     if (!panelVisible) {
       panelType = '';
     }
+
     this.setState({
       panelType,
       panelVisible,
@@ -83,6 +89,7 @@ class ChatPanelSessionInfo extends Component {
   handleOpenSession(user) {
     const { accountId, fullname, avatar } = user;
     const { isWindow } = this.props;
+
     if (isWindow) {
       utils.windowOpen(accountId, fullname, false);
     } else {

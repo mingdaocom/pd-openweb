@@ -42,6 +42,7 @@ class RecordList extends Component {
   }
   componentDidMount() {
     const { getFilters } = getRequest();
+
     if (getFilters === 'true') {
       mdAppResponse({ sessionId: 'Filter test session', type: 'getFilters' }).then(data => {
         const { value = [] } = data;
@@ -58,6 +59,7 @@ class RecordList extends Component {
         });
       }
     }
+
     window.addEventListener('pageshow', this.handleCloseRecordModal);
   }
   getApp(props) {
@@ -75,13 +77,16 @@ class RecordList extends Component {
     const { params } = this.props.match;
     const view = _.find(nextProps.worksheetInfo.views, v => v.viewId === newParams.viewId) || {};
     const { viewType } = view;
+
     if (newParams.viewId !== params.viewId) {
       this.props.updateBase({ viewId: newParams.viewId });
       _.includes([0, 3, 6], viewType) && this.props.resetSheetView();
     }
+
     if (viewType === 2) {
       updateHierarchyConfigLevel(view);
     }
+
     if (newParams.worksheetId !== params.worksheetId) {
       this.props.emptySheetRows();
       this.props.emptySheetControls();
@@ -134,11 +139,13 @@ class RecordList extends Component {
     } else if (!isHideTabBar && location.href.includes('mobile/app')) {
       let currentGroupInfo =
         localStorage.getItem('currentGroupInfo') && JSON.parse(localStorage.getItem('currentGroupInfo'));
+
       if (_.isEmpty(currentGroupInfo)) {
         window.mobileNavigateTo('/mobile/dashboard');
       } else {
         window.mobileNavigateTo(`/mobile/groupAppList/${currentGroupInfo.id}/${currentGroupInfo.groupType}`);
       }
+
       localStorage.removeItem('currentNavWorksheetId');
     } else {
       window.mobileNavigateTo(`/mobile/app/${params.appId}`);
@@ -191,6 +198,7 @@ class RecordList extends Component {
         </Fragment>
       );
     }
+
     const hasDebugRoles = (debugRole || {}).canDebug && !_.isEmpty(debugRoles);
 
     const { canAddRecord, showBatchBtn, showBackBtn, recordActionWrapBottom } = getViewActionInfo({
@@ -297,9 +305,11 @@ class RecordList extends Component {
                           defaultFormDataEditable: true,
                         }
                       : {};
+
                   if (window.isMingDaoApp) {
                     handlePushState('page', 'newRecord');
                   }
+
                   openAddRecord({
                     ...param,
                     className: 'full',
@@ -320,11 +330,13 @@ class RecordList extends Component {
                         this.viewRef.current?.viewComRef?.current?.refreshCalendarViewData();
                         return;
                       }
+
                       // 看板视图
                       if (String(view.viewType) === VIEW_DISPLAY_TYPE.board) {
                         addMobileNewRecord({ data, view });
                         return;
                       }
+
                       this.props.fetchSheetRows();
                     },
                     showDraftsEntry: true,
@@ -370,6 +382,7 @@ class RecordList extends Component {
         </div>
       );
     }
+
     if (workSheetLoading) {
       return (
         <div className="flexRow justifyContentCenter alignItemsCenter h100">

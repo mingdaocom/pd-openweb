@@ -147,15 +147,18 @@ function DefaultValue(props) {
       if ([9, 10, 11].includes(control.type)) {
         const defsource = safeParse(item.defsource, 'array');
         const list = safeParse(_.get(defsource, `[0].staticValue`));
+
         if (!list || !_.isArray(list)) {
           return JSON.stringify([{ ...defsource[0], staticValue: '' }]);
         }
+
         return JSON.stringify(
           list.map(o => {
             return { ...defsource[0], staticValue: o };
           }),
         );
       }
+
       return item.defsource;
     };
 
@@ -195,6 +198,7 @@ function DefaultValue(props) {
               onChange={data => {
                 const { advancedSetting = {} } = data;
                 let { defsource } = advancedSetting;
+
                 if ([9, 10, 11].includes(data.type)) {
                   const dataDefsource = safeParse(defsource, 'array');
                   defsource = JSON.stringify([
@@ -204,6 +208,7 @@ function DefaultValue(props) {
                     },
                   ]);
                 }
+
                 const newCells = temporaryWriteControls.map(c => {
                   if (c.controlId === control.controlId) {
                     return {
@@ -211,6 +216,7 @@ function DefaultValue(props) {
                       defsource,
                     };
                   }
+
                   return c;
                 });
                 changeTemporaryWriteControls(newCells);
@@ -262,10 +268,12 @@ function DefaultValue(props) {
                 if (ALL_SYS.includes(c.controlId)) {
                   return false;
                 }
+
                 // 关联表列表
                 if (c.type === 29 && _.get(c, ['advancedSetting', 'showtype']) === '2') {
                   return false;
                 }
+
                 return FILTER_TYPES.includes(c.type);
               })}
               onChange={({ newShowControls }) => {
@@ -281,6 +289,7 @@ function DefaultValue(props) {
                   };
                   changeTemporaryWriteControls(temporaryWriteControls.concat(data));
                 }
+
                 if (removeControlId) {
                   changeTemporaryWriteControls(temporaryWriteControls.filter(c => c.controlId !== removeControlId));
                 }

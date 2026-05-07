@@ -42,7 +42,7 @@ export default {
   },
   /**
   * 验证对方用户是否是安全用户，优先确保是联系人
-校验对方用户是否有付费组织；是否经过个人身份认证；以上有一项通过则返回True
+校验对方用户是否有付费组织；加入的组织是否经过企业身份认证；以上有一项通过则返回True
   * @param {Object} args 请求参数
   * @param {string} args.onProjectId 使用的模块所在组织Id（可空），如应用
   * @param {string} args.appId 所在应用

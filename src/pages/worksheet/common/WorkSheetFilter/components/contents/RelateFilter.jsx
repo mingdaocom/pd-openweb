@@ -59,6 +59,7 @@ export default class RelateFilter extends Component {
         </Tooltip>
       );
     }
+
     return (
       <span className="breakAll">
         {nameList.controlName}
@@ -115,6 +116,7 @@ export default class RelateFilter extends Component {
                     i,
                   );
                 }
+
                 // 当前记录
                 if (!_.includes(['parent', 'fastFilter', 'navGroup'], item.rcid)) {
                   let nameList = _.find(currentColumns, v => item.cid === v.controlId);

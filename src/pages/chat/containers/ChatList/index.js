@@ -75,6 +75,7 @@ class Chat extends Component {
   onCloseSessionList = () => {
     const { toolbarConfig } = this.props;
     const { sessionListVisible, isOpenCommonApp } = toolbarConfig;
+
     if (sessionListVisible && !isOpenCommonApp) {
       this.props.dispatch(
         actions.setToolbarConfig({

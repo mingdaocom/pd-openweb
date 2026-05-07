@@ -18,11 +18,13 @@ export default function DropdownWrapper(props) {
   } = props;
   const [searchValue, setValue] = useState('');
   const filterData = searchValue ? data.filter(item => item.text.includes(searchValue)) : data;
+
   const renderPlaceholder = () => {
     if (isEmptyValue(value)) return <div className="placeholder">{placeholder || _l('请选择')}</div>;
     if (renderDisplay && typeof renderDisplay === 'function') return renderDisplay(value);
     return <div className="text">{(data.find(item => item.value === value) || {}).text}</div>;
   };
+
   const getItem = item => {
     const { text, icon, iconAtEnd, children } = item;
     if (children) return children;
@@ -34,6 +36,7 @@ export default function DropdownWrapper(props) {
         </Fragment>
       );
     }
+
     if (isCheckMode) {
       return (
         <Fragment>
@@ -42,6 +45,7 @@ export default function DropdownWrapper(props) {
         </Fragment>
       );
     }
+
     return (
       <Fragment>
         {icon && <i className={`icon-${icon} Font16`}></i>}
@@ -49,6 +53,7 @@ export default function DropdownWrapper(props) {
       </Fragment>
     );
   };
+
   return (
     <Dropdown
       trigger={trigger || ['click']}

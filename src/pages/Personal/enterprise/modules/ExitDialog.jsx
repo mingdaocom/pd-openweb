@@ -52,6 +52,7 @@ export default class ExitDialog extends Component {
       alert('请指定成员');
       return;
     }
+
     var $btn = $('#submitBtn');
     $btn.removeClass('Button--primary').addClass('Button--disabled').prop('disabled', true);
     account

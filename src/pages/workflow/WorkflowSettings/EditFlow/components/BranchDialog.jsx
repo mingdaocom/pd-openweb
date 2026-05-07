@@ -15,6 +15,7 @@ export default ({
   const [isOrdinary, setIsOrdinary] = useState(true);
   const [moveType, setMoveType] = useState(1);
   const { typeId, actionId } = flowNodeMap[nodeId] || {};
+
   const MOVE_TYPE = () => {
     if (isOrdinary) {
       return [

@@ -68,6 +68,7 @@ class Search extends Component {
   handleSearch = () => {
     const { filterIndex } = this.state;
     const { filters, textFilters, updateQuickFilter } = this.props;
+
     if (textFilters.length) {
       // 快速搜索
       const quickFilter = [textFilters[filterIndex]]
@@ -165,6 +166,7 @@ class Search extends Component {
               value={searchValue}
               onChange={e => {
                 const { value } = e.target;
+
                 if (textFilters.length) {
                   updateFilters({ quickFilterKeyWords: value });
                 } else {
@@ -206,6 +208,7 @@ class Search extends Component {
                 if (newIgnorecase === '0') {
                   alert(_l('已开启区分大小写'));
                 }
+
                 this.handleSearch();
               }}
             >

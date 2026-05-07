@@ -5,8 +5,7 @@ end_of_line = lf
 insert_final_newline = true
 trim_trailing_whitespace = true
 trim_trailing_white_space_on_save = true
-# fuck windows
-charset = utf-8-bom
+charset = utf-8
 indent_style = space
 
 [*.{html,htm,tpl}]
@@ -16,6 +15,3 @@ indent_size = 2
 
 [*.md]
 trim_trailing_whitespace = false
-
-[{**/*.json}]
-charset = utf-8

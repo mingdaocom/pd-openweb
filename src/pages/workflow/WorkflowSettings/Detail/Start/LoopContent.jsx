@@ -133,6 +133,7 @@ export default class LoopContent extends Component {
         num = '1';
         evt.target.value = num;
       }
+
       updateSource({ interval: num });
     }
   }

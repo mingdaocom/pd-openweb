@@ -29,15 +29,19 @@ export default function NumberInput(props) {
 
   useEffect(() => {
     const { default: defaultValue } = data;
+
     // 把以前旧的默认值合并到新的动态默认值上并清除掉旧的
     if (defaultValue) {
       handleChange(defaultValue);
       clearOldDefault();
     }
+
     const value = (_.head(dynamicValue) || {}).staticValue;
+
     if (value) {
       setValue(value);
     }
+
     if (dynamicValue.some(item => !!item.cid)) {
       setDynamic({ isDynamic: true });
     }
@@ -45,10 +49,12 @@ export default function NumberInput(props) {
 
   useEffect(() => {
     const nextValue = (_.head(dynamicValue) || {}).staticValue;
+
     if (String(nextValue) !== value) {
       setValue(nextValue);
       setDynamic(false);
     }
+
     if (dynamicValue.some(item => !!item.cid)) {
       setDynamic({ isDynamic: true });
     }
@@ -68,9 +74,11 @@ export default function NumberInput(props) {
     if (value) {
       const max = getMaxOrMin(true) ? Number(getMaxOrMin(true)) : '';
       const min = getMaxOrMin() ? Number(getMaxOrMin()) : '';
+
       if (max !== '' && min !== '' && max < min) {
         return onDynamicValueChange([{ cid: '', rcid: '', staticValue: `${max}~${min}` }]);
       }
+
       return onDynamicValueChange([{ cid: '', rcid: '', staticValue: value }]);
     }
   };
@@ -143,14 +151,17 @@ export default function NumberInput(props) {
           onBlur={() => {
             if (value) {
               let dealValue = value === '-' ? '' : parseFloat(value);
+
               if (from === DYNAMIC_FROM_MODE.FAST_FILTER) {
                 return handleChange(String(dealValue));
               }
+
               if (isStep && (dealValue === 0 || dealValue)) {
                 if (dealValue > parseFloat(maxValue)) dealValue = maxValue;
                 if (dealValue < parseFloat(minValue)) dealValue = minValue;
                 handleChange(String(dealValue));
               }
+
               setValue(dealValue);
               if (dealValue === '') {
                 onDynamicValueChange([]);

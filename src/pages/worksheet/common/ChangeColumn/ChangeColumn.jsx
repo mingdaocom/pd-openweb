@@ -105,6 +105,7 @@ export default class ChangeColumn extends Component {
           );
           return column.sectionId === controlId ? _select : controlId !== column.controlId;
         }
+
         return controlId !== column.controlId;
       });
 
@@ -217,6 +218,7 @@ export default class ChangeColumn extends Component {
             if (maxSelectedNum && columns.length >= maxSelectedNum) {
               alert(_l('最多显示%0个字段', maxSelectedNum), 3);
             }
+
             this.handleChange({
               selected: columns
                 .slice(0, _.isUndefined(maxSelectedNum) ? 10000000 : maxSelectedNum)
@@ -248,6 +250,7 @@ export default class ChangeColumn extends Component {
                       if (a.row === b.row) {
                         return a.col - b.col;
                       }
+
                       return a.row - b.row;
                     })
                     .filter(l => l.controlId.length > 20)

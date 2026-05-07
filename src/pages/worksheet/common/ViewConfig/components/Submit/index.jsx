@@ -39,7 +39,7 @@ const WrapList = styled.div`
   }
   .conLi {
     padding: 10px 12px 10px 8px;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+    border-bottom: 1px solid var(--color-border-secondary);
     transition: all 0.2s ease;
     .ming.Radio {
       margin-right: 0;
@@ -105,6 +105,7 @@ const actionTypes = [
     key: 'delete',
   },
 ];
+
 function ActionCon(props) {
   const { onDel, setPublish, id, projectId, view } = props;
   const [{ visible }, setState] = useSetState({
@@ -151,6 +152,7 @@ function ActionCon(props) {
                     } else {
                       setPublish();
                     }
+
                     e.stopPropagation();
                   }}
                 >
@@ -174,6 +176,7 @@ function ActionCon(props) {
     </Trigger>
   );
 }
+
 export default function SubmitConfig(params) {
   const { view = {}, onChangeView, appId, updateCurrentViewState, projectId } = params;
   const [{ pageIndex, loading, isMore, list, CommitId, configuration, publishVersion }, setState] = useSetState({
@@ -202,13 +205,16 @@ export default function SubmitConfig(params) {
     copy(content);
     alert(_l('复制成功'));
   };
+
   const handleScroll = (pageIndex, reGet) => {
     if (!_.get(view, 'pluginInfo.id')) {
       return;
     }
+
     if (!reGet && (loading || !isMore)) {
       return;
     }
+
     setState({
       loading: true,
     });
@@ -217,6 +223,7 @@ export default function SubmitConfig(params) {
         list: [],
       });
     }
+
     pluginAjax
       .getCommitHistory({
         id: _.get(view, 'pluginInfo.id'),
@@ -235,6 +242,7 @@ export default function SubmitConfig(params) {
         });
       });
   };
+
   const onDel = id => {
     pluginAjax
       .removeCommit({
@@ -259,12 +267,14 @@ export default function SubmitConfig(params) {
               { pluginId: _.get(view, 'pluginInfo.id'), editAttrs: ['advancedSetting', 'pluginId'] },
             );
           }
+
           alert(_l('删除成功'));
         } else {
           alert(_l('删除失败，稍后再试'), 3);
         }
       });
   };
+
   const renderText = (content, renderTxt) => {
     return (
       <div className="textCopyCon flexRow alignItemsCenter mTop16 Hand" onClick={() => handleCopy(content)}>
@@ -319,9 +329,11 @@ export default function SubmitConfig(params) {
                       checked={o.id === CommitId}
                       onClick={() => {
                         const { plugin_attachement_info } = _.get(view, 'advancedSetting');
+
                         if (o.id === CommitId) {
                           return;
                         }
+
                         onChangeView(
                           {
                             plugin_attachement_info: JSON.stringify({

@@ -60,6 +60,7 @@ class AppRole extends Component {
       },
     } = nextProps;
     const { hasGetIsOpen, isOpenPortal } = this.state;
+
     if (currentAppId !== nextAppId || !hasGetIsOpen) {
       this.setState({
         loading: true,
@@ -69,6 +70,7 @@ class AppRole extends Component {
       if (editType === 'external' && !isOpenPortal) {
         navigateTo(`/app/${nextAppId}/role`);
       }
+
       this.setState({
         editType: editType === 'external' && isOpenPortal ? 1 : 0,
       });

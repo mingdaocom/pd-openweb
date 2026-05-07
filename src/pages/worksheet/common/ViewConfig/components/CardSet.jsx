@@ -11,11 +11,13 @@ export default function CardSet(props) {
   const { advancedSetting } = view;
   const info = { ...view, appId, editAttrs: ['advancedSetting'] };
   const viewTypeText = VIEW_DISPLAY_TYPE[view.viewType];
+
   const getWorksheetControls = () => {
     if (['gunter'].includes(viewTypeText)) {
       const ids = [_.get(view, 'advancedSetting.begindate'), _.get(view, 'advancedSetting.enddate')].filter(o => !!o);
       return worksheetControls.filter(o => !ids.includes(o.controlId));
     }
+
     if (['calendar'].includes(viewTypeText)) {
       const items = safeParse(_.get(view, 'advancedSetting.calendarcids') || '[]');
       let ids = [];
@@ -25,8 +27,10 @@ export default function CardSet(props) {
       ids = ids.filter(o => !!o);
       return worksheetControls.filter(o => !ids.includes(o.controlId));
     }
+
     return worksheetControls;
   };
+
   return (
     <Fragment>
       {!['gunter', 'calendar'].includes(viewTypeText) && (

@@ -43,11 +43,13 @@ const ContentWrap = styled.div`
 
 const getContainerForCard = (event, widgetId) => {
   const tabContainers = document.querySelectorAll('.widgetContent.richText');
+
   for (let container of tabContainers) {
     if (container.contains(event.target)) {
       return container.querySelector(`.richText-${widgetId}`);
     }
   }
+
   return null;
 };
 
@@ -87,8 +89,10 @@ export const EditRichText = props => {
 
   useEffect(() => {
     const componentsWrap = document.querySelector('.customPageContentWrap');
+
     const handleClickActiveWrap = event => {
       const richTextContainer = getContainerForCard(event, widget.id || widget.uuid);
+
       if (!richTextContainer) {
         setIsFocus(false);
         updateWidget({
@@ -97,6 +101,7 @@ export const EditRichText = props => {
         });
       }
     };
+
     editable && componentsWrap.addEventListener('click', handleClickActiveWrap);
     return () => {
       editable && componentsWrap.removeEventListener('click', handleClickActiveWrap);
@@ -110,10 +115,13 @@ export const EditRichText = props => {
         setWidth(elementRef.current.offsetWidth);
       }
     };
+
     const resizeObserver = new ResizeObserver(handleResize);
+
     if (elementRef.current) {
       resizeObserver.observe(elementRef.current);
     }
+
     return () => {
       if (elementRef.current) {
         resizeObserver.unobserve(elementRef.current);

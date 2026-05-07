@@ -61,12 +61,14 @@ export function updateHierarchyConfigLevel(view) {
   const defaultlayer = get(view, 'advancedSetting.defaultlayer');
   const config = safeParse(localStorage.getItem(`hierarchyConfig-${viewId}`));
   const { levelUpdateTime } = config;
+
   if (defaultlayer && defaultlayertime) {
     if (!levelUpdateTime || Number(defaultlayertime) > Number(levelUpdateTime)) {
       safeLocalStorageSetItem(`hierarchyConfig-${viewId}`, JSON.stringify({ ...config, level: Number(defaultlayer) }));
     }
   }
 }
+
 function View(props) {
   const { error, view, showAsSheetView, refreshSheet } = props;
   const { advancedSetting = {} } = view;
@@ -96,6 +98,7 @@ function View(props) {
     'sheetSwitchPermit',
     'noLoadAtDidMount',
     'printCharge',
+    'hideFilter',
   ]);
 
   if (_.isEmpty(view) && !props.chartId && !_.get(window, 'shareState.isPublicView')) {
@@ -103,6 +106,7 @@ function View(props) {
   }
 
   let viewType = String(showAsSheetView ? sheet : view.viewType);
+
   if (!showAsSheetView && view.viewType === 2) {
     const { viewControl, viewControls } = view;
     const { controls = [], worksheetId = '' } = props;
@@ -116,6 +120,7 @@ function View(props) {
         _.find(controls, item => item.controlId === viewControl) &&
         hierarchyData.map(o => o.value).includes(viewControl)) ||
       !_.isEmpty(viewControls);
+
     if (isHaveSelectControl) {
       if (advancedSetting.hierarchyViewType === '1') {
         viewType = 'structureVertical';
@@ -137,6 +142,7 @@ function View(props) {
     if (cache.current.refreshTimer) {
       clearInterval(cache.current.refreshTimer);
     }
+
     if (authRefreshTime && _.includes(['10', '30', '60', '120', '180', '240', '300'], String(authRefreshTime))) {
       cache.current.refreshTimer = setInterval(
         () => {
@@ -147,11 +153,13 @@ function View(props) {
           ) {
             return;
           }
+
           refreshSheet(view, { noLoading: true, isAutoRefresh: true });
         },
         Number(authRefreshTime) * 1000,
       );
     }
+
     return () => {
       if (cache.current.refreshTimer) {
         clearInterval(cache.current.refreshTimer);
@@ -190,6 +198,7 @@ View.propTypes = {
 
 function ViewWithLoading(props) {
   const { loading } = props;
+
   if (loading) {
     return (
       <Con>
@@ -219,6 +228,7 @@ function ViewWithLoading(props) {
       </Con>
     );
   }
+
   return <View {...props} />;
 }
 

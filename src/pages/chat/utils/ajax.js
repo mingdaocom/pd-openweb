@@ -34,6 +34,7 @@ export const chatSessionItem = param => {
   const ajaxOptions = {
     timeout,
   };
+
   if (param.type == Constant.SESSIONTYPE_GROUP) {
     return ChatController.getGroupInfo(
       {
@@ -98,6 +99,7 @@ export const getMessage = conf => {
 export const getMessageById = conf => {
   const param = {};
   let url = '';
+
   if (conf.type === Constant.SESSIONTYPE_GROUP) {
     param.groupid = conf.id || '';
     url = '/group_messages_byid';
@@ -105,6 +107,7 @@ export const getMessageById = conf => {
     param.accountId = conf.id || '';
     url = '/messages_byid';
   }
+
   param.msgid = conf.msgid || '';
   param.size = conf.size || 21;
   return window.mdyAPI('', '', param, {
@@ -123,6 +126,7 @@ export const getMessageById = conf => {
 export const getImageContext = conf => {
   const param = {};
   let url = '';
+
   if (conf.isGroup) {
     param.groupid = conf.id || 0;
     url = '/group_files_byid';
@@ -130,6 +134,7 @@ export const getImageContext = conf => {
     param.accountid = conf.id || 0;
     url = '/user_files_byid';
   }
+
   param.msgid = conf.msgid || '';
   param.size = conf.size || 20;
   param.type = conf.type || 0; // 0：表示全部上下文图片消息；1：表示上文图片消息；2：表示下文图片消息
@@ -145,6 +150,7 @@ export const getImageContext = conf => {
       if (!_.isArray(res)) {
         res = [];
       }
+
       return res;
     });
 };
@@ -205,12 +211,15 @@ export const addMembers = param => {
       sourceId: param.groupId,
       fromType: 1,
     };
+
     if (param.accountIds) {
       obj.accountIds = param.accountIds;
     }
+
     if (param.accounts) {
       obj.accounts = param.accounts;
     }
+
     CommonAjaxInvitation.inviteUser(obj)
       .then(data => {
         resolve(data);

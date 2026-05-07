@@ -88,8 +88,8 @@ function ConnectDesDia(props) {
 
   //编辑详细资料
   const handleUploadImg = () => {
-    if (props.data.type === 2) {
-      // 安装的连接 不可修改连接LOGO
+    if (props.data.type === 2 && !_.get(props.data, 'info.allowEdit')) {
+      // 安装的连接默认不可修改连接LOGO；info.allowEdit 为 true 时可修改
       return;
     }
 
@@ -139,9 +139,11 @@ function ConnectDesDia(props) {
           className="Block mTop8"
           onChange={e => {
             let str = e.target.value;
+
             if (e.target.value.trim().length > 20) {
               str = e.target.value.trim().slice(0, 20);
             }
+
             setState({ name: str });
           }}
           placeholder={_l('例如：订单查询、物流查询')}
@@ -156,9 +158,11 @@ function ConnectDesDia(props) {
           className="Block mTop8"
           onChange={e => {
             let str = e.target.value;
+
             if (e.target.value.trim().length > 600) {
               str = e.target.value.trim().slice(0, 600);
             }
+
             setState({ explain: str });
           }}
         />

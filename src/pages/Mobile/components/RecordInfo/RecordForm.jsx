@@ -88,21 +88,25 @@ export default class RecordForm extends Component {
       view = {},
       workflow,
     } = this.props;
+
     if (isEditRecord || !this.formWrap) {
       return;
     }
+
     const { scrollTop, scrollHeight, clientHeight } = this.formWrap;
     const targetVlaue = workflow ? scrollHeight - clientHeight - 5 : scrollHeight - clientHeight - 30;
     const { loading, isMore, pageIndex } = loadParams;
     const isLoadMore = _.includes([29, 51], currentTab.type) ? relationRow.count : currentTab.value;
+
     if (targetVlaue <= scrollTop && isLoadMore && !loading && isMore) {
       updatePageIndex(pageIndex + 1);
     }
+
     const wrapEl = document.querySelector(`.mobileSheetRowRecord-${recordBase.recordId}`);
-    const tabsEl = wrapEl.querySelector('.tabsWrapper');
-    const fixedTabsEl = wrapEl.querySelector('.fixedTabs');
-    const fixedSheetNameWrapEl = wrapEl.querySelector('.fixedSheetNameWrap');
-    const mobileFormTopEl = wrapEl.querySelector('.mobileFormTop');
+    const tabsEl = wrapEl?.querySelector('.tabsWrapper');
+    const fixedTabsEl = wrapEl?.querySelector('.fixedTabs');
+    const fixedSheetNameWrapEl = wrapEl?.querySelector('.fixedSheetNameWrap');
+    const mobileFormTopEl = wrapEl?.querySelector('.mobileFormTop');
 
     if (fixedSheetNameWrapEl) {
       if (scrollTop >= mobileFormTopEl.clientHeight) {
@@ -111,12 +115,15 @@ export default class RecordForm extends Component {
         fixedSheetNameWrapEl && fixedSheetNameWrapEl.classList.remove('fixedSheetNameWrapBG');
       }
     }
+
     const fixedTopHeight = window.shareState.isPublicRecord ? 0 : 55;
+
     if (tabsEl && tabsEl.offsetTop - fixedTopHeight <= scrollTop && !workflow) {
       fixedTabsEl && fixedTabsEl.classList.remove('hide');
     } else {
       fixedTabsEl && fixedTabsEl.classList.add('hide');
     }
+
     if (view.viewType === 6 && view.childType === 1) {
       fixedTabsEl && fixedTabsEl.classList.add('top41');
     }
@@ -144,6 +151,7 @@ export default class RecordForm extends Component {
       if (workflow) {
         return [];
       }
+
       if (allowApprove && !isEditRecord) {
         return [
           {
@@ -173,7 +181,9 @@ export default class RecordForm extends Component {
         return [];
       }
     };
+
     let list = getList();
+
     if (payConfig.rowDetailIsShowOrder && !_.get(window, 'shareState.isPublicRecord') && this.isLoadApprove) {
       list = [
         ...list,
@@ -195,6 +205,7 @@ export default class RecordForm extends Component {
         },
       ];
     }
+
     return list;
   };
   renderHeader({ formCoverVisible } = {}) {
@@ -248,12 +259,14 @@ export default class RecordForm extends Component {
             onClick={() => {
               if (location.pathname.indexOf('public') > -1 || window.isPublicApp || md.global.Account.isPortal) return;
               const { page } = getRequest();
+
               if (window.isMingDaoApp) {
                 handleReplaceState(
                   'page',
                   page === 'recordDetail' ? 'recordDetail' : _.isArray(page) ? page[page.length - 1] : '',
                 );
               }
+
               window.mobileNavigateTo &&
                 window.mobileNavigateTo(
                   `/mobile/recordList/${recordBase.appId}/${recordInfo.groupId}/${recordBase.worksheetId}${recordBase.viewId ? '/' + recordBase.viewId : ''}`,

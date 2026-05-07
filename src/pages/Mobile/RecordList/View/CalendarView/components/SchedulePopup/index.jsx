@@ -50,6 +50,7 @@ const ScheduleModal = props => {
       getNotScheduledEventList();
       isInit.current = false;
     }
+
     // 关闭弹层，重置数据，刷新日历视图
     if (!visible && !isInit.current) {
       setState({ pageIndex: 1, keyWords: '' });

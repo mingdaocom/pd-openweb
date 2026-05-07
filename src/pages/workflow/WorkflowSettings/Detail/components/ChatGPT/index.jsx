@@ -180,7 +180,7 @@ const Cursor = styled.span`
   display: inline-block;
   width: 10px;
   height: 16px;
-  background: var(--color-background-inverse);
+  background: var(--color-text-primary);
   animation: fadeIn 0.6s ease-in-out infinite;
   margin-top: 3px;
   vertical-align: top;
@@ -220,6 +220,7 @@ export default ({ processId, nodeId, codeType = 1, onSave = () => {}, onClose = 
   const [controller, setController] = useState(null);
   const [clearParams, setClearParams] = useState(true);
   const [error, setError] = useState();
+
   const generateCode = async () => {
     if (!list.length || !controller) return;
 
@@ -235,6 +236,7 @@ export default ({ processId, nodeId, codeType = 1, onSave = () => {}, onClose = 
           saveGenerateCodeRecord(newList);
           return;
         }
+
         if (event.event === 'error') {
           setError({
             errorMsg: _l('模型调用失败'),
@@ -294,6 +296,7 @@ export default ({ processId, nodeId, codeType = 1, onSave = () => {}, onClose = 
       reader.releaseLock();
     }
   };
+
   const getMarkdownContent = text => {
     const md = new Remarkable({
       highlight(str) {
@@ -308,6 +311,7 @@ export default ({ processId, nodeId, codeType = 1, onSave = () => {}, onClose = 
 
     return filterXss(md.render(text));
   };
+
   const saveGenerateCodeRecord = list => {
     codeAjax.saveGenerateCodeRecord({ workflowId: processId, nodeId, messageList: list });
   };
@@ -480,6 +484,7 @@ export default ({ processId, nodeId, codeType = 1, onSave = () => {}, onClose = 
               if (!keywords.trim() || controller) {
                 return;
               }
+
               setKeywords('');
               setController(new AbortController());
               setList(

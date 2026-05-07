@@ -20,6 +20,7 @@ export default class Header extends Component {
   handleBlur = event => {
     const name = event.target.value;
     const { report } = this.props;
+
     if (report.id) {
       reportConfig
         .updateReportName({
@@ -28,6 +29,7 @@ export default class Header extends Component {
         })
         .then(() => {});
     }
+
     this.setState({ isEdit: false });
     this.props.changeCurrentReport({ name });
   };

@@ -70,13 +70,16 @@ export default function Users(props) {
   const pickUser = () => {
     setShowSelectUser(true);
   };
+
   const onSave = users => {
     onChange({ values: isMultiple ? _.uniqBy([...values, ...users], 'accountId') : users });
   };
+
   // 删除
   const deleteCurrentUser = item => {
     onChange({ values: values.filter(v => v.accountId !== item.accountId) });
   };
+
   return (
     <div className="controlWrapper">
       <div className="Font14 bold mBottom15 controlName">{control.controlName}</div>
@@ -86,6 +89,7 @@ export default function Users(props) {
             item.avatar = emptyAvatar;
             item.fullname = nullitemname || _l('为空');
           }
+
           return (
             <UserItem>
               {/* <img src={item.avatar} alt="" className="userAvatar" /> */}

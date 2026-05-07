@@ -35,7 +35,7 @@ const ThemeBox = styled.div`
   height: 36px;
   width: 36px;
   line-height: 36px;
-  background-color: var(--color-background-disabled);
+  background-color: var(--color-background-tertiary);
   text-align: center;
   margin-left: 6px;
 `;

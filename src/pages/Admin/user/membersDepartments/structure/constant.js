@@ -27,9 +27,11 @@ export const ACTIONS = {
 
 export const getEllipsisDep = str => {
   let arr = str.split('/');
+
   if (arr.length <= 3) {
     return str;
   }
+
   return arr[0] + '/' + '...' + '/' + arr[arr.length - 2] + '/' + arr[arr.length - 1];
 };
 
@@ -37,6 +39,7 @@ const checkUser = (input, iti) => {
   if (!input) {
     return _l('请输入手机或者邮箱');
   }
+
   if (isNaN(Number(input))) {
     if (RegExpValidator.isEmail(input)) {
       return null;

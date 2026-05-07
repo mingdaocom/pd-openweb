@@ -6,6 +6,7 @@ import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { Dialog, Icon, Input, Menu, MenuItem, MobileConfirmPopup, PopupWrapper, Skeleton } from 'ming-ui';
 import ScrollView from 'ming-ui/components/ScrollView';
+import appManagementApi from 'src/api/appManagement';
 import { getPublicShare, updatePublicShareStatus } from 'src/pages/worksheet/components/Share/controller';
 import { browserIsMobile } from 'src/utils/common';
 import { compatibleMDJS } from 'src/utils/project';
@@ -103,14 +104,21 @@ function ChatHistoryItem({
     if (e.target.closest('.MenuItem')) {
       return;
     }
+
     setMenuVisible(false);
   });
 
   const handleShare = async () => {
     let linkUrl = '';
+
     if (!conversationId) {
       // 帮助文档历史对话
-      linkUrl = `${location.origin}/mingo/share/${item.chatId}`;
+      const res = await appManagementApi.editEntityShareStatus({
+        sourceId: item.id,
+        sourceType: 73,
+        status: 1,
+      });
+      linkUrl = res.appEntityShare.url;
     } else {
       // 对话机器人历史对话
       const sourceId = `${chatbotId}|${conversationId}`;
@@ -119,6 +127,7 @@ function ChatHistoryItem({
         appId,
         sourceId,
       });
+
       // 未开启分享
       if (!shareParams.shareLink) {
         const updateRes = await updatePublicShareStatus({
@@ -127,10 +136,12 @@ function ChatHistoryItem({
           sourceId,
           isPublic: true,
         });
+
         if (!updateRes.shareLink) {
           alert(_l('分享失败'), 2);
           return;
         }
+
         linkUrl = updateRes.shareLink;
       } else {
         linkUrl = shareParams.shareLink;

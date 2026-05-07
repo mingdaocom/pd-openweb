@@ -40,6 +40,7 @@ export function getDefaultText({ printType, sourceType, sourceControlId, control
       name: '',
     };
   }
+
   return;
 }
 
@@ -47,6 +48,7 @@ const DPI_MM = 8;
 
 export function createQrLabeObjectFromConfig(config = {}, url, texts = [], options = {}) {
   let width, height;
+
   if (config.labelSize === QR_LABEL_SIZE.CUSTOM) {
     width = config.labelCustomWidth * DPI_MM;
     height = config.labelCustomHeight * DPI_MM;
@@ -56,12 +58,15 @@ export function createQrLabeObjectFromConfig(config = {}, url, texts = [], optio
     width = config.layout === QR_LAYOUT.LANDSCAPE ? configWidth : configHeight;
     height = config.layout === QR_LAYOUT.LANDSCAPE ? configHeight : configWidth;
   }
+
   let layout;
+
   if (config.labelSize === QR_LABEL_SIZE.CUSTOM) {
     layout = width > height ? 'l' : 'p';
   } else {
     layout = config.layout === QR_LAYOUT.PORTRAIT ? 'p' : 'l';
   }
+
   const labelObject = new QrLabel({
     type: layout,
     size: (config.layout === QR_LAYOUT.PORTRAIT ? PORTRAIT_QR_CODE_SIZE : LANDSCAPE_QR_CODE_SIZE).shorts[
@@ -88,8 +93,10 @@ export function createQrLabeObjectFromConfig(config = {}, url, texts = [], optio
 function sliceByByteLength(str = '', length = 0) {
   let result = '';
   let size = 0;
+
   for (let i = 0; i < str.length; i++) {
     const charSize = new Blob([str[i]]).size;
+
     if (size + charSize <= length) {
       result += str[i];
       size += charSize;
@@ -97,6 +104,7 @@ function sliceByByteLength(str = '', length = 0) {
       break;
     }
   }
+
   return result;
 }
 
@@ -107,16 +115,20 @@ export function getCodeTexts({ showTexts, firstIsBold, showControlName, controls
         if (!item) {
           return undefined;
         }
+
         const newItem = {
           forceInLine: item.forceInLine,
         };
+
         if (item.type === 2) {
           return { ...newItem, text: item.value };
         } else {
           const matchedControl = _.find(controls, { controlId: item.value });
+
           if (!matchedControl) {
             return { ...newItem, text: '' };
           }
+
           const controlText = renderCellText({ ...matchedControl, value: data[item.value] });
           return {
             ...newItem,
@@ -131,26 +143,32 @@ export function getCodeTexts({ showTexts, firstIsBold, showControlName, controls
       .slice(0, 100)
   );
 }
+
 export function getCodeContent({ printType, sourceType, sourceControlId, row = {}, urls = {}, index, controls }) {
   let content = '';
+
   if (sourceType === SOURCE_TYPE.URL) {
     content = urls[row.rowid] || urls[index];
   } else if (sourceType === SOURCE_TYPE.CONTROL) {
     const matchedControl = _.find(controls, { controlId: sourceControlId });
+
     if (matchedControl && row[sourceControlId]) {
       content = renderCellText({ ...matchedControl, value: row[sourceControlId] });
     }
   }
+
   if (printType === PRINT_TYPE.BAR) {
     content = sliceByByteLength(content.replace(/[^\x00-\x7F]/g, ''), 30);
   } else {
     content = sliceByByteLength(content, 150 * 3);
   }
+
   return content;
 }
 
 export function createBarLabeObjectFromConfig(config = {}, value, texts = [], { isPreview = false } = {}) {
   let width, height;
+
   if (config.labelSize === BAR_LABEL_SIZE.CUSTOM) {
     width = config.labelCustomWidth * DPI_MM;
     height = config.labelCustomHeight * DPI_MM;
@@ -160,6 +178,7 @@ export function createBarLabeObjectFromConfig(config = {}, value, texts = [], { 
     width = config.layout === BAR_LAYOUT.LANDSCAPE ? configWidth : configHeight;
     height = config.layout === BAR_LAYOUT.LANDSCAPE ? configHeight : configWidth;
   }
+
   const barLabel = new BarLabel({
     isPreview,
     value,
@@ -337,14 +356,17 @@ export class BarLabel {
   }
   async render() {
     const { isDebug, showBarValue } = this.options;
+
     if (isDebug) {
       this.drawPadding();
       this.drawGrid();
     }
+
     await this.drawBar();
     if (showBarValue) {
       this.drawBarText();
     }
+
     this.drawTexts();
   }
   // 处理文字换行
@@ -354,18 +376,23 @@ export class BarLabel {
     if (this.ctx.measureText(context).width < maxWidth) {
       return [context];
     }
+
     let text = '';
+
     for (let i = 0; i < context.length; i++) {
       text += context[i];
       const width = this.ctx.measureText(text).width;
+
       if (width > maxWidth) {
         result.push(text.slice(0, -1));
         text = text.slice(-1);
       }
     }
+
     if (text) {
       result.push(text);
     }
+
     return result;
   }
   // 绘制参考网格
@@ -380,6 +407,7 @@ export class BarLabel {
       this.ctx.lineTo(colIndex * this.unitSize, this._height);
       this.ctx.stroke();
     }
+
     for (let rowIndex = 1; rowIndex < rowNum + 1; rowIndex++) {
       this.ctx.beginPath();
       this.ctx.moveTo(0, rowIndex * this.unitSize);
@@ -403,10 +431,12 @@ export class BarLabel {
   drawImageUrl(url, { x, y, width, height } = {}) {
     return new Promise(resolve => {
       const image = new Image();
+
       image.onload = () => {
         this.ctx.drawImage(image, x, y, width, height);
         resolve();
       };
+
       image.src = url;
     });
   }
@@ -416,13 +446,16 @@ export class BarLabel {
     let dataUrl;
     const barWidth = this._width - 2 * paddingX * this.unitSize;
     const codeSize = height * this.unitSize * 0.9;
+
     if (_.isUndefined(value) || value === '') {
       return;
     }
+
     const code128 = parseToCode128(value);
     const barObj = getBarcodeBase64(value, { height: height * this.unitSize, width: barWidth });
     dataUrl = value && barObj.dataUrl;
     const top = codePosition === 'top' ? paddingY * this.unitSize : this._height - paddingY * this.unitSize - codeSize;
+
     if (value && dataUrl) {
       await this.drawImageUrl(dataUrl, {
         x:
@@ -434,6 +467,7 @@ export class BarLabel {
         height: codeSize,
       });
     }
+
     if (this.options.isDebug) {
       this.ctx.fillStyle = '#ddd';
       this.ctx.fillRect(
@@ -502,25 +536,31 @@ export class BarLabel {
       if (!text) {
         return;
       }
+
       let textFontSize = textHeight * 0.6 * this.options.fontSize;
       const isCenter = !titleIsSplitted && isBold && i === 0;
+
       if (forceInLine) {
         const contentWidth = this.measureTextWidth(text, textFontSize);
+
         if (contentWidth > textWidth) {
           textFontSize = getCompressedFontSize(text, textWidth);
         } else {
           forceInLine = false;
         }
       }
+
       if (isBold) {
         this.ctx.font = 'bold ' + textFontSize + 'px sans-serif';
       } else {
         this.ctx.font = textFontSize + 'px sans-serif';
       }
+
       this.ctx.textAlign = isCenter && !forceInLine ? 'center' : 'left';
       if (isPreview) {
         this.ctx.strokeRect(0 - 1, textY + i * textHeight, this._width + 2, textHeight);
       }
+
       this.ctx.fillText(
         text,
         isCenter && !forceInLine ? textX + textWidth / 2 : textX,
@@ -601,18 +641,23 @@ export class QrLabel {
     if (this.ctx.measureText(context).width < maxWidth) {
       return [context];
     }
+
     let text = '';
+
     for (let i = 0; i < context.length; i++) {
       text += context[i];
       const width = this.ctx.measureText(text).width;
+
       if (width > maxWidth) {
         result.push(text.slice(0, -1));
         text = text.slice(-1);
       }
     }
+
     if (text) {
       result.push(text);
     }
+
     return result;
   }
   measureTextWidth(value, fontSize) {
@@ -624,19 +669,23 @@ export class QrLabel {
   renderText({ x = 0, y = 0, fontSize, content, width, isCenter, forceInLine, isBold, color = '#222' }) {
     this.ctx.textBaseline = 'top';
     let textFontSize = fontSize * 0.55 * this.fontSize;
+
     if (forceInLine) {
       const textWidth = this.measureTextWidth(content, textFontSize);
+
       if (textWidth > width) {
         textFontSize = getCompressedFontSize(content, width);
       } else {
         forceInLine = false;
       }
     }
+
     if (isBold) {
       this.ctx.font = 'bold ' + textFontSize + 'px sans-serif';
     } else {
       this.ctx.font = textFontSize + 'px sans-serif';
     }
+
     this.ctx.textAlign = isCenter && !forceInLine ? 'center' : 'left';
     this.ctx.fillStyle = color;
     this.ctx.fillText(content, isCenter && !forceInLine ? x + width / 2 : x, y + (fontSize - textFontSize) / 2);
@@ -657,10 +706,12 @@ export class QrLabel {
     const titleIsSplitted = texts.filter(t => t.isBold).length > 1;
     texts.forEach(({ text, forceInLine, isBold } = {}, i) => {
       const textIsBold = firstIsBold && isBold;
+
       if (text === '' || _.isUndefined(text)) {
         textTop += fontSize;
         return;
       }
+
       this.renderText({
         x,
         y: textTop,
@@ -679,20 +730,25 @@ export class QrLabel {
         this.ctx.setLineDash([lineWidth * 2, lineWidth * 4]);
         this.ctx.strokeRect(-1 * lineWidth, textTop, this.width + 2 * lineWidth, fontSize);
       }
+
       textTop += fontSize;
     });
   }
   drawImageUrl(url, { x, y, width, height } = {}) {
     return new Promise(resolve => {
       const image = new Image();
+
       image.onload = () => {
         const renderWidth = (image.width * height) / image.height;
+
         if (renderWidth < width) {
           x += (width - renderWidth) / 2;
         }
+
         this.ctx.drawImage(image, x, y, renderWidth, height);
         resolve();
       };
+
       image.src = url;
     });
   }
@@ -708,6 +764,7 @@ export class QrLabel {
       firstIsBold: true,
     });
     const qrDataUrl = url && genQrDataURL({ value: url, correctLevel });
+
     if (qrDataUrl) {
       await this.drawImageUrl(qrDataUrl, {
         x: (this.width - codeSize * this.unitSize) / 2,
@@ -743,6 +800,7 @@ export class QrLabel {
       firstIsBold: topTextNum === 0,
     });
     const qrDataUrl = genQrDataURL({ value: url, correctLevel });
+
     if (qrDataUrl) {
       await this.drawImageUrl(qrDataUrl, {
         x: qrPos === 'left' ? paddingX * this.unitSize : this.width - (paddingX + codeSize) * this.unitSize,

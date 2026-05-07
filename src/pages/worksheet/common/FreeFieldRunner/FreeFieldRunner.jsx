@@ -27,6 +27,7 @@ const Con = styled.div`
 
 function pickControl(control = {}) {
   const result = pick(control, ['controlId', 'controlName', 'value', 'type', 'options']);
+
   if (control.type === 34 && isFunction(get(control, 'store.getState'))) {
     try {
       const state = control.store.getState();
@@ -37,6 +38,7 @@ function pickControl(control = {}) {
       console.error(error);
     }
   }
+
   return result;
 }
 
@@ -80,6 +82,7 @@ export default function FreeFieldRunner({
   }, []);
   const handleMessage = useCallback(event => {
     const { id, source, payload } = event.data;
+
     if (source === 'free_field' && id === iframeId) {
       if (payload.event === 'container-did-mount') {
         cache.current.didMount = true;
@@ -88,6 +91,7 @@ export default function FreeFieldRunner({
           postToIframe({ event: 'set-code', code: cache.current.code });
           cache.current.code = undefined;
         }
+
         if (cache.current.params) {
           postToIframe({ event: 'update-params', ...cache.current.params });
           cache.current.params = undefined;
@@ -127,6 +131,7 @@ export default function FreeFieldRunner({
   }, [compReRenderFlag]);
   useEffect(() => {
     const params = { currentControl: pickControl(currentControl), value, formData, env };
+
     if (cache.current.didMount) {
       postToIframe({ event: 'update-params', ...params });
     } else {

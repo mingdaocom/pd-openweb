@@ -269,6 +269,8 @@ export default {
    * @param {string} args.endDateTime 结束时间
    * @param {boolean} args.confirmExport 是否确认导出(超量的情况下传)
    * @param {boolean} args.isSingle 是否是单个应用
+   * @param {integer} args.souceType 操作来源类型（0 = 全部，1 = 官方，2 = 三方应用）
+   * @param {array} args.sourceIds 操作来源ids
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}

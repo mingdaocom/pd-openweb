@@ -110,6 +110,7 @@ export default function Time(props) {
               if (!moments || !_.isArray(moments)) {
                 moments = [];
               }
+
               onChange({
                 dateRange: 18,
                 filterType: 31,

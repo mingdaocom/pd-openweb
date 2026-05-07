@@ -61,20 +61,24 @@ const getMapControls = (controls, fieldMapIds, field) => {
   return controls
     .filter(v => {
       let relationControls = [];
+
       if (v.type === 30) {
         relationControls = (_.find(controls, c => `$${c.controlId}$` === v.dataSource) || {}).relationControls || [];
       }
+
       if (field === 'content') {
         return (
           (v.type === 2 || _.find(relationControls, r => r.controlId === v.sourceControlId && r.type === 2)) &&
           !_.includes([...NORMAL_SYSTEM_FIELDS_SORT, ...WORKFLOW_SYSTEM_FIELDS_SORT, ...fieldMapIds], v.controlId)
         );
       }
+
       if (v.type === 8) {
         const { currency } = v.advancedSetting || {};
         const { currencycode } = safeParse(currency || '{}');
         return !currency || currencycode === 'CNY';
       }
+
       return (
         (_.includes([6, 31, 37], v.type) ||
           isCNY(v) ||
@@ -305,6 +309,7 @@ export default class PayConfig extends Component {
       alert(_l('请选择支付内容'), 3);
       return;
     }
+
     if (checkIsDeleted(payAmountControlId, controls)) {
       alert(_l('请选择支付金额'), 3);
       return;
@@ -666,10 +671,12 @@ export default class PayConfig extends Component {
                     tagRender={props => {
                       const { value, onClose, disabled } = props;
                       const name = _.find(merchantList, item => item.value === value) ? props.label : undefined;
+
                       const onPreventMouseDown = event => {
                         event.preventDefault();
                         event.stopPropagation();
                       };
+
                       return (
                         <Tag
                           className={cx({ Red: !name, disabledTag: disabled })}

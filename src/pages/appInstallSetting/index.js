@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import ClipboardButton from 'react-clipboard.js';
+import copy from 'copy-to-clipboard';
 import Trigger from 'rc-trigger';
 import privateRequest from 'src/api/private';
 import mobile from 'src/pages/appInstallSetting/images/mobile.png';
@@ -35,16 +35,15 @@ export default class AppInstallSetting extends Component {
         <div className="Font24 mBottom18">{_l('App 初次启动需要填写的配置信息')}</div>
         <div className="flexRow Font14">
           <span>{url}</span>
-          <ClipboardButton
+          <span
             className="copy"
-            component="span"
-            data-clipboard-text={url}
-            onSuccess={() => {
+            onClick={() => {
+              copy(url);
               alert(_l('复制成功'));
             }}
           >
             {_l('复制')}
-          </ClipboardButton>
+          </span>
           <Trigger
             action={['click']}
             popup={

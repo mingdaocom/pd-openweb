@@ -13,9 +13,11 @@ const getValue = (item, type) => {
   if (_.includes(['user', 'role', 'department', 'area', 'cascader', 'relateSheet'], type)) {
     return safeParse(item.staticValue);
   }
+
   if (_.includes(['email', 'phone'], type) && String(item.staticValue).indexOf('accountId') > -1) {
     return safeParse(item.staticValue);
   }
+
   return item.staticValue;
 };
 
@@ -28,6 +30,7 @@ export default ({ dynamicValue = [], data = {}, ...rest }) => {
       {dynamicValue.map(item => {
         if (!checkCellIsEmpty(item.staticValue)) {
           const type = getControlType(data);
+
           try {
             const value = getValue(item, type);
 
@@ -40,6 +43,7 @@ export default ({ dynamicValue = [], data = {}, ...rest }) => {
               if (accountId === 'user-self') {
                 userSrc = `${md.global.FileStoreConfig.pictureHost}/UserAvatar/user-self.png?imageView2/1/w/100/h/100/q/90`;
               }
+
               return (
                 <FieldInfo key={accountId} title={fullname || name}>
                   <img className="avatar" src={userSrc} />
@@ -47,6 +51,7 @@ export default ({ dynamicValue = [], data = {}, ...rest }) => {
                 </FieldInfo>
               );
             }
+
             if (type === 'role') {
               const { organizeId, organizeName } = value;
 
@@ -59,6 +64,7 @@ export default ({ dynamicValue = [], data = {}, ...rest }) => {
                 </FieldInfo>
               );
             }
+
             if (type === 'department') {
               const { departmentName, departmentId } = value;
               return (
@@ -70,28 +76,35 @@ export default ({ dynamicValue = [], data = {}, ...rest }) => {
                 </FieldInfo>
               );
             }
+
             if (type === 'date' || type === 'time') {
               const types = getDateType(data);
               let text = '';
+
               if (_.includes(['2', '3'], value)) {
                 text = (_.find(types, type => type.value === value) || {}).text;
               } else {
                 const dateProps = getDatePickerConfigs(data);
                 text = type === 'date' ? moment(value).format(dateProps.formatMode) : value;
               }
+
               return <span className="dynamicText breakAll">{text}</span>;
             }
+
             if (type === 'switch') {
               const text = _.get(_.find(getTypeList(data), ct => ct.id === item.staticValue) || {}, 'text');
               return <span className="dynamicText breakAll">{text}</span>;
             }
+
             if (_.includes(['cascader', 'relateSheet'], type)) {
               let name;
+
               if (item.relateSheetName) {
                 name = item.relateSheetName;
               } else {
                 const titleControl = _.find(data.relationControls || [], re => re.attribute === 1);
                 const record = safeParse(_.head(value));
+
                 if (type === 'cascader' && _.get(data, 'advancedSetting.allpath') === '1') {
                   name = safeParse(record.path || '[]').join(' / ');
                 } else {
@@ -107,6 +120,7 @@ export default ({ dynamicValue = [], data = {}, ...rest }) => {
                 </RelateControl>
               );
             }
+
             if (type === 'option') {
               const option = _.find(data.options || [], o => o.key === value) || {};
               return (
@@ -120,12 +134,15 @@ export default ({ dynamicValue = [], data = {}, ...rest }) => {
                 </OptionControl>
               );
             }
+
             if (type === 'area') {
               return <span className="dynamicText breakAll">{_.get(value, 'name')}</span>;
             }
+
             if (type === 'richtext') {
               return <div className="w100 mTop0 mBottom0" dangerouslySetInnerHTML={{ __html: filterXSS(value) }}></div>;
             }
+
             return <span className="dynamicText breakAll">{value}</span>;
           } catch (error) {
             console.log(error);

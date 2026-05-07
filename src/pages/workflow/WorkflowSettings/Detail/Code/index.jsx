@@ -12,7 +12,6 @@ import { ChatGPT, DetailFooter, DetailHeader, KeyPairs, ParameterList, TestParam
 const CodeSnippetButton = styled.div`
   padding: 0 8px;
   height: 36px;
-  background: var(--color-background-primary);
   border-radius: 5px;
   color: var(--color-text-secondary);
   cursor: pointer;
@@ -85,6 +84,7 @@ export default class Code extends Component {
             value: '',
           });
         }
+
         this.setState({ data: result });
       });
   }
@@ -166,7 +166,7 @@ export default class Code extends Component {
     return (
       <Fragment>
         <div className="mTop20 textSecondary">{_l('请运行代码块以获得output对象; input对象将采用测试数据')}</div>
-        <div className="flexRow pTop15 pBottom15 bgPrimary" style={{ position: 'sticky', bottom: 0 }}>
+        <div className="flexRow pTop15 pBottom15" style={{ position: 'sticky', bottom: 0 }}>
           <div
             className={cx('webhookBtn InlineBlock', { disabled: sendRequest })}
             onClick={() => {

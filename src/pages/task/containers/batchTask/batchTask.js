@@ -140,6 +140,7 @@ function SearchFolder() {
                       BatchTask.loadBatchData(2);
                       BatchTask.taskAuth('updateFolder', _l('批量修改任务项目'), item.folderID);
                     }
+
                     setVisible(false);
                   }}
                 >
@@ -339,6 +340,7 @@ BatchTask.initEvent = function () {
   // 文档点击
   $(document).on('click', event => {
     const $target = $(event.target);
+
     // 头部更多
     if ($target.closest('.batchMore').length <= 0) {
       $batchTask.find('.batchOperator').addClass('Hidden');
@@ -378,6 +380,7 @@ BatchTask.loadBatchData = function (auth) {
   BatchTask.Settings.TaskIds.length = 0;
 
   const isAuth = auth === config.auth.Charger || auth === config.auth.Member;
+
   // 列表
   if (!folderId) {
     $.each($tasks, (i, item) => {
@@ -532,6 +535,7 @@ BatchTask.updateTaskLocked = function (lock) {
       if (source.status) {
         // 批量的锁处理
         const $iconTaskNoNews = $('#batchTask .batchIcon.iconTaskNewLocked');
+
         if (lock) {
           $iconTaskNoNews.find('i').removeClass('icon-lock').addClass('icon-task-new-no-locked');
           $iconTaskNoNews.attr('title', _l('批量解锁任务')).data('bindDate', false);
@@ -541,6 +545,7 @@ BatchTask.updateTaskLocked = function (lock) {
         }
 
         const noAuth = source.data.noAuth;
+
         // 部分成功
         if (noAuth && noAuth.length > 0) {
           // 生成没有权限的任务
@@ -583,12 +588,15 @@ BatchTask.DelTask = function () {
       if (source.status) {
         // 成功的任务
         const allTask = source.DeleteTaskID;
+
         if (allTask) {
           $.each(allTask, (i, taskId) => {
             afterDeleteTask([taskId]);
           });
         }
+
         const noAuth = source.data.noAuth;
+
         // 部分成功
         if (noAuth && noAuth.length) {
           // 生成没有权限的任务
@@ -628,6 +636,7 @@ BatchTask.updateTasksActualStartTime = function () {
     .then(source => {
       if (source.status) {
         const noAuth = source.data.noAuth;
+
         // 部分成功
         if (noAuth && noAuth.length) {
           // 生成没有权限的任务
@@ -638,6 +647,7 @@ BatchTask.updateTasksActualStartTime = function () {
           $('#batchTaskNoStart .icon-watch_later').removeClass().addClass('icon-go_out');
           alert(_l('操作成功'));
         }
+
         const successIds = [];
         BatchTask.Settings.TaskIds.forEach(id => {
           if (!_.includes(noAuth, id)) {
@@ -686,6 +696,7 @@ BatchTask.updateTaskStatus = function (status) {
         .then(source => {
           if (source.status) {
             const noAuth = source.data.noAuth;
+
             // 部分成功
             if (noAuth && noAuth.length) {
               // 生成没有权限的任务
@@ -752,6 +763,7 @@ BatchTask.updateCharge = function (account) {
     .then(source => {
       if (source.status) {
         const noAuth = source.data.noAuth;
+
         // 部分成功
         if (noAuth && noAuth.length) {
           // 生成没有权限的任务
@@ -763,6 +775,7 @@ BatchTask.updateCharge = function (account) {
             $selectTask.find('.chargeImg').attr('src', account.avatar).data('accountid', account.accountId);
             $('#batchTask .batchCharge').attr('src', account.avatar.replace(/\d{2}\//g, '48/'));
           }
+
           alert(_l('操作成功'));
         }
       } else {
@@ -932,6 +945,7 @@ BatchTask.taskAuth = function (type, title, args, minorContent) {
 BatchTask.builAuthTask = function (data, args, type, title) {
   const { folderId, viewType } = Store.getState().task.taskConfig;
   const noAuth = data.data.noAuth;
+
   // 部分成功
   if (noAuth && noAuth.length) {
     const $selectTasks = $('#taskList .selectTask');
@@ -995,6 +1009,7 @@ BatchTask.builAuthTask = function (data, args, type, title) {
 // 部分更新
 BatchTask.afterUpdatePart = function ($item, type, args) {
   let taskId;
+
   // 批量标记完成
   if (type === 'markTask') {
     // 标记完成
@@ -1020,17 +1035,20 @@ BatchTask.afterUpdatePart = function ($item, type, args) {
 // 获取任务Id
 BatchTask.getTaskIdByItem = function ($item) {
   let taskId;
+
   if (!Store.getState().task.taskConfig.folderId) {
     taskId = $item.data('taskid');
   } else {
     taskId = $item.parent().data('taskid');
   }
+
   return taskId;
 };
 
 // 显示没有权限的任务
 BatchTask.showAuthTask = function (authObj, title, type) {
   const taskCount = authObj.length;
+
   if (taskCount) {
     Dialog.confirm({
       title: title,
@@ -1113,6 +1131,7 @@ BatchTask.shiftCtrlKeyList = function (_this, type) {
         } else {
           _this.nextUntil(config.$prevNode).addClass('selectTask ThemeBGColor6');
         }
+
         config.$prevNode = _this;
       } else {
         // 用到的变量
@@ -1136,6 +1155,7 @@ BatchTask.shiftCtrlKeyList = function (_this, type) {
         }
 
         let $next;
+
         // 循环
         while (prevTop <= thisTop) {
           $tr.addClass('selectTask ThemeBGColor6');
@@ -1145,6 +1165,7 @@ BatchTask.shiftCtrlKeyList = function (_this, type) {
           } else {
             $tr = $next;
           }
+
           if ($tr.length > 0) {
             prevTop = $tr.offset().top;
           } else {
@@ -1169,6 +1190,7 @@ BatchTask.shiftCtrlKeyTree = function (_this, type) {
     if (!config.$prevNode) {
       config.$prevNode = $('.singleFolderTask li:first .singleTreeTask:first');
     }
+
     if (type === 'shift') {
       // 移除全部样式
       $('.singleFolderTask  .singleTreeTask').removeClass('selectTask ThemeBGColor6');

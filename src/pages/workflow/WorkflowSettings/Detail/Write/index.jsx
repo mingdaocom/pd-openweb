@@ -101,7 +101,7 @@ export default class Write extends Component {
         }
 
         this.setState({ data: result }, () => {
-          if (isApproval && !result.selectNodeId) {
+          if (isApproval && !result.selectNodeId && result.flowNodeList && result.flowNodeList[0]?.nodeId) {
             this.onChange(result.flowNodeList[0].nodeId);
           }
         });
@@ -163,7 +163,7 @@ export default class Write extends Component {
       return;
     }
 
-    if (userTaskNullMap[5] && !userTaskNullMap[5].length) {
+    if (userTaskNullMap && userTaskNullMap[5] && !userTaskNullMap[5].length) {
       alert(_l('必须指定代理人'), 2);
       return;
     }
@@ -422,7 +422,7 @@ export default class Write extends Component {
 
               {tabIndex === 2 && (
                 <Fragment>
-                  <div className="textSecondary mTop20">
+                  <div className="textSecondary mTop20 mBottom15">
                     {_l('设置填写时可以查看、编辑、必填的字段。设为摘要的字段可以在流程待办列表中直接显示。')}
                     <Support
                       type={3}

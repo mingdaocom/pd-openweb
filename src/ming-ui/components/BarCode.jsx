@@ -28,6 +28,7 @@ export default class Barcode extends Component {
     if (this.props.renderWidth && this.barcode) {
       this.barcode.width = this.props.renderWidth;
     }
+
     this.update();
   }
 
@@ -74,6 +75,7 @@ export default class Barcode extends Component {
 
   render() {
     const { renderer } = this.props;
+
     if (renderer === 'svg') {
       return <svg ref={this.handleBarcode} />;
     } else if (renderer === 'canvas') {

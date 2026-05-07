@@ -54,11 +54,13 @@ const DialogWarp = styled(Dialog)`
     }
   }
 `;
+
 export default ({ processId, onClose = () => {} }) => {
   const [list, setList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [pageIndex, setPageIndex] = useState(1);
   const [hasMore, setHasMore] = useState(true);
+
   const getSerialList = (pageIndex = 1) => {
     setLoading(true);
 
@@ -69,11 +71,13 @@ export default ({ processId, onClose = () => {} }) => {
       setHasMore(res.length > 0);
     });
   };
+
   const handleScroll = _.throttle(e => {
     if (e.target.scrollTop + e.target.clientHeight >= e.target.scrollHeight - 30 && !loading && hasMore) {
       getSerialList(pageIndex + 1);
     }
   });
+
   const removePendingProcess = (id = '') => {
     activityAJAX.remove({ processId, id }).then(() => {
       getSerialList();

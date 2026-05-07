@@ -50,6 +50,7 @@ export default function SelectFieldForStartOrEnd(props) {
   }, [props.view]);
   useEffect(() => {
     let ids;
+
     try {
       ids = JSON.parse(calendarcids);
     } catch (error) {
@@ -57,6 +58,7 @@ export default function SelectFieldForStartOrEnd(props) {
       ids = calendarcids;
       console.log(error);
     }
+
     let obj = isCalendarcids
       ? {
           calendarcids: ids.length <= 0 ? JSON.stringify([{ begin: begindate }]) : calendarcids,
@@ -68,6 +70,7 @@ export default function SelectFieldForStartOrEnd(props) {
     });
     let end;
     let start;
+
     if (!isCalendarcids) {
       start = begindate
         ? props.controls.find(it => it.controlId === begindate) || {}
@@ -84,6 +87,7 @@ export default function SelectFieldForStartOrEnd(props) {
             : {};
       end = ids.length > 0 && ids[0].end ? props.controls.find(it => it.controlId === ids[0].end) || {} : {};
     }
+
     let listData = ids.map(o => {
       return {
         startData: props.controls.find(it => it.controlId === o.begin) || {},
@@ -105,11 +109,13 @@ export default function SelectFieldForStartOrEnd(props) {
       enddate,
       calendarcids = '[]',
     } = obj.advancedSetting;
+
     try {
       calendarcids = JSON.parse(calendarcids);
     } catch (error) {
       console.log(error);
     }
+
     let objs = isCalendarcids
       ? {
           calendarcids:
@@ -122,6 +128,7 @@ export default function SelectFieldForStartOrEnd(props) {
       editAdKeys: Object.keys(objs),
     });
   };
+
   return (
     <React.Fragment>
       {isCalendarcids ? (
@@ -165,6 +172,7 @@ export default function SelectFieldForStartOrEnd(props) {
           if (isUnAb) {
             return;
           }
+
           if (begindate) {
             handleChangeFn(view);
           } else {

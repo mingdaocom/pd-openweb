@@ -51,6 +51,15 @@ const Wrap = styled.div`
   .vditor {
     max-height: inherit;
   }
+  .vditor--dark {
+    .vditor-preview {
+      background-color: var(--color-background-secondary) !important;
+      border-left-color: var(--color-border-primary);
+    }
+    .vditor-reset table tr {
+      background-color: var(--color-background-secondary) !important;
+    }
+  }
   .vditor-toolbar {
     background: var(--color-background-secondary);
     padding: 0 5px !important;
@@ -66,6 +75,13 @@ const Wrap = styled.div`
 
     & > div[data-block='0'] {
       min-height: 24px;
+    }
+
+    &:before {
+      color: var(--color-text-disabled) !important;
+    }
+    &:focus {
+      background-color: var(--color-background-primary) !important;
     }
 
     ul,
@@ -108,6 +124,10 @@ const Wrap = styled.div`
         }
       }
     }
+  }
+
+  .vditor-reset[contenteditable='true']:not(:focus) {
+    background-color: var(--color-background-secondary) !important;
   }
   .vditor-ir pre.vditor-reset[contenteditable='false'] {
     opacity: 1 !important;
@@ -166,6 +186,7 @@ function MdMarkdown(props) {
     if (!isFocus && vditorInstance.current && vditorInstance.current.getValue() !== data) {
       vditorInstance.current.setValue(data);
     }
+
     // 初始化还没加载完就赋值处理
     if (!isFocus && data && !vditorInstance.current) {
       setTimeout(() => {
@@ -240,6 +261,7 @@ function MdMarkdown(props) {
     const vditor = new Vditor(vditorRef.current, {
       mode,
       ...(isFullScreen ? { height: '100%' } : { minHeight }),
+      ...(window.themeMode === 'dark' ? { theme: 'dark' } : {}),
       cdn: '/staticfiles',
       placeholder,
       toolbar: TOOLBAR,
@@ -301,7 +323,7 @@ function MdMarkdown(props) {
   };
 
   return (
-    <Wrap isFullScreen={isFullScreen} maxHeight={maxHeight}>
+    <Wrap isFullScreen={isFullScreen} maxHeight={maxHeight} isFocus={isFocus}>
       <div ref={vditorRef} />
     </Wrap>
   );

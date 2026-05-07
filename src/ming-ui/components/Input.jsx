@@ -25,12 +25,15 @@ class Input extends Component {
   constructor(props) {
     super(props);
     let value = '';
+
     if ('defaultValue' in props) {
       value = props.defaultValue;
     }
+
     if ('value' in props) {
       value = props.value;
     }
+
     this.state = {
       value,
     };
@@ -44,17 +47,21 @@ class Input extends Component {
   }
   onChange(event) {
     let value = event.target.value;
+
     if (this.props.valueFilter) {
       value = this.props.valueFilter(value);
     }
+
     if (this.props.value === undefined) {
       this.setState({
         value,
       });
     }
+
     if (this.props.onChange) {
       this.props.onChange(value);
     }
+
     if (this.props.onChangeText) {
       this.props.onChangeText(value);
     }

@@ -77,6 +77,7 @@ export function antAlert(content, alertType = 1) {
       content: contentValue,
       duration,
       afterClose: onClose,
+      maskStyle: { zIndex: 999999 },
     });
     return toastController;
   }

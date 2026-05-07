@@ -41,15 +41,18 @@ function pickOptions(options, navfilters) {
     return options;
   }
 }
+
 export default function Options(props) {
   const { values = [], control, advancedSetting = {}, onChange = () => {} } = props;
   const { allowitem, navshow, navfilters, shownullitem, nullitemname } = advancedSetting;
   let { options } = control;
   const multiple = String(allowitem) === '2';
   const [moreVisible, setMoreVisible] = useState(false);
+
   if (String(navshow) === '2') {
     options = pickOptions(options, navfilters);
   }
+
   if (shownullitem === '1') {
     options = [
       {
@@ -59,6 +62,7 @@ export default function Options(props) {
       },
     ].concat(options);
   }
+
   const newOptions = options.filter(o => !o.isDeleted).slice(0, 10);
   const isMore = options.length > newOptions.length;
 

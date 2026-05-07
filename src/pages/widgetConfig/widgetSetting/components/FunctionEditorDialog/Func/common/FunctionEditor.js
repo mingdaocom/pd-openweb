@@ -11,6 +11,8 @@ import setJavascriptMode from '../lib/javascript';
 import setMatchBrackets from '../lib/matchbrackets';
 import setShowHint from '../lib/show-hint';
 import { getControlType } from './ControlList';
+import 'codemirror/lib/codemirror.css';
+import 'codemirror/theme/material-darker.css';
 import '../lib/show-hint.css';
 
 const TagWrapper = ({ onDidMount = () => {}, tag }) => {
@@ -30,6 +32,10 @@ setCloseBrackets(CodeMirror);
 setMatchBrackets(CodeMirror);
 setShowHint(CodeMirror);
 
+function getCodeMirrorThemeName() {
+  return document.documentElement.getAttribute('data-theme') === 'dark' ? 'material-darker' : 'default';
+}
+
 function createElement(text, style = {}, { tooltip } = {}) {
   const dom = document.createElement('span');
   dom.innerText = text;
@@ -41,6 +47,7 @@ function createElement(text, style = {}, { tooltip } = {}) {
     dom.setAttribute('data-tip', tooltip);
     dom.classList.add('tip-right', 'tip-no-animation', 'tip-red');
   }
+
   return dom;
 }
 
@@ -65,6 +72,7 @@ function createTagEle(text) {
     dom.style.borderColor = 'var(--color-error-border)';
     dom.style.background = 'rgba(244,67,54,0.13)';
   }
+
   return dom;
 }
 
@@ -86,6 +94,7 @@ function groupMatch(text, matchText) {
   });
   return result;
 }
+
 export default class Function {
   constructor(
     dom,
@@ -105,6 +114,7 @@ export default class Function {
       console.log('target is not a dom element');
       return;
     }
+
     const args = {
       autofocus: true,
       lineWrapping: true,
@@ -112,8 +122,10 @@ export default class Function {
       autoCloseBrackets: true,
       mode: 'text/javascript',
       keywords: {},
+      theme: getCodeMirrorThemeName(),
       ...options,
     };
+
     if (type === 'mdfunction') {
       args.keywords = _.assign(
         {},
@@ -128,6 +140,7 @@ export default class Function {
           .reduce((a, b) => Object.assign(a, b), {}),
       );
     }
+
     if (type === 'javascript') {
       args.keywords = _.assign({}, args.keywords, {
         SYSTEM_URL_PARAMS: {
@@ -136,7 +149,15 @@ export default class Function {
         },
       });
     }
+
     this.editor = CodeMirror(dom, args);
+    this._themeObserver = new MutationObserver(() => {
+      const next = getCodeMirrorThemeName();
+      if (this.editor && this.editor.getOption('theme') !== next) {
+        this.editor.setOption('theme', next);
+      }
+    });
+    this._themeObserver.observe(document.body, { attributes: true, attributeFilter: ['data-theme'] });
     this.markers = [];
     this.type = type;
     this.getControlName = getControlName;
@@ -149,6 +170,7 @@ export default class Function {
     if (value) {
       this.init(value);
     }
+
     this.bindEvent();
   }
   init(value) {
@@ -170,6 +192,7 @@ export default class Function {
       const line = this.editor.getLine(cursor.line);
       const beforeChar = line.charAt(cursor.ch - 1);
       const afterChar = line.charAt(cursor.ch);
+
       if (/[A-Z_]/.test(beforeChar) || /[A-Z_]/.test(afterChar)) {
         const matchs = groupMatch(line, /([a-zA-Z0-9__]+)(?=\()/g);
         matchs.forEach(match => {
@@ -188,11 +211,13 @@ export default class Function {
       if (_.isFunction(this.onChange)) {
         this.onChange();
       }
+
       if (event.origin === 'complete' && functions[event.text[0]]) {
         this.insertBrackets();
       } else if (event.origin === '+input') {
         //
       }
+
       this.markElements();
       if (_.isFunction(this.onChange)) {
         this.onChange();
@@ -201,6 +226,7 @@ export default class Function {
   }
   handleDefaultActiveFn(value = '') {
     const matchs = groupMatch(value, /([a-zA-Z0-9_]+)(?=\()/g);
+
     if (matchs.length && matchs[0].str && matchs[0].str[0]) {
       window.emitter.emit('FUNCTIONEDITOR_ACTIVE_FN', matchs[0].str[0]);
     }
@@ -222,6 +248,7 @@ export default class Function {
           .filter(c => c.controlName && checkTypeSupportForFunction(c))
           .filter(control => control.controlName.toUpperCase().indexOf(token.string.toUpperCase()) > -1);
         let hintData = [];
+
         if (filteredControls.length) {
           hintData = hintData.concat(
             filteredControls.map(control => ({
@@ -235,6 +262,7 @@ export default class Function {
                 if (isLast && !!filteredFunctions.length) {
                   parent.style.borderBottom = '1px solid var(--color-primary-transparent)';
                 }
+
                 node.innerHTML = `<i class="icon icon-${getIconByType(getControlType(control) || 2)}"></i> ${
                   control.controlName
                 }`;
@@ -243,6 +271,7 @@ export default class Function {
             })),
           );
         }
+
         if (filteredFunctions.length) {
           hintData = hintData.concat(
             _.sortBy(
@@ -259,6 +288,7 @@ export default class Function {
             ),
           );
         }
+
         return {
           list: hintData,
           from: CodeMirror.Pos(line, start),
@@ -309,6 +339,7 @@ export default class Function {
       editor.replaceRange(',', position);
       position = editor.getCursor();
     }
+
     const strToInsert = `$${value}$`;
     editor.replaceRange(strToInsert, position);
     editor.focus();
@@ -323,9 +354,11 @@ export default class Function {
 
   renderColumnTag(id, options = {}, cb = () => {}) {
     let node;
+
     if (_.isFunction(this.renderTag)) {
       node = document.createElement('span');
       const tag = this.renderTag(id, options);
+
       if (React.isValidElement(tag)) {
         const root = createRoot(node);
         root.render(<TagWrapper onDidMount={() => cb(node)} tag={tag} />);
@@ -333,10 +366,12 @@ export default class Function {
         node.appendChild(tag);
         cb(node);
       }
+
       return;
     } else {
       node = createTagEle(this.getControlName(id) || '');
     }
+
     cb(node);
     return;
   }
@@ -399,6 +434,7 @@ export default class Function {
       // 处理中文双引号
       const pos = CodeMirror.Pos(match.line, match.start);
       const token = this.editor.getTokenAt(pos);
+
       // 检查是否在字符串内部（token类型包含'string'）
       if (token.type && token.type.includes('string')) {
         shouldMark = false;
@@ -444,6 +480,7 @@ export default class Function {
   checkCommaInControls() {
     const value = this.editor.getValue();
     const matchs = groupMatch(value, /\$(.+?)\$\$(.+?)\$/g);
+
     if (!isEmpty(matchs)) {
       this.onError({ text: _l('缺少分隔符或运算符') });
     }
@@ -457,25 +494,31 @@ export default class Function {
     // Helper function to find function name
     const findFunctionName = (line, bracketPos) => {
       let startCh = bracketPos;
+
       while (startCh > 0) {
         startCh--;
         const char = line[startCh];
+
         if (!/[A-Z_]/.test(char)) {
           startCh++;
           break;
         }
       }
+
       return startCh < bracketPos ? startCh : null;
     };
 
     for (let lineNum = 0; lineNum < editor.lineCount(); lineNum++) {
       const line = editor.getLine(lineNum);
+
       for (let ch = 0; ch < line.length; ch++) {
         const char = line[ch];
         const token = editor.getTokenAt({ line: lineNum, ch: ch + 1 });
+
         if (token.type && token.type.includes('string')) {
           continue;
         }
+
         if (char === '(') {
           const functionStartCh = findFunctionName(line, ch);
           bracketStack.push({
@@ -528,6 +571,13 @@ export default class Function {
     this.markers.forEach(marker => marker.clear());
     this.markers = [];
     this.onError();
+  }
+
+  destroy() {
+    if (this._themeObserver) {
+      this._themeObserver.disconnect();
+      this._themeObserver = null;
+    }
   }
 
   markElements() {

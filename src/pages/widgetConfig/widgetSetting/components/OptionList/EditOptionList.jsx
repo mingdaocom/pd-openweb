@@ -25,6 +25,7 @@ export default function EditOptionList(props) {
       alert(_l('选项集标题不能为空'), 3);
       return;
     }
+
     const nextData = { ...rest, name, colorful, enableScore, options: data };
 
     if (checkOptionsRepeat([{ ...nextData, type: 9 }])) {

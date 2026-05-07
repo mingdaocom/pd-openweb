@@ -69,6 +69,7 @@ export default function FilterDialog(props) {
               groupFilters: condition.groupFilters.map(formatCondition),
             };
           }
+
           const control = _.find(relationControls, column => condition.controlId === column.controlId) || {};
           // type为关联他表，type取sourceControlType的值 -1//无值, 通用方法转换redefineComplexControl
 
@@ -99,6 +100,7 @@ export default function FilterDialog(props) {
             isDynamicsource: false,
             ...ruleConfig,
           };
+
           if (condition.isDynamicsource === undefined) {
             if ((_.get(condition, 'dynamicSource') || []).length > 0) {
               return initialDynamicSource;
@@ -113,6 +115,7 @@ export default function FilterDialog(props) {
             }
           }
         }
+
         const data = filters.map(formatCondition).filter(_.identity);
         onChange({
           filters: filterUnavailableConditions(data),

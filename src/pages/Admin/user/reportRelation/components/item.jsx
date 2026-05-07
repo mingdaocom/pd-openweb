@@ -34,6 +34,7 @@ export default class Item extends Component {
         this.setState({ showOpList: false });
       }
     };
+
     const { add, replace, remove } = this.props;
     const listProps = {
       toggleList: () => {

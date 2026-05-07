@@ -44,7 +44,7 @@ const Wrap = styled.div`
     }
     &.hover:hover {
       cursor: pointer;
-      background-color: ${props => (props.bgStyleValue ? 'transparent' : props.isDark ? '#ffffff1a' : '#f5f5f5')};
+      background-color: ${props => (props.bgStyleValue ? 'transparent' : 'var(--color-background-hover)')};
     }
   }
   .wrap-center {
@@ -211,6 +211,7 @@ const formatData = ({ map, contrast, contrastMap, displaySetup, yaxisList, isTim
       const contrastMapList = _.get(contrastMap[index], 'value') || [];
       item.value.forEach((n, index) => {
         const contrastData = {};
+
         if (isTime) {
           contrastData.lastContrastValue = _.get(contrastList[index], 'v') || (displaySetup.contrast ? 0 : null);
           contrastData.contrastValue = _.get(contrastMapList[index], 'v') || (displaySetup.contrastType ? 0 : null);
@@ -220,6 +221,7 @@ const formatData = ({ map, contrast, contrastMap, displaySetup, yaxisList, isTim
           contrastData.contrastValue =
             _.get(_.find(contrastMapList, { originalX: n.originalX }), 'v') || (displaySetup.contrastType ? 0 : null);
         }
+
         result.push({
           originalId: n.originalX,
           name: n.x || _l('空'),
@@ -272,17 +274,21 @@ const getControlMinAndMax = map => {
 
 export const replaceColor = (data, customPageConfig = {}, themeColor) => {
   const { numberChartColor, numberChartColorIndex = 1 } = customPageConfig;
+
   const resolveColor = color => {
+    if (color === '#151515') return 'var(--color-text-primary)';
     if (color === 'DARK_COLOR' && themeColor) return themeColor;
     if (color === 'LIGHT_COLOR' && themeColor) return generate(themeColor)[0];
     return color;
   };
+
   if (!data.bgStyleValue && numberChartColor && numberChartColorIndex >= (data.numberChartColorIndex || 0)) {
     return {
       ...data,
       fontColor: numberChartColor,
     };
   }
+
   data = _.clone(data);
   data.titleColor = resolveColor(data.titleColor || defaultNumberChartStyle.titleColor);
   data.fontColor = resolveColor(data.fontColor);
@@ -307,7 +313,11 @@ export default class extends Component {
     const el = document.querySelector(`.statisticsCard-${reportId}`);
     const parentElement = _.get(el, 'parentElement.parentElement');
 
-    if (yaxisList.length === 1 && !xaxes.controlId && sourceType && isThumbnail && !isMobile) {
+    if (!isThumbnail) {
+      return;
+    }
+
+    if (yaxisList.length === 1 && !xaxes.controlId && sourceType && !isMobile) {
       if (parentElement) {
         el.classList.add('hideNumberChartName');
         el.classList.add('hideChartHeader');
@@ -349,6 +359,7 @@ export default class extends Component {
     if (data.isTotal || _.isEmpty(map)) {
       return;
     }
+
     if (xaxes.cid) {
       const { originalId } = data;
       const isNumber = isFormatNumber(xaxes.controlType);
@@ -363,16 +374,18 @@ export default class extends Component {
         control: xaxes,
       });
     }
+
     if (_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length) {
       linkageMatch.onlyChartIds = style.autoLinkageChartObjectIds;
     }
+
     const isAll = this.isViewOriginalData && this.isLinkageData;
     const { x, y } = this.getParentNode().getBoundingClientRect();
     this.setState(
       {
         dropdownVisible: isAll,
         offset: {
-          x: event.pageX - x + 20,
+          x: event.pageX - x + (isMobile ? -100 : 0),
           y: event.pageY - y,
         },
         match: param,
@@ -382,6 +395,7 @@ export default class extends Component {
         if (!isAll && this.isViewOriginalData) {
           this.handleRequestOriginalData();
         }
+
         if (!isAll && this.isLinkageData) {
           this.handleAutoLinkage();
         }
@@ -414,15 +428,18 @@ export default class extends Component {
     const { themeColor, reportData } = this.props;
     const { numberChartStyle = {} } = reportData.style;
     const { bgStyleValue, fillType = 1 } = numberChartStyle;
+
     if (bgStyleValue === 'color') {
       const { bgColor = '#fff' } = numberChartStyle;
       const { iconColor } = replaceColor({ iconColor: bgColor }, {}, themeColor);
       return { backgroundColor: iconColor };
     }
+
     if (bgStyleValue === 'gradient') {
       const { gradient } = numberChartStyle;
       return { background: `linear-gradient(${gradient})` };
     }
+
     if (bgStyleValue === 'image') {
       const { bgImageIndex } = numberChartStyle;
       const src = images(`./${bgImageIndex}.jpg`);
@@ -432,6 +449,7 @@ export default class extends Component {
         backgroundPosition: 'center',
       };
     }
+
     if (bgStyleValue === 'custom' && fillType === 1) {
       const { displaySetup } = reportData;
       const previewUrl = displaySetup.previewUrl || displaySetup.imageUrl;
@@ -441,17 +459,20 @@ export default class extends Component {
         backgroundPosition: 'center',
       };
     }
+
     return {};
   };
   renderBgImage = () => {
     const { reportData } = this.props;
     const { numberChartStyle = {} } = reportData.style;
     const { bgStyleValue, fillType = 1 } = numberChartStyle;
+
     if (bgStyleValue === 'custom' && fillType === 3) {
       const { displaySetup } = reportData;
       const previewUrl = displaySetup.previewUrl || displaySetup.imageUrl;
       return previewUrl ? <img src={previewUrl} className="w100 h100 Absolute" /> : null;
     }
+
     return null;
   };
   renderContrast({ value, contrastValue, name, controlId, isContrastValue }) {
@@ -567,12 +588,14 @@ export default class extends Component {
           if (numberChartStyle.bgStyleValue && oneNumber) {
             return fontColor;
           }
+
           return pageStyleType === 'dark' && !isThumbnail ? themeColor : fontColor;
         })();
     const getTitleColor = (() => {
       if (numberChartStyle.bgStyleValue && oneNumber) {
         return titleColor;
       }
+
       return undefined;
     })();
     const isOpacity = !_.isEmpty(linkageMatch) && isLinkageMatch ? linkageMatch.value !== data.originalId : false;

@@ -238,6 +238,7 @@ const WrapDrop = styled.div`
     }
   }
 `;
+
 export default function NavGroup(params) {
   let ajaxInfoFn = null;
   const { worksheetControls = [], view = {}, updateCurrentView, worksheetId, columns, currentSheetInfo = {} } = params;
@@ -283,10 +284,12 @@ export default function NavGroup(params) {
   const onDelete = () => {
     updateView(undefined);
   };
+
   const updateView = (navGroup, advancedSetting) => {
     setData(navGroup);
     let editAttrs = ['navGroup'];
     let param = { navGroup: navGroup ? [navGroup] : [] };
+
     if (advancedSetting) {
       editAttrs.push('advancedSetting');
       param = {
@@ -295,6 +298,7 @@ export default function NavGroup(params) {
         editAdKeys: Object.keys(advancedSetting),
       };
     }
+
     updateCurrentView(
       Object.assign(view, {
         ...param,
@@ -302,6 +306,7 @@ export default function NavGroup(params) {
       }),
     );
   };
+
   const addNavGroups = data => {
     data = { ...data, type: data.type === 30 ? data.sourceControlType : data.type };
     const d = getSetDefault(data);
@@ -318,13 +323,16 @@ export default function NavGroup(params) {
         ? _.get(data, 'advancedSetting.searchcontrol')
         : undefined,
     };
+
     if ([35].includes(data.type)) {
       info.showallitem = '';
     }
+
     //兼容处理地区/级联/关联字段 不支持分栏显示
     if ([...AREA, 29, 35].includes(data.type) && !['1', '2'].includes(appnavtype)) {
       info.appnavtype = '2';
     }
+
     updateView(d, info);
     setShowAddCondition(false);
     data.type === 29 && data.dataSource && getRelate(data.dataSource);
@@ -349,6 +357,7 @@ export default function NavGroup(params) {
       setRelateControls(replaceControlsTranslateInfo(params.appId, worksheetId, _.get(data, ['template', 'controls'])));
     });
   };
+
   const updateAdvancedSetting = data => {
     updateCurrentView(
       Object.assign(view, {
@@ -358,6 +367,7 @@ export default function NavGroup(params) {
       }),
     );
   };
+
   const renderAdd = ({ width, comp }) => {
     return (
       <AddCondition
@@ -396,18 +406,23 @@ export default function NavGroup(params) {
           ];
         }
       }
+
       if (data.type === 29 && !navGroup.viewId && o.key === 'filterType') {
         //关联记录不是以层级视图时，没有筛选方式
         return '';
       }
+
       if (data.type === 29 && !!navGroup.viewId && o.key === 'navshow') {
         //关联记录 以层级视图时，没有显示项
         return '';
       }
+
       let value = !navGroup[o.key] && data.type === 29 ? null : navGroup[o.key];
+
       if (o.key === 'filterType' && [29, 35].includes(data.type)) {
         value = value === 11 ? value : 24; //筛选方式 24是 | 11包含 老数据是0 按照24走
       }
+
       if (o.key === 'isAsc') return null; //排序合并到显示项处理
       if (o.key === 'navshow') {
         return (
@@ -420,9 +435,11 @@ export default function NavGroup(params) {
               value={navshow}
               onChange={newValue => {
                 let param = newValue;
+
                 if (newValue.navshow === '2') {
                   param = { ...param, navsorts: '', customnavs: '' };
                 }
+
                 updateCurrentView({
                   ...view,
                   advancedSetting: param,
@@ -468,6 +485,7 @@ export default function NavGroup(params) {
                     let editAttrs = ['advancedSetting'];
                     let editAdKeys = Object.keys(newValue);
                     let data = {};
+
                     if (
                       editAdKeys.includes('navsorts') &&
                       ([9, 10, 11, 28].includes(
@@ -481,6 +499,7 @@ export default function NavGroup(params) {
                       data = { navGroup: [{ ...navGroup, isAsc: newValue.navsorts + '' !== '1' }] };
                       editAttrs.push('navGroup');
                     }
+
                     updateCurrentView({
                       ...view,
                       ...data,
@@ -495,6 +514,7 @@ export default function NavGroup(params) {
           </WrapDrop>
         );
       }
+
       return (
         <React.Fragment>
           {o.txt && <div className="title mTop30 textPrimary Bold">{o.txt}</div>}
@@ -614,6 +634,7 @@ export default function NavGroup(params) {
                         })}
                         onClick={() => {
                           const { value } = item;
+
                           if (navlayer !== value) {
                             updateAdvancedSetting({ navlayer: value });
                           }

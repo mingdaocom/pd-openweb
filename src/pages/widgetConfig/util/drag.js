@@ -27,18 +27,23 @@ const removeSrcItem = (widgets, srcPath) => {
 // 获取批量操作涉及的控件合集
 const getDealWidgets = (widgets, data) => {
   let dealWidgets = [];
+
   for (var i = 0; i < widgets.length; i++) {
     const rowItem = widgets[i];
+
     for (var j = 0; j < rowItem.length; j++) {
       const item = widgets[i][j];
+
       if (item.controlId === data.controlId) {
         dealWidgets.unshift([data]);
       }
+
       if (item.sectionId === data.controlId) {
         dealWidgets[i] = (dealWidgets[i] || []).concat(item);
       }
     }
   }
+
   return dealWidgets.filter(_.identity);
 };
 
@@ -101,10 +106,12 @@ export const insertControlInSameLine = ({ widgets, srcItem, srcPath, dropPath, l
         if (colIndex === 0 && location === 'left') {
           return [srcItem].concat(row).map(item => ({ ...item, size: WHOLE_SIZE / (row.length + 1) }));
         }
+
         // 如果放在最后一个的右边
         if (colIndex === row.length && location === 'right') {
           return row.concat(srcItem).map(item => ({ ...item, size: WHOLE_SIZE / (row.length + 1) }));
         }
+
         let nextRow = update(row, {
           $splice: [
             [
@@ -133,11 +140,14 @@ export const insertToCol = ({ widgets, srcPath, ...rest }) => {
 
 export const isFullLineDragItem = item => {
   const { type, data, enumType } = item;
+
   if (includes([DRAG_ITEMS.DISPLAY_ITEM, DRAG_ITEMS.DISPLAY_TAB, DRAG_ITEMS.DISPLAY_LIST_TAB], type)) {
     return isFullLineControl(data);
   }
+
   if (includes([DRAG_ITEMS.LIST_ITEM, DRAG_ITEMS.LIST_TAB], type)) {
     return isFullLineControl({ type: enumWidgetType[enumType] });
   }
+
   return false;
 };

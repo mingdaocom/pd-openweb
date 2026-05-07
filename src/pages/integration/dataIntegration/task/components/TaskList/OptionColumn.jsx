@@ -27,9 +27,9 @@ const OptionMenu = styled.div`
   position: relative !important;
   width: 220px !important;
   padding: 6px 0 !important;
-  box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.16);
+  box-shadow: var(--shadow-sm);
   border-radius: 3px;
-  background: var(--color-background-primary);
+  background: var(--color-background-card);
 `;
 const MenuItem = styled.div`
   padding: 0 20px;
@@ -46,15 +46,16 @@ const EditTaskNameWrapper = styled.div`
   position: relative !important;
   width: 310px;
   padding: 20px 24px;
-  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+  box-shadow: var(--shadow-lg);
   border-radius: 3px;
-  background: var(--color-background-primary);
+  background: var(--color-background-card);
 `;
 
 export default function OptionColumn({ projectId, record, taskList, setTaskList, onRefreshComponents }) {
   const [visible, setVisible] = useState(false);
   const [editPopupVisible, setEditPopupVisible] = useState(false);
   const inputRef = useRef();
+
   const onEditTaskName = () => {
     setEditPopupVisible(true);
     setTimeout(() => {

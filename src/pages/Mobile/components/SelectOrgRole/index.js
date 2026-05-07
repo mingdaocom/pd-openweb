@@ -85,6 +85,7 @@ export default class SelectOrgRole extends Component {
           });
           return;
         }
+
         if (appointedOrganizeIds.length) {
           result.list.forEach(l => {
             let index = _.findIndex(treeList, o => o.orgRoleGroupId === l.orgRoleGroupId);
@@ -115,6 +116,7 @@ export default class SelectOrgRole extends Component {
       this.setState({ searchList: [], pageIndex: 1 });
       return;
     }
+
     this.setState(
       {
         isLoading: true,
@@ -195,6 +197,7 @@ export default class SelectOrgRole extends Component {
     const selectedOrgRoleIds = selectedOrgRole.map(item => item.organizeId);
     let isSelected = _.includes(selectedOrgRoleIds, item.organizeId);
     let copySelectedOrgRole = [...selectedOrgRole];
+
     if (!isSelected) {
       !unique && copySelectedOrgRole.push(item);
       this.setState(
@@ -236,6 +239,7 @@ export default class SelectOrgRole extends Component {
   renderParent = () => {
     const { isLoading, treeData, expendTreeNodeKey, searchList } = this.state;
     let keywords = this.getKeywords();
+
     if (isLoading) {
       return <LoadDiv />;
     }

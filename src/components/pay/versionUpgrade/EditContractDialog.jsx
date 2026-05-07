@@ -84,14 +84,17 @@ export default function EditContractDialog(props) {
       alert(_l('* 号标识的为必填项'), 3);
       return true;
     }
+
     if (isNaN(postcode) || postcode.length != 6) {
       alert(_l('请确保邮编正确'), 3); // "请确保邮编正确"
       return true;
     }
+
     if (!RegExpValidator.isEmail(email)) {
       alert(_l('请输入正确的邮箱'), 3); // 请输入正确的邮箱
       return true;
     }
+
     if (!/^(1[3-9]{1})\d{9}$/.exec(mobilePhone)) {
       alert(_l('手机号码未正确填写'), 3); // '请输入正确的手机号码！'
       return true;
@@ -101,6 +104,7 @@ export default function EditContractDialog(props) {
       alert(_l('请输入正确的传真号'), 3);
       return true;
     }
+
     return false;
   };
 

@@ -75,15 +75,18 @@ export default class FillWorksheet extends React.Component {
 
   componentDidMount() {
     const request = getRequest();
+
     if (!this.props.isPreview && !request.isMDClient) {
       window.onbeforeunload = function (e) {
         e = e || window.event;
         if (e) {
           e.returnValue = '关闭提示';
         }
+
         return '关闭提示';
       };
     }
+
     if (!this.props.loading) {
       setTimeout(() => {
         this.setState({ submitBtnLoading: false });
@@ -105,10 +108,12 @@ export default class FillWorksheet extends React.Component {
     if (this.issubmitting) {
       return;
     }
+
     if (error) {
       this.setState({ submitLoading: false });
       return;
     }
+
     if (!this.customwidget.current) return;
     const { publicWorksheetInfo = {}, onSubmit } = this.props;
     const {
@@ -124,6 +129,7 @@ export default class FillWorksheet extends React.Component {
 
     const submitSuccess = () => {
       const wxUserInfo = JSON.parse(localStorage.getItem('wxUserInfo') || '{}');
+
       if (writeScope === 1 && !(weChatSetting.isCollectWxInfo && wxUserInfo.openId)) {
         const submitStorage = getPublicSubmitStorage(shareId);
         safeLocalStorageSetItem(
@@ -140,11 +146,13 @@ export default class FillWorksheet extends React.Component {
         }));
         localForage.setItem(`cacheFieldData_${shareId}`, cacheData);
       }
+
       //提交成功，清除未提交缓存
       localForage.removeItem(`cacheDraft_${shareId}`);
     };
 
     let hasError;
+
     const submit = res => {
       if (res && !res.ticket) {
         this.setState({
@@ -152,6 +160,7 @@ export default class FillWorksheet extends React.Component {
         });
         return;
       }
+
       this.issubmitting = true;
       let params = res
         ? {
@@ -160,6 +169,7 @@ export default class FillWorksheet extends React.Component {
             captchaType: md.global.getCaptchaType(),
           }
         : {};
+
       if (smsVerification && checkMobileVerify(data, smsVerificationFiled)) {
         params.verifyCode = this.customwidget.current.state.verifyCode;
       }
@@ -202,6 +212,7 @@ export default class FillWorksheet extends React.Component {
             });
             return;
           }
+
           if (!res) {
             alert(_l('当前表单已过期'), 3);
             this.setState({
@@ -221,6 +232,7 @@ export default class FillWorksheet extends React.Component {
         },
       );
     };
+
     if (hasError) {
       alert(_l('请正确填写'), 3);
       this.setState({

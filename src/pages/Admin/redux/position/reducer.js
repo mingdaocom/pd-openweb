@@ -8,6 +8,7 @@ export function projectId(state = '', action) {
       return state;
   }
 }
+
 export function isLoading(state = false, action) {
   switch (action.type) {
     case 'UPDATE_IS_LOADING':
@@ -16,6 +17,7 @@ export function isLoading(state = false, action) {
       return state;
   }
 }
+
 export function positionList(state = [], action) {
   switch (action.type) {
     case 'UPDATE_POSITION_LIST':
@@ -24,6 +26,7 @@ export function positionList(state = [], action) {
       return state;
   }
 }
+
 export function positionPageInfo(state = { pageIndex: 1, isMore: false }, action) {
   switch (action.type) {
     case 'UPDATE_POSITION_PAGE_INFO':
@@ -32,6 +35,7 @@ export function positionPageInfo(state = { pageIndex: 1, isMore: false }, action
       return state;
   }
 }
+
 export function currentPosition(state = {}, action) {
   switch (action.type) {
     case 'UPDATE_CURRENT_POSITION':
@@ -40,6 +44,7 @@ export function currentPosition(state = {}, action) {
       return state;
   }
 }
+
 export function searchValue(state = '', action) {
   switch (action.type) {
     case 'UPDATE_SEARCH_VALUE':
@@ -48,6 +53,7 @@ export function searchValue(state = '', action) {
       return state;
   }
 }
+
 export function userPageIndex(state = 1, action) {
   switch (action.type) {
     case 'UPDATE_USER_PAGE_INDEX':
@@ -56,6 +62,7 @@ export function userPageIndex(state = 1, action) {
       return state;
   }
 }
+
 export function userList(state = [], action) {
   switch (action.type) {
     case 'UPDATE_USER_LIST':
@@ -64,6 +71,7 @@ export function userList(state = [], action) {
       return state;
   }
 }
+
 export function userLoading(state = true, action) {
   switch (action.type) {
     case 'UPDATE_USER_LOADING':
@@ -72,6 +80,7 @@ export function userLoading(state = true, action) {
       return state;
   }
 }
+
 export function allUserCount(state = 0, action) {
   switch (action.type) {
     case 'UPDATE_USER_COUNT':
@@ -80,6 +89,7 @@ export function allUserCount(state = 0, action) {
       return state;
   }
 }
+
 export function selectUserIds(state = [], action) {
   switch (action.type) {
     case 'UPDATE_SELECT_USER_IDS':
@@ -88,6 +98,7 @@ export function selectUserIds(state = [], action) {
       return state;
   }
 }
+
 export function isImportRole(state = false, action) {
   switch (action.type) {
     case 'UPDATE_IS_IMPORT_ROLE':

@@ -6,6 +6,7 @@ import global from 'src/api/global';
 export const getMapKey = keyName => {
   let mapInfo;
   const mapData = window.localStorage.getItem('MDMap');
+
   // 私有实时调接口
   if (!mapData || window.platformENV.isOverseas || window.platformENV.isLocal) {
     const data = global.getSystemConfiguration({}, { ajaxOptions: { sync: true } });
@@ -42,11 +43,13 @@ export default class MapLoader {
           if (!response.ok) {
             throw new Error('Network response was not ok');
           }
+
           return response.text();
         })
         .then(scriptCode => {
           // 检查是否已经存在高德地图的script标签;
           const existingScript = document.querySelector('script[data-amap-script]');
+
           if (existingScript) {
             return;
           }

@@ -75,6 +75,7 @@ export default function Embed(props) {
     let formatValue = '';
     value.forEach(item => {
       const { cid, rcid, staticValue } = item;
+
       if (cid) {
         formatValue += rcid ? `$${cid}~${rcid}$` : `$${cid}$`;
       } else {
@@ -272,12 +273,15 @@ export default function Embed(props) {
               }}
               onBlur={e => {
                 let value = e.target.value.trim();
+
                 if (value > 1000) {
                   value = 1000;
                 }
+
                 if (value < 100) {
                   value = 100;
                 }
+
                 onChange(handleAdvancedSettingChange(data, { height: value }));
               }}
             />
@@ -294,9 +298,11 @@ export default function Embed(props) {
               maxNum={50}
               onChange={value => {
                 let tempRowNum = getAdvanceSetting(value, 'rownum');
+
                 if (tempRowNum > 50) {
                   tempRowNum = 50;
                 }
+
                 onChange(handleAdvancedSettingChange(data, { rownum: tempRowNum.toString() }));
               }}
             />

@@ -51,6 +51,7 @@ class WorksheetRowLand extends Component {
   componentWillReceiveProps(nextProps) {
     const params = this.props.match.params;
     const nextParams = nextProps.match.params;
+
     if (!nextParams.appId && nextParams.rowId !== params.rowId) {
       this.setState({
         loading: true,

@@ -119,10 +119,27 @@ export default class Con extends React.Component {
     this.setState({ shareUrl: url });
   };
 
+  getPlaceholderMode = () => {
+    const { printData } = this.props;
+    const { showData, enableEmptyPlaceholder, emptyPlaceholderMode } = printData;
+    const placeholderMode =
+      showData && !!Number(enableEmptyPlaceholder) && emptyPlaceholderMode ? emptyPlaceholderMode : '';
+
+    return placeholderMode;
+  };
+
   renderControls() {
     const { printData, controls = [] } = this.props;
     let { appId, worksheetId, viewId, rowId, type, from, projectId } = this.props.params;
-    const { showData, printOption, rowIdForQr, advanceSettings = [], allControls } = printData;
+    const {
+      showData,
+      printOption,
+      rowIdForQr,
+      advanceSettings = [],
+      allControls,
+      enableEmptyPlaceholder,
+      emptyPlaceholderMode,
+    } = printData;
     const nameWidth = (advanceSettings.find(l => l.key === 'nameWidth') || {}).value || DefaultNameWidth;
     const fileStyle = safeParse((advanceSettings.find(l => l.key === 'atta_style') || {}).value);
     let dataInfo = {
@@ -144,6 +161,14 @@ export default class Con extends React.Component {
       ),
     );
     let isHideNull = !showData && !(from === fromType.FORM_SET && type !== typeForCon.PREVIEW);
+    console.log('showData', showData, 'from', from, 'type', type);
+    // 空字段显示参数
+    const contentShowParams = {
+      showData: isHideNull,
+      realShowData: showData,
+      enableEmptyPlaceholder,
+      emptyPlaceholderMode,
+    };
     const tableList = [];
     let preRelationControls = false;
     const fontType = FONT_STYLE[printData.font || DEFAULT_FONT_SIZE];
@@ -171,6 +196,7 @@ export default class Con extends React.Component {
       <React.Fragment>
         {tableList.map((tableData, tableIndex) => {
           let isRelationControls = tableData.length === 1 && isRelation(tableData[0][0]);
+
           //关联表多行列表/子表打印
           if (isRelationControls) {
             const item = tableData[0];
@@ -179,11 +205,13 @@ export default class Con extends React.Component {
               if ([29, 34, 51].includes(item[0].type)) {
                 //关联表,子表，是否空值隐藏
                 let records = [];
+
                 try {
                   records = JSON.parse(item[0].value);
                 } catch (err) {
                   console.log(err);
                 }
+
                 // 子表records不是数组
                 if (records.length <= 0) {
                   return null;
@@ -193,7 +221,7 @@ export default class Con extends React.Component {
 
             if (
               (!this.isShow(
-                getPrintContent({ ...item[0], showData: isHideNull, noUnit: true, ...dataInfo }),
+                getPrintContent({ ...item[0], noUnit: true, ...dataInfo, ...contentShowParams }),
                 item[0].checked,
               ) &&
                 item[0].type !== 22) ||
@@ -204,7 +232,9 @@ export default class Con extends React.Component {
 
             return this.renderRelations(item[0], dataInfo);
           }
+
           let hideNum = 0;
+
           if ([22, 52].includes(tableData[0][0].type)) {
             let type = tableData[0][0].type;
             let hideTitle = _.get(tableData[0][0], 'advancedSetting.hidetitle') === '1';
@@ -225,6 +255,7 @@ export default class Con extends React.Component {
               </p>
             ) : null;
           }
+
           return (
             <table
               style={{
@@ -251,32 +282,43 @@ export default class Con extends React.Component {
                 })}
               {Object.keys(tableData).map((key, itemIndex) => {
                 const item = tableData[key];
+
                 //一行一个控件的显示
                 if (item.length === 1) {
                   const hideTitle = _.get(item[0], 'advancedSetting.hidetitle') === '1';
+
                   if (isHideNull) {
                     if ([41, 10010, 14, 42].includes(item[0].type) && !item[0].value && !item[0].dataSource) {
                       //富文本、备注、附件、签名，是否空值隐藏0
                       hideNum++;
                       return '';
                     }
+
                     if ([29, 34].includes(item[0].type)) {
                       //关联表,子表，是否空值隐藏
                       let records = [];
+
                       try {
                         records = JSON.parse(item[0].value);
                       } catch (err) {
                         console.log(err);
                       }
+
                       if (records.length <= 0) {
                         hideNum++;
                         return '';
                       }
                     }
                   }
+
                   if (
                     (!this.isShow(
-                      getPrintContent({ ...item[0], showData: isHideNull, noUnit: true, ...dataInfo }),
+                      getPrintContent({
+                        ...item[0],
+                        noUnit: true,
+                        ...dataInfo,
+                        ...contentShowParams,
+                      }),
                       item[0].checked,
                     ) &&
                       item[0].type !== 22) ||
@@ -285,9 +327,10 @@ export default class Con extends React.Component {
                     hideNum++;
                     return '';
                   }
+
                   let expStyle = {
-                    borderBottom: '0.1px solid var(--color-border-primary)',
-                    borderTop: itemIndex === hideNum ? '0.1px solid var(--color-border-primary)' : 'none',
+                    borderBottom: '0.1px solid #ddd',
+                    borderTop: itemIndex === hideNum ? '0.1px solid #ddd' : 'none',
                   };
 
                   /* 备注字段、隐藏标题的富文本、隐藏标题且独占一行显示的mark类型文本 */
@@ -300,7 +343,7 @@ export default class Con extends React.Component {
                     return (
                       <Fragment>
                         {!hideTitle && (
-                          <tr style={STYLE_PRINT.controlDiv} className="trFlex">
+                          <tr style={STYLE_PRINT.controlDiv} className="trFlex trFlex01">
                             <td
                               style={{
                                 ...STYLE_PRINT.controlDiv_span,
@@ -315,7 +358,7 @@ export default class Con extends React.Component {
                             </td>
                           </tr>
                         )}
-                        <tr style={STYLE_PRINT.controlDiv} className="trFlex">
+                        <tr style={STYLE_PRINT.controlDiv} className="trFlex trFlex02">
                           <td
                             style={{
                               ...STYLE_PRINT.controlDiv_span,
@@ -329,9 +372,9 @@ export default class Con extends React.Component {
                             {getPrintContent({
                               ...item[0],
                               showUnit: true,
-                              showData: isHideNull,
                               printOption,
                               ...dataInfo,
+                              ...contentShowParams,
                             })}
                           </td>
                         </tr>
@@ -340,7 +383,7 @@ export default class Con extends React.Component {
                   }
 
                   return item[0].type !== 10010 ? (
-                    <tr style={STYLE_PRINT.controlDiv} className="trFlex">
+                    <tr style={STYLE_PRINT.controlDiv} className="trFlex trFlex03">
                       <td
                         width={nameWidth}
                         style={{
@@ -362,13 +405,14 @@ export default class Con extends React.Component {
                         width={728 - nameWidth}
                         colSpan={11}
                         className="printTd"
+                        data-type={item[0].type}
                       >
                         {getPrintContent({
                           ...item[0],
                           showUnit: true,
-                          showData: isHideNull,
-                          printOption,
                           ...dataInfo,
+                          printOption,
+                          ...contentShowParams,
                         })}
                       </td>
                     </tr>
@@ -377,7 +421,7 @@ export default class Con extends React.Component {
                   //一行多个控件的显示
                   let data = item.filter(it =>
                     this.isShow(
-                      getPrintContent({ ...it, showData: isHideNull, noUnit: true, ...dataInfo }),
+                      getPrintContent({ ...it, noUnit: true, ...dataInfo, ...contentShowParams }),
                       it.checked,
                     ),
                   );
@@ -387,7 +431,7 @@ export default class Con extends React.Component {
                   if (data.length > 0) {
                     return (
                       <React.Fragment>
-                        <tr style={STYLE_PRINT.controlDiv} className="trFlex">
+                        <tr style={STYLE_PRINT.controlDiv} className="trFlex trFlex04">
                           {data.map((it, i) => {
                             let span = 12 * (it.size / allCountSize);
                             const hideTitle = _.get(it, 'advancedSetting.hidetitle') === '1';
@@ -400,9 +444,8 @@ export default class Con extends React.Component {
                                     ...STYLE_PRINT.controlDiv_span_title,
                                     borderLeft: i === 0 ? 'none' : '0.1px solid rgb(221, 221, 221)',
                                     width: `${nameWidth}px`,
-                                    borderBottom: '0.1px solid var(--color-border-primary)',
-                                    borderTop:
-                                      itemIndex === hideNum ? '0.1px solid var(--color-border-primary)' : 'none',
+                                    borderBottom: '0.1px solid #ddd',
+                                    borderTop: itemIndex === hideNum ? '0.1px solid #ddd' : 'none',
                                   }}
                                 >
                                   {hideTitle ? '' : it.controlName || _l('未命名')}
@@ -416,9 +459,8 @@ export default class Con extends React.Component {
                                       data.length !== 1
                                         ? `${728 * (it.size / allCountSize) - nameWidth}px`
                                         : `${728 - nameWidth}px`,
-                                    borderBottom: '0.1px solid var(--color-border-primary)',
-                                    borderTop:
-                                      itemIndex === hideNum ? '0.1px solid var(--color-border-primary)' : 'none',
+                                    borderBottom: '0.1px solid #ddd',
+                                    borderTop: itemIndex === hideNum ? '0.1px solid #ddd' : 'none',
                                   }}
                                   width={
                                     data.length !== 1
@@ -434,6 +476,7 @@ export default class Con extends React.Component {
                                     showData: isHideNull,
                                     printOption,
                                     ...dataInfo,
+                                    ...contentShowParams,
                                   })}
                                 </td>
                               </React.Fragment>
@@ -458,7 +501,20 @@ export default class Con extends React.Component {
   renderRelations = (tableList, dataInfo) => {
     const { printData, handChange, params } = this.props;
     const { type, from, projectId } = params;
-    const { showData, relationStyle = [], orderNumber = [], advanceSettings = [], allControls } = printData;
+    const {
+      showData,
+      relationStyle = [],
+      orderNumber = [],
+      advanceSettings = [],
+      allControls,
+      enableEmptyPlaceholder,
+      emptyPlaceholderMode,
+    } = printData;
+    const contentShowParams = {
+      realShowData: showData,
+      enableEmptyPlaceholder,
+      emptyPlaceholderMode,
+    };
     let orderNumberCheck = (orderNumber.find(o => o.receiveControlId === tableList.controlId) || []).checked;
     let relationControls = tableList.relationControls || [];
     let relationsList = tableList.relationsData || {};
@@ -474,8 +530,10 @@ export default class Con extends React.Component {
     if (isHideNull && list.length <= 0) {
       return '';
     }
+
     let controls = [];
     let allControlsOfRelation = [];
+
     if (tableList.showControls && tableList.showControls.length > 0) {
       //数据根据ShowControls处理
       controls = sortByShowControls(tableList);
@@ -483,6 +541,7 @@ export default class Con extends React.Component {
       //只展示checked
       controls = controls.filter(it => {
         let data = relationControls.find(o => o.controlId === it.controlId) || [];
+
         if (data.checked) {
           return it;
         }
@@ -491,6 +550,7 @@ export default class Con extends React.Component {
       controls = controls.map(it => {
         let { template = [] } = relationsList;
         let { controls = [] } = template;
+
         if (controls.length > 0) {
           let data = controls.find(o => o.controlId === it.controlId) || [];
           return {
@@ -503,14 +563,17 @@ export default class Con extends React.Component {
         }
       });
     }
+
     //关联表富文本不不显示 分割线 嵌入不显示 扫码47暂不支持关联表显示(表单配置处隐藏了)
     controls = controls.filter(
       it => ![41, 22, 45].includes(it.type) && !(it.type === 30 && it.sourceControlType === 41),
     );
     let relationStyleNum = relationStyle.find(it => it.controlId === tableList.controlId) || [];
+
     let setStyle = type => {
       let data = [];
       let isData = relationStyle.map(it => it.controlId).includes(tableList.controlId);
+
       if (isData) {
         relationStyle.map(it => {
           if (it.controlId === tableList.controlId) {
@@ -529,6 +592,7 @@ export default class Con extends React.Component {
           type: type,
         });
       }
+
       handChange({
         relationStyle: data,
       });
@@ -581,7 +645,10 @@ export default class Con extends React.Component {
             orderNumberCheck={orderNumberCheck}
             id={tableList.controlId}
             tableList={tableList}
-            printData={printData}
+            printData={{
+              ...printData,
+              ...contentShowParams,
+            }}
             handChange={handChange}
             isShowFn={this.isShow}
             showData={isHideNull}
@@ -621,6 +688,7 @@ export default class Con extends React.Component {
                       ...data,
                       showData: isHideNull,
                       noUnit: true,
+                      ...contentShowParams,
                     }),
                     true,
                   );
@@ -674,7 +742,7 @@ export default class Con extends React.Component {
                           let expStyle =
                             index + 1 === controlList.length
                               ? {
-                                  borderBottom: '0.1px solid var(--color-border-primary)',
+                                  borderBottom: '0.1px solid #ddd',
                                   paddingBottom: 10,
                                 }
                               : {
@@ -682,7 +750,7 @@ export default class Con extends React.Component {
                                 };
 
                           return (
-                            <tr className="trFlex">
+                            <tr className="trFlex trFlex05">
                               <td
                                 style={{
                                   ...STYLE_PRINT.controlDiv_span_title,
@@ -700,7 +768,7 @@ export default class Con extends React.Component {
                                   flex: 1,
                                 }}
                               >
-                                {getPrintContent(data)}
+                                {getPrintContent({ ...data, ...contentShowParams })}
                               </td>
                             </tr>
                           );
@@ -741,6 +809,7 @@ export default class Con extends React.Component {
               onLoad={e => {
                 let width = e.target.width;
                 let height = e.target.height;
+
                 if (width > height) {
                   $(e.target).attr({
                     width: width,
@@ -806,8 +875,8 @@ export default class Con extends React.Component {
                               ...STYLE_PRINT.worksTable_workPersons_th,
                               ...workTdExp,
                               width: '20%',
-                              borderTop: '0.1px solid var(--color-border-primary)',
-                              backgroundColor: 'var(--color-background-secondary)',
+                              borderTop: '0.1px solid #ddd',
+                              backgroundColor: '#fafafa',
                             }}
                             key={`print-works-thead-${i}`}
                           >
@@ -829,7 +898,6 @@ export default class Con extends React.Component {
                                   ...STYLE_PRINT.worksTable_workPersons_td,
                                   width: '20%',
                                   borderLeft: 0,
-                                  borderBottom: '0.1px solid var(--color-border-primary)',
                                 }}
                                 rowSpan={item.workItems.length}
                               >
@@ -841,7 +909,6 @@ export default class Con extends React.Component {
                               style={{
                                 ...STYLE_PRINT.worksTable_workPersons_td,
                                 width: '20%',
-                                borderBottom: '0.1px solid var(--color-border-primary)',
                               }}
                             >
                               <span style={{ verticalAlign: 'middle' }} className="controlName">
@@ -854,7 +921,6 @@ export default class Con extends React.Component {
                               style={{
                                 ...STYLE_PRINT.worksTable_workPersons_td,
                                 width: '12%',
-                                borderBottom: '0.1px solid var(--color-border-primary)',
                               }}
                             >
                               <span style={{ verticalAlign: 'middle' }} className="controlName">
@@ -872,7 +938,6 @@ export default class Con extends React.Component {
                               style={{
                                 ...STYLE_PRINT.worksTable_workPersons_td,
                                 width: '22%',
-                                borderBottom: '0.1px solid var(--color-border-primary)',
                               }}
                             >
                               <span style={{ verticalAlign: 'middle' }} className="controlName">
@@ -883,7 +948,6 @@ export default class Con extends React.Component {
                               style={{
                                 ...STYLE_PRINT.worksTable_workPersons_td,
                                 // width: '26%',
-                                borderBottom: '0.1px solid var(--color-border-primary)',
                               }}
                             >
                               {item.flowNode.type !== 5 && (
@@ -901,7 +965,7 @@ export default class Con extends React.Component {
                                   {signature && !approvePosition ? (
                                     <div
                                       style={STYLE_PRINT.worksTable_workPersons_infoSignature}
-                                      className="infoSignature"
+                                      className="infoSignature infoSignature1"
                                     >
                                       {signature.server && (
                                         <img src={`${signature.server}`} alt="" srcset="" onLoad={this.signLoadSet} />
@@ -950,7 +1014,10 @@ export default class Con extends React.Component {
                             }}
                           >
                             {tdList[tdItem] ? (
-                              <div style={STYLE_PRINT.worksTable_workPersons_infoSignature} className="infoSignature">
+                              <div
+                                style={STYLE_PRINT.worksTable_workPersons_infoSignature}
+                                className="infoSignature infoSignature2"
+                              >
                                 <img src={`${tdList[tdItem].server}`} alt="" srcset="" onLoad={this.signLoadSet} />
                               </div>
                             ) : null}
@@ -1043,6 +1110,7 @@ export default class Con extends React.Component {
     let updateSign =
       this.isShow(printData.updateAccount, printData.updateAccountChecked) &&
       this.isShow(printData.updateTime, printData.updateTimeChecked);
+
     if (createSign && updateSign) {
       return false;
     } else if (createSign && this.isShow(printData.ownerAccount, printData.ownerAccountChecked)) {
@@ -1050,6 +1118,7 @@ export default class Con extends React.Component {
     } else if (updateSign && this.getNumSys() % 2 === 1) {
       return true;
     }
+
     return false;
   };
 
@@ -1097,9 +1166,10 @@ export default class Con extends React.Component {
       advanceSettings.find(l => l.key === 'printTime'),
       'value',
     );
+    const placeholderMode = this.getPlaceholderMode();
 
     return (
-      <div className="printContent flex clearfix pTop20 printItemPageNumber">
+      <div className="printContent flex clearfix printItemPageNumber">
         {this.isShow(printData.companyName, printData.companyNameChecked) && (
           <p style={STYLE_PRINT.companyName}>
             {
@@ -1199,8 +1269,12 @@ export default class Con extends React.Component {
                               ? ''
                               : tdList[tdIndex].controlName}
                           </div>
-                          <div className="infoSignature">
-                            <img style={{ marginTop: 20 }} src={tdList[tdIndex].value} onLoad={this.signLoadSet} />
+                          <div className="infoSignature infoSignature3">
+                            {tdList[tdIndex].value ? (
+                              <img style={{ marginTop: 20 }} src={tdList[tdIndex].value} onLoad={this.signLoadSet} />
+                            ) : (
+                              placeholderMode
+                            )}
                           </div>
                         </React.Fragment>
                       ) : null}

@@ -29,9 +29,11 @@ export default function ExportSheetButton(props) {
           if (loading) {
             return;
           }
+
           if (!noLoading) {
             setLoading(true);
           }
+
           exportSheet(() => setLoading(false));
         }}
       >
@@ -47,7 +49,7 @@ export default function ExportSheetButton(props) {
           ></i>
         ) : (
           <IconBtn className="Hand ThemeHoverColor3">
-            <i className="icon icon-download" />
+            <i className="icon icon-worksheet_export" />
           </IconBtn>
         )}
       </span>

@@ -176,6 +176,7 @@ export default class WebHook extends Component {
 
     let hasError = 0;
     let errorMap = {};
+
     if (errorMsgArray.length) {
       errorMsgArray
         .filter(item => item.key || item.value)
@@ -314,11 +315,7 @@ export default class WebHook extends Component {
         )}
 
         {!isIntegration && (
-          <FindResult
-            nodeType={selectNodeType}
-            executeType={data.executeType}
-            switchExecuteType={executeType => this.updateSource({ executeType })}
-          />
+          <FindResult nodeType={selectNodeType} executeType={data.executeType} updateSource={this.updateSource} />
         )}
 
         {showTestDialog && (
@@ -396,7 +393,7 @@ export default class WebHook extends Component {
         </div>
 
         {_.includes([4, 5], data.contentType) && (
-          <div className="textSecondary mTop5">{_l('此模式下允许发送10M以内附件')}</div>
+          <div className="Font13 textSecondary mTop5">{_l('此模式下允许发送10M以内附件')}</div>
         )}
 
         {_.includes([1, 4, 5], data.contentType) && (

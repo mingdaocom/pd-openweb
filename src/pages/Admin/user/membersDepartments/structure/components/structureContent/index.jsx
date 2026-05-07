@@ -43,6 +43,7 @@ class StructureContent extends Component {
 
   loadData = (pageIndex = 1) => {
     const { departmentId, typeCursor, projectId, noDepartmentUsers } = this.props;
+
     if (!!departmentId || noDepartmentUsers) {
       this.props.loadUsers(noDepartmentUsers ? '' : departmentId, pageIndex);
     } else {
@@ -99,10 +100,12 @@ class StructureContent extends Component {
   // 批量离职
   batchResign = () => {
     const { selectedAccountIds, projectId, updateSelectedAccountIds = () => {} } = this.props;
+
     if (selectedAccountIds.length > 50) {
       alert(_l('请注意，单次批量离职人数不得超过50人'), 2);
       return;
     }
+
     Dialog.confirm({
       title: _l('批量离职'),
       buttonType: 'danger',

@@ -111,6 +111,7 @@ const Wrap = styled.div`
     }
   }
 `;
+
 //回收站
 export default function TrashDialog(props) {
   const { projectId, appId, worksheetId, views, btnType = 0 } = props;
@@ -129,6 +130,7 @@ export default function TrashDialog(props) {
     if (loading) {
       return;
     }
+
     setState({ loading: true });
     sheetAjax
       .getWorksheetBtns({
@@ -168,6 +170,7 @@ export default function TrashDialog(props) {
         }
       });
   };
+
   const removeBtn = btnId => {
     sheetAjax
       .optionWorksheetBtn({
@@ -189,10 +192,12 @@ export default function TrashDialog(props) {
         }
       });
   };
+
   const renderTxt = (it, isTxt) => {
     const list = safeParse(_.get(it, 'advancedSetting.listviews'), 'array');
     const dt = safeParse(_.get(it, 'advancedSetting.detailviews'), 'array');
     const data = _.uniq([...list, ...dt]);
+
     if (data.length > 0) {
       if (isTxt) {
         return data
@@ -202,6 +207,7 @@ export default function TrashDialog(props) {
           })
           .join(',');
       }
+
       return (
         <span className="">
           {data
@@ -213,8 +219,10 @@ export default function TrashDialog(props) {
         </span>
       );
     }
+
     return _l('未分配视图');
   };
+
   const columns = [
     {
       id: 'name',
@@ -350,6 +358,7 @@ export default function TrashDialog(props) {
       </div>
     );
   };
+
   const renderHeader = () => {
     return (
       <div className="flexRow trashHeader alignItemsCenter">
@@ -359,6 +368,7 @@ export default function TrashDialog(props) {
       </div>
     );
   };
+
   const renderCon = () => {
     return (
       <React.Fragment>

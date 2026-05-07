@@ -41,11 +41,13 @@ function LoginContainer(props) {
   const updateWarn = warnList => {
     setState({ focusDiv: '', warnList });
   };
+
   //确认逻辑
   const sendCode = () => {
     if (sending) {
       return;
     }
+
     if (!emailOrTel) {
       const way =
         registerMode.email && registerMode.phone
@@ -56,15 +58,18 @@ function LoginContainer(props) {
       updateWarn([{ tipDom: 'inputAccount', warnTxt: way }]);
       return;
     }
+
     if (!verifyCode) {
       updateWarn([{ tipDom: 'inputCode', warnTxt: _l('请输入验证码！') }]);
       return;
     }
+
     if (!password) {
       updateWarn([{ tipDom: 'inputPassword', warnTxt: _l('请输入密码！') }]);
 
       return;
     }
+
     setState({
       sending: true,
     });
@@ -76,17 +81,20 @@ function LoginContainer(props) {
       if (res.ret !== 0) {
         return;
       }
+
       doFindPwd(
         Object.assign({}, res, {
           captchaType: md.global.getCaptchaType(),
         }),
       );
     };
+
     new captcha(callback);
   };
 
   const findPwdCallback = res => {
     const { accountResult } = res;
+
     switch (accountResult) {
       case 1:
         alert({
@@ -162,6 +170,7 @@ function LoginContainer(props) {
     if (sending) {
       return;
     }
+
     const { ticket, randstr } = resRet;
     externalPortalAjax
       .findPwd({

@@ -24,14 +24,14 @@ const SearchBtn = styled.div`
   max-width: ${props => props.maxWidth || '320px'};
   width: 100%;
   height: 36px;
-  border: 1px solid var(--color-border-primary);
+  border: 1px solid ${props => props?.buttonStyle?.bordercolor || 'var(--color-border-primary)'};
   border-radius: 3px;
   padding: 0 16px;
-  background: var(--color-background-primary);
+  background: ${props => props?.buttonStyle?.background || 'var(--color-background-primary)'};
   color: var(--color-text-primary);
   font-size: 13px;
   &:hover {
-    background: var(--color-background-hover);
+    background: ${props => props?.buttonStyle?.background || 'var(--color-background-hover)'};
   }
   .successIcon {
     color: var(--color-success);
@@ -218,10 +218,12 @@ const Search = props => {
 
   const getSuffixIcon = () => {
     const canClick = _.get(keywords, 'length') >= parseInt(min);
+
     if (enumDefault === 2) {
       if (clicksearch === '1') {
         return <Icon icon="search Font14" />;
       }
+
       return (
         <div
           className={cx('searchIconBox', { disabled: disabled || !canClick })}
@@ -244,6 +246,7 @@ const Search = props => {
       if (enumDefault !== 2 || searchfirst === '1') {
         handleSearch();
       }
+
       if (boxRef.current) {
         setTimeout(() => {
           try {
@@ -259,6 +262,7 @@ const Search = props => {
   if (type === 49) {
     return (
       <SearchBtn
+        buttonStyle={JSON.parse(advancedSetting.cardstyle || '{}')}
         onClick={() => {
           if (loading) return;
           handleSearch();

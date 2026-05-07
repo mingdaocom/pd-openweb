@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import DocumentTitle from 'react-document-title';
 import cx from 'classnames';
-import _, { get, isEqual } from 'lodash';
+import _, { get, isEqual, isUndefined } from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Skeleton } from 'ming-ui';
@@ -93,6 +93,7 @@ function getKeyOfFiltersGroup(filtersGroup) {
       _.pick(f, ['controlId', 'value', 'values', 'minValue', 'maxValue', 'filterType', 'dateRange']),
     );
   }
+
   if (_.isEmpty(filtersGroup)) {
     return '';
   } else if (_.get(filtersGroup, '0.groupFilters')) {
@@ -216,6 +217,7 @@ function Sheet(props) {
     allowOpenRecord: config.allowOpenRecord,
     allowAddNewRecord: config.isAddRecord,
     embedNeedUpdate: config.embedNeedUpdate,
+    hideFilter: !isUndefined(config.allowFilter) && !config.allowFilter,
     viewRowsLoading,
   };
   const navGroupData = (_.get(worksheetInfo, 'template.controls') || []).find(
@@ -276,6 +278,7 @@ function Sheet(props) {
     if (_.get(cache, 'current.prevFastFilters.length') > 0 && _.get(view, 'fastFilters.length') === 0) {
       updateQuickFilter([], view);
     }
+
     cache.current.prevFastFilters = quickFilterWithDefault;
   }, [quickFilterWithDefault]);
   useEffect(() => {
@@ -290,10 +293,12 @@ function Sheet(props) {
     w = !w ? _.get(view, 'advancedSetting.navwidth') || defaultNavOpenW : w;
     setGroupFilterWidth(w);
   };
+
   useEffect(() => {
     if (type === 'single') {
       return;
     }
+
     globalEmitter.emit('UPDATE_GLOBAL_STORE', 'activeWorksheet', {
       ...worksheetInfo,
       isCharge,
@@ -304,12 +309,14 @@ function Sheet(props) {
       setViewConfigVisible(true);
       setViewConfigTab('DebugConfig');
     };
+
     return () => {
       updateGroupFilter([], view);
       delete window.openViewConfig;
       if (type === 'single') {
         return;
       }
+
       globalEmitter.emit('UPDATE_GLOBAL_STORE', 'activeWorksheet');
     };
   }, []);
@@ -328,6 +335,7 @@ function Sheet(props) {
         sheetButtons,
         printList,
         sheetSwitchPermit,
+        isSingleView: type === 'single',
       }}
     >
       <Con className="worksheetSheet">

@@ -8,6 +8,7 @@ import Date from './Date';
 import OperationType from './OperationType';
 import SelectAllAppProcess from './SelectAllAppProcess';
 import SelectAppProcess from './SelectAppProcess';
+import SelectProject from './SelectProject';
 import Status from './Status';
 import Users from './Users';
 
@@ -74,6 +75,15 @@ export default props => {
     );
   };
 
+  const renderSelectProject = () => {
+    return (
+      <SelectProject
+        companyId={queryParam.companyId}
+        onChange={data => onChangeQueryParam({ ...queryParam, ...data })}
+      />
+    );
+  };
+
   const renderSelectAppProcess = () => {
     return (
       <SelectAppProcess
@@ -128,7 +138,9 @@ export default props => {
           <Icon className="textTertiary close" icon="close" onClick={onClose} />
         </div>
         <div className="body flex">
+          {['completeDispose', 'completeMySponsor'].includes(tab) && renderSelectProject()}
           {!['mySponsor', 'completeMySponsor'].includes(tab) && renderAccount()}
+          {!isProcessed && renderSelectProject()}
           {!isProcessed && renderSelectAppProcess()}
           {isProcessed && renderDate()}
           {['completeDispose'].includes(tab) && renderOperationType()}

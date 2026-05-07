@@ -43,6 +43,7 @@ export default class SideBar extends React.Component {
 
   renderTabs(item, index) {
     const { type, projectId } = this.props;
+
     if (item.dividor) {
       return <div className="dividor" key={index} />;
     } else {

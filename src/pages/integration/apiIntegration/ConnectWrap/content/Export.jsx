@@ -24,6 +24,7 @@ const Wrap = styled.div`
     }
   }
 `;
+
 function ExportDialog(props) {
   const { projectId, info, onClose = () => {} } = props;
   const [{ selectedList, list, isCheckAll, loading, notCheck }, setState] = useSetState({
@@ -96,6 +97,7 @@ function ExportDialog(props) {
       },
     },
   ];
+
   // 导出
   const exportConnect = () => {
     if (selectedList.length <= 0) return;
@@ -162,6 +164,7 @@ function ExportDialog(props) {
                 checked={notCheck}
                 onClick={() => {
                   let param = { notCheck: !notCheck };
+
                   if (!notCheck) {
                     param.selectedList = selectedList.filter(
                       o =>
@@ -172,6 +175,7 @@ function ExportDialog(props) {
                     );
                     param.isCheckAll = false;
                   }
+
                   setState(param);
                 }}
               />

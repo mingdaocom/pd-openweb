@@ -134,6 +134,7 @@ export default function BackupFiles(props) {
       setData({ token });
     });
   };
+
   // 还原应用
   const restoreApp = item => {
     getToken();
@@ -195,6 +196,7 @@ export default function BackupFiles(props) {
                 value: l.id,
               };
             });
+
             if (res && res.length) {
               setData({
                 dataDBInstances: DataDBInstances.concat(list),
@@ -207,6 +209,7 @@ export default function BackupFiles(props) {
           });
           return;
         }
+
         onRestore(item);
       },
     });
@@ -271,6 +274,7 @@ export default function BackupFiles(props) {
       if (item.id === obj.id) {
         return obj;
       }
+
       return item;
     });
     setData({ fileList: temp });

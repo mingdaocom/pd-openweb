@@ -1,0 +1,76 @@
+.dynamicRenderContainer {
+  .dynamicField {
+    margin-bottom: 20px;
+  }
+
+  .dynamicTitleWrap {
+    .title {
+      margin-bottom: 10px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--color-text-primary);
+    }
+    .hint {
+      margin-left: 4px;
+      color: var(--color-text-tertiary);
+      cursor: pointer;
+    }
+    .desc {
+      margin-bottom: 14px;
+      font-size: 13px;
+      color: var(--color-text-tertiary);
+    }
+  }
+
+  .dynamicButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    height: 36px;
+    background: var(--color-primary-transparent);
+    border-radius: 3px;
+    color: var(--color-primary);
+    cursor: pointer;
+    &:hover {
+      color: var(--color-primary-dark);
+    }
+  }
+  .functionButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    width: 86px;
+    height: 32px;
+    background: var(--color-primary-transparent);
+    border-radius: 32px;
+    color: var(--color-primary);
+    cursor: pointer;
+    &:hover {
+      color: var(--color-primary-dark);
+    }
+  }
+
+  .mappingField {
+    .mappingItem {
+      margin-bottom: 10px;
+      .fromField {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        padding: 0 10px;
+        height: 36px;
+        border-radius: 3px;
+        background-color: var(--color-background-secondary);
+      }
+    }
+  }
+}
+
+.mappedFieldPopup {
+  .ant-select-item-option-disabled {
+    color: var(--color-text-tertiary) !important;
+    font-size: 13px;
+  }
+}

@@ -16,6 +16,7 @@ export default class SheetSetName extends Component {
   handleSave() {
     const { entityName } = this.state;
     const defaultName = _l('记录');
+
     // if (entityName.length > 6 || entityName.length === 0) {
     //   alert(_l('记录名应为1~6位字符'), 3);
     //   return;
@@ -39,6 +40,7 @@ export default class SheetSetName extends Component {
           alert(_l('修改失败'), 2);
         });
     }
+
     this.props.onHide();
   }
   render() {

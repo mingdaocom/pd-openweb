@@ -1,6 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { Checkbox } from 'antd';
-import { Popover } from 'antd';
+import { Checkbox, Popover } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Button, Dialog, Icon, LoadDiv, ScrollView, Signature, VerifyPasswordInput } from 'ming-ui';
@@ -10,118 +9,14 @@ import ArchivedList from 'src/components/ArchivedList';
 import verifyPassword from 'src/components/verifyPassword';
 import ExecDialog from 'src/pages/workflow/components/ExecDialog';
 import Card from './Card';
-import { TABS } from './config';
+import { getStateParam, TABS } from './config';
 import { getTodoCount } from './Entry';
 import FilterConTent from './Filter';
+import FilterNav from './Filter/FilterNav';
+import FilterTrigger from './Filter/FilterTrigger';
+import Sort from './Filter/Sort';
 import TodoEntrust from './TodoEntrust';
 import './index.less';
-
-export const getStateParam = tab => {
-  let param = {};
-  if (tab === TABS.WAITING_APPROVE) {
-    param = { type: 4 };
-  }
-  if (tab === TABS.WAITING_FILL) {
-    param = { type: 3 };
-  }
-  if (tab === TABS.WAITING_EXAMINE) {
-    param = {
-      type: 5,
-      complete: false,
-    };
-  }
-  if (tab === TABS.MY_SPONSOR) {
-    param = { type: 0 };
-  }
-  if (tab === TABS.COMPLETE) {
-    param = {
-      type: -1,
-      complete: true,
-    };
-  }
-  return param;
-};
-
-class Filter extends Component {
-  getFilterLength = () => {
-    const { stateTab } = this.props;
-    const filter = _.cloneDeep(this.props.filter);
-    if (_.isObject(filter)) {
-      // 不是筛选项
-      delete filter.type;
-      delete filter.resultType;
-    } else {
-      return 0;
-    }
-    if (stateTab !== TABS.COMPLETE) {
-      delete filter.startDate;
-      delete filter.endDate;
-    }
-    return _.toArray(filter).filter(item => item).length;
-  };
-  handleClear = e => {
-    e.stopPropagation();
-    this.props.handleClear();
-  };
-  render() {
-    const { visible } = this.props;
-    const length = this.getFilterLength();
-    return (
-      <div
-        className={cx('processFilterTarget flexRow valignWrapper textSecondary pointer', { active: visible || length })}
-        onClick={this.props.handleOpen}
-      >
-        <Icon icon="worksheet_filter" className="mBottom2" />
-        <span className="Font13 mLeft5">{length ? _l('已筛选') : _l('筛选')}</span>
-        {length ? <Icon icon="close" className="Font16 mBottom2 mLeft5" onClick={this.handleClear} /> : null}
-      </div>
-    );
-  }
-}
-
-class FilterNav extends Component {
-  constructor(props) {
-    super(props);
-    let currentIndex = 0;
-
-    props.data.forEach((item, index) => {
-      if (item.value.type === (props.checked || {}).type) {
-        currentIndex = index;
-      }
-    });
-
-    this.state = {
-      currentIndex,
-    };
-  }
-  componentWillReceiveProps(nextProps) {
-    if (!_.isEqual(nextProps.data, this.props.data)) {
-      this.state = {
-        currentIndex: 0,
-      };
-    }
-  }
-  render() {
-    const { data } = this.props;
-    const { currentIndex } = this.state;
-    return (
-      <div className="filterNav flexRow valignWrapper">
-        {data.map((item, index) => (
-          <div
-            key={index}
-            className={cx('item', { active: currentIndex === index })}
-            onClick={() => {
-              this.setState({ currentIndex: index });
-              this.props.onChange(item.value);
-            }}
-          >
-            {item.name}
-          </div>
-        ))}
-      </div>
-    );
-  }
-}
 
 const SECOND_TABS = {
   [TABS.COMPLETE]: [
@@ -167,6 +62,7 @@ export default class MyProcess extends Component {
 
     if (_.isUndefined(props.activeTab)) {
       const { countData } = props;
+
       if (countData.waitingApproval) {
         stateTab = TABS.WAITING_APPROVE;
       } else if (countData.waitingWrite) {
@@ -281,6 +177,7 @@ export default class MyProcess extends Component {
     if (archivedItem && archivedItem.id) {
       param.archivedId = archivedItem.id;
     }
+
     if (filter && filter.resultType) {
       const resultType = param.resultType;
       delete param.resultType;
@@ -347,9 +244,11 @@ export default class MyProcess extends Component {
   handleAllRead = () => {
     const { filter, allReadLoading } = this.state;
     const param = { type: 5 };
+
     if (filter) {
       Object.assign(param, filter);
     }
+
     if (allReadLoading) return;
     this.setState({ allReadLoading: true });
     instanceVersion.batch(param).then(result => {
@@ -389,10 +288,12 @@ export default class MyProcess extends Component {
     const cards = approveType === 5 ? rejectCards : approveCards;
     const signatureCard = cards.filter(card => (_.get(card.flowNode, batchType) || []).includes(1));
     const encryptCard = cards.filter(card => _.get(card.flowNode, 'encrypt'));
+
     if (signatureCard.length || encryptCard.length) {
       if (signatureCard.length) {
         this.setState({ approveType: approveType });
       }
+
       if (encryptCard.length) {
         this.setState({ encryptType: approveType });
       }
@@ -407,6 +308,7 @@ export default class MyProcess extends Component {
     const cards = approveType === 5 ? rejectCards : approveCards;
     const selects = cards.map(({ id, workId, flowNode }) => {
       const data = { id, workId, opinion: '', opinionType: 3 };
+
       if ((_.get(flowNode, batchType) || []).includes(1)) {
         return {
           ...data,
@@ -416,12 +318,15 @@ export default class MyProcess extends Component {
         return data;
       }
     });
+
     if (approveType === 4) {
       this.setState({ approveLoading: true });
     }
+
     if (approveType === 5) {
       this.setState({ rejectLoading: true });
     }
+
     instanceVersion
       .batch2({
         type: 4,
@@ -430,6 +335,7 @@ export default class MyProcess extends Component {
       })
       .then(result => {
         const { success = [], fail = [] } = result;
+
         const callBack = () => {
           alert(_l('操作成功'));
           this.setState({
@@ -442,14 +348,17 @@ export default class MyProcess extends Component {
             this.updateCountData(countData);
           });
         };
+
         if (!success.length && !fail.length) {
           callBack();
           return;
         }
+
         if (success.length === 1 && !fail.length) {
           callBack();
           return;
         }
+
         Dialog.confirm({
           width: 480,
           title: <span className="bold">{_l('批量审批结果')}</span>,
@@ -550,6 +459,7 @@ export default class MyProcess extends Component {
         waitingWrite: waitingWrite - 1,
       };
     }
+
     if (item.flowNodeType === 4) {
       param = {
         waitingApproval: waitingApproval - 1,
@@ -563,14 +473,13 @@ export default class MyProcess extends Component {
       myProcessCount: myProcessCount - 1,
     });
   };
-
   renderHeader = () => {
     const countData = _.isEmpty(this.props.countData) ? this.state.countData : this.props.countData;
     const { waitingApproval, waitingWrite, waitingExamine, mySponsor } = countData;
     const { stateTab, filter, archivedItem } = this.state;
 
     return (
-      <div className="header card">
+      <div className="myProcessheader card">
         <div className="valignWrapper flex title">
           <Icon icon="task_alt" />
           <span className="bold">{_l('流程待办')}</span>
@@ -674,7 +583,7 @@ export default class MyProcess extends Component {
                 <span className="mRight15">
                   <Icon
                     icon="launch"
-                    className="pointer Font22 textTertiary ThemeHoverColor3"
+                    className="pointer Font22 textSecondary ThemeHoverColor3"
                     onClick={() => {
                       if (_.includes([TABS.COMPLETE], stateTab) && filter) {
                         let secondType;
@@ -696,7 +605,7 @@ export default class MyProcess extends Component {
                 <span>
                   <Icon
                     icon="close"
-                    className="pointer Font28 textTertiary ThemeHoverColor3"
+                    className="pointer Font26 textSecondary ThemeHoverColor3"
                     onClick={this.props.onCancel}
                   />
                 </span>
@@ -729,6 +638,42 @@ export default class MyProcess extends Component {
     const countData = _.isEmpty(this.props.countData) ? this.state.countData : this.props.countData;
     const { waitingApproval } = countData;
 
+    const renderFilterTrigger = () => {
+      return (
+        <FilterTrigger
+          visible={visible}
+          filter={filter}
+          handleOpen={() => this.setState({ visible: true })}
+          handleClear={() => {
+            this.setState({ isResetFilter: true });
+          }}
+        />
+      );
+    };
+
+    const renderSort = () => {
+      return (
+        <Sort
+          isAsc={filter?.isAsc}
+          handleChange={value => {
+            this.setState(
+              {
+                pageIndex: 1,
+                isMore: true,
+                loading: false,
+                list: [],
+                filter: {
+                  ...filter,
+                  isAsc: value,
+                },
+              },
+              this.getTodoList,
+            );
+          }}
+        />
+      );
+    };
+
     if ([TABS.WAITING_APPROVE, TABS.WAITING_FILL].includes(stateTab)) {
       const isApprove = TABS.WAITING_APPROVE === stateTab;
       const { passVisible, rejectVisible } = this.state;
@@ -737,14 +682,8 @@ export default class MyProcess extends Component {
       return (
         <div className={cx('filterWrapper', { hide: !list.length })}>
           <div className="valignWrapper flex">
-            <Filter
-              visible={visible}
-              filter={filter}
-              handleOpen={() => this.setState({ visible: true })}
-              handleClear={() => {
-                this.setState({ isResetFilter: true });
-              }}
-            />
+            {renderFilterTrigger()}
+            {renderSort()}
           </div>
           {isApprove && (
             <div className="valignWrapper Font14">
@@ -754,6 +693,7 @@ export default class MyProcess extends Component {
                   disabled={!allowApproveList.length}
                   onChange={e => {
                     const { checked } = e.target;
+
                     if (checked) {
                       if (allowApproveList.length) {
                         alert(_l('全选%0条可批量审批的记录', allowApproveList.length));
@@ -802,6 +742,7 @@ export default class MyProcess extends Component {
                             alert(_l('请先勾选需要处理的审批'), 3);
                             return;
                           }
+
                           this.hanndleApprove(4, 'auth.passTypeList');
                           $('.passApprove').click();
                         }}
@@ -852,20 +793,15 @@ export default class MyProcess extends Component {
         </div>
       );
     }
+
     if (stateTab === TABS.WAITING_EXAMINE) {
       const { allReadLoading } = this.state;
       return (
         <div className={cx('filterWrapper', { hide: !list.length })}>
           <div className="valignWrapper w100">
             <div className="valignWrapper flex">
-              <Filter
-                visible={visible}
-                filter={filter}
-                handleOpen={() => this.setState({ visible: true })}
-                handleClear={() => {
-                  this.setState({ isResetFilter: true });
-                }}
-              />
+              {renderFilterTrigger()}
+              {renderSort()}
             </div>
             <div className="pointer allRead" onClick={this.handleAllRead}>
               <Icon icon="done_all" />
@@ -875,34 +811,22 @@ export default class MyProcess extends Component {
         </div>
       );
     }
+
     if (stateTab === TABS.MY_SPONSOR) {
       return (
         <div className={cx('filterWrapper', { hide: !list.length })}>
-          <Filter
-            visible={visible}
-            filter={filter}
-            handleOpen={() => this.setState({ visible: true })}
-            handleClear={() => {
-              this.setState({ isResetFilter: true });
-            }}
-          />
+          {renderFilterTrigger()}
+          {renderSort()}
         </div>
       );
     }
+
     if (stateTab === TABS.COMPLETE) {
       const { filter } = this.state;
       return (
         <Fragment>
           <div className="filterWrapper">
-            <Filter
-              stateTab={stateTab}
-              visible={visible}
-              filter={filter}
-              handleOpen={() => this.setState({ visible: true })}
-              handleClear={() => {
-                this.setState({ isResetFilter: true });
-              }}
-            />
+            {renderFilterTrigger()}
             <FilterNav
               data={SECOND_TABS[TABS.COMPLETE]}
               checked={filter}
@@ -923,6 +847,7 @@ export default class MyProcess extends Component {
                 );
               }}
             />
+            {renderSort()}
           </div>
         </Fragment>
       );
@@ -946,6 +871,7 @@ export default class MyProcess extends Component {
             alert(_l('请填写签名'), 2);
             return;
           }
+
           const submitFun = () => {
             if (signatureApproveCards.length) {
               this.signature.saveSignature(signature => {
@@ -957,11 +883,13 @@ export default class MyProcess extends Component {
               this.setState({ approveType: null, encryptType: null });
             }
           };
+
           if (encryptCard.length) {
             if (!this.password || !this.password.trim()) {
               alert(_l('请输入密码'), 3);
               return;
             }
+
             verifyPassword({
               password: this.password,
               closeImageValidation: true,
@@ -1241,6 +1169,7 @@ export default class MyProcess extends Component {
               if ([TABS.WAITING_APPROVE, TABS.WAITING_FILL].includes(stateTab)) {
                 this.handleSave(this.state.selectCard);
               }
+
               if (stateTab === TABS.MY_SPONSOR || stateTab === TABS.COMPLETE) {
                 const { list } = this.state;
                 const newList = list.filter(n => n.workId !== selectCard.workId);
@@ -1256,6 +1185,7 @@ export default class MyProcess extends Component {
                   });
                 }
               }
+
               this.setState({ selectCard: null });
             }}
           />

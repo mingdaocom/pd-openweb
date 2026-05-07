@@ -32,16 +32,19 @@ const MobileSharePreview = function (options) {
   this.$container = $(this.options.container || '#app');
   MSP.urlParams = qs.parse(unescape(unescape(window.location.search.slice(1))));
   let shareId;
+
   try {
     shareId = location.pathname.match(/.*\/apps\/kcshare\/(\w+)/)[1];
   } catch (err) {
     console.log(err);
   }
+
   if (MSP.options.node) {
     MSP.nodeData = MSP.options.node;
     MSP.init();
     return;
   }
+
   if (shareId) {
     shareajax.getShareNode({ shareId }).then(data => {
       if (data.node) {
@@ -83,21 +86,26 @@ MobileSharePreview.prototype = {
     } else if (MSP.attachmentType === ATTACHMENT_TYPE.QINIU) {
       MSP.deadLine = new Date(parseInt(MSP.urlParams.genTime, 10) + 3600 * 1000 * 48);
     }
+
     if (!MSP.checkValid()) {
       MSP.renderOverDue();
       return;
     }
+
     this.file = this.formatToFile();
     if (window.isWeiXin) {
       MSP.loadWeiXinShare();
     }
+
     if (MSP.nodeData && MSP.nodeData.name) {
       document.title = `${MSP.nodeData.name}.${MSP.nodeData.ext}`;
     }
+
     MSP.render();
   },
   checkValid: function () {
     let MSP = this;
+
     if (MSP.attachmentType === ATTACHMENT_TYPE.KC) {
       return true;
     } else if (MSP.attachmentType === ATTACHMENT_TYPE.COMMON) {
@@ -110,6 +118,7 @@ MobileSharePreview.prototype = {
     let MSP = this;
     let sourceData = MSP.sourceData;
     let urlParams = MSP.urlParams;
+
     if ((sourceData && sourceData.fileID) || (MSP.nodeData && MSP.nodeData.deadLine)) {
       MSP.attachmentType = ATTACHMENT_TYPE.COMMON;
     } else if (sourceData && sourceData.id) {
@@ -122,6 +131,7 @@ MobileSharePreview.prototype = {
     let MSP = this;
     let sourceData = MSP.sourceData;
     let file = {};
+
     switch (MSP.attachmentType) {
       case ATTACHMENT_TYPE.COMMON:
         file.fileID = sourceData.fileID;
@@ -152,12 +162,14 @@ MobileSharePreview.prototype = {
       default:
         break;
     }
+
     if (RegExpValidator.fileIsPicture('.' + file.ext)) {
       file.imageSrc = MSP.getImageLink();
       if (!file.downloadUrl) {
         file.downloadUrl = file.imageSrc.match(/.*(?=\?)|.*/)[0];
       }
     }
+
     return file;
   },
   formatTime: function (date) {
@@ -220,6 +232,7 @@ MobileSharePreview.prototype = {
     MSP.$downloadBtn.on('click', function () {
       let attachmentType = MSP.attachmentType;
       let canDownload = MSP.file.canDownload || RegExpValidator.fileIsPicture('.' + MSP.file.ext);
+
       if (window.isWeiXin) {
         MSP.openMask();
       } else if (!canDownload) {
@@ -241,15 +254,19 @@ MobileSharePreview.prototype = {
           MSP.openMask();
           return;
         }
+
         MSP.previewFile();
       });
     }
+
     MSP.$openIniOS.on('click', function () {
       let needService = RENDER_BY_SERVICE_TYPE.indexOf(MSP.file.ext.toLowerCase()) > -1;
+
       if (!needService && MSP.isIOS && window.isWeiXin) {
         MSP.openMask();
         return;
       }
+
       MSP.previewFile();
     });
     MSP.$openAPP.on('click', function () {
@@ -257,6 +274,7 @@ MobileSharePreview.prototype = {
         MSP.openMask();
         return;
       }
+
       let file = MSP.file;
       console.log('open ', 'mingdao://kcshare/' + file.id);
       window.open('mingdao://kcshare/' + file.id);
@@ -274,6 +292,7 @@ MobileSharePreview.prototype = {
     let needService = RENDER_BY_SERVICE_TYPE.indexOf(MSP.file.ext.toLowerCase()) > -1;
     let file = MSP.file;
     let attachmentType = MSP.attachmentType;
+
     if (attachmentType === ATTACHMENT_TYPE.COMMON) {
       promise = needService ? MSP.getCommonPreviewLink(file) : file.downloadUrl;
     } else if (attachmentType === ATTACHMENT_TYPE.KC) {
@@ -293,12 +312,15 @@ MobileSharePreview.prototype = {
           : fetchPromise
         : { viewUrl: file.downloadUrl };
     }
+
     Promise.all([promise]).then(function ([data]) {
       let viewUrl = attachmentType === ATTACHMENT_TYPE.QINIU ? data.viewUrl : data;
+
       if (!viewUrl) {
         MSP.alert(_l('获取预览链接失败'));
         return;
       }
+
       if (attachmentType === ATTACHMENT_TYPE.QINIU && viewUrl === file.qiniuPath) {
         let urlParams = MSP.urlParams;
         viewUrl = urlAddParams(viewUrl, {
@@ -306,11 +328,13 @@ MobileSharePreview.prototype = {
           token: urlParams.qiniutoken,
         });
       }
+
       if (MSP.options.shareFolderId && data.indexOf('owa' > -1)) {
         viewUrl = urlAddParams(viewUrl, {
           shareFolderId: MSP.options.shareFolderId,
         });
       }
+
       window.location = viewUrl;
     });
   },
@@ -325,6 +349,7 @@ MobileSharePreview.prototype = {
       },
     };
     let attachmentType = MSP.attachmentType;
+
     if (attachmentType === ATTACHMENT_TYPE.COMMON) {
       sourceData.fileID = MSP.file.fileID;
     } else if (attachmentType === ATTACHMENT_TYPE.KC) {
@@ -333,6 +358,7 @@ MobileSharePreview.prototype = {
       sourceData.name = MSP.file.name + (MSP.file.ext ? '.' + MSP.file.ext : '');
       sourceData.filePath = MSP.file.qiniuPath;
     }
+
     sourceData.isShareFolder = !!MSP.options.shareFolderId;
     saveToKnowledge(attachmentType, sourceData, {
       createShare: false,
@@ -352,6 +378,7 @@ MobileSharePreview.prototype = {
     if (MSP.$imageLink[0]) {
       MSP.$imageLink.attr('href', MSP.file.imageSrc.match(/.*(?=\?)|.*/)[0]);
     }
+
     if (MSP.$image[0]) {
       MSP.$image.attr('src', MSP.getPreviewUrl(MSP.file.imageSrc));
     }
@@ -360,6 +387,7 @@ MobileSharePreview.prototype = {
     let MSP = this;
     let attachmentType = MSP.attachmentType;
     let result;
+
     if (MSP.attachmentType === ATTACHMENT_TYPE.COMMON) {
       result = MSP.sourceData.thumbnailPath + MSP.sourceData.thumbnailName;
     } else if (attachmentType === ATTACHMENT_TYPE.KC) {
@@ -367,6 +395,7 @@ MobileSharePreview.prototype = {
     } else if (attachmentType === ATTACHMENT_TYPE.QINIU) {
       result = MSP.urlParams.qiniuPath;
     }
+
     return result;
   },
   getPreviewUrl: function (url) {
@@ -394,6 +423,7 @@ MobileSharePreview.prototype = {
     if (MSP.$alert) {
       MSP.$alert.remove();
     }
+
     MSP.$alert = $('<div class="mobileAlertDialog" ><div class="alertDialog">' + str + '</div></div>');
     $('body').append(MSP.$alert);
     MSP.alertTimer = setTimeout(function () {

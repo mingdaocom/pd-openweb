@@ -35,12 +35,15 @@ export default class DateCalcPicker extends Component {
   formatDate(control, worksheetData) {
     let dateStr;
     let type = control.type;
+
     if (type === 15 || type === 16) {
       dateStr = worksheetData[control.controlId];
     }
+
     if (!dateStr) {
       return _l('空');
     }
+
     return type === 15 ? moment(dateStr).format('YYYY-MM-DD') : moment(dateStr).format('YYYY-MM-DD HH:mm');
   }
 

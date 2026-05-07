@@ -188,6 +188,7 @@ export default function TestFunctionDialog(props) {
         if (codeEditorRef.current) {
           onUpdate(codeEditorRef.current.getValue());
         }
+
         onUpdate(codeEditorRef.current.getValue());
         onCancel();
       }}

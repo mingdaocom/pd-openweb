@@ -512,6 +512,7 @@ export const customFormData = (databaseType, dbRoleType, isCreateConnector, form
   ];
 
   let data;
+
   switch (databaseType) {
     case DATABASE_TYPE.ORACLE:
       data = oracleFormData;
@@ -570,6 +571,6 @@ export const getCardDescription = databaseType => {
     case DATABASE_TYPE.HANA:
       return _l('此类型数据库仅支持定时同步');
     default:
-      return _l('');
+      return '';
   }
 };

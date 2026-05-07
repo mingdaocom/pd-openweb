@@ -51,6 +51,7 @@ function VoteAction(props) {
     </div>
   );
 }
+
 VoteAction.propTypes = {
   isShowResult: PropTypes.bool,
   handleReloadVote: PropTypes.func,

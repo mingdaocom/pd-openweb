@@ -16,12 +16,15 @@ const Wrap = styled.div`
     border-radius: 5px;
   }
 `;
+
 function SearchTelsDialog(props) {
   const { portal = {}, show, setShow, setTelFilters } = props;
   const [tels, setTels] = useState(portal.telFilters || '');
+
   const onChange = value => {
     setTels(value);
   };
+
   return (
     <Dialog
       className=""
@@ -44,6 +47,7 @@ function SearchTelsDialog(props) {
     </Dialog>
   );
 }
+
 const mapStateToProps = state => ({
   portal: state.portal,
 });

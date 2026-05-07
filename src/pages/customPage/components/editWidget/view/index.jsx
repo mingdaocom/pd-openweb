@@ -10,7 +10,6 @@ import Preview from './Preview';
 import Setting from './Setting';
 
 const Wrap = styled.div`
-  background-color: var(--color-border-secondary);
   height: 100%;
   display: flex;
 `;
@@ -23,16 +22,20 @@ export default function View(props) {
 
   const handleSave = () => {
     const { viewId, config = {} } = setting;
+
     if (_.isEmpty(viewId)) {
       alert(_l('请选择视图'), 3);
       return;
     }
+
     if (_.isEmpty(config.name)) {
       config.name = `${config._workSheetName} (${config._viewName})`;
     }
+
     if (_.isEmpty(config.objectId)) {
       config.objectId = uuidv4();
     }
+
     delete config._workSheetName;
     delete config._viewName;
     onEdit(setting);

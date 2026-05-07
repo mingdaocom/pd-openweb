@@ -49,9 +49,11 @@ export default function ToTodaySetting({ data, onChange, ...rest }) {
             onChange(value);
           } else {
             let newVal = value || {};
+
             if (!Number(value.dot)) {
               newVal.dotformat = '0';
             }
+
             onChange({ ...handleAdvancedSettingChange(data, newVal), ...value });
           }
         }}

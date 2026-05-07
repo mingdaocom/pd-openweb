@@ -4,6 +4,7 @@ export const getCheckedPermissionIds = (permissionList = []) => {
     if (item.isRolePermission) {
       checkedIds.push(item.permissionId);
     }
+
     if ((item.subPermission || []).length) {
       checkedIds.push(...getCheckedPermissionIds(item.subPermission));
     }
@@ -15,12 +16,14 @@ export const getCheckedPermissionIds = (permissionList = []) => {
 export const filterMyPermissions = permissionList => {
   return permissionList.reduce((acc, cur) => {
     const subPermission = (cur.subPermission || []).length ? filterMyPermissions(cur.subPermission || []) : [];
+
     if (cur.isRolePermission || subPermission.length) {
       acc.push({
         ...cur,
         subPermission,
       });
     }
+
     return acc;
   }, []);
 };

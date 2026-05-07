@@ -72,6 +72,7 @@ const DateWidgets = props => {
     formItemId,
     useCallback(data => {
       const { triggerType } = data;
+
       switch (triggerType) {
         case 'trigger_tab_enter':
           setShowDatePicker(true);
@@ -130,6 +131,7 @@ const DateWidgets = props => {
         </Fragment>
       );
     }
+
     return null;
   };
 
@@ -160,9 +162,11 @@ const DateWidgets = props => {
   };
 
   let value = propValue;
+
   if (/^\d+$/.test(String(value)) && String(value).length < 5) {
     value = '';
   }
+
   const showformat = getShowFormat(props);
   const allowweek = advancedSetting.allowweek || '1234567';
   const allowtime = advancedSetting.allowtime || '00:00-24:00';
@@ -199,6 +203,7 @@ const DateWidgets = props => {
 
   let showTime;
   const timeArr = allowtime.split('-');
+
   if (type === 16 && props.showTime !== false) {
     showTime = {
       defaultValue: parseInt(timeArr[0]) === 0 && parseInt(timeArr[1]) === 24 ? moment() : moment(timeArr[0], 'HH:mm'),
@@ -326,9 +331,11 @@ const DateWidgets = props => {
                   $(`.customAntPicker_${controlId}`).find('.ant-picker-time-panel-column:first').scrollTop(220);
                 }, 200);
               }
+
               if (!open && tempDateValueRef.current) {
                 handleChange(tempDateValueRef.current);
               }
+
               setShowDatePicker(open);
               setOpen(open);
             }}

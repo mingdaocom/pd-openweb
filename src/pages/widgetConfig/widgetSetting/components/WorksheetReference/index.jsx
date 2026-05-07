@@ -358,6 +358,7 @@ function WorksheetReferenceDialog(props) {
                         alert(_l('正在扫描，请勿重复操作'), 3);
                         return;
                       }
+
                       if (appType === 'sub') {
                         getReferenceList({ isRefresh: true });
                       } else {

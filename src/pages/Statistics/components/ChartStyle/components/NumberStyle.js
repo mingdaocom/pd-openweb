@@ -110,6 +110,7 @@ const CardLayout = props => {
     } else {
       value = 1;
     }
+
     onChangeNumberStyle({ columnCount: value });
   };
 
@@ -242,9 +243,11 @@ const IconSetting = props => {
           value={iconColor}
           onChange={value => {
             const data = { iconColor: value };
+
             if (numberChartColor) {
               data.numberChartColorIndex = numberChartColorIndex + 1;
             }
+
             onChangeNumberStyle(data);
           }}
         >
@@ -284,9 +287,11 @@ const StatisticsValue = props => {
   const { xaxes, yaxisList, displaySetup } = currentReport;
   const { colorRules } = displaySetup;
   const colorRule = _.get(colorRules[0], 'dataBarRule');
+
   const onCancel = () => {
     setRuleColorModalVisible(false);
   };
+
   const { fontColor, titleColor } = replaceColor(_.pick(numberChartStyle, ['fontColor', 'titleColor']), {}, themeColor);
   return (
     <Wrap className="mBottom16">
@@ -337,9 +342,11 @@ const StatisticsValue = props => {
             value={fontColor}
             onChange={value => {
               const data = { fontColor: value };
+
               if (numberChartColor) {
                 data.numberChartColorIndex = numberChartColorIndex + 1;
               }
+
               onChangeNumberStyle(data);
             }}
           >
@@ -391,6 +398,7 @@ const StatisticsValue = props => {
 export const ContrastValue = props => {
   const { numberChartStyle, onChangeNumberStyle } = props;
   const { contrastValueShowPercent = true, contrastValueShowNumber = false } = numberChartStyle || {};
+
   const handleChangeContrastValueDot = value => {
     if (value) {
       value = parseInt(value);
@@ -399,10 +407,12 @@ export const ContrastValue = props => {
     } else {
       value = 0;
     }
+
     onChangeNumberStyle({
       contrastValueDot: value,
     });
   };
+
   return (
     <Fragment>
       <div className="mBottom12">
@@ -414,6 +424,7 @@ export const ContrastValue = props => {
               if (contrastValueShowPercent && !contrastValueShowNumber && !e.target.checked) {
                 return;
               }
+
               onChangeNumberStyle({
                 contrastValueShowPercent: e.target.checked,
               });
@@ -429,6 +440,7 @@ export const ContrastValue = props => {
               if (!contrastValueShowPercent && contrastValueShowNumber && !e.target.checked) {
                 return;
               }
+
               onChangeNumberStyle({
                 contrastValueShowNumber: e.target.checked,
               });
@@ -598,6 +610,7 @@ export default function numberStylePanelGenerator(props) {
   const { currentReport, onChangeStyle, ...collapseProps } = props;
   const { style, xaxes, yaxisList } = currentReport;
   const { numberChartStyle = defaultNumberChartStyle } = style;
+
   const onChangeNumberStyle = data => {
     onChangeStyle({
       numberChartStyle: {
@@ -606,6 +619,7 @@ export default function numberStylePanelGenerator(props) {
       },
     });
   };
+
   return (
     <Fragment>
       <Collapse.Panel key="cardLayout" header={_l('卡片样式')} {...collapseProps}>

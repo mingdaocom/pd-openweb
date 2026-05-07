@@ -1,8 +1,8 @@
 import _ from 'lodash';
 import moment from 'moment';
-import { SYS, SYS_CONTROLS, WIDGETS_TO_API_TYPE_ENUM } from 'pages/widgetConfig/config/widget';
+import { ALL_SYS, SYS, SYS_CONTROLS, WIDGETS_TO_API_TYPE_ENUM } from 'pages/widgetConfig/config/widget';
 import { v4 as uuidv4 } from 'uuid';
-import { getIconByType, isSheetDisplay } from 'src/pages/widgetConfig/util';
+import { getIconByType, isCustomWidget, isSheetDisplay } from 'src/pages/widgetConfig/util';
 import { getDatePickerConfigs } from 'src/pages/widgetConfig/util/setting';
 import {
   API_ENUM_TO_TYPE,
@@ -64,12 +64,17 @@ export const TAB_TYPES = {
   NORMAL_RULE: 0,
   CHECK_RULE: 1,
   LOCK_RULE: 2,
+  STYLE_RULE: 3,
 };
 
 export const TABS_DISPLAY = [
   {
     text: _l('交互'),
     value: 0,
+  },
+  {
+    text: _l('样式'),
+    value: 3,
   },
   {
     text: _l('验证'),
@@ -119,6 +124,7 @@ export function deepSearch(tree = [], controlId) {
       if (node.controlId === controlId) {
         results = node;
       }
+
       if (!_.isEmpty(node.relationControls) && !results) {
         recurse(node.relationControls);
       }
@@ -136,8 +142,10 @@ export const ruleTable = data => {
 
 // 可编辑子表、关联列表，
 // 注意：若父级未选中，则呈现子集，否则不显示子集
+// 字段样式关联记录显示设置icon
 export const showTableSetting = (data, values = [], actionType, from) => {
   const item = data || {};
+  if (actionType === 11 && from === 'rule' && _.includes([29, 51], item.type) && !isSheetDisplay(data)) return true;
   return (
     _.includes([1, 3, 5], actionType) &&
     from === 'rule' &&
@@ -149,12 +157,14 @@ export const showTableSetting = (data, values = [], actionType, from) => {
 // 可编辑子表、关联列表，是否显示下拉子集
 export const showArrowSetting = (data, values = [], actionType, from) => {
   const item = data || {};
+
   if (ruleTable(item) && _.includes([1, 2, 3, 4, 5], actionType) && from === 'rule') {
     return (
       !_.find(values, v => v.controlId === item.controlId && _.isEmpty(v.childControlIds)) &&
       !_.isEmpty(item.relationControls)
     );
   }
+
   return !_.isEmpty(item.relationControls);
 };
 
@@ -217,6 +227,7 @@ function formatSectionData(data = []) {
     if (item.type === 52) {
       item.relationControls = data.filter(i => i.sectionId === item.controlId);
     }
+
     if (!item.sectionId) newData.push(item);
   });
   return newData;
@@ -224,6 +235,7 @@ function formatSectionData(data = []) {
 
 export function getNewDropDownData(controls = [], actionType) {
   let filterControls = [];
+
   if (_.includes([3, 4, 5], actionType)) {
     // 公式 汇总 文本组合 自动编号 他表字段 分割线 大写金额 备注 文本识别
     filterControls.push(31, 38, 37, 32, 33, 30, 22, 25, 45, 47, 51, 53, 54, 10010);
@@ -253,6 +265,7 @@ export function getNewDropDownData(controls = [], actionType) {
           item.type === 29 && !_.includes(['2', '5', '6'], _.get(item, 'advancedSetting.showtype'))
             ? []
             : filterRelations(item);
+
         // 必填过滤关联多条列表
         if (!(actionType === 5 && isSheetDisplay(item))) {
           newControls.push({ ...item, relationControls });
@@ -280,17 +293,21 @@ export const filterUnAvailable = (controlConfig = {}, worksheetControls = [], ty
   let newControls = [];
   controls.map(item => {
     let newItem = { ...item };
+
     if (type !== 3) {
       delete newItem.permission;
       delete newItem.isCustom;
     }
+
     const curItem = deepSearch(dropDownData, item.controlId);
+
     if (curItem) {
       if (item.childControlIds && item.childControlIds.length > 0) {
         newItem.childControlIds = item.childControlIds.filter(i =>
           _.find(curItem.relationControls || [], re => re.controlId === i),
         );
       }
+
       // 已选的必填关联多条列表、标签页字段过滤
       if (
         !(
@@ -351,12 +368,14 @@ export function checkConditionError(condition) {
   } = condition;
   const conditionGroupType = (CONTROL_FILTER_WHITELIST[getTypeKey(dataType)] || {}).value;
   const type = condition.filterType;
+
   //动态参数输入框
   if (isDynamicsource) {
     if (!dynamicSource.length) {
       return 'inputTextErrorBorder';
     }
   }
+
   switch (conditionGroupType) {
     //文本框
     case CONTROL_FILTER_WHITELIST.TEXT.value:
@@ -364,16 +383,20 @@ export function checkConditionError(condition) {
     case CONTROL_FILTER_WHITELIST.NUMBER.value:
       if (type === FILTER_CONDITION_TYPE.BETWEEN || type === FILTER_CONDITION_TYPE.NBETWEEN) {
         let styleNumber = [];
+
         if (_.isUndefined(minValue) || minValue === '') {
           styleNumber.push('numberMinErrorBorder');
         }
+
         if (_.isUndefined(maxValue) || maxValue === '') {
           styleNumber.push('numberMaxErrorBorder');
         }
+
         return styleNumber.join(' ');
       } else {
         return !value ? 'numberConditionErrorBorder' : '';
       }
+
     case CONTROL_FILTER_WHITELIST.DATE.value:
       if (type === FILTER_CONDITION_TYPE.DATE_BETWEEN || type === FILTER_CONDITION_TYPE.DATE_NBETWEEN || dateRange)
         return '';
@@ -386,6 +409,7 @@ export function checkConditionError(condition) {
       } else {
         return !value ? 'timeConditionErrorBorder' : '';
       }
+
       return '';
     case CONTROL_FILTER_WHITELIST.OPTIONS.value:
     case CONTROL_FILTER_WHITELIST.USERS.value:
@@ -453,9 +477,11 @@ export function filterDeleteOptions(items, controls = []) {
 
 export const filterText = (key, filterData, control) => {
   const { filterType = '' } = filterData;
+
   if (filterType === FILTER_CONDITION_TYPE.ISNULL || filterType === FILTER_CONDITION_TYPE.HASVALUE) {
     return '';
   }
+
   switch (key) {
     case CONTROL_FILTER_WHITELIST.NUMBER.value:
       if (filterType === FILTER_CONDITION_TYPE.BETWEEN || filterType === FILTER_CONDITION_TYPE.NBETWEEN) {
@@ -463,8 +489,10 @@ export const filterText = (key, filterData, control) => {
       } else {
         return filterData.value;
       }
+
     case CONTROL_FILTER_WHITELIST.DATE.value:
       const { dateRange, value, dateRangeType } = filterData;
+
       if (!!filterData.minValue && !!filterData.maxValue) {
         const { formatMode } = getDatePickerConfigs(control);
         return `${moment(filterData.minValue).format(formatMode)} - ${moment(filterData.maxValue).format(formatMode)}`;
@@ -485,8 +513,10 @@ export const filterText = (key, filterData, control) => {
           value: filterData.dateRange,
         })[0].text;
       }
+
     case CONTROL_FILTER_WHITELIST.TIME.value:
       const formatStr = _.includes(['1', '8'], control.unit) ? 'HH:mm' : 'HH:mm:ss';
+
       if (!!filterData.minValue && !!filterData.maxValue) {
         return `${moment(filterData.minValue, formatStr).format(formatStr)} - ${moment(
           filterData.maxValue,
@@ -495,6 +525,7 @@ export const filterText = (key, filterData, control) => {
       } else {
         return filterData.value ? moment(filterData.value, formatStr).format(formatStr) : '';
       }
+
     case CONTROL_FILTER_WHITELIST.BOOL.value:
       const selectKey = filterType === FILTER_CONDITION_TYPE.EQ ? '1' : '0';
       let itemnames = getSwitchItemNames(control, { isShow: true });
@@ -520,8 +551,10 @@ export const filterText = (key, filterData, control) => {
           })
           .join(',');
       }
+
       let options = [];
       let { data = [] } = control;
+
       if (!control.options) {
         if (!data.options) {
           options = [];
@@ -531,12 +564,15 @@ export const filterText = (key, filterData, control) => {
       } else {
         options = control.options;
       }
+
       if (_.isEmpty(options)) {
         return filterData.values ? filterData.values.join(',') : '';
       }
+
       if (_.isEmpty(filterData.values)) {
         return '';
       }
+
       return filterData.values
         .map(value => {
           let item = _.find(options, option => value === option.key && !option.isDeleted) || {};
@@ -547,6 +583,7 @@ export const filterText = (key, filterData, control) => {
       if (_.isEmpty(filterData.values)) {
         return '';
       }
+
       return filterData.values
         .map(item => {
           const user = safeParse(item || '{}');
@@ -564,6 +601,7 @@ export const filterText = (key, filterData, control) => {
 
 export const filterDataRelationText = (dynamicSource = [], columns) => {
   let data = { type: 'dynamicSource', data: [] };
+
   if (dynamicSource.length <= 0) {
     data = '';
   } else {
@@ -578,6 +616,7 @@ export const filterDataRelationText = (dynamicSource = [], columns) => {
       id = item.cid;
       rName = '';
       let contrls = list.find(it => id === it.controlId);
+
       if (item.cid) {
         data.data.push({
           name: contrls ? contrls.controlName : '',
@@ -588,6 +627,7 @@ export const filterDataRelationText = (dynamicSource = [], columns) => {
       }
     });
   }
+
   return data;
 };
 
@@ -602,7 +642,9 @@ export const filterData = (columns = [], filterItem = [], isSetting, relationCon
       });
       return;
     }
+
     let controlData = [];
+
     if (isSetting) {
       controlData = relationControls.filter((column = {}) =>
         column.controlId ? column.controlId === item.controlId : (column.data || {}).controlId === item.controlId,
@@ -612,6 +654,7 @@ export const filterData = (columns = [], filterItem = [], isSetting, relationCon
         column.controlId ? column.controlId === item.controlId : (column.data || {}).controlId === item.controlId,
       );
     }
+
     if (controlData && controlData.length > 0) {
       const control = controlData[0] || {};
       const type = isSetting || control.type ? control.type : (control.data || {}).type;
@@ -652,6 +695,7 @@ export const filterData = (columns = [], filterItem = [], isSetting, relationCon
   if (dataList.every(i => i.isGroup && _.isEmpty(i.groupFilters))) {
     return [];
   }
+
   return dataList;
 };
 
@@ -682,6 +726,7 @@ export function getDefaultRuleName(data = [], activeTab) {
 // 校验动作错误
 export function getActionError(value = {}) {
   const { controls = [], type, message } = value;
+
   if (_.includes([7], type) || !type) {
     return false;
   } else if (type === 6) {
@@ -698,10 +743,12 @@ export function getActionError(value = {}) {
 export function hasRuleChanged(data = [], selectRule = {}, passAlert) {
   const originData = _.find(data, i => i.ruleId === selectRule.ruleId);
   const { ruleId = '' } = selectRule;
+
   if (ruleId && (ruleId.indexOf('-') >= 0 || !_.isEqual(originData, selectRule))) {
     !passAlert && alert(_l('请先保存编辑结果'), 3);
     return true;
   }
+
   return false;
 }
 
@@ -733,9 +780,19 @@ export const getErrorControls = (controls = []) => {
 export const checkRuleEnableLimit = (data = []) => {
   const MAX_ENABLE_LIMIT = 100;
   const availableData = data.filter(i => !i.disabled);
+
   if (availableData.length >= MAX_ENABLE_LIMIT) {
     alert(_l('业务规则开启大于%0个', MAX_ENABLE_LIMIT), 3);
     return false;
   }
+
   return true;
+};
+
+// 支持样式配置的字段
+export const getStyleRuleControls = (worksheetControls = []) => {
+  const filterControls = worksheetControls.filter(
+    i => !_.includes([22, 30], i.type) && !_.includes(ALL_SYS, i.controlId) && !isCustomWidget(i),
+  );
+  return filterControls.map(i => ({ ...i, relationControls: [], sectionId: '' }));
 };

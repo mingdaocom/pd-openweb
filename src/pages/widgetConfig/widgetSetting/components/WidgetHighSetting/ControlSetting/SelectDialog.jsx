@@ -81,6 +81,7 @@ export const SelectCountryDropdown = ({ unique, data, setData, selectableData, s
                     setData(item);
                     return;
                   }
+
                   e.stopPropagation();
                   if (!data.some(({ iso2 }) => iso2 === item.iso2)) {
                     setData(update(data, { $push: [item] }));
@@ -107,11 +108,14 @@ export default function SelectCountryDialog(props) {
 
   const getSelectableData = () => {
     const initData = props.selectableData || allData;
+
     if (type === 'common') {
       return initData.filter(item => !data.some(({ iso2 }) => item.iso2 === iso2));
     }
+
     return initData;
   };
+
   return (
     <Dialog title={title} visible onOk={() => onOk(data)} onCancel={onCancel} dialogClasses="selectDialogZIndex">
       <Dropdown

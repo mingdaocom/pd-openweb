@@ -168,10 +168,12 @@ export default function WidgetVerify(props) {
               checked={checkrange === '1'}
               onClick={checked => {
                 let tempData = { checkrange: checked ? '0' : '1' };
+
                 if (type === 6 && checked) {
                   tempData.min = '';
                   tempData.max = '';
                 }
+
                 onChange(handleAdvancedSettingChange(data, tempData));
               }}
               text={title}
@@ -191,6 +193,7 @@ export default function WidgetVerify(props) {
                     return;
                   }
                 }
+
                 onChange(handleAdvancedSettingChange(data, { min: value }));
               }}
               placeholder={placeholder[0]}
@@ -206,6 +209,7 @@ export default function WidgetVerify(props) {
                     return;
                   }
                 }
+
                 onChange(handleAdvancedSettingChange(data, { max: value }));
               }}
               onBlur={() => {

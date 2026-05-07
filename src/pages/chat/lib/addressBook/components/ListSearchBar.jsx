@@ -45,6 +45,7 @@ export default class SearchBar extends React.Component {
 
   addHandler() {
     const { type, projectId } = this.props;
+
     switch (type) {
       case 'contacts':
         addFriends({ selectProject: true });

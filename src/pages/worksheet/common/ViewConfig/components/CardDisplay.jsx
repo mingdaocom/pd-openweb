@@ -9,9 +9,11 @@ import TitleControl from './TitleControl';
 const isVisible = control => {
   let { fieldPermission = '111' } = control;
   const [visible] = fieldPermission.split('');
+
   if (visible === '0') {
     return false;
   }
+
   return true;
 };
 
@@ -23,6 +25,7 @@ export default function CardDisplay(props) {
     coverColumns: [],
   });
   const excludeTitleControls = controls => controls.filter(item => item.attribute !== 1);
+
   // 默认取标题控件 和 前三个控件
   const getDefaultShowControls = controls => {
     return controls.slice(0, 2).map(({ controlId }) => controlId);

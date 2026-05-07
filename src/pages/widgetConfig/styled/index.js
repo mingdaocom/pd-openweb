@@ -10,7 +10,7 @@ export const SettingItem = styled.div`
     color: var(--color-text-title);
     line-height: 26px;
     border-radius: 3px;
-    background-color: transparent;
+    background-color: transparent !important;
     &.inputError {
       border-color: var(--color-error);
       box-shadow: none;
@@ -39,9 +39,11 @@ export const SettingItem = styled.div`
     padding-top: 24px;
   }
   .ming.Dropdown {
-    background-color: var(--color-background-primary);
     &.disabled {
       background-color: var(--color-background-secondary);
+    }
+    .Dropdown--input {
+      background-color: transparent !important;
     }
     &.error {
       .Dropdown--border {
@@ -148,7 +150,7 @@ export const InfoWrap = styled.div`
   color: var(--color-text-secondary);
   line-height: 34px;
   padding: 0 12px;
-  background: ${props => props.bgColor || '#fff'};
+  background: ${props => props.bgColor || 'var(--color-background-primary)'};
 `;
 
 export const EditInfo = styled(InfoWrap)`
@@ -628,7 +630,7 @@ export const DropdownContent = styled.div`
   overflow: auto;
   background: var(--color-background-card);
   border-radius: 3px;
-  box-shadow: 0px 4px 16px 0px rgba(0, 0, 0, 0.24);
+  box-shadow: var(--shadow-lg);
   padding: 6px 0;
   .empty {
     padding: 0 16px;
@@ -724,7 +726,7 @@ export const TitleContentWrap = styled.div`
   display: flex;
   flex-direction: ${props => (props.displayRow ? 'row' : 'column')};
   ${props => (props.readOnly ? 'opacity: 0.6;' : '')}
-  .nameAndStatus {
+  & > .nameAndStatus {
     display: flex;
     ${props => (props.displayRow ? 'line-height: 18px;' : 'align-items: center;')}
     margin-right: ${props => (props.displayRow ? '1px' : '0px')};
@@ -755,7 +757,7 @@ export const TitleContentWrap = styled.div`
       text-align: ${props => (props.textAlign === '1' ? 'left' : 'right')};
       font-size: ${props => props.titleSize};
       line-height: ${props => (parseInt(props.titleSize) > 18 ? props.titleSize : '18px')};
-      color: ${props => props.titleColor || 'var(--color-text-title)'};
+      color: ${props => props.titleColor || 'var(--color-text-title)'} !important;
       ${props => props.titleStyle || ''};
       &.hideTitle {
         color: var(--color-text-tertiary) !important;
@@ -782,6 +784,10 @@ export const TitleContentWrap = styled.div`
       &:first-child {
         border-radius: 5px 0 0 0;
       }
+    }
+    .tabHeaderTitle {
+      ${props => props.titleStyle || ''}
+      color: ${props => props.titleColor};
     }
   }
 
@@ -845,7 +851,7 @@ export const AnimationWrap = styled.div`
       color: var(--color-text-secondary);
     }
     &.active {
-      background: var(--color-background-primary);
+      background: var(--color-background-card);
       color: var(--color-primary);
       i {
         color: var(--color-primary);
@@ -1023,7 +1029,6 @@ export const EditOptionDialog = styled(Dialog)`
     left: 0;
     right: 0;
     bottom: 58px;
-    background: var(--color-background-primary);
     padding: 12px 36px;
   }
 `;

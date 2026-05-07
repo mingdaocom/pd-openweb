@@ -44,6 +44,7 @@ export default class Date extends React.Component {
 
   handleTableKeyDown = e => {
     const { updateEditingStatus } = this.props;
+
     switch (e.key) {
       case 'Escape':
         updateEditingStatus(false);
@@ -57,9 +58,11 @@ export default class Date extends React.Component {
     const { ignoreErrorMessage, updateCell, updateEditingStatus, onValidate } = this.props;
     const validateResult = onValidate(value);
     const error = validateResult.errorType;
+
     if (error && !ignoreErrorMessage) {
       return;
     }
+
     updateCell({
       value,
     });
@@ -93,6 +96,7 @@ export default class Date extends React.Component {
     } = this.props;
     const { value } = this.state;
     let cellPopupContainer = popupContainer;
+
     if (
       tableFromModule === WORKSHEETTABLE_FROM_MODULE.SUBLIST ||
       tableFromModule === WORKSHEETTABLE_FROM_MODULE.RELATE_RECORD ||
@@ -100,6 +104,7 @@ export default class Date extends React.Component {
     ) {
       cellPopupContainer = () => document.body;
     }
+
     return (
       <React.Fragment>
         <Trigger

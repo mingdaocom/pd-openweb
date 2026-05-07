@@ -47,9 +47,11 @@ export default class SyncDialog extends Component {
   getBindList = params => {
     const { integrationType } = this.props;
     const { pageIndex = 1, pageSize = 20, platformKeyword, workwxKeyword } = params || {};
+
     if (this.ajaxPromise && this.ajaxPromise.abort) {
       this.ajaxPromise.abort();
     }
+
     let extraParams = integrationType === 3 ? { workwxKeyword } : { tpKeyword: workwxKeyword };
     this.ajaxPromise = INTEGRATION_INFO[integrationType].getRelationsAjax({
       projectId: this.props.projectId,
@@ -145,6 +147,7 @@ export default class SyncDialog extends Component {
           userInfo,
         };
       }
+
       return item;
     });
     this.setState({
@@ -248,6 +251,7 @@ export default class SyncDialog extends Component {
           userInfo: {},
         };
       }
+
       return item;
     });
     this.setState({
@@ -259,9 +263,11 @@ export default class SyncDialog extends Component {
   getWorkWXUsers = () => {
     const { integrationType } = this.props;
     const { bindQWUserIds = [], keywords } = this.state;
+
     if (this.ajaxWorkWXUsers && this.ajaxWorkWXUsers.abort) {
       this.ajaxWorkWXUsers.abort();
     }
+
     this.setState({ searchLoading: true });
     this.ajaxWorkWXUsers = INTEGRATION_INFO[integrationType].getAddressAjax({
       projectId: this.props.projectId,
@@ -364,6 +370,7 @@ export default class SyncDialog extends Component {
               onChange={e => this.searchProjecUsers(e.target.value)}
               onKeyUp={e => {
                 let val = e.target.value.trim();
+
                 if (e.keyCode === 13) {
                   this.setState({ loading: true });
                   this.getBindList({
@@ -383,6 +390,7 @@ export default class SyncDialog extends Component {
               onChange={e => this.searchWorkwxUsers(e.target.value)}
               onKeyUp={e => {
                 let val = e.target.value.trim();
+
                 if (e.keyCode === 13) {
                   this.setState({ loading: true });
                   this.getBindList({
@@ -477,6 +485,7 @@ export default class SyncDialog extends Component {
               {mingDaoUserInfos.map(item => {
                 let mdJobNames = (item.jobNames || []).join(';');
                 let mdDepartmentNames = (item.departmentNames || []).join(';');
+
                 if (item.userInfo && !_.isEmpty(item.userInfo)) {
                   let userInfo = item.userInfo;
                   let qvJobNames = (userInfo.jobNames || []).join(';');
@@ -531,6 +540,7 @@ export default class SyncDialog extends Component {
                     </div>
                   );
                 }
+
                 return (
                   <div className="row flexRow" key={item.accountId}>
                     <div className="flex orgInfo flexRow alignItemsCenter pLeft12">
@@ -558,6 +568,7 @@ export default class SyncDialog extends Component {
                           if (this.input) {
                             this.input.value = '';
                           }
+
                           this.setState({ keywords: undefined });
                         }}
                         popup={() => this.renderSelectUsers(item.accountId)}

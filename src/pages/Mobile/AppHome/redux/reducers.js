@@ -26,6 +26,7 @@ export const platformSetting = (state = {}, action) => {
       return state;
   }
 };
+
 export const myPlatformData = (state = {}, action) => {
   switch (action.type) {
     case 'PLATE_FORM_DATA':
@@ -34,6 +35,7 @@ export const myPlatformData = (state = {}, action) => {
       return state;
   }
 };
+
 export const myPlatformLang = (state = {}, action) => {
   switch (action.type) {
     case 'PLATE_FORM_LANG':

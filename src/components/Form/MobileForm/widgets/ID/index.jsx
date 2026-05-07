@@ -17,6 +17,7 @@ const IDWidget = props => {
     handleMaskClick,
     showMaskValue,
   } = props;
+
   const getEditValue = () => {
     return value.replace(/ /g, '');
   };
@@ -46,9 +47,11 @@ const IDWidget = props => {
 
   const onBlur = event => {
     const trimValue = formatValue(event.target.value.trim());
+
     if (trimValue !== value) {
       props.onChange(trimValue);
     }
+
     setIsEditing(false);
     props.onBlur(originValue);
   };

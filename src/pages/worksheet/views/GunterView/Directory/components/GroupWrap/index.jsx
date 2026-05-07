@@ -4,11 +4,10 @@ import { bindActionCreators } from 'redux';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Icon, Skeleton } from 'ming-ui';
+import { Skeleton } from 'ming-ui';
 import * as actions from 'worksheet/redux/actions/gunterview';
 import IScroll from 'worksheet/views/GunterView/components/Iscroll';
 import GroupItem from '../GroupItem';
-import { RecordWrapper } from '../Record';
 
 const GroupingTotalWrapper = styled.div`
   height: 100%;
@@ -22,35 +21,9 @@ const GroupingTotalWrapper = styled.div`
   }
 `;
 
-const GroupingChildWrapper = styled.div`
-  height: 29px;
-  border-bottom: 1px solid var(--color-border-secondary);
-  .drag {
-    position: absolute;
-    right: -1px;
-    top: 0;
-    z-index: 1;
-    height: 100%;
-    width: 2px;
-    cursor: ew-resize;
-    // background-color: var(--color-error);
-  }
-  .dragLine {
-    position: absolute;
-    left: 0;
-    top: 0;
-    z-index: 2;
-    height: 100%;
-    width: 2px;
-    cursor: ew-resize;
-    background-color: var(--color-primary);
-  }
-`;
-
 @connect(
   state => ({
-    ..._.pick(state.sheet.gunterView, ['loading', 'grouping', 'viewConfig', 'groupingScroll', 'chartScroll']),
-    ..._.pick(state.sheet, ['base', 'controls']),
+    ..._.pick(state.sheet.gunterView, ['loading', 'grouping', 'groupingScroll', 'chartScroll']),
   }),
   dispatch => bindActionCreators(actions, dispatch),
 )
@@ -58,11 +31,8 @@ export default class GroupWrap extends Component {
   constructor(props) {
     super(props);
     this.$groupingWrapperRef = createRef(null);
-    const config = localStorage.getItem(`gunterViewColumnWidthConfig-${props.base.viewId}`);
     this.state = {
-      dragValue: 0,
       groupingScrollX: 0,
-      widthConfig: config ? JSON.parse(config) : { 0: 200 },
     };
   }
   componentDidMount() {
@@ -92,14 +62,16 @@ export default class GroupWrap extends Component {
     this.props.updateGroupingScroll(scroll);
   }
   componentWillReceiveProps(nextProps) {
-    if (nextProps.loading !== this.props.loading) {
+    if (nextProps.loading !== this.props.loading || !_.isEqual(nextProps.widthConfig, this.props.widthConfig)) {
       setTimeout(() => {
         nextProps.groupingScroll.refresh();
+        this.handleUpdateWidth(nextProps);
       }, 100);
     }
   }
   componentWillUnmount() {
     const { groupingScroll } = this.props;
+
     if (groupingScroll) {
       groupingScroll.off('scroll', this.linkageScroll);
       groupingScroll.destroy();
@@ -110,55 +82,30 @@ export default class GroupWrap extends Component {
     if (window.chartScrollLock) {
       return;
     }
+
     const { groupingScroll, chartScroll } = this.props;
     this.setState({ groupingScrollX: Math.abs(groupingScroll.x) });
+    this.handleUpdateX(groupingScroll.x);
     chartScroll.scrollTo(chartScroll.x, groupingScroll.y);
     chartScroll._execEvent('scroll');
   };
-  handleMouseDown = (event, index) => {
-    const { target } = event;
-    const startClientX = event.clientX;
-    const startDragValue = target.parentElement.offsetLeft + target.parentElement.clientWidth;
-    const minWidth = 80;
-    this.setState({
-      dragValue: startDragValue,
-    });
-    const setColumnWidth = width => {
-      const { widthConfig } = this.state;
-      const data = {
-        ...widthConfig,
-        [index]: width,
-      };
-      this.setState(
-        {
-          widthConfig: data,
-        },
-        () => {
-          const { base, groupingScroll } = this.props;
-          localStorage.setItem(`gunterViewColumnWidthConfig-${base.viewId}`, JSON.stringify(data));
-          groupingScroll.refresh();
-        },
-      );
-    };
-    document.onmousemove = event => {
-      const x = event.clientX - startClientX;
-      const width = target.parentElement.clientWidth + x;
-      if (width >= minWidth) {
-        this.setState({
-          dragValue: startDragValue + x,
-        });
-      }
-    };
-    document.onmouseup = event => {
-      const x = event.clientX - startClientX;
-      const width = target.parentElement.clientWidth + x;
-      setColumnWidth(width >= minWidth ? width : minWidth);
-      this.setState({
-        dragValue: 0,
-      });
-      document.onmousemove = null;
-      document.onmouseup = null;
-    };
+  handleUpdateWidth = props => {
+    const { base, groupingScroll } = props || this.props;
+    const controlHeader = document.querySelector(`.gunterView-${base.viewId} .groupingControlHeader`);
+
+    if (controlHeader) {
+      this.handleUpdateX(groupingScroll.x);
+      controlHeader.style.width = `${groupingScroll.scrollerWidth}px`;
+      controlHeader.classList.remove('hide');
+    }
+  };
+  handleUpdateX = x => {
+    const { base } = this.props;
+    const controlHeader = document.querySelector(`.gunterView-${base.viewId} .groupingControlHeader`);
+
+    if (controlHeader) {
+      controlHeader.style.transform = `translateX(${x}px)`;
+    }
   };
   renderGroupingTotal() {
     const { grouping } = this.props;
@@ -198,63 +145,19 @@ export default class GroupWrap extends Component {
       </div>
     );
   }
-  renderDrag(index) {
-    return (
-      <div
-        onMouseDown={event => {
-          this.handleMouseDown(event, index);
-        }}
-        className="drag"
-      />
-    );
-  }
-  renderControlName() {
-    const { dragValue, widthConfig } = this.state;
-    const { controls, viewConfig } = this.props;
-    const displayControls = viewConfig.displayControls || [];
-    const titleControl = _.find(controls, { attribute: 1 });
-    const startControl = _.find(controls, { controlId: viewConfig.startId }) || {};
-    const endControl = _.find(controls, { controlId: viewConfig.endId }) || {};
-    const startIndex = displayControls.length + 1;
-    const endIndex = displayControls.length + 2;
-    return (
-      <GroupingChildWrapper className="overflowHidden">
-        <RecordWrapper className="valignWrapper groupingControlHeader">
-          <Icon className="textTertiary Font17 mRight5 Visibility" icon="more_horiz" />
-          {!viewConfig.hideTitle && (
-            <div className="groupingName relative overflow_ellipsis" style={{ width: widthConfig[0] }}>
-              {titleControl.controlName}
-              {this.renderDrag(0)}
-            </div>
-          )}
-          {displayControls.map((data, index) => (
-            <div className="field" key={data.controlId} style={{ width: widthConfig[index + 1] }}>
-              {data.controlName}
-              {this.renderDrag(index + 1)}
-            </div>
-          ))}
-          <div className="field" style={{ width: widthConfig[startIndex] }}>
-            {startControl.controlName || _l('开始时间')}
-            {this.renderDrag(startIndex)}
-          </div>
-          <div className="field" style={{ width: widthConfig[endIndex] }}>
-            {endControl.controlName || _l('结束时间')}
-            {this.renderDrag(endIndex)}
-          </div>
-          <div className="dayCountField overflow_ellipsis">{_l('时长')}</div>
-        </RecordWrapper>
-        {!!dragValue && <div style={{ left: dragValue }} className="dragLine" />}
-      </GroupingChildWrapper>
-    );
-  }
   renderContent() {
-    const { widthConfig, groupingScrollX } = this.state;
-    const { width, grouping } = this.props;
+    const { groupingScrollX } = this.state;
+    const { width, grouping, widthConfig } = this.props;
     return (
       <div>
-        {this.renderControlName()}
         {grouping.map(item => (
-          <GroupItem key={item.key} group={item} width={width + groupingScrollX} widthConfig={widthConfig} />
+          <GroupItem
+            key={item.key}
+            group={item}
+            width={width + groupingScrollX}
+            widthConfig={widthConfig}
+            onUpdateHeaderWidth={this.handleUpdateWidth}
+          />
         ))}
       </div>
     );

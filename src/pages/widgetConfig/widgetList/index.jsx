@@ -59,14 +59,18 @@ const WidgetList = styled.div`
     border: 1px solid transparent !important;
     background-clip: padding-box, border-box;
     background-origin: padding-box, border-box;
-    background-image: linear-gradient(to bottom, #fff, #fff), linear-gradient(180deg, #6e00ff, #c822eb);
+    background-image:
+      linear-gradient(to bottom, var(--color-background-primary), var(--color-background-primary)),
+      linear-gradient(180deg, #6e00ff, #c822eb);
     .widgetItem > span:not(.betaIcon) {
       background: linear-gradient(316deg, #c822eb, #6e00ff);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
     &:hover {
-      background-image: linear-gradient(to bottom, #faf2fe, #faf2fe), linear-gradient(180deg, #6e00ff, #c822eb);
+      background-image:
+        linear-gradient(to bottom, var(--color-background-hover), var(--color-background-hover)),
+        linear-gradient(180deg, #6e00ff, #c822eb);
     }
   }
   .widgetLi {
@@ -137,6 +141,7 @@ export default function List(props) {
 
   const handleAdd = (data, para = {}, callback) => {
     let sectionId = '';
+
     if (para.type === 'click') {
       sectionId = activeWidget.type === 52 ? activeWidget.controlId : activeWidget.sectionId;
     } else {
@@ -195,6 +200,7 @@ export default function List(props) {
         if (para.isStreaming) {
           return;
         }
+
         batchUpdateWidgetsLayout(
           para.layoutOfAllWidgets,
           {

@@ -44,7 +44,7 @@ const RecommendItem = styled.div`
   cursor: pointer;
   .name {
     font-size: 14px;
-    color: var(--color-text-title);
+    color: var(--color-text-primary);
     line-clamp: 1;
   }
   .description {

@@ -12,18 +12,21 @@ import { formatFilters } from './util';
 const Wrap = styled.div`
   display: flex;
   flex: 1;
-  background-color: var(--color-border-secondary);
+  background-color: var(--color-background-tertiary);
   padding: 11px 24px;
   min-width: 0;
 
   .addFilterItem {
     height: 36px;
     padding: 0 15px;
-    color: var(--color-primary-light);
+    color: var(--color-primary);
     border: none;
     border-radius: 24px;
+    background-color: var(--color-background-card);
+    box-shadow: var(--shadow-sm);
     &:hover {
-      color: var(--color-link-hover);
+      color: var(--color-primary-dark);
+      background-color: var(--color-background-hover);
     }
   }
 
@@ -35,7 +38,7 @@ const Wrap = styled.div`
     box-shadow: 0px 1px 4px #00000029;
     padding: 10px;
     overflow: auto;
-    background-color: var(--color-background-primary);
+    background-color: var(--color-background-card);
 
     .container {
       display: block;
@@ -67,7 +70,7 @@ const Wrap = styled.div`
     }
     .disable {
       .content > div {
-        background-color: var(--color-background-secondary);
+        background-color: var(--color-background-input);
       }
     }
     .buttons {
@@ -84,6 +87,7 @@ const Wrap = styled.div`
 export default function Preview(props) {
   const { loading, activeId, setActiveId, filters, setFilters } = props;
   const { filter } = props;
+  const requiredcids = _.get(filter.advancedSetting, 'requiredcids') || [];
 
   const add = () => {
     const filterId = uuidv4();
@@ -93,6 +97,7 @@ export default function Preview(props) {
       filterId,
       global: filter.global,
     };
+
     if (filter.global) {
       data.objectControls = filter.objectControls.map(c => {
         return {
@@ -102,6 +107,7 @@ export default function Preview(props) {
         };
       });
     }
+
     setActiveId(filterId);
     setFilters(filters.concat(data));
   };
@@ -126,7 +132,12 @@ export default function Preview(props) {
             ) : (
               <Filters
                 mode="config"
-                enableBtn={filter.enableBtn}
+                defaultTriggerUpdate={false}
+                advancedSetting={{
+                  requiredcids,
+                  fastrequired: requiredcids.length ? '1' : '0',
+                  enablebtn: filter.enableBtn ? '1' : '0',
+                }}
                 filters={formatFilters(filters)}
                 activeFilterId={activeId}
                 onFilterClick={id => {

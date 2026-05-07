@@ -30,13 +30,13 @@ const ImportBtn = styled.div`
 const userTemplatePaths = window.platformENV.isPlatform
   ? {
       0: '/staticfiles/template/成员导入模板.xlsx',
-      1: '/staticfiles/template/User Import Template .xlsx',
+      1: '/staticfiles/template/User Import Template.xlsx',
       2: '/staticfiles/template/メンバーインポートテンプレート.xlsx',
       3: '/staticfiles/template/成員導入模板.xlsx',
     }
   : {
       0: '/staticfiles/template/private/成员导入模板.xlsx',
-      1: '/staticfiles/template/private/User Import Template .xlsx',
+      1: '/staticfiles/template/private/User Import Template.xlsx',
       2: '/staticfiles/template/private/メンバーインポートテンプレート.xlsx',
       3: '/staticfiles/template/private/成員導入模板.xlsx',
     };
@@ -92,6 +92,7 @@ class ImportAndExport extends Component {
           if (item.departmentId.indexOf('orgs') > -1) {
             return { ...item, departmentId: '' };
           }
+
           return item;
         });
         _this.setState({ orgnazation: orgList }, _this.verifyPasswordDialog);
@@ -138,6 +139,7 @@ class ImportAndExport extends Component {
     this.setState({ importFileLoading: true });
     let { currentTab, fileName } = this.state;
     const _this = this;
+
     const callback = rsp => {
       // 开始导入
       const requestData = {

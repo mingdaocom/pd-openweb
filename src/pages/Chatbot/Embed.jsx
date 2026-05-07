@@ -27,6 +27,7 @@ const ChatbotWrap = withRouter(props => {
         if (data.resultCode === 1) {
           setState(true);
         }
+
         setLoading(false);
       });
     window.reactRouterHistory = history;

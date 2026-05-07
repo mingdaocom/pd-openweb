@@ -107,9 +107,11 @@ export default function OcrDisplay(props) {
           )}
           onChange={value => {
             let newData = handleAdvancedSettingChange(data, { ocrapitype: value, ocrmaptype: '0', ocrcid: '' });
+
             if (value === '1' && _.isUndefined(data.hint)) {
               newData = { ...newData, hint: _l('识别文字') };
             }
+
             onChange(newData);
           }}
         />

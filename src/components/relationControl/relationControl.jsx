@@ -118,6 +118,7 @@ export default class RelationControl extends Component {
     const { keywords, selectIndex, treeLeft, list } = this.state;
     const { sourceId, sourceType } = this.props;
     const pageSize = selectIndex === 3 || selectIndex === 6 ? 10 : 20;
+
     const listMsg = key => {
       return list.length ? list[list.length - 1][key] : '';
     };

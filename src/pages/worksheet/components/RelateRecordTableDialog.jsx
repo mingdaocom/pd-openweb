@@ -155,6 +155,7 @@ export default function RelateRecordTableDialog(props) {
     if (!e.ctrlKey || !e.shiftKey) {
       return;
     }
+
     e.preventDefault();
     e.stopPropagation();
     if (get(cache, 'current.' + control.controlId)) {

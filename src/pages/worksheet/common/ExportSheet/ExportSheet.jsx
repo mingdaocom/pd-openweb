@@ -93,6 +93,7 @@ export default class ExportSheet extends Component {
         if (item.extIds.includes('userId') || item.extIds.includes('depId') || item.extIds.includes('relaRowId')) {
           exportId = true;
         }
+
         if (item.extIds.includes('jobId')) {
           exportJob = true;
         }
@@ -306,6 +307,7 @@ export default class ExportSheet extends Component {
       if (a.row === b.row) {
         return a.col - b.col;
       }
+
       return a.row - b.row;
     });
 

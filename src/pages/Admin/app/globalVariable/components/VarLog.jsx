@@ -249,6 +249,7 @@ export default function VarLog(props) {
                 if (!data.value) {
                   return;
                 }
+
                 setFilter({
                   selectDate: {
                     visible: false,

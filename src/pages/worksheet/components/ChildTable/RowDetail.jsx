@@ -51,9 +51,11 @@ export default class RowDetail extends React.Component {
 
   handleChange = () => {
     const { data, isMobile, onSave } = this.props;
+
     if (!this.customwidget.current || isMobile) {
       return;
     }
+
     const submitData = this.customwidget.current.getSubmitData({ silent: true, noTriggerError: true });
     const updateControlIds = this.customwidget.current.dataFormat.getUpdateControlIds();
     const formdata = submitData.fullData;
@@ -70,6 +72,7 @@ export default class RowDetail extends React.Component {
       alert(_l('附件正在上传，请稍后'), 3);
       return;
     }
+
     const { data, onSave, onClose, openNextRecord } = this.props;
     const submitData = this.customwidget.current.getSubmitData({ ignoreAlert });
     const updateControlIds = this.customwidget.current.dataFormat.getUpdateControlIds();
@@ -88,6 +91,7 @@ export default class RowDetail extends React.Component {
             const $firstText = this.formcon.current.querySelector(
               '.customFieldsContainer .customFormItem .customFormTextareaBox input.smallInput',
             );
+
             if ($firstText) {
               $firstText.click();
             }
@@ -103,10 +107,12 @@ export default class RowDetail extends React.Component {
 
   handleClose = () => {
     const { onClose } = this.props;
+
     if ($(this.formcon.current).find('.Progress--circle').length > 0) {
       alert(_l('附件正在上传，请稍后'), 3);
       return;
     }
+
     onClose();
   };
 

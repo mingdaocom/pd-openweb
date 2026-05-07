@@ -42,6 +42,7 @@ const Wrap = styled.div(
   }
 `,
 );
+
 export default function Avator(props) {
   const [{ nodeData, isAct, defaultInfo }, setState] = useSetState({
     nodeData: props.nodeData,

@@ -20,12 +20,14 @@ function getBrowserInfo() {
     ['Safari', /Version\/([0-9._]+).*Safari/],
     ['Chrome', /(?!Chrom.*OPR)Chrom(?:e|ium)\/([0-9.]+)(:?\s|$)/],
   ];
+
   for (let i = 0; i < browsers.length; i++) {
     if (browsers[i][1].test(userAgent)) {
       browser = browsers[i][0];
       break;
     }
   }
+
   return browser;
 }
 
@@ -34,12 +36,15 @@ function getDeviceInfo() {
   if (userAgent.indexOf('Android') > -1) {
     return 'Android';
   }
+
   if (userAgent.indexOf('iPhone') > -1) {
     return 'iPhone';
   }
+
   if (userAgent.indexOf('Mac') > -1) {
     return 'Mac';
   }
+
   if (OS === 'Win32' || OS === 'Windows') {
     return 'Windows';
   } else {
@@ -68,9 +73,11 @@ function getSystemInfo() {
 
 function getSource() {
   const queryStart = location.href.indexOf('?');
+
   if (queryStart < 0) {
     return;
   }
+
   const query = qs.parse(location.href.slice(location.href.indexOf('?') + 1));
   return decodeURIComponent(query.source);
 }
@@ -98,8 +105,10 @@ export const canSubmitByLimitFrequency = (shareId, limitWriteFrequencySetting) =
   const submitStorage = getPublicSubmitStorage(shareId);
   let can = true;
   const limitCount = _.get(limitWriteFrequencySetting, 'limitWriteCount');
+
   if (submitStorage.length > 0 && !!_.get(limitWriteFrequencySetting, 'isEnable') && !!limitCount) {
     let m = null;
+
     switch (_.get(limitWriteFrequencySetting, 'limitRangType')) {
       case FILLLIMIT_TYPE.SPECIFIEDTIMES:
         m = null;
@@ -117,10 +126,12 @@ export const canSubmitByLimitFrequency = (shareId, limitWriteFrequencySetting) =
         m = 'year';
         break;
     }
+
     can =
       limitCount > 0
         ? submitStorage.filter(o => (!m ? true : moment(o).isSame(moment(), m))).length < limitCount
         : true;
   }
+
   return can;
 };

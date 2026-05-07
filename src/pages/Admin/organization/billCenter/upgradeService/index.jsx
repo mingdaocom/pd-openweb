@@ -56,6 +56,7 @@ export default class UpgradeService extends Component {
       .then(data => {
         if (data) {
           const { vertionType } = _.get(this.props, 'match.params') || {};
+
           if (data.versions && _.isArray(data.versions) && data.versions.length > 0) {
             const versionId =
               vertionType &&
@@ -107,6 +108,7 @@ export default class UpgradeService extends Component {
       location.href = `/admin/home/${Config.projectId}`;
       return;
     }
+
     this.props.history.go(-1);
   }
 
@@ -170,9 +172,11 @@ export default class UpgradeService extends Component {
     } = this.state;
     const limitNumber = versionData.unLimited ? _l('不限人数') : _l('%0 人', versionData.projectUserLimitNumber);
     const versions = versionData.versions || [];
+
     if (loading) {
       return <LoadDiv />;
     }
+
     if (allowUpgradeVersion) {
       return (
         <div className="warpCenter upgradeServiceContent">

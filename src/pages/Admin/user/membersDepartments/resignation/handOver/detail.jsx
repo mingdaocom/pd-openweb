@@ -111,19 +111,23 @@ export default class Detail extends React.Component {
 
   _getTypeName() {
     const { currentType, currentOAType, currentWorksheetType } = this.state;
+
     if (currentType === TYPES.WORKSHEET_ALL) {
       return worksheetTypeNames[currentWorksheetType];
     } else if (currentType === TYPES.OA) {
       return oaTypeNames[currentOAType];
     }
+
     return typeNames[currentType];
   }
 
   _getReqParamType(isByType = false) {
     const { currentType, currentWorksheetType } = this.state;
+
     if (currentType === TYPES.WORKSHEET_ALL) {
       return isByType ? WORKSHEET_TYPES.WORKSHEET : currentWorksheetType;
     }
+
     return currentType;
   }
   /**
@@ -135,6 +139,7 @@ export default class Detail extends React.Component {
       projectId,
       user: { accountId },
     } = this.props;
+
     if (!allCount) {
       alert(_l('没有要交接的%0', this._getTypeName()), 3);
       return;
@@ -142,6 +147,7 @@ export default class Detail extends React.Component {
 
     return callDialogSelectUser(projectId, users => {
       let promise = null;
+
       if (currentType !== TYPES.OA) {
         promise = TransferController.transferByType({
           transferRecordType: this._getReqParamType(true),
@@ -181,6 +187,7 @@ export default class Detail extends React.Component {
     const { currentType, pageIndex } = this.state;
     callDialogSelectUser(projectId, users => {
       let promise = null;
+
       // oa 交接
       if (currentType === TYPES.OA) {
         promise = TransferController.oATransferToAccountId({
@@ -198,6 +205,7 @@ export default class Detail extends React.Component {
           sourceId: item.sourceId,
         });
       }
+
       promise.then(data => {
         if (data) {
           const _list = _.filter(this.state.list, ({ sourceId }) => item.sourceId !== sourceId);
@@ -228,12 +236,15 @@ export default class Detail extends React.Component {
       projectId,
       user: { accountId },
     } = this.props;
+
     if (!_.keys(selectItems).length) {
       // 交接多个
       return alert(_l('请选择要交接的条目'), 2);
     }
+
     callDialogSelectUser(projectId, users => {
       let promise = null;
+
       if (currentType === TYPES.OA) {
         promise = TransferController.oATransferToAccountId({
           projectId,
@@ -519,6 +530,7 @@ export default class Detail extends React.Component {
 
   renderTable() {
     const { isLoading, list, currentType, selectItems } = this.state;
+
     if (isLoading || list === null) {
       return (
         <tr className="TxtCenter">
@@ -528,6 +540,7 @@ export default class Detail extends React.Component {
         </tr>
       );
     }
+
     if (!isLoading && !list.length) {
       const detail = {
         icon: 'icon-verify',
@@ -565,10 +578,12 @@ export default class Detail extends React.Component {
               <td width="25%" className="sourceName overflow_ellipsis">
                 {(() => {
                   const name = htmlEncodeReg(item.sourceName);
+
                   if (currentType === TYPES.OA) {
                     return <span className="pLeft16">{name}</span>;
                   } else {
                     let linkUrl;
+
                     if (currentType === TYPES.TASK_PROJECT) {
                       linkUrl = '/apps/task/folder_' + item.sourceId + '#detail';
                     } else if (currentType === TYPES.TASK) {
@@ -580,6 +595,7 @@ export default class Detail extends React.Component {
                     } else if (currentType === TYPES.WORKSHEET_ALL) {
                       linkUrl = '/worksheet/' + item.sourceId;
                     }
+
                     if (linkUrl) {
                       return (
                         <a className="TxtMiddle" href={linkUrl} target="_blank">

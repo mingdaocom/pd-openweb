@@ -17,6 +17,7 @@ export default function (key, props) {
   if (props.isDynamicsource) {
     return <RelateFilter {...props} />;
   }
+
   if (
     _.includes(
       [
@@ -31,6 +32,7 @@ export default function (key, props) {
   ) {
     return <DiabledInput />;
   }
+
   if (
     key === CONTROL_FILTER_WHITELIST.CASCADER.value &&
     (props.type === FILTER_CONDITION_TYPE.RCEQ ||
@@ -41,6 +43,7 @@ export default function (key, props) {
   ) {
     return <Cascader {...props} />;
   }
+
   if (
     key === CONTROL_FILTER_WHITELIST.RELATE_RECORD.value &&
     (props.type === FILTER_CONDITION_TYPE.RCEQ ||
@@ -52,6 +55,7 @@ export default function (key, props) {
   ) {
     return <RelateRecord {...props} />;
   }
+
   if (
     key === CONTROL_FILTER_WHITELIST.NUMBER.value &&
     props.controlType === 28 &&
@@ -59,6 +63,7 @@ export default function (key, props) {
   ) {
     return <Options {...props} />;
   }
+
   switch (key) {
     case CONTROL_FILTER_WHITELIST.NUMBER.value:
       return <Number {...props} />;

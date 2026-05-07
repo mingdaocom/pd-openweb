@@ -209,10 +209,12 @@ function WidgetContent(props) {
   useLayoutEffect(() => {
     const handle = () => {
       const height = window.innerHeight;
+
       if (Math.abs(height - windowHeight) >= COLUMN_HEIGHT) {
         setHeight(height);
       }
     };
+
     window.addEventListener('resize', throttle(handle));
   }, []);
 
@@ -247,6 +249,7 @@ function WidgetContent(props) {
           document.body.classList.remove('pageNoSelect');
           const index = _.findIndex(layout, { i: oldItem.i });
           const getData = _.get(displayRefs[index], ['getData']);
+
           if (getData && typeof getData === 'function') {
             getData();
           }
@@ -284,6 +287,7 @@ function WidgetContent(props) {
                 }}
                 setChartData={data => {
                   const chartRef = displayRefs[index];
+
                   if (chartRef) {
                     chartRef.handleChangeReportData(data);
                   }

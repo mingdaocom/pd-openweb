@@ -26,16 +26,19 @@ export const dealBoardViewData = props => {
     formatter: v => v,
   });
   const titleControl = getTitleControlForCard(view, controls);
+
   if (selectControl.length) {
     const control = selectControl[0];
     const res = data.map(item => {
       const { type, key } = item;
       let extraPara = {};
+
       // 单选
       if (_.includes(CAN_AS_BOARD_OPTION, type)) {
         const option = _.find(_.get(control, ['options']), v => v.key === key);
         extraPara = { ..._.pick(option, ['color', 'value']), ..._.pick(control, ['enumDefault', 'enumDefault2']) };
       }
+
       // 等级
       if (_.includes([28], type)) {
         extraPara = { ..._.pick(control, ['enumDefault']) };
@@ -58,6 +61,7 @@ export const dealBoardViewData = props => {
           // 配置的显示字段
           displayControls.forEach(id => {
             const currentControl = _.find(controls, ({ controlId }) => controlId === id);
+
             if (currentControl) {
               const value = parsedRow[id];
               arr.push({ ..._.pick(currentControl, RENDER_RECORD_NECESSARY_ATTR), value });
@@ -122,8 +126,10 @@ export const isShowAddRecord = (worksheetInfo, list, viewControl, sheetSwitchPer
 
 export const getFirstGroupDefaultValue = (list, boardData) => {
   let value = list.key;
+
   if (_.includes([26, 27, 48], list.type)) {
     const { name = '' } = boardData.find(item => item.key === list.key) || {};
+
     if (name) {
       const user = JSON.parse(name);
       value = JSON.stringify(Array.isArray(user) ? user : [user]);
@@ -135,12 +141,15 @@ export const getFirstGroupDefaultValue = (list, boardData) => {
   if (list.type === 29) {
     value = JSON.stringify([{ sid: list.key, name: list.name }]);
   }
+
   if (_.includes([9, 10, 11], list.type)) {
     value = JSON.stringify([value]);
   }
+
   if (list.key === '-1') {
     value = '';
   }
+
   return value;
 };
 
@@ -148,6 +157,7 @@ export const getFirstGroupDefaultValue = (list, boardData) => {
 export const getSecondGroupDefaultValue = (control, opt) => {
   const { type, controlId } = control;
   let value = opt.key;
+
   // 拥有者单独处理
   if (controlId === 'ownerid') {
     value = opt.accountId || opt.key;
@@ -162,12 +172,15 @@ export const getSecondGroupDefaultValue = (control, opt) => {
   if (type === 29) {
     value = JSON.stringify([{ sid: opt.key, name: opt.name }]);
   }
+
   if (_.includes([9, 10, 11], type)) {
     value = JSON.stringify([value]);
   }
+
   if (opt.key === '-1') {
     value = '';
   }
+
   return value;
 };
 
@@ -176,18 +189,22 @@ export const viewSortRecord = (obj, view, props, selectControl, secondGroupContr
   const { rowId, value, firstGroupChange, secondGroupChange, secondGroupValue } = obj;
   const defaultValue = [];
   const firstGroupControl = selectControl();
+
   if (firstGroupChange) {
     defaultValue.push({ ..._.pick(firstGroupControl, ['controlId', 'type', 'controlName', 'dot']), value });
   }
+
   if (secondGroupChange && secondGroupControl) {
     defaultValue.push({
       ..._.pick(secondGroupControl, ['controlId', 'type', 'controlName', 'dot']),
       value: secondGroupValue,
     });
   }
+
   if (!defaultValue.length) {
     console.error('排序数据异常');
   }
+
   const para = {
     rowId,
     ..._.pick(props, ['appId', 'worksheetId', 'viewId', 'projectId']),
@@ -225,6 +242,7 @@ export const hasSecondGroupControl = (groupsetting, controls) => {
     const controlId = (safeParse(groupsetting)[0] || {}).controlId;
     return _.findIndex(controls, item => item.controlId === controlId) > -1;
   }
+
   return false;
 };
 

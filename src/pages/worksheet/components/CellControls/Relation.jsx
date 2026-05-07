@@ -21,6 +21,7 @@ function Relation(props) {
   const { from, cell, className, style } = props;
   const { value } = cell;
   const relationData = value ? JSON.parse(value) : [];
+
   switch (from) {
     case FROM.DRAFT:
     case FROM.COMMON:

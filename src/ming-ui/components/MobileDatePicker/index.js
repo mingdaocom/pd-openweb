@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import DatePicker from 'react-mobile-datepicker';
 import moment from 'moment';
 import PropTypes from 'prop-types';
@@ -12,6 +12,35 @@ const getDate = (date, minuteStep) => {
   } else {
     date = new Date();
   }
+
+  return date;
+};
+
+const PRECISION_UNIT = {
+  year: 'year',
+  month: 'month',
+  date: 'day',
+  hour: 'hour',
+  minite: 'minute',
+  second: 'second',
+};
+
+const getPrecisionRangeDate = (date, precision, type) => {
+  if (!date) return date;
+
+  const momentDate = moment(date);
+
+  if (!momentDate.isValid()) return date;
+
+  const unit = PRECISION_UNIT[precision] || 'second';
+
+  return momentDate[type === 'max' ? 'endOf' : 'startOf'](unit).toDate();
+};
+
+const getDateInRange = (date, min, max) => {
+  if (min && moment(date).isBefore(min)) return min;
+  if (max && moment(date).isAfter(max)) return max;
+
   return date;
 };
 
@@ -27,12 +56,21 @@ export default function MobileDatePicker(props) {
     confirmText,
     cancelText,
     minuteStep,
+    min,
+    max,
     ...rest
   } = props;
 
   const clearDisable =
     !value || /^[A-Za-z]{3} [A-Za-z]{3} \d{1,2} \d{4} \d{2}:\d{2}:\d{2} GMT[+-]\d{4} \(.+\)$/.test(value);
-  const [dateTime, setDateTime] = useState(getDate(value, minuteStep));
+  const pickerMin = useMemo(() => getPrecisionRangeDate(min, precision, 'min'), [min, precision]);
+  const pickerMax = useMemo(() => getPrecisionRangeDate(max, precision, 'max'), [max, precision]);
+  const [dateTime, setDateTime] = useState(getDateInRange(getDate(value, minuteStep), pickerMin, pickerMax));
+
+  useEffect(() => {
+    setDateTime(getDateInRange(getDate(value, minuteStep), pickerMin, pickerMax));
+  }, [value, minuteStep, pickerMin, pickerMax]);
+
   const year = {
     format: _l('YYYY 年'),
     caption: 'Year',
@@ -95,13 +133,20 @@ export default function MobileDatePicker(props) {
       dateConfig={dateConfig[precision]}
       theme={'ios'}
       value={dateTime}
+      min={pickerMin}
+      max={pickerMax}
       onSelect={onSelect}
       onCancel={onClose}
       confirmText={confirmText || _l('确认')}
       cancelText={cancelText || _l('取消')}
       onChange={date => {
-        if (minuteStep === 1) return;
+        if (minuteStep === 1) {
+          setDateTime(date);
+          return;
+        }
+
         const currentMinute = moment(date).minute();
+
         if (moment(date).isBefore(moment(dateTime)) && currentMinute % minuteStep) {
           setDateTime(
             new Date(

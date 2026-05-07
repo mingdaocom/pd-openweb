@@ -1,5 +1,5 @@
 import React, { Component, createRef, Fragment } from 'react';
-import ClipboardButton from 'react-clipboard.js';
+import copy from 'copy-to-clipboard';
 import { Button, Dialog, LoadDiv, QiniuUpload, UpgradeIcon, VerifyPasswordConfirm } from 'ming-ui';
 import projectController from 'src/api/project';
 import projectSettingController from 'src/api/projectSetting';
@@ -161,10 +161,6 @@ export default class CommonInfo extends Component {
       });
   }
 
-  handleCopyTextSuccess() {
-    alert(_l('复制成功'));
-  }
-
   // 打开人员加入规则设置modal设置，修改是否允许搜索组织门牌号
   openAllowProjectCodeJoin = ({ showDialogSettingInviteRules }) => {
     this.setState({ showDialogSettingInviteRules });
@@ -172,6 +168,7 @@ export default class CommonInfo extends Component {
 
   clearLogo = async () => {
     const clearRes = await projectSettingController.clearLogo({ projectId: Config.projectId });
+
     if (clearRes) {
       const sysInfo = await this.getSysColor();
       const { logo, isDefaultLogo } = sysInfo;
@@ -345,15 +342,16 @@ export default class CommonInfo extends Component {
             <div className="common-info-row mTop24">
               <div className="common-info-row-label">{_l('门牌号')}</div>
               <div className="common-info-row-content">
-                <ClipboardButton
+                <span
                   className="adminHoverColor Hand"
-                  component="span"
-                  data-clipboard-text={code}
-                  onSuccess={this.handleCopyTextSuccess.bind(this)}
+                  onClick={() => {
+                    copy(code);
+                    alert(_l('复制成功'));
+                  }}
                 >
                   <span>{code}</span>
                   <span className="icon-content-copy Font12 mLeft5"></span>
-                </ClipboardButton>
+                </span>
                 {allowProjectCodeJoin ? (
                   <div className="set-describe mTop4">{_l('成员可输入组织门牌号加入组织')}</div>
                 ) : (
@@ -372,15 +370,16 @@ export default class CommonInfo extends Component {
             <div className="common-info-row mTop24">
               <div className="common-info-row-label">{_l('编号(ID)')}</div>
               <div className="common-info-row-content">
-                <ClipboardButton
+                <span
                   className="adminHoverColor Hand"
-                  component="span"
-                  data-clipboard-text={Config.projectId}
-                  onSuccess={this.handleCopyTextSuccess.bind(this)}
+                  onClick={() => {
+                    copy(Config.projectId);
+                    alert(_l('复制成功'));
+                  }}
                 >
                   <span>{Config.projectId}</span>
                   <span className="icon-content-copy Font12 mLeft5"></span>
-                </ClipboardButton>
+                </span>
                 <div className="set-describe mTop4">{_l('组织唯一身份编号，用于沟通反馈问题时使用')}</div>
               </div>
             </div>
@@ -431,6 +430,7 @@ export default class CommonInfo extends Component {
                         AdminCommon.freeUpdateDialog();
                         return;
                       }
+
                       this.toggleComp(2);
                     }}
                   >

@@ -44,12 +44,13 @@ const Con = styled.div`
         .Dropdown--input {
           padding: 2px 6px !important;
           border-radius: 4px;
+          background: transparent;
           .icon {
             margin-left: 4px !important;
             vertical-align: middle;
           }
           &:hover {
-            background: var(--color-background-disabled);
+            background: var(--color-background-hover);
           }
         }
       }
@@ -144,7 +145,7 @@ const ConditionHeader = styled.div`
       vertical-align: middle;
     }
     &:hover {
-      background: var(--color-background-disabled);
+      background: var(--color-background-hover);
     }
   }
 `;
@@ -184,9 +185,11 @@ export default function ConditionsGroup(props) {
     <Con className={cx({ isSingleFilter })}>
       {conditions.map((condition, i) => {
         let control = _.find(controls, column => condition.controlId === column.controlId);
+
         if (!_.isUndefined(control)) {
           control = { ...control };
         }
+
         const conditionGroupKey = getTypeKey((control || {}).type);
         const conditionGroupType = control ? CONTROL_FILTER_WHITELIST[conditionGroupKey].value : '';
         const isSheetFieldError = isOtherShowFeild(control);

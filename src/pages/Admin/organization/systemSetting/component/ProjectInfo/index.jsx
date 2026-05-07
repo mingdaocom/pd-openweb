@@ -14,9 +14,11 @@ export default class ProjectInfo extends Component {
     if (window.location.search === '?destroy') {
       this.setState({ level: 4 });
     }
+
     if (window.location.search === '?level3') {
       this.setState({ level: 3 });
     }
+
     if (window.location.search === '?level5') {
       this.setState({ level: 5 });
     }

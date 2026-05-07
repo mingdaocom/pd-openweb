@@ -80,8 +80,10 @@ export default function UserList(props) {
       if (data.allCount > data.list.length) {
         setShowAll(true);
       }
+
       return;
     }
+
     if (showAll) {
       closeDialog && closeDialog();
       return;

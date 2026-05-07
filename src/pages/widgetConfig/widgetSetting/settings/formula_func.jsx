@@ -1,12 +1,12 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import { get } from 'lodash';
 import _ from 'lodash';
-import { Dropdown } from 'ming-ui';
+import { Checkbox, Dropdown } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import { DynamicInputStyle } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/styled.js';
 import { OUTPUT_FORMULA_FUNC, TIME_DISPLAY_TYPE } from '../../config/setting';
 import { SettingItem } from '../../styled';
-import { getAdvanceSetting } from '../../util/setting';
+import { getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setting';
 import SwitchType from '../components/formula/SwitchType';
 import FunctionEditorDialog from '../components/FunctionEditorDialog';
 import PointConfig from '../components/PointerConfig';
@@ -16,7 +16,7 @@ import Date from './date';
 export default function FormulaFunc(props) {
   const { data, allControls, onChange } = props;
   const { controlName, dataSource, enumDefault2, controlId } = data;
-  const { numshow } = getAdvanceSetting(data);
+  const { numshow, nullzero } = getAdvanceSetting(data);
   const [visible, setVisible] = useState(false);
   const isSaved = controlId && !controlId.includes('-');
   const saveDisabled = isSaved && _.includes([2, 6, 46], enumDefault2);
@@ -70,6 +70,7 @@ export default function FormulaFunc(props) {
       );
     }
   };
+
   let supportDebug = !props.subListData;
   const targetWorksheetInfo = get(props, 'globalSheetInfo', {});
   return (
@@ -106,6 +107,16 @@ export default function FormulaFunc(props) {
           )}
         </DynamicInputStyle>
       </SettingItem>
+      {enumDefault2 === 6 && (
+        <div className="labelWrap mTop12">
+          <Checkbox
+            size="small"
+            text={_l('参与计算的字段值为空时，视为0')}
+            checked={nullzero === '1'}
+            onClick={checked => onChange(handleAdvancedSettingChange(data, { nullzero: checked ? '0' : '1' }))}
+          />
+        </div>
+      )}
       <SettingItem>
         <div className="settingItemTitle">{_l('输出格式')}</div>
         <Dropdown
@@ -115,7 +126,8 @@ export default function FormulaFunc(props) {
           data={filterData}
           onChange={value => {
             if (value === enumDefault2) return;
-            let newAdvancedSetting = {};
+            let newAdvancedSetting = { nullzero: '0' };
+
             if (value === 2) {
               newAdvancedSetting = { analysislink: '1', sorttype: 'en' };
             } else if (value === 6) {
@@ -128,6 +140,7 @@ export default function FormulaFunc(props) {
               onChange({ enumDefault2: value, unit: '1' });
               return;
             }
+
             onChange({ enumDefault2: value, unit: '', advancedSetting: newAdvancedSetting });
           }}
         />

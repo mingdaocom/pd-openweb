@@ -34,9 +34,11 @@ class UserBoardDialog extends Component {
   exportUser = () => {
     const { projectId } = this.props;
     const { selected = [] } = this.state;
+
     if (_.isEmpty(selected)) {
       return alert(_l('请选择要导出的用户'), 2);
     }
+
     this.props.onCancel();
     VerifyPasswordConfirm.confirm({
       allowNoVerify: false,

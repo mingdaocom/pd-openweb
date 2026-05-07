@@ -80,6 +80,7 @@ class CalendarShare extends Component {
             $('#calendarMain header').addClass('overdue').append('（已过期）');
             $('#calendarMain footer').remove();
           }
+
           $('#title').html(htmlEncodeReg(data.calendar.calendarName));
           document.title = data.calendar.calendarName;
           $('#dateTime').html(
@@ -117,6 +118,7 @@ class CalendarShare extends Component {
                   } else {
                     messages += '、';
                   }
+
                   messages += weekDayArray[weekDay[index]];
                 });
               }
@@ -446,6 +448,7 @@ class CalendarShare extends Component {
         break;
       }
     }
+
     return flag;
   }
 
@@ -459,6 +462,7 @@ class CalendarShare extends Component {
         break;
       }
     }
+
     return flag;
   }
 
@@ -511,6 +515,7 @@ class CalendarShare extends Component {
     if (!size) {
       return '0' + units[0];
     }
+
     var i = Math.floor(Math.log(size) / Math.log(1024));
     return (size / Math.pow(1024, i)).toFixed(accuracy) * 1 + units[i];
   }

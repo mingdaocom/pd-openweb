@@ -28,7 +28,7 @@ const ModalWrapper = styled(Popup)`
       height: 54px;
       min-height: 54px;
       background: var(--color-background-primary);
-      box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.16);
+      box-shadow: var(--shadow-sm);
       border-radius: 3px 3px 0px 0px;
 
       .arrowIcon {
@@ -139,8 +139,10 @@ export default function FilledRecord(props) {
         const durationHour = moment().diff(moment(createTime), 'hours');
         return durationHour < expireTime;
       }
+
       return true;
     }
+
     return false;
   };
 
@@ -182,6 +184,7 @@ export default function FilledRecord(props) {
     if (!filledRecord.isPayOrder && orderStatus === 0) {
       return _l('订单已失效');
     }
+
     switch (orderStatus) {
       case 1:
         return _l('已支付');
@@ -312,6 +315,7 @@ export default function FilledRecord(props) {
       </React.Fragment>
     );
   };
+
   const canSubmitByLimit = canSubmitByLimitFrequency(shareId, limitWriteFrequencySetting);
   return _.get(abilityExpand, 'allowViewChange.isAllowViewChange') ? (
     <React.Fragment>

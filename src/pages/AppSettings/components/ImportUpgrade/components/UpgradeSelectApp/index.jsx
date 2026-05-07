@@ -72,8 +72,8 @@ const Wrap = styled.div`
 const SelectWrap = styled.ul`
   width: 174px;
   padding: 7px 0;
-  background: var(--color-background-primary);
-  box-shadow: 0px 4px 16px 1px rgba(0, 0, 0, 0.24);
+  background: var(--color-background-card);
+  box-shadow: var(--shadow-sm);
   border-radius: 3px;
   font-size: 13px;
   color: var(--color-text-title);

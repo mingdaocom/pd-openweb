@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react';
-import ClipboardButton from 'react-clipboard.js';
 import cx from 'classnames';
+import copy from 'copy-to-clipboard';
 import _ from 'lodash';
 import { navigateTo } from 'router/navigateTo';
 import { Dialog, Icon, LoadDiv, VerifyPasswordConfirm } from 'ming-ui';
@@ -93,6 +93,7 @@ export default class EnterpriseCard extends Component {
           break;
       }
     }
+
     return result;
   }
 
@@ -101,6 +102,7 @@ export default class EnterpriseCard extends Component {
     if (e.target.className.includes('childTag')) {
       return;
     }
+
     this.setState(
       {
         showItem: !this.state.showItem,
@@ -274,12 +276,6 @@ export default class EnterpriseCard extends Component {
     window.location.href = '/admin/home/' + item.projectId;
   }
 
-  //复制
-  handleCopyTextSuccess() {
-    alert(_l('复制成功'));
-    return false;
-  }
-
   //获取部门，工作
   getItems(list, key) {
     const listInfo = list.map(item => item[key]);
@@ -306,6 +302,7 @@ export default class EnterpriseCard extends Component {
   //操作行为
   renderOption(type) {
     const { card } = this.props;
+
     switch (type) {
       case 'open':
         if (!window.platformENV.isOverseas && !window.platformENV.isLocal) {
@@ -412,26 +409,28 @@ export default class EnterpriseCard extends Component {
                 {isClose ? (
                   _l('%0 于%1关闭', closedOperatorName, closedTime ? createTimeSpan(closedTime) : '-')
                 ) : (
-                  <ClipboardButton
-                    component="span"
-                    data-clipboard-text={card.projectCode}
-                    onSuccess={this.handleCopyTextSuccess.bind(this)}
+                  <span
+                    onClick={() => {
+                      copy(card.projectCode);
+                      alert(_l('复制成功'));
+                    }}
                   >
                     <span className="childTag">{_l('组织门牌号：%0', card.projectCode)}</span>
                     <span className="icon-content-copy Font12 mLeft5 childTag"></span>
-                  </ClipboardButton>
+                  </span>
                 )}
               </div>
               {(window.platformENV.isOverseas || window.platformENV.isLocal) && (
                 <div className="textSecondary hover_blue mLeft16">
-                  <ClipboardButton
-                    component="span"
-                    data-clipboard-text={card.projectId}
-                    onSuccess={this.handleCopyTextSuccess.bind(this)}
+                  <span
+                    onClick={() => {
+                      copy(card.projectId);
+                      alert(_l('复制成功'));
+                    }}
                   >
                     <span className="childTag">{_l('组织 ID：%0', card.projectId)}</span>
                     <span className="icon-content-copy Font12 mLeft5 childTag"></span>
-                  </ClipboardButton>
+                  </span>
                 </div>
               )}
             </div>

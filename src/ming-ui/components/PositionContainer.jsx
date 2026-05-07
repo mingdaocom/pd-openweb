@@ -36,6 +36,7 @@ class PositionContainer extends Component {
     if (this.props.isInit) {
       this.create(this.props);
     }
+
     if (this.props.visible) {
       this.renderLayer(this.props);
     }
@@ -90,20 +91,25 @@ class PositionContainer extends Component {
   }
   getHasParent(el, className) {
     let result = false;
+
     if (el.classList.contains(className)) {
       return true;
     }
+
     if (!el || !el.parentNode) {
       return result;
     }
+
     while ((result = !(el && el.parentNode && el.parentNode.classList.contains(className)))) {
       if (el && el.parentNode === null) {
         result = true;
         break;
       }
+
       if (el && el.tagName && el.tagName === 'BODY') break;
       el = el && el.parentNode ? el.parentNode : el;
     }
+
     return result;
   }
   destroy(event) {
@@ -114,9 +120,11 @@ class PositionContainer extends Component {
         if (item instanceof window.jQuery) {
           return _.map(item, x => x);
         }
+
         if (typeof item === 'string' && window.jQuery) {
           return _.map(window.jQuery(item), x => x);
         }
+
         try {
           return ReactDom.findDOMNode(item);
         } catch (err) {
@@ -136,6 +144,7 @@ class PositionContainer extends Component {
   }
   onWindowResize() {
     let { visible, onHide } = this.props;
+
     if (visible) {
       onHide();
     }
@@ -164,6 +173,7 @@ class PositionContainer extends Component {
         result.top = crrentBounding.bottom + popupParentNodeBounding.height + popupParentNode.scrollTop;
       }
     }
+
     if (placement === 'bottom') {
       result = {
         top: crrentBounding.bottom + popupParentNodeBounding.height + popupParentNode.scrollTop,
@@ -180,6 +190,7 @@ class PositionContainer extends Component {
         left: crrentBounding.left - popupBounding.width,
       };
     }
+
     if (placement === 'right') {
       result = {
         top: crrentBounding.top + popupParentNode.scrollTop,
@@ -199,6 +210,7 @@ class PositionContainer extends Component {
       top: bounding.top - popupBounding.height,
       left: bounding.left,
     };
+
     if (isBottom && topSpace.top < 0) {
       topSpace.top = bounding.bottom;
     }
@@ -207,6 +219,7 @@ class PositionContainer extends Component {
       top: bounding.bottom,
       left: bounding.left,
     };
+
     if (isTop && clientHeight < bottomSpace.top + popupBounding.height) {
       bottomSpace.top = bounding.top - popupBounding.height;
     }
@@ -235,6 +248,7 @@ class PositionContainer extends Component {
       top: bounding.top,
       left: bounding.left - popupBounding.width,
     };
+
     if (isRight && leftSpace.left < 0) {
       leftSpace.left = bounding.right;
     }
@@ -243,6 +257,7 @@ class PositionContainer extends Component {
       top: bounding.top,
       left: bounding.right,
     };
+
     if (isLeft && rightSpace.left + popupBounding.width > clientWidth) {
       rightSpace.left = bounding.left - popupBounding.width;
     }
@@ -270,6 +285,7 @@ class PositionContainer extends Component {
     if (placement === 'top') {
       result = verticalSpace.topSpace;
     }
+
     if (placement === 'bottom') {
       result = verticalSpace.bottomSpace;
     }
@@ -277,6 +293,7 @@ class PositionContainer extends Component {
     if (placement === 'left') {
       result = horizontalSpace.leftSpace;
     }
+
     if (placement === 'right') {
       result = horizontalSpace.rightSpace;
     }

@@ -73,6 +73,7 @@ export default function SearchConfig(props) {
           if (value == searchcontrol) {
             return;
           }
+
           onChange({ searchcontrol: value });
         }}
       />
@@ -90,6 +91,7 @@ export default function SearchConfig(props) {
               if (value == searchtype) {
                 return;
               }
+
               onChange({ searchtype: value });
             }}
           />

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import Trigger from 'rc-trigger';
@@ -15,10 +15,26 @@ export default function AddFields(props) {
     : selectControls.filter(i => !_.includes(SYS_CONTROLS.concat(SYS), i.controlId));
   const [visible, setVisible] = useState(false);
   const [searchValue, setValue] = useState('');
+  const triggerRef = useRef(null);
+  const $ref = useRef(null);
 
   const filterData = searchValue
     ? filterControls.filter(item => item.controlName.includes(searchValue))
     : filterControls;
+
+  const onItemClick = item => {
+    handleClick(item);
+    // 列表变长后按钮会下移，下一帧重新对齐下拉位置
+    requestAnimationFrame(() => {
+      if ($ref.current) {
+        $ref.current.scrollIntoView({ block: 'nearest', behavior: 'auto' });
+      }
+
+      requestAnimationFrame(() => {
+        triggerRef.current?.forcePopupAlign?.();
+      });
+    });
+  };
 
   useEffect(() => {
     if (disabled && visible) {
@@ -28,6 +44,7 @@ export default function AddFields(props) {
 
   return (
     <Trigger
+      ref={triggerRef}
       popup={() => {
         return (
           <DropdownOverlay>
@@ -49,9 +66,11 @@ export default function AddFields(props) {
                   const enumType = enumWidgetType[i.type];
                   const { icon } = DEFAULT_CONFIG[enumType];
                   return (
-                    <div className="item overflow_ellipsis" onClick={() => handleClick(i)}>
+                    <div className="item overflow_ellipsis" onClick={() => onItemClick(i)}>
                       <Icon icon={icon} className="Font15" />
-                      <span className="overflow_ellipsis">{i.controlName}</span>
+                      <span className="overflow_ellipsis" title={i.controlName}>
+                        {i.controlName}
+                      </span>
                     </div>
                   );
                 })
@@ -77,8 +96,9 @@ export default function AddFields(props) {
         overflow: { adjustX: true, adjustY: true },
       }}
       getPopupContainer={() => document.body}
+      zIndex={1060}
     >
-      <DynamicBtn className={cx(props.className, { disabled })}>
+      <DynamicBtn className={cx(props.className, { disabled })} ref={$ref}>
         <Icon icon="add" className="Bold" />
         {text || _l('字段')}
       </DynamicBtn>

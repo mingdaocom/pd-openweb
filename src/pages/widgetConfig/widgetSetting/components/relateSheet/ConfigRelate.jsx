@@ -63,8 +63,10 @@ export default function ConfigRelate(props) {
         });
         setControls({ selectedControl: {} });
       }
+
       return;
     }
+
     if ((relateType === 'exist' && sheetId) || loading || (relateType === 'new' && !sheetId)) return;
     setControls({ loading: true });
     worksheetAjax
@@ -147,6 +149,7 @@ export default function ConfigRelate(props) {
         </div>
       );
     }
+
     if (loading) return <LoadDiv />;
     const filterData = searchValue
       ? relateControls.filter(i => i.sourceEntityName.includes(searchValue))

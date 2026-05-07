@@ -61,10 +61,12 @@ export default function MDCell(props) {
     chatButton,
     updateSheetColumnWidths,
   } = props;
+
   const onClick = (options = {}) => {
     if (control.key === 'number' || !row.rowid || allowlink === '0') return;
     onCellClick(control, row, rowIndex, columnIndex, options);
   };
+
   // console.log('data cell render');
   return (
     <CellControl

@@ -112,6 +112,7 @@ class DateTimeRange extends Component {
     if (this.props.disabled) {
       return;
     }
+
     this.setState({
       menuOpened: !this.state.menuOpened,
       bounding: this._picker.getBoundingClientRect(),
@@ -122,10 +123,12 @@ class DateTimeRange extends Component {
   onChange = (event, value, config) => {
     let newValue = null;
     let label = this.props.placeholder;
+
     if (value) {
       newValue = value;
       label = this.getRangeLabel(value, config, this.props);
     }
+
     this.setState({
       value: newValue,
       label,
@@ -140,6 +143,7 @@ class DateTimeRange extends Component {
     const max = this.props.max ? this.props.max.toDate() : null;
 
     let mode = 'date';
+
     if (this.props.timePicker || this.props.mode === 'task') {
       mode = 'datetime';
     } else {
@@ -147,9 +151,11 @@ class DateTimeRange extends Component {
     }
 
     const pickerClassList = ['mui-datetime-picker'];
+
     if (this.props.disabled) {
       pickerClassList.push('disabled');
     }
+
     const pickerClassNames = pickerClassList.join(' ');
     let button = (
       <span
@@ -163,6 +169,7 @@ class DateTimeRange extends Component {
         <span>{this.state.label}</span>
       </span>
     );
+
     if (this.props.children) {
       button = (
         <span

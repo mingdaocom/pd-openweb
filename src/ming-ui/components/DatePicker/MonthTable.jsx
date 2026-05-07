@@ -8,12 +8,14 @@ class MonthTable extends Component {
   renderList = () => {
     const list = [];
     let value = this.props.value;
+
     if (!this.props.value) {
       value = new Date().getMonth() + 1;
     }
 
     for (let i = 1; i <= 12; i++) {
       let className = '';
+
       if (i === value) {
         className = 'active';
       }

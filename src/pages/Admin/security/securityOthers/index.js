@@ -5,6 +5,7 @@ import AdminTitle from 'src/pages/Admin/common/AdminTitle';
 import FeatureListWrap from '../../components/FeatureListWrap';
 import Config from '../../config';
 import limitFeatureDialogFunc from './LimitFeatureDialog';
+import PwdFreeVerifyDialog from './PwdFreeVerify';
 
 export default class SecurityOthers extends Component {
   constructor(props) {
@@ -25,17 +26,6 @@ export default class SecurityOthers extends Component {
       .getEnabledNoneVerification({ projectId: Config.projectId })
       .then(({ noneVerificationEnabled }) => {
         this.setState({ noneVerificationEnabled });
-      });
-  };
-
-  setEnabledNoneVerification = () => {
-    const { noneVerificationEnabled } = this.state;
-    projectSettingController
-      .setEnabledNoneVerification({ projectId: Config.projectId, enabledNoneVerification: !noneVerificationEnabled })
-      .then(res => {
-        if (res) {
-          this.setState({ noneVerificationEnabled: !noneVerificationEnabled });
-        }
       });
   };
 
@@ -94,17 +84,23 @@ export default class SecurityOthers extends Component {
 
     return (
       <div className="orgManagementWrap">
-        <AdminTitle prefix={_l('安全 - 其他')} />
-        <div className="orgManagementHeader Font17">{_l('其他')}</div>
+        <AdminTitle prefix={_l('安全 - 功能')} />
+        <div className="orgManagementHeader Font17">{_l('功能')}</div>
         <FeatureListWrap
           projectId={projectId}
           configs={[
+            { key: 'desc', description: _l('统一管理组织成员可使用的功能与安全相关能力') },
             {
               key: 'limitSystemFeature',
-              title: _l('功能限制'),
-              description: _l('开启限制后，全员无法使用，只允许授权的管理员使用'),
+              title: _l('成员功能管控'),
+              description: _l('限制全员使用的功能范围，仅允许授权的管理员使用相关功能'),
               showSlideIcon: true,
-              customContent: !_.isEmpty(settings) ? _l(_l('已限制:%0', settingsTxt)) : undefined,
+              customContent: !_.isEmpty(settings) ? (
+                <div>
+                  <span>{_l('已限制：')}</span>
+                  <span className="bold">{settingsTxt}</span>
+                </div>
+              ) : undefined,
               onClick: () =>
                 limitFeatureDialogFunc({
                   projectId,
@@ -119,21 +115,27 @@ export default class SecurityOthers extends Component {
                   updateData: data => this.setState({ ...data }),
                 }),
             },
-
             {
               key: 'passwordFreeVerification',
-              title: _l('操作免验证'),
-              description: _l(
-                '关闭后，全组织下的自定义按钮、审批配置了登录密码验证的地方必须每次验证密码后方可继续操作',
+              title: _l('密码免验证策略'),
+              description: _l('对审批、自定义动作禁用1小时内免验证功能，要求成员在每次操作时进行密码验证'),
+              showSlideIcon: true,
+              customContent: (
+                <div>
+                  <span>{_l('当前设置：')}</span>
+                  <span className="bold">
+                    {noneVerificationEnabled ? _l('允许一小时内免验证') : _l('每次操作均需验证')}
+                  </span>
+                </div>
               ),
-              showSlideIcon: false,
-              showSwitch: true,
-              switchChecked: noneVerificationEnabled,
-              clickSwitch: this.setEnabledNoneVerification,
+              onClick: () =>
+                PwdFreeVerifyDialog({
+                  projectId,
+                  enabled: noneVerificationEnabled,
+                  updateEnabled: enabled => this.setState({ noneVerificationEnabled: enabled }),
+                }),
             },
-          ].filter(v =>
-            window.platformENV.isOverseas || window.platformENV.isLocal ? true : v.key !== 'limitFileDownload',
-          )}
+          ]}
         />
       </div>
     );

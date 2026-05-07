@@ -27,6 +27,7 @@
     .Dropdown {
       .Dropdown--input {
         padding: 0;
+        background: transparent;
         & > span {
           vertical-align: bottom;
         }
@@ -170,6 +171,9 @@
       line-height: 22px;
       word-wrap: break-word;
       word-break: break-all;
+      img {
+        max-width: 100%;
+      }
     }
     .textmsg > span,
     .textmsg > a {
@@ -209,7 +213,7 @@
         height: 34px;
         padding-left: 15px;
         text-decoration: none;
-        color: var(--color-text-title);
+        color: var(--color-text-primary);
         &:before {
           content: attr(data-title) '：';
           vertical-align: top;

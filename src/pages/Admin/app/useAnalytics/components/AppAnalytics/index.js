@@ -63,6 +63,7 @@ export default class AppAnalytics extends Component {
         const [data1, data2] = res;
         const { list } = data1;
         const { workflow = {}, record = {}, app = {}, attachment = {} } = data2;
+
         if (data1.resultCode === 7 || data2.resultCode === 7) {
           this.setState({ isAuthority: false });
         } else {
@@ -75,6 +76,7 @@ export default class AppAnalytics extends Component {
   render() {
     const { projectId, appId } = _.get(this.props, 'match.params') || {};
     let { currentTab, isAuthority } = this.state;
+
     if (!isAuthority) {
       return (
         <NoAuthorWrap>

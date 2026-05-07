@@ -170,9 +170,11 @@ export default class ByUser extends Component {
     let { projectId } = this.props;
     let { fullDepartmentInfo = {} } = this.state;
     const departmentIds = departmentData.map(item => item.departmentId).filter(it => !fullDepartmentInfo[it]);
+
     if (_.isEmpty(departmentIds)) {
       return;
     }
+
     departmentAjax
       .getDepartmentFullNameByIds({
         projectId,
@@ -196,6 +198,7 @@ export default class ByUser extends Component {
     if (this.ajaxRequst) {
       this.ajaxRequst.abort();
     }
+
     this.ajaxRequst = appManagementAjax.usageStatisticsForDimension({
       projectId,
       appId: appId ? appId : '',

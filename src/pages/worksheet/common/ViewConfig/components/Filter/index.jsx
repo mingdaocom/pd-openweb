@@ -186,6 +186,7 @@ export default function ViewFilter(props) {
                   props.onClose();
                   return;
                 }
+
                 setState({
                   appearFilters: view.filters,
                   version: version + 1,

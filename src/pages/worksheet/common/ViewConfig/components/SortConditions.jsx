@@ -176,14 +176,17 @@ export default class SortConditions extends React.Component {
     props = props || this.props;
     const { showSystemControls, sortConditions, isSubList, onlyShowSystemDateControl } = props;
     let { columns } = props;
+
     if (showSystemControls) {
       columns = columns
         .filter(column => !_.find(SYSTEM_CONTROLS, c => c.controlId === column.controlId))
         .concat(SYSTEM_CONTROLS);
     }
+
     if (onlyShowSystemDateControl) {
       columns = filterSysControls(columns).concat(SYSTEM_DATE_CONTROL);
     }
+
     return {
       columns,
       sortConditions:
@@ -223,9 +226,11 @@ export default class SortConditions extends React.Component {
 
   handleAddCondition = index => {
     const newCondition = this.getCanSelectColumns()[0];
+
     if (!newCondition) {
       return;
     }
+
     const { sortConditions } = this.state;
     const newSortConditions = update(sortConditions, {
       $splice: [

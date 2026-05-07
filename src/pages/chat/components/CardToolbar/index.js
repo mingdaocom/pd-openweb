@@ -59,9 +59,11 @@ export default class CardToolbar extends Component {
       if (item.icon === 'icon-task') {
         return !forbidSuites.includes('2');
       }
+
       if (item.icon === 'icon-bellSchedule') {
         return !forbidSuites.includes('3');
       }
+
       return isGroup ? !forbidSuites.includes('1') : false;
     });
   }

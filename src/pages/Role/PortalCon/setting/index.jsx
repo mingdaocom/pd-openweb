@@ -230,6 +230,18 @@ class PortalSetting extends React.Component {
       this.setState({ saveLoading: true });
     }
 
+    if (_.get(portalSetModel, 'loginMode.weChat')) {
+      if (authorizerInfo.isUnBind) {
+        alert(_l('微信登录必须绑定微信公众号'), 2);
+        return false;
+      }
+
+      if (!authorizerInfo.appId) {
+        alert(_l('请设置服务号'), 2);
+        return false;
+      }
+    }
+
     externalPortalAjax
       .editPortalSet({
         appId,
@@ -255,6 +267,9 @@ class PortalSetting extends React.Component {
             'twoAuthenticationEnabled',
             'registerInfo',
             'watermark',
+            'watermarkTxt',
+            'editPersonalInfo',
+            'editPersonalExtInfo',
             'internalControls',
             'externalControls',
             'addressExt',
@@ -381,6 +396,7 @@ class PortalSetting extends React.Component {
                   if (this.state.name === '' || this.state.saveLoading) {
                     return;
                   }
+
                   this.editPortal();
                 }}
               >

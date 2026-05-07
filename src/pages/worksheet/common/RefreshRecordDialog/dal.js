@@ -22,6 +22,7 @@ export function refreshRecord({
     rowIds: hasAuthRowIds,
     controls: updateControls,
   };
+
   if (allWorksheetIsSelected) {
     delete args.rowIds;
     args.isAll = true;
@@ -44,6 +45,7 @@ export function refreshRecord({
     args.keyWords = searchArgs.keyWords;
     args.searchType = searchArgs.searchType;
   }
+
   worksheetAjax
     .refreshWorksheetRows(args)
     .then(cb)

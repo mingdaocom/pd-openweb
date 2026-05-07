@@ -45,6 +45,7 @@ const AddLangModal = props => {
           if (disabled) {
             return;
           }
+
           if (e.target.checked) {
             setSelectKey(selectKey.concat(data.langCode));
           } else {

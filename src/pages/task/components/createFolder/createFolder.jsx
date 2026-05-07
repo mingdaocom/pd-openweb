@@ -26,6 +26,7 @@ export default class CreateFolder extends Component {
 
     if (!projectId) {
       const lastProjectId = window.localStorage.getItem('lastProjectId');
+
       if (lastProjectId !== null) {
         projectId = lastProjectId;
       } else if (md.global.Account.projects.length) {

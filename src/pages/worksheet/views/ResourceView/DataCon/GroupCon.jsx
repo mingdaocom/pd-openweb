@@ -162,6 +162,7 @@ const TbWrap = styled.div`
     }
   }
 `;
+
 export default function GroupCon(props) {
   const headContainer = useRef(null);
   const tbodyContainer = useRef(null);
@@ -170,16 +171,19 @@ export default function GroupCon(props) {
   const viewControlInfo = controls.find(o => o.controlId === _.get(view, 'viewControl')) || {};
   const { dataSource } = viewControlInfo;
   const isM = browserIsMobile();
+
   const getControls = props => {
     if (isM) {
       return [];
     }
+
     const { view, resourceview } = props;
     const { resourceRelationControls } = resourceview;
     const { displayControls, controlsSorts } = view;
     const displayControlsInfo = resourceRelationControls.filter(o => displayControls.includes(o.controlId));
     return sortControlByIds(displayControlsInfo, controlsSorts);
   };
+
   const [{ widthConfig, dragValue, displayControlsInfo, isScrollHead }, setState] = useSetState({
     dragValue: 0,
     widthConfig: localStorage.getItem(`viewColumnWidthConfig-${props.viewId}`)
@@ -204,6 +208,7 @@ export default function GroupCon(props) {
 
   const type =
     localStorage.getItem(`${view.viewId}_resource_type`) || types[_.get(view, 'advancedSetting.calendarType') || 0];
+
   const handleMouseDown = (event, index) => {
     const { target } = event;
     const startClientX = event.clientX;
@@ -227,15 +232,18 @@ export default function GroupCon(props) {
       });
       localStorage.setItem(`viewColumnWidthConfig-${view.viewId}`, JSON.stringify(data));
     };
+
     document.onmousemove = event => {
       const x = event.clientX - startClientX;
       const width = target.parentElement.clientWidth + x;
+
       if (width >= minControlWidth) {
         setState({
           dragValue: startDragValue + x,
         });
       }
     };
+
     document.onmouseup = event => {
       const x = event.clientX - startClientX;
       const width = target.parentElement.clientWidth + x;
@@ -247,6 +255,7 @@ export default function GroupCon(props) {
       document.onmouseup = null;
     };
   };
+
   const renderDrag = index => {
     return (
       <div
@@ -257,12 +266,15 @@ export default function GroupCon(props) {
       />
     );
   };
+
   const bodyScroll = () => {
     let scrollLeftNum = tbodyContainer.current && tbodyContainer.current.scrollLeft;
+
     if (headContainer.current) {
       headContainer.current.scrollLeft = scrollLeftNum;
       headContainer.current.style.marginRight = 10;
     }
+
     const scrollTop = tbodyContainer.current && tbodyContainer.current.scrollTop;
     document.getElementById(`rightCon_${viewId}`).scrollTop = scrollTop;
     document.getElementById(`scrollDiv_${viewId}`).scrollTop = scrollTop;
@@ -275,12 +287,15 @@ export default function GroupCon(props) {
       });
     }
   };
+
   const headScroll = () => {
     let scrollLeftNum = headContainer.current && headContainer.current.scrollLeft;
+
     if (headContainer.current) {
       tbodyContainer.current.scrollLeft = scrollLeftNum;
     }
   };
+
   const addRecordInfo = defaultFormData => {
     const { base = {}, refresh, isCharge } = props;
     const { worksheetId } = base;
@@ -301,6 +316,7 @@ export default function GroupCon(props) {
     if (_.get(view, 'advancedSetting.opencover') === '2' || isM) {
       return;
     }
+
     e.stopPropagation();
     const viewControlInfo = controls.find(o => o.controlId === _.get(view, 'viewControl')) || {};
     const { viewId, dataSource } = viewControlInfo;
@@ -317,10 +333,12 @@ export default function GroupCon(props) {
           ? true
           : isOpenPermit(permitList.recordAttachmentSwitch, switches, viewId);
         let hideFunctions = ['editFileName'];
+
         if (!recordAttachmentSwitch) {
           /* 是否不可下载 且 不可保存到知识和分享 */
           hideFunctions.push('download', 'share', 'saveToKnowlege');
         }
+
         addBehaviorLog('previewFile', worksheetId, {
           fileId: _.get(allAttachments, `[${0}].fileID`),
           rowId,
@@ -358,6 +376,7 @@ export default function GroupCon(props) {
         );
       });
   };
+
   let scrollLeftNum = headContainer.current && headContainer.current.scrollLeft;
   const allW = _.sum([
     displayControlsInfo.length <= 0 ? props.directoryWidth : widthConfig[0] || minControlWidth,
@@ -441,6 +460,7 @@ export default function GroupCon(props) {
           {resourceDataByKey.map((o, i) => {
             const height = o.height + lineBottomHeight + 1; //底部有lineBottomHeight间距,
             const viewControlData = controls.find(o => o.controlId === _.get(view, 'viewControl')) || {};
+
             const renderAccount = name => {
               const data = safeParse(name);
               return (
@@ -463,6 +483,7 @@ export default function GroupCon(props) {
                 </div>
               );
             };
+
             const renderRelate = o => {
               const { coverCid } = view;
               const row = safeParse(o.data || '{}');
@@ -507,10 +528,12 @@ export default function GroupCon(props) {
                 o.name
               );
             };
+
             const renderName = () => {
               const row = safeParse(o.name || '{}');
               return row[isSameType([27], viewControlData) ? 'departmentName' : 'organizeName'];
             };
+
             const hoverHandlers = getResourceRowHoverHandlers(viewId, i);
             return (
               <div
@@ -595,8 +618,10 @@ export default function GroupCon(props) {
                       onClick={() => {
                         let value = o.key;
                         const info = controls.find(o => o.controlId === view.viewControl) || {};
+
                         if (isSameType([26], info)) {
                           const { name = '' } = o;
+
                           if (name) {
                             const user = JSON.parse(name);
                             value = JSON.stringify(Array.isArray(user) ? user : [user]);
@@ -604,24 +629,30 @@ export default function GroupCon(props) {
                             value = '[]';
                           }
                         }
+
                         if (isSameType([27, 48], info)) {
                           const { key } = o;
                           const row = safeParse(o.name || '{}');
+
                           if (key) {
                             value = JSON.stringify([row]);
                           } else {
                             value = '[]';
                           }
                         }
+
                         if (isSameType([29], info)) {
                           value = JSON.stringify([{ sid: o.key, name: o.name }]);
                         }
+
                         if (isSameType([9, 10, 11, 28], info)) {
                           value = isSameType([28], info) ? value : JSON.stringify([value]);
                         }
+
                         if (o.key === '-1') {
                           value = '';
                         }
+
                         addRecordInfo({
                           [_.get(view, 'viewControl')]: value,
                         });

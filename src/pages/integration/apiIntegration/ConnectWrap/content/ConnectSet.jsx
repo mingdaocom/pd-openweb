@@ -44,7 +44,7 @@ const Wrap = styled.div`
       .editorNull {
         padding: 0 24px;
         color: var(--color-text-placeholder);
-        border: 1px solid var(--color-white);
+        border: 1px solid var(--color-border-secondary);
         border-radius: 0 0 10px 10px;
       }
       .editorContent {
@@ -136,9 +136,13 @@ const Wrap = styled.div`
   }
 `;
 
+// 是否可编辑：自定义连接(type=1)始终可编辑，安装连接(type=2)需 info.allowEdit 为 true
+const getCanEdit = props => props.isConnectOwner && (props.connectType === 1 || props.allowEdit);
+
 //连接设置
 function ConnectSet(props) {
   const { updateIntroduce } = props;
+  const canEdit = getCanEdit(props);
   const [{ data1, flowDts, dataCode, loading }, setState] = useSetState({
     data1: {},
     flowDts: [],
@@ -159,14 +163,16 @@ function ConnectSet(props) {
   if (loading) {
     return <LoadDiv />;
   }
+
   const renderFlowDts = (data, notAuthCode, index) => {
     if (data.appType === 30) {
       return null;
     }
+
     if (notAuthCode) {
       return (
         <React.Fragment>
-          {data.appType === 32 && props.connectType === 1 && (
+          {data.appType === 32 && canEdit && (
             <React.Fragment>
               <Icon
                 icon={'arrow'}
@@ -183,7 +189,7 @@ function ConnectSet(props) {
                 onChange={() => {
                   props.fetchInfo();
                 }}
-                canEdit={props.isConnectOwner}
+                canEdit={canEdit}
                 showAdd={true}
               />
             </React.Fragment>
@@ -202,12 +208,13 @@ function ConnectSet(props) {
               setState({ flowDts: flowDts.map(o => (o.id === data.id ? { ...data, ...v } : o)) });
               props.hasChange();
             }}
-            canEdit={props.isConnectOwner}
+            canEdit={canEdit}
             forIntegration
           />
         </React.Fragment>
       );
     }
+
     return (
       <React.Fragment>
         <Icon
@@ -226,11 +233,12 @@ function ConnectSet(props) {
             setState({ flowDts: flowDts.map(o => (o.id === data.id ? { ...data, ...v } : o)) });
             props.hasChange();
           }}
-          canEdit={props.isConnectOwner}
+          canEdit={canEdit}
         />
       </React.Fragment>
     );
   };
+
   return (
     <Wrap className="flexColumn">
       {props.hasAuth && !props.isConnectOwner ? null : (
@@ -244,17 +252,17 @@ function ConnectSet(props) {
               setState({ data1: { ...data1, ...v } });
               props.hasChange();
             }}
-            canEdit={props.isConnectOwner}
+            canEdit={props.isConnectOwner} //有权限就能编辑
           />
           {props.hasAuth ? flowDts.map((o, i) => renderFlowDts(o, false, i)) : renderFlowDts(flowDts[0], true)}
         </>
       )}
-      {((!props.introduce && props.connectType === 1 && props.isConnectOwner) || !!props.introduce) && (
+      {((!props.introduce && canEdit) || !!props.introduce) && (
         <div className="descContainer">
           <EditIntro
             key={props.id}
             summary={props.introduce}
-            canEditing={props.isConnectOwner && props.connectType !== 2}
+            canEditing={canEdit}
             cacheKey={'remarkDes_description' + props.id}
             onSave={value => {
               updateIntroduce(value);

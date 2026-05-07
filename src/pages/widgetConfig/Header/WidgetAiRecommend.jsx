@@ -239,6 +239,7 @@ export default function WidgetAiRecommend(props) {
       hint: curControl.desc || '',
       alias: curControl.code || '',
     };
+
     // 选项
     if (_.includes([9, 10, 11], curControl.type)) {
       if (_.get(curControl, 'options.length')) {
@@ -252,6 +253,7 @@ export default function WidgetAiRecommend(props) {
         }));
       }
     }
+
     // 公式
     if (curControl.type === 31) {
       defaultDetail.advancedSetting = { nullzero: '1' };
@@ -265,6 +267,7 @@ export default function WidgetAiRecommend(props) {
       defaultDetail.showControls = (curControl.subform || []).map(i => i.controlId);
       defaultDetail.dataSource = uuidv4();
     }
+
     return defaultDetail;
   };
 
@@ -409,6 +412,7 @@ export default function WidgetAiRecommend(props) {
           } else {
             setVisible(true);
           }
+
           if (status === 0) {
             setKeywords(worksheetName);
           }

@@ -64,15 +64,19 @@ class DiscussLogFile extends Component {
 
   getActive(props = {}) {
     const { sideactive } = getRequest();
+
     if (sideactive === 'pay' && !!this.showTabs.find(o => o.name === 'pay')) {
       return 5;
     }
+
     if (_.find(this.showTabs, { name: 'approval' }) && !(props.workflowStatus || '').startsWith('["other')) {
       const activeTab = this.showTabs.filter(tab => tab.name !== 'approval')[0];
+
       if (activeTab) {
         return activeTab.id;
       }
     }
+
     return this.showTabs.length && this.showTabs[0].id; // 日志讨论  1 日志  2讨论
   }
 

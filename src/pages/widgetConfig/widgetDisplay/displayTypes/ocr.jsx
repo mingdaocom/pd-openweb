@@ -28,6 +28,7 @@ const InfoWrap = styled.div`
     text-align: center;
   }
 `;
+
 export default function OcrDisplay({ data }) {
   const { enumDefault } = data;
   const { displayText, icon } = TEMPLATE_TYPE.find(item => item.value === enumDefault) || {};

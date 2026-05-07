@@ -57,7 +57,9 @@ export default function ResponseError({
   return (
     <Con className={className} style={style}>
       <i className="errorIcon icon icon-error" />
-      <div className="ellipsis">{error?.errorMsg || error}</div>
+      <div className="ellipsis" title={error?.errorMsg || error}>
+        {error?.errorMsg || error}
+      </div>
       {showRetry && (
         <span className="t-flex t-items-center t-justify-center retry">
           <i className="icon icon-task-later" onClick={onRetry}></i>

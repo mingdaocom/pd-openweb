@@ -29,14 +29,13 @@ export default {
     return mdyAPI('Chat', 'GetCardDetails', args, options);
   },
   /**
-  * 专供聊天服务接口
-获取群组信息以及部分用户信息
-  * @param {Object} args 请求参数
-  * @param {string} args.groupId 群组id
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
+   * 获取聊天群组信息以及部分用户信息
+   * @param {Object} args 请求参数
+   * @param {string} args.groupId 群组id
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
   getGroupInfo: function (args, options = {}) {
     return mdyAPI('Chat', 'GetGroupInfo', args, options);
   },

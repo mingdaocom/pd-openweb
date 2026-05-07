@@ -35,6 +35,7 @@ class AddressBook extends React.Component {
 
   renderContent() {
     const { type, projectId } = this.state;
+
     switch (type) {
       case TYPES.NEW_FRIENDS:
         return <NewFriends />;

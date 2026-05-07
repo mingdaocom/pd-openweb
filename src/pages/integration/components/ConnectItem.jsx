@@ -11,9 +11,11 @@ import { Wrap } from './style';
 
 function AddNode(props) {
   const featureType = getFeatureStatus(localStorage.getItem('currentProjectId'), VersionProductType.codeBlockNode);
+
   if (!props.canEdit || !featureType) {
     return '';
   }
+
   return (
     <React.Fragment>
       <WrapBtn
@@ -23,6 +25,7 @@ function AddNode(props) {
             buriedUpgradeVersionDialog(localStorage.getItem('currentProjectId'), VersionProductType.codeBlockNode);
             return;
           }
+
           props.onAdd();
         }}
       >
@@ -59,6 +62,7 @@ function ConnectItem(props) {
       />
     );
   }
+
   return (
     <Wrap className={props.className}>
       <Item

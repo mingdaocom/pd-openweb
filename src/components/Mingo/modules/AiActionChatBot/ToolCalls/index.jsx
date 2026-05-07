@@ -20,32 +20,32 @@ const TOOL_CALL_CARD_TYPES = {
 const TOOL_CALL_CARD_CONFIG = {
   [TOOL_CALL_CARD_TYPES.UPDATE_RECORD]: {
     type: TOOL_CALL_CARD_TYPES.UPDATE_RECORD,
-    name: '更新记录',
+    name: _l('更新记录'),
     icon: 'icon-workflow_update',
   },
   [TOOL_CALL_CARD_TYPES.CREATE_RECORD]: {
     type: TOOL_CALL_CARD_TYPES.CREATE_RECORD,
-    name: '新增记录',
+    name: _l('新增记录'),
     icon: 'icon-playlist_add',
   },
   [TOOL_CALL_CARD_TYPES.API]: {
     type: TOOL_CALL_CARD_TYPES.API,
-    name: '集成 API',
+    name: _l('集成 API'),
     icon: 'icon-api',
   },
   [TOOL_CALL_CARD_TYPES.PBP]: {
     type: TOOL_CALL_CARD_TYPES.PBP,
-    name: '封装业务流程',
+    name: _l('封装业务流程'),
     icon: 'icon-pbc',
   },
   [TOOL_CALL_CARD_TYPES.SEND]: {
     type: TOOL_CALL_CARD_TYPES.SEND,
-    name: '发送站内通知',
+    name: _l('发送站内通知'),
     icon: 'icon-notifications',
   },
   [TOOL_CALL_CARD_TYPES.EMAIL]: {
     type: TOOL_CALL_CARD_TYPES.EMAIL,
-    name: '发送邮件',
+    name: _l('发送邮件'),
     icon: 'icon-workflow_email',
   },
 };
@@ -56,6 +56,7 @@ function getToolCallCardConfig(functionName) {
       return TOOL_CALL_CARD_CONFIG[key];
     }
   }
+
   return null;
 }
 
@@ -170,6 +171,7 @@ function renderToolArguments({ chatbotId, conversationId, config, functionArgume
       />
     );
   }
+
   return null;
 }
 
@@ -241,9 +243,11 @@ export function renderToolCalls(
       const config = getToolCallCardConfig(get(item, 'function.name'));
       const functionArguments = safeParse(get(item, 'function.arguments'));
       const functionData = get(item, 'function');
+
       if (!config) {
         return null;
       }
+
       return {
         config,
         functionArguments,

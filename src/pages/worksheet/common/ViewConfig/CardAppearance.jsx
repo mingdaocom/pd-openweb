@@ -17,7 +17,7 @@ import { ViewSettingWrap } from './style';
 const DisplayControlOption = styled(FlexCenter)`
   .icon {
     font-size: 16px;
-    color: rgba(0, 0, 0, 0.4);
+    color: var(--color-text-secondary);
     margin-right: 4px;
   }
   span {
@@ -92,6 +92,7 @@ export default class CardAppearance extends Component {
   componentWillReceiveProps(nextProps) {
     const { view } = nextProps;
     const { emptyname = '' } = getAdvanceSetting(view);
+
     if (emptyname !== getAdvanceSetting(this.props.view || {}).emptyname) {
       this.setState({
         emptyname,
@@ -141,6 +142,7 @@ export default class CardAppearance extends Component {
           },
         ];
       }
+
       return isHierarchyView
         ? hierarchyViewCanSelectFields({
             worksheetId: currentSheetInfo.worksheetId,
@@ -148,6 +150,7 @@ export default class CardAppearance extends Component {
           })
         : allCanSelectFieldsInBoardControls;
     };
+
     return (
       <ViewSettingWrap>
         {!isMultiHierarchyView && (
@@ -176,12 +179,14 @@ export default class CardAppearance extends Component {
                   if (viewControl === value) {
                     return;
                   }
+
                   let advanced = {
                     navsorts: '',
                     customitems: '',
                   };
                   const viewControlData = worksheetControls.find(o => o.controlId === value) || {};
                   const type = viewControlData.type === 30 ? viewControlData.sourceControlType : viewControlData.type;
+
                   if (
                     (!['0'].includes(navshow) && ![26, 27, 48].includes(type)) ||
                     (!['1'].includes(navshow) && [26, 27, 48].includes(type))
@@ -193,6 +198,7 @@ export default class CardAppearance extends Component {
                       navfilters: JSON.stringify([]),
                     };
                   }
+
                   updateCurrentView({
                     ...view,
                     appId,

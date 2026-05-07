@@ -204,6 +204,7 @@ class Subtask extends Component {
    */
   updateTaskName = (evt, taskID, oldTaskName) => {
     const taskName = _.trim(evt.currentTarget.value);
+
     const callback = () => {
       if (this.props.openType === OPEN_TYPE.slide) {
         afterUpdateTaskName(taskID, taskName);
@@ -275,6 +276,7 @@ class Subtask extends Component {
    */
   clickChargeAvatar = (evt, accountId, taskId = '') => {
     const { data } = this.props.taskDetails[this.props.taskId];
+
     const updateChargeCallback = user => {
       if (this.props.openType === OPEN_TYPE.slide) {
         afterUpdateTaskCharge(taskId, user.avatar, user.accountId);
@@ -282,6 +284,7 @@ class Subtask extends Component {
         this.props.updateCallback({ type: 'UPDATE_CHARGE', user });
       }
     };
+
     const callback = users => {
       const user = users[0];
 
@@ -316,6 +319,7 @@ class Subtask extends Component {
     const { taskId, openType } = this.props;
     const { data } = this.props.taskDetails[taskId];
     const value = _.trim(this.state.value);
+
     const callback = source => {
       if (openType === OPEN_TYPE.slide) {
         source.stageID = data.stageID;

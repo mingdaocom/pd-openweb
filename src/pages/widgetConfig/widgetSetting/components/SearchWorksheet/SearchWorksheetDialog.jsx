@@ -223,6 +223,7 @@ export default class SearchWorksheetDialog extends Component {
         if (i.isGroup) {
           return { ...i, groupFilters: (i.groupFilters || []).map(g => ({ ...g, emptyRule })) };
         }
+
         return { ...i, emptyRule };
       }),
       configs,
@@ -272,10 +273,12 @@ export default class SearchWorksheetDialog extends Component {
       if ((control.type === 29 && control.dataSource === this.state.sheetId) || _.includes([2, 32], control.type))
         filterControls = ROW_ID_CONTROL.concat(filterControls);
     }
+
     return filterControls.map(({ controlId: value, controlName: text, dataSource }) => {
       if (_.includes([9, 10, 11], control.type) && dataSource && control.dataSource === dataSource) {
         return { text, value, isEqualSource: true };
       }
+
       return { text, value };
     });
   };
@@ -445,6 +448,7 @@ export default class SearchWorksheetDialog extends Component {
                 if (relateField) {
                   return;
                 }
+
                 this.setState({ showMenu }, () => {
                   if (showMenu) {
                     this.getWorksheetList();
@@ -559,6 +563,7 @@ export default class SearchWorksheetDialog extends Component {
                 canEdit
                 feOnly
                 supportGroup
+                disableAddCondition={!sheetId}
                 version={sheetId}
                 projectId={globalSheetInfo.projectId}
                 appId={globalSheetInfo.appId}
@@ -649,6 +654,7 @@ export default class SearchWorksheetDialog extends Component {
                         if (!sheetId) {
                           return;
                         }
+
                         this.setState({ controlVisible });
                       }}
                       popupStyle={{ width: 280 }}

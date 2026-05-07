@@ -11,26 +11,32 @@ export const existAccountHint = function (result) {
 
     accounts.forEach(item => {
       let message = '';
+
       if (item.account) {
         // 不存在的用户
         message = item.account;
       } else {
         // 已存在的用户
         let accountArr = [];
+
         if (item.email) {
           accountArr.push(item.email);
         }
+
         if (item.mobilePhone) {
           accountArr.push(item.mobilePhone);
         }
+
         let desc = accountArr.join(' / ') + (USER_STATUS[item.user] || '');
         message = item.fullname + (desc.length ? '：' + desc : '');
       }
+
       noticeMessage += '<div class="Font12 textPlaceholder LineHeight25">' + message + '</div>';
     });
 
     return noticeMessage;
   };
+
   const SendMessageResult = {
     Failed: 0,
     Success: 1,

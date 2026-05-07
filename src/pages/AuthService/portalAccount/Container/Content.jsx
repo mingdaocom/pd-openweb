@@ -44,6 +44,7 @@ export default function (props) {
   } = props;
 
   const [{ hasCheck }, setState] = useSetState({ hasCheck: false });
+
   // { key: 'phone', txt: _l('验证码') },
   // { key: 'password', txt: _l('密码') },
   // { key: 'weChat', txt: _l('微信扫码') },
@@ -60,14 +61,17 @@ export default function (props) {
       updateWarn([{ tipDom: 'inputAccount', warnTxt: way }]);
       return;
     }
+
     if (!verifyCode && ((type === 'password' && isRegister) || type === 'phone')) {
       updateWarn([{ tipDom: 'inputCode', warnTxt: _l('请输入验证码！') }]);
       return;
     }
+
     if (!password && type === 'password') {
       updateWarn([{ tipDom: 'inputPassword', warnTxt: _l('请输入密码！') }]);
       return;
     }
+
     onChange({ sending: true });
     if (type === 'phone') {
       onLogin();
@@ -75,6 +79,7 @@ export default function (props) {
       doPwdLogin();
     }
   };
+
   const footerNotice = isScanLogin => {
     let isNoRightTime =
       //开启了注册时间验证
@@ -91,6 +96,7 @@ export default function (props) {
         (!_.get(registerInfo, 'startTime') &&
           !!_.get(registerInfo, 'endTime') &&
           moment().isAfter(_.get(registerInfo, 'endTime'))));
+
     if (allowUserType === 9 || isNoRightTime) {
       return (
         <p className={cx('txt TxtCenter textSecondary Bold Font14 footerTxt', { mTop24: isScanLogin })}>
@@ -105,6 +111,7 @@ export default function (props) {
       return '';
     }
   };
+
   const footer = (keys, findPassword) => {
     return (
       <React.Fragment>
@@ -142,6 +149,7 @@ export default function (props) {
               if (termsAndAgreementEnable && !hasCheck) {
                 return alert(_l('请先勾选同意《用户协议》和《隐私政策》'), 3);
               }
+
               sendCode();
             }
           }}
@@ -195,6 +203,7 @@ export default function (props) {
       </React.Fragment>
     );
   };
+
   const way = registerMode.email && registerMode.phone ? 'emailOrTel' : registerMode.phone ? 'tel' : 'email';
   const param = {
     warnList,
@@ -207,6 +216,7 @@ export default function (props) {
     type: 'portalLogin',
     onChange: data => onChange({ ...data }),
   };
+
   switch (type) {
     case 'phone': //验证码
       return (

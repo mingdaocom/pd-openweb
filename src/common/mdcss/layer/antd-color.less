@@ -38,17 +38,20 @@
 .ant-checkbox-wrapper {
   color: var(--color-text-primary) !important;
   .ant-checkbox-inner {
-    background: var(--color-background-card) !important;
+    background: var(--color-background-input) !important;
   }
   &.ant-checkbox-checked .ant-checkbox-inner {
     background: var(--color-primary) !important;
     border-color: var(--color-primary) !important;
   }
+  .ant-checkbox-disabled .ant-checkbox-inner {
+    background: var(--color-background-secondary) !important;
+  }
 }
 
 .ant-switch {
   color: var(--color-text-primary) !important;
-  background: var(--color-background-hover) !important;
+  background: var(--color-background-tertiary) !important;
   &.ant-switch-checked {
     background: var(--color-primary) !important;
   }
@@ -58,7 +61,7 @@
 .ant-radio-wrapper {
   color: var(--color-text-primary) !important;
   .ant-radio-inner {
-    background: var(--color-background-card) !important;
+    background: var(--color-background-input) !important;
   }
 }
 
@@ -69,9 +72,10 @@
   }
 }
 .ant-input,
+.ant-input-number,
 .ant-input-affix-wrapper {
   color: var(--color-text-primary) !important;
-  background-color: var(--color-background-card) !important;
+  background-color: var(--color-background-input) !important;
   border-color: var(--color-border-primary) !important;
   &[disabled] {
     background-color: var(--color-background-disabled) !important;
@@ -80,7 +84,8 @@
     color: var(--color-text-placeholder) !important;
   }
 }
-.ant-input-group-addon {
+.ant-input-group-addon,
+.ant-input-group-addon .ant-btn {
   color: var(--color-text-primary) !important;
   background-color: var(--color-background-primary) !important;
   border-color: var(--color-border-primary) !important;
@@ -90,7 +95,7 @@
   color: var(--color-text-primary) !important;
   &:not(.ant-select-customize-input) .ant-select-selector {
     border-color: var(--color-border-primary) !important;
-    background-color: transparent !important;
+    background-color: var(--color-background-input) !important;
   }
   &.ant-select-focused:not(.ant-select-disabled).ant-select:not(.ant-select-customize-input) .ant-select-selector {
     border-color: var(--color-primary) !important;
@@ -104,6 +109,9 @@
   .ant-select-clear {
     color: var(--color-text-tertiary) !important;
     background-color: var(--color-background-secondary) !important;
+  }
+  .ant-select-item-empty {
+    color: var(--color-text-tertiary) !important;
   }
   .ant-select-arrow {
     color: var(--color-text-tertiary) !important;
@@ -122,9 +130,27 @@
   }
 }
 
+.ant-tag {
+  color: var(--color-text-primary) !important;
+  background-color: var(--color-background-input) !important;
+  border-color: var(--color-border-primary) !important;
+  .ant-tag-close-icon {
+    color: var(--color-text-primary) !important;
+  }
+}
+
+.ant-switch {
+  &.ant-switch-checked .ant-switch-inner {
+    color: var(--color-white) !important;
+  }
+  .ant-switch-inner {
+    color: var(--color-text-primary) !important;
+  }
+}
+
 .ant-select-dropdown {
   color: var(--color-text-primary) !important;
-  background-color: var(--color-background-card) !important;
+  background-color: var(--color-background-input) !important;
   box-shadow: var(--shadow-lg) !important;
   .ant-select-item {
     color: var(--color-text-primary) !important;
@@ -148,6 +174,7 @@
 
 .ant-dropdown-menu {
   background-color: var(--color-background-card) !important;
+  box-shadow: var(--shadow-lg) !important;
   .ant-dropdown-menu-item:hover,
   .ant-dropdown-menu-submenu-title:hover {
     background-color: var(--color-background-hover) !important;
@@ -197,6 +224,10 @@
       color: var(--color-text-primary) !important;
     }
   }
+  .ant-picker-clear {
+    color: var(--color-text-tertiary) !important;
+    background: transparent !important;
+  }
 }
 
 .ant-picker-range-wrapper {
@@ -205,10 +236,21 @@
     background-color: var(--color-background-card) !important;
     border-color: var(--color-border-primary) !important;
   }
+  .ant-picker-cell-in-view.ant-picker-cell-in-range::before {
+    background: var(--color-primary-transparent) !important;
+  }
+  .ant-picker-date-panel
+    .ant-picker-cell-in-view.ant-picker-cell-in-range.ant-picker-cell-range-hover-start
+    .ant-picker-cell-inner::after,
+  .ant-picker-date-panel
+    .ant-picker-cell-in-view.ant-picker-cell-in-range.ant-picker-cell-range-hover-end
+    .ant-picker-cell-inner::after {
+    background: var(--color-primary-dark) !important;
+  }
   .ant-picker-range-arrow {
-    background: linear-gradient(135deg, transparent 40%, var(--color-background-primary) 40%) !important;
+    background: linear-gradient(135deg, transparent 40%, var(--color-background-card) 40%) !important;
     &::before {
-      background: linear-gradient(to left, var(--color-background-primary) 50%, var(--color-background-primary) 50%)
+      background: linear-gradient(to left, var(--color-background-card) 50%, var(--color-background-card) 50%)
         no-repeat -5px -5px !important;
     }
   }
@@ -217,13 +259,21 @@
 .ant-picker-dropdown {
   &,
   .ant-picker-header,
-  .ant-picker-cell-in-view,
+  td.ant-picker-cell-in-view,
   .ant-picker-time-panel-column > li.ant-picker-time-panel-cell .ant-picker-time-panel-cell-inner,
   .ant-picker-content th {
     color: var(--color-text-primary) !important;
   }
+  .ant-picker-cell,
   .ant-picker-header button {
     color: var(--color-text-tertiary) !important;
+  }
+  .ant-picker-cell:not(.ant-picker-cell-selected):hover .ant-picker-cell-inner {
+    background-color: var(--color-background-hover) !important;
+  }
+  .ant-picker-time-panel-cell-selected .ant-picker-time-panel-cell-inner,
+  .ant-picker-time-panel-cell-inner:hover {
+    background-color: var(--color-background-hover) !important;
   }
   .ant-picker-header,
   .ant-picker-panel,
@@ -234,6 +284,13 @@
     color: var(--color-text-primary) !important;
     background-color: var(--color-background-card) !important;
     border-color: var(--color-border-primary) !important;
+    box-shadow: var(--shadow-lg) !important;
+  }
+  .ant-picker-time-panel-column:not(:first-child) {
+    border-color: var(--color-border-primary) !important;
+  }
+  .ant-picker-datetime-panel .ant-picker-time-panel {
+    border-left-color: var(--color-border-primary) !important;
   }
 }
 
@@ -261,6 +318,13 @@
 .ant-modal {
   color: var(--color-text-primary) !important;
   .ant-modal-header,
+  .ant-modal-footer {
+    border-color: var(--color-border-primary) !important;
+  }
+  .ant-modal-close {
+    color: var(--color-text-primary) !important;
+  }
+  .ant-modal-header,
   .ant-modal-title {
     color: var(--color-text-primary) !important;
   }
@@ -273,15 +337,13 @@
   }
 }
 
-.ant-tooltip {
-  .ant-tooltip-inner {
-    box-shadow: var(--shadow-sm) !important;
-  }
-}
-
 .ant-table-wrapper:not(.pivotTable) {
   color: var(--color-text-primary) !important;
   background: var(--color-background-primary) !important;
+  .ant-table {
+    color: var(--color-text-primary) !important;
+    background: var(--color-background-primary) !important;
+  }
   .ant-table-cell-fix-left,
   .ant-table-cell-fix-right {
     background: var(--color-background-primary) !important;
@@ -297,12 +359,25 @@
   .ant-table-tbody > tr.ant-table-placeholder:hover > td {
     background: transparent !important;
   }
+  .ant-table-tbody > tr.ant-table-row-selected > td {
+    background: var(--color-app-transparent) !important;
+  }
 }
 
 .ant-pagination {
   color: var(--color-text-primary) !important;
   .ant-pagination-item {
     background: var(--color-background-primary) !important;
+  }
+  .ant-pagination-item-ellipsis {
+    color: var(--color-text-primary) !important;
+  }
+  .ant-pagination-disabled {
+    .ant-pagination-item-link {
+      color: var(--color-text-disabled) !important;
+      border-color: var(--color-border-primary) !important;
+      background: var(--color-background-disabled) !important;
+    }
   }
 }
 
@@ -337,4 +412,19 @@
     background-color: var(--color-background-card) !important;
     box-shadow: var(--shadow-lg) !important;
   }
+}
+
+.ant-tooltip {
+  [data-theme='dark'] & {
+    .ant-tooltip-inner {
+      box-shadow:
+        0 0 0 1px rgba(255, 255, 255, 0.04),
+        0 8px 24px rgba(0, 0, 0, 0.45);
+    }
+  }
+}
+
+.iti__dropdown-content {
+  border-color: var(--color-border-secondary) !important;
+  background-color: var(--color-background-card) !important;
 }

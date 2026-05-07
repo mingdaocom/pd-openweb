@@ -32,6 +32,7 @@ export default function (props) {
           } else {
             alert(_l('验证码错误'), 3);
           }
+
           return;
         }
       });

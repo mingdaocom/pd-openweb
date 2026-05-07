@@ -60,12 +60,15 @@ const Splitter = styled.div`
 
 export default function Number(props) {
   const { value, minValue = '', maxValue = '', filterType, onChange = () => {}, onEnterDown = () => {} } = props;
+
   function update(changes, type) {
     if (_.isUndefined(filterType)) {
       changes.filterType = type;
     }
+
     onChange(changes);
   }
+
   return (
     <Con>
       {filterType === FILTER_CONDITION_TYPE.BETWEEN ? (

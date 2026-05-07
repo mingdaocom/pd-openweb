@@ -51,6 +51,7 @@ export default class EditableButton extends React.Component {
                 e.preventDefault();
                 return;
               }
+
               this.setState({ isEditing: false });
               onChange(e.target.value.trim());
             }}

@@ -1,0 +1,182 @@
+.collapsePanel {
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid var(--color-border-tertiary);
+
+  .panelHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    margin: 0 10px;
+    cursor: pointer;
+    user-select: none;
+    &.isSingle {
+      margin: 0 16px;
+      cursor: default;
+    }
+    &.expanded {
+      border-bottom: 1px solid var(--color-border-primary);
+    }
+    .left {
+      flex: 1;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      .panelIcon {
+        margin-right: 10px;
+        font-size: 16px;
+        color: var(--color-text-tertiary);
+        transition: transform 0.3s;
+      }
+      .worksheetIcon {
+        display: flex;
+        align-items: center;
+        flex-shrink: 0;
+        margin-right: 10px;
+      }
+      .worksheetName {
+        font-weight: 500;
+        font-size: 14px;
+        color: var(--color-text-primary);
+      }
+      .noFields {
+        margin: 0 6px;
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--color-text-tertiary);
+        white-space: nowrap;
+      }
+    }
+    .right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      .switchText {
+        font-size: 14px;
+        color: var(--color-text-primary);
+      }
+      .freeText {
+        padding: 2px 4px;
+        margin-right: 10px;
+        font-size: 12px;
+        font-weight: 700;
+        border-radius: 3px;
+        color: var(--color-warning);
+        background: var(--color-warning-bg);
+      }
+      .deleteWorksheetIcon {
+        margin-right: 22px;
+        margin-left: 12px;
+        font-size: 18px;
+        color: var(--color-text-tertiary);
+        cursor: pointer;
+        &:hover {
+          color: var(--color-error);
+        }
+      }
+    }
+  }
+
+  .panelContentWrapper {
+    max-height: 0;
+    overflow: hidden;
+    // transition: max-height 0.3s linear, padding 0.3s linear;
+    &.expanded {
+      max-height: 2000px;
+    }
+    .panelContent {
+      padding: 12px;
+      &.single {
+        padding: 12px 0 !important;
+      }
+    }
+    .fieldBox {
+      .fieldItem {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 20px 0 24px;
+        height: 40px;
+        font-size: 13px;
+        &.single {
+          padding: 0 16px !important;
+        }
+        .left {
+          flex: 1;
+          display: flex;
+          align-items: center;
+          padding-right: 10px;
+          min-width: 0;
+          color: var(--color-text-primary);
+          .controlIcon {
+            margin-right: 3px;
+            font-size: 20px;
+            color: var(--color-text-secondary);
+          }
+          .controlSubIcon {
+            margin-left: 3px;
+            font-size: 18px;
+            color: var(--color-primary);
+          }
+        }
+        .right {
+          display: flex;
+          .deleteFieldIcon {
+            font-size: 18px;
+            color: var(--color-text-tertiary);
+            cursor: pointer;
+            &:hover {
+              color: var(--color-error);
+            }
+          }
+        }
+      }
+      .emptyField {
+        padding: 10px 26px;
+        font-size: 13px;
+        color: var(--color-text-tertiary);
+        &.single {
+          padding: 10px 16px !important;
+        }
+      }
+    }
+    .addFieldButton {
+      margin: 5px 0 5px 25px;
+      width: 200px;
+      &.single {
+        margin: 5px 16px;
+      }
+    }
+  }
+  .panelFooter {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px 0 37px;
+    height: 42px;
+    font-size: 13px;
+    color: var(--color-text-primary);
+    background: var(--color-background-secondary);
+    &.single {
+      padding: 0 16px !important;
+    }
+    .left {
+      display: flex;
+      align-items: center;
+      .discussIcon {
+        margin-right: 8px;
+        font-size: 20px;
+        color: var(--color-text-secondary);
+      }
+    }
+  }
+}
+
+.fieldConditionsDialog {
+  .mui-dialog-body {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden !important;
+  }
+}

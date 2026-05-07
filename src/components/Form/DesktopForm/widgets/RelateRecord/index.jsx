@@ -8,6 +8,7 @@ import { RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
 import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
 import { controlState } from 'src/utils/control';
 import { formatRecordToRelateRecord, getRelateRecordCountFromValue } from 'src/utils/record';
+import { WidgetEventHelper } from '../../../core/useFormEventManager';
 
 export default class Widgets extends Component {
   static propTypes = {
@@ -32,9 +33,74 @@ export default class Widgets extends Component {
   constructor(props) {
     super(props);
     this.state = {};
+    this.dropdownRef = React.createRef();
+    this.eventHelper = new WidgetEventHelper(props.formItemId);
   }
 
   cardsComp = React.createRef();
+
+  componentDidMount() {
+    this.eventHelper.subscribe(data => {
+      const { triggerType } = data;
+      const { advancedSetting = {}, formItemId } = this.props;
+      let { showtype = RELATE_RECORD_SHOW_TYPE.LIST } = advancedSetting; // 1 卡片 2 列表 3 下拉
+      showtype = parseInt(showtype, 10);
+
+      // 关联下拉：焦点仅展示统一样式，Enter 打开，下一个 Tab 直接跳走
+      if (showtype === RELATE_RECORD_SHOW_TYPE.DROPDOWN && this.dropdownRef.current) {
+        switch (triggerType) {
+          case 'Enter':
+            this.dropdownRef.current.openPopup && this.dropdownRef.current.openPopup();
+            break;
+          case 'trigger_tab_leave':
+            this.dropdownRef.current.closePopup && this.dropdownRef.current.closePopup();
+            break;
+          default:
+            break;
+        }
+
+        return;
+      }
+
+      // 关联卡片 / 老列表：Enter 触发 relateRecordBtn 的 onClick（选择记录/新建记录）
+      if (showtype === RELATE_RECORD_SHOW_TYPE.CARD || showtype === RELATE_RECORD_SHOW_TYPE.LIST) {
+        if (triggerType === 'Enter' && formItemId) {
+          const root = document.querySelector(`[data-instance-id="${formItemId}"]`);
+
+          if (root) {
+            const btn = root.querySelector('.relateRecordCardsMainBtn') || root.querySelector('.relateRecordBtn');
+
+            if (btn) {
+              btn.click();
+            }
+          }
+        }
+
+        return;
+      }
+
+      // 关联表格 / 标签页表格：Enter 触发操作区主按钮（新建 / 关联已有）
+      if (showtype === RELATE_RECORD_SHOW_TYPE.TABLE || showtype === RELATE_RECORD_SHOW_TYPE.TAB_TABLE) {
+        if (triggerType === 'Enter' && formItemId) {
+          const root = document.querySelector(`[data-instance-id="${formItemId}"]`);
+
+          if (root) {
+            const mainBtn = root.querySelector('.relateRecordMainBtn');
+
+            if (mainBtn) {
+              mainBtn.click();
+            }
+          }
+        }
+      }
+    });
+  }
+
+  componentWillUnmount() {
+    if (this.eventHelper) {
+      this.eventHelper.destroy();
+    }
+  }
 
   get count() {
     const { value, count } = this.props;
@@ -51,12 +117,15 @@ export default class Widgets extends Component {
     if (!this.isCard) {
       return;
     }
+
     try {
       if (nextProps.value === 'deleteRowIds: all') {
         this.cardsComp.current.table.deleteAllRecord();
         return;
       }
+
       const nextData = this.parseValue(nextProps.value);
+
       if (_.get(nextData, '0.isWorksheetQueryFill')) {
         const newRecords = nextData.map(item => JSON.parse(item.sourcevalue));
         this.cardsComp.current.table.clearAndAdd(newRecords);
@@ -81,16 +150,20 @@ export default class Widgets extends Component {
     ) {
       return [];
     }
+
     let data = [];
+
     try {
       data = JSON.parse(value);
     } catch (err) {
       console.log(err);
       return [];
     }
+
     if (!_.isObject(data)) {
       return [];
     }
+
     return _.isArray(data) ? data : [data];
   }
 
@@ -98,20 +171,24 @@ export default class Widgets extends Component {
     const value = this.parseValue(this.props.value);
     this.isFromDefault = !!_.find(value, { isFromDefault: true });
     let data = [];
+
     try {
       data = value.map(r => (r.sourcevalue ? JSON.parse(r.sourcevalue) : { rowid: r.sid, titleValue: r.name }));
     } catch (err) {
       console.log(err);
     }
+
     return data;
   }
 
   handleChange = (args, type) => {
     const { relationControls, onChange } = this.props;
+
     if (type === 'array') {
       onChange(JSON.stringify(formatRecordToRelateRecord(relationControls, args)));
     } else {
       const { count, records, deletedIds, needFullUpdate, addedIds, searchByChange } = args;
+
       if (records.length) {
         onChange(
           JSON.stringify(
@@ -205,6 +282,7 @@ export default class Widgets extends Component {
         />
       );
     }
+
     return (
       <React.Fragment>
         {showtype !== RELATE_RECORD_SHOW_TYPE.DROPDOWN ? (
@@ -230,6 +308,7 @@ export default class Widgets extends Component {
           <RelateRecordDropdown
             formIsEditing={isEditing}
             appId={appId}
+            ref={this.dropdownRef}
             flag={flag}
             control={{ ...this.props }}
             formData={formData}

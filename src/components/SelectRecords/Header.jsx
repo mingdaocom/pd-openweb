@@ -23,7 +23,7 @@ const Icon = styled.span`
   margin: 2px 0 0 8px;
 `;
 const QueryCon = styled.div`
-  background: var(--color-background-primary);
+  background: var(--color-background-input);
   border: 1px solid var(--color-border-secondary);
   border-radius: 4px;
   flex: 1;

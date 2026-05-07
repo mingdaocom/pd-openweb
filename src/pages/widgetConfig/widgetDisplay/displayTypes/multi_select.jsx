@@ -60,6 +60,7 @@ function MultiSelect({ data, fromType }) {
       </MultiSelectDrop>
     );
   }
+
   return (
     <OptionsWrap
       className={cx({

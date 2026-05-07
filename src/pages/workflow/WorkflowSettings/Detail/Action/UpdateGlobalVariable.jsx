@@ -9,6 +9,7 @@ import { SingleControlValue, Tag } from '../components';
 
 export default props => {
   const { relationId, data, updateSource } = props;
+
   // 渲染操作类型
   const renderOperatorType = (item, i) => {
     const TYPES = [
@@ -35,6 +36,7 @@ export default props => {
       </div>
     );
   };
+
   // 修改操作类型
   const updateOperatorType = (addType, i) => {
     const fields = _.cloneDeep(data.fields);

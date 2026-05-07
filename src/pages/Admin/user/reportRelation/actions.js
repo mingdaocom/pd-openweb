@@ -71,6 +71,7 @@ export const addSubordinates =
       if (res && res.success) {
         const { failedAccountIds } = res;
         let successAccounts = accounts;
+
         if (failedAccountIds && failedAccountIds.length) {
           successAccounts = _.filter(
             accounts,

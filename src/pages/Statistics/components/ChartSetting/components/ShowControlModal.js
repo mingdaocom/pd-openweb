@@ -62,6 +62,7 @@ const renderSortableItem = ({ DragHandle, item, otherProps }) => {
             if (isAttribute) {
               return;
             }
+
             handleItemClick(column);
           }}
           icon={control ? 'ic_toggle_on' : 'ic_toggle_off'}
@@ -176,6 +177,7 @@ export default class ShowControlModal extends Component {
   };
   handleItemClick = column => {
     const { selected } = this.state;
+
     if (_.find(selected, { controlId: column.controlId })) {
       this.setState({
         selected: selected.filter(item => item.controlId !== column.controlId),

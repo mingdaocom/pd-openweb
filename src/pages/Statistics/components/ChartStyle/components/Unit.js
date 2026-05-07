@@ -21,6 +21,7 @@ class Unit extends Component {
           [key]: value,
         };
       }
+
       return item;
     });
     onChangeYaxisList(
@@ -36,11 +37,13 @@ class Unit extends Component {
       if (changeAllYaxis ? true : item.controlId === current.controlId) {
         const { suffix } = _.find(numberLevel, { value });
         let ydot = 0;
+
         if (value === 0) {
           ydot = 2;
         } else if (value === 1) {
           ydot = item.controlType === 10000001 ? 2 : '';
         }
+
         return {
           ...item,
           magnitude: value,
@@ -48,6 +51,7 @@ class Unit extends Component {
           ydot,
         };
       }
+
       return item;
     });
     onChangeYaxisList(
@@ -73,6 +77,7 @@ class Unit extends Component {
           ydot: count,
         };
       }
+
       return item;
     });
 

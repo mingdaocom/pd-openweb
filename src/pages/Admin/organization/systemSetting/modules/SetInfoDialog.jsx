@@ -102,12 +102,14 @@ export default class SetInfoDialog extends Component {
     let { errors = {} } = this.state;
     const value = this.state[field];
     const checkResult = checkFuncs[field](value);
+
     if (checkResult) {
       errors[field] = checkResult;
       this.setState({
         errors: errors,
       });
     }
+
     fixedDataAjax.checkSensitive({ content: value }).then(res => {
       if (res) {
         this.setState({
@@ -189,6 +191,7 @@ export default class SetInfoDialog extends Component {
     if (this.state.errors && _.keys(this.state.errors).length) {
       return;
     }
+
     const {
       companyDisplayName,
       companyName,

@@ -13,7 +13,7 @@ const MaskTextWrap = styled.span`
     line-height: 20px;
     border-radius: 50%;
     &:hover {
-      background: rgb(245, 245, 245);
+      background: var(--color-background-hover);
     }
   }
 `;

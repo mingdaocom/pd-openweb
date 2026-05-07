@@ -187,6 +187,7 @@ export default function ImportDialog(props) {
     )
       .then(res => {
         const { resultCode, id } = res;
+
         if (resultCode === 0) {
           setState({
             file,
@@ -298,6 +299,7 @@ export default function ImportDialog(props) {
       </div>
     );
   };
+
   return (
     <Dialog
       title={_l('导入连接')}

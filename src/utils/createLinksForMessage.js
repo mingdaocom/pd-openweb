@@ -23,9 +23,11 @@ function escapeHTML(s) {
  */
 export default args => {
   let message = args.message;
+
   if (!args.doNotEscapeHTML) {
     message = escapeHTML(message);
   }
+
   message = message.replace(/\n/g, '<br>');
   let rUserList = args.rUserList;
   let rGroupList = args.rGroupList;
@@ -35,6 +37,7 @@ export default args => {
   let sourceType = args.sourceType;
   let replaceStr = '';
   let j;
+
   const replaceMessageCustomTag = function (message, tagName, replaceHtmlFunc, filterCustom) {
     let startTag, endTag;
 
@@ -64,9 +67,11 @@ export default args => {
         message = message.replace(customRegExp, function ($0, $1, $2) {
           let customStr = $2;
           let splitterIndex = customStr.indexOf('|');
+
           if (splitterIndex === -1) {
             return replaceHtmlFunc ? replaceHtmlFunc(customStr, _l('无法解析') + tagName) : '';
           }
+
           let customId = customStr.substr(0, splitterIndex);
           let customName = customStr.substr(splitterIndex + 1);
           return replaceHtmlFunc ? replaceHtmlFunc(customId, customName) : customName;
@@ -81,10 +86,11 @@ export default args => {
 
   if (rUserList && rUserList.length > 0) {
     for (j = 0; j < rUserList.length; j++) {
-      let rUser = rUserList[j];
+      let rUser = rUserList[j] || {};
       replaceStr = '';
       let name = htmlEncodeReg(rUser.name || rUser.fullname);
       let aid = rUser.aid || rUser.accountId;
+
       if (name) {
         if (noLink) {
           replaceStr += ' @' + name + ' ';
@@ -98,10 +104,12 @@ export default args => {
           }
         }
       }
+
       let userRegExp = new RegExp('\\[aid]' + aid + '\\[/aid]', 'gi');
       message = message.replace(userRegExp, replaceStr);
     }
   }
+
   if (rGroupList && rGroupList.length > 0) {
     for (j = 0; j < rGroupList.length; j++) {
       let rGroup = rGroupList[j];
@@ -125,6 +133,7 @@ export default args => {
           }
         }
       }
+
       let groupRegExp = new RegExp('\\[gid]' + rGroup.groupID + '\\[/gid]', 'gi');
       message = message.replace(groupRegExp, replaceStr);
     }
@@ -135,6 +144,7 @@ export default args => {
       if (noLink) {
         return getPlain ? getPlain(customId) : customName;
       }
+
       return getLink(customId, customName);
     };
   };
@@ -149,6 +159,7 @@ export default args => {
       }
     }
   };
+
   message = replaceMessageCustomTag(
     message,
     'cid',

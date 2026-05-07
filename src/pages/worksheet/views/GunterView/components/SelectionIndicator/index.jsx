@@ -39,6 +39,7 @@ export default class SelectionIndicator extends React.Component {
     if (groupingScroll && !this.props.groupingScroll) {
       groupingScroll.on('scrollStart', this.handleMouseLeave);
     }
+
     if (!_.isEqual(grouping, this.props.grouping) && groupingScroll && groupingScroll.y) {
       this.handleMouseLeave();
     }
@@ -63,6 +64,7 @@ export default class SelectionIndicator extends React.Component {
   }
   handleClick = () => {
     const { editIndex, updateEditIndex } = this.props;
+
     if (_.isNumber(editIndex)) {
       updateEditIndex(null);
     }
@@ -77,14 +79,17 @@ export default class SelectionIndicator extends React.Component {
     const { grouping, chartScroll, editIndex } = this.props;
     const scrollY = Math.abs(chartScroll.y);
     const y = event.clientY - this.gunterViewEl.getBoundingClientRect().top;
+
     if (y >= headerHeight && grouping.length) {
       const newY = y + scrollY;
       const index = Math.floor((newY - headerHeight) / rowHeight);
       const value = headerHeight - scrollY + index * rowHeight;
+
       if (index >= grouping[grouping.length - 1].openCount || index === editIndex) {
         this.setState({ top: null });
         return;
       }
+
       if (index * rowHeight <= scrollY) {
         const diff = Math.abs(index * rowHeight - scrollY);
         this.setState({ top: value + diff, height: rowHeight - diff });

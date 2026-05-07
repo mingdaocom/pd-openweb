@@ -19,6 +19,7 @@ import { getDownLoadUrl } from 'src/pages/Print/core/util';
 import { browserIsMobile, emitter } from 'src/utils/common';
 import { VersionProductType } from 'src/utils/enum';
 import { addBehaviorLog, getFeatureStatus } from 'src/utils/project';
+import { sendCloudPrint } from 'src/utils/record';
 import IconBtn from './IconBtn';
 
 const MenuItemWrap = styled(MenuItem)`
@@ -42,12 +43,31 @@ const MenuItemWrap = styled(MenuItem)`
       }
     }
   }
+  &.disabledCloudPrint {
+    cursor: not-allowed;
+    .Item-content .Icon,
+    .Item-content .templateName {
+      color: var(--color-text-disabled) !important;
+    }
+  }
 `;
 
 const SecTitle = styled.div`
   color: var(--color-text-tertiary);
   font-size: 12px;
   margin: 12px 16px 4px;
+`;
+
+const PrintTemplateList = styled.div`
+  padding: 15px 0 10px;
+  border-bottom: 1px solid var(--color-border-secondary);
+  &.noBorder {
+    border: none;
+  }
+  .title {
+    padding-left: 13px;
+    margin-bottom: 10px;
+  }
 `;
 
 export function handleSystemPrintRecord({
@@ -79,9 +99,7 @@ export function handleSystemPrintRecord({
     key: `${printKey}`,
     value: JSON.stringify(printData),
   });
-  window.open(
-    `${window.subPath || ''}${rowIds?.length > 1 ? '/printFormBatch' : '/printForm'}/${appId}/${workId ? 'flow' : 'worksheet'}/new/print/${printKey}`,
-  );
+  window.open(`${window.subPath || ''}/printForm/${appId}/${workId ? 'flow' : 'worksheet'}/new/print/${printKey}`);
 }
 
 export async function handleTemplateRecordPrint({
@@ -96,11 +114,17 @@ export async function handleTemplateRecordPrint({
   instanceId,
   customWin,
   rowIds,
+  disabledCloudPrint = false,
+  updatePrintStatus = () => {},
 }) {
   const it = template;
 
   const featureType = getFeatureStatus(projectId, VersionProductType.wordPrintTemplate);
+
   if (_.includes([3, 4], it.type)) {
+    const logType = it.type === PRINT_TYPE.QR_CODE_PRINT ? 'printQRCode' : 'printBarCode';
+    addBehaviorLog(logType, worksheetId, { printId: it.id, rowId: recordId, msg: [1] }); // 埋点
+
     const data = await worksheetAjax.getRowDetail({
       appId,
       viewId,
@@ -118,11 +142,28 @@ export async function handleTemplateRecordPrint({
       controls: data.templateControls,
       zIndex: 9999,
     });
+  } else if (it.type === PRINT_TYPE.CLOUD_PRINT) {
+    if (disabledCloudPrint) {
+      return;
+    }
+
+    updatePrintStatus({ templateId: it.id, printLoading: true, showPrintGroup: false });
+
+    sendCloudPrint({
+      id: it.id,
+      projectId,
+      appId,
+      worksheetId,
+      rowIds: [recordId],
+      finishCallback: () => updatePrintStatus({ templateId: '', printLoading: false }),
+    });
+    return;
   } else {
     if (it.type !== 0 && featureType === '2') {
       buriedUpgradeVersionDialog(projectId, VersionProductType.wordPrintTemplate);
       return;
     }
+
     let printId = it.id;
     let isDefault = it.type === 0;
     let printData = {
@@ -147,7 +188,8 @@ export async function handleTemplateRecordPrint({
       key: `${printKey}`,
       value: JSON.stringify(printData),
     });
-    const printViewUrl = `${window.subPath || ''}${rowIds?.length > 1 ? '/printFormBatch' : '/printForm'}/${appId}/worksheet/preview/print/${printKey}`;
+    const printViewUrl = `${window.subPath || ''}/printForm/${appId}/worksheet/preview/print/${printKey}`;
+
     if (browserIsMobile()) {
       (customWin || window).location.href = printViewUrl;
     } else {
@@ -252,6 +294,7 @@ export default class PrintList extends Component {
       alert(_l('预览模式下，不能操作'), 3);
       return;
     }
+
     const { viewId, recordId, appId, worksheetId, projectId, workId, instanceId } = this.props;
     this.setState({ showPrintGroup: false }, () => {
       handleSystemPrintRecord({
@@ -267,7 +310,7 @@ export default class PrintList extends Component {
     });
   }
 
-  render() {
+  renderPrintTemplate = templateType => {
     const {
       isCharge,
       viewId,
@@ -276,15 +319,107 @@ export default class PrintList extends Component {
       worksheetId,
       controls,
       projectId,
-      sheetSwitchPermit,
       type = 0,
       showDownload = true,
       onItemClick = () => {},
       workId,
       instanceId,
     } = this.props;
-    const { tempList, showPrintGroup } = this.state;
+    const { tempList, templateId, printLoading } = this.state;
     let attriData = controls.filter(it => it.attribute === 1);
+    const defaultTempList = tempList.filter(it =>
+      [PRINT_TYPE.SYS_PRINT, PRINT_TYPE.WORD_PRINT, PRINT_TYPE.EXCEL_PRINT].includes(it.type),
+    );
+    const codeTempList = tempList.filter(it => [PRINT_TYPE.QR_CODE_PRINT, PRINT_TYPE.BAR_CODE_PRINT].includes(it.type));
+    const cloudTempList = tempList.filter(it => it.type === PRINT_TYPE.CLOUD_PRINT);
+    const list =
+      templateType === 'defaultPrint' ? defaultTempList : templateType === 'codePrint' ? codeTempList : cloudTempList;
+
+    if (list.length === 0) return null;
+
+    return (
+      <PrintTemplateList
+        key={templateType}
+        className={cx({
+          noBorder:
+            templateType === 'cloudPrint' ||
+            (templateType === 'codePrint' && !cloudTempList.length) ||
+            (templateType === 'defaultPrint' && !cloudTempList.length && !codeTempList.length),
+        })}
+      >
+        <div className="title textTertiary">
+          {templateType === 'defaultPrint'
+            ? _l('记录打印')
+            : templateType === 'codePrint'
+              ? _l('条码打印')
+              : _l('云打印')}
+        </div>
+        {list.map((it, index) => {
+          let isCustom = [2, 5].includes(it.type);
+
+          return (
+            <MenuItemWrap
+              data-event={`printTemp-${index}`}
+              key={index}
+              className={cx('w100', {
+                lightBg: type === 1,
+                disabledCloudPrint: printLoading && templateId === it.id && it.type === PRINT_TYPE.CLOUD_PRINT,
+              })}
+              icon={
+                isCustom ? (
+                  <span className={`${PRINT_TYPE_STYLE[it.type].fileIcon} fileIcon`}></span>
+                ) : _.includes([PRINT_TYPE.CLOUD_PRINT], it.type) ? (
+                  <Icon icon="cloud_printing" className="Font18" />
+                ) : (
+                  <Icon icon={getPrintCardInfoOfTemplate(it).icon} className="Font18" />
+                )
+              }
+              onClick={async () => {
+                onItemClick();
+                if (window.isPublicApp) {
+                  alert(_l('预览模式下，不能操作'), 3);
+                  return;
+                }
+
+                handleTemplateRecordPrint({
+                  worksheetId,
+                  viewId,
+                  recordId,
+                  appId,
+                  projectId,
+                  template: it,
+                  attriData,
+                  workId,
+                  instanceId,
+                  disabledCloudPrint: printLoading && templateId === it.id && it.type === PRINT_TYPE.CLOUD_PRINT,
+                  updatePrintStatus: status => this.setState(status),
+                });
+              }}
+            >
+              <div title={it.name} className="ellipsis templateName">
+                {it.name}
+              </div>
+              {_.includes([3, 4], it.type) ? (
+                <span className="detail">{getPrintCardInfoOfTemplate(it).text}</span>
+              ) : (isCharge || !it.allowDownloadPermission) &&
+                showDownload &&
+                !_.includes([PRINT_TYPE.CLOUD_PRINT], it.type) ? (
+                <span className="detail" onClick={e => this.getDownload(it, e)}>
+                  <Tooltip title={_l('导出')} placement="bottom" className="Block">
+                    <Icon icon="download" className="Font16 downloadIcon" />
+                  </Tooltip>
+                </span>
+              ) : null}
+            </MenuItemWrap>
+          );
+        })}
+      </PrintTemplateList>
+    );
+  };
+
+  render() {
+    const { viewId, sheetSwitchPermit, type = 0, onItemClick = () => {} } = this.props;
+    const { tempList, showPrintGroup } = this.state;
 
     if (tempList.length <= 0 || type === 2) {
       return isOpenPermit(permitList.recordPrintSwitch, sheetSwitchPermit, viewId) && type !== 1 ? (
@@ -329,55 +464,7 @@ export default class PrintList extends Component {
                       type === 1 || !isOpenPermit(permitList.recordPrintSwitch, sheetSwitchPermit, viewId),
                   })}
                 >
-                  {tempList.map((it, index) => {
-                    let isCustom = [2, 5].includes(it.type);
-
-                    return (
-                      <MenuItemWrap
-                        data-event={`printTemp-${index}`}
-                        key={index}
-                        className={cx('w100', { lightBg: type === 1 })}
-                        icon={
-                          isCustom ? (
-                            <span className={`${PRINT_TYPE_STYLE[it.type].fileIcon} fileIcon`}></span>
-                          ) : (
-                            <Icon icon={getPrintCardInfoOfTemplate(it).icon} className="Font18" />
-                          )
-                        }
-                        onClick={async () => {
-                          onItemClick();
-                          if (window.isPublicApp) {
-                            alert(_l('预览模式下，不能操作'), 3);
-                            return;
-                          }
-                          handleTemplateRecordPrint({
-                            worksheetId,
-                            viewId,
-                            recordId,
-                            appId,
-                            projectId,
-                            template: it,
-                            attriData,
-                            workId,
-                            instanceId,
-                          });
-                        }}
-                      >
-                        <div title={it.name} className="ellipsis templateName">
-                          {it.name}
-                        </div>
-                        {_.includes([3, 4], it.type) ? (
-                          <span className="detail">{getPrintCardInfoOfTemplate(it).text}</span>
-                        ) : (isCharge || !it.allowDownloadPermission) && showDownload ? (
-                          <span className="detail" onClick={e => this.getDownload(it, e)}>
-                            <Tooltip title={_l('导出')} placement="bottom" className="Block">
-                              <Icon icon="download" className="Font16 downloadIcon" />
-                            </Tooltip>
-                          </span>
-                        ) : null}
-                      </MenuItemWrap>
-                    );
-                  })}
+                  {['defaultPrint', 'codePrint', 'cloudPrint'].map(item => this.renderPrintTemplate(item))}
                 </div>
               )}
               {/* 系统打印权限 */}

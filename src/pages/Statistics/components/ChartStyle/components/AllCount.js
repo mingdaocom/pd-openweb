@@ -104,6 +104,7 @@ export default function allCountPanelGenerator(props) {
                     checked={!!_.find(controlList, { controlId: item.controlId })}
                     onChange={event => {
                       const id = item.controlId;
+
                       if (event.target.checked) {
                         const data = {
                           controlId: id,

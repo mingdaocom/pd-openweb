@@ -22,6 +22,7 @@ export default class SheetPagination extends Component {
         </span>
       );
     }
+
     return (
       <span
         className={cx('pageNum', {
@@ -43,6 +44,7 @@ export default class SheetPagination extends Component {
   renderPiecePage() {
     const { count, pageSize, pageIndex } = this.props;
     const pages = Math.ceil(count / pageSize);
+
     if (pageIndex < 5) {
       return this.renderAllPage(5, pageIndex).concat(this.renderPage(-1)).concat(this.renderPage(pages));
     } else if (pageIndex > pages - 4) {

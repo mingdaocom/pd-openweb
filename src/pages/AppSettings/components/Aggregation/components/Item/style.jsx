@@ -31,7 +31,7 @@ export const Wrap = styled.div`
     }
   }
   &:hover {
-    background: var(--color-background-secondary);
+    background: var(--color-background-hover);
     .moreActive {
       opacity: 1;
     }
@@ -46,8 +46,6 @@ export const WrapS = styled(Menu)`
     left: 15px;
   }
   .ming.MenuItem .Item-content:not(.disabled):hover {
-    background: var(--color-background-secondary) !important;
-    color: initial !important;
     .icon {
       color: var(--color-text-tertiary) !important;
     }

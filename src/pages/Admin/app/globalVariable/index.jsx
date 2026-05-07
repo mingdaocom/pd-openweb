@@ -30,6 +30,7 @@ export default function GlobalVariable(props) {
 
   const onRefreshVarList = (type, updateItem) => {
     let list = [];
+
     if (type === REFRESH_TYPE.ADD) {
       list = varList.concat([updateItem]);
       setVarList(list);
@@ -46,7 +47,7 @@ export default function GlobalVariable(props) {
 
   return (
     <div className="globalVarWrapper">
-      <AdminTitle prefix={_l('全局变量')} />
+      <AdminTitle prefix={_l('应用管理 - 全局变量')} />
       <GlobalVarLeft projectId={projectId} activeItem={activeItem} onSelect={item => setActiveItem(item)} />
       <GlobalVarRight
         key={activeItem}

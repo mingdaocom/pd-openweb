@@ -40,6 +40,7 @@ export default class GunterEnter extends Component {
     const timeControlsIds = timeControls.map(o => o.controlId);
     const isDelete = begindate && !timeControlsIds.includes(begindate); //开始时间字段已删除
     const isDeleteEnd = enddate && !timeControlsIds.includes(enddate); //结束时间字段已删除
+
     if (
       isDelete ||
       !begindate ||
@@ -61,8 +62,10 @@ export default class GunterEnter extends Component {
                   if (!_.get(viewNew, ['advancedSetting', 'enddate'])) {
                     return;
                   }
+
                   let viewData = {};
                   const { moreSort } = view;
+
                   // 第一次创建Gunter时，配置排序数据
                   if (!moreSort) {
                     const { begindate = '' } = getAdvanceSetting(viewNew);
@@ -76,11 +79,15 @@ export default class GunterEnter extends Component {
                       sortType: 2,
                     };
                   }
+
                   let infoData = { ...viewNew, ...viewData };
+                  // 刚特图创建时 displayControls 默认带上标题字段
+                  const titleControl = _.find(controls, { attribute: 1 });
+                  const defaultDisplayControls = titleControl ? [titleControl.controlId] : [];
 
                   this.props.saveView(data, {
                     ...infoData,
-                    displayControls: [],
+                    displayControls: defaultDisplayControls,
                     editAttrs: [...infoData.editAttrs, 'displayControls'],
                   });
                   setViewConfigVisible(true);

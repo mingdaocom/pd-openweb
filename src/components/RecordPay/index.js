@@ -11,9 +11,9 @@ import { browserIsMobile } from 'src/utils/common';
 import { formatNumberThousand } from 'src/utils/control';
 
 const PayWrap = styled.div`
-  color: var(--color-black);
+  color: var(--color-text-primary);
   padding: 12px 25px;
-  background: #f2fcf2;
+  background: rgba(76, 175, 80, 0.1);
   z-index: 4;
   position: sticky;
   top: 0;
@@ -67,6 +67,7 @@ export default function RecordPay(props) {
       alert(_l('%0已锁定', entityName), 3);
       return;
     }
+
     handleShare({
       width: 640,
       isPayShare: true,
@@ -125,6 +126,7 @@ export default function RecordPay(props) {
             alert(_l('%0已锁定', entityName), 3);
             return;
           }
+
           handlePrePayOrder({
             worksheetId,
             rowId,

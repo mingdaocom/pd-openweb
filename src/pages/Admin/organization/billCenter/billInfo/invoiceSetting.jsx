@@ -91,6 +91,7 @@ export default function InvoiceSetting(props) {
 
     saveApi();
   };
+
   return (
     <Dialog
       visible
@@ -122,6 +123,7 @@ export default function InvoiceSetting(props) {
                   placeholder={_l('请输入%0', text)}
                   onBlur={e => {
                     const value = e.target.value;
+
                     if (verify && value && !verify.test(value)) {
                       setData({ [key]: '' });
                       alert(_l('%0填写格式有误', text), 2);
@@ -157,6 +159,7 @@ export default function InvoiceSetting(props) {
                   placeholder={_l('请输入%0', text)}
                   onBlur={e => {
                     const value = e.target.value;
+
                     if (verify && value && !verify.test(value)) {
                       alert(_l('%0填写格式有误', text), 2);
                       setData({ [key]: '' });

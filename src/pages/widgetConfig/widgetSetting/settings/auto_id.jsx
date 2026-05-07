@@ -173,6 +173,7 @@ function SortableItem({ data, rule, allControls, deleteRule, updateRule, renderD
         </div>
       );
     }
+
     if (relationControlName) {
       return (
         <div className="relateControlInfo">
@@ -182,6 +183,7 @@ function SortableItem({ data, rule, allControls, deleteRule, updateRule, renderD
         </div>
       );
     }
+
     return (
       <div className="controlInfo">
         <AutoIcon icon={getIconByType(controlType)} />
@@ -189,13 +191,16 @@ function SortableItem({ data, rule, allControls, deleteRule, updateRule, renderD
       </div>
     );
   };
+
   const handleTimeSelect = value => {
     if (value === 'custom') {
       setVisible({ timeFormatVisible: true });
       return;
     }
+
     updateRule({ format: value });
   };
+
   const renderRuleItem = () => {
     if (type === 1) {
       return (
@@ -209,6 +214,7 @@ function SortableItem({ data, rule, allControls, deleteRule, updateRule, renderD
         </InfoWrap>
       );
     }
+
     if (type === 3) {
       return (
         <Dropdown
@@ -233,6 +239,7 @@ function SortableItem({ data, rule, allControls, deleteRule, updateRule, renderD
         </Dropdown>
       );
     }
+
     if (type === 4) {
       const text = !['YYYYMMDD', 'YYYYMM', 'MMDD', 'YYYY'].includes(format) ? _l('自定义') + '：' + format : format;
       return (
@@ -260,6 +267,7 @@ function SortableItem({ data, rule, allControls, deleteRule, updateRule, renderD
       );
     }
   };
+
   return (
     <RuleInfo>
       {renderDragHandle()}
@@ -312,6 +320,7 @@ function SortableRules({ rules, data, deleteRule, updateRule, addRule, onSortEnd
           { value: 3, text: _l('引用字段') },
         ];
   };
+
   const typesData = fromExcel ? getTypes().filter(i => i.value !== 3) : getTypes();
   return (
     <RuleList>

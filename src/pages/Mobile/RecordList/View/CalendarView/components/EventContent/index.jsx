@@ -1,42 +1,60 @@
-import React, { memo } from 'react';
+import React, { memo, useEffect, useRef } from 'react';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { isLightColor } from 'src/utils/control';
+import { RECORD_COLOR_SHOW_TYPE } from 'worksheet/constants/enum';
 
 const EventContentWrapper = styled.div`
+  display: flex;
+  align-items: center;
   padding: 0 4px;
   height: 16px;
   line-height: 16px;
   font-size: 12px;
   font-weight: 600;
-  color: var(--color-black);
+  color: var(--color-text-primary);
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
-  ${props =>
-    props.timeText
-      ? `border-left: 2px solid ${props.event.backgroundColor};`
-      : `
-        background-color: ${props.event.backgroundColor};
-        color: ${isLightColor(props.event.backgroundColor) ? 'var(--color-text-primary)' : ''};
-        `}
-  .timeText {
-    margin-right: 10px;
-    font-weight: 400;
-  }
   .mark {
-    margin-left: 10px;
+    margin-left: 6px;
     opacity: 0.4;
   }
 `;
 
 const EventContent = props => {
-  const { event = {}, timeText } = props.eventArg;
+  const { eventArg, colortype } = props;
+  const { event = {} } = eventArg;
   const extendedProps = _.get(event, 'extendedProps', {});
-  const { mark = '' } = extendedProps;
+  const { stringColor, backgroundColor, textColor, borderColor, recordColor, mark = '' } = extendedProps;
+
+  const ref = useRef(null);
+
+  const style = {
+    backgroundColor: colortype !== RECORD_COLOR_SHOW_TYPE.LINE || !recordColor ? backgroundColor : 'transparent',
+    color: textColor,
+    borderLeft:
+      [RECORD_COLOR_SHOW_TYPE.LINE, RECORD_COLOR_SHOW_TYPE.LINE_BG].includes(colortype) && recordColor
+        ? `2px solid ${stringColor}`
+        : 'none',
+  };
+
+  const borderStyle = {
+    borderColor,
+  };
+
+  // 👇 核心逻辑
+  useEffect(() => {
+    if (!ref.current) return;
+
+    const parentA = ref.current.closest('a.fc-event');
+
+    if (parentA) {
+      Object.assign(parentA.style, borderStyle);
+    }
+  }, [style]);
 
   return (
-    <EventContentWrapper timeText={timeText} mark={mark} event={event}>
+    <EventContentWrapper ref={ref} style={style}>
       {event.title}
       {mark && <span className="mark">{mark}</span>}
     </EventContentWrapper>

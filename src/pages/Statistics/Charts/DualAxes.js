@@ -27,6 +27,7 @@ const getLineChartXAxis = (controlId, data) => {
     const result = [];
     data.forEach(item => {
       const { id } = formatControlInfo(item.groupName);
+
       if (id === controlId) {
         result.push(item);
       }
@@ -118,6 +119,7 @@ export default class extends Component {
       const config = this.getComponentConfig(nextProps);
       this.DualAxes && this.DualAxes.update(config);
     }
+
     // 堆叠 & 累计
     if (
       displaySetup.isPile !== oldDisplaySetup.isPile ||
@@ -135,6 +137,7 @@ export default class extends Component {
     const { reportData } = props;
     const { displaySetup, style, xaxes, split } = reportData;
     const config = this.getComponentConfig(props);
+
     if (this.chartEl) {
       this.DualAxes = new this.DualAxesComponent(this.chartEl, config);
       this.isViewOriginalData = displaySetup.showRowList && props.isViewOriginalData;
@@ -145,6 +148,7 @@ export default class extends Component {
       if (this.isViewOriginalData || this.isLinkageData) {
         this.DualAxes.on('element:click', this.handleClick);
       }
+
       this.DualAxes.render();
     }
   }
@@ -192,14 +196,17 @@ export default class extends Component {
       names = data.map(item => item.name);
       sortLineXAxis = getLineChartXAxis(splitId ? null : leftSorts[0].controlId, data);
     }
+
     if (isRightSort) {
       names = _.uniqBy(lineData.map(item => item.name));
       sortLineXAxis = getLineChartXAxis(rightY.splitId ? null : rightSorts[0].controlId, lineData);
     }
+
     if (!(isLeftSort || isRightSort)) {
       names = data.map(item => item.name);
       sortLineXAxis = getLineChartXAxis(null, data);
     }
+
     if (sortLineXAxis.length) {
       data = data
         .filter(item => {
@@ -228,6 +235,7 @@ export default class extends Component {
         return n;
       });
     }
+
     if (_.get(rightY.display, 'accumulatePerPile')) {
       const { ydot = 2 } = newYaxisList[0];
       const count = lineData.reduce((count, item) => count + (item.value || 0), 0);
@@ -251,6 +259,7 @@ export default class extends Component {
       yaxisList: rightY.yaxisList,
       colors: rightYColors,
     });
+    const rightYShowNumber = rightYDisplay.showNumber ?? true;
     const rule = _.get(colorRules[0], 'dataBarRule') || {};
     const isRuleColor = yaxisList.length === 1 && _.isEmpty(split.controlId) && !_.isEmpty(rule);
     const controlMinAndMax = isRuleColor ? getControlMinAndMax(yaxisList, data) : {};
@@ -278,20 +287,25 @@ export default class extends Component {
         const controlId = formatControlInfo(data.groupName).id;
         const controlIndex = _.findIndex(yaxisList, { controlId });
         let color = colors[controlIndex % colors.length];
+
         if (isRuleColor) {
           color = getRuleColor(data.value);
         }
+
         if (split.controlId) {
           const splitIndex = _.findIndex(map, { originalKey: controlId });
           color = colors[splitIndex % colors.length] || colors[0];
         }
+
         if (split.controlId && style.colorType === 0 && _.get(split, 'options.length')) {
           const optionsColors = split.options.map(c => c.color).filter(c => c);
+
           if (optionsColors.length) {
             const option = _.find(split.options, { key: controlId }) || {};
             color = option.color;
           }
         }
+
         if (!_.isEmpty(linkageMatch)) {
           if (linkageMatch.value === data.originalId) {
             return color;
@@ -299,6 +313,7 @@ export default class extends Component {
             return new TinyColor(color).setAlpha(0.3).toRgbString();
           }
         }
+
         return color;
       },
       label: displaySetup.showNumber
@@ -320,6 +335,24 @@ export default class extends Component {
         : false,
     };
 
+    const lineLabelConfig = {
+      layout: [displaySetup.hideOverlapText ? { type: 'hide-overlap' } : null],
+      content: ({ rightValue, value, groupName }) => {
+        const { id } = formatControlInfo(groupName);
+        const contentValue = rightValue || value;
+
+        if (accumulatePerPile) {
+          return `${contentValue}%`;
+        }
+
+        const yaxisList = rightValue ? newRightYaxisList : newYaxisList;
+        const controlId = _.get(rightY, 'split.controlId') ? yaxisList[0].controlId : id;
+        return formatrChartValue(contentValue, false, yaxisList, contentValue ? undefined : controlId);
+      },
+      style: {
+        fill: isDark ? '#ffffff61' : undefined,
+      },
+    };
     const lineConfig = {
       connectNulls: true,
       smooth: true,
@@ -329,32 +362,13 @@ export default class extends Component {
         lineWidth: 3,
       },
       color: rightYColors,
-      point:
-        (rightYDisplay.showNumber ?? true)
-          ? {
-              shape: 'point',
-              size: 3,
-            }
-          : false,
-      label:
-        (rightYDisplay.showNumber ?? true)
-          ? {
-              layout: [displaySetup.hideOverlapText ? { type: 'hide-overlap' } : null],
-              content: ({ rightValue, value, groupName }) => {
-                const { id } = formatControlInfo(groupName);
-                const contentValue = rightValue || value;
-                if (accumulatePerPile) {
-                  return `${contentValue}%`;
-                }
-                const yaxisList = rightValue ? newRightYaxisList : newYaxisList;
-                const controlId = _.get(rightY, 'split.controlId') ? yaxisList[0].controlId : id;
-                return formatrChartValue(contentValue, false, yaxisList, contentValue ? undefined : controlId);
-              },
-              style: {
-                fill: isDark ? '#ffffff61' : undefined,
-              },
-            }
-          : false,
+      point: rightYShowNumber
+        ? {
+            shape: 'point',
+            size: 3,
+          }
+        : false,
+      label: rightYShowNumber ? lineLabelConfig : false,
     };
 
     lineData.forEach(item => {
@@ -428,6 +442,7 @@ export default class extends Component {
                   if (accumulatePerPile) {
                     return `${value}%`;
                   }
+
                   return value ? formatrChartAxisValue(Number(value), false, newRightYaxisList) : null;
                 },
                 style: {
@@ -452,6 +467,7 @@ export default class extends Component {
         formatter: data => {
           const { value, rightValue, groupName } = data;
           const { name, id } = formatControlInfo(groupName);
+
           if (_.isNumber(value)) {
             const { dot } = _.find(yaxisList, { controlId: id }) || {};
             const labelValue = formatrChartValue(value, false, newYaxisList, value ? undefined : id);
@@ -464,15 +480,18 @@ export default class extends Component {
                 : '--',
             };
           }
+
           if (_.isNumber(rightValue)) {
             const { dot } = _.find(rightY.yaxisList, { controlId: id }) || {};
             const labelValue = formatrChartValue(rightValue, false, newRightYaxisList, value ? undefined : id);
+
             if (accumulatePerPile) {
               return {
                 name,
                 value: `${rightValue}%`,
               };
             }
+
             return {
               name,
               value: _.isNumber(rightValue)
@@ -482,6 +501,7 @@ export default class extends Component {
                 : '--',
             };
           }
+
           const { emptyShowType, dot } = _.find(yaxisList.concat(rightY.yaxisList), { controlId: id }) || {};
           return {
             name,
@@ -552,14 +572,19 @@ export default class extends Component {
     if (yreportType === reportTypes.BarChart) {
       baseConfig.geometryOptions = [columnConfig, lineConfig];
     }
+
     if (yreportType === reportTypes.LineChart) {
-      baseConfig.geometryOptions = [Object.assign({}, lineConfig, { color: colors }), lineConfig];
+      baseConfig.geometryOptions = [
+        Object.assign({}, lineConfig, { color: colors, label: displaySetup.showNumber ? lineLabelConfig : false }),
+        lineConfig,
+      ];
     }
 
     return baseConfig;
   }
   handleClick = data => {
-    const { xaxes, split, rightY, appId, reportId, name, reportType, style } = this.props.reportData;
+    const { reportData, isMobile } = this.props;
+    const { xaxes, split, rightY, appId, reportId, name, reportType, style } = reportData;
     const rightYSplit = rightY.split;
     const event = data.gEvent;
     const currentData = data.data;
@@ -572,6 +597,7 @@ export default class extends Component {
       reportType,
       filters: [],
     };
+
     if (xaxes.cid) {
       const isNumber = isFormatNumber(xaxes.controlType);
       const value = currentData.data.originalId;
@@ -586,6 +612,7 @@ export default class extends Component {
         control: xaxes,
       });
     }
+
     if (split.controlId && !isRight) {
       const isNumber = isFormatNumber(split.controlType);
       const value = currentData.data.groupKey;
@@ -593,6 +620,7 @@ export default class extends Component {
       if (!xaxes.cid) {
         linkageMatch.value = currentData.data.originalId;
       }
+
       linkageMatch.filters.push({
         controlId: split.controlId,
         values: [param[split.cid]],
@@ -602,6 +630,7 @@ export default class extends Component {
         control: split,
       });
     }
+
     if (rightYSplit.controlId && isRight) {
       const isNumber = isFormatNumber(rightYSplit.controlType);
       const value = currentData.data.groupKey;
@@ -609,6 +638,7 @@ export default class extends Component {
       if (!xaxes.cid) {
         linkageMatch.value = currentData.data.originalId;
       }
+
       linkageMatch.filters.push({
         controlId: rightYSplit.controlId,
         values: [param[rightYSplit.cid]],
@@ -618,15 +648,17 @@ export default class extends Component {
         control: rightYSplit,
       });
     }
+
     if (_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length) {
       linkageMatch.onlyChartIds = style.autoLinkageChartObjectIds;
     }
+
     const isAll = this.isViewOriginalData && this.isLinkageData;
     this.setState(
       {
         dropdownVisible: isAll,
         offset: {
-          x: event.x + 20,
+          x: event.x + (isMobile ? -100 : 20),
           y: event.y,
         },
         match: param,
@@ -636,6 +668,7 @@ export default class extends Component {
         if (!isAll && this.isViewOriginalData) {
           this.handleRequestOriginalData();
         }
+
         if (!isAll && this.isLinkageData) {
           this.handleAutoLinkage();
         }
@@ -650,6 +683,7 @@ export default class extends Component {
       isPersonal: false,
       match,
     };
+
     if (isThumbnail) {
       this.props.onOpenChartDialog(data);
     } else {
@@ -696,6 +730,7 @@ export default class extends Component {
         originalCount,
       };
     };
+
     const renderItem = data => {
       const { count, originalCount } = get(data.sum);
       return (

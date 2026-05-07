@@ -89,6 +89,7 @@ const ScanQrUploadFile = () => {
     if (!scanId) {
       return;
     }
+
     attachmentAjax
       .getScanAttachmentInfo({
         scanId,
@@ -98,17 +99,21 @@ const ScanQrUploadFile = () => {
           setStatus(STATUS.ERROR);
           return;
         }
+
         const controlName = get(res, 'control.controlName');
+
         if (res.fileType === UPLOAD_TYPE.ATTACHMENT) {
           document.title = _l('%0扫码上传', controlName ? `${controlName} ` : '');
         } else {
           document.title = _l('%0扫码签名', controlName ? `${controlName} ` : '');
         }
+
         if (res.status !== STATUS.ONLINE) {
           setStatus(STATUS.EXPIRED);
           setLoading(false);
           return;
         }
+
         setType(res.fileType);
         setLoading(false);
         setScanInfo({
@@ -129,6 +134,7 @@ const ScanQrUploadFile = () => {
       </Con>
     );
   }
+
   if (status === STATUS.SUCCESS) {
     return (
       <Con className="center">
@@ -137,6 +143,7 @@ const ScanQrUploadFile = () => {
       </Con>
     );
   }
+
   if (loading) {
     return (
       <Con className="center">
@@ -144,6 +151,7 @@ const ScanQrUploadFile = () => {
       </Con>
     );
   }
+
   return (
     <Con>
       <StatusBar className={status === STATUS.OFFLINE ? 'offline' : ''}>

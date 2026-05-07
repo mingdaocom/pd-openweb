@@ -77,6 +77,7 @@ export default class TimeInput extends Component {
     if (isDynamic) {
       return <OtherFieldList {...this.props} onClick={this.handleClick} formatMode={formatMode} />;
     }
+
     if (withMaxOrMin && from === DYNAMIC_FROM_MODE.FAST_FILTER) {
       const [minValue, maxValue] = defValue.split('-');
       return (

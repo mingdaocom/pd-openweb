@@ -36,6 +36,7 @@ const PullToRefreshWrapper = ({
         } catch (e) {
           console.log(e);
         }
+
         break;
       default:
     }

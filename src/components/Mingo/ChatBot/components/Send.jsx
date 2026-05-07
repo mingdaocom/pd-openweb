@@ -64,6 +64,7 @@ function Send(
     chatbotId,
     conversationId,
     needOcr = false,
+    mingoOcr = false,
     useAppThemeColor = false,
     chatId,
     isChatting,
@@ -86,9 +87,11 @@ function Send(
   const [dropFileElementId] = useState(uuidv4());
   const [files, setFiles] = useState([]);
   const [focused, updateFocused] = useState(false);
+
   function setFocused(v) {
     updateFocused(v);
   }
+
   const [isRecording, setIsRecording] = useState(false);
   const [value, setValue] = useState('');
   const [recordingText, setRecordingText] = useState('');
@@ -169,10 +172,12 @@ function Send(
           } catch (err) {
             console.error(err);
           }
+
           if (window.isTryRefreshClicked) {
             delete window.isTryRefreshClicked;
             return;
           }
+
           setTimeout(() => setFocused(false), 100);
         }}
         onChange={e => {
@@ -182,6 +187,7 @@ function Send(
           // 这样可以确保正常输入后能正常发送，同时不影响输入法选择候选词的判断
           if (!isComposingRef.current) {
             const timeSinceCompositionEnd = Date.now() - compositionEndTimeRef.current;
+
             if (timeSinceCompositionEnd > 100) {
               compositionEndTimeRef.current = 0;
             }
@@ -199,25 +205,31 @@ function Send(
           if (e.key !== 'Enter') {
             return;
           }
+
           // 检查是否正在输入法组合中
           if (isComposingRef.current || e.nativeEvent.isComposing) {
             return;
           }
+
           // Safari 中，当用户按 Enter 选择候选词时，compositionend 和 keydown 几乎同时触发
           // 如果 compositionend 在 50ms 内触发，则认为是选择候选词的操作
           // 使用较短的时间窗口，避免误判正常输入后的快速回车
           const timeSinceCompositionEnd = Date.now() - compositionEndTimeRef.current;
+
           if (timeSinceCompositionEnd < 50) {
             return;
           }
+
           if (e.shiftKey) {
             return;
           }
+
           e.stopPropagation();
           e.preventDefault();
           if (sendDisabled) {
             return;
           }
+
           handSend();
         }}
       />
@@ -227,6 +239,7 @@ function Send(
           disabled={disabled}
           chatbotId={chatbotId}
           needOcr={needOcr}
+          mingoOcr={mingoOcr}
           uploadFileToolTip={uploadFileToolTip}
           ref={sendButtonsRef}
           allowUpload={allowUpload}
@@ -248,6 +261,7 @@ function Send(
             if (loading) {
               return;
             }
+
             handSend();
           }}
           focusSendTextArea={() => {
@@ -260,6 +274,7 @@ function Send(
             if (!cache.current.isRecording) {
               return;
             }
+
             setRecordingText(oldText => {
               setValue(value + oldText);
               setIsRecording(false);
@@ -267,6 +282,7 @@ function Send(
               if (sendAfterStop) {
                 handSend(value + oldText);
               }
+
               sendTextAreaRef.current.focus();
               return '';
             });

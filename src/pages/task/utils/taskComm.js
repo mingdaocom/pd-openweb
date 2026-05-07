@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { renderToString } from 'react-dom/server';
 import doT from 'dot';
 import _ from 'lodash';
@@ -40,16 +40,21 @@ const getTrOrLi = function (taskId) {
 
 // 修改任务状态之后数据处理
 export const afterUpdateTaskStatus = (data, status, isAll, $el) => {
+  if (data == null) {
+    return;
+  }
+
   let taskIdArray = data.taskIDs;
   let $completedNum;
   let $subCount;
 
   if (!taskIdArray) {
-    taskIdArray = data;
+    taskIdArray = Array.isArray(data) ? data : [];
   }
 
   // 标记完成之后计数
   const $selectTask = $el || $('#taskList .selectTask');
+
   if (isAll) {
     $.map(taskIdArray, taskId => {
       $completedNum = $('tr[data-taskid=' + taskId + '] .completedNum').length
@@ -58,18 +63,22 @@ export const afterUpdateTaskStatus = (data, status, isAll, $el) => {
       if (!$completedNum.length) {
         return;
       }
+
       $subCount = $completedNum.siblings('.subCount');
       $completedNum.html(status ? $subCount.text() : 0);
     });
   } else {
     let completedNum = taskIdArray.length;
+
     if ($selectTask && completedNum && taskIdArray.indexOf($selectTask.attr('data-taskid')) !== -1) {
       completedNum = completedNum - 1;
     }
+
     if ($selectTask && completedNum > 0) {
       $completedNum = $selectTask.find('.completedNum');
       $subCount = $completedNum.siblings('.subCount');
       const oldNum = parseInt($completedNum.html(), 10);
+
       if (status) {
         $completedNum.html(
           oldNum + completedNum > parseInt($subCount.html(), 10) ? $subCount.html() : oldNum + completedNum,
@@ -86,6 +95,7 @@ export const afterUpdateTaskStatus = (data, status, isAll, $el) => {
   const isList = $('#taskList .listStage').length === 0;
   // 当前行
   let $tr;
+
   for (let i = 0; i < taskIdCount; i++) {
     const taskId = taskIdArray[i].toLowerCase();
     $tr = getTrOrLi(taskId);
@@ -93,9 +103,11 @@ export const afterUpdateTaskStatus = (data, status, isAll, $el) => {
     if (isList) {
       // 子母任务视图
       let $markTask = $tr.find('.markTask');
+
       if ($tr.children('.singleTreeTask').length > 0) {
         $markTask = $tr.children('.singleTreeTask').find('.markTask');
       }
+
       // 未完成
       if (status == 0) {
         $markTask
@@ -193,6 +205,7 @@ export const afterUpdateTaskDate = changedTasks => {
   for (let i = 0; i < changedTasks.length; i++) {
     const taskId = changedTasks[i].taskId;
     let $tr = getTrOrLi(taskId);
+
     // 嵌套 所以先取出
     if ($tr.children('.singleTreeTask').length) {
       $tr = $tr.children('.singleTreeTask');
@@ -218,6 +231,7 @@ export const afterUpdateTaskDate = changedTasks => {
 // 修改任务时间信息
 export const afterUpdateTaskDateInfo = (taskId, startTime, deadline, actualStartTime, completeTime) => {
   let $tr = getTrOrLi(taskId);
+
   // 嵌套 所以先取出
   if ($tr.children('.singleTreeTask').length) {
     $tr = $tr.children('.singleTreeTask');
@@ -239,6 +253,7 @@ export const afterUpdateLock = (taskId, locked) => {
   // 非完成
   if (!$markTask.hasClass('completeHook')) {
     const auth = $elem.data('auth');
+
     // 如果是锁定与我是负责人
     if (locked && auth === 1) {
       $markTask
@@ -324,6 +339,7 @@ export const afterDeleteTask = (taskIdArray, parentTaskId) => {
 
     $parent = $li.parent();
     const isMaster = $parent.hasClass('singleFolderTask');
+
     // 未展开
     if (hasSubTask && $subTask.length <= 0 && taskIdArray.length == 1) {
       taskTreeAfterDeleteTask(taskId, listSort);
@@ -371,6 +387,7 @@ export const afterDeleteTask = (taskIdArray, parentTaskId) => {
               '<span class="InlineBlockTop subNoneNode"></span><span class="InlineBlockTop nodeCircleSmall circle "></span>',
             );
         }
+
         $li.remove();
       } else {
         if (isMaster) {
@@ -382,12 +399,14 @@ export const afterDeleteTask = (taskIdArray, parentTaskId) => {
             $li.remove();
           } else {
             const $prev = $li.prev();
+
             // 前一个有节点
             if ($prev.length > 0) {
               $prev.removeClass('tLine').children('.singleTreeTask').prepend('<div class=" joinPrevLine"></div>');
               if ($li.next().length <= 0) {
                 $prev.children('.tliLine').remove();
                 const deep = $prev.data('deep');
+
                 if (deep != 2) {
                   const pLeft = deep < 3 ? 16 * (deep - 1) : 18 * (deep - 1) + 1;
                   $prev.children('.singleTreeTask').find('.joinPrevLine').css('left', pLeft);
@@ -416,6 +435,7 @@ export const afterDeleteTask = (taskIdArray, parentTaskId) => {
                     '<span class="InlineBlockTop subNoneNode"></span><span class="InlineBlockTop nodeCircleSmall circle "></span>',
                   );
               }
+
               $li.remove();
             }
           }
@@ -438,6 +458,7 @@ export const afterDeleteTask = (taskIdArray, parentTaskId) => {
           // 移除项目 和容器
           $parent.prev().remove().end().remove();
         }
+
         // 无任务时 快速创建
         if ($('#taskList table tr').length <= 0) {
           $('#taskList .persist-area').addClass('Hidden').find('.stageTaskCount').text('0');
@@ -478,6 +499,7 @@ export const afterDeleteTask = (taskIdArray, parentTaskId) => {
 // 删除任务后deep修改
 export const afterDeep = ($item, deep) => {
   const pLeft = deep < 3 ? 20 * (deep - 1) : 20 * (deep - 1) + 1;
+
   if (deep != 2) {
     const itemPLeft = deep < 3 ? 20 * (deep - 2) : 20 * (deep - 2) + 1;
     $item
@@ -485,6 +507,7 @@ export const afterDeep = ($item, deep) => {
       .children('.singleTreeTask')
       .removeAttr('padding-left', itemPLeft);
   }
+
   $item.children('.singleTreeTask').find('.joinLine').css('left', pLeft);
   $item
     .children('ul')
@@ -520,15 +543,18 @@ export const afterUpdateTaskFolder = (taskId, parentTaskId) => {
 // 任务修改阶段
 export const afterUpdateTaskStage = (stageId, taskId, data) => {
   const { viewType, folderId } = Store.getState().task.taskConfig;
+
   // 查看项目的时候才存在阶段
   if (folderId) {
     const $tr = getTrOrLi(taskId).data('stageid', stageId);
     let $taskListFolderName;
+
     if (viewType === 1) {
       // 已完成
       if ($tr.find('.markTask').hasClass('completeHook')) {
         return;
       }
+
       // 阶段
       $taskListFolderName = $(".taskListStageName span[data-stageid='" + stageId + "']").parent();
       $taskListFolderName.next().find('.singleFolderTask').prepend($tr);
@@ -551,6 +577,7 @@ export const afterUpdateTaskStage = (stageId, taskId, data) => {
 // 更新母任务后操作
 export const afterUpdateTaskParent = (taskId, parentId, oldParentId, data) => {
   const { folderId } = Store.getState().task.taskConfig;
+
   // 非项目列表处理
   if (!folderId) {
     afterUpdateTaskParentList(taskId, parentId, oldParentId);
@@ -562,6 +589,7 @@ export const afterUpdateTaskParent = (taskId, parentId, oldParentId, data) => {
     const $oldSingleTreeTask = getTrOrLi(oldParentId).children('.singleTreeTask');
     const $sumCount = $oldSingleTreeTask.find('.subCount');
     const count = parseInt($sumCount.text(), 10) - 1;
+
     if (count <= 0) {
       $oldSingleTreeTask.find('.subCounts').closest('.taskTagsBG').remove().end().remove();
     } else {
@@ -570,6 +598,7 @@ export const afterUpdateTaskParent = (taskId, parentId, oldParentId, data) => {
   }
 
   const $li = getTrOrLi(taskId);
+
   // 页面上不存在
   if (!$li.length) {
     // 生成任务
@@ -602,6 +631,7 @@ export const afterUpdateTaskParent = (taskId, parentId, oldParentId, data) => {
 // 更新母任务后列表处理
 const afterUpdateTaskParentList = (taskId, parentId, oldParentId) => {
   const $tr = getTrOrLi(oldParentId);
+
   if ($tr.length > 0) {
     const $sumCount = $tr.find('.subCount');
     $sumCount.text(parseInt($sumCount.text(), 10) - 1);
@@ -649,11 +679,13 @@ const afterUpdateTaskParentComm = (taskId, parentId, oldParentId, $dyLi) => {
     $li = $dyLi;
     $singleFolderTask = $('#taskList .selectTask').closest('.singleFolderTask');
   }
+
   // 原本节点处理  不是顶级
   if (!$oldParent.hasClass('singleFolderTask')) {
     // 后面没有元素
     if (!$li.next().length) {
       const $prev = $li.prev();
+
       // 前一个有节点
       if ($prev.length) {
         deep = $prev.data('deep');
@@ -716,6 +748,7 @@ const afterUpdateTaskParentComm = (taskId, parentId, oldParentId, $dyLi) => {
     });
   } else {
     const $parentLi = $("#taskList .listStageTaskContent li[data-taskid='" + parentId + "']");
+
     // 有子任务 且没展开过
     if (!$parentLi.find('ul').length && $parentLi.find('.nodeSwitch.on').length) {
       // 子任务数
@@ -751,11 +784,13 @@ const afterUpdateTaskParentComm = (taskId, parentId, oldParentId, $dyLi) => {
           if (!$li.hasClass('tLine')) {
             $li.addClass('tLine');
           }
+
           // 有母任务
           if ($liSingleTreeTask.find('.nodeSwitch.on,.nodeSwitch.off').length) {
             if ($liSingleTreeTask.find('.subJoinLine').length <= 0) {
               $liSingleTreeTask.prepend('<span class="subJoinLine"></span>');
             }
+
             $liSingleTreeTask.find('.joinPrevLine').remove();
           } else {
             $liSingleTreeTask.find('.joinPrevLine').remove();
@@ -799,6 +834,7 @@ const afterUpdateTaskParentComm = (taskId, parentId, oldParentId, $dyLi) => {
           if (!$li.hasClass('tLine')) {
             $li.addClass('tLine');
           }
+
           // 有母任务
           if ($liSingleTreeTask.find('.nodeSwitch.on,.nodeSwitch.off').length) {
             $liSingleTreeTask.find('.joinPrevLine').remove();
@@ -837,12 +873,15 @@ const updateTaskParentDeep = $li => {
   if (!$li.children('.tliLine').length && $li.parent().children('li').length > 1) {
     $li.prepend('<div class="tliLine" style="left:' + pLeft + 'px;"></div>');
   }
+
   const $joinPrevLine = $li.children('.singleTreeTask').find('.joinPrevLine');
+
   if ($joinPrevLine.length) {
     $joinPrevLine.css('left', pLeft);
   }
 
   const $ul = $li.children('ul');
+
   if ($ul.length) {
     $li
       .children('.singleTreeTask')
@@ -850,6 +889,7 @@ const updateTaskParentDeep = $li => {
       .css('left', deep * 20);
     const $lis = $ul.children('li');
     const subLength = $lis.length;
+
     for (let i = 0; i < subLength; i++) {
       updateTaskParentDeep($lis.eq(i));
     }
@@ -895,6 +935,7 @@ export const afterUpdateTaskStar = (taskId, hasStar) => {
   if (!getTrOrLi(taskId).find('.markTask.completeHook').length) {
     const $allCountTask = $('.aboutMeStar .allCountTask');
     let count = parseInt($allCountTask.text() || 0, 10);
+
     if (hasStar) {
       count = count + 1;
     } else {
@@ -913,8 +954,10 @@ export const afterAddTask = data => {
     Store.dispatch(addTask(data));
   } else {
     const parentTaskId = data.parentID;
+
     if (parentTaskId) {
       const $li = getTrOrLi(parentTaskId);
+
       if ($li.find('.icon-task-card').length > 0) {
         const $sumCount = $li.find('.subCount');
         $sumCount.text(parseInt($sumCount.text(), 10) + 1);
@@ -971,6 +1014,7 @@ export const updateFolderTop = (folderId, isTop, callback) => {
           // 重新获取元素
           $li = $(".folderList li[data-id='" + folderId + "']");
         }
+
         const topListLength = $('.topFolderList .folderList li').length;
 
         // 取消置顶
@@ -980,6 +1024,7 @@ export const updateFolderTop = (folderId, isTop, callback) => {
           if (topListLength === 1) {
             $('.topFolderList').remove();
           }
+
           $li.toggleClass('ThemeBGColor8', currentFolderId === folderId);
         } else {
           const $newLi = $li
@@ -1100,6 +1145,7 @@ export const updateFolderArchived = (projectId, folderId, pigeonhole, callback) 
         if (!checkIsProject(projectId)) {
           projectId = '';
         }
+
         let $li = $(".folderList li[data-id='" + folderId + "']");
         const $networkFolderList = $('.networkFolderList[data-projectid=' + projectId + ']');
 
@@ -1131,6 +1177,7 @@ export const updateFolderArchived = (projectId, folderId, pigeonhole, callback) 
 
           // 原本在项目文件夹中 若还是存在 则插入到原文件夹中
           const $file = $networkFolderList.find("li[data-fileid='" + fileId + "']");
+
           if ($file.length > 0) {
             $file.find('.projectFolderUl').prepend($li);
           } else if ($projectFolder.length) {
@@ -1144,6 +1191,7 @@ export const updateFolderArchived = (projectId, folderId, pigeonhole, callback) 
 
         // 隐藏归档项目
         const $pigeonholeFolderList = $networkFolderList.find('.pigeonholeFolder');
+
         if (!$pigeonholeFolderList.find('.commFolder').length) {
           $pigeonholeFolderList
             .removeClass('selectPigeonhole')
@@ -1230,6 +1278,7 @@ export const getLeftMenuCount = (filterUserId, projectId) => {
               $('#taskNavigator .myTask .newTip').attr('data-count', data.unreadTask);
               return;
             }
+
             $('#taskNavigator .myTask')
               .find('.allCountTask:first')
               .before('<span class="newTip"><span class="tipCircle circle"></span></span>')

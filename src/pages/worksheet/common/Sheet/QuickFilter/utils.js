@@ -16,6 +16,7 @@ export function formatFilterValues(controlType, values = []) {
       return { id: str };
     }
   }
+
   switch (controlType) {
     case WIDGETS_TO_API_TYPE_ENUM.USER_PICKER: // 人员
       return values.map(value => parse(value)).map(c => ({ accountId: c.id, fullname: c.name, avatar: c.avatar }));
@@ -144,6 +145,7 @@ export function handleConditionsDefault(conditions, controls) {
       condition.originalFilterType = condition.filterType;
       condition.filterType = FILTER_CONDITION_TYPE.DATEENUM;
     }
+
     const control = find(controls, { controlId: condition.controlId });
     if (!control) return condition;
     if (!isEmpty(condition.dynamicSource)) {
@@ -153,17 +155,22 @@ export function handleConditionsDefault(conditions, controls) {
         filterType: condition.filterType,
         dateRangeType: condition.dateRangeType,
       });
+
       if (dynamicResult && dynamicResult[0]) {
         condition = assign(condition, dynamicResult[0]);
       }
     }
+
     const values = condition.values;
+
     if (values[0] === 'isEmpty') {
       condition.filterType = 7;
     }
+
     if (control.type === WIDGETS_TO_API_TYPE_ENUM.SWITCH) {
       condition.value = 1;
     }
+
     return condition;
   });
 }

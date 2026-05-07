@@ -13,6 +13,7 @@ const ChildTableComp = connect(state => ({
   lastAction: state.lastAction,
 }))(props => {
   const { baseLoading } = props;
+
   if (baseLoading) {
     return (
       <div
@@ -23,6 +24,7 @@ const ChildTableComp = connect(state => ({
       ></div>
     );
   }
+
   return <ChildTable {...props} />;
 });
 export default class extends React.Component {
@@ -54,6 +56,7 @@ export default class extends React.Component {
     if (isFunction(get(this, 'props.control.setLoadingInfo'))) {
       this.props.control.setLoadingInfo('loadRows_' + this.props.control.controlId, false);
     }
+
     if (isFunction(this.unsubscribe)) {
       this.unsubscribe();
     }
@@ -63,11 +66,13 @@ export default class extends React.Component {
     const { onChange } = this.props;
     this.unsubscribe = this.store.subscribe(() => {
       const state = this.store.getState();
+
       if (get(state, 'lastAction.type') === 'LOAD_ROWS_COMPLETE') {
         this.store.waitListForLoadRows.forEach(fn => fn());
         this.store.waitListForLoadRows = [];
         return;
       }
+
       onChange({
         rows: state.rows,
         lastAction: state.lastAction,

@@ -55,10 +55,12 @@ export default function NumInput(props) {
     const value = event.target.value.trim();
     setCount((value || '0').replace(/[^\d]/g, ''));
   };
+
   const changeNum = num => {
     setCount(num);
     onChange(num);
   };
+
   const handleBlur = () => {
     changeNum(parseInt(countNum) > maxNum ? maxNum : parseInt(countNum) < minNum ? minNum : parseInt(countNum));
   };
@@ -67,6 +69,7 @@ export default function NumInput(props) {
     if (parseInt(countNum + 1) > maxNum) {
       return;
     }
+
     changeNum(parseInt(countNum + 1));
   };
 
@@ -74,6 +77,7 @@ export default function NumInput(props) {
     if (parseInt(countNum - 1) < minNum) {
       return;
     }
+
     changeNum(parseInt(countNum - 1));
   };
 

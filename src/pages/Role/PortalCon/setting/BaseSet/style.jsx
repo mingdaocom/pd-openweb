@@ -58,21 +58,6 @@ export const Wrap = styled.div`
     border-left: 0;
     border-right: 0;
   }
-  .noWX,
-  .WX {
-    min-width: 299px;
-    padding: 10px 16px;
-    background: var(--color-background-secondary);
-    border-radius: 6px;
-    a {
-      color: var(--color-primary);
-    }
-    &.WX {
-      a {
-        color: green;
-      }
-    }
-  }
   .exAccountSendCon {
     height: 36px;
     background: var(--color-background-secondary);

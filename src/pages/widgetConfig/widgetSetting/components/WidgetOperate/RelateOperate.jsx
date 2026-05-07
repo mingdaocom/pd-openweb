@@ -333,6 +333,7 @@ export default function RelateOperate(props) {
                   );
                   return;
                 }
+
                 onChange(
                   handleAdvancedSettingChange(data, {
                     allowbatch: '1',

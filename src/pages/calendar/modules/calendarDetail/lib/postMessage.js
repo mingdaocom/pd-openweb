@@ -61,6 +61,7 @@ export default function ({ members, address, description, allDay, start, end, ti
               alert(_l('请选择发送人员'), 3);
               return false;
             }
+
             var value = $('#postContent').val();
             var type = $('#btnSendType').attr('type');
             var op = '';

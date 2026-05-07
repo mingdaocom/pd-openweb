@@ -23,6 +23,7 @@ function EditRoleFolderDialog(props) {
       alert(_l('请输入名称'), 3);
       return;
     }
+
     organizeAjax
       .upsertOrgRoleGroup({
         projectId,
@@ -44,6 +45,7 @@ function EditRoleFolderDialog(props) {
             alert(_l('最多可添加50个分组'), 2);
             break;
         }
+
         res !== 2 && onClose();
         res === 1 && refresh();
       });

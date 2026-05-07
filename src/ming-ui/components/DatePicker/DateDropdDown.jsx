@@ -192,23 +192,28 @@ class DateDropdDown extends Component {
 
   handleCalendarOk = () => {
     const calendarProps = this.props.calendarProps;
+
     if (calendarProps && calendarProps.onOk) {
       calendarProps.onOk();
     }
+
     this.handleCloseRange();
   };
 
   handleCalendarClear = () => {
     const calendarProps = this.props.calendarProps;
+
     if (calendarProps && calendarProps.onClear) {
       calendarProps.onClear();
     }
+
     this.handleCloseRange();
   };
 
   handleCalendarSelect = dateValue => {
     this.setState({ dateValue, visibleRange: true });
     const calendarProps = this.props.calendarProps;
+
     if (calendarProps && calendarProps.onSelect) {
       calendarProps.onSelect(dateValue);
     }

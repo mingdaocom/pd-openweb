@@ -11,8 +11,9 @@ const integrationInto = {
   3: { iconClassName: 'workWeixinIcon', text: _l('企业微信登录') },
   6: { iconClassName: 'feishuIcon', text: _l('飞书登录') },
   lark: { iconClassName: 'feishuIcon', text: _l('Lark登录') },
-  7: { iconClassName: 'microsoftIcon', text: _l('Microsoft登录') },
+  7: { iconClassName: 'microsoftIcon', text: _l('Microsoft Entra 登录') },
 };
+
 export default function (props) {
   const {
     openLDAP,
@@ -41,6 +42,7 @@ export default function (props) {
   const isCanQQ = !isNetwork;
   const canChangeSysOrLDAP = openLDAP && isOpenSystemLogin && isNetwork;
   const isWeiXin = window.isWeiXin && !window.isWxWork && !window.platformENV.isOverseas && !window.platformENV.isLocal;
+
   //ldap || 平台
   const renderSysOrLDAPBtn = () => {
     const hasIcon = modeType === 1 && ldapIcon;
@@ -66,6 +68,7 @@ export default function (props) {
       </a>
     );
   };
+
   // sso
   const renderSsoBtn = () => {
     return (
@@ -79,12 +82,15 @@ export default function (props) {
       </a>
     );
   };
+
   //第三方集成登录
   const renderIntegrationBtn = () => {
     let style = {};
+
     if (customNameIcon?.iconUrl) {
       style = { backgroundImage: `url(${customNameIcon.iconUrl})` };
     }
+
     return (
       <a
         onClick={() => {
@@ -128,6 +134,7 @@ export default function (props) {
                 window.md_js.back({});
                 return;
               }
+
               onChange({ verifyType: verifyType === 'password' ? 'verifyCode' : 'password', password: '' });
             }}
           >

@@ -102,11 +102,13 @@ const HiddenInput = styled.input`
 function splitCsvRows(csvData, splitter) {
   // 预处理：检查是否是从Excel粘贴的数据（通常包含制表符分隔）
   const isExcelPaste = splitter === '\t' && csvData.includes('\t');
+
   // 如果是Excel粘贴且包含非标准CSV格式的双引号（如尺寸标记26"），使用简单的行分割
   if (isExcelPaste) {
     const rows = csvData.split(/\r\n|\n|\r/);
     return rows.filter(row => row.trim() !== '');
   }
+
   // 标准CSV解析逻辑（用于非Excel粘贴或标准CSV格式）
   let rows = [];
   let currentRow = '';
@@ -134,6 +136,7 @@ function splitCsvRows(csvData, splitter) {
       if (lastCharWasSplitter) {
         currentRow += splitter;
       }
+
       rows.push(currentRow);
       currentRow = '';
       lastCharWasSplitter = false;
@@ -147,6 +150,7 @@ function splitCsvRows(csvData, splitter) {
     if (lastCharWasSplitter) {
       currentRow += splitter;
     }
+
     rows.push(currentRow);
   }
 
@@ -163,6 +167,7 @@ function parseText(text, splitCharType = 1) {
       if (isExcelPaste) {
         return (line || '').split(splitter);
       }
+
       // 标准CSV解析
       return (line || '').split(splitter).map(cellValue => {
         // 处理引号包裹的内容
@@ -170,6 +175,7 @@ function parseText(text, splitCharType = 1) {
           // 去除首尾引号，并将两个连续的双引号替换为单个双引号
           return cellValue.replace(/^"/, '').replace(/"$/, '').replace(/""/g, '"');
         }
+
         return cellValue;
       });
     })
@@ -178,23 +184,29 @@ function parseText(text, splitCharType = 1) {
 
 function overrideData({ oldData, columnsCount, startRowIndex, startColumnIndex, isClear, changes = [[]] }) {
   const newData = _.cloneDeep(oldData);
+
   if (isClear) {
     newData[startRowIndex][startColumnIndex] = '';
     return newData;
   }
+
   let endRowIndex = startRowIndex + changes.length;
   let endColumnIndex = startColumnIndex + Math.max(...changes.map(row => row && row.length).filter(_.identity));
+
   if (endColumnIndex > columnsCount) {
     endColumnIndex = columnsCount;
   }
+
   for (let rowIndex = startRowIndex; rowIndex < endRowIndex; rowIndex++) {
     for (let columnIndex = startColumnIndex; columnIndex < endColumnIndex; columnIndex++) {
       if (!_.isArray(newData[rowIndex])) {
         newData[rowIndex] = new Array(columnsCount).fill(undefined);
       }
+
       newData[rowIndex][columnIndex] = changes[rowIndex - startRowIndex][columnIndex - startColumnIndex];
     }
   }
+
   return newData;
 }
 
@@ -241,6 +253,7 @@ function PasteEdit(props) {
     (index, value) => {
       const rowIndex = Math.floor(index / controls.length);
       const columnIndex = index % controls.length;
+
       try {
         const pastedData = parseText(value, splitCharType);
         const newData = overrideData({
@@ -251,10 +264,12 @@ function PasteEdit(props) {
           changes: pastedData,
           isClear: !value,
         });
+
         if (cacheStoreStack.current) {
           const newStack = cacheStoreStack.current.concat([newData]);
           cacheStoreStack.current = newStack.slice(newStack.length > 20 ? newStack.length - CACHE_STACK_LENGTH : 0);
         }
+
         setData(newData);
       } catch (err) {
         console.error(err);
@@ -272,6 +287,7 @@ function PasteEdit(props) {
       if (importDataActiveType !== 1) {
         return;
       }
+
       if (!_.isUndefined(activeIndex)) {
         updateCellDataByIndex(activeIndex, text);
       }
@@ -284,6 +300,7 @@ function PasteEdit(props) {
       if (isEditing) {
         return;
       }
+
       if (!_.isUndefined(activeIndex)) {
         updateCellDataByIndex(activeIndex, '');
       }
@@ -291,29 +308,37 @@ function PasteEdit(props) {
   );
   function switchCell(e, { ignoreEditing } = {}) {
     const isRight = e.key === 'ArrowRight' || e.key === 'Tab';
+
     if ((e.metaKey || e.ctrlKey) && e.key === 'z') {
       e.preventDefault();
       e.stopPropagation();
       (cacheStoreStack.current || []).pop();
       const newData = _.last(cacheStoreStack.current || []);
+
       if (newData) {
         setData(newData);
       }
+
       return;
     }
+
     if (isEditing && !ignoreEditing) {
       return;
     }
+
     if (!isEditing && !_.isUndefined(activeIndex) && e.key === 'Enter') {
       setIsEditing(true);
       return;
     }
+
     if (e.key === 'ArrowLeft' && activeIndex % controls.length === 0) {
       return;
     }
+
     if (isRight && (activeIndex + 1) % controls.length === 0) {
       return;
     }
+
     let newActiveIndex =
       activeIndex +
       ({
@@ -323,6 +348,7 @@ function PasteEdit(props) {
         ArrowRight: 1,
         Tab: 1,
       }[e.key] || 0);
+
     if ((e.metaKey || e.ctrlKey) && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) {
       const columnCount = controls.length;
       newActiveIndex =
@@ -330,14 +356,18 @@ function PasteEdit(props) {
           ? Math.floor(activeIndex / columnCount) * columnCount
           : Math.ceil((activeIndex + 1) / columnCount) * columnCount - 1;
     }
+
     if (newActiveIndex < 0) {
       return;
     }
+
     if (newActiveIndex > controls.length * (data.length + 1) - 1) {
       return;
     }
+
     setActiveIndex(newActiveIndex);
   }
+
   useKey(e => _.includes(['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Enter', 'z', 'Tab'], e.key), switchCell);
   return (
     <div>
@@ -438,6 +468,7 @@ function PasteEdit(props) {
                       if (e.keyCode !== 229) {
                         return;
                       }
+
                       e.stopPropagation();
                     }}
                   />
@@ -463,6 +494,7 @@ function PasteEdit(props) {
             if (_.isEmpty(valuedData)) {
               return;
             }
+
             onParsePaste(valuedData);
           }}
         >
@@ -507,6 +539,7 @@ export default function ImportData(props) {
                   alert(_l('请先完成文件上传'), 3);
                   return;
                 }
+
                 setImportDataActiveType(tab.value);
               }}
             >

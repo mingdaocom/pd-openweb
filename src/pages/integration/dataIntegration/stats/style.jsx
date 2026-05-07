@@ -15,7 +15,7 @@ export const Wrap = styled.div`
       width: 32%;
       margin-right:16%
       height: 120px;
-      background: var(--color-background-secondary);
+      background: var(--color-background-tertiary);
       border-radius: 4px;
       text-align: left;
       padding: 0 20px;
@@ -43,6 +43,10 @@ export const Wrap = styled.div`
     height: 207px;
     .chartBox {
       height: 207px;
+    }
+    .g2-tooltip {
+      background-color: var(--color-background-card) !important;
+      box-shadow: var(--shadow-sm) !important;
     }
     .loadingChart {
       position: absolute;

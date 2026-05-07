@@ -49,7 +49,9 @@ const getLangKey = function (done) {
         content = content.replace(/_l\([\n|\r\n]\s*/g, '_l(').replace(/,[\n|\r\n]\s*\)/g, ')');
         // _l('xxxx %0 xxxx %1', p1, p2)
         // let regStr = /(\[\[\[(.+?)(?:\|\|\|(.+?))*(?:\/\/\/(.+?))?\]\]\])|(_l\(['|"](.+?)['|"](['|"]?(\s*)?,(\s*)['|"]?(.+?))*\))/;
-        let regStr = /(\[\[\[(.+?)\]\]\])|(_l\(('(.+?)'|"(.+?)"|`(.+?)`)(['"]?(\s*)?,(\s*)['"]?(.+?))*\))/;
+        // 使用 [\s\S] 而非 .，否则参数跨行时（如链式 .sort().map()）整条 _l(...) 匹配失败、首参词条漏提
+        let regStr =
+          /(\[\[\[([\s\S]+?)\]\]\])|(_l\(('([\s\S]+?)'|"([\s\S]+?)"|`([\s\S]+?)`)(['"]?(\s*)?,(\s*)['"]?([\s\S]+?))*\))/;
 
         let reg = new RegExp(regStr, 'g');
         let reg1 = new RegExp(regStr);
@@ -60,7 +62,7 @@ const getLangKey = function (done) {
             if (groups) {
               let key = groups[2] || groups[5] || groups[6] || groups[7];
               if (key != 'undefined' && langKeys.indexOf(key) === -1) {
-                langKeys.push(key);
+                langKeys.push(key.trim());
               }
             }
           });

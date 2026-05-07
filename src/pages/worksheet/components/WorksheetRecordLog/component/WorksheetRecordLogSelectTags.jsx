@@ -45,6 +45,7 @@ function WorksheetRecordLogSelectTags(props) {
   const [Components, setComponents] = useState(null);
   const advancedSetting = _.get(control, ['advancedSetting']) || {};
   const isdecrypt = advancedSetting.isdecrypt;
+
   const clickHandle = (type, index) => {
     if (isMobile) return;
     setPreview(index);
@@ -93,27 +94,33 @@ function WorksheetRecordLogSelectTags(props) {
 
   const renderText = item => {
     let text = item;
+
     if (needPreview && text && ['[', '{'].includes(text[0])) {
       let sourceControlType = (control || {}).sourceControlType;
       let sourceControl = { ...(control || {}).sourceControl, type: sourceControlType };
+
       if ((!sourceControlType && control) || control.type === 29) {
         sourceControl = control.relationControls.find(l => l.attribute === 1) || control.relationControls[0];
       }
 
       text = getTitle(item, sourceControl);
     }
+
     if (control) {
       const { type, enumDefault } = control;
+
       if (type === 3) {
         let _value = enumDefault === 1 ? text.replace(/\+86/, '') : text;
         return showMaskData && _.indexOf(maskList, text) < 0 ? dealMaskValue({ ...control, value: _value }) : _value;
       }
+
       if (type === 35) {
         if (item === _l('未命名')) return item;
         const titleControl = control.relationControls.find(l => l.controlId === control.sourceTitleControlId);
         return titleControl ? renderTextCell({ ...titleControl, value: item }) || text : text;
       }
     }
+
     return showMaskData && _.indexOf(maskList, text) < 0 ? dealMaskValue({ ...control, value: text }) : text;
   };
 
@@ -136,6 +143,7 @@ function WorksheetRecordLogSelectTags(props) {
             if (needPreview) {
               clickHandle(listType, index);
             }
+
             if (showMaskData && isdecrypt === '1') {
               setMaskList(maskList.concat(item));
             }

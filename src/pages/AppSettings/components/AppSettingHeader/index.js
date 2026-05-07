@@ -69,7 +69,12 @@ export default function AppSettingHeader(props) {
           </div>
         )}
         {addBtnName ? (
-          <Button className={cx(`mLeft20 pLeft20 pRight20`, { needUpgrade })} type="primary" radius onClick={handleAdd}>
+          <Button
+            className={cx(`mLeft20 pLeft20 pRight20 hoverBgPrimaryDark`, { needUpgrade })}
+            type="primary"
+            radius
+            onClick={handleAdd}
+          >
             <i className={`icon icon-${addIcon ? addIcon : 'plus'} Font12 mRight5`} />
             {addBtnName}
             {needUpgrade && <UpgradeIcon />}

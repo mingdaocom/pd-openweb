@@ -16,6 +16,7 @@ const OPTIONS_DISPLAY = [
     text: _l('平铺'),
   },
 ];
+
 export default function MultiSelect(props) {
   const { data, onChange, globalSheetInfo, fromPortal, fromExcel } = props;
   const { checktype = '0', readonlyshowall } = getAdvanceSetting(data);

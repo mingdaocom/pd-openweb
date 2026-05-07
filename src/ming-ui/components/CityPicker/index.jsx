@@ -15,11 +15,9 @@ import '../less/CityPicker.less';
 const particularlyCity = ['110000', '120000', '310000', '500000', '810000', '820000'];
 
 const CascaderSelectWrap = styled.div`
-  background: var(--color-background-primary);
+  background: var(--color-background-card);
   border-radius: 3px;
-  box-shadow:
-    0 4px 20px rgba(0, 0, 0, 0.13),
-    0 2px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-xl);
   padding: 6px 0;
   z-index: 11;
   height: 211px;
@@ -41,7 +39,7 @@ const CascaderSelectWrap = styled.div`
       padding: 0 6px 0 12px;
       justify-content: space-between;
       &:hover {
-        background: rgba(0, 0, 0, 0.06);
+        background: var(--color-background-hover);
       }
       &.active {
         background: var(--color-primary-transparent);
@@ -205,15 +203,18 @@ export default function CityPicker(props) {
         function transformArray(arr, selectData = [], result = [], index = 0) {
           (arr || []).forEach(item => {
             const { childs, ...rest } = item;
+
             if (!result[index]) {
               result[index] = [];
             }
+
             result[index].push(rest);
 
             if (item.id === selectCode) {
               selectData.push(rest);
               return;
             }
+
             if (childs && childs.length > 0) {
               selectData.push(rest);
               transformArray(item.childs, selectData, result, index + 1);
@@ -321,6 +322,7 @@ export default function CityPicker(props) {
   const activeItemsScrollView = () => {
     setTimeout(() => {
       const items = document.querySelectorAll('.CascaderSelectWrap-List-Item.active');
+
       if (items.length > 0) {
         items.forEach(item => {
           item.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -462,6 +464,7 @@ export default function CityPicker(props) {
         </span>
       );
     }
+
     return content;
   };
 

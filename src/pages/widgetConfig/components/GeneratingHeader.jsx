@@ -42,7 +42,7 @@ const StatusBar = styled.div`
   height: 40px;
   border-radius: 20px;
   border: 1px solid var(--color-border-primary);
-  box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.16);
+  box-shadow: var(--shadow-lg);
   font-size: 13px;
   font-weight: bold;
   padding: 0 25px;

@@ -115,8 +115,8 @@ export default class SelectUserDropDown extends Component {
   addTelAndEmail = evt => {
     const { unique, updateSource, specialType } = this.props;
     const txt = evt.currentTarget.value.trim();
-    const accounts = _.cloneDeep(this.props.accounts);
-    const reg = specialType === 3 ? /^1[3456789]\d{9}$/ : /^[\w-]+(\.[\w-]+)*@[\w-]+(\.[\w-]+)*\.[\w-]+$/i;
+    const accounts = _.cloneDeep(this.props.accounts) || [];
+    const reg = specialType === 3 ? /(^1[3456789]\d{9}$)|(^\+\d+$)/ : /^[\w-]+(\.[\w-]+)*@[\w-]+(\.[\w-]+)*\.[\w-]+$/i;
     const members = [];
 
     if (evt.keyCode === 13) {
@@ -133,6 +133,7 @@ export default class SelectUserDropDown extends Component {
 
           updateSource({ accounts: unique ? members : accounts.concat(members) });
         }
+
         evt.currentTarget.value = '';
       } else {
         alert(specialType === 3 ? _l('输入的手机号码有误') : _l('输入的邮箱地址有误'), 2);
@@ -146,7 +147,7 @@ export default class SelectUserDropDown extends Component {
    * 添加普通成员
    */
   addMembers = evt => {
-    const accounts = _.cloneDeep(this.props.accounts);
+    const accounts = _.cloneDeep(this.props.accounts) || [];
     const { companyId, unique, updateSource, onClose } = this.props;
 
     evt.stopPropagation();
@@ -182,7 +183,7 @@ export default class SelectUserDropDown extends Component {
    * 添加部门
    */
   addDepartment = evt => {
-    const accounts = _.cloneDeep(this.props.accounts);
+    const accounts = _.cloneDeep(this.props.accounts) || [];
     const { companyId, unique, updateSource, onClose, isIncludeSubDepartment = false } = this.props;
 
     evt.stopPropagation();
@@ -239,7 +240,7 @@ export default class SelectUserDropDown extends Component {
    * 添加职位
    */
   addJob = evt => {
-    const accounts = _.cloneDeep(this.props.accounts);
+    const accounts = _.cloneDeep(this.props.accounts) || [];
     const { companyId, unique, updateSource, onClose } = this.props;
 
     evt.stopPropagation();
@@ -276,7 +277,7 @@ export default class SelectUserDropDown extends Component {
    * 选择应用包下的角色返回值
    */
   selectAppUsers = ({ appId, appName, roles }) => {
-    const accounts = _.cloneDeep(this.props.accounts);
+    const accounts = _.cloneDeep(this.props.accounts) || [];
     const { unique, updateSource, onClose } = this.props;
     const members = [];
 
@@ -303,7 +304,7 @@ export default class SelectUserDropDown extends Component {
    * 添加组织角色
    */
   selectRole = roles => {
-    const accounts = _.cloneDeep(this.props.accounts);
+    const accounts = _.cloneDeep(this.props.accounts) || [];
     const { unique, updateSource, onClose } = this.props;
     const ids = accounts.map(dept => dept.entityId);
 
@@ -338,7 +339,7 @@ export default class SelectUserDropDown extends Component {
     appType,
     actionId,
   }) => {
-    const accounts = _.cloneDeep(this.props.accounts);
+    const accounts = _.cloneDeep(this.props.accounts) || [];
     const { unique, updateSource, onClose } = this.props;
     const members = [];
 

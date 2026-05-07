@@ -230,6 +230,7 @@ class TaskDetail extends Component {
   showRelationControl = type => {
     const { taskId } = this.state;
     const { data } = this.props.taskDetails[taskId];
+
     const ajaxPost = keywords => {
       if (type === RELATION_TYPES.task) {
         return ajaxRequest.getTaskList_RelationParent({ taskID: taskId, keyword: keywords });
@@ -241,8 +242,10 @@ class TaskDetail extends Component {
         excludeTaskIDs: taskId,
       });
     };
+
     const ajaxDataFormat = data => {
       let sourceArray = [];
+
       if (type === RELATION_TYPES.task) {
         sourceArray = (data || []).map(item => {
           return {
@@ -269,6 +272,7 @@ class TaskDetail extends Component {
 
       return sourceArray;
     };
+
     const root = createRoot(document.createElement('div'));
 
     root.render(

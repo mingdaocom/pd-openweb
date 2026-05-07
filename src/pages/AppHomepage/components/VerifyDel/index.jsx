@@ -28,6 +28,7 @@ export default class VerifyDel extends Component {
   };
   componentDidMount() {
     const { para = {}, mode } = this.props;
+
     if (mode) {
       this.setState({
         delObj: para,

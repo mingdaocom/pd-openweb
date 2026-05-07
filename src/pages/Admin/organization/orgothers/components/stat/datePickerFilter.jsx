@@ -17,9 +17,11 @@ export default function DatePickerFilter(props) {
   const $ref = useRef(null);
   const formatDate = date => date.format('YYYY-MM-DD');
   let _endDate = formatDate(moment());
+
   const getDateFilter = id => {
     const today = formatDate(moment());
     const beginOfCurrentMonth = moment().startOf('M');
+
     switch (id) {
       case 'today':
         return { startDate: today, endDate: today };
@@ -36,10 +38,12 @@ export default function DatePickerFilter(props) {
         return { startDate: formatDate(moment().startOf('year')), endDate: today };
     }
   };
+
   const handleClick = id => {
     const data = getDateFilter(id);
     updateData(data);
   };
+
   return (
     <DatePickerFilterWrap ref={$ref}>
       {DATE_FILTER.map(({ id, text }) =>

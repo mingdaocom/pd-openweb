@@ -39,9 +39,11 @@ export default class AdminLeftMenu extends Component {
     const nav = _.find(menuList, item =>
       _.some(item.subMenuList, it => _.some(it.routes, ({ path }) => pathToRegexp(path).test(pathname))),
     );
+
     if (pathname.indexOf('home') > -1) {
       this.setState({ userExpand: true });
     }
+
     if (pathname.indexOf('home') === -1 && !_.isEmpty(nav)) {
       this.setState({ [`${nav.key}Expand`]: true });
     }
@@ -55,6 +57,7 @@ export default class AdminLeftMenu extends Component {
     const nav = _.find(menuList, item =>
       _.some(item.subMenuList, it => _.some(it.routes, ({ path }) => pathToRegexp(path).test(pathname))),
     );
+
     if (pathname.indexOf('home') === -1 && !_.isEmpty(nav)) {
       this.setState({ [`${nav.key}Expand`]: true });
     }
@@ -68,31 +71,50 @@ export default class AdminLeftMenu extends Component {
         params: { projectId },
       },
     } = this.props;
-    if (key === 'billinfo' && !window.platformENV.isPlatform) return;
-    if (key === 'weixin' && md.global.SysSettings.hideWeixin) return;
+
     if (
-      key === 'platformintegration' &&
-      md.global.SysSettings.hideWorkWeixin &&
-      md.global.SysSettings.hideDingding &&
-      md.global.SysSettings.hideFeishu &&
-      md.global.SysSettings.hideWelink
+      key === 'billinfo' &&
+      (window.platformENV.isLocal || window.platformENV.isOverseas) &&
+      !window.platformENV.isPlatform
     )
       return;
+    if (
+      key === 'weixin' &&
+      (window.platformENV.isLocal || window.platformENV.isOverseas) &&
+      md.global.SysSettings.hideWeixin
+    )
+      return;
+    if (
+      key === 'platformintegration' &&
+      (window.platformENV.isLocal || window.platformENV.isOverseas) &&
+      md.global.SysSettings.hideWorkWeixin &&
+      md.global.SysSettings.hideDingding &&
+      md.global.SysSettings.hideWelink &&
+      md.global.SysSettings.hideFeishu &&
+      md.global.SysSettings.hideLark &&
+      md.global.SysSettings.hideMicrosoftEntra
+    ) {
+      return;
+    }
 
     const isActive = () => {
       return _.some(routes, route => pathToRegexp(route.path).test(pathname));
     };
+
     let routeIndex = undefined;
     let featureType = getFeatureStatus(projectId, featureId);
+
     if (featureIds) {
       featureIds.forEach((l, i) => {
         let itemFeatureType = getFeatureStatus(projectId, l);
+
         if (itemFeatureType) {
           routeIndex === undefined && (routeIndex = i);
           featureType = featureType ? Math.min(itemFeatureType, featureType).toString() : itemFeatureType;
         }
       });
     }
+
     const route = routes[routeIndex || 0] || {};
     const toPath = compile(menuPath || route.path);
     const path =

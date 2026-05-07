@@ -169,6 +169,7 @@ export default class HistoryList extends Component {
    */
   discardAction() {
     const { processId, onRefreshAccumulation } = this.props;
+
     const discardFun = () => {
       Dialog.confirm({
         className: 'deleteApprovalProcessDialog',

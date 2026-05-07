@@ -36,9 +36,11 @@ export default function (props) {
               name: renderCellText({ ...control, value: data[control.controlId] }) || _l('未命名'),
             };
           }
+
           if (isSameType([9, 10, 11], props.controlInfo)) {
             return (props.controlInfo.options.find(ii => ii.key === data.key) || {}).key;
           }
+
           return data;
         } else {
           return o;

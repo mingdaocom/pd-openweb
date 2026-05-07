@@ -41,6 +41,7 @@ export default class UnusualContent extends Component {
       if (data) {
         alert(_l('申请已提交'));
       }
+
       this.setState({ applyJoinAppVisible: false });
     });
   };
@@ -160,6 +161,7 @@ export default class UnusualContent extends Component {
                   alert(_l('请前往市场操作续订'), 3);
                   return;
                 }
+
                 window.open(
                   `${md.global.Config.MarketUrl}/app/${appPkg.goodsId}?projectId=${appPkg.projectId}&purchaseRecordId=${appPkg.license.id}&buyTypeEnum=1&planType=${appPkg.license.planType}`,
                 );

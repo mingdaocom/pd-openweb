@@ -1,11 +1,13 @@
 const padZero = value => {
   return value < 10 ? `0${value}` : value.toString();
 };
+
 const isTimeEarly = (a, b) => {
   const _a = a.hour * 10000 + a.minute * 100 + a.second;
   const _b = b.hour * 10000 + b.minute * 100 + b.second;
   return _a < _b;
 };
+
 const isTimeLater = (a, b) => {
   const _a = a.hour * 10000 + a.minute * 100 + a.second;
   const _b = b.hour * 10000 + b.minute * 100 + b.second;
@@ -39,15 +41,19 @@ const Calender = {
   dateInRange: (date, min, max) => {
     const d = new Date(date.getFullYear(), date.getMonth(), date.getDate());
     let n = null;
+
     if (min && min.getFullYear) {
       n = new Date(min.getFullYear(), min.getMonth(), min.getDate());
     }
+
     let x = null;
+
     if (max && max.getFullYear) {
       x = new Date(max.getFullYear(), max.getMonth(), max.getDate());
     }
 
     let inRange = true;
+
     if ((n && d < n) || (x && d > x)) {
       inRange = false;
     }
@@ -60,15 +66,19 @@ const Calender = {
   monthInRange: (month, min, max) => {
     const d = new Date(month.getFullYear(), month.getMonth());
     let n = null;
+
     if (min && min.getFullYear) {
       n = new Date(min.getFullYear(), min.getMonth());
     }
+
     let x = null;
+
     if (max && max.getFullYear) {
       x = new Date(max.getFullYear(), max.getMonth());
     }
 
     let inRange = true;
+
     if ((n && d < n) || (x && d > x)) {
       inRange = false;
     }
@@ -162,21 +172,25 @@ const Calender = {
     const labelData = [];
     // date
     let dateData = [time.getFullYear().toString()];
+
     if (type === 'month') {
       dateData = [time.getFullYear().toString(), padZero(time.getMonth() + 1)];
     } else if (type === 'date' || type === 'datetime' || type === 'task') {
       dateData = [time.getFullYear().toString(), padZero(time.getMonth() + 1), padZero(time.getDate())];
     }
+
     labelData.push(dateData.join('-'));
 
     if (type === 'datetime' || type === 'task') {
       // time
       let timeData = [padZero(time.getHours())];
+
       if (timeType === 'minute') {
         timeData = [padZero(time.getHours()), padZero(time.getMinutes())];
       } else if (timeType === 'second') {
         timeData = [padZero(time.getHours()), padZero(time.getMinutes()), padZero(time.getSeconds())];
       }
+
       labelData.push(timeData.join(':'));
     }
 

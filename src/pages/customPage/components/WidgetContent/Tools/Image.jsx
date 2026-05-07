@@ -100,6 +100,7 @@ const ImageUploadWrap = styled.div`
 `;
 
 let isEdit = false;
+
 export default props => {
   const { toolItem, widget, renderItem } = props;
   const { type } = toolItem;
@@ -110,9 +111,8 @@ export default props => {
   const openMode = _.isNumber(componentConfig.openMode) ? componentConfig.openMode : 1;
   const fill = componentConfig.fill || 1;
   const [popoverVisible, setPopoverVisible] = useState(false);
-  // eslint-disable-next-line no-unused-vars
-  const [uploadLoading, setUploadLoading] = useState(false);
   const previewUrl = componentConfig.previewUrl || url;
+
   const handleChangeConfig = data => {
     props.handleToolClick(type, {
       componentConfig: {
@@ -121,6 +121,7 @@ export default props => {
       },
     });
   };
+
   const renderQiniuUpload = (className, content) => {
     return (
       <QiniuUpload
@@ -136,14 +137,14 @@ export default props => {
         onUploaded={(up, file) => {
           up.disableBrowse(false);
           const url = file.serverName + file.key;
-          handleChangeConfig({ url, previewUrl: file.url });
-          setUploadLoading(false);
+          handleChangeConfig({ url, previewUrl: file.url, imageUploadLoading: false });
         }}
         onAdd={up => {
-          setUploadLoading(true);
+          handleChangeConfig({ imageUploadLoading: true });
           up.disableBrowse();
         }}
         onError={(up, err, errTip) => {
+          handleChangeConfig({ imageUploadLoading: false });
           alert(errTip, 2);
         }}
       >
@@ -151,6 +152,7 @@ export default props => {
       </QiniuUpload>
     );
   };
+
   return (
     <Popover
       zIndex={1000}
@@ -230,9 +232,11 @@ export default props => {
             suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
             onChange={value => {
               const data = { action: value };
+
               if (value === 2) {
                 data.openMode = 1;
               }
+
               handleChangeConfig(data);
             }}
           >

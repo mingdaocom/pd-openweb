@@ -5,6 +5,7 @@ function getDefaultWidth(control) {
   if ((control.type === 2 || control.type === 1) && control.attribute === 1) {
     return 350;
   }
+
   return 150;
 }
 

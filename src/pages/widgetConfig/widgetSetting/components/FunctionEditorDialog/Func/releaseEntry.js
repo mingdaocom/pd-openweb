@@ -11,13 +11,16 @@ function runWithParams(control, formData) {
       console.log(err);
     }
   }
+
   const result = exec(control, formData, { type: 'lib' });
+
   if (!result.error) {
     return result.value;
   } else {
     if (typeof console !== 'undefined') {
       console.log(result.error);
     }
+
     return '';
   }
 }

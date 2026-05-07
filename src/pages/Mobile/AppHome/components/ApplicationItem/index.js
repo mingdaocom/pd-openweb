@@ -113,6 +113,7 @@ export default function ApplicationItem(props) {
             window.mobileNavigateTo(`/mobile/recordList/${id}/${sectionId}/${itemId}`);
             return;
           }
+
           addBehaviorLog('app', id); // 埋点
           if (createType === 1) {
             e.stopPropagation();
@@ -120,6 +121,7 @@ export default function ApplicationItem(props) {
             window.open(transferExternalLinkUrl(urlTemplate, projectId, id));
             return;
           }
+
           localStorage.removeItem('currentNavWorksheetId');
           safeLocalStorageSetItem('currentGroupInfo', JSON.stringify({}));
           window.mobileNavigateTo(`/mobile/app/${id}`);
@@ -169,12 +171,14 @@ export default function ApplicationItem(props) {
           if (id !== 'add') {
             addBehaviorLog('app', id); // 埋点
           }
+
           if (createType === 1) {
             e.stopPropagation();
             e.preventDefault();
             window.open(transferExternalLinkUrl(urlTemplate, projectId, id));
             return;
           }
+
           localStorage.removeItem('currentNavWorksheetId');
           safeLocalStorageSetItem('currentGroupInfo', JSON.stringify({}));
           onClick ? onClick() : window.mobileNavigateTo(`/mobile/app/${id}`);

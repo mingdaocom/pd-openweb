@@ -15,7 +15,8 @@
     margin-left: 5px;
     padding: 8px 5px !important;
     border-radius: 5px;
-    background-color: #f7f7f8;
+    color: var(--color-primary) !important;
+    background-color: rgb(152 194 255 / 10%);
   }
   .optionBtn {
     text-align: center;
@@ -81,6 +82,10 @@
 }
 
 .processRecordInfoPage {
+  // 兼容APP内访问落地页时底部安全区域背景色与记录详情背景色不一致
+  min-height: 100vh;
+  padding-bottom: calc(constant(safe-area-inset-bottom) - 20px);
+  padding-bottom: calc(env(safe-area-inset-bottom) - 20px);
   .recordScroll {
     margin-bottom: 50px;
   }

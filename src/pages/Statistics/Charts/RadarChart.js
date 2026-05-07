@@ -20,20 +20,24 @@ const formatChartData = (data, yaxisList, splitControlId, xaxesControlId, minVal
   if (!data.length) return [];
   let result = [];
   const { value } = data[0];
+
   const formatValue = value => {
     if (_.isNumber(minValue) && value < minValue) return minValue;
     if (_.isNumber(maxValue) && value > maxValue) return maxValue;
     return value;
   };
+
   value.forEach(item => {
     const name = item.x;
     data.forEach((element, index) => {
       const target = element.value.filter(n => n.x === name);
+
       if (target.length) {
         const { rename, emptyShowType } = element.c_id
           ? _.find(yaxisList, { controlId: element.c_id }) || {}
           : yaxisList[0];
         const hideEmptyValue = !emptyShowType && !target[0].v;
+
         if (!hideEmptyValue) {
           const value = target[0].v;
           result.push({
@@ -71,6 +75,7 @@ const formatChartData = (data, yaxisList, splitControlId, xaxesControlId, minVal
       });
     }
   }
+
   return result;
 };
 
@@ -99,6 +104,7 @@ export default class extends Component {
   componentWillReceiveProps(nextProps) {
     const { displaySetup, style } = nextProps.reportData;
     const { displaySetup: oldDisplaySetup, style: oldStyle } = this.props.reportData;
+
     // 显示设置
     if (
       displaySetup.showLegend !== oldDisplaySetup.showLegend ||
@@ -119,6 +125,7 @@ export default class extends Component {
       const config = this.getComponentConfig(nextProps);
       this.RadarChart && this.RadarChart.update(config);
     }
+
     if (nextProps.isLinkageData !== this.props.isLinkageData) {
       this.RadarChart && this.RadarChart.destroy();
       this.renderRadarChart(nextProps);
@@ -128,6 +135,7 @@ export default class extends Component {
     const { reportData } = props;
     const { displaySetup, style, xaxes, split } = reportData;
     const config = this.getComponentConfig(props);
+
     if (this.chartEl) {
       this.RadarChart = new this.RadarComponent(this.chartEl, config);
       this.isViewOriginalData = displaySetup.showRowList && props.isViewOriginalData;
@@ -138,11 +146,13 @@ export default class extends Component {
       if (this.isViewOriginalData || this.isLinkageData) {
         this.RadarChart.on('element:click', this.handleClick);
       }
+
       this.RadarChart.render();
     }
   }
   handleClick = ({ data, gEvent }) => {
-    const { xaxes, split, appId, reportId, name, reportType, style } = this.props.reportData;
+    const { reportData, isMobile } = this.props;
+    const { xaxes, split, appId, reportId, name, reportType, style } = reportData;
     const currentData = data.data;
     const param = {};
     const linkageMatch = {
@@ -152,9 +162,11 @@ export default class extends Component {
       reportType,
       filters: [],
     };
+
     if (_.isArray(currentData)) {
       return;
     }
+
     if (xaxes.cid) {
       const isNumber = isFormatNumber(xaxes.controlType);
       const value = currentData.originalId;
@@ -169,6 +181,7 @@ export default class extends Component {
         control: xaxes,
       });
     }
+
     if (split.controlId) {
       const isNumber = isFormatNumber(split.controlType);
       const value = currentData.groupKey;
@@ -176,6 +189,7 @@ export default class extends Component {
       if (!xaxes.cid) {
         linkageMatch.value = currentData.originalId;
       }
+
       linkageMatch.filters.push({
         controlId: split.controlId,
         values: [param[split.cid]],
@@ -185,15 +199,17 @@ export default class extends Component {
         control: split,
       });
     }
+
     if (_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length) {
       linkageMatch.onlyChartIds = style.autoLinkageChartObjectIds;
     }
+
     const isAll = this.isViewOriginalData && this.isLinkageData;
     this.setState(
       {
         dropdownVisible: isAll,
         offset: {
-          x: gEvent.x + 20,
+          x: gEvent.x + (isMobile ? -100 : 20),
           y: gEvent.y,
         },
         match: param,
@@ -203,6 +219,7 @@ export default class extends Component {
         if (!isAll && this.isViewOriginalData) {
           this.handleRequestOriginalData();
         }
+
         if (!isAll && this.isLinkageData) {
           this.handleAutoLinkage();
         }

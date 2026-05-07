@@ -130,6 +130,7 @@ class RelateRecordCards extends Component {
       this.mobileShowAddAsDropdown ? safeParse(advancedSetting.chooseshowids, 'array') : showControls,
     );
     let showLoadMore = true;
+
     try {
       if ((props.records || []).length >= props.count) {
         showLoadMore = false;
@@ -137,6 +138,7 @@ class RelateRecordCards extends Component {
     } catch (err) {
       console.error(err);
     }
+
     this.state = {
       sheetTemplateLoading: hasRelateControl,
       controls: hasRelateControl
@@ -157,15 +159,19 @@ class RelateRecordCards extends Component {
 
   componentDidMount() {
     const { count = 0, records = [], control = {} } = this.props;
+
     if (this.state.sheetTemplateLoading) {
       this.loadControls();
     }
+
     if (_.get(this, 'props.control.isSubList')) {
       const loadedCount = records.length;
+
       if (loadedCount < count) {
         this.loadMoreRecords(1);
       }
     }
+
     if (
       (_.get(window, 'shareState.isPublicForm') &&
         _.includes(['2', '5', '6'], _.get(this, 'props.control.advancedSetting.originShowType'))) ||
@@ -185,16 +191,19 @@ class RelateRecordCards extends Component {
 
   componentWillReceiveProps(nextProps) {
     const control = nextProps.control || {};
+
     if (this.props.control.dataSource !== nextProps.control.dataSource) {
       const {
         control: { relationControls = [], showControls = [] },
       } = nextProps;
       const hasRelateControl = this.hasRelateControl(relationControls, showControls);
+
       if (hasRelateControl || _.includes([FROM.H5_EDIT, FROM.RECORDINFO], control.from)) {
         this.setState({ sheetTemplateLoading: true });
         this.loadControls(nextProps);
       }
     }
+
     if (nextProps.flag !== this.props.flag) {
       if (
         (_.get(window, 'shareState.isPublicForm') &&
@@ -215,11 +224,13 @@ class RelateRecordCards extends Component {
         }
       }
     }
+
     if (!_.isEqual(nextProps.records, this.props.records)) {
       this.setState({ records: nextProps.records, count: nextProps.count });
     }
 
     const { pageIndex, showLoadMore, isLoadingMore } = this.state;
+
     if (nextProps.loadMoreRelateCards && !isLoadingMore && showLoadMore) {
       this.loadMoreRecords(pageIndex + 1);
     }
@@ -230,9 +241,11 @@ class RelateRecordCards extends Component {
       control: { showControls = [], advancedSetting },
     } = this.props;
     const { controls } = this.state;
+
     if (this.mobileShowAddAsDropdown) {
       showControls = safeParse(advancedSetting.chooseshowids, 'array');
     }
+
     return showControls.map(scid => _.find(controls, c => c.controlId === scid)).filter(identity);
   }
 
@@ -315,11 +328,14 @@ class RelateRecordCards extends Component {
   onQueryChange = () => {
     const { showMobileSelectRecord, previewRecord, showNewRecord } = this.state;
     const { recordId, controlId } = _.get(this.props, 'control') || {};
+
     if (showMobileSelectRecord) {
       const ele = document.querySelector(`.mobileSelectRecordWrap-${controlId}`);
+
       if (!ele) {
         return;
       }
+
       handleReplaceState('page', `mobileSelectRecord-${controlId}`, () => {
         this.setState({ showMobileSelectRecord: false });
         ele && document.body.removeChild(ele);
@@ -388,12 +404,14 @@ class RelateRecordCards extends Component {
             isLoadingMore: false,
             showLoadMore: newRecords.length < res.count && data.length > 0,
           };
+
           if (
             _.includes(['2', '5'], _.get(advancedSetting, 'showtype')) &&
             _.includes([FROM.H5_EDIT, FROM.RECORDINFO], from)
           ) {
             newState.count = res.count;
           }
+
           return newState;
         });
       });
@@ -450,6 +468,7 @@ class RelateRecordCards extends Component {
       addedIds: addedIds.filter(r => !_.includes(recordIds, r.rowid)),
       count: 0,
     };
+
     if (_.isFunction(cb)) {
       cb(changes);
     } else {
@@ -481,6 +500,7 @@ class RelateRecordCards extends Component {
     if (isRealCard) {
       newAdded = newAdded.slice(0, MAX_COUNT - count);
     }
+
     const newRecords = multiple ? _.uniqBy(newAdded.concat(records), r => r.rowid) : newAdded;
     this.setState(
       {
@@ -516,6 +536,7 @@ class RelateRecordCards extends Component {
         });
         return newItem;
       }
+
       return item;
     });
     this.setState(
@@ -554,6 +575,7 @@ class RelateRecordCards extends Component {
           rowid: recordId,
         }),
       };
+
       if (titleControl.type === 29) {
         try {
           const cellData = JSON.parse(titleControl.value);
@@ -563,6 +585,7 @@ class RelateRecordCards extends Component {
           defaultRelatedSheetValue.name = '';
         }
       }
+
       return {
         worksheetId,
         relateSheetControlId: controlId,
@@ -581,10 +604,12 @@ class RelateRecordCards extends Component {
     const { isRealCard } = this;
     // if (!$(evt.target).closest('.relateRecordBtn').length) return;
     let count = _.isUndefined(this.state.count) ? records.length : this.state.count;
+
     if (isRealCard && count >= MAX_COUNT) {
       alert(_l('最多关联%0条', MAX_COUNT), 3);
       return;
     }
+
     if (enumDefault2 !== 10 && enumDefault2 !== 11) {
       this.handleSelectRecord(this.handleAdd);
     } else if (this.allowNewRecord) {
@@ -676,6 +701,7 @@ class RelateRecordCards extends Component {
     const controlPermission = controlState(control, from);
     const allowRemove =
       (control.advancedSetting.allowcancel !== '0' || enumDefault === 1) && controlPermission.editable;
+
     if (isCard || this.mobileShowAddAsDropdown) {
       return (
         <div style={{ marginBottom: disabled ? 6 : 0 }}>
@@ -812,9 +838,11 @@ class RelateRecordCards extends Component {
       this;
     const isScanQR = getIsScanQR();
     const multiple = enumDefault === 2;
+
     if (sheetTemplateLoading) {
       return null;
     }
+
     const filterControls = getFilter({ control, formData, appId });
     const NewRecordComponent = MobileNewRecord;
     const { searchcontrol } = advancedSetting;

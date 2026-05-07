@@ -68,6 +68,7 @@ class DatePickerBase extends Component {
     if (this.state.mode === 'month') {
       // update cursor year
       const year = this.state.cursor.getFullYear();
+
       if (action === 'prev') {
         data.cursor = new Date(this.state.cursor);
         data.cursor.setFullYear(year - 1);
@@ -80,6 +81,7 @@ class DatePickerBase extends Component {
     if (this.state.mode === 'year') {
       // update cursor year
       const year = this.state.cursor.getFullYear();
+
       if (action === 'prev') {
         data.cursor = new Date(this.state.cursor);
         data.cursor.setFullYear(year - 10);

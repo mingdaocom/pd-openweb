@@ -60,6 +60,7 @@ export default class TimeCanvas extends Component {
         gunterGroupingScrollerEl.classList.remove('gunterGroupingLastMarginBottom');
       }
     }
+
     if (event) {
       chartScroll.refresh();
       groupingScroll && groupingScroll.refresh();

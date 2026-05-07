@@ -16,6 +16,7 @@ export default function widthProvider(GridOutComponent) {
         });
         this.resizeObserver.observe(this.wrapEl);
       }
+
       window.customPageWindowResize = this.onWindowResize;
       this.onWindowResize();
     }
@@ -24,12 +25,14 @@ export default function widthProvider(GridOutComponent) {
         // 增减左侧列表展开收起之间的宽度差值
         const width = nextProps.sheetListVisible ? -176 : 176;
         const countryLayerChart = document.querySelector('.countryLayerChart');
+
         if (countryLayerChart) {
           setTimeout(() => this.onWindowResize(width), 0);
         } else {
           this.onWindowResize(width);
         }
       }
+
       if (this.props.isFullscreen !== nextProps.isFullscreen && !nextProps.isFullscreen) {
         setTimeout(() => {
           this.onWindowResize();
@@ -50,6 +53,7 @@ export default function widthProvider(GridOutComponent) {
         layoutType === 'mobile'
           ? document.querySelector('.customPageContentWrap .layout')
           : document.querySelector('#componentsWrap .componentsWrap>.layout');
+
       if (node instanceof HTMLElement) {
         this.setState({ width: typeof width === 'number' ? node.offsetWidth + width : node.offsetWidth });
       }
@@ -58,6 +62,7 @@ export default function widthProvider(GridOutComponent) {
       if (!this.mounted) {
         return <div className={this.props.className} style={this.props.style} />;
       }
+
       return <GridOutComponent {...this.props} {...this.state} />;
     }
   };

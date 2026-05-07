@@ -19,6 +19,7 @@ import '../../../../styled/style.less';
 const dealEventActions = eventActions => {
   const { filters = [], actions = [] } = eventActions || {};
   const formatFilters = filters.filter(i => i.valueType !== FILTER_VALUE_ENUM.SEARCH_WORKSHEET);
+
   function dealActions() {
     const formatActions = actions.map(i => {
       const newActionItems = (i.actionItems || []).filter(a => a.type !== '2');
@@ -42,6 +43,7 @@ function CopyCustomEvent(props) {
 
   const currentControl = _.find(allControls, a => a.controlId === copyId);
   const customEvent = getAdvanceSetting(data, 'custom_event') || [];
+
   const getEventData = () => {
     return currentControl ? dealEventDisplay(currentControl, getEventDisplay(currentControl)) : [];
   };
@@ -58,11 +60,13 @@ function CopyCustomEvent(props) {
       const targetControlEvent = getAdvanceSetting(currentControl, 'custom_event') || [];
 
       let newEvent = [];
+
       if (targetControlEvent.some(t => t.eventType === copyEventType)) {
         newEvent = targetControlEvent.map(item => {
           if (item.eventType === copyEventType) {
             return { ...item, eventActions: (item.eventActions || []).concat([currentCopyEventActions]) };
           }
+
           return item;
         });
       } else {
@@ -88,6 +92,7 @@ function CopyCustomEvent(props) {
         });
         setWidgets(newWidgets);
       }
+
       alert(_l('复制成功'));
     }
   };
@@ -153,10 +158,12 @@ export default function MoreOptions(props) {
       setFocusKey(`${eventId}-${index}`);
       return;
     }
+
     if (key === 'copy') {
       setCopyVisible(true);
       return;
     }
+
     if (key === 'delete') {
       const newCustomEvent = customEvent.map(i => {
         if (i.eventId === eventId) {
@@ -166,6 +173,7 @@ export default function MoreOptions(props) {
             },
           });
         }
+
         return i;
       });
       onChange(handleAdvancedSettingChange(data, { custom_event: JSON.stringify(newCustomEvent) }));

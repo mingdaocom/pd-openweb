@@ -47,7 +47,7 @@ import './index.less';
 
 const HeaderWrap = styled.div`
   height: 50px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.24);
+  box-shadow: var(--shadow-md);
   z-index: 15;
   background-color: var(--color-background-primary);
   padding: 0 24px 0 16px;
@@ -482,6 +482,7 @@ class AppWorkflowList extends Component {
                   buriedUpgradeVersionDialog(appDetail.projectId, VersionProductType.recycle);
                   return;
                 }
+
                 this.setState({ showTrash: true });
               }}
             >

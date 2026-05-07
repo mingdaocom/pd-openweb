@@ -129,6 +129,7 @@ export default class ChooseWidget extends React.Component {
   }
   componentWillReceiveProps(nextProps) {
     const { writeControls = [], writeObject, relationControls, widgetList } = nextProps;
+
     if (
       this.props.writeControls !== writeControls ||
       this.props.relationControls !== relationControls ||
@@ -208,12 +209,14 @@ export default class ChooseWidget extends React.Component {
 
   renderCon = item => {
     const { closeList = [], writeControls = [] } = this.state;
+
     if (
       canNotForCustomWrite(item) || //排除表格类的显示方式
       ALL_SYS.includes(item.controlId) //排除系统字段
     ) {
       return '';
     }
+
     const ids = writeControls.map(o => o.controlId);
     const { child = [] } = item;
     const checkedChildNum = child.filter(o => ids.includes(o.controlId)).length;
@@ -293,6 +296,7 @@ export default class ChooseWidget extends React.Component {
               placeholder={_l('搜索')}
               onChange={event => {
                 const searchValue = _.trim(event.target.value);
+
                 if (!searchValue) {
                   this.setState({
                     keyWords: '',

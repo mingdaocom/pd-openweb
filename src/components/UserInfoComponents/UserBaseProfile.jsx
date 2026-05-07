@@ -27,7 +27,7 @@ const UserProjectInfoWrap = styled.div`
     padding: 3px 5px;
     border-radius: 4px;
     &:hover {
-      background: rgba(0, 0, 0, 0.05);
+      background: var(--color-background-hover);
     }
   }
   &.noBorder {

@@ -56,6 +56,7 @@ class CreateCustomBtnCon extends React.Component {
   componentWillReceiveProps(nextProps) {
     const btnDataInfoPre = this.props.btnDataInfo || {};
     const btnDataInfoNext = nextProps.btnDataInfo || {};
+
     if (!_.isEqual(btnDataInfoPre, btnDataInfoNext)) {
       this.initState(nextProps);
     }
@@ -81,11 +82,13 @@ class CreateCustomBtnCon extends React.Component {
       advancedSetting = {},
       isBatch,
     } = btnDataInfo;
+
     //    视图 创建按钮
     if (!isEdit && viewId && props.from !== 'formset') {
       let d = JSON.stringify([viewId]);
       advancedSetting = isListOption ? { listviews: d } : { detailviews: d };
     }
+
     advancedSetting = {
       ...advancedSetting,
       remarkrequired: isEdit ? advancedSetting.remarkrequired : '1',
@@ -161,10 +164,12 @@ class CreateCustomBtnCon extends React.Component {
   getProcessByTriggerId = (callback, getProcess) => {
     const { worksheetId } = this.props;
     const { btnId, clickType, workflowType } = this.state;
+
     if (btnId && worksheetId && (clickType === 1 || workflowType === 1 || getProcess)) {
       if (this.ajaxRequest) {
         this.ajaxRequest.abort();
       }
+
       this.ajaxRequest = process.getProcessByTriggerId({
         appId: worksheetId,
         triggerId: btnId,
@@ -192,6 +197,7 @@ class CreateCustomBtnCon extends React.Component {
     const { worksheetId } = this.props;
     const { dataSource = '' } =
       _.find(this.props.currentSheetInfo.template.controls, item => item.controlId === id) || {};
+
     if (id && dataSource) {
       sheetAjax
         .getWorksheetInfo({
@@ -272,14 +278,17 @@ class CreateCustomBtnCon extends React.Component {
     if (this.state.saveLoading) {
       return;
     }
+
     if (this.state.name === '') {
       // alert(_l('请填写按钮名称'));
       return;
     }
+
     if (this.state.isErrer) {
       alert(_l('按钮名称重名，请重新修改'), 3);
       return;
     }
+
     this.setState({
       saveLoading: true,
     });
@@ -362,6 +371,7 @@ class CreateCustomBtnCon extends React.Component {
         if (!btnId) {
           params = { ...params, btnId: data };
         }
+
         if (
           (this.state.workflowType === 1 || this.state.clickType === 1) &&
           this.state.isEdit &&
@@ -405,9 +415,11 @@ class CreateCustomBtnCon extends React.Component {
   renderFlowText = () => {
     const { workflowType, isBatch, isEdit } = this.state;
     const { isListOption } = this.props;
+
     if (workflowType === 2) {
       return '';
     }
+
     if (isEdit && !!this.state.flowName) {
       return (
         <div className="filterTextCon alignItemsCenter">
@@ -434,6 +446,7 @@ class CreateCustomBtnCon extends React.Component {
         </div>
       );
     }
+
     return (
       <div
         className={`filterTextCon createCon ${
@@ -490,6 +503,7 @@ class CreateCustomBtnCon extends React.Component {
     } = this.state;
     const dataControls = relationControl !== '' ? relationControls : widgetList;
     const isFillOutNull = writeObject !== 1 && !relationControl && writeType !== 1 && !addRelationControlId;
+
     const renderTips = () => {
       return (
         <div>
@@ -533,6 +547,7 @@ class CreateCustomBtnCon extends React.Component {
         </div>
       );
     };
+
     return (
       <div className="createBtnBox mTop25">
         <h5 className="textPrimary">{_l('按钮名称')}</h5>
@@ -659,6 +674,7 @@ class CreateCustomBtnCon extends React.Component {
                 dataControls.length > 0 &&
                 writeControls.map((item, i) => {
                   const writeControlsData = _.find(dataControls, items => items.controlId === item.controlId);
+
                   if (!writeControlsData) {
                     return '';
                   } else {
@@ -835,6 +851,7 @@ class CreateCustomBtnCon extends React.Component {
 
   renderColors = () => {
     const { color = '' } = this.state;
+
     const isColorTransparent = color => {
       return color.length === 9 && color.slice(-2) === '00';
     };
@@ -1004,7 +1021,6 @@ class CreateCustomBtnCon extends React.Component {
           className="flex"
           style={{
             overflow: 'auto',
-            backgroundColor: 'var(--color-background-primary)',
           }}
         >
           {this.renderCon()}
@@ -1106,6 +1122,7 @@ class CreateCustomBtnCon extends React.Component {
                 },
                 () => {
                   const { btnId } = this.state;
+
                   if (btnId) {
                     this.getProcessByTriggerId(null, true);
                   }

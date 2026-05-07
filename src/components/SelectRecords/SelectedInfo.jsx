@@ -35,6 +35,7 @@ export default function SelectedInfo({ selectedRowIds = [], summaryControls = []
         {summaryControls.map(control => {
           let summaryResult = getSummaryResult(selectedRecords, control, control.summaryType);
           const isPercent = get(control, 'advancedSetting.numshow') === '1';
+
           if (!isUndefined(summaryResult)) {
             if (includes([3, 4, 5, 6], control.summaryType)) {
               summaryResult = toFixed(summaryResult * (isPercent ? 100 : 1), control.dot);
@@ -44,6 +45,7 @@ export default function SelectedInfo({ selectedRowIds = [], summaryControls = []
               }
             }
           }
+
           return (
             <span key={control.controlId} className="summary_item">
               <span className="summary_title">{control.controlName}:</span>

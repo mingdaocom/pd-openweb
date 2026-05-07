@@ -74,6 +74,7 @@ const CheckboxWidgets = props => {
     useCallback(
       data => {
         const { triggerType } = data;
+
         switch (triggerType) {
           case 'trigger_tab_enter':
             if (checktype === '1') {
@@ -81,6 +82,7 @@ const CheckboxWidgets = props => {
             } else {
               setActiveIndex(1);
             }
+
             break;
           case 'trigger_tab_leave':
             if (checktype === '1') {
@@ -88,6 +90,7 @@ const CheckboxWidgets = props => {
             } else {
               setActiveIndex(0);
             }
+
             break;
           case 'ArrowLeft':
           case 'ArrowRight':
@@ -95,6 +98,7 @@ const CheckboxWidgets = props => {
             if (checktype === '1') {
               return;
             }
+
             const optionElements = checkRef.current.querySelectorAll('.ming.Checkbox');
             const options = [...optionElements];
 
@@ -115,6 +119,7 @@ const CheckboxWidgets = props => {
                 return prevIndex;
               });
             }
+
             break;
           default:
             break;
@@ -176,6 +181,7 @@ const CheckboxWidgets = props => {
       onChange('');
       return;
     }
+
     const otherIds = options.map(i => i.key);
     onChange(JSON.stringify(otherIds));
   };
@@ -184,10 +190,12 @@ const CheckboxWidgets = props => {
     displayOptions => {
       let itemTempWidth = 100;
       const boxWidth = width;
+
       if (boxWidth && direction === '0') {
         const num = Math.floor(boxWidth / Number(itemWidth)) || 1;
         itemTempWidth = 100 / (num > displayOptions.length ? displayOptions.length : num);
       }
+
       return `${itemTempWidth}%`;
     },
     [width, direction, itemWidth],
@@ -327,6 +335,7 @@ const CheckboxWidgets = props => {
               selectRef.current?.blur();
               return;
             }
+
             // 全选
             if (value.indexOf('select-all') > -1) {
               const canSelectOptions =
@@ -335,10 +344,12 @@ const CheckboxWidgets = props => {
               selectRef.current?.blur();
               return;
             }
+
             if (chooseothertype === '1') {
               const newKey = _.last(value);
               _.remove(value, item => (newKey === 'other' ? !item.startsWith('other') : item.startsWith('other')));
             }
+
             onChange(JSON.stringify(value));
             setKeywords('');
           }}

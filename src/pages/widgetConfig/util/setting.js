@@ -44,6 +44,7 @@ export const sortControlsByRowAndCol = (controls = []) => {
     if (a.row === b.row) {
       return a.col - b.col;
     }
+
     return a.row - b.row;
   });
 };
@@ -52,6 +53,7 @@ export const getControlsSorts = (data, controls, key = 'controlssorts') => {
   const parsedSorts = getAdvanceSetting(data, [key]) || [];
   // 显示字段没有配置，默认按原表row、col排序
   const defaultSorts = sortControlsByRowAndCol(controls).map(item => item.controlId);
+
   try {
     if (_.isEmpty(parsedSorts)) return defaultSorts;
     return parsedSorts;
@@ -104,6 +106,7 @@ export const getDisplayType = ({ from, type }) => {
       },
     ];
   }
+
   return DISPLAY_TYPE;
 };
 
@@ -154,16 +157,20 @@ export const canAdjustWidth = (widgets, data = {}) => {
 // 是否是正常配置
 export const isValidConfig = data => {
   const { type, dataSource, sourceControlId } = data;
+
   if (type === 30) {
     return !!sourceControlId;
   }
+
   if (type === 31) {
     return !!dataSource;
   }
+
   // 文本组合、汇总
   if (includes([32, 37], type)) {
     return !!dataSource;
   }
+
   return true;
 };
 
@@ -171,54 +178,69 @@ export const isValidConfig = data => {
 export const getVerifyInfo = (data, { controls }) => {
   const { type, dataSource, enumDefault, sourceControlId, advancedSetting = {} } = data;
   let isValid = true;
+
   if (type === 30) {
     if (!sourceControlId) {
       return { text: _l('没有配置显示字段'), isValid: false };
     }
   }
+
   if (type === 31) {
     if (!dataSource) {
       return { text: _l('没有配置计算控件'), isValid: false };
     }
+
     const quoteIds = (dataSource.match(/\$(\w+)\$/g) || []).map(item => item.replace(/\$/g, ''));
+
     if (!isEmpty(quoteIds) && quoteIds.some(id => isEmpty(getControlByControlId(controls, id)))) {
       return { text: _l('存在已删除的字段'), isValid: false };
     }
+
     // 自定义计算
     if (enumDefault === 1) {
       const parser = new Parser();
+
       // 替换controlId及最后一个括号前的逗号
       const replaceValue = value => {
         return value.replace(/\$(.+?)\$/g, () => ` ${_.uniqueId()} `).replace(/,(?=\))/g, '');
       };
+
       const res = parser.parse(replaceValue(dataSource));
+
       if (res.error) {
         return { text: _l('自定义公式有语法错误'), isValid: false };
       }
     }
   }
+
   // 文本组合、汇总
   if (includes([32, 37], type)) {
     if (!dataSource) {
       return { text: _l('没有配置字段'), isValid: false };
     }
   }
+
   if (type === 43) {
     const ocrMap = getAdvanceSetting(data, 'ocrmap') || [];
+
     if (ocrMap.length < 1 && advancedSetting.ocrapitype !== '1') {
       return { isValid: false, text: _l('没有配置映射字段') };
     }
   }
+
   if (type === 47) {
     const { enumDefault, enumDefault2, dataSource } = data;
+
     if (((enumDefault === 1 || enumDefault2 === 3) && !dataSource) || (enumDefault === 2 && enumDefault2 === 0)) {
       return { isValid: false, text: _l('没有配置数据源') };
     }
   }
+
   if (includes([49, 50], type)) {
     if (!dataSource) {
       return { isValid: false, text: _l('没有选择查询模版') };
     }
+
     if (
       (data.hasAuth && !advancedSetting.authaccount) ||
       (type === 50 && (!advancedSetting.itemsource || !advancedSetting.itemtitle))
@@ -226,12 +248,15 @@ export const getVerifyInfo = (data, { controls }) => {
       return { isValid: false, text: _l('有必填项未配置') };
     }
   }
+
   if (type === 6 && advancedSetting.showtype === '3' && !advancedSetting.numinterval) {
     return { isValid: false, text: _l('未配置步长') };
   }
+
   if (_.includes([9, 10, 11], type) && checkOptionsRepeat([data], false)) {
     return { isValid: false, text: _l('存在重复选项') };
   }
+
   return { isValid };
 };
 
@@ -248,10 +273,12 @@ export const isAutoNumberSelectableControl = item => {
  */
 export const isExceedMaxControlLimit = (controls = [], addCount = 0) => {
   const existedControls = controls.filter(item => !NO_CONTENT_CONTROL.includes(item.type)) || [];
+
   if (existedControls.length + addCount > MAX_CONTROLS_COUNT) {
     alert(_l('表单中添加字段数量已达上限（%0个)', MAX_CONTROLS_COUNT), 3);
     return true;
   }
+
   return false;
 };
 
@@ -296,6 +323,7 @@ export const parseOptionValue = value => {
     if (value && typeof value === 'string') {
       return JSON.parse(value);
     }
+
     return [];
   } catch (error) {
     console.log(error);
@@ -385,10 +413,12 @@ export const getShowFormat = data => {
         _.find(DATE_SHOW_TYPES, i => i.value === showformat),
         'format',
       );
+
   if (mode === 'year') {
     const yearShowType = _.get(showType.match(/(y|Y)+[年]{0,1}/), '0');
     return showformat === '1' ? _l('YYYY年') : yearShowType || formatMode;
   }
+
   // 年月需要特殊处理
   if (mode === 'month') {
     if (showformat === '1') return _l('YYYY年M月');
@@ -400,6 +430,7 @@ export const getShowFormat = data => {
     );
     return yearMonthShowType || formatMode;
   }
+
   if (type === 16) {
     const hasTime = /[H|h|m|s|S|Z]/.test(showType);
     const newShowType = isCustomFormat && hasTime ? showType : formatMode.replace('YYYY-MM-DD', showType);
@@ -415,9 +446,11 @@ export const getDateToEn = (showformat = '', value, originShowFormat = '') => {
   const customLang = showformat.indexOf('EN') > -1;
   const oldLocale = moment.locale();
   const isCustom = originShowFormat.indexOf('#EN#') > -1;
+
   if (customLang || isCustom) {
     moment.locale('en');
   }
+
   const result = value ? moment(value).format(dealFormat) : moment().format(dealFormat);
   moment.locale(oldLocale);
   return result;
@@ -433,6 +466,7 @@ export const getItemOptionWidth = (data, fromType) => {
       : (document.querySelector('#widgetDisplayWrap .rowsWrap') || {}).clientWidth;
   const widthSize = data.size / 12;
   const { direction = '2', width = '200' } = getAdvanceSetting(data);
+
   if (displayWidth && direction === '0') {
     // padding: 8
     const boxWidth = (displayWidth - 8 * 2) * widthSize;
@@ -441,6 +475,7 @@ export const getItemOptionWidth = (data, fromType) => {
     const num = Math.floor(optionsWidth / Number(width)) || 1;
     itemWidth = 100 / (num > options.length ? options.length : num);
   }
+
   return itemWidth;
 };
 
@@ -448,21 +483,27 @@ export const getItemOptionWidth = (data, fromType) => {
 export const getTitleStyle = (titleStyle = '0000') => {
   const [isBold, isItalic, isUnderline, isLineThrough] = titleStyle.split('');
   let styleText = '';
+
   if (Number(isBold)) {
     styleText = styleText + 'font-weight: bold !important;';
   }
+
   if (Number(isItalic)) {
     styleText = styleText + 'font-style: italic;padding-right:3px;';
   }
+
   if (Number(isUnderline)) {
     styleText = styleText + 'text-decoration: underline;';
   }
+
   if (Number(isLineThrough)) {
     styleText = styleText + 'text-decoration: line-through;';
   }
+
   if (Number(isUnderline) && Number(isLineThrough)) {
     styleText = styleText + 'text-decoration: underline line-through;';
   }
+
   return styleText;
 };
 
@@ -491,6 +532,7 @@ export const canSetWidgetStyle = (item = {}) => {
 export const getAreaHintText = data => {
   const { enumDefault, enumDefault2, advancedSetting = {} } = data;
   const chooserange = advancedSetting.chooserange || 'CN';
+
   if (enumDefault === 1) {
     return _.get(_.find(AREA_INTERNATION_DISPLAY_OPTION, { value: enumDefault2 }), 'text') || _l('请选择');
   } else {

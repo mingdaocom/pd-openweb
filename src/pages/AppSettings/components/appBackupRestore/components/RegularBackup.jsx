@@ -82,6 +82,7 @@ export default function RegularBackup(props) {
       editBackupTaskInfo({ ...backupTask, status: 1 });
       return;
     }
+
     Dialog.confirm({
       title: _l('开启定期备份'),
       description: _l('备份将于下个周期凌晨时段开始自动执行'),

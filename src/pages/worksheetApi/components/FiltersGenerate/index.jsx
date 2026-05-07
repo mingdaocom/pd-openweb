@@ -56,6 +56,7 @@ export default function FiltersGenerate(props) {
           ),
         };
       }
+
       return Object.fromEntries(Object.entries(item).filter(([, v]) => v !== undefined));
     });
     return formatValue;
@@ -77,6 +78,7 @@ export default function FiltersGenerate(props) {
         values: normalizeValues(filter.values),
       };
     }
+
     return filter;
   };
 
@@ -165,6 +167,7 @@ export default function FiltersGenerate(props) {
               </div>
               <div className="jsonViewWrapper">
                 <JsonView
+                  theme={window.themeMode === 'dark' ? 'monokai' : 'rjv-default'}
                   src={apiVersion === 'apiV3' ? apiV3Filters : filters}
                   displayDataTypes={false}
                   displayObjectSize={false}

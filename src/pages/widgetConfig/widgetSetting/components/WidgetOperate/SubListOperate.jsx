@@ -57,6 +57,7 @@ export default function SubListOperate(props) {
               setVisible(false);
               return;
             }
+
             onChange(handleAdvancedSettingChange(data, { allowadd: '1', allowsingle: '1' }));
           }}
         />

@@ -76,6 +76,7 @@ export default class Filter extends Component {
       type: null,
       startDate: '',
       endDate: '',
+      companyId: '',
     };
   }
   componentWillReceiveProps(nextProps) {
@@ -85,6 +86,7 @@ export default class Filter extends Component {
         this.getTodoListFilter(nextProps);
       }
     }
+
     if (
       nextProps.stateTab == TABS.COMPLETE &&
       (this.state.type == null || nextProps.param.type !== this.props.param.type)
@@ -93,10 +95,12 @@ export default class Filter extends Component {
         type: nextProps.param.type,
         operationType: {},
         createAccount: {},
+        companyId: '',
         status: {},
         searchValue: '',
       });
     }
+
     if (nextProps.stateTab !== TABS.COMPLETE) {
       if (
         (nextProps.visible !== this.props.visible && nextProps.visible) ||
@@ -108,6 +112,7 @@ export default class Filter extends Component {
             searchValue: '',
             processId: '',
             apkId: '',
+            companyId: '',
             startDate: '',
             endDate: '',
           },
@@ -125,6 +130,7 @@ export default class Filter extends Component {
     if (loading) {
       return;
     }
+
     this.setState({
       loading: true,
     });
@@ -146,33 +152,45 @@ export default class Filter extends Component {
   };
   getResetVisible = () => {
     const { stateTab } = this.props;
-    const { type, searchValue, createAccount, apkId, processId, operationType, status, startDate, endDate } =
+    const { type, searchValue, createAccount, apkId, companyId, processId, operationType, status, startDate, endDate } =
       this.state;
 
     if ([TABS.WAITING_APPROVE, TABS.WAITING_FILL, TABS.WAITING_EXAMINE].includes(stateTab)) {
-      return searchValue || !_.isEmpty(createAccount) || apkId || processId;
+      return searchValue || !_.isEmpty(createAccount) || apkId || companyId || processId;
     }
+
     if (stateTab === TABS.MY_SPONSOR) {
-      return searchValue || apkId || processId;
+      return searchValue || apkId || companyId || processId;
     }
+
     if (stateTab === TABS.COMPLETE) {
       if (type === -1) {
-        return searchValue || !_.isEmpty(operationType) || !_.isEmpty(createAccount) || apkId || (startDate && endDate);
+        return (
+          searchValue ||
+          !_.isEmpty(operationType) ||
+          !_.isEmpty(createAccount) ||
+          apkId ||
+          companyId ||
+          (startDate && endDate)
+        );
       }
+
       if (type === 5) {
-        return searchValue || !_.isEmpty(createAccount) || apkId || (startDate && endDate);
+        return searchValue || !_.isEmpty(createAccount) || apkId || companyId || (startDate && endDate);
       }
+
       if (type === 0) {
-        return searchValue || !_.isEmpty(status) || apkId || (startDate && endDate);
+        return searchValue || !_.isEmpty(status) || apkId || companyId || (startDate && endDate);
       }
     }
+
     return false;
   };
   handleClose = () => {
     this.props.handleChangeVisible();
   };
   handleChange = _.debounce(() => {
-    const { searchValue, createAccount, apkId, processId, status, startDate, endDate } = this.state;
+    const { searchValue, createAccount, apkId, processId, status, startDate, endDate, companyId } = this.state;
     const operationType = this.state.operationType.value;
 
     let newType = null;
@@ -196,6 +214,7 @@ export default class Filter extends Component {
       processId,
       startDate,
       endDate,
+      companyId: companyId || undefined,
     };
 
     this.props.onChange(param);
@@ -211,6 +230,7 @@ export default class Filter extends Component {
         status: {},
         startDate: '',
         endDate: '',
+        companyId: '',
       },
       this.handleChange,
     );
@@ -222,6 +242,7 @@ export default class Filter extends Component {
         if (item.app.id === id) {
           item.visible = !item.visible;
         }
+
         return item;
       }),
     });
@@ -235,6 +256,7 @@ export default class Filter extends Component {
         this.handleChange,
       );
     };
+
     quickSelectUser(this.owner, {
       showMoreInvite: false,
       isTask: false,
@@ -288,7 +310,7 @@ export default class Filter extends Component {
     const { createAccount } = this.state;
     return (
       <div className="mBottom16">
-        <div className="Font12 mBottom10">{_l('发起人')}</div>
+        <div className="Font13 mBottom10">{_l('发起人')}</div>
         {_.isEmpty(createAccount) ? (
           <div className="personPostBox" ref={owner => (this.owner = owner)}>
             <Icon
@@ -327,7 +349,7 @@ export default class Filter extends Component {
     const value = index !== -1 ? index : null;
     return (
       <div className="mBottom16">
-        <div className="Font12 mBottom10">{_l('处理结果')}</div>
+        <div className="Font13 mBottom10">{_l('处理结果')}</div>
         <Select
           value={value}
           placeholder={_l('请选择')}
@@ -352,7 +374,7 @@ export default class Filter extends Component {
     const value = index !== -1 ? index : null;
     return (
       <div className="mBottom16">
-        <div className="Font12 mBottom10">{_l('状态')}</div>
+        <div className="Font13 mBottom10">{_l('状态')}</div>
         <Select
           value={value}
           placeholder={_l('请选择')}
@@ -378,7 +400,7 @@ export default class Filter extends Component {
 
     return (
       <div className="mBottom16">
-        <div className="Font12 mBottom10">{_l('时间范围')}</div>
+        <div className="Font13 mBottom10">{_l('时间范围')}</div>
         {_.isEmpty(archivedItem) ? (
           <RangePicker
             className="dateInput w100"
@@ -433,12 +455,43 @@ export default class Filter extends Component {
       </div>
     );
   }
+  renderSelectProjects() {
+    const { companyId } = this.state;
+    const { projects } = md.global.Account;
+    return (
+      <div className="mBottom16">
+        <div className="Font13 mBottom10">{_l('组织')}</div>
+        <Select
+          value={companyId}
+          placeholder={_l('请选择')}
+          className="w100 selectWrapper"
+          suffixIcon={selectArrowIcon}
+          onChange={projectId => {
+            this.setState(
+              {
+                companyId: projectId,
+              },
+              this.handleChange,
+            );
+          }}
+        >
+          <Select.Option className="processOptionWrapper" value="">
+            {_l('全部')}
+          </Select.Option>
+          {projects.map(item => (
+            <Select.Option className="processOptionWrapper" value={item.projectId}>
+              {item.companyName}
+            </Select.Option>
+          ))}
+        </Select>
+      </div>
+    );
+  }
   renderTodoListFilter() {
     const { list, apkId, processId, loading } = this.state;
-
     return (
-      <div className="todoListFilter">
-        <div className="Font13 mBottom10 bold">{_l('应用/流程')}</div>
+      <div>
+        <div className="Font13 mBottom10">{_l('应用/流程')}</div>
         <div className="w100">
           {loading ? (
             <LoadDiv size="middle" />
@@ -500,7 +553,7 @@ export default class Filter extends Component {
     return (
       <div className={cx('wrapper flexColumn', { Hidden: !visible })}>
         <div className="header flexRow valignWrapper">
-          <div className="flex bold">{_l('筛选')}</div>
+          <div className="flex bold Font14">{_l('筛选')}</div>
           {resetVisible && (
             <div className="reset pointer" onClick={this.handleReset}>
               {_l('重置')}
@@ -517,6 +570,7 @@ export default class Filter extends Component {
               {[5, -1].includes(type) && this.renderAccount()}
               {type === -1 && this.renderResult()}
               {type === 0 && this.renderStatus()}
+              {this.renderSelectProjects()}
               <AppFilter
                 apkId={this.state.apkId}
                 onChange={(apkId, processId) => {
@@ -531,8 +585,13 @@ export default class Filter extends Component {
               />
             </Fragment>
           )}
-          {[TABS.WAITING_APPROVE, TABS.WAITING_FILL, TABS.WAITING_EXAMINE, TABS.MY_SPONSOR].includes(stateTab) &&
-            this.renderTodoListFilter()}
+          {[TABS.WAITING_APPROVE, TABS.WAITING_FILL, TABS.WAITING_EXAMINE, TABS.MY_SPONSOR].includes(stateTab) && (
+            <Fragment>
+              <div className="filterFivider" />
+              {this.renderSelectProjects()}
+              {this.renderTodoListFilter()}
+            </Fragment>
+          )}
         </div>
       </div>
     );

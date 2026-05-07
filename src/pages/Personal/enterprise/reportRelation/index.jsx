@@ -274,9 +274,11 @@ export default class ReportRelation extends Component {
 
   render() {
     const { allowStructureForAll, hasProjectAdminAuth, activeBar, loading } = this.state;
+
     if (loading) {
       return <LoadDiv />;
     }
+
     return (
       <div className="reportRelationEnterprise">
         <div className="reportHeader">

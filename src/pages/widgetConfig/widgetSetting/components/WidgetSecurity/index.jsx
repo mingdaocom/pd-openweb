@@ -103,6 +103,7 @@ export default function ControlMask(props) {
                   buriedUpgradeVersionDialog(globalSheetInfo.projectId, VersionProductType.dataEnctypt);
                   return;
                 }
+
                 setEncryptVisible(true);
               } else {
                 onChange({ encryId: '' });
@@ -135,6 +136,7 @@ export default function ControlMask(props) {
                 buriedUpgradeVersionDialog(globalSheetInfo.projectId, VersionProductType.dataEnctypt);
                 return;
               }
+
               setEncryptVisible(true);
             }}
             className="flex Border0"

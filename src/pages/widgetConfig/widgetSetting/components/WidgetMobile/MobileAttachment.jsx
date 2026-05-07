@@ -235,6 +235,7 @@ export default ({ from, data, onChange, globalSheetInfo, allControls = [] }) => 
               let fields = '';
               safeParse(defsource || '[]').forEach(item => {
                 const { cid, rcid, staticValue } = item;
+
                 if (cid) {
                   fields += rcid ? `$${cid}~${rcid}$` : `$${cid}$`;
                 } else {

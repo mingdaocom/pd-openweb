@@ -3,13 +3,11 @@ import { Col, Row } from 'antd';
 import { TinyColor } from '@ctrl/tinycolor';
 import cx from 'classnames';
 import _ from 'lodash';
-import { browserIsMobile } from 'src/utils/common';
 import { formatrChartValue, getChartColors, getStyleColor } from './common';
-
-const isMobile = browserIsMobile();
 
 const getControlMinAndMax = map => {
   const data = {};
+
   for (const item in map) {
     const targetValue = map[item].targetValue;
     data[item] = {
@@ -18,6 +16,7 @@ const getControlMinAndMax = map => {
       center: targetValue / 2,
     };
   }
+
   return data;
 };
 
@@ -44,6 +43,7 @@ class ProgressChart extends Component {
   componentWillReceiveProps(nextProps) {
     const { displaySetup, style } = nextProps.reportData;
     const { displaySetup: oldDisplaySetup, style: oldStyle } = this.props.reportData;
+
     if (
       displaySetup.magnitudeUpdateFlag !== oldDisplaySetup.magnitudeUpdateFlag ||
       displaySetup.showNumber !== oldDisplaySetup.showNumber ||
@@ -54,6 +54,7 @@ class ProgressChart extends Component {
       const { ProgressChartConfig } = this.getComponentConfig(nextProps);
       this.ProgressChart && this.ProgressChart.update(ProgressChartConfig);
     }
+
     if (
       displaySetup.showChartType !== oldDisplaySetup.showChartType ||
       style.columnCount !== oldStyle.columnCount ||
@@ -84,16 +85,20 @@ class ProgressChart extends Component {
     const size = Math.min(clientWidth, clientHeight);
     const percentValue = data.value / (data.targetValue || 1);
     const rule = _.get(colorRules[0], 'dataBarRule') || {};
+
     const titleFormatter = () => {
       if (showValueType == 1) {
         return formatrChartValue(data.value, false, yaxisList, null, false);
       }
+
       if (showValueType == 2) {
         const { ydot } = yaxisList[0];
         return `${(percentValue * 100).toFixed(ydot ? Number(ydot) : 2)} %`;
       }
+
       return `${formatrChartValue(data.value, false, yaxisList, null, false)}/${formatrChartValue(data.targetValue || 0, false, yaxisList)}`;
     };
+
     const getColor = () => {
       if (_.isEmpty(rule)) {
         return props.color;
@@ -108,6 +113,7 @@ class ProgressChart extends Component {
         return color || props.color;
       }
     };
+
     const color = getColor();
     const { Progress, RingProgress, Liquid } = this.g2plotComponent;
 
@@ -248,7 +254,7 @@ class ProgressChart extends Component {
     );
   }
   render() {
-    const { mobileCount = 1, layoutType, reportData } = this.props;
+    const { mobileCount = 1, layoutType, reportData, isMobile } = this.props;
     const { displaySetup, style } = reportData;
     const { showChartType } = displaySetup;
     const { columnCount = 1 } = style;

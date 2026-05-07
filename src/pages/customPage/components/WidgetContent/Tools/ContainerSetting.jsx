@@ -7,6 +7,7 @@ import DeleteConfirm from 'ming-ui/components/DeleteReconfirm';
 import { TabsSettingPopover } from './styled.js';
 
 let isEdit = false;
+
 export default props => {
   const { widgetType, highlight, widget, allComponents, toolItem, handleToolClick } = props;
   const { componentConfig = {} } = widget;
@@ -27,16 +28,19 @@ export default props => {
   const handleDeleteConfirm = tab => {
     const relevance = allComponents.filter(c => c.tabId === tab.id);
     const name = _l('标签');
+
     const onOk = () => {
       handleToolClick('delWidgetTab', { tabId: tab.id });
       handleChangeConfig({
         tabs: tabs.filter(n => n.id !== tab.id),
       });
     };
+
     if (!relevance.length) {
       onOk();
       return;
     }
+
     DeleteConfirm({
       clickOmitText: true,
       title: <div className="Bold">{_l('删除 “%0”', tab.name)}</div>,
@@ -63,10 +67,12 @@ export default props => {
               name,
             };
           }
+
           return n;
         }),
       });
     };
+
     return (
       <div className="flexRow valignWrapper mTop10 mBottom5" key={item.id}>
         <DragHandle>
@@ -106,12 +112,15 @@ export default props => {
 
   useEffect(() => {
     const app = document.querySelector('#app');
+
     const checkVisible = event => {
       if (event.target.classList.contains('icon-settings')) {
         return;
       }
+
       setPopoverVisible(false);
     };
+
     app.addEventListener('click', checkVisible, false);
     return () => {
       app.removeEventListener('click', checkVisible, false);

@@ -270,6 +270,7 @@ function SettingGroup(props) {
         moreUserLoading = false;
       });
   };
+
   const getGroupInfo = () => {
     setState({ loading: true });
     groupAjax.getGroupInfo({ groupId: groupID }).then(result => {
@@ -308,7 +309,7 @@ function SettingGroup(props) {
       .then(res => {
         const formatedData = existAccountHint(res);
 
-        if (formatedData.accountInfos.length) {
+        if (formatedData?.accountInfos?.length) {
           success('ADD_MEMBERS', {
             groupId: groupID,
             accounts: formatedData.accountInfos,
@@ -798,6 +799,7 @@ function SettingGroup(props) {
         return <div className="group-card">{_.get(groupInfo, item.key)}</div>;
     }
   };
+
   const renderContent = () => {
     return (
       <div className="flexColumn contentWrap">
@@ -841,9 +843,11 @@ function SettingGroup(props) {
             if (l.key === 2) {
               return true;
             }
+
             if (l.isAdmin) {
               return groupInfo.isAdmin;
             }
+
             return false;
           }).map(l => {
             const desc = groupInfo.isPost ? l.desc : l.chatDesc;
@@ -911,13 +915,16 @@ function SettingGroup(props) {
         )}
       />
     );
+
     const renderAction = () => {
       if (user.groupUserRole === 1 && user.isCreateUser) {
         return <span className="action">{_l('群主')}</span>;
       }
+
       if (user.groupUserRole === 1 && user.accountId === md.global.Account.accountId) {
         return <span className="action">{_l('管理员')}</span>;
       }
+
       if (groupInfo.isPost) {
         return DropdownCon;
       } else {
@@ -928,6 +935,7 @@ function SettingGroup(props) {
         ) : null;
       }
     };
+
     return (
       <div className="userItem valignWrapper">
         <UserHead

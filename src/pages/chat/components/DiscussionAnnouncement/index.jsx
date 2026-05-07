@@ -22,6 +22,7 @@ export default ({ session, onChangeIsPost }) => {
   const [visible, setVisible] = useState(false);
   const [orgId, setOrgId] = useState('');
   const [isDisabled, setIsDisabled] = useState(false);
+
   const checkProject = id => {
     expireDialogAsync(id)
       .then(() => {
@@ -31,6 +32,7 @@ export default ({ session, onChangeIsPost }) => {
         setIsDisabled(true);
       });
   };
+
   const updateGroup = () => {
     groupAjax
       .updateGroupToPost({

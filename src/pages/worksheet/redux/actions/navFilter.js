@@ -15,6 +15,7 @@ export const updateNavGroup = () => {
 
 let getNavGroupRequest = null;
 let preWorksheetIds = [];
+
 // 获取分组筛选的count
 export function getNavGroupCount() {
   return (dispatch, getState) => {
@@ -22,12 +23,15 @@ export function getNavGroupCount() {
     const { filters = {}, base = {}, quickFilter = {} } = sheet;
     const { appId, worksheetId, viewId } = base;
     const { filterControls, filtersGroup, keyWords, searchType } = filters;
+
     if (getNavGroupRequest && getNavGroupRequest.abort && preWorksheetIds.includes(`${worksheetId}-${viewId}`)) {
       getNavGroupRequest.abort();
     }
+
     if (!worksheetId && !viewId) {
       return;
     }
+
     preWorksheetIds.push(`${worksheetId}-${viewId}`);
     getNavGroupRequest = worksheetAjax.getNavGroup(
       getFilledRequestParams({

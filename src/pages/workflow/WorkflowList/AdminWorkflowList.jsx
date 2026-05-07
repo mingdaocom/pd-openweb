@@ -73,7 +73,7 @@ export default class AdminWorkflowList extends Component {
           ? localStorage.getItem('workflowTab')
           : 'workflowList',
     });
-    Config.setPageTitle(_l('工作流'));
+    Config.setPageTitle(_l('应用管理 - 工作流'));
   }
 
   postList = null;
@@ -163,10 +163,12 @@ export default class AdminWorkflowList extends Component {
   getAppList(projectId) {
     const { appList } = this.state;
     const { appPageIndex = 1, isMoreApp, loadingApp, keyword = '' } = this.state;
+
     // 加载更多
     if (appPageIndex > 1 && ((loadingApp && isMoreApp) || !isMoreApp)) {
       return;
     }
+
     this.setState({ loadingApp: true });
 
     appManagement
@@ -351,6 +353,7 @@ export default class AdminWorkflowList extends Component {
   refresh = () => {
     const { projectId } = this.props.match.params;
     const { apkId, enabled, processListType, isAsc, keyWords, pageIndex, sortId, activeTab } = this.state;
+
     if (activeTab !== 'workflowList') {
       this.workflowMonotor && this.workflowMonotor.refreshWorkflowMonitor();
     } else {
@@ -538,6 +541,7 @@ export default class AdminWorkflowList extends Component {
                 onPopupScroll={e => {
                   e.persist();
                   const { scrollTop, offsetHeight, scrollHeight } = e.target;
+
                   if (scrollTop + offsetHeight === scrollHeight) {
                     if (isMoreApp) {
                       this.getAppList(params.projectId);

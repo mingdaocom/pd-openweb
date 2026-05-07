@@ -139,10 +139,12 @@ class GDMap extends Component {
   setPosition(lng, lat, resetZoom = true) {
     const { distance } = this.props;
     const { zoom } = this.state;
+
     if (!this.compareDistance(lng, lat)) {
       this.setState({ currentLocation: undefined, defaultList: [] });
       return;
     }
+
     if (this._maphHandler) {
       this._maphHandler.setPosition(lng, lat, resetZoom ? zoom : this._maphHandler.map.getZoom());
 
@@ -227,10 +229,12 @@ class GDMap extends Component {
 
   setZoom = type => {
     const { currentLocation = {}, defaultLocation = {}, zoom } = this.state;
+
     if (zoom > 18 || zoom < 3) {
       this.setState({ zoom: zoom > 18 ? 18 : 3 });
       return;
     }
+
     this.setState({ zoom: type === 'plus' ? zoom + 1 : zoom - 1 }, () => {
       const { lng, lat } = _.get(currentLocation || defaultLocation, 'position') || {};
       this._maphHandler.setPosition(lng, lat, this.state.zoom);
@@ -369,6 +373,7 @@ class GDMap extends Component {
               </div>
             );
           }
+
           return null;
         })}
       </ScrollView>
@@ -377,6 +382,7 @@ class GDMap extends Component {
 
   renderMapContent() {
     const { customLocation, tab, currentLocation } = this.state;
+
     if (!tab) {
       return (
         <Fragment>
@@ -455,6 +461,7 @@ class GDMap extends Component {
                       this.setState({ locationFailedDialogVisible: false }, onClose);
                       return;
                     }
+
                     this.setState({ locationFailedDialogVisible: false });
                   }}
                 >

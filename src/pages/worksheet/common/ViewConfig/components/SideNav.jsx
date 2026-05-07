@@ -60,8 +60,10 @@ export default function SideNav(props) {
       data: moreSort,
     },
   ];
+
   const getHtml = type => {
     let btnCount = 0;
+
     if (type === 'ActionSet') {
       const listBtns = btnList.filter(
         o => safeParse(_.get(o, 'advancedSetting.listviews'), 'array').includes(props.viewId) || o.isAllView === 1,
@@ -72,8 +74,10 @@ export default function SideNav(props) {
       const isSheetView = viewTypeText === 'sheet';
       btnCount = (isSheetView ? listBtns.length : 0) + detailBtns.length;
     }
+
     let d = viewTypeConfig.find(o => o.type === type) || {};
     let da = (daConfig.find(o => o.type === type) || {}).data;
+
     if (type === 'FastFilter') {
       da = (da || []).filter(o => {
         if (!isOpenPermit(permitList.sysControlSwitch, currentSheetInfo.switches || [])) {
@@ -83,6 +87,7 @@ export default function SideNav(props) {
         }
       });
     }
+
     if (type === 'Filter') {
       let data = [];
       da = (da || []).map(o => {
@@ -94,6 +99,7 @@ export default function SideNav(props) {
       });
       da = data.filter(o => !!o);
     }
+
     return (
       <React.Fragment>
         <div className="titleTxt flex flexShrink0 flexRow">
@@ -113,6 +119,7 @@ export default function SideNav(props) {
       </React.Fragment>
     );
   };
+
   let hideLengthStr = (
     <React.Fragment>
       <div className="titleTxt flex flexShrink0 flexRow">
@@ -142,6 +149,7 @@ export default function SideNav(props) {
             if (viewTypeText === 'customize' && isDevCustomView) {
               actionList = viewTypeCustomList;
             }
+
             if (viewTypeText === 'structure') {
               actionList = baseSetList[viewTypeText].filter(o =>
                 _.get(view, 'advancedSetting.hierarchyViewType') === '3'
@@ -149,6 +157,7 @@ export default function SideNav(props) {
                   : !['TableSet', 'Show'].includes(o),
               );
             }
+
             if (viewTypeText === 'detail' && _.get(view, 'childType') === 1) {
               actionList = baseSetList[viewTypeText].filter(o => o !== 'CardSet');
             }
@@ -169,6 +178,7 @@ export default function SideNav(props) {
                   let hasNavGroup =
                     ['sheet', 'gallery', 'map'].includes(viewTypeText) ||
                     (viewTypeText === 'structure' && view.childType !== 2);
+
                   if (viewTypeText === 'customize') {
                     //插件视图的快速筛选和筛选列表根据视图配置展示
                     const { pluginInfo = {} } = view;
@@ -176,6 +186,7 @@ export default function SideNav(props) {
                     hasFastFilter = switchSettings.showFastFilter === '1';
                     hasNavGroup = switchSettings.showNav === '1';
                   }
+
                   if (
                     (!hasFastFilter && ['FastFilter'].includes(item.type)) ||
                     (!hasNavGroup && ['NavGroup'].includes(item.type)) ||
@@ -184,6 +195,7 @@ export default function SideNav(props) {
                   ) {
                     return '';
                   }
+
                   return (
                     <React.Fragment key={`viewBtnsLiItem_${o}_${n}`}>
                       {item.type === 'PluginSettings' && <p className="titileP"> {_l('开发')}</p>}

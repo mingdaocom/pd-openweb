@@ -71,7 +71,7 @@ const FormFooter = styled.div`
   padding-bottom: 24px;
 
   .info {
-    background-color: rgba(244, 67, 54, 0.05);
+    background-color: var(--color-error-bg);
     border-radius: 3px;
     padding: 8px 16px;
   }

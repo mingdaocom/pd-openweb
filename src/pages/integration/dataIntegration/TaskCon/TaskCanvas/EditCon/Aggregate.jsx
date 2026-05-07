@@ -61,6 +61,7 @@ export default function Aggregate(props) {
     let num = data.filter(item => item.id === id && item.aggFuncType === info.aggFuncType).length;
     return { ...info, alias: num > 0 ? `${alias}_${num}` : alias };
   };
+
   return (
     <WrapL>
       <div className="title Bold">{_l('分类汇总')}</div>
@@ -219,6 +220,7 @@ export default function Aggregate(props) {
           onChange={info => {
             // 枚举值：SUM（求和）、MAX（最大值）、MIN（最小值）、AVG（平均值）、COUNT（计数）、DISTINCT_COUNT（去重计数）
             const list = getAggregateData(info.jdbcTypeId, info.id === 'count');
+
             if (info.id === 'count') {
               setData({
                 aggregateFields: aggregateFields.concat({
@@ -245,6 +247,7 @@ export default function Aggregate(props) {
                 ),
               });
             }
+
             setState({
               popupVisible: true,
             });

@@ -49,10 +49,12 @@ export default class ProcessRecordInfo extends Component {
       .then(async data => {
         const [workItem, instance] = data;
         const appId = _.get(instance, 'app.id');
+
         if (!window[`langData-${appId}`]) {
           const langInfo = await homeAppApi.getAppLangInfo({
             appId,
           });
+
           if (langInfo && langInfo.appLangId && langInfo.version !== window[`langVersion-${appId}`]) {
             const lang = await appManagementApi.getAppLangDetail({
               appId,
@@ -63,6 +65,7 @@ export default class ProcessRecordInfo extends Component {
             window[`langVersion-${appId}`] = langInfo.version;
           }
         }
+
         // 落地页，调用 app 接口获取状态
         if (!isModal && appId) {
           homeAppApi

@@ -88,6 +88,7 @@ export default function WidgetDisplay(props) {
         </div>
       );
     }
+
     return (
       <Fragment>
         {controlNameCon}
@@ -108,7 +109,7 @@ export default function WidgetDisplay(props) {
   // 标签页，标签页表格单独展示
   if (fixedBottomWidgets(data)) {
     return (
-      <TitleContentWrap>
+      <TitleContentWrap titleStyle={titleStyle} titleColor={titlecolor}>
         <div className="tabHeaderTileWrap">
           <TabHeaderItem {...props} />
         </div>

@@ -140,6 +140,7 @@ const Wrap = styled.div`
     width: 94px;
   }
 `;
+
 export default function (props) {
   const { showRefreshLog, onClose } = props;
   const [{ list, id, show, loading, pageIndex, isAll, keyWord, type, status, time, user }, setState] = useSetState({
@@ -160,14 +161,18 @@ export default function (props) {
     if (isAll || loading) {
       return;
     }
+
     setState({ loading: true });
     let obj = {};
+
     if (time[0]) {
       obj.startDate = time[0].format('YYYY/MM/DD HH:mm');
     }
+
     if (time[1]) {
       obj.endDate = time[1].format('YYYY/MM/DD HH:mm');
     }
+
     Oauth2Ajax.getRefreshClientCredentialsLogs(
       {
         id: props.processId,
@@ -188,6 +193,7 @@ export default function (props) {
       });
     });
   };
+
   useEffect(() => {
     getRefreshClientCredentialsLogs();
   }, [pageIndex, keyWord, type, status, time, user]);
@@ -225,6 +231,7 @@ export default function (props) {
         if (!record.completeDate) {
           return '';
         }
+
         return `${moment(record.completeDate).diff(moment(record.createdDate), 'milliseconds')} ms`;
       },
     },
@@ -250,6 +257,7 @@ export default function (props) {
       },
     },
   ];
+
   const noDataRender = () => {
     return (
       <div className="noData TxtCenter">
@@ -260,10 +268,12 @@ export default function (props) {
       </div>
     );
   };
+
   const renderCon = () => {
     if (loading && pageIndex === 1) {
       return <LoadDiv />;
     }
+
     if (list.length <= 0) {
       return noDataRender();
     } else {

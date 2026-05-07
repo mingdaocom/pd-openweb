@@ -175,7 +175,7 @@ export default class Link extends Component {
         </div>
 
         <div className="mTop20 bold">{_l('获取链接对象')}</div>
-        <div className="textSecondary mTop5">{_l('当前流程中的节点对象')}</div>
+        <div className="Font13 textSecondary mTop5">{_l('当前流程中的节点对象')}</div>
 
         <SelectNodeObject
           appList={data.appList}
@@ -234,7 +234,7 @@ export default class Link extends Component {
               value={data.viewId}
               renderTitle={
                 !data.viewId || !views.length
-                  ? () => <span className="textSecondary">{_l('请选择')}</span>
+                  ? () => <span className="textPlaceholder">{_l('请选择')}</span>
                   : data.viewId && !selectView
                     ? () => <span className="errorColor">{_l('视图无效或已删除')}</span>
                     : () => <span>{selectView.text}</span>
@@ -291,6 +291,7 @@ export default class Link extends Component {
                   if (evt.type === 'compositionend') {
                     this.isOnComposition = false;
                   }
+
                   this.updatePassword(evt);
                 }}
               />

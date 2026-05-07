@@ -1,6 +1,6 @@
 import React, { Fragment, useState } from 'react';
 import cx from 'classnames';
-import _ from 'lodash';
+import _, { get } from 'lodash';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { Icon, Menu, MenuItem, SortableList } from 'ming-ui';
@@ -109,7 +109,9 @@ function FilterTitleItem(props) {
   } = props;
   const { name } = filter;
   const [moreMenuActive, setMoreMenuActive] = useState(false);
-  const canEdit = isCharge || filter.createAccountId === md.global.Account.accountId;
+  const canEdit =
+    (filter.type === FILTER_TYPE.PUBLIC ? isCharge : filter.createAccountId === md.global.Account.accountId) &&
+    !get(window, 'shareState.shareId');
   return (
     <FilterTitleItemCon
       className={cx(className, { active, moreMenuActive })}
@@ -224,6 +226,7 @@ function filterHasError(filter, controls) {
   if (filter.conditionsGroups) {
     return _.some(filter.conditionsGroups.map(gf => filterHasError(gf, controls)));
   }
+
   return !!(_.get(filter, 'conditions') || []).filter(c => !_.find(controls, { controlId: c.controlId })).length;
 }
 

@@ -22,9 +22,11 @@ class TaskEntrypoint extends Component {
   renderPageTitle = () => {
     const { pathname } = this.props.location;
     let moduleName = pathname.match(/\/apps\/task\/(\w+)/) ? pathname.match(/\/apps\/task\/(\w+)/)[1] : 'center';
+
     if (_.includes(['center', 'star', 'subordinate'], moduleName)) {
       return MODULE_TO_TITLE[moduleName];
     }
+
     const { folderName = '' } = this.props.folderSettings;
     return `${folderName}-任务`;
   };

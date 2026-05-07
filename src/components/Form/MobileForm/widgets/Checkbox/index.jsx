@@ -70,6 +70,7 @@ const CheckboxWidget = props => {
     if (chooseothertype === '1') {
       _.remove(checkIds, item => item.startsWith('other'));
     }
+
     const otherIds = options.filter(i => !_.find(checkIds, c => c.includes(i.key))).map(i => i.key);
     onSave(checkIds.concat(otherIds));
   };
@@ -198,7 +199,7 @@ const CheckboxWidget = props => {
           >
             <CheckboxWrap
               enumDefault2={enumDefault2}
-              className={cx('customFormControlBox controlMinHeight', {
+              className={cx('customFormControlBox bgInput controlMinHeight', {
                 controlEditReadonly: !formDisabled && checkIds.length && disabled,
                 controlDisabled: formDisabled,
               })}

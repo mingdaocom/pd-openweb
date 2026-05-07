@@ -93,6 +93,7 @@ function ConversationList({
       if (!silent) {
         setIsLoading(true);
       }
+
       chatbotAjax.getConversationList({ chatbotId }, { isReadableStream: false }).then(res => {
         setConversationList(res);
         setIsLoading(false);
@@ -104,11 +105,14 @@ function ConversationList({
     if (conversation.chatbotId !== chatbotId) {
       return;
     }
+
     setConversationList(prev => {
       const matchedConversation = find(prev, { conversationId: conversation.conversationId });
+
       if (!matchedConversation) {
         setNewCreatedConversationId(conversation.conversationId);
       }
+
       return matchedConversation
         ? prev.map(item =>
             item.conversationId === conversation.conversationId ? { ...item, title: conversation.title } : item,

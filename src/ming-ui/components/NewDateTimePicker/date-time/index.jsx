@@ -68,6 +68,7 @@ class DateTime extends Component {
     if (this.props.disabled) {
       return;
     }
+
     this.setState({
       menuOpened: !this.state.menuOpened,
       bounding: this._picker.getBoundingClientRect(),
@@ -78,10 +79,12 @@ class DateTime extends Component {
     let newValue = null;
     let label = '';
     const mode = this.props.timePicker ? 'datetime' : this.props.mode;
+
     if (value) {
       newValue = value;
       label = LibCalender.formatTime(value, mode, this.props.timeMode);
     }
+
     this.setState({
       value: newValue,
       label,
@@ -96,9 +99,11 @@ class DateTime extends Component {
     const mode = this.props.timePicker ? 'datetime' : this.props.mode;
 
     const pickerClassList = ['mui-datetime-picker'];
+
     if (this.props.disabled) {
       pickerClassList.push('disabled');
     }
+
     const pickerClassNames = pickerClassList.join(' ');
     let button = (
       <span
@@ -112,6 +117,7 @@ class DateTime extends Component {
         <span>{this.state.label}</span>
       </span>
     );
+
     if (this.props.children) {
       button = (
         <span

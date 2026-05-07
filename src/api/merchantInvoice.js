@@ -47,6 +47,8 @@ export default {
    * @param {string} args.taxNo 税号
    * @param {boolean} args.isOpenAppAuth 是否开启app节点授权
    * @param {array} args.authAppIds 授权的应用id集合
+   * @param {boolean} args.isOpenRemark 是否开启发票备注展示
+   * @param {array} args.invoiceRemarkTypes 发票备注展示配置集合
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -154,6 +156,10 @@ export default {
    * @param {} args.invoiceType
    * @param {string} args.orderId 支付单号
    * @param {string} args.email email 发送邮件
+   * @param {string} args.bankName 开户行名称
+   * @param {string} args.bankCode 开户行行号
+   * @param {string} args.address 地址信息
+   * @param {string} args.phoneNumber 电话号码
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -220,6 +226,8 @@ export default {
    * @param {} args.invoiceOutputType
    * @param {string} args.startCreateTime
    * @param {string} args.taxNo
+   * @param {boolean} args.isBlue
+   * @param {boolean} args.isFastRed
    * @param {string} args.taxPayerNo
    * @param {} args.status
    * @param {} args.invoiceType
@@ -299,6 +307,19 @@ export default {
     return mdyAPI('MerchantInvoice', 'SyncInvoice', args, options);
   },
   /**
+   * 发票快捷冲红
+   * @param {Object} args 请求参数
+   * @param {string} args.projectId 组织id
+   * @param {string} args.orderId
+   * @param {string} args.remark 冲红的原因备注
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  fastRed: function (args, options = {}) {
+    return mdyAPI('MerchantInvoice', 'FastRed', args, options);
+  },
+  /**
    * 导出开票数据
    * @param {Object} args 请求参数
    * @param {string} args.invoiceId
@@ -307,6 +328,8 @@ export default {
    * @param {} args.invoiceOutputType
    * @param {string} args.startCreateTime
    * @param {string} args.taxNo
+   * @param {boolean} args.isBlue
+   * @param {boolean} args.isFastRed
    * @param {string} args.taxPayerNo
    * @param {} args.status
    * @param {} args.invoiceType

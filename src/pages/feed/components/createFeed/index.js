@@ -52,6 +52,7 @@ export default function (options) {
     },
     handleOpen() {
       let $Attachment_updater = $('[targetdiv="#MDUpdater_Attachment_updater"]');
+
       if (!$Attachment_updater.hasClass('ThemeColor3')) {
         $Attachment_updater.click();
         MDUpdater.options.filesRender = true;
@@ -109,6 +110,7 @@ export default function (options) {
       if (defaultAttachmentData.length) {
         MDUpdater.options.attachmentData = defaultAttachmentData;
       }
+
       if (defaultKcAttachmentData.length) {
         MDUpdater.options.kcAttachmentData = defaultKcAttachmentData;
       }
@@ -121,6 +123,7 @@ export default function (options) {
       if (!options) {
         options = {};
       }
+
       if (clearCallback) {
         MDUpdater.options.callback = function () {};
       }
@@ -133,9 +136,11 @@ export default function (options) {
           $mdUpdaterTextareaUpdater.val(_l('知会工作是一种美德') + '...').addClass('textTertiary');
         }
       }
+
       if (MDUpdater.options.defaultPostType !== 9) {
         $('#MDUpdater_hidden_UpdaterType').val(MDUpdater.options.postType.post);
       }
+
       $("div.MDUpdater a[targetdiv='#MDUpdater_Attachment_updater']")
         .removeClass('ThemeColor3')
         .addClass('textPlaceholder');
@@ -240,6 +245,7 @@ export default function (options) {
             alert(_l('投票项内容不能为空'), 3);
             return;
           }
+
           // 验证投票是否有选项
           rData.voteOptions = voteData.voteOptions;
           rData.voteOptionFiles = voteData.voteOptionFiles;
@@ -249,6 +255,7 @@ export default function (options) {
           rData.voteAnonymous = voteData.voteAnonymous;
           rData.voteVisble = voteData.voteVisble;
         }
+
         rData.appId = MDUpdater.options.appId;
 
         // 判断群组
@@ -275,21 +282,25 @@ export default function (options) {
               alert(_l('发布动态失败'), 2);
               return;
             }
+
             if (MDUpdater.options.createShare) {
               if (window.location.pathname.indexOf('/feed') > -1) {
                 alert(_l('发布成功'));
                 return false;
               }
+
               createShare({
                 linkURL: md.global.Config.WebUrl + 'feeddetail?itemID=' + result.post.postID,
                 content: _l('动态创建成功'),
               });
             }
+
             if (MDUpdater.options.callback) {
               MDUpdater.options.callback(result.post);
             } else {
               alert(_l('分享成功'));
             }
+
             $mdUpdaterTextareaUpdater.val('');
             $mdUpdaterTextareaUpdater.get(0).reset();
             $mdUpdaterTextareaUpdater.get(0).clearStore();
@@ -331,6 +342,7 @@ export default function (options) {
         if (MDUpdater.options.postMsg) {
           $('#MDUpdater_textarea_Updater').val(MDUpdater.options.postMsg);
         }
+
         MDUpdater.bindEvent();
       }, 200);
     },
@@ -369,6 +381,7 @@ export default function (options) {
           ) {
             $mdUpdaterTextareaUpdater.val('');
           }
+
           $mdUpdaterTextareaUpdater.removeClass('textTertiary');
         })
         .blur(function () {
@@ -494,6 +507,7 @@ export default function (options) {
           ) {
             $('#MDUpdater_textarea_Updater').val(langUploadFiles).addClass('textTertiary');
           }
+
           MDUpdater.render();
         } else if (targetDivID == '#MDUpdater_Link_updater') {
           $('#MDUpdater_Link_updater').show();
@@ -531,6 +545,7 @@ export default function (options) {
         } else {
           $('#MDUpdater_hidden_UpdaterType').val(MDUpdater.options.postType.post);
         }
+
         $(targetDivID).show(0, function () {});
         // 关闭按钮
         if (targetDivID != '#MDUpdater_Video_updater') $('#mdUpdateCloseContainer').show();
@@ -580,6 +595,7 @@ export default function (options) {
               alert('链接提取失败', 3);
               data = null;
             }
+
             MDUpdater.options.linkViewData = data;
             $el.val(_l('预览')).attr('disabled', false).removeClass('Disabled');
             $btnShare.attr('disabled', false).removeClass('Disabled');
@@ -596,6 +612,7 @@ export default function (options) {
       if (MDUpdater.options.defaultPostType == MDUpdater.options.postType.vote) {
         $("div.MDUpdater a[targetDiv='#MDUpdater_Vote_updater']").click();
       }
+
       if (MDUpdater.options.defaultAttachmentData.length + MDUpdater.options.defaultKcAttachmentData.length) {
         // $("div.MDUpdater a[targetDiv='#MDUpdater_Attachment_updater']").click();
         $('#MDUpdater_hidden_UpdaterType').val(9);

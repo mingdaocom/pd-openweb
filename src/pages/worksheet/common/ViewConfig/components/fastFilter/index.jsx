@@ -101,19 +101,23 @@ export default function FastFilter(params) {
   const handleSortEnd = list => {
     updateView(list);
   };
+
   const onEdit = id => {
     setFastFilter(true, id);
     setShowAddCondition(false);
   };
+
   const onDelete = controlId => {
     const ids = safeParse(requiredcids, 'array');
     const data = fastFilters.filter(o => o.controlId !== controlId);
+
     if (ids.includes(controlId)) {
       updateView(data, { requiredcids: JSON.stringify(ids.filter(o => o !== controlId)) });
     } else {
       updateView(data);
     }
   };
+
   const updateView = (fastFilters, advanced) => {
     let data =
       fastFilters.length > 0
@@ -140,9 +144,11 @@ export default function FastFilter(params) {
       }),
     );
   };
+
   const addFastFilter = data => {
     const d = getSetDefault(data);
     let dd = fastFilters.concat(d);
+
     if (fastFilters.length <= 0 && dd.length === 1) {
       setShowAddCondition(false);
       setTimeout(() => {
@@ -151,6 +157,7 @@ export default function FastFilter(params) {
     } else {
       setShowAddCondition(undefined);
     }
+
     updateView(dd);
     setFastFilter(false, data.controlId);
   };
@@ -234,6 +241,7 @@ export default function FastFilter(params) {
                       if (item.value === 'all') {
                         return <div className={'itemText Hand forAll flexRow alignItemsCenter'}>{item.text}</div>;
                       }
+
                       const isCur = !!safeParse(requiredcids, 'array').includes(item.value);
                       return (
                         <div
@@ -252,6 +260,7 @@ export default function FastFilter(params) {
                     value={safeParse(requiredcids, 'array').length <= 0 ? undefined : safeParse(requiredcids, 'array')}
                     onChange={value => {
                       let data = [];
+
                       if (!value) {
                         data = [];
                       } else if (value == 'all') {
@@ -261,6 +270,7 @@ export default function FastFilter(params) {
                       } else {
                         data = [...safeParse(requiredcids, 'array'), value];
                       }
+
                       updateAdvancedSettingWithEitAdKeys({
                         requiredcids: JSON.stringify(data),
                       });

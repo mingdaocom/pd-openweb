@@ -24,7 +24,9 @@ function saveLastPos(root, folder) {
   if (typeof currentRoot !== 'object' && root !== 1) {
     return;
   }
+
   let rootNode;
+
   if (typeof currentRoot === 'object') {
     rootNode = {
       id: root.id,
@@ -38,6 +40,7 @@ function saveLastPos(root, folder) {
       name: _l('我的文件'),
     };
   }
+
   const uploadedPos = {
     rootFolder: rootNode,
     node: folder
@@ -58,29 +61,38 @@ function saveLastPos(root, folder) {
 /** 打开上传助手 */
 export function handleOpenUploadAssistant(args) {
   const { currentFolder, currentRoot, kcUsage, isRecycle, addUsage, reloadList } = args;
+
   if (kcUsage && kcUsage.used >= kcUsage.total) {
     alert(_l('已达到本月上传流量上限'), 3);
     return;
   }
+
   let id = currentFolder && !_.isEmpty(currentFolder) ? currentFolder.id : undefined;
   const rootId = typeof currentRoot === 'object' ? currentRoot.id : undefined;
+
   if (rootId && !id) {
     id = rootId;
   }
+
   const uploadLocation = { parentId: id, rootId };
+
   if (currentFolder && !_.isEmpty(currentFolder)) {
     uploadLocation.position = currentFolder.position;
   } else if (typeof currentRoot === 'object') {
     uploadLocation.position = '/' + currentRoot.id;
   }
+
   if (!window.uploadAssistantWindow || window.uploadAssistantWindow.closed) {
     let url = '/apps/kcupload';
+
     if (window.isMDClient || window.isEdge) {
       url = url + '?uploadLocation=' + encodeURIComponent(JSON.stringify(uploadLocation));
     }
+
     if (window.isMDClient) {
       url = url + '&isMDClient=true';
     }
+
     const name = 'uploadAssistant';
     const iTop = (window.screen.availHeight - 660) / 2; // 获得窗口的垂直位置;
     const iLeft = (window.screen.availWidth - 930) / 2; // 获得窗口的水平位置;
@@ -89,6 +101,7 @@ export function handleOpenUploadAssistant(args) {
   } else {
     window.uploadAssistantWindow.focus();
   }
+
   if (window.uploadAssistantWindow) {
     if (window.uploadAssistantWindow.setUploadLocation) {
       window.uploadAssistantWindow.setUploadLocation(uploadLocation);
@@ -96,14 +109,17 @@ export function handleOpenUploadAssistant(args) {
       window.uploadAssistantWindow.uploadLocation = uploadLocation;
     }
   }
+
   window.reloadNodeList = debounce((uploadRootId, uploadParentId, fsize) => {
     saveLastPos(currentRoot, currentFolder);
     if (isRecycle) {
       return;
     }
+
     if (id === uploadParentId && rootId === uploadRootId) {
       reloadList();
     }
+
     addUsage(fsize);
   }, 1000);
 }
@@ -121,6 +137,7 @@ export function handleAddLinkFile(args) {
       const { linkName, linkContent } = link;
       const execTypeName = isEdit ? _l('保存') : _l('创建');
       let savePromise;
+
       if (!isEdit) {
         savePromise = kcService.addFile({
           name: linkName + '.url',
@@ -136,6 +153,7 @@ export function handleAddLinkFile(args) {
           newLinkUrl: linkContent,
         });
       }
+
       savePromise
         .then(data => {
           alert(execTypeName + _l('成功'));
@@ -143,6 +161,7 @@ export function handleAddLinkFile(args) {
             performUpdateItem(data);
             return;
           }
+
           reloadList();
         })
         .catch(() => {
@@ -175,6 +194,7 @@ export function handleBatchDownload(args) {
             .map(item => item.id)
             .toArray()
         : null;
+
     if (!_.isEmpty(folder)) {
       downloadOne(folderId, excludeNodeIds);
     } else {
@@ -229,6 +249,7 @@ function downloadOne(id, excludeIds) {
 function downloadAll(root, excludeIds) {
   const excludeNodeIds = excludeIds && excludeIds.length ? excludeIds.join(',') : '';
   let rootType, rootId, fileName;
+
   if (typeof root === 'object') {
     rootType = PICK_TYPE.ROOT;
     rootId = root.id;
@@ -247,6 +268,7 @@ function downloadAll(root, excludeIds) {
         break;
     }
   }
+
   const url =
     md.global.Config.AjaxApiUrl + 'file/downKcFile?' + qs.stringify({ rootType, rootId, fileName, excludeNodeIds });
   window.open(downloadFile(url));
@@ -263,6 +285,7 @@ export function handleDownloadOne(item, excludeIds) {
     window.open(downloadFile(item.downloadUrl));
     return;
   }
+
   if (item && item.id) {
     downloadOne(item.id, excludeIds);
   }
@@ -296,6 +319,7 @@ export function handleRemoveNode(args) {
     folder,
     performRemoveItems,
   } = args;
+
   /* 列表为空不执行*/
   if (list.size === 0) {
     // setState({ selectAll: false });
@@ -307,6 +331,7 @@ export function handleRemoveNode(args) {
     const item = selectedItems.toArray()[0];
     const permission = getPermission(root);
     const isCreateUser = item.owner.accountId === md.global.Account.accountId;
+
     if (!permission && !isCreateUser) {
       alert('没有操作权限', 3);
       return false;
@@ -406,6 +431,7 @@ export function handleMoveOrCopyClick(args, cb = () => {}) {
         fromRoot.permission !== ROOT_PERMISSION_TYPE.ADMIN &&
         notCreateItems));
   let getAppointRootPromise;
+
   if (isAppointRoot) {
     if (rootId) {
       getAppointRootPromise = kcService.getRootDetail(rootId);
@@ -468,6 +494,7 @@ export function handleMoveOrCopy(options) {
   const ids = selectedItems.map(item => item.id).toArray();
   // idsLength = selectAll ? totalCount : ids.length;
   let ajax = '';
+
   switch (type) {
     case NODE_OPERATOR_TYPE.MOVE:
       message = { success: _l('移动成功') };
@@ -493,6 +520,7 @@ export function handleMoveOrCopy(options) {
               .toArray()
           : null,
     };
+
     if (type === NODE_OPERATOR_TYPE.MOVE) {
       ajax = kcService.moveNodeByParentId(args);
     } else {
@@ -504,12 +532,14 @@ export function handleMoveOrCopy(options) {
       toId: result.node.id,
       toType: result.type,
     };
+
     if (type === NODE_OPERATOR_TYPE.MOVE) {
       ajax = kcService.moveNode(args);
     } else {
       ajax = kcService.copyNode(args);
     }
   }
+
   const key = Math.random().toString();
   alert({
     key,
@@ -609,6 +639,7 @@ export function returnOperationTips(data, message = {}) {
     result.text = messages.success;
     result.type = EXECUTE_RESULT.SUCCESS;
   }
+
   return result;
 }
 

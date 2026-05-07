@@ -125,6 +125,7 @@ export const saveFn = (projectId, items, ruleId, ruleType, errorCallback) => dis
       alert(_l(res.errorMessage || '已设置规则成员， 不能重复设置'), 2);
     }
   };
+
   if (!ruleId) {
     projectUserRule
       .addRule({

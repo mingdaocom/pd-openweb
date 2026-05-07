@@ -35,4 +35,10 @@ export const routerConfigs = [
     typetag: ['privatekey'],
     component: () => import('./privatekey'),
   },
+  {
+    title: _l('已授权应用'),
+    icon: 'icon-device_hub',
+    typetag: ['authorizedApp'],
+    component: () => import('./AuthorizedApp'),
+  },
 ];

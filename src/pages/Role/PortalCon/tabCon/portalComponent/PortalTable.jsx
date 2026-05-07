@@ -175,6 +175,7 @@ function PorTalTable(props) {
                 if (event.target.className.indexOf('checkbox') >= 0) {
                   return;
                 }
+
                 clickRow &&
                   clickRow(
                     columnsCell.map(item => {
@@ -202,4 +203,5 @@ function PorTalTable(props) {
     </Wrap>
   );
 }
+
 export default PorTalTable;

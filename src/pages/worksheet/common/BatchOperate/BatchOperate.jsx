@@ -89,6 +89,7 @@ class BatchOperate extends React.Component {
   componentDidMount() {
     const { onlyShowCustomButtons } = this.props;
     const selectedRow = this.props.selectedRows.length === 1 && this.props.selectedRows[0];
+
     if (onlyShowCustomButtons) {
       this.loadCustomButtons(selectedRow ? selectedRow.rowid : undefined);
     }
@@ -96,15 +97,18 @@ class BatchOperate extends React.Component {
 
   componentWillReceiveProps(nextProps) {
     const { appId, worksheetId, viewId, permission, updateViewPermission = () => {} } = this.props;
+
     if (nextProps.worksheetId !== this.props.worksheetId || nextProps.viewId !== this.props.viewId) {
       this.setState({
         customButtons: [],
       });
     }
+
     let needReloadButtons = false;
     const nextSelectedRow = nextProps.selectedRows.length === 1 && nextProps.selectedRows[0];
     const nowSelectedRow = this.props.selectedRows.length === 1 && this.props.selectedRows[0];
     let updateRowId;
+
     if (
       (!nowSelectedRow && nextSelectedRow) ||
       (nowSelectedRow && nextSelectedRow && nowSelectedRow.rowid !== nextSelectedRow.rowid)
@@ -114,6 +118,7 @@ class BatchOperate extends React.Component {
     } else if (nowSelectedRow && !nextSelectedRow && nextProps.selectedRows.length) {
       needReloadButtons = true;
     }
+
     if (nextProps.viewId === this.props.viewId && nextProps.selectedLength && !this.props.selectedLength) {
       needReloadButtons = true;
       this.setState({ loading: false });
@@ -121,6 +126,7 @@ class BatchOperate extends React.Component {
         updateViewPermission({ appId, worksheetId, viewId });
       }
     }
+
     if (needReloadButtons) {
       this.loadCustomButtons(updateRowId);
     }
@@ -135,6 +141,7 @@ class BatchOperate extends React.Component {
       if (this.getWorksheetBtnsAjax && this.getWorksheetBtnsAjax.abort) {
         this.getWorksheetBtnsAjax.abort();
       }
+
       this.getWorksheetBtnsAjax = worksheetAjax.getWorksheetBtns({
         appId,
         worksheetId,
@@ -159,6 +166,7 @@ class BatchOperate extends React.Component {
     const { worksheetId, viewId, selectedRows, filters = {}, filtersGroup, quickFilter, navGroupFilters } = this.props;
     const { filterControls, keyWords, searchType } = filters;
     let args = { isAll };
+
     if (isAll) {
       args = {
         ...args,
@@ -182,6 +190,7 @@ class BatchOperate extends React.Component {
         ]),
       );
     }
+
     if (searchType === 2) {
       args.filterControls = [
         {
@@ -193,6 +202,7 @@ class BatchOperate extends React.Component {
         },
       ];
     }
+
     processAjax
       .startProcess({
         appId: worksheetId,
@@ -214,6 +224,7 @@ class BatchOperate extends React.Component {
 
   handleTriggerCustomBtn = btn => {
     const { allWorksheetIsSelected } = this.props;
+
     if (btn.clickType === CUSTOM_BUTTOM_CLICK_TYPE.IMMEDIATELY) {
       // 立即执行
       this.triggerCustomBtn(btn, allWorksheetIsSelected);
@@ -260,12 +271,14 @@ class BatchOperate extends React.Component {
       rowIds,
       controls,
     };
+
     if (isEditSingle) {
       updateArgs.newOldControl = controls;
       updateArgs.rowId = rowIds[0];
       delete updateArgs.controls;
       delete updateArgs.rowIds;
     }
+
     if (allWorksheetIsSelected) {
       delete args.rowIds;
       updateArgs.isAll = true;
@@ -289,6 +302,7 @@ class BatchOperate extends React.Component {
       updateArgs.navGroupFilters = navGroupFilters;
       updateArgs.filtersGroup = filtersGroup;
     }
+
     (isEditSingle ? worksheetAjax.updateWorksheetRow : worksheetAjax.updateWorksheetRows)(updateArgs).then(data => {
       callback();
       if ((isEditSingle ? data.resultCode === 1 : data.successCount === selectedRows.length) && !args.noAlert) {
@@ -296,10 +310,12 @@ class BatchOperate extends React.Component {
       } else if (isEditSingle && data.resultCode !== 1) {
         handleRecordError(data.resultCode);
       }
+
       if (data.resultCode !== 1 && !data.isSuccess) return;
       if (_.find(controls, item => _.includes([10, 11], item.type) && /color/.test(item.value))) {
         refreshWorksheetControls();
       }
+
       if (allWorksheetIsSelected || args.hasFilters || _.find(controls, c => includes([29, 19, 23, 24], c.type))) {
         reload();
       } else {
@@ -310,27 +326,33 @@ class BatchOperate extends React.Component {
           ),
         );
       }
+
       getWorksheetSheetViewSummary();
     });
   };
 
   handlePrintQrCode = ({ printType = 1 } = {}) => {
     const { isCharge } = this.props;
+
     if (window.isPublicApp) {
       alert(_l('预览模式下，不能操作'), 3);
       return;
     }
+
     const { appId, viewId, controls, selectedRows, worksheetInfo } = this.props;
     const { projectId, worksheetId, name } = worksheetInfo;
     const disablePrint = !window.isChrome && !window.isFirefox && !window.isSafari;
+
     if (window.isMDClient) {
       alert('客户端不支持此功能，请使用Chrome、Firefox或其他国产浏览器', 3);
       return;
     }
+
     if (disablePrint) {
       alert('当前浏览器不支持此功能，请使用Chrome、Firefox或其他国产浏览器', 3);
       return;
     }
+
     printQrBarCode({
       isCharge,
       printType,
@@ -441,11 +463,14 @@ class BatchOperate extends React.Component {
               if (select1000) {
                 return _l(`已选择 ${md.global.SysSettings.worktableBatchOperateDataLimitCount} 条数据`);
               }
+
               if (selectedLength === -1) {
                 return _l(`已选择"%0"所有%1`, view.name, entityName);
               }
+
               return _l(`已选择"%0"所有 %1 条%2`, view.name, selectedLength, entityName);
             }
+
             return _l('已选择本页 %0 条%1', selectedLength, entityName);
           })()}
         </span>
@@ -456,10 +481,12 @@ class BatchOperate extends React.Component {
       const hasAuthRowIds = selectedRows
         .filter(item => (item.allowdelete || item.allowDelete) && !(isLock ? item.sys_lock : false))
         .map(item => item.rowid);
+
       if (!allWorksheetIsSelected && !hasAuthRowIds.length) {
         alert(_l('没有可以%0的记录', isLock ? _l('锁定') : _l('解锁')), 3);
         return;
       }
+
       const args = {
         appId,
         viewId,
@@ -467,6 +494,7 @@ class BatchOperate extends React.Component {
         rowIds: hasAuthRowIds,
         updateType: isLock ? 41 : 42,
       };
+
       if (allWorksheetIsSelected) {
         delete args.rowIds;
         args.isAll = true;
@@ -489,6 +517,7 @@ class BatchOperate extends React.Component {
         args.keyWords = filters.keyWords;
         args.searchType = filters.searchType;
       }
+
       worksheetAjax
         .updateWorksheetRows(args)
         .then(res => {
@@ -525,10 +554,12 @@ class BatchOperate extends React.Component {
                 text={_l('编辑')}
                 onClick={() => {
                   const _this = this;
+
                   if (window.isPublicApp) {
                     alert(_l('预览模式下，不能操作'), 3);
                     return;
                   }
+
                   function handleEdit() {
                     batchEditRecord({
                       appId,
@@ -552,6 +583,7 @@ class BatchOperate extends React.Component {
                       worksheetInfo: worksheetInfo,
                     });
                   }
+
                   if (
                     selectedLength > md.global.SysSettings.worktableBatchOperateDataLimitCount ||
                     selectedLength === -1
@@ -586,10 +618,12 @@ class BatchOperate extends React.Component {
                     alert(_l('预览模式下，不能操作'), 3);
                     return;
                   }
+
                   if (selectedRows.length > 20) {
                     alert(_l('批量复制不能超过20行'), 3);
                     return;
                   }
+
                   Dialog.confirm({
                     title: _l('您确认复制这%0条记录吗？', selectedRows.length),
                     onOk: () => {
@@ -605,6 +639,7 @@ class BatchOperate extends React.Component {
                             refresh();
                             return;
                           }
+
                           addRecord(newRows, this.findLastId(rowIds));
                           clearSelect();
                           setHighLightOfRows(newRows.map(r => r.rowid));
@@ -645,10 +680,12 @@ class BatchOperate extends React.Component {
                     alert(_l('预览模式下，不能操作'), 3);
                     return;
                   }
+
                   function handleDelete(thoroughDelete) {
                     const hasAuthRowIds = selectedRows
                       .filter(item => (item.allowdelete || item.allowDelete) && !item.sys_lock)
                       .map(item => item.rowid);
+
                     if (!allWorksheetIsSelected && hasAuthRowIds.length === 0) {
                       alert(_l('无权限删除选择的记录'), 3);
                     } else {
@@ -659,6 +696,7 @@ class BatchOperate extends React.Component {
                         isAll: allWorksheetIsSelected,
                         thoroughDelete,
                       };
+
                       if (args.isAll) {
                         args.excludeRowIds = selectedRows.map(item => item.rowid);
                         args.fastFilters = (quickFilter || []).map(f =>
@@ -682,6 +720,7 @@ class BatchOperate extends React.Component {
                       } else {
                         args.rowIds = hasAuthRowIds;
                       }
+
                       worksheetAjax
                         .deleteWorksheetRows(args)
                         .then(res => {
@@ -694,6 +733,7 @@ class BatchOperate extends React.Component {
                             } else if (hasAuthRowIds.length === selectedRows.length) {
                               alert(_l('删除成功'));
                             }
+
                             if (
                               allWorksheetIsSelected ||
                               selectedRows.length === pageSize ||
@@ -713,6 +753,7 @@ class BatchOperate extends React.Component {
                         });
                     }
                   }
+
                   const configOptions = {
                     title: <span className="Red">{_l('批量删除%0', entityName)}</span>,
                     buttonType: 'danger',
@@ -731,6 +772,7 @@ class BatchOperate extends React.Component {
                           ),
                     onOk: handleDelete,
                   };
+
                   if (
                     isHaveCharge(permissionType) &&
                     selectedLength >= md.global.SysSettings.worktableBatchOperateDataLimitCount
@@ -775,6 +817,7 @@ class BatchOperate extends React.Component {
                       });
                       return;
                     };
+
                     configOptions.cancelText = (
                       <CancelTextContent>
                         <i className="icon icon-error" />
@@ -782,6 +825,7 @@ class BatchOperate extends React.Component {
                       </CancelTextContent>
                     );
                   }
+
                   Dialog.confirm(configOptions);
                 }}
               />
@@ -811,6 +855,7 @@ class BatchOperate extends React.Component {
                         alert(_l('预览模式下，不能操作'), 3);
                         return;
                       }
+
                       refreshRecord({
                         controls,
                         appId,
@@ -841,6 +886,7 @@ class BatchOperate extends React.Component {
                               alert(_l('预览模式下，不能操作'), 3);
                               return;
                             }
+
                             Dialog.confirm({
                               title: _l('批量锁定%0', entityName),
                               description: _l('已选中%0条记录。一次最多处理1000条记录。', selectedLength),
@@ -856,6 +902,7 @@ class BatchOperate extends React.Component {
                               alert(_l('预览模式下，不能操作'), 3);
                               return;
                             }
+
                             Dialog.confirm({
                               title: _l('批量解锁%0', entityName),
                               description: _l('已选中%0条记录。一次最多处理1000条记录。', selectedLength),

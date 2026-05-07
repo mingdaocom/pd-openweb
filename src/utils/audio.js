@@ -1,6 +1,7 @@
-export class SpeechSynthesizer {
+﻿export class SpeechSynthesizer {
   constructor(options = {}) {
     this.synth = window.speechSynthesis;
+    this.hasUtteranceSupport = typeof window.SpeechSynthesisUtterance === 'function';
     this.voice = null;
     this.queue = [];
     this.speaking = false;
@@ -47,13 +48,16 @@ export class SpeechSynthesizer {
 
   // 播放一整段文字（非流式）
   speak(text, options = {}) {
+    if (!this.hasUtteranceSupport || !this.synth) return;
     this.clear(); // 清除前面所有任务
     const utterance = this._createUtterance(text, options);
-    this.synth && this.synth.speak(utterance);
+    if (!utterance) return;
+    this.synth.speak(utterance);
   }
 
   // 播放流式文本，智能缓冲
   speakStream(textChunk, options = {}) {
+    if (!this.hasUtteranceSupport || !this.synth) return;
     this.queue.push({ text: textChunk, options });
 
     // 如果文本块较大，立即处理
@@ -84,6 +88,7 @@ export class SpeechSynthesizer {
       clearTimeout(this.bufferTimer);
       this.bufferTimer = null;
     }
+
     this._processQueue();
   }
 
@@ -94,8 +99,9 @@ export class SpeechSynthesizer {
 
   // 创建语音单元
   _createUtterance(text, options = {}) {
+    if (!this.hasUtteranceSupport) return null;
     const { onEnd = () => {} } = options;
-    const utter = new SpeechSynthesisUtterance(text);
+    const utter = new window.SpeechSynthesisUtterance(text);
     const merged = { ...this.defaultOptions, ...options };
 
     utter.voice = this.voice;
@@ -115,6 +121,11 @@ export class SpeechSynthesizer {
 
   // 处理播放队列，合并小块提高流畅度
   _processQueue() {
+    if (!this.hasUtteranceSupport || !this.synth) {
+      this.queue = [];
+      this.speaking = false;
+      return;
+    }
     if (this.speaking || this.queue.length === 0) return;
 
     // 合并队列中的内容来减少停顿
@@ -124,18 +135,31 @@ export class SpeechSynthesizer {
     const options = batch[0]?.options || {};
 
     const utterance = this._createUtterance(mergedText, options);
+    if (!utterance) {
+      this.speaking = false;
+      return;
+    }
     this.speaking = true;
-    this.synth && this.synth.speak(utterance);
+    this.synth.speak(utterance);
   }
 
   // 合并队列内容为一个 utterance（保留此方法用于其他场景）
   mergeAndSpeakQueue() {
+    if (!this.hasUtteranceSupport || !this.synth) {
+      this.queue = [];
+      this.speaking = false;
+      return;
+    }
     if (this.speaking || this.queue.length === 0) return;
     const mergedText = this.queue.map(item => item.text).join('');
     const options = this.queue[0]?.options || {};
     this.queue = [];
     const utterance = this._createUtterance(mergedText, options);
+    if (!utterance) {
+      this.speaking = false;
+      return;
+    }
     this.speaking = true;
-    this.synth && this.synth.speak(utterance);
+    this.synth.speak(utterance);
   }
 }

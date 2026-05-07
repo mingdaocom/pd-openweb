@@ -21,11 +21,7 @@ const options = [
     className: !window.platformENV.isPlatform ? 'show' : 'hide',
   },
 ];
-// const checkedOptions = [
-//   { label: _l('短信'), value: 1 },
-//   { label: _l('邮件'), value: 2 },
-//   { label: _l('微信'), value: 3 },
-// ];
+
 export default class DialogBatchEdit extends Component {
   constructor(props) {
     super(props);
@@ -93,12 +89,43 @@ export default class DialogBatchEdit extends Component {
         this.setState({ workSiteInfo: _.get(res, 'list') || [] });
       });
   };
-  chnageMessageWay = value => {
-    this.setState({ messageWay: value });
+
+  // 批量重置密码
+  resetPassword = () => {
+    const { selectedAccountIds = [], projectId, emptyUserSet } = this.props;
+    let { password } = this.state;
+    const { passwordRegexTip, passwordRegex } = _.get(md, ['global', 'SysSettings']) || {};
+
+    if (_.isEmpty(password)) {
+      alert(_l('请输入新密码'), 3);
+      return;
+    } else if (!RegExpValidator.isPasswordValid(password, passwordRegex)) {
+      alert(passwordRegexTip || _l('密码过于简单，至少8~20位且含字母+数字'), 3);
+      return;
+    }
+
+    userAjax
+      .batchResetPassword({
+        projectId,
+        accountIds: selectedAccountIds,
+        password: encrypt(password),
+      })
+      .then(result => {
+        if (result) {
+          alert(_l('修改成功'), 1);
+          this.setState({ batchResetPasswordVisible: false, password: '' });
+        } else {
+          alert(_l('修改失败'), 2);
+        }
+
+        emptyUserSet();
+      });
   };
+
   submit = () => {
     const { projectId, selectedAccountIds } = this.props;
     let { departmentInfos = [], jobInfos = [], workSiteId = '', filedValue } = this.state;
+
     if (filedValue === 1) {
       let departmentIds = departmentInfos.map(item => item.departmentId);
       userAjax
@@ -137,6 +164,7 @@ export default class DialogBatchEdit extends Component {
     } else if (filedValue === 4) {
       this.resetPassword();
     }
+
     this.props.removeUserFromSet(selectedAccountIds);
     this.props.onCancel();
   };
@@ -192,11 +220,7 @@ export default class DialogBatchEdit extends Component {
       >
         <div className="textSecondary Bold ">{_l('选择编辑字段')}</div>
         <RadioGroup
-          data={options.filter(it =>
-            !window.platformENV.isOverseas && window.platformENV.isLocal && !window.platformENV.isPlatform
-              ? true
-              : it.value !== 4,
-          )}
+          data={options.filter(it => (!window.platformENV.isPlatform ? true : it.value !== 4))}
           onChange={this.changeRadio}
           checkedValue={filedValue}
         />
@@ -301,6 +325,7 @@ export default class DialogBatchEdit extends Component {
             className="Font26 Hand textTertiary mAll5 TxtMiddle"
             onClick={e => {
               let { filedValue } = this.state;
+
               if (filedValue === 1) {
                 this.dialogSelectDeptFn(e);
               } else {
@@ -323,21 +348,19 @@ export default class DialogBatchEdit extends Component {
             ))}
           </Select>
         )}
-        {filedValue === 4 &&
-          !window.platformENV.isOverseas &&
-          window.platformENV.isLocal &&
-          !window.platformENV.isPlatform && (
-            <Input
-              className="w100"
-              type="password"
-              value={password}
-              autoComplete="new-password"
-              placeholder={passwordRegexTip || _l('密码，8-20位，必须含字母+数字')}
-              onChange={value => {
-                this.setState({ password: value });
-              }}
-            />
-          )}
+
+        {filedValue === 4 && (window.platformENV.isOverseas || window.platformENV.isLocal) && (
+          <Input
+            className="w100"
+            type="password"
+            value={password}
+            autoComplete="new-password"
+            placeholder={passwordRegexTip || _l('密码，8-20位，必须含字母+数字')}
+            onChange={value => {
+              this.setState({ password: value });
+            }}
+          />
+        )}
       </Dialog>
     );
   }

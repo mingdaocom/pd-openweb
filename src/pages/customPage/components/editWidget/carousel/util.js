@@ -6,6 +6,7 @@ export function getUrlList(text = '') {
 
   for (let i = 0; i < array.length; i++) {
     let content = array[i];
+
     if (RegExpValidator.isURL(content)) {
       result.push(content);
     }

@@ -35,6 +35,7 @@ export default function ColorSetting(props) {
 
   return (
     <ColorPicker
+      dynamicColor
       popupAlign={{
         points: ['tl', 'bl'],
         offset: [-260, 3],

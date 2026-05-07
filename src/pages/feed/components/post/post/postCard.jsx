@@ -33,10 +33,12 @@ class PostCard extends React.Component {
   bindComponentWillLeave = () => {
     if (this.props.leavingAnimation) {
       const timeout = this.props.leavingAnimation.timeout;
+
       this.componentWillLeave = cb => {
         this.setState({ leaving: true });
         setTimeout(cb, timeout || 400);
       };
+
       this.leavingCss = this.props.leavingAnimation.css;
     } else {
       this.componentWillLeave = undefined;

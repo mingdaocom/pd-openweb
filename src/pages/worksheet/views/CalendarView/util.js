@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import moment from 'moment';
+import { RECORD_COLOR_SHOW_TYPE } from 'worksheet/constants/enum';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { OPTION_COLORS_LIST, OPTION_COLORS_LIST_HOVER } from 'src/pages/widgetConfig/config';
@@ -8,32 +9,31 @@ import { renderTitleByViewtitle } from 'src/pages/worksheet/views/util.js';
 import { controlState } from 'src/utils/control';
 import { getAdvanceSetting } from 'src/utils/control';
 import { renderText as renderCellText } from 'src/utils/control';
-import { isLightColor, isTimeStyle } from 'src/utils/control';
+import { isTimeStyle } from 'src/utils/control';
 import { dateAppZoneToServerZone, dateConvertToServerZone } from 'src/utils/project';
 import { getRecordColor, getRecordColorConfig } from 'src/utils/record';
+import { DEFAULT_BORDER_COLOR_DARK, DEFAULT_BORDER_COLOR_LIGHT, DEFAULT_COLOR, DEFAULT_TEXT_COLOR } from './constants';
 
-const defaultColor = '#C9E6FC';
-export const eventStr = {
-  0: 'eventAll', //全部
-  1: 'eventScheduled', //已排期
-  2: 'eventNoScheduled', //未排期
-};
 export const getHoverColor = color => {
   return OPTION_COLORS_LIST_HOVER[OPTION_COLORS_LIST.indexOf(color.toUpperCase())];
 };
+
 export const isEmojiCharacter = substring => {
   for (let i = 0; i < substring.length; i++) {
     const hs = substring.charCodeAt(i);
+
     if (0xd800 <= hs && hs <= 0xdbff) {
       if (substring.length > 1) {
         const ls = substring.charCodeAt(i + 1);
         const uc = (hs - 0xd800) * 0x400 + (ls - 0xdc00) + 0x10000;
+
         if (0x1d000 <= uc && uc <= 0x1f77f) {
           return true;
         }
       }
     } else if (substring.length > 1) {
       const ls = substring.charCodeAt(i + 1);
+
       if (ls == 0x20e3) {
         return true;
       }
@@ -78,9 +78,19 @@ const renderTimeValue = (controlData, value, currentView) => {
 };
 
 const getAllDay = (data, o, currentView = {}) => {
-  if (!data[o.begin] || !data[o.end]) {
+  if (!data[o.begin]) {
     return false;
   }
+
+  // 日期类型（非日期时间）统一按全天事件处理
+  if (!isTimeStyle(o.startData)) {
+    return true;
+  }
+
+  if (!data[o.end]) {
+    return false;
+  }
+
   const beginValue = renderTimeValue(o.startData, data[o.begin], currentView);
   const endValue = renderTimeValue(o.endData, data[o.end], currentView);
   return beginValue && endValue && getIsOverOneDay(beginValue, endValue) && moment(beginValue).isBefore(endValue);
@@ -95,6 +105,7 @@ const getEnd = (data, o, currentView = {}) => {
   if (!data[o.end] || moment(data[o.begin]).isAfter(data[o.end])) {
     return '';
   }
+
   const endData = { ...o.endData, advancedSetting: { ...o.endData.advancedSetting, showformat: '0' } };
   const endValue = renderTimeValue(endData, data[o.end], currentView);
   return moment(!getAllDay(data, o, currentView) ? endValue : moment(endValue).add(1, 'day')).format(o.endFormat);
@@ -113,12 +124,13 @@ const getTitleControls = worksheetControls => {
 const getStringColor = (calendarData, data, currentView) => {
   const { colorOptions = [] } = calendarData;
   const { colorid = '' } = getAdvanceSetting(currentView);
+  if (!colorid) return DEFAULT_COLOR;
   const coloridData = data[colorid] ? JSON.parse(data[colorid])[0] : '';
-  if (!coloridData) return defaultColor;
+  if (!coloridData) return DEFAULT_COLOR;
 
   const key = coloridData.startsWith('other') ? 'other' : coloridData;
   const option = colorOptions.find(it => it.key === key);
-  return option?.color || defaultColor;
+  return option?.color || DEFAULT_COLOR;
 };
 
 // 提取获取颜色的公共逻辑
@@ -133,29 +145,34 @@ const getColorData = (calendarData, data, currentView, worksheetControls) => {
       controls: worksheetControls,
       row: data,
     });
+
   if (recordColor) {
     recordColor = { ...recordColorConfig, ...recordColor };
   }
+
   return { stringColor, recordColor };
 };
 
-// 提取创建事件样式的公共逻辑
-const getEventStyle = stringColor => ({
-  backgroundColor: stringColor,
-  borderColor: stringColor,
-  textColor: stringColor && isLightColor(stringColor) ? '#151515' : '#fff',
-});
+const splitCalendarEventColors = recordColor => {
+  return {
+    backgroundColor: recordColor?.lightColor || DEFAULT_COLOR,
+    borderColor: window.themeMode === 'dark' ? DEFAULT_BORDER_COLOR_DARK : DEFAULT_BORDER_COLOR_LIGHT,
+    textColor: DEFAULT_TEXT_COLOR,
+  };
+};
 
 // type === 16 ? 'YYYY-MM-DD HH:mm' : 'YYYY-MM-DD';
 //格式events数据//根据多组时间拆分出多条数据
 export const setDataFormat = pram => {
   const { worksheetControls = [], currentView = {}, calendarData = {}, byRowId, ...data } = pram;
+
   if (byRowId) {
     return setDataFormatByRowId(pram);
   }
+
   const { calendarInfo = [] } = calendarData;
   const { stringColor, recordColor } = getColorData(calendarData, data, currentView, worksheetControls);
-
+  const palette = splitCalendarEventColors(recordColor);
   return calendarInfo
     .filter(o => data[o.begin])
     .map(o => {
@@ -168,14 +185,19 @@ export const setDataFormat = pram => {
         ...o,
         info: o,
         keyIds: `${data.rowid}-${o.begin}`,
-        extendedProps: { ...data, editable, recordColor, stringColor },
+        extendedProps: {
+          ...data,
+          editable,
+          recordColor,
+          stringColor,
+          ...palette,
+        },
         title: renderTitleTxt(worksheetControls, currentView, data),
         start,
         end,
         allDay: !!allDay,
         editable,
         timeList: [timeItem],
-        ...getEventStyle(stringColor),
         row: data,
       };
     });
@@ -201,6 +223,8 @@ export const setDataFormatByRowId = pram => {
   const { worksheetControls = [], currentView = {}, calendarData = {}, ...data } = pram;
   const { calendarInfo = [] } = calendarData;
   const { stringColor, recordColor } = getColorData(calendarData, data, currentView, worksheetControls);
+  const colortype = getAdvanceSetting(currentView).colortype || RECORD_COLOR_SHOW_TYPE.BG;
+  const palette = splitCalendarEventColors(stringColor, colortype, recordColor);
 
   const timeList = calendarInfo.map(o => ({
     info: o,
@@ -213,10 +237,14 @@ export const setDataFormatByRowId = pram => {
 
   return [
     {
-      extendedProps: { ...data, stringColor, recordColor },
+      extendedProps: {
+        ...data,
+        stringColor,
+        recordColor,
+        ...palette,
+      },
       title: renderTitleTxt(worksheetControls, currentView, data),
       timeList,
-      ...getEventStyle(stringColor),
     },
   ];
 };
@@ -246,10 +274,12 @@ export const getShowExternalData = () => {
 
 export const getCalendartypeData = () => {
   const viewType = window.localStorage.getItem('CalendarViewType');
+
   //老数据兼容
   if (['timeGridWeek', 'timeGridDay', 'dayGridMonth', 'dayGridWeek', 'dayGridDay'].includes(viewType)) {
     return {};
   }
+
   return safeParse(viewType) || {};
 };
 
@@ -313,6 +343,7 @@ export const formatTimeForSave = (value, data = {}, appId) => {
       ? dateAppZoneToServerZone(value, window[`timeZone_${appId}`])
       : dateConvertToServerZone(value);
   }
+
   return value;
 };
 
@@ -339,8 +370,10 @@ export const resetFcEventDraggingPoint = () => {
   if (document.querySelector('.CustomPageContentWrap')) {
     setTimeout(() => {
       const draggingElement = document.querySelector('.fc-event-dragging');
+
       if (draggingElement) {
         const worksheetBox = draggingElement.closest('#worksheetRightContentBox');
+
         if (worksheetBox) {
           const rect = worksheetBox.getBoundingClientRect();
           const customPageHeader = document.querySelector('.customPageHeader');
@@ -382,4 +415,9 @@ export const setShowTip = (event, flag, canNew) => {
     top: `${top - scrollY}px`,
     opacity: 1,
   });
+};
+
+export const getCanCreateRecord = props => {
+  const { worksheetInfo = {}, allowAddNewRecord = true, sheetSwitchPermit } = props;
+  return isOpenPermit(permitList.createButtonSwitch, sheetSwitchPermit) && worksheetInfo.allowAdd && allowAddNewRecord;
 };

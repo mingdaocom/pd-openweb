@@ -62,6 +62,7 @@ export default function SearchMapping(props) {
   const getMapData = type => {
     let filterData = [];
     let dropValue = '';
+
     // 选项列表
     if (type === 1) {
       filterData = responseControls.filter(i => _.includes([10000007, 10000008], i.type) && !i.dataSource);
@@ -75,6 +76,7 @@ export default function SearchMapping(props) {
       );
       dropValue = type === 2 ? itemtitle : itemdesc;
     }
+
     return {
       dropData: filterData.map(({ controlId: value, controlName: text }) => ({
         value,
@@ -104,10 +106,12 @@ export default function SearchMapping(props) {
       );
       return;
     }
+
     if (item.type === 3) {
       const filterValue = _.includes(itemdesc, value) ? itemdesc.filter(i => i !== value) : itemdesc.concat(value);
       value = JSON.stringify(filterValue);
     }
+
     onChange(handleAdvancedSettingChange(data, { [item.key]: value }));
   };
 

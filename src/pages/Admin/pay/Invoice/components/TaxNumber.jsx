@@ -1,4 +1,4 @@
-import React, { forwardRef, Fragment, useEffect, useImperativeHandle, useState } from 'react';
+import React, { forwardRef, Fragment, useImperativeHandle, useState } from 'react';
 import _ from 'lodash';
 import moment from 'moment';
 import styled from 'styled-components';
@@ -27,18 +27,14 @@ const ExplainWrap = styled.div`
 
 const TaxNumber = forwardRef((props, ref) => {
   const { projectId, createTaxVisible, onCreateTax, featureType, curTaxNo, onShowCreateTaxBtn, myPermissions } = props;
-  const [loading, setLoading] = useState(true);
-  const [taxList, setTaxList] = useState({ list: [], total: 0 });
+  const [loading, setLoading] = useState(false);
+  const [taxList, setTaxList] = useState({ list: props.taxList, total: props.taxList.length });
   const [pageIndex, setPageIndex] = useState(1);
   const [detailEmail, setDetailEmail] = useState('');
 
   useImperativeHandle(ref, () => ({
     getTaxList,
   }));
-
-  useEffect(() => {
-    props.taxList && !props.taxList.length ? setLoading(false) : getTaxList(); //上层获取到列表为空，不重复获取列表数据
-  }, []);
 
   const getTaxList = ({ pageIndex = 1 } = {}) => {
     setLoading(true);

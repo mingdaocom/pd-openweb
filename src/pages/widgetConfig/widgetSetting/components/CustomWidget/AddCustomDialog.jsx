@@ -53,6 +53,7 @@ export default function AddCustomDialog(props) {
   const handleOk = () => {
     let nextData;
     const freeId = v4();
+
     if (customType === '2') {
       nextData = handleAdvancedSettingChange(data, { customtype: customType, freeid: freeId });
     } else {

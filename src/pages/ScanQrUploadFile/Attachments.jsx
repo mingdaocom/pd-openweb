@@ -94,9 +94,11 @@ const AttachmentItem = function AttachmentItem({ attachment = {} }) {
             if (attachment.loading) {
               return <LoadDiv style={{ height: 20 }} size="small" />;
             }
+
             if (isPicture) {
               return <img src={attachment.url} alt={attachment.name} />;
             }
+
             return <span className={'fileIcon ' + getClassNameByExt(ext)}>{attachment.name}</span>;
           })()}
         </div>
@@ -160,6 +162,7 @@ const Attachments = ({ disabled, scanId, scanInfo, defaultAttachments }) => {
                       files,
                       cache.current.attachmentsCount,
                     );
+
                     if (!isAvailable) {
                       files.forEach(file => {
                         up.removeFile({ id: file.id });
@@ -167,6 +170,7 @@ const Attachments = ({ disabled, scanId, scanInfo, defaultAttachments }) => {
                       return;
                     }
                   }
+
                   setAttachments(old => [
                     ...old,
                     ...files.map(file => ({

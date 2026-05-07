@@ -62,7 +62,7 @@ const EditUserExtendInfoCon = styled.div`
     border: 1px solid var(--color-error);
   }
   .cancelBtn:hover {
-    background: rgba(244, 67, 54, 0.05);
+    background: var(--color-error-bg);
   }
 `;
 
@@ -123,15 +123,19 @@ export default function EditUserExtendInfo(props) {
     if (statusFlag === 9 && !data.controlId) {
       return alert(_l('无扩展信息表'), 3);
     }
+
     if (!data.appId) {
       return alert(_l('请选择应用'), 3);
     }
+
     if (!data.worksheetId) {
       return alert(_l('请选择工作表'), 3);
     }
+
     if (!data.controlId) {
       return alert(_l('请选择用户映射'), 3);
     }
+
     worksheetAjax
       .saveAppExtendAttr({
         appId: appId,

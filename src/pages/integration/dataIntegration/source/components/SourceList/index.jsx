@@ -160,9 +160,6 @@ const SourceListBox = styled.div`
       .titleText {
         color: var(--color-primary);
       }
-      .optionIcon {
-        background: rgba(247, 247, 247, 1);
-      }
     }
 
     .titleIcon {
@@ -398,6 +395,7 @@ export default function SourceList(props) {
               } else {
                 sortFlag = sortFlag === 2 ? 0 : sortFlag + 1;
               }
+
               setFetchState({
                 loading: true,
                 pageNo: 0,
@@ -436,6 +434,7 @@ export default function SourceList(props) {
               } else {
                 sortFlag = sortFlag === 2 ? 0 : sortFlag + 1;
               }
+
               setFetchState({
                 loading: true,
                 pageNo: 0,

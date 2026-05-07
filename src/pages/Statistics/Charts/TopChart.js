@@ -21,6 +21,7 @@ import { formatrChartValue, formatYaxisList, getChartColors } from './common';
 const formatTopChartData = map => {
   const data = _.get(map[0], 'value') || [];
   const result = [];
+
   const getValues = index => {
     const obj = {};
     map.forEach(data => {
@@ -28,6 +29,7 @@ const formatTopChartData = map => {
     });
     return obj;
   };
+
   for (let i = 0; i < data.length; i++) {
     const { x, originalX } = data[i];
     result.push({
@@ -36,6 +38,7 @@ const formatTopChartData = map => {
       ...getValues(i),
     });
   }
+
   return result;
 };
 
@@ -141,7 +144,8 @@ export default class extends Component {
     });
   }
   handleClick = (event, data) => {
-    const { xaxes, appId, reportId, name, reportType, style } = this.props.reportData;
+    const { reportData, isMobile } = this.props;
+    const { xaxes, appId, reportId, name, reportType, style } = reportData;
     const param = {};
     const linkageMatch = {
       sheetId: appId,
@@ -150,6 +154,7 @@ export default class extends Component {
       reportType,
       filters: [],
     };
+
     if (xaxes.cid) {
       const isNumber = isFormatNumber(xaxes.controlType);
       const value = data.originalX;
@@ -164,16 +169,18 @@ export default class extends Component {
         control: xaxes,
       });
     }
+
     if (_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length) {
       linkageMatch.onlyChartIds = style.autoLinkageChartObjectIds;
     }
+
     const isAll = this.isViewOriginalData && this.isLinkageData;
     const { left, top } = this.chartWrapEl.getBoundingClientRect();
     this.setState(
       {
         dropdownVisible: isAll,
         offset: {
-          x: event.clientX - left,
+          x: event.clientX - left + (isMobile ? -100 : 0),
           y: event.clientY - top,
         },
         match: param,
@@ -183,6 +190,7 @@ export default class extends Component {
         if (!isAll && this.isViewOriginalData) {
           this.handleRequestOriginalData();
         }
+
         if (!isAll && this.isLinkageData) {
           this.handleAutoLinkage();
         }
@@ -220,6 +228,7 @@ export default class extends Component {
         : styleConfig;
     const colors = getChartColors(style, themeColor, projectId);
     let color = colors[0];
+
     if (!_.isEmpty(linkageMatch)) {
       if (linkageMatch.value === data.originalX) {
         return color;
@@ -227,14 +236,17 @@ export default class extends Component {
         return new TinyColor(color).setAlpha(0.3).toRgbString();
       }
     }
+
     return color;
   };
   renderIndex(index) {
     const { style } = this.props.reportData;
     const { topStyle } = style;
+
     if ([1, 2, 3].includes(index) && topStyle) {
       return <div className={cx('top', `${topStyle}-${index}`)}></div>;
     }
+
     return <span>{index}</span>;
   }
   renderOverlay() {
@@ -281,11 +293,13 @@ export default class extends Component {
     const sortId = sorts[0] ? Object.keys(sorts[0])[0] : null;
     const { valueProgressVisible } = style;
     const isUserHead = xaxes.displayMode === 'fieldStyle' && data.name;
+
     const renderName = () => {
       const config = {
         className: cx('name ellipsis mRight8 textPrimary'),
         style: valueProgressVisible ? { width: '20%' } : { flex: 1 },
       };
+
       if (isUserHead) {
         const { accountId, fullname, avatar } = window.safeParse(data.name);
         return (
@@ -305,12 +319,14 @@ export default class extends Component {
           </div>
         );
       }
+
       return (
         <div {...config} title={data.name}>
           {data.name}
         </div>
       );
     };
+
     return (
       <div
         className="flexRow valignWrapper item"
@@ -325,6 +341,7 @@ export default class extends Component {
               const { fullname } = window.safeParse(data.name);
               data.name = fullname;
             }
+
             this.handleClick(event, data);
           }
         }}

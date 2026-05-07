@@ -177,6 +177,7 @@ function getValueToShow({ formData, reference, control, envIsMobile, envIsDisabl
       ),
     },
   ];
+
   if (!isRefValue) {
     result.push({
       text: _l('value[字段值]'),
@@ -185,9 +186,11 @@ function getValueToShow({ formData, reference, control, envIsMobile, envIsDisabl
       valueToShow: get(find(formData, { controlId: control.controlId }), 'value') || '',
     });
   }
+
   const envValue = { isMobile: envIsMobile, isDisabled: envIsDisabled };
   reference.forEach(refItem => {
     const refControl = find(formData, { controlId: refItem.cid });
+
     if (refControl) {
       envValue[refItem.name || 'undefined'] = refItem.cid;
       result.push({
@@ -236,15 +239,19 @@ function EnvValueShow({ worksheetId, recordId, control, data }) {
   if (loading) {
     return 'loading...';
   }
+
   return JSON.stringify(Object.assign({}, data, control.type === 34 ? { rows } : {}), null, 2);
 }
 
 function getEnvValueForShow({ worksheetId, control, valueToShow, selectedEnv, formData, recordId } = {}) {
   let showItem = find(valueToShow, { value: selectedEnv });
+
   if (!showItem) {
     return '';
   }
+
   let matchControl;
+
   switch (showItem.type) {
     case SHOW_TYPE.ORIGIN:
       return <div className="envValueArea mTop18 flex">{showItem.valueToShow}</div>;
@@ -286,6 +293,7 @@ function getEnvValueForShow({ worksheetId, control, valueToShow, selectedEnv, fo
       return '';
   }
 }
+
 export default function EnvConfig(props) {
   const {
     className,

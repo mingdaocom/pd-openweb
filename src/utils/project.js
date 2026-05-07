@@ -33,9 +33,11 @@ export function mdAppResponse(param) {
       const decodedData = window.atob(base64);
       resolve(JSON.parse(decodeURIComponent(escape(decodedData))));
     };
+
     // 触发监听的回调函数
     const string = JSON.stringify(param);
     const base64 = window.btoa(string);
+
     if (window.isMacOs) {
       window.webkit.messageHandlers.MD_APP_REQUEST.postMessage(base64);
     } else {
@@ -58,6 +60,7 @@ export const getSyncLicenseInfo = projectId => {
     ) {
       return {};
     }
+
     const info = projectAjax.getProjectLicenseInfo({ projectId }, { ajaxOptions: { sync: true } });
 
     projectInfo = { ...info, projectId };
@@ -267,6 +270,7 @@ export const handlePushState = (queryKey = '', queryValue = '') => {
 
 export const handleReplaceState = (queryKey, queryValue, callback = () => {}) => {
   const popupKey = queryKey + `=` + queryValue;
+
   if (_.get(window, 'history.state.popupKey') === `${queryKey}=${queryValue}`) {
     callback();
     history.replaceState({ ...history.state, ...{ popupKey } }, '');

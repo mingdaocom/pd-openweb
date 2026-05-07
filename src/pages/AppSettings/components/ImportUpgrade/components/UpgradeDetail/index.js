@@ -37,6 +37,7 @@ export default class UpgradeDetail extends Component {
 
   componentDidMount() {
     const { worksheetDetailData, currentWorksheet } = this.props;
+
     if (!_.isEmpty(worksheetDetailData)) {
       this.setState({
         ...worksheetDetailData[currentWorksheet.id],
@@ -46,6 +47,7 @@ export default class UpgradeDetail extends Component {
   componentWillReceiveProps(nextProps) {
     if (!_.isEqual(this.props.worksheetDetailData, nextProps.worksheetDetailData)) {
       const { worksheetDetailData, currentWorksheet } = nextProps;
+
       if (!_.isEmpty(worksheetDetailData)) {
         this.setState({
           ...worksheetDetailData[currentWorksheet.id],

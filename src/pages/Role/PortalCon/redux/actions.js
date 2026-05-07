@@ -34,6 +34,7 @@ export const getCount = appId => {
     });
   };
 };
+
 //控件
 export const setBaseInfo = data => {
   return (dispatch, getState) => {
@@ -48,12 +49,14 @@ export const setBaseInfo = data => {
     });
   };
 };
+
 //控件
 export const setControls = data => {
   return dispatch => {
     dispatch({ type: 'UPDATE_CONTROLS', data });
   };
 };
+
 //设置
 export const setControlsSetting = data => {
   return dispatch => {
@@ -222,6 +225,7 @@ export const setFilter = data => {
     dispatch({ type: 'UPDATE_FILTERS', data });
   };
 };
+
 //快速筛选
 export const setFastFilters = data => {
   return dispatch => {
@@ -230,6 +234,7 @@ export const setFastFilters = data => {
     dispatch(getList());
   };
 };
+
 //快速筛选参数
 export const setFastFiltersData = data => {
   return (dispatch, getState) => {
@@ -243,6 +248,7 @@ export const setFastFiltersData = data => {
       const { fastFilters = [] } = portal;
       let newData = fastFilters.slice();
       let value = data.value || (data.values || [])[0];
+
       if (!value) {
         newData = newData.filter(o => o.controlId !== data.controlId);
       } else {
@@ -258,6 +264,7 @@ export const setFastFiltersData = data => {
           newData.push({ ...data, controlId: data.controlId });
         }
       }
+
       dispatch({
         type: 'UPDATE_FASTFILTERS',
         data: newData,
@@ -265,6 +272,7 @@ export const setFastFiltersData = data => {
     }
   };
 };
+
 export const setDefaultFastFilters = () => {
   return dispatch => {
     dispatch({
@@ -273,26 +281,31 @@ export const setDefaultFastFilters = () => {
     });
   };
 };
+
 export const setSortControls = (data, cb) => {
   return dispatch => {
     dispatch({ type: 'UPDATE_SORTCONTROLS', data });
     cb && cb();
   };
 };
+
 export const setKeyWords = data => {
   return dispatch => {
     dispatch({ type: 'UPDATE_KEYWORDS', data });
   };
 };
+
 export const setTelFilters = data => {
   return dispatch => {
     dispatch({ type: 'UPDATE_TELFILTERS', data });
   };
 };
+
 //排序
 export const handleChangeSort = (sorter, PotralStatus = 0) => {
   return dispatch => {
     const { field, column, order } = sorter;
+
     if (!order) {
       dispatch(
         setSortControls([], () => {
@@ -322,6 +335,7 @@ const getFilterTels = telFilters => {
   if (!telFilters) {
     return '';
   }
+
   let code = telFilters.split(/[(\r\n)\r\n]+/); // 根据换行或者回车进行识别
   code.forEach((item, index) => {
     // 删除空项
@@ -331,7 +345,9 @@ const getFilterTels = telFilters => {
   });
   return Array.from(new Set(code));
 };
+
 let ajaxFn = null;
+
 export const getList = (PotralStatus = 0, cb) => {
   return (dispatch, getState) => {
     dispatch({ type: 'UPDATE_LOADING', data: true });
@@ -379,6 +395,7 @@ export const getList = (PotralStatus = 0, cb) => {
       if (!(location.href.indexOf('/role/external/pending') >= 0 && PotralStatus !== 3)) {
         dispatch(setList(pageIndex > 1 ? list.concat(res.data) : res.data));
       }
+
       dispatch(setCount(res.count));
       dispatch({ type: 'UPDATE_LOADING', data: false });
       cb && cb();

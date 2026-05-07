@@ -117,11 +117,13 @@ export default function (props) {
             onChange={value => {
               const first = value[0] || {};
               let param = {};
+
               if (!first.controlId) {
                 param.advancedSetting = { closedefsort: '0' };
                 param.editAttrs = ['moreSort', 'sortCid', 'sortType', 'advancedSetting'];
                 param.editAdKeys = ['closedefsort'];
               }
+
               updateCurrentView({
                 ...view,
                 appId,

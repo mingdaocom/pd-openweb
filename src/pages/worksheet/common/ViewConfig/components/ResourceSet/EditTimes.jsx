@@ -50,6 +50,7 @@ const Wrap = styled.div`
     line-height: 36px;
   }
 `;
+
 export default function (props) {
   const { onClose, onChange } = props;
   const [{ showtime }, setState] = useSetState({
@@ -87,6 +88,7 @@ export default function (props) {
                 popupClassName={`filterDateRangeInputPopup_${n}`}
                 onClick={() => {
                   const $arrow = $(`.filterDateRangeInputPopup_${n} .ant-picker-range-arrow`);
+
                   if ($arrow) {
                     setTimeout(() => {
                       const $arrows = $(`.filterDateRangeInputPopup_${n} .ant-picker-range-arrow`);
@@ -102,6 +104,7 @@ export default function (props) {
                     alert(_l('结束时间不能早于或等于开始时间'), 3);
                     return;
                   }
+
                   setState({
                     showtime: showtime.map((a, i) => {
                       return i === n ? `${timeString[0]}-${timeString[1]}` : a;

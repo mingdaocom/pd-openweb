@@ -15,6 +15,7 @@ ${errorData.error.stack}`;
 
 export default ({ isSeriousError, errorData = {} }) => {
   const [errorVisible, setErrorVisible] = useState();
+
   if (isSeriousError === false) {
     return (
       <div className="programErrorMinBox flexColumn ThemeBGColor9 flex">

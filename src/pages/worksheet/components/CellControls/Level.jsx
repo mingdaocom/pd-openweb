@@ -8,11 +8,14 @@ import { FROM } from './enum';
 
 function levelSafeParse(value) {
   let levelValue = parseInt(value, 10);
+
   if (!_.isNumber(levelValue) || _.isNaN(levelValue)) {
     levelValue = 0;
   }
+
   return levelValue;
 }
+
 export default class Level extends React.Component {
   static propTypes = {
     className: PropTypes.string,
@@ -41,14 +44,17 @@ export default class Level extends React.Component {
     const { max } = cell.advancedSetting || {};
     const minNumber = 0;
     const maxNumber = levelSafeParse(max);
+
     switch (e.key) {
       default:
         if (/^[0-9]$/.test(e.key)) {
           let inputValue = Number(e.key);
+
           if (!_.isNaN(inputValue)) {
             if (this.prevValue) {
               inputValue = Number(this.prevValue + '' + inputValue);
             }
+
             if (
               !_.isUndefined(minNumber) &&
               !_.isUndefined(maxNumber) &&
@@ -56,6 +62,7 @@ export default class Level extends React.Component {
             ) {
               return;
             }
+
             updateCell({
               value: inputValue || '',
             });
@@ -65,16 +72,19 @@ export default class Level extends React.Component {
             }, 500);
           }
         }
+
         break;
     }
   };
 
   handleChange = value => {
     const { cell, updateCell } = this.props;
+
     if (cell.required && !value) {
       alert(_l('%0为必填字段', cell.controlName), 3);
       return;
     }
+
     this.setState({ value });
     updateCell({
       value,
@@ -85,6 +95,7 @@ export default class Level extends React.Component {
     const { from, recordId, className, style, cell, editable, onClick } = this.props;
     const { value } = this.state;
     const isMobile = browserIsMobile();
+
     if (isMobile) {
       const itemnames = cell && cell.advancedSetting ? JSON.parse(cell.advancedSetting.itemnames || '[]') : [];
       const currentName =
@@ -94,6 +105,7 @@ export default class Level extends React.Component {
         ) || _l('%0 级', value);
       return <span>{currentName}</span>;
     }
+
     return (
       <div
         className={cx(className, 'levelWrapper cellControl flexRow', {

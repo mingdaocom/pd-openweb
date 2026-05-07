@@ -67,6 +67,7 @@ export default class SortColumns extends React.Component {
     } = this.props;
     const columns = this.props.columns.filter(c => !_.find(ghostControlIds, gcid => gcid === c.controlId));
     const displayControls = showControls.filter(dcid => _.find(columns, fc => fc.controlId === dcid));
+
     if (layout === 1) {
       return (
         <DropdownWrapper

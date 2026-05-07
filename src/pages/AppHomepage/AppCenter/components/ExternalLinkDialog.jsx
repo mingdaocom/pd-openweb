@@ -157,6 +157,7 @@ export default function ExternalLinkDialog(props) {
     if (record && record.urlTemplate) {
       tagTextAreaRef.current.setValue(record.urlTemplate);
     }
+
     if (inputRef && inputRef.current) {
       inputRef.current.focus();
     }
@@ -167,10 +168,12 @@ export default function ExternalLinkDialog(props) {
       alert(_l('页面名称不能为空'), 3);
       return;
     }
+
     if (!appInfo.urlTemplate) {
       alert(_l('链接不能为空'), 3);
       return;
     }
+
     if (isEdit) {
       onAppChange({ projectId, appId: record.id, ...appInfo }, true);
     } else {
@@ -187,6 +190,7 @@ export default function ExternalLinkDialog(props) {
         ...appInfo,
       });
     }
+
     onCancel();
   };
 

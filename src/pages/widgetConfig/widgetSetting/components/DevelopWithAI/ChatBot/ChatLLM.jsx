@@ -345,6 +345,7 @@ function ChatLLM(
       e.stopPropagation();
       if (loading) return;
       const $codeCard = e.target.closest('.code-card');
+
       if ($codeCard) {
         const messageId = $codeCard.dataset.messageId;
         onCodeCardClick(messageId);
@@ -365,6 +366,7 @@ function ChatLLM(
       uploadImageRef.current.clear();
       setUploadedImageUrl('');
     }
+
     setTimeout(() => {
       inputRef.current.focus();
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
@@ -392,6 +394,7 @@ function ChatLLM(
           setFirstInputMessage(res.messageList[0].content);
         }
       }
+
       setMessageListLoading(false);
       setTimeout(() => {
         messagesEndRef.current?.scrollIntoView();
@@ -473,6 +476,7 @@ function ChatLLM(
                 setInput(old => old + '\n');
                 return;
               }
+
               if (e.key === 'Enter' && !cache.current.isOnComposition) {
                 e.preventDefault();
                 if (!loading) {

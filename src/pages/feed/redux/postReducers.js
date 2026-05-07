@@ -12,23 +12,30 @@ function getPostIdsFromPostList(postList, isIReply = false) {
 function normalizePost(postItem) {
   if (!postItem) return postItem;
   const properties = {};
+
   if (typeof postItem.commentCount !== 'number') {
     properties.commentCount = parseInt(postItem.commentCount, 10);
   }
+
   if (typeof postItem.likeCount !== 'number') {
     properties.likeCount = parseInt(postItem.likeCount, 10);
   }
+
   if (!postItem.categories) {
     properties.categories = [];
   }
+
   if (!postItem.tags) {
     properties.tags = [];
   }
+
   if (Object.keys(properties).length) {
     postItem = Object.assign({}, postItem, properties);
   }
+
   return postItem;
 }
+
 function getPostByIdsFromPostList(postList, isIReply = false) {
   if (!postList || !postList.length) return {};
   postList = postList.filter(postItem => !!isIReply === !!postItem.isIReply);
@@ -40,6 +47,7 @@ function getPostByIdsFromPostList(postList, isIReply = false) {
         obj[postItem.postID] = normalizePost(postItem);
       }
     }
+
     return obj;
   }, {});
 }
@@ -54,6 +62,7 @@ export function ireplyPostIds(state = [], action) {
       return state;
   }
 }
+
 export function ireplyPostsById(state = {}, action) {
   switch (action.type) {
     case 'POST_RELOAD_SUCCESS':

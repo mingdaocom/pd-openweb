@@ -56,7 +56,7 @@ const FormItem = styled.div`
   .ming.Textarea,
   .ming.Input:hover,
   .ming.Input:focus {
-    border: 1px solid var(--color-border-secondary);
+    border: 1px solid var(--color-primary);
   }
 `;
 const errors = {
@@ -89,10 +89,12 @@ export default class AddEditRulesDialog extends Component {
     if (form === 'encryptWay') {
       const length = value === 2 ? 24 : _.includes([3, 50], value) ? 32 : 16;
       const featureType = getFeatureStatus(projectId, VersionProductType.customEncrypt);
+
       if (value === 1000 && featureType === '2') {
         buriedUpgradeVersionDialog(projectId, VersionProductType.customEncrypt);
         return;
       }
+
       this.setState(
         {
           [form]: value,
@@ -124,6 +126,7 @@ export default class AddEditRulesDialog extends Component {
       token,
       testSuccess,
     } = this.state;
+
     if (!_.trim(ruleName)) {
       return alert(_l('规则名称不能为空'), 2);
     }
@@ -132,6 +135,7 @@ export default class AddEditRulesDialog extends Component {
       if (!_.trim(encryptUrl)) {
         return alert(_l('加密请求地址不能为空'), 2);
       }
+
       if (!_.trim(decryptUrl)) {
         return alert(_l('解密请求地址不能为空'), 2);
       }
@@ -144,6 +148,7 @@ export default class AddEditRulesDialog extends Component {
       if (!_.trim(key)) {
         return alert(_l('Key不能为空'), 2);
       }
+
       if (!_.trim(iv) && (encryptWay !== 50 || (encryptWay === 50 && cipherMode === 1))) {
         return alert(_l('IV不能为空'), 2);
       }
@@ -203,6 +208,7 @@ export default class AddEditRulesDialog extends Component {
         if (type === 'edit') {
           updateCurrentRow(addEncryptRuleParams);
         }
+
         this.props.getDataList();
         this.props.onCancel();
       } else {
@@ -218,9 +224,11 @@ export default class AddEditRulesDialog extends Component {
     if (!_.trim(ruleName)) {
       return alert(_l('规则名称不能为空'), 2);
     }
+
     if (!_.trim(encryptUrl)) {
       return alert(_l('加密请求地址不能为空'), 2);
     }
+
     if (!_.trim(decryptUrl)) {
       return alert(_l('解密请求地址不能为空'), 2);
     }
@@ -252,10 +260,12 @@ export default class AddEditRulesDialog extends Component {
 
   handleDefaultRuleName = () => {
     const { ruleList, type, ruleDetail = {} } = this.props;
+
     if (type === 'edit') {
       this.setState({ ...ruleDetail, ruleName: ruleDetail.name, encryptWay: ruleDetail.type });
       return;
     }
+
     const { encryptWay } = this.state;
     let wayLable = _.get(_.find(encryptList, it => it.value === encryptWay) || {}, 'label') + '_';
     let ruleName = getUnUniqName(ruleList, wayLable + _l('规则名称1'), 'name');

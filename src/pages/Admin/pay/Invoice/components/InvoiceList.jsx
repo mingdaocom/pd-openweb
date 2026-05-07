@@ -1,22 +1,21 @@
-import React, { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
+import React, { forwardRef, Fragment, useEffect, useImperativeHandle, useState } from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
 import styled from 'styled-components';
-import { Icon, LoadDiv, UserHead, UserName } from 'ming-ui';
+import { Dialog, Dropdown, Icon, LoadDiv } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import appManagementApi from 'src/api/appManagement';
 import merchantInvoiceApi from 'src/api/merchantInvoice';
-import IsAppAdmin from 'src/pages/Admin/components/IsAppAdmin';
 import MaskText from 'src/pages/Admin/components/MaskText';
 import PageTableCon from 'src/pages/Admin/components/PageTableCon';
 import SearchWrap from 'src/pages/Admin/components/SearchWrap';
 import { INVOICE_STATUS, INVOICE_STATUS_OPTIONS } from 'src/pages/invoice/constant';
 import { InvoiceConfirmDialog } from 'src/pages/invoice/InvoiceConfirm';
-import { navigateTo } from 'src/router/navigateTo';
 import { formatNumberThousand } from 'src/utils/control';
-import { INVOICE_TYPE, STATISTIC } from '../config';
+import { INVOICE_TYPE, REVERSAL_REASON, STATISTIC } from '../config';
+import InvoiceDetail from './InvoiceDetail';
 
 const Wrapper = styled.div`
   .statisticWrap {
@@ -39,7 +38,7 @@ const Wrapper = styled.div`
 let appPromise = null;
 
 const InvoiceList = forwardRef((props, ref) => {
-  const { projectId, updateDisabledExportBtn } = props;
+  const { projectId, updateDisabledExportBtn, taxList } = props;
   const [summary, setSummary] = useState({});
   const [invoiceList, setInvoiceList] = useState({ list: [], total: 0 });
   const [loading, setLoading] = useState(true);
@@ -50,6 +49,10 @@ const InvoiceList = forwardRef((props, ref) => {
   const [worksheetList, setWorksheetList] = useState([]);
   const [exporting, setExporting] = useState(false);
   const [syncingInvoiceId, setSyncingInvoiceId] = useState('');
+  const [detailVisibleId, setDetailVisibleId] = useState('');
+  const [reversalReason, setReversalReason] = useState(1);
+  const [reversalOrderId, setReversalOrderId] = useState('');
+  const [reversalLoading, setReversalLoading] = useState(false);
 
   // 使用 useImperativeHandle 暴露方法给父组件
   useImperativeHandle(ref, () => ({
@@ -104,14 +107,17 @@ const InvoiceList = forwardRef((props, ref) => {
 
   const getAppList = () => {
     const { appPageIndex, hasMore, loading, keyword = '' } = fetchAppState;
+
     // 加载更多
     if (!loading || !hasMore) {
       return;
     }
+
     setFetchAppState({ loading: true });
     if (appPromise && _.isFunction(appPromise)) {
       appPromise.abort();
     }
+
     appPromise = appManagementApi.getAppsByProject({
       projectId,
       status: '',
@@ -157,23 +163,11 @@ const InvoiceList = forwardRef((props, ref) => {
   };
 
   const getConditions = () => {
-    const { invoiceNo, title, status, appId = '', worksheetId, orderId } = searchValues || {};
+    const { invoiceNo, title, status, appId = '', worksheetId, orderId, isFastRed, isBlue, taxNo } = searchValues || {};
 
     const conditions = [
-      {
-        key: 'invoiceNo',
-        type: 'input',
-        label: _l('发票号码'),
-        placeholder: _l('输入发票号码'),
-        value: invoiceNo,
-      },
-      {
-        key: 'invoiceTitle',
-        type: 'input',
-        label: _l('发票抬头'),
-        placeholder: _l('输入发票抬头'),
-        value: title,
-      },
+      { key: 'invoiceNo', type: 'input', label: _l('发票号码'), placeholder: _l('输入发票号码'), value: invoiceNo },
+      { key: 'invoiceTitle', type: 'input', label: _l('发票抬头'), placeholder: _l('输入发票抬头'), value: title },
       {
         key: 'status',
         type: 'select',
@@ -192,13 +186,7 @@ const InvoiceList = forwardRef((props, ref) => {
         dateFormat: 'YYYY-MM-DD HH:mm:ss',
         suffixIcon: <Icon icon="person" className="Font16" />,
       },
-      {
-        key: 'orderId',
-        type: 'input',
-        label: _l('订单编号'),
-        placeholder: _l('输入订单编号'),
-        value: orderId,
-      },
+      { key: 'orderId', type: 'input', label: _l('订单编号'), placeholder: _l('输入订单编号'), value: orderId },
       {
         type: 'selectUser',
         key: 'operatorInfo',
@@ -232,6 +220,7 @@ const InvoiceList = forwardRef((props, ref) => {
         onPopupScroll: e => {
           e.persist();
           const { scrollTop, offsetHeight, scrollHeight } = e.target;
+
           if (scrollTop + offsetHeight === scrollHeight) {
             if (fetchAppState.hasMore) {
               setFetchAppState({ loading: true, appPageIndex: fetchAppState.appPageIndex + 1 });
@@ -259,6 +248,42 @@ const InvoiceList = forwardRef((props, ref) => {
         },
         notFoundContent: <span className="textTertiary">{_l('无搜索结果')}</span>,
         maxTagCount: 'responsive',
+      },
+      {
+        key: 'taxNo',
+        type: 'select',
+        label: _l('开票主体'),
+        placeholder: _l('请选择'),
+        allowClear: true,
+        value: taxNo,
+        maxTagCount: 'responsive',
+        options: taxList.map(item => ({ label: item.companyName, value: item.taxNo })),
+      },
+      {
+        key: 'isFastRed',
+        type: 'select',
+        label: _l('发票状态'),
+        placeholder: _l('请选择'),
+        allowClear: true,
+        value: isFastRed,
+        maxTagCount: 'responsive',
+        options: [
+          { label: _l('正常'), value: false },
+          { label: _l('已红冲-全额'), value: true },
+        ],
+      },
+      {
+        key: 'isBlue',
+        type: 'select',
+        label: _l('红蓝标志'),
+        placeholder: _l('请选择'),
+        allowClear: true,
+        value: isBlue,
+        maxTagCount: 'responsive',
+        options: [
+          { label: _l('红票'), value: false },
+          { label: _l('蓝票'), value: true },
+        ],
       },
     ];
 
@@ -305,9 +330,27 @@ const InvoiceList = forwardRef((props, ref) => {
           const newList = invoiceList.list.map(item => (item.orderId === orderId ? res?.invoice || item : item));
           setInvoiceList({ list: newList, total: invoiceList.total });
         }
+
         setSyncingInvoiceId('');
       })
       .catch(() => setSyncingInvoiceId(''));
+  };
+
+  const onReversalInvoice = () => {
+    setReversalLoading(true);
+    merchantInvoiceApi
+      .fastRed({ projectId, orderId: reversalOrderId, remark: reversalReason })
+      .then(res => {
+        if (res) {
+          alert(_l('操作成功'));
+          setReversalOrderId('');
+          setReversalReason(1);
+          getInvoiceList();
+        } else {
+          alert(_l('操作失败'), 2);
+        }
+      })
+      .finally(() => setReversalLoading(false));
   };
 
   const columns = [
@@ -334,20 +377,13 @@ const InvoiceList = forwardRef((props, ref) => {
         </div>
       ),
     },
-    {
-      title: _l('抬头类型'),
-      dataIndex: 'invoiceOutputType',
-      width: 100,
-      render: value => (value === 1 ? _l('企业') : _l('个人')),
-    },
     { title: _l('发票抬头'), dataIndex: 'invoiceTitle', width: 280 },
     { title: _l('发票类型'), dataIndex: 'invoiceType', width: 100, render: value => INVOICE_TYPE[value] },
-    { title: _l('发票金额(含税)'), dataIndex: 'price', width: 120, render: value => (value <= 0 ? 0 : value) },
     {
-      title: _l('发票税率'),
-      dataIndex: 'taxRate',
-      width: 100,
-      render: (value, record) => (!record.productId ? '-' : value * 100 + '%'),
+      title: _l('发票金额(含税)'),
+      dataIndex: 'price',
+      width: 120,
+      render: value => <span className={cx({ textError: value < 0 })}>{value}</span>,
     },
     { title: _l('开票单号'), dataIndex: 'invoiceId', width: 240, ellipsis: true },
     { title: _l('发票号码'), dataIndex: 'invoiceNo', width: 200, ellipsis: true, render: value => value || '-' },
@@ -364,9 +400,22 @@ const InvoiceList = forwardRef((props, ref) => {
       render: (value, record) => <span>{record.invoiceUrl ? moment(value).format('YYYY-MM-DD HH:mm:ss') : '-'}</span>,
     },
     {
-      title: _l('蓝字发票'),
-      dataIndex: 'invoiceUrl',
+      title: _l('发票状态'),
+      dataIndex: 'isFastRed',
       width: 120,
+      render: (value, record) =>
+        record.invoiceUrl ? value ? <span className="textError">{_l('已红冲-全额')}</span> : _l('正常') : '-',
+    },
+    {
+      title: _l('红蓝标志'),
+      dataIndex: 'isBlue',
+      width: 100,
+      render: value => (!value ? _l('红票') : _l('蓝票')),
+    },
+    {
+      title: _l('发票'),
+      dataIndex: 'invoiceUrl',
+      width: 100,
       render: value =>
         value ? (
           <span className="colorPrimary Hand Hover_51" onClick={() => window.open(value)}>
@@ -377,174 +426,53 @@ const InvoiceList = forwardRef((props, ref) => {
         ),
     },
     {
-      title: _l('申请人'),
-      dataIndex: 'account',
-      width: 150,
-      render: (value, record) => {
-        const { accountId, fullname, avatar, isPortal } = record.account || {};
-
-        return (
-          <div className="flexRow">
-            <UserHead className="circle" user={{ userHead: avatar, accountId }} size={24} projectId={projectId} />
-            {isPortal ? (
-              <div className="pLeft5">{fullname}</div>
-            ) : (
-              <UserName
-                className="textPrimary Font13 pLeft5 pRight10 pTop3 flex ellipsis"
-                projectId={projectId}
-                user={{ userName: fullname, accountId }}
-              />
-            )}
-          </div>
-        );
-      },
-    },
-    {
-      title: _l('开票人'),
-      dataIndex: 'operator',
-      width: 150,
-      render: (value, record) => {
-        const { accountId, fullname, avatar, isPortal } = record.operator || {};
-
-        if (_.isEmpty(record.operator) || !accountId) {
-          return '-';
-        }
-
-        return (
-          <div className="flexRow">
-            <UserHead className="circle" user={{ userHead: avatar, accountId }} size={24} projectId={projectId} />
-            {isPortal ? (
-              <div className="pLeft5">{fullname}</div>
-            ) : (
-              <UserName
-                className="textPrimary Font13 pLeft5 pRight10 pTop3 flex ellipsis"
-                projectId={projectId}
-                user={{ userName: fullname, accountId }}
-              />
-            )}
-          </div>
-        );
-      },
-    },
-    {
-      title: _l('订单编号/工作流ID'),
-      dataIndex: 'orderId',
-      width: 290,
-      render: (value, record) => (
-        //record.orderId === record.invoiceId 测试票
-        <span
-          className={cx({ 'colorPrimary ThemeHoverColor2 pointer': record.orderId !== record.invoiceId && value })}
-          onClick={() => {
-            if (record.processId) {
-              window.open(`/workflowedit/${record.processId}`);
-              return;
-            }
-
-            record.orderId !== record.invoiceId &&
-              value &&
-              window.open(`/admin/transaction/${projectId}?orderId=${value}`);
-          }}
-        >
-          {record.processId ? record.processId : record.orderId === record.invoiceId ? '-' : value}
-        </span>
-      ),
-    },
-    {
-      title: _l('所属应用'),
-      dataIndex: 'app',
-      width: 160,
-      render: (text, record) => {
-        const { sourceInfo = {}, orderId, invoiceId } = record;
-        const { appColor, appIconUrl, appName, appId } = sourceInfo;
-
-        if (orderId === invoiceId) {
-          return '-';
-        }
-
-        return (
-          <IsAppAdmin
-            appId={appId}
-            appName={appName}
-            iconUrl={appIconUrl}
-            iconColor={appColor}
-            projectId={props.projectId}
-            passCheckManager={true}
-          />
-        );
-      },
-    },
-    {
-      title: _l('所属表单/所属工作流'),
-      dataIndex: 'worksheet',
-      width: 160,
-      render: (value, record) => {
-        const { sourceInfo = {}, orderId, invoiceId } = record;
-        const { workSheetName, worksheetId } = sourceInfo;
-
-        if (orderId === invoiceId) {
-          return '-';
-        }
-
-        return (
-          <span
-            title={workSheetName}
-            className={cx({ 'Hand hoverColorPrimary': !!worksheetId })}
-            onClick={() => {
-              if (record.processId) {
-                window.open(`/workflowedit/${record.processId}`);
-                return;
-              }
-
-              worksheetId && navigateTo(`/worksheet/${worksheetId}`);
-            }}
-          >
-            {workSheetName}
-          </span>
-        );
-      },
-    },
-    {
       title: _l('操作'),
       dataIndex: 'action',
       fixed: 'right',
       width: 'auto',
-      minWidth: 150,
+      minWidth: 108,
       render: (value, record) => {
-        if (record.processId) return null;
-
         return (
           <div className="flexRow alignItemsCenter">
-            {record.orderId !== record.invoiceId && (
-              <span className="colorPrimary Hand Hover_51" onClick={() => window.open(`/orderpay/${record.orderId}`)}>
-                {_l('查看订单')}
+            <span className="colorPrimary Hand Hover_51" onClick={() => setDetailVisibleId(record.invoiceId)}>
+              {_l('详情')}
+            </span>
+
+            {record.status === INVOICE_STATUS.INVOICED && record.isBlue && !record.isFastRed && (
+              <span className="colorPrimary Hand Hover_51 mLeft24" onClick={() => setReversalOrderId(record.orderId)}>
+                {_l('冲红')}
               </span>
             )}
 
-            {record.status === INVOICE_STATUS.PROCESSING &&
-              (syncingInvoiceId === record.invoiceId ? (
-                <span>
-                  <LoadDiv className="mLeft24" size="small" />
-                </span>
-              ) : (
-                <span className="colorPrimary Hand Hover_51 mLeft24" onClick={() => onSyncInvoice(record)}>
-                  {_l('刷新')}
-                </span>
-              ))}
+            {!record.processId && record.isBlue && (
+              <Fragment>
+                {record.status === INVOICE_STATUS.PROCESSING &&
+                  (syncingInvoiceId === record.invoiceId ? (
+                    <span>
+                      <LoadDiv className="mLeft24" size="small" />
+                    </span>
+                  ) : (
+                    <span className="colorPrimary Hand Hover_51 mLeft24" onClick={() => onSyncInvoice(record)}>
+                      {_l('刷新')}
+                    </span>
+                  ))}
 
-            {record.status === INVOICE_STATUS.UN_INVOICED && (
-              <span
-                className="colorPrimary Hand Hover_51 mLeft24"
-                onClick={() => {
-                  InvoiceConfirmDialog({
-                    isLandPage: false,
-                    orderId: record.orderId,
-                    projectId,
-                    onConfirmSuccess: () => getInvoiceList(),
-                  });
-                }}
-              >
-                {_l('审核开票')}
-              </span>
+                {record.status === INVOICE_STATUS.UN_INVOICED && (
+                  <span
+                    className="colorPrimary Hand Hover_51 mLeft24"
+                    onClick={() => {
+                      InvoiceConfirmDialog({
+                        isLandPage: false,
+                        orderId: record.orderId,
+                        projectId,
+                        onConfirmSuccess: () => getInvoiceList(),
+                      });
+                    }}
+                  >
+                    {_l('审核开票')}
+                  </span>
+                )}
+              </Fragment>
             )}
           </div>
         );
@@ -586,6 +514,41 @@ const InvoiceList = forwardRef((props, ref) => {
           getDataSource={getInvoiceList}
         />
       </div>
+
+      {detailVisibleId && (
+        <InvoiceDetail
+          projectId={projectId}
+          invoiceId={detailVisibleId}
+          onClose={() => setDetailVisibleId('')}
+          onViewDetail={id => setDetailVisibleId(id)}
+        />
+      )}
+
+      {reversalOrderId && (
+        <Dialog
+          visible={true}
+          title={<span className="textError">{_l('确定冲红')}</span>}
+          buttonType="danger"
+          onCancel={() => {
+            setReversalOrderId('');
+            setReversalReason(1);
+          }}
+          okDisabled={reversalLoading}
+          onOk={onReversalInvoice}
+        >
+          <div>
+            <div className="Font14 mBottom8">{_l('冲红原因')}</div>
+            <Dropdown
+              border
+              isAppendToBody
+              className="w100"
+              data={REVERSAL_REASON}
+              value={reversalReason}
+              onChange={value => setReversalReason(value)}
+            />
+          </div>
+        </Dialog>
+      )}
     </Wrapper>
   );
 });

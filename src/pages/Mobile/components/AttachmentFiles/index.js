@@ -68,6 +68,7 @@ function compressImage(file, quality) {
           for (var i = 0; i < byteString.length; i++) {
             ia[i] = byteString.charCodeAt(i);
           }
+
           var blob = new Blob([ab], { type: mimeType });
           var compressedFile = new File([blob], file.name, { type: file.type, lastModified: Date.now() });
           if (compressedFile.size < file.size) {
@@ -81,6 +82,7 @@ function compressImage(file, quality) {
         }
       };
     };
+
     reader.readAsDataURL(file);
   });
 }
@@ -89,18 +91,22 @@ function addWaterMarker(file, watermark, { dynamicControls, advancedSetting, cur
   const isNew = !!_.get(advancedSetting, 'h5watermark');
   let textLayouts = [];
   let dynamicTxt = '';
+
   if (!isNew) {
     const { formattedAddress, position } = currentLocation || {};
 
     if (md.global.Account.fullname && watermark.includes('user')) {
       textLayouts.push(md.global.Account.fullname);
     }
+
     if (watermark.includes('time')) {
       textLayouts.push(moment().format('YYYY-MM-DD HH:mm:ss'));
     }
+
     if (formattedAddress && watermark.includes('address')) {
       textLayouts.push(formattedAddress);
     }
+
     if (position && watermark.includes('xy')) {
       textLayouts.push(`${_l('经度')}：${position.lng}  ${_l('纬度')}：${position.lat}`);
     }
@@ -116,8 +122,10 @@ function addWaterMarker(file, watermark, { dynamicControls, advancedSetting, cur
 
   return new Promise(resolve => {
     const reader = new FileReader();
+
     reader.onload = function (event) {
       const image = new Image();
+
       image.onload = function () {
         const canvas = document.createElement('canvas');
         canvas.width = image.width;
@@ -156,8 +164,10 @@ function addWaterMarker(file, watermark, { dynamicControls, advancedSetting, cur
           resolve(compressedFile);
         });
       };
+
       image.src = event.target.result;
     };
+
     reader.readAsDataURL(file);
   });
 }
@@ -199,10 +209,12 @@ export class UploadFileWrapper extends Component {
 
         //判断应用上传量是否达到上限
         const isPublicWorkflow = _.get(window, 'shareState.isPublicWorkflowRecord');
+
         if (projectId && !window.isPublicApp && !window.isPublicWorksheet && !isPublicWorkflow) {
           const filesSize = getFilesSize(files);
           const params = { projectId, appId, fromType: 9 };
           const available = await checkAccountUploadLimit(filesSize, params);
+
           if (!available) {
             alert(_l('应用附件上传量已到最大值'), 3);
             self.onRemoveAll(uploader);
@@ -232,6 +244,7 @@ export class UploadFileWrapper extends Component {
               return n;
             });
             const errors = result.filter(n => n);
+
             if (errors.length) {
               errors.forEach(n => {
                 alert(n, 2);
@@ -275,9 +288,11 @@ export class UploadFileWrapper extends Component {
           self.props.onChange(newFiles);
           nextStart && nextStart();
         };
+
         const watermark = _.get(advancedSetting, 'h5watermark') || _.get(advancedSetting, 'watermark');
         const isWatermark = customUploadType === 'camara' && watermark;
         const isWebcompress = _.get(advancedSetting, 'webcompress') !== '0';
+
         if (isWatermark || isWebcompress) {
           Promise.all(
             files
@@ -289,6 +304,7 @@ export class UploadFileWrapper extends Component {
                 return new Promise(async resolve => {
                   const nativeFile = file.getNative();
                   let newFile = nativeFile;
+
                   if (isWatermark) {
                     const dynamicControlIds = _.get(advancedSetting, 'h5watermark')
                       ? _.get(advancedSetting, 'h5watermark').split('$')
@@ -300,12 +316,15 @@ export class UploadFileWrapper extends Component {
                       if (item === 'user' && md.global.Account.fullname) {
                         return { controlId: 'user', type: 2, value: md.global.Account.fullname };
                       }
+
                       if (item === 'time') {
                         return { controlId: 'time', type: 2, value: moment().format('YYYY-MM-DD HH:mm:ss') };
                       }
+
                       if (item === 'address' && formattedAddress) {
                         return { controlId: 'address', type: 2, value: formattedAddress };
                       }
+
                       if (item === 'xy' && position) {
                         return {
                           controlId: 'xy',
@@ -325,9 +344,11 @@ export class UploadFileWrapper extends Component {
                       currentLocation,
                     });
                   }
+
                   if (isWebcompress) {
                     newFile = await compressImage(newFile, 0.3);
                   }
+
                   file.size = newFile.size;
                   file.setSource({ size: newFile.size });
                   file.getSource().setSource(newFile);
@@ -353,6 +374,7 @@ export class UploadFileWrapper extends Component {
           if (file.id === item.id && 'progress' in item) {
             item.progress = uploadPercent;
           }
+
           return item;
         });
         self.setState({
@@ -369,6 +391,7 @@ export class UploadFileWrapper extends Component {
             delete item.progress;
             delete item.base;
           }
+
           return item;
         });
         self.setState({
@@ -474,10 +497,12 @@ export default class AttachmentList extends Component {
     const { attachments, hideDownload } = this.props;
     const { updateTime } = attachments[index];
     const hideFunctions = ['editFileName'];
+
     if (hideDownload) {
       /* 是否不可下载 且 不可保存到知识和分享 */
       hideFunctions.push('download', 'share', 'saveToKnowlege');
     }
+
     previewAttachments({
       index: index || 0,
       attachments: updateTime

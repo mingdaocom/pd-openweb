@@ -38,10 +38,12 @@ export default class TimeHeader extends Component {
             pubWidth = width * item.sub.length;
             subWidth = width;
           }
+
           if (type === 'week') {
             pubWidth = width * item.sub.length * 7;
             subWidth = width * 7;
           }
+
           if (type === 'month') {
             pubWidth = width * getDays(item);
           }
@@ -52,13 +54,16 @@ export default class TimeHeader extends Component {
               <div className="subTimeBox">
                 {item.sub.map((sub, index) => {
                   let isToday;
+
                   if (type === 'day') {
                     const todayFormat = moment().format('YYYY.MMD');
                     isToday = todayFormat === `${item.pub}${sub}`;
                   }
+
                   if (type === 'month') {
                     subWidth = width * moment(`${item.pub}${sub}`, 'YYYYMM月').daysInMonth();
                   }
+
                   return (
                     <div key={`sub-${index}`} style={{ width: subWidth }} className={cx({ isToday }, 'subTime')}>
                       {sub}

@@ -80,6 +80,7 @@ function renderContent(data, recordInfo, extendParam) {
     if (typeof oldList[0] !== 'object' || isFileEdit) {
       oldList = isFileEdit ? newList : [];
     }
+
     if (editType === 2) {
       if (isEqual(newValue, oldValue)) {
         newList = [];
@@ -87,6 +88,7 @@ function renderContent(data, recordInfo, extendParam) {
         newList = _.differenceBy(oldList, newList, type === 14 ? 'fileId' : 'key');
       }
     }
+
     let _oldValue = _.differenceBy(oldList, newList, type === 14 ? 'fileId' : 'key');
     let _newValue = _.differenceBy(newList, oldList, type === 14 ? 'fileId' : 'key');
     let _defaultValue = newList.filter(l =>

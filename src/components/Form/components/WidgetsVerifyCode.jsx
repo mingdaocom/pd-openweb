@@ -23,6 +23,7 @@ export default class WidgetsVerifyCode extends Component {
     ) {
       return true;
     }
+
     return false;
   }
 
@@ -83,10 +84,12 @@ export default class WidgetsVerifyCode extends Component {
         })
         .catch(() => _this.setState({ isSubmit: false }));
     };
+
     const onCancel = isOk => {
       if (isOk) return;
       this.setState({ isSubmit: false });
     };
+
     const captchaFuc = () => {
       if (md.global.getCaptchaType() === 1) {
         new captcha(cb, onCancel);

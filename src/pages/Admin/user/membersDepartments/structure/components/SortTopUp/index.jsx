@@ -45,6 +45,7 @@ function SortTopUp(props) {
           onCancel();
           return;
         }
+
         alert(_l('设置失败'), 2);
       });
   };

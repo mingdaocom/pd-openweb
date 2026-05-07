@@ -26,16 +26,20 @@ class DateTable extends Component {
       const tdList = row.map((item, j) => {
         const classList = [];
         const labelClassList = [];
+
         if (item.other) {
           classList.push('other');
         }
+
         if (item.disabled) {
           classList.push('disabled');
         }
+
         if (item.current) {
           classList.push('current');
           labelClassList.push('ThemeBGColor3');
         }
+
         if (item.inRange) {
           classList.push('in-range');
           classList.push('ThemeBeforeBGColor6');
@@ -43,19 +47,23 @@ class DateTable extends Component {
           if (item.start) {
             classList.push('cell-start');
           }
+
           // end
           if (item.end) {
             classList.push('cell-end');
           }
+
           // left
           if (item.left) {
             classList.push('cell-left');
           }
+
           // right
           if (item.right) {
             classList.push('cell-right');
           }
         }
+
         if (item.now) {
           classList.push('now');
           classList.push('ThemeColor3');

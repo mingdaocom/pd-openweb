@@ -42,6 +42,7 @@ export default class Signature extends React.Component {
 
   handleTableKeyDown = e => {
     const { updateEditingStatus } = this.props;
+
     switch (e.key) {
       case 'Escape':
         updateEditingStatus(false);
@@ -50,6 +51,7 @@ export default class Signature extends React.Component {
         if (_.get(this, 'editRef.current.state.isEdit') && _.isFunction(_.get(this, 'editRef.current.saveSignature'))) {
           _.get(this, 'editRef.current.saveSignature')();
         }
+
         break;
       default:
         break;
@@ -123,9 +125,11 @@ export default class Signature extends React.Component {
       fromEmbed,
     } = this.props;
     const { value } = this.state;
+
     if (from === FROM.CARD || (from === FROM.DRAFT && browserIsMobile())) {
       return value ? <div className="cellAttachments cellControl"> {this.renderCommon()} </div> : <span />;
     }
+
     return (
       <SignatureComp
         projectId={projectId}

@@ -46,6 +46,7 @@ export default function SelectProcess(props) {
       getList();
       return;
     }
+
     if (_.get(btnSetting, ['action']) === 6 && _.isEmpty(processList)) {
       getList();
       return;
@@ -79,6 +80,7 @@ export default function SelectProcess(props) {
                   });
                 });
             }
+
             setInputList(
               data.inputs.map(item => {
                 return {

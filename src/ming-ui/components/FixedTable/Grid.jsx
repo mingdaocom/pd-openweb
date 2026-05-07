@@ -38,10 +38,12 @@ export default function Grid(props) {
   } = props;
   let leftFixedCount = props.leftFixedCount;
   let leftFixedWidth = leftFixedCount ? sum([...new Array(leftFixedCount)].map((n, i) => getColumnWidth(i))) : 0;
+
   if (leftFixedWidth > width && leftFixedCount > 2) {
     leftFixedCount = isGroupTableView ? 2 : 1;
     leftFixedWidth = leftFixedCount ? sum([...new Array(leftFixedCount)].map((n, i) => getColumnWidth(i))) : 0;
   }
+
   const rightFixedWidth = rightFixedCount
     ? sum([...new Array(rightFixedCount)].map((n, i) => getColumnWidth(columnCount - rightFixedCount + i)))
     : 0;
@@ -52,9 +54,11 @@ export default function Grid(props) {
     : bottomFixed
       ? bottomFixedHeight
       : height - topFixedHeight - bottomFixedHeight;
+
   if (includes(id, 'main') && gridHeight < 60) {
     gridHeight = 60;
   }
+
   const config = {
     left: leftFixed ? 0 : rightFixed ? width - rightFixedWidth : leftFixedWidth,
     top: topFixed ? 0 : bottomFixed ? height - bottomFixedHeight : topFixedHeight,
@@ -67,9 +71,11 @@ export default function Grid(props) {
         : columnCount - leftFixedCount - rightFixedCount,
     rowCount: topFixed || bottomFixed ? 1 : rowCount,
   };
+
   if (!config.width || !config.height) {
     return;
   }
+
   return (
     <Fragment>
       <VariableSizeGrid
@@ -88,11 +94,13 @@ export default function Grid(props) {
         columnCount={config.columnCount}
         columnWidth={i => {
           let index = i;
+
           if (id.endsWith('center')) {
             index = i + leftFixedCount;
           } else if (id.endsWith('right')) {
             index = i + columnCount - rightFixedCount;
           }
+
           return getColumnWidth(index);
         }}
         rowHeight={getRowHeight || (() => rowHeight)}

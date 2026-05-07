@@ -34,8 +34,10 @@ export default class DepartmentList extends Component {
       if (list[i].departmentId == id) {
         return [list[i]];
       }
+
       if (list[i].subDepartments) {
         let node = this.getParentId(list[i].subDepartments, id);
+
         if (node !== undefined) {
           return node.concat(list[i]);
         }
@@ -66,6 +68,7 @@ export default class DepartmentList extends Component {
   render() {
     const { activeIds = [] } = this.props;
     let departments = this.props.data;
+
     if (departments && departments.length) {
       return (
         <div className="GSelect-departmentList">
@@ -93,6 +96,7 @@ export default class DepartmentList extends Component {
         </div>
       );
     }
+
     return null;
   }
 }
@@ -150,9 +154,11 @@ class Department extends Component {
     disabled = disabled || isIncludesByParent;
     let name = departmentName;
     let nameArr = [name];
+
     if (this.props.keywords) {
       let mt = name.match(keywords);
       let len = keywords.length;
+
       if (mt) {
         nameArr = [];
         while (mt) {
@@ -161,11 +167,13 @@ class Department extends Component {
           name = name.slice(mt.index + len);
           mt = name.match(keywords);
         }
+
         if (name) {
           nameArr.push(name);
         }
       }
     }
+
     return (
       <div className="GSelect-department">
         <div
@@ -191,6 +199,7 @@ class Department extends Component {
               if (disabled) {
                 return;
               }
+
               this.toogleDepargmentSelect(department);
             }}
           >
@@ -220,6 +229,7 @@ class Department extends Component {
                     </span>
                   );
                 }
+
                 return <span key={item + index}>{item}</span>;
               })}
             </div>

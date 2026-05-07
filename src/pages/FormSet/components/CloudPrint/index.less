@@ -1,0 +1,186 @@
+.cloudPrintContainer {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 22px;
+    font-size: 17px;
+    font-weight: 500;
+    color: var(--color-text-primary);
+    .icon {
+      cursor: pointer;
+      color: var(--color-text-tertiary);
+      &:hover {
+        color: var(--color-primary);
+      }
+    }
+  }
+  .content {
+    flex: 1;
+    min-height: 0;
+    .templateContent {
+      padding: 0 22px;
+      .title {
+        margin-bottom: 10px;
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--color-text-primary);
+        &.subTitle {
+          display: flex;
+          align-items: center;
+          font-weight: 400;
+          .icon {
+            margin-left: 4px;
+            color: var(--color-text-tertiary);
+            cursor: pointer;
+          }
+        }
+      }
+      input {
+        margin-bottom: 20px;
+        width: 100%;
+      }
+      .radioBox {
+        display: flex;
+        margin-bottom: 20px;
+        label {
+          width: 100px;
+        }
+      }
+      .description {
+        margin-bottom: 14px;
+        font-size: 13px;
+        color: var(--color-text-tertiary);
+      }
+      .tutorial {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 20px;
+        height: 36px;
+        background: var(--color-primary-transparent);
+        border-radius: 3px;
+        color: var(--color-primary);
+        cursor: pointer;
+        &:hover {
+          color: var(--color-primary-dark);
+        }
+        .icon {
+          margin-left: 8px;
+        }
+      }
+      .fieldsAnalysis {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 20px;
+        width: 86px;
+        height: 32px;
+        background: var(--color-primary-transparent);
+        border-radius: 32px;
+        color: var(--color-primary);
+        cursor: pointer;
+        &:hover {
+          color: var(--color-primary-dark);
+        }
+      }
+      .parsedFields {
+        margin-bottom: 20px;
+        .parsedFieldsHeader {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          margin-bottom: 6px;
+          font-size: 13px;
+          color: var(--color-text-primary);
+          div {
+            flex: 1;
+          }
+        }
+        .parsedFieldsItem {
+          .fieldsMapping {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            .fieldName {
+              flex: 1;
+              display: flex;
+              align-items: center;
+              padding: 0 10px;
+              height: 36px;
+              border-radius: 3px;
+              background-color: var(--color-background-secondary);
+            }
+            .mappedField {
+              flex: 1;
+              .ant-select-selector {
+                display: flex;
+                align-items: center;
+                height: 36px;
+                line-height: 36px;
+              }
+              .ant-select-selection-item {
+                line-height: 36px;
+              }
+              input {
+                height: 36px !important;
+              }
+              .ant-select-selection-placeholder {
+                line-height: normal;
+              }
+            }
+            .icon {
+              font-size: 20px;
+              color: var(--color-primary);
+            }
+          }
+          .demoData {
+            margin-top: 5px;
+            font-size: 12px;
+            color: var(--color-text-secondary);
+          }
+        }
+        .parsedFieldsItem + .parsedFieldsItem {
+          margin-top: 10px;
+        }
+      }
+    }
+  }
+  .footer {
+    background-color: var(--color-background-secondary);
+  }
+}
+
+.fieldsAnalysisContent {
+  .analysisDesc {
+    margin-bottom: 15px;
+    font-size: 12px;
+    color: var(--color-text-secondary);
+  }
+  .analysisLabel {
+    margin-bottom: 10px;
+    font-size: 13px;
+    color: var(--color-text-primary);
+  }
+  .analysisTextarea {
+    padding: 12px;
+    width: 100%;
+    height: 120px;
+    border: 1px solid var(--color-border-secondary);
+    border-radius: 3px;
+    font-size: 13px;
+    color: var(--color-text-primary);
+    resize: none;
+  }
+}
+
+.mappedFieldPopup {
+  .ant-select-item-option-disabled {
+    color: var(--color-text-tertiary) !important;
+    font-size: 13px;
+  }
+}

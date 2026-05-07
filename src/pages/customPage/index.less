@@ -10,9 +10,6 @@
   &.ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
     font-weight: unset;
     color: var(--color-white);
-    .icon {
-      color: var(--color-white) !important;
-    }
   }
 }
 
@@ -54,6 +51,12 @@
   button.save {
     font-weight: bold;
     width: 72px !important;
+    border-color: var(--color-primary);
+    background-color: var(--color-primary);
+    &:hover {
+      background-color: var(--color-primary-light);
+      border-color: var(--color-primary-light);
+    }
   }
   .customPageSelect {
     &.ant-select:not(.ant-select-disabled):hover .ant-select-selector,
@@ -79,6 +82,12 @@
     }
     &.ant-select-single.ant-select-open .ant-select-selection-item {
       color: inherit;
+    }
+  }
+  .ant-switch {
+    background: var(--color-background-disabled) !important;
+    &.ant-switch-checked {
+      background: var(--color-primary) !important;
     }
   }
 }

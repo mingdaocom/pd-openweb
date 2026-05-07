@@ -16,6 +16,7 @@ export default function ScrollBar(props) {
     style.height = barWidth;
     contentStyle.height = barWidth;
   }
+
   return (
     <ScrollView
       className={'scroll-' + type}
@@ -29,6 +30,7 @@ export default function ScrollBar(props) {
         onScroll(instance);
         const { scrollOffsetElement } = instance.elements();
         const { scrollTop, scrollLeft } = scrollOffsetElement;
+
         if (type === 'x') {
           setScrollX(scrollLeft);
         } else if (type === 'y') {

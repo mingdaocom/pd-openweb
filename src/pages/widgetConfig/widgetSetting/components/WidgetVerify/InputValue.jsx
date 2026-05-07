@@ -5,6 +5,7 @@ import { formatNumberThousand } from 'src/utils/control';
 
 export default function InputValue({ type, value, className, onChange, onBlur, placeholder }) {
   const [isEditing, setEditing] = useState(false);
+
   const parseValue = value => {
     const dealValue = [2, 10].includes(type)
       ? value.replace(/[^\d]/g, '')
@@ -21,11 +22,13 @@ export default function InputValue({ type, value, className, onChange, onBlur, p
     if (dealValue === '.') return '';
     return dealValue;
   };
+
   const displayValue = value => {
     if (!value) return '';
     if (value === '-') return '-';
     value = value.replace(/,/g, '');
     let formatNumber = '';
+
     if (_.includes(value, '.')) {
       formatNumber = _.endsWith(value, '.')
         ? `${String(parseFloat(value))}.`
@@ -33,9 +36,11 @@ export default function InputValue({ type, value, className, onChange, onBlur, p
     } else {
       formatNumber = String(parseFloat(value));
     }
+
     const dealValue = formatNumberThousand(formatNumber);
     return dealValue;
   };
+
   return isEditing ? (
     <Input
       className={className}
@@ -48,6 +53,7 @@ export default function InputValue({ type, value, className, onChange, onBlur, p
           onBlur(parseValue(e.target.value));
           return;
         }
+
         onChange(parseValue(e.target.value));
       }}
     />

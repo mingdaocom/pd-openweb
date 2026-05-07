@@ -83,6 +83,7 @@ export default class Header extends Component {
       } else {
         this.request('submit');
       }
+
       return;
     }
 
@@ -207,6 +208,7 @@ export default class Header extends Component {
     const { id, workId, onSave, onLoad, onClose, onSubmit } = this.props;
     const { isRequest } = this.state;
     const isStash = restPara.operationType === 13;
+
     const saveFunction = ({ error, logId }) => {
       if (error && error !== 'empty') {
         this.setState({ isRequest: false });
@@ -298,6 +300,7 @@ export default class Header extends Component {
             alert(_l('请输入密码'), 3);
             return;
           }
+
           verifyPassword({
             projectId,
             password: this.password,

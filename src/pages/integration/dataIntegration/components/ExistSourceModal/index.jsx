@@ -156,6 +156,7 @@ const NoDataWrapper = styled.div`
 `;
 
 let listAjaxPromise = null;
+
 export default function ExistSourceModal(props) {
   const { connectorConfigData = {}, roleType, setConnectorConfigData, onClose, from = '' } = props;
   const [searchKeyWords, setSearchKeyWords] = useState('');
@@ -173,9 +174,11 @@ export default function ExistSourceModal(props) {
     dataSourceApi.getTypes(fetchTypeParams).then(res => {
       if (res) {
         let filterRes = res.filter(item => _.includes([ROLE_TYPE.ALL, roleType.toUpperCase()], item.roleType));
+
         if (from === 'dataMirror') {
           filterRes = filterRes.filter(item => dataMirrorDestTypes.includes(item.type));
         }
+
         const dataList = [
           {
             key: SOURCE_FROM_TYPE.LOCAL,
@@ -234,9 +237,11 @@ export default function ExistSourceModal(props) {
       dsType: currentTab === 'ALL' ? null : currentTab.type,
       roleType: roleType.toUpperCase(),
     };
+
     if (listAjaxPromise) {
       listAjaxPromise.abort();
     }
+
     listAjaxPromise = dataSourceApi.list(fetchSourceParams);
     listAjaxPromise.then(res => {
       listAjaxPromise = null;

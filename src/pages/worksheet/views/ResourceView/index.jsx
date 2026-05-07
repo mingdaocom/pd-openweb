@@ -126,6 +126,7 @@ function ResourceView(props) {
                     if (!viewControl) {
                       return;
                     }
+
                     const viewControlInfo = controls.find(o => o.controlId === viewControl) || {};
                     let data = {
                       viewControl,
@@ -140,7 +141,9 @@ function ResourceView(props) {
                       editAttrs: ['viewControl', 'advancedSetting', 'displayControls', 'controlsSorts', 'coverCid'],
                     };
                     saveView(viewId, _.pick(data, [...(data.editAttrs || []), 'editAdKeys']));
-                    window.openViewConfig();
+                    if (window?.openViewConfig) {
+                      window.openViewConfig();
+                    }
                   }}
                 >
                   {_l('确认')}

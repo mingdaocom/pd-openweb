@@ -76,7 +76,7 @@ export default class Merchant extends Component {
           className={cx('flexColumn', {
             orgManagementContent: showHeader,
             orgManagementWrap: !showHeader,
-            overflowHidden: this.com,
+            overflowHidden: this.com && this.com.state?.merchantList?.length > 0,
           })}
         >
           <MerchantCom

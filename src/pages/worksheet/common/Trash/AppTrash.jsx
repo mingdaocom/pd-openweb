@@ -26,9 +26,11 @@ export default function AppTrash(props) {
   const [loadOuted, setLoadOuted] = useState();
   const [apps, setApps] = useState([]);
   const [keyword, setKeyword] = useState();
+
   function setPendingCache(key, value) {
     cache.current['pending_' + key] = value;
   }
+
   function load(args = {}) {
     setLoading(true);
     if (!_.isUndefined(args.keyword)) {
@@ -37,9 +39,11 @@ export default function AppTrash(props) {
       setLoadOuted(false);
       setKeyword(args.keyword);
     }
+
     if (args.pageIndex) {
       setPageIndex(args.pageIndex);
     }
+
     homeAppAjax
       .getAppRecoveryRecordList({
         pageIndex: args.pageIndex || pageIndex,
@@ -54,9 +58,11 @@ export default function AppTrash(props) {
         } else {
           setLoadOuted(true);
         }
+
         setLoading(false);
       });
   }
+
   useEffect(load, []);
 
   return (
@@ -133,11 +139,13 @@ export default function AppTrash(props) {
         }}
         onRestore={appIndex => {
           const app = apps[appIndex];
+
           if (cache.current['pending_' + app.id]) {
             return;
           } else {
             setPendingCache(app.id, true);
           }
+
           homeAppAjax
             .restoreApp({
               id: app.id,

@@ -10,6 +10,17 @@ export default {
     return mdyAPI('Mingo', 'GetFederationToken', args, options);
   },
   /**
+   * mingo对话附件ocr
+   * @param {Object} args 请求参数
+   * @param {array} args.files 文件路径集合
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  fileOcrParse: function (args, options = {}) {
+    return mdyAPI('Mingo', 'FileOcrParse', args, options);
+  },
+  /**
    * 获取聊天历史记录
    * @param {Object} args 请求参数
    * @param {Object} options 配置参数
@@ -155,5 +166,18 @@ export default {
    **/
   generateAIActionInfo: function (args, options = {}) {
     return mdyAPI('Mingo', 'GenerateAIActionInfo', args, options);
+  },
+  /**
+   * AI智能推荐知识库方案
+   * @param {Object} args 请求参数
+   * @param {string} args.appId Appid
+   * @param {} args.langType
+   * @param {boolean} args.isReload 是否重新加载
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  generateKnowledgeBasePlan: function (args, options = {}) {
+    return mdyAPI('Mingo', 'GenerateKnowledgeBasePlan', args, options);
   },
 };

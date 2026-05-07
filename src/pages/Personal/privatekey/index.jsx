@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import ClipboardButton from 'react-clipboard.js';
+import copy from 'copy-to-clipboard';
 import moment from 'moment';
 import { Icon, Textarea } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
@@ -13,9 +13,11 @@ const LicenseVersions = [_l('社区版'), _l('标准版'), _l('专业版'), _l('
 
 const formatDate = date => {
   const year = moment(date).format('YYYY');
+
   if (year == 9999) {
     return _l('永久');
   }
+
   return moment(date).format(`YYYY年MM月DD日`);
 };
 
@@ -53,6 +55,7 @@ export default class PersonalEntrypoint extends Component {
         if (inde === targetIndex) {
           item.visible = !hide;
         }
+
         return item;
       }),
     });
@@ -94,15 +97,14 @@ export default class PersonalEntrypoint extends Component {
                 <Textarea minHeight={90} readOnly defaultValue={licenseCode} />
                 <Tooltip title={_l('复制')} placement="bottom">
                   <div className="copyWrapper">
-                    <ClipboardButton
-                      component="div"
-                      data-clipboard-text={licenseCode}
-                      onSuccess={() => {
+                    <div
+                      onClick={() => {
+                        copy(licenseCode);
                         alert(_l('复制成功'));
                       }}
                     >
                       <Icon icon="content-copy" className="pointer textSecondary Font16" />
-                    </ClipboardButton>
+                    </div>
                   </div>
                 </Tooltip>
               </div>

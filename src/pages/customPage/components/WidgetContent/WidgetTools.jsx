@@ -50,6 +50,7 @@ const WidgetTools = props => {
           });
           return;
         }
+
         setWidget(widget);
         break;
       case 'move':
@@ -91,6 +92,7 @@ const WidgetTools = props => {
         } else {
           copyWidget({ ..._.omit(widget, ['id', 'uuid']), layoutType });
         }
+
         alert(_l('复制成功'));
         break;
       case 'hideMobile':
@@ -126,6 +128,7 @@ const WidgetTools = props => {
             }),
           });
         }
+
         break;
       case 'changeFontSize':
       case 'moveIn':

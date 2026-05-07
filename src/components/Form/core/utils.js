@@ -1,6 +1,6 @@
 import loadScript from 'load-script';
 import _, { find, get, isEmpty } from 'lodash';
-import { RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
+import { RELATE_RECORD_SHOW_TYPE, RELATION_SEARCH_SHOW_TYPE } from 'worksheet/constants/enum';
 import { getStrBytesLength } from 'src/pages/Role/PortalCon/tabCon/util-pure.js';
 import { ALL_SYS } from 'src/pages/widgetConfig/config/widget';
 import { isCustomWidget, isOldSheetList, isTabSheetList, supportDisplayRow } from 'src/pages/widgetConfig/util';
@@ -153,6 +153,7 @@ function formatRowToServer(row, controls = [], { isDraft, isSubList } = {}) {
   return Object.keys(row)
     .map(key => {
       const c = _.find(controls, c => c.controlId === key);
+
       if (key === 'rowid') {
         return {
           controlId: 'tempRowId',
@@ -202,14 +203,17 @@ export function formatControlToServer(
     controlName: control.controlName,
     dot: control.dot,
   };
+
   if (_.isUndefined(control.value) && !control.store) {
     return result;
   }
+
   let parsedValue, childTableControls, isFromDefault, state, rows;
   const isRelateRecordDropdown =
     control.type === 29 &&
     String(_.get(control, 'advancedSetting.showtype')) === String(RELATE_RECORD_SHOW_TYPE.DROPDOWN);
   const isSingleRelateRecord = control.type === 29 && control.enumDefault === 1;
+
   switch (control.type) {
     case 10:
     case 11:
@@ -241,6 +245,7 @@ export function formatControlToServer(
         if (item.fileId && !item.fileID) {
           item.fileID = item.fileId;
         }
+
         if (item.refType || item.refId) {
           oldKnowledgeAtts.push(item);
         } else {
@@ -267,11 +272,13 @@ export function formatControlToServer(
       } catch (err) {
         console.log(err);
       }
+
       break;
     case 29:
       if (control.editType) {
         result.editType = control.editType;
       }
+
       if (
         _.includes(
           [
@@ -360,18 +367,21 @@ export function formatControlToServer(
           control.value !== 'deleteRowIds: all'
         ) {
           let deletedIds = [];
+
           try {
             deletedIds = control.value.replace('deleteRowIds: ', '').split(',').filter(_.identity);
           } catch (err) {
             console.log(err);
             result.value = undefined;
           }
+
           result.editType = 9;
           result.value = JSON.stringify(deletedIds.map(id => ({ editType: 2, rowid: id })));
         } else {
           result.value = undefined;
         }
       }
+
       break;
     case 34: // 子表
       if (isFromMingoData) {
@@ -382,11 +392,13 @@ export function formatControlToServer(
         );
         break;
       }
+
       state = control.store && control.store.getState();
       childTableControls = get(state, 'base.controls') || [];
       if (_.isEmpty(childTableControls)) {
         console.log('childTableControls is empty');
       }
+
       childTableControls = childTableControls
         .filter(c => !_.includes(_.get(window, 'shareState.isPublicForm') ? [48] : [], c.type))
         .filter(v => (isDraft ? v.controlId !== 'ownerid' : true));
@@ -441,6 +453,7 @@ export function formatControlToServer(
       } else {
         result.editType = 9;
         let resultvalue = [];
+
         if (!_.isEmpty(result.value.deleted)) {
           resultvalue = resultvalue.concat(
             result.value.deleted.map(rowid => ({
@@ -449,15 +462,18 @@ export function formatControlToServer(
             })),
           );
         }
+
         if (!_.isEmpty(result.value.updated)) {
           resultvalue = resultvalue.concat(
             result.value.updated
               .map(rowid => {
                 const isNew = /^(temp|default)/.test(rowid);
                 let row = _.find(control.store.getState().rows, r => r.rowid === rowid);
+
                 if (!row) {
                   return undefined;
                 }
+
                 if (isNew) {
                   return {
                     editType: 0,
@@ -468,6 +484,7 @@ export function formatControlToServer(
                     row = _.pick(row, row.updatedControlIds);
                     delete row.updatedControlIds;
                   }
+
                   return {
                     rowid,
                     editType: 0,
@@ -478,18 +495,21 @@ export function formatControlToServer(
               .filter(_.identity),
           );
         }
+
         if (get(control.store.getState(), 'changes.isDeleteAll')) {
           resultvalue = resultvalue.concat({
             rowid: 'all',
             editType: 2,
           });
         }
+
         result.value = JSON.stringify(filterEmptyChildTableRows(resultvalue));
         if (control.store && control.store.dispatch) {
           control.store.dispatch({
             type: 'RESET_CHANGES',
           });
         }
+
         if (_.isEmpty(resultvalue) && control && typeof control.value === 'string') {
           try {
             const rows = JSON.parse(control.value);
@@ -503,6 +523,7 @@ export function formatControlToServer(
           }
         }
       }
+
       break;
   }
 
@@ -511,6 +532,7 @@ export function formatControlToServer(
 
 export function getTitleControlId(control = {}) {
   let newTitleControlId;
+
   if (control.type === 29) {
     newTitleControlId = control.advancedSetting.showtitleid;
   } else if (control.type === 51 && control.enumDefault !== 1) {
@@ -518,6 +540,7 @@ export function getTitleControlId(control = {}) {
   } else if (control.type === 51 && control.enumDefault === 1 && control.showControls[0]) {
     newTitleControlId = control.showControls[0];
   }
+
   const attributeTitle = find(control.relationControls, { attribute: 1 });
   const matchedTitleControl = find(control.relationControls, { controlId: newTitleControlId });
   return matchedTitleControl ? matchedTitleControl.controlId : attributeTitle ? attributeTitle.controlId : undefined;
@@ -533,9 +556,11 @@ export function getTitleControlIdFromRelateControl(control = {}) {
 const getCodeUrl = ({ appId, worksheetId, viewId, recordId }) => {
   if (recordId) {
     let baseUrl = `${md.global.Config.WebUrl}app/${appId}/${worksheetId}`;
+
     if (viewId) {
       baseUrl += `/${viewId}`;
     }
+
     baseUrl += `/row/${recordId}`;
     return baseUrl;
   } else {
@@ -553,12 +578,14 @@ export const getBarCodeValue = ({ data, control, codeInfo }) => {
       return getCodeUrl(codeInfo);
     }
   }
+
   const selectControl = _.find(data, i => i.controlId === dataSource);
   if (!(selectControl || {}).value) return '';
   if (enumDefault === 1) {
     const repVal = String(selectControl.value).replace(/[^a-zA-Z0-9@#$%&-=_;:,<>?!/^*()+[\]{}|.\s]/g, '');
     return getStringBytes(repVal) <= 128 ? repVal : getStrBytesLength(repVal, 128);
   }
+
   return String(selectControl.value).substr(0, 300);
 };
 
@@ -642,6 +669,7 @@ export const renderCount = item => {
           console.log(err);
         }
       }
+
       if (count > 1000) {
         count = 1000;
       }
@@ -696,6 +724,7 @@ export const dealUserRange = (control = {}, data = [], masterData = {}) => {
         const sourcevalue = control && JSON.parse(control.sourcevalue)[item.cid];
         const curItem = _.find(parentControl.relationControls || [], re => re.controlId === item.cid);
         const sourceVal = sourcevalue && safeParse(sourcevalue);
+
         if (curItem && _.isArray(sourceVal)) {
           const currentItem = {
             ...curItem,
@@ -710,6 +739,7 @@ export const dealUserRange = (control = {}, data = [], masterData = {}) => {
         const cidItem =
           _.find(data || [], d => d.controlId === item.cid) ||
           _.find(masterData.formData || [], d => d.controlId === item.cid);
+
         if (cidItem) {
           const currentItem = { ...cidItem, type: cidItem.type === 30 ? cidItem.sourceControlType : cidItem.type };
           const arrKey = getArrKey(currentItem);
@@ -725,6 +755,7 @@ export const dealUserRange = (control = {}, data = [], masterData = {}) => {
       const userInfo = safeParse(item.staticValue || '{}');
       const chooseId = item.type === 1 ? 26 : item.type === 2 ? 27 : 48;
       const chooseValue = _.get(userInfo, [WIDGET_VALUE_ID[chooseId]]);
+
       if (chooseValue) {
         ranges[arrKey] = _.uniq((ranges[arrKey] || []).concat(chooseValue));
       }
@@ -740,15 +771,19 @@ export function loadSDK() {
   if (window.isDingTalk && !window.dd) {
     loadScript('https://g.alicdn.com/dingding/dingtalk-jsapi/2.6.41/dingtalk.open.js');
   }
+
   if (window.isWeLink && !window.HWH5) {
     loadScript('https://open-doc.welink.huaweicloud.com/docs/jsapi/2.0.4/hwh5-cloudonline.js');
   }
+
   if (isWx && !window.wx) {
     loadScript('https://res2.wx.qq.com/open/js/jweixin-1.6.0.js');
   }
+
   if (window.isWxWork && !window.wx) {
     loadScript('https://res.wx.qq.com/open/js/jweixin-1.2.0.js');
   }
+
   if (window.isFeiShu && !window.h5sdk) {
     loadScript('https://lf1-cdn-tos.bytegoofy.com/goofy/lark/op/h5-js-sdk-1.5.19.js');
   }
@@ -769,6 +804,7 @@ export const getControlsByTab = (controls = [], widgetStyle = {}, from, ignoreSe
       if (a.row === b.row) {
         return a.col - b.col;
       }
+
       return a.row - b.row;
     });
   }
@@ -833,8 +869,10 @@ export const getControlsByTab = (controls = [], widgetStyle = {}, from, ignoreSe
           sourceControlType: _.includes(['5', '6'], showType) ? 2 : control.sourceControlType,
         };
       }
+
       return control;
     };
+
     tabData = tabData.map(item => {
       return {
         ...updateMobileControls(item),
@@ -881,19 +919,24 @@ export const dealRenderValue = (value, advancedSetting = {}) => {
       deleteCount,
     });
   }
+
   return result;
 };
 
 // 标题是否横向布局、隐藏按横向排列
 export const getWidgetDisplayRow = ({ item = {}, data = [], widgetStyle = {} }) => {
   const { titlelayout_pc = '1', titlelayout_app = '1' } = widgetStyle;
+
   if ((browserIsMobile() ? titlelayout_app : titlelayout_pc) === '2' && supportDisplayRow(item)) {
     return { displayRow: true };
   }
+
   const rowWidgets = data.filter(i => i.row === item.row);
+
   if (rowWidgets.every(row => _.get(row, 'advancedSetting.hidetitle') === '1' && supportDisplayRow(row))) {
     return { displayRow: true, titlewidth_pc: '0' };
   }
+
   return {};
 };
 
@@ -905,6 +948,7 @@ export const getArrBySpliceType = (filters = []) => {
       if (item.spliceType === 2) {
         num++;
       }
+
       return res;
     }, {}),
   );
@@ -917,6 +961,7 @@ export const formatControlValue = (value, type) => {
       .map(ac => ac[WIDGET_VALUE_ID[type]])
       .join('');
   }
+
   return value;
 };
 
@@ -965,9 +1010,11 @@ export const getServiceError = (badData = [], data, from) => {
       errorType: FORM_ERROR_TYPE.REQUIRED,
       showError: true,
     };
+
     if (!controlState(control, from).visible) {
       hideControlErrors.push(error.errorText);
     }
+
     serviceError.push(error);
   });
   return { serviceError, hideControlErrors };
@@ -1019,11 +1066,12 @@ export function calcSubTotalCount(values = [], control = {}, currentItem = {}) {
   return _.uniq(totalValues).length + containsEmptyValues;
 }
 
-export const showRefreshBtn = ({ disabledFunctions = [], from, recordId, item }) => {
+export const showRefreshBtn = ({ disabledFunctions = [], from, recordId, item, isEditing }) => {
   return (
     !disabledFunctions.includes('controlRefresh') &&
     from !== FROM.DRAFT &&
     !isPublicLink() &&
+    !isEditing &&
     recordId &&
     !recordId.includes('default') &&
     !recordId.includes('temp') &&
@@ -1041,14 +1089,40 @@ export const supportTabKeyDown = (data, from, disabledChildTableCheck, supportMa
   if (!data) return false;
   const { advancedSetting = {} } = data;
   const disabled = getControlDisabled(data, from, disabledChildTableCheck);
+  const showtype = String(advancedSetting.showtype || '');
   return (
     !disabled &&
     advancedSetting.customtype !== '1' &&
     (_.includes([3, 4, 5, 7, 8, 14, 15, 16, 21, 24, 26, 27, 28, 35, 36, 40, 41, 42, 46, 48], data.type) ||
       (data.type === 2 && (supportMarkdownLeave || data.enumDefault !== 3)) ||
       (data.type === 6 && !(advancedSetting.showtype === '2' && advancedSetting.showinput !== '1')) ||
-      (_.includes([9, 10, 11], data.type) && advancedSetting.showtype !== '2'))
-    // (data.type === 29 && !isSheetDisplay(data)))
+      (_.includes([9, 10, 11], data.type) && advancedSetting.showtype !== '2') ||
+      // 关联记录：卡片 / 老列表 / 下拉 / 表格 / 标签页表格
+      (data.type === 29 &&
+        _.includes(
+          [
+            String(RELATE_RECORD_SHOW_TYPE.CARD),
+            String(RELATE_RECORD_SHOW_TYPE.LIST),
+            String(RELATE_RECORD_SHOW_TYPE.DROPDOWN),
+            String(RELATE_RECORD_SHOW_TYPE.TABLE),
+            String(RELATE_RECORD_SHOW_TYPE.TAB_TABLE),
+          ],
+          showtype,
+        )) ||
+      // 子表
+      data.type === 34 ||
+      // 查询字段
+      (data.type === 51 &&
+        _.includes(
+          [
+            String(RELATION_SEARCH_SHOW_TYPE.CARD),
+            String(RELATION_SEARCH_SHOW_TYPE.LIST),
+            String(RELATION_SEARCH_SHOW_TYPE.TEXT),
+            String(RELATION_SEARCH_SHOW_TYPE.EMBED_LIST),
+            String(RELATION_SEARCH_SHOW_TYPE.TAB_LIST),
+          ],
+          showtype,
+        )))
   );
 };
 

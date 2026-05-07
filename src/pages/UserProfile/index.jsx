@@ -52,8 +52,10 @@ export default class UserEntryPoint extends React.PureComponent {
               accountId: accountId,
             });
           }
+
           return;
         }
+
         var rUserList = [];
         if (!isMe) {
           rUserList = [

@@ -20,6 +20,7 @@ const setAll = data => {
     if (!obj[item.id]) {
       obj[item.id] = {};
     }
+
     const ids = (item.items || []).map(v => v.id);
     obj[item.id].ids = ids;
     obj[item.id].checkedAll = true;
@@ -237,8 +238,10 @@ export default class WorkHandoverDialog extends Component {
       }
     } else {
       const ids = copyCheckedInfo[appId].ids || [];
+
       if (checked) {
         const checkedIds = ids.filter(v => v !== itemId);
+
         if (_.isEmpty(checkedIds)) {
           delete copyCheckedInfo[appId];
         } else {

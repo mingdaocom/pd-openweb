@@ -57,6 +57,7 @@ export default class IntegrationSetPassword extends Component {
     if (!_.isEqual(this.props.isSetPassword, nextPorops.isSetPassword)) {
       this.setState({ isSetPassword: nextPorops.isSetPassword });
     }
+
     if (!_.isEqual(this.props.password, nextPorops.password)) {
       this.setState({ password: nextPorops.password });
     }

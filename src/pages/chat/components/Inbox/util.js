@@ -1,3 +1,4 @@
+import LinkifyIt from 'linkify-it';
 import moment from 'moment';
 import { replacePorTalUrl } from 'src/pages/AuthService/portalAccount/util';
 import { browserIsMobile } from 'src/utils/common';
@@ -165,6 +166,7 @@ export const formatTopic = function (item, type) {
         fullname: item.replyUserName,
       };
     }
+
     canDelete = item.allowOperate === '1' || md.global.Account.accountId === User.accountId;
     formatedData = {
       createAccount: {
@@ -208,6 +210,7 @@ export const formatTopic = function (item, type) {
       accountsInMessage: topic.accountsInMessage,
     };
   }
+
   return { ...formatedData, sourceType: type };
 };
 
@@ -222,6 +225,7 @@ export const splitSourceId = sourceId => {
 export const buildSourceLink = function (type, _sourceId, _extendsId, inboxId) {
   var linkUrl = '';
   const { sourceId, childId } = splitSourceId(_sourceId);
+
   switch (type) {
     case SOURCE_TYPE.POST:
       linkUrl = '/feeddetail?itemID=' + sourceId;
@@ -242,6 +246,7 @@ export const buildSourceLink = function (type, _sourceId, _extendsId, inboxId) {
     case SOURCE_TYPE.WORKSHEETROW:
       if (_extendsId && _extendsId.indexOf('undefined') < 0 && _extendsId.indexOf('null') < 0) {
         const [appId, viewId] = _extendsId.split('|');
+
         if (!appId || !viewId) {
           linkUrl = `/worksheet/${sourceId}/row/${childId}?inboxId=${inboxId}`;
         } else {
@@ -252,10 +257,12 @@ export const buildSourceLink = function (type, _sourceId, _extendsId, inboxId) {
       } else {
         linkUrl = `/worksheet/${sourceId}/row/${childId}?inboxId=${inboxId}`;
       }
+
       break;
     default:
       break;
   }
+
   return `${window.subPath || ''}${linkUrl}`;
 };
 
@@ -263,4 +270,71 @@ export function isWithinOneHour(timestamp) {
   const currentTime = Date.now();
   const oneHour = 60 * 60 * 1000;
   return Math.abs(currentTime - timestamp) <= oneHour;
+}
+
+function makeAnchor(doc, url, text, opts) {
+  const a = doc.createElement('a');
+  a.href = url;
+  a.textContent = text;
+
+  if (opts.target) a.target = opts.target;
+  if (opts.rel) a.rel = opts.rel;
+  if (opts.className) a.className = opts.className;
+
+  return a;
+}
+
+const DEFAULT_IGNORE = new Set(['A', 'CODE', 'PRE', 'SCRIPT', 'STYLE', 'TEXTAREA']);
+
+export function linkifySanitizedHtml(sanitizedHtml, options = {}) {
+  const opts = {
+    target: '_blank',
+    rel: 'noopener noreferrer',
+    className: 'auto-link',
+    ignoreTags: DEFAULT_IGNORE,
+    ...options,
+  };
+  const linkify = new LinkifyIt();
+
+  const doc = new DOMParser().parseFromString(sanitizedHtml, 'text/html');
+
+  const walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_TEXT, {
+    acceptNode(node) {
+      if (!node.nodeValue || !node.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      const p = node.parentNode;
+
+      if (p && p.nodeType === 1 && opts.ignoreTags.has(p.tagName)) {
+        return NodeFilter.FILTER_REJECT;
+      }
+
+      return NodeFilter.FILTER_ACCEPT;
+    },
+  });
+
+  const nodes = [];
+  while (walker.nextNode()) nodes.push(walker.currentNode);
+
+  for (const node of nodes) {
+    const text = node.nodeValue;
+    const matches = linkify.match(text);
+    if (!matches) continue;
+
+    const frag = doc.createDocumentFragment();
+    let last = 0;
+
+    for (const m of matches) {
+      if (m.index > last) frag.append(text.slice(last, m.index));
+
+      const raw = text.slice(m.index, m.lastIndex);
+      frag.append(makeAnchor(doc, m.url, raw, opts));
+
+      last = m.lastIndex;
+    }
+
+    if (last < text.length) frag.append(text.slice(last));
+
+    node.parentNode.replaceChild(frag, node);
+  }
+
+  return doc.body.innerHTML;
 }

@@ -59,13 +59,13 @@ img {
   user-select: none;
 }
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  color: var(--color-text-primary) !important;
+body h1,
+body h2,
+body h3,
+body h4,
+body h5,
+body h6 {
+  color: var(--color-text-primary);
 }
 
 body ul,
@@ -2849,7 +2849,7 @@ html:not(.appHomeMobile) .ant-message {
 }
 
 .mdAntSelect.ant-select-single.ant-select-show-arrow .ant-select-selection-item {
-  color: var(--color-text-title) !important;
+  color: var(--color-text-primary) !important;
 }
 
 .mdAntSelect.ant-select-show-arrow .ant-select-selection-search {
@@ -2893,6 +2893,9 @@ html:not(.appHomeMobile) .ant-message {
   }
 }
 
+.ant-picker-dropdown .ant-picker-panel-container .ant-picker-panel {
+  border-width: 0px !important;
+}
 /* ----> antd Select 样式 end */
 
 .hoverText:hover {

@@ -87,6 +87,7 @@ function User(props) {
     if (!props.version) {
       return;
     }
+
     getShowControls();
   }, [props.version]);
   //筛选
@@ -94,6 +95,7 @@ function User(props) {
     if (_.isEqual(filtersTag.current, { keyWords, filters, telFilters })) {
       return;
     }
+
     changePageIndex(1);
     getUserList();
     filtersTag.current = { keyWords, filters, telFilters };
@@ -110,6 +112,7 @@ function User(props) {
         setControls(controls);
       });
   };
+
   const getUserList = () => {
     getCount(appId); //重新获取总计数
     getList(0, () => {});
@@ -179,6 +182,7 @@ function User(props) {
       alert(_l('更新成功'));
     });
   };
+
   return (
     <Wrap className="flex flexColumn overflowHidden" len={showControls.length}>
       <HeaderCon
@@ -208,6 +212,7 @@ function User(props) {
           if (list.length >= commonCount || list.length < pageIndex * pageSizeForPortal || props.portal.loading) {
             return;
           }
+
           changePageIndex(pageIndex + 1);
           getList();
         }}
@@ -282,6 +287,7 @@ function User(props) {
     </Wrap>
   );
 }
+
 const mapStateToProps = state => ({
   portal: state.portal,
 });

@@ -18,7 +18,7 @@ import ButtonDisplay from './ButtonDisplay';
 import { GET_DEFAULT_BUTTON_LIST } from './config';
 
 const BtnWrap = styled.div`
-  background-color: var(--color-border-secondary);
+  background-color: var(--color-background-tertiary);
   height: 100%;
   display: flex;
 
@@ -39,10 +39,10 @@ const DefaultItem = styled.div`
   background-color: var(--color-background-card);
   margin-top: 15px;
   border-radius: 6px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  box-shadow: var(--shadow-sm);
   cursor: pointer;
   &:hover {
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.16);
+    box-shadow: var(--shadow-lg);
   }
   .btnWrap {
     margin: 8px 10px;
@@ -65,6 +65,7 @@ export default function Btn(props) {
   const setBtnSetting = config => {
     setSetting(update(btnSetting, { buttonList: { [activeIndex]: { $apply: item => ({ ...item, ...config }) } } }));
   };
+
   const addBtn = () => {
     const COLORS = getThemeColors(projectId);
     const lastButton = buttonList[buttonList.length - 1] || {};
@@ -73,6 +74,7 @@ export default function Btn(props) {
     const color = colorIndex === -1 ? defaultColor : COLORS[colorIndex + 1] || COLORS[0];
     const { btnType } = btnSetting.config || {};
     const data = { name: _l('我是按钮'), color, id: uuidv4() };
+
     if (btnType === 2) {
       const icon = 'custom_actions';
       const iconUrl = `${md.global.FileStoreConfig.pubHost}/customIcon/${icon}.svg`;
@@ -82,17 +84,21 @@ export default function Btn(props) {
         isNewBtn: true,
       };
     }
+
     setIndex(buttonList.length);
     setSetting(update(btnSetting, { buttonList: { $push: [data] } }));
   };
+
   const handleDel = () => {
     if (buttonList.length <= 1) {
       alert(_l('仅剩一个按钮了，无法删除'), 3);
       return;
     }
+
     setSetting(update(btnSetting, { buttonList: { $splice: [[activeIndex, 1]] } }));
     setIndex(Math.max(activeIndex - 1, 0));
   };
+
   const handleCopy = () => {
     const data = _.cloneDeep(buttonList[activeIndex]);
     const config = _.get(data, 'config') || {};
@@ -102,8 +108,10 @@ export default function Btn(props) {
     if (config.isFilter) {
       data.config = { ...config, isFilter: undefined };
     }
+
     setSetting(update(btnSetting, { buttonList: { $splice: [[activeIndex + 1, 0, data]] } }));
   };
+
   const handleSave = () => {
     // 验证业务流程是否有必填项
     const { buttonList } = btnSetting;
@@ -111,6 +119,7 @@ export default function Btn(props) {
     buttonList.forEach((btn, index) => {
       const { inputs } = btn.config || {};
       const requiredInput = _.find(inputs, { required: true });
+
       if (requiredInput && _.isEmpty(requiredInput.value)) {
         emptyParamBtns.push(index);
       }
@@ -122,6 +131,7 @@ export default function Btn(props) {
       // 替换 inputs values
       buttonList.forEach(btn => {
         const { inputsIsEdit, inputs } = btn.config || {};
+
         if (inputsIsEdit) {
           inputs.forEach(input => {
             if ([26, 27, 48].includes(input.type)) {

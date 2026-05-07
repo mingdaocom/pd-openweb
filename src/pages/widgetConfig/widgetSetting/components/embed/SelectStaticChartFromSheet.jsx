@@ -128,10 +128,12 @@ export default function SelectStaticChartFromSheet({
       alert('请选择应用', 3);
       return;
     }
+
     if (!ids.sheetId) {
       alert('请选择应用项', 3);
       return;
     }
+
     if (!ids.reportId) {
       alert('请选择统计图表', 3);
       return;
