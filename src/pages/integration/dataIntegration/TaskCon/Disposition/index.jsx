@@ -3,7 +3,8 @@ import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Checkbox, LoadDiv } from 'ming-ui';
+import { Checkbox, Icon, LoadDiv } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { dialogSelectUser } from 'ming-ui/functions';
 import Account from 'src/pages/integration/api/account';
 import TaskFlow from 'src/pages/integration/api/taskFlow.js';
@@ -373,7 +374,7 @@ function Disposition(props) {
                   }}
                 />
                 <Checkbox
-                  className={'flex'}
+                  className={'flex flexRow alignItemsCenter'}
                   size="small"
                   text={_l('删除记录时触发')}
                   checked={_.get(flowData, 'workflowConfig.deleteTrigger')}
@@ -385,7 +386,21 @@ function Disposition(props) {
                       },
                     });
                   }}
-                />
+                >
+                  <Tooltip
+                    title={
+                      <span>
+                        {_l('删除为彻底删除。')}
+                        <br />
+                        {_l('触发流程后，无法获取已删除记录的数据。')}
+                      </span>
+                    }
+                  >
+                    <span className="Hand mLeft4" onClick={e => e.stopPropagation()}>
+                      <Icon icon="info" className="textTertiary Font14" />
+                    </span>
+                  </Tooltip>
+                </Checkbox>
               </div>
             </React.Fragment>
           )}

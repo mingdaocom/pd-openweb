@@ -213,7 +213,7 @@ export default ({ from, data, onChange, globalSheetInfo, allControls = [] }) => 
         <SettingItem className="mTop10">
           <div className="settingItemTitle">
             {_l('文字')}
-            <Tooltip placement="bottom" title={_l('限制显示字数为100个字')}>
+            <Tooltip placement="bottom" title={_l('限制显示字数为200个字符，超出部分以省略号显示')}>
               <i className="icon-help textTertiary Font16 Hand mLeft4"></i>
             </Tooltip>
           </div>

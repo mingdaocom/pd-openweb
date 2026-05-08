@@ -211,7 +211,7 @@ export default function Header(props) {
       {(showAsSheetView || viewType === VIEW_DISPLAY_TYPE.sheet) && (
         <Pagination
           allowChangePageSize={!forcePageSize}
-          onlyShowCount={getGroupControlId(view)}
+          onlyShowCount={!showAsSheetView && getGroupControlId(view)}
           className="pagination"
           pageIndex={pageIndex}
           pageSize={forcePageSize || pageSize}

@@ -241,6 +241,7 @@ export default function RecordOperate(props) {
     allowCopy,
     allowEdit,
     formdata,
+    mouseEnterDelay = 0,
     disableCustomButtons,
     defaultCustomButtons,
     view,
@@ -413,6 +414,7 @@ export default function RecordOperate(props) {
         popupAlign,
       )}
       zIndex={1000}
+      mouseEnterDelay={mouseEnterDelay}
       destroyPopupOnHide
       popup={
         moveRecordToOtherGroupVisible ? (

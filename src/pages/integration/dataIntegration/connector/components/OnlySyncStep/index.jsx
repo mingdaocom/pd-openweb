@@ -1021,6 +1021,24 @@ export default function OnlySyncStep(props) {
                                           }
                                         >
                                           {item.text}
+                                          {item.key === 'deleteTrigger' && (
+                                            <Tooltip
+                                              title={
+                                                <span>
+                                                  {_l('删除为彻底删除。')}
+                                                  <br />
+                                                  {_l('触发流程后，无法获取已删除记录的数据。')}
+                                                </span>
+                                              }
+                                            >
+                                              <span
+                                                className="Hand mLeft4"
+                                                onClick={e => e.stopPropagation()}
+                                              >
+                                                <Icon icon="info" className="textTertiary Font14" />
+                                              </span>
+                                            </Tooltip>
+                                          )}
                                         </Checkbox>
                                       );
                                     })}

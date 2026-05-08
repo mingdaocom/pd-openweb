@@ -898,9 +898,14 @@ class TableView extends React.Component {
       : this.props.controls.filter(it => !_.includes(WORKFLOW_SYSTEM_FIELDS_SORT, it.controlId));
 
     const { sheetHiddenColumns } = this.props.sheetViewConfig;
+    let { showControls = [] } = view || {};
 
     if (showControlIds && showControlIds.length) {
-      return showControlIds.map(cid => _.find(controls, { controlId: cid })).filter(_.identity);
+      const orderedIds = showControls.length ? showControls : controls.map(c => c.controlId);
+      return orderedIds
+        .filter(cid => showControlIds.includes(cid))
+        .map(cid => _.find(controls, { controlId: cid }))
+        .filter(_.identity);
     }
 
     let columns = [];
@@ -913,7 +918,6 @@ class TableView extends React.Component {
           (this.isManageView ||
             (!_.find(hiddenColumnIds, cid => cid === control.controlId) && controlState(control).visible)),
       );
-    let { showControls = [] } = view || {};
     let { customdisplay = '0', sysids = '[]', syssort = '[]' } = getAdvanceSetting(view); // '0':表格显示列与表单中的字段保持一致 '1':自定义显示列
 
     if (customdisplay === '1') {

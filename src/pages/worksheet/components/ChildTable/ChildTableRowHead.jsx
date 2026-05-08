@@ -89,6 +89,10 @@ const Con = styled.span`
       position: absolute;
       display: inline-block !important;
       z-index: 2;
+    }
+  }
+  &.showCheckbox:not(.highlightFromProps) {
+    .rowIndex {
       background: inherit;
     }
   }
@@ -199,6 +203,7 @@ export default function RowHead(props) {
             points: ['tl', 'bl'],
           }}
           isSubList
+          mouseEnterDelay={0.5}
           defaultCustomButtons={[]}
           allowCopy={allowCopy}
           shows={['copy']}

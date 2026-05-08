@@ -17,6 +17,15 @@ import { getClassNameByExt } from 'src/utils/common';
 import RegExpValidator from 'src/utils/expression';
 import './index.less';
 
+const WATERMARK_TEXT_LIMIT = 200;
+
+function getLimitedWatermarkText(text) {
+  if (!text) return '';
+
+  const chars = Array.from(text);
+  return chars.length > WATERMARK_TEXT_LIMIT ? `${chars.slice(0, WATERMARK_TEXT_LIMIT).join('')}...` : text;
+}
+
 function getDynamicWrapTxt(dynamicTxt, canvasWidth, ctx, fontSize) {
   if (!dynamicTxt) return [];
 
@@ -135,9 +144,11 @@ function addWaterMarker(file, watermark, { dynamicControls, advancedSetting, cur
 
         const fontSize = Math.min(canvas.width, canvas.height) * 0.03;
         const lineSpacing = 6;
+        const xOffset = 20;
+        const textMaxWidth = canvas.width - xOffset * 2;
 
         textLayouts = isNew
-          ? getDynamicWrapTxt(dynamicTxt.slice(0, 100), canvas.width - 20, ctx, fontSize)
+          ? getDynamicWrapTxt(getLimitedWatermarkText(dynamicTxt), textMaxWidth, ctx, fontSize)
           : textLayouts;
 
         // 绘制背景
@@ -154,7 +165,6 @@ function addWaterMarker(file, watermark, { dynamicControls, advancedSetting, cur
 
         textLayouts.forEach((text, index) => {
           const i = textLayouts.length - index;
-          const xOffset = 20;
           const yOffset = canvas.height - fontSize * i - lineSpacing * i;
           ctx.fillText(text, xOffset, yOffset + 10);
         });

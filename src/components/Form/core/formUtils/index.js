@@ -652,6 +652,9 @@ export const parseNewFormula = (data, currentItem = {}) => {
 
     if (_.includes([9, 10, 11], column.type)) {
       const optionValue = getControlValue(data, { type: 31 }, controlId);
+      if (optionValue === '' && nullzero !== '1') {
+        columnIsUndefined = true;
+      }
       return nullzero === '1' && optionValue === '' ? 0 : optionValue;
     }
 
