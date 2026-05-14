@@ -197,29 +197,34 @@ export const updateRulesData = props => {
     }
 
     // 执行设置值业务规则
-    if (!_.isEmpty(relateRuleType.dynamic) && !disabledRuleSet) {
-      Object.keys(relateRuleType.dynamic).map(async (key, index) => {
-        const dynamicSettings = relateRuleType.dynamic[key];
-        // 同个id赋值逻辑，取最后一个
-        const lastSetting = _.last(dynamicSettings);
+    if (!_.isEmpty(relateRuleType.dynamic) && !disabledRuleSet && _.isFunction(handleChange)) {
+      const dynamicKeys = Object.keys(relateRuleType.dynamic);
 
-        if (lastSetting && _.isFunction(handleChange)) {
-          try {
-            await handleSetValueActions([{ ...lastSetting, controlId: key }], {
-              formData: formatData,
-              from,
-              recordId,
-              searchConfig,
-              isSetValueFromRule: true,
-              handleChange: (value, cid, item, searchByChange) => {
-                const setComplete = index === Object.keys(relateRuleType.dynamic).length - 1;
-                handleChange(value, cid, item, searchByChange, setComplete);
-              },
-            });
-          } catch (error) {
-            console.log(error);
+      Promise.all(
+        dynamicKeys.map(async key => {
+          const dynamicSettings = relateRuleType.dynamic[key];
+          // 同个id赋值逻辑，取最后一个
+          const lastSetting = _.last(dynamicSettings);
+
+          if (lastSetting) {
+            try {
+              await handleSetValueActions([{ ...lastSetting, controlId: key }], {
+                formData: formatData,
+                from,
+                recordId,
+                searchConfig,
+                isSetValueFromRule: true,
+                handleChange: (value, cid, item, searchByChange) => {
+                  handleChange(value, cid, item, searchByChange);
+                },
+              });
+            } catch (error) {
+              console.log(error);
+            }
           }
-        }
+        }),
+      ).then(() => {
+        handleChange(undefined, undefined, undefined, false, true);
       });
     }
 

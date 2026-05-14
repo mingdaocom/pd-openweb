@@ -36,17 +36,16 @@ export default class SideAppGroup extends Component {
     this.computeMaxHeight();
   }
 
-  // 动态设置max-height属性以使展开收起动画更顺滑
+  // 动态设置max-height属性以使展开收起动画更顺滑（在部分Safari中height为0，需用显式height）
   computeMaxHeight = () => {
     const { type, projectId = '@INIT', expandKeys } = this.props;
     const isShow = expandKeys.includes(`${type}/${projectId}`);
     const $ele = this.$appGroupWrap.current;
+    if (!isShow || !$ele?.scrollHeight) return;
 
-    if (isShow && $ele) {
-      const { scrollHeight } = $ele;
-      $ele.style.maxHeight = `${scrollHeight}px`;
-      $ele.style.transition = `all ${Math.min(Math.max(scrollHeight * 0.0005, 0.1), 0.6)}s ease-in`;
-    }
+    $ele.style.height = `${$ele.scrollHeight}px`;
+    $ele.style.maxHeight = `${$ele.scrollHeight}px`;
+    $ele.style.transition = `all ${Math.min(Math.max($ele.scrollHeight * 0.0005, 0.1), 0.6)}s ease-in`;
   };
 
   render() {

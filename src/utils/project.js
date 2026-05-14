@@ -113,7 +113,7 @@ export const addBehaviorLog = (type, entityId, params = {}, isLinkVisited) => {
     robot: 20, // 对话机器人
   };
 
-  if (type === 'worksheetDecode' && !params.rowId) return;
+  if ((type === 'worksheetDecode' && !params.rowId) || (type === 'worksheetDecode' && !params.controlId)) return;
 
   const addBehaviorLogInfo = sessionStorage.getItem('addBehaviorLogInfo')
     ? JSON.parse(sessionStorage.getItem('addBehaviorLogInfo'))

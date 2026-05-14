@@ -114,7 +114,7 @@ function EditPanel(props) {
     <EditPanelCon>
       <Header className="search">
         <i className="icon icon-search Font18 textTertiary"></i>
-        <input type="text" placeholder={'搜索分组'} value={keywords} onChange={e => setKeywords(e.target.value)} />
+        <input type="text" placeholder={_l('搜索分组')} value={keywords} onChange={e => setKeywords(e.target.value)} />
       </Header>
       <div className="groups">
         {!!filteredPersonalGroups.length && (

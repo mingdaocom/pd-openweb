@@ -64,7 +64,7 @@ const SignaturePopup = styled.div`
 const SignatureWrap = styled.div`
   position: relative;
   height: 130px;
-  background-color: var(--color-background-primary);
+  background-color: #ffffff;
   background-repeat: no-repeat;
   background-size: contain;
   background-position: center;
@@ -275,7 +275,7 @@ const Signature = props => {
     canvas.height = canvas.offsetHeight;
     canvas.getContext('2d');
     signaturePadRef.current = new SignaturePad.default(canvas, {
-      penColor: '#9e9e9e',
+      penColor: '#151515',
       throttle: 8,
       minDistance: 3,
       onBegin: () => {

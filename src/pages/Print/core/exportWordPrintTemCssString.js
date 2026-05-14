@@ -2,13 +2,13 @@ export default {
   tag: {
     fontSize: 13,
     fontFamily:
-      '"Helvetica Neue", Helvetica, Arial, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif',
+      'Helvetica Neue, Helvetica, Arial, PingFang SC, Hiragino Sans GB, Microsoft YaHei, WenQuanYi Micro Hei, sans-serif',
     color: '#151515',
     lineHeight: 1.5,
   },
   p: {
     fontFamily:
-      '"Helvetica Neue", Helvetica, Arial, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif',
+      'Helvetica Neue, Helvetica, Arial, PingFang SC, Hiragino Sans GB, Microsoft YaHei, WenQuanYi Micro Hei, sans-serif',
     color: '#151515',
     lineHeight: 1.5,
   },

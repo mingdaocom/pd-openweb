@@ -123,9 +123,23 @@ export default class WorkHandoverDialog extends Component {
     this.getApps();
   }
 
-  getApps = () => {
+  refresh = () => {
+    const { activeTab } = this.state;
+
+    if (activeTab === 3) {
+      this.getApps(true);
+    } else {
+      this.getCount();
+      this.getList(true);
+    }
+  };
+
+  getApps = showLoading => {
     const { transferor = {}, projectId } = this.props;
-    const { countInfo } = this.state;
+
+    if (showLoading) {
+      this.setState({ loading: true });
+    }
 
     appManagementAjax
       .getUserIdApps({
@@ -133,13 +147,17 @@ export default class WorkHandoverDialog extends Component {
         userId: transferor.accountId,
       })
       .then(res => {
-        this.setState({
-          countInfo: { ...countInfo, 3: res.length },
+        this.setState(prevState => ({
+          ...(showLoading ? { loading: false } : {}),
+          countInfo: { ...prevState.countInfo, 3: res.length },
           appsMemberData: res,
-        });
+        }));
       })
       .catch(() => {
-        this.setState({ countInfo: { ...countInfo, 3: 0 } });
+        this.setState(prevState => ({
+          ...(showLoading ? { loading: false } : {}),
+          countInfo: { ...prevState.countInfo, 3: 0 },
+        }));
       });
   };
 
@@ -153,7 +171,7 @@ export default class WorkHandoverDialog extends Component {
         types: [1, 2],
       })
       .then(res => {
-        this.setState({ countInfo: res });
+        this.setState(prevState => ({ countInfo: { ...prevState.countInfo, ...res } }));
       })
       .catch(() => {
         this.setState({ countInfo: {} });
@@ -332,7 +350,13 @@ export default class WorkHandoverDialog extends Component {
 
   renderEmpty = () => {
     return (
-      <div className="h100 textSecondary flexRow alignItemsCenter justifyContentCenter">{_l('没有内容需要交接')}</div>
+      <div className="h100 textSecondary flexColumn alignItemsCenter justifyContentCenter">
+        <div>{_l('没有内容需要交接')}</div>
+        <div className="workHandoverRefresh Hand colorPrimary flexRow alignItemsCenter mTop12" onClick={this.refresh}>
+          <span>{_l('刷新')}</span>
+          <i className="icon icon-refresh1 Font18 mLeft6" />
+        </div>
+      </div>
     );
   };
 
@@ -466,7 +490,10 @@ export default class WorkHandoverDialog extends Component {
               </div>
             ))}
             <div className="flex TxtRight pRight24">
-              <i className="icon icon-refresh1 textTertiary Hand Font18" onClick={() => this.getList(true)} />
+              <div className="workHandoverRefresh textTertiary Hand flexRow alignItemsCenter" onClick={this.refresh}>
+                <span className="mRight6">{_l('刷新')}</span>
+                <i className="icon icon-refresh1 Font18" />
+              </div>
             </div>
           </div>
           <div className="description">

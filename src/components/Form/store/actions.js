@@ -79,6 +79,7 @@ export const getFilterDataByRuleAction = (
 ) => {
   const { ignoreHideControl, recordId, from, systemControlData, verifyAllControls } = props;
   const { rules = [], searchConfig = [], uniqueErrorItems = [] } = getState();
+  let lastRuleSetValueChange;
   let tempRenderData = updateRulesData({
     rules,
     recordId,
@@ -94,7 +95,35 @@ export const getFilterDataByRuleAction = (
     verifyAllControls,
     searchConfig: searchConfig.filter(item => item.eventType === 2),
     handleChange: (value, cid, item, searchByChange, setComplete) => {
-      if (item.value !== value) {
+      const valueChanged = item && item.value !== value;
+
+      const completeRuleSetValueAction = () => {
+        dataFormat.resetCurrentRuleControlIds();
+        setTimeout(() => {
+          // 禁止重新设置值
+          getFilterDataByRuleAction(dispatch, { props, dataFormat, getState, disabledRuleSet: true });
+
+          const { cid: completeControlId, value: completeValue } = lastRuleSetValueChange || {};
+          const newErrorItems = dataFormat.getErrorControls();
+          updateErrorItemsAction(
+            dispatch,
+            newErrorItems.map(item =>
+              item.controlId === completeControlId && item.errorType === FORM_ERROR_TYPE.RULE_REQUIRED
+                ? Object.assign({}, item, { showError: !!checkRequired({ ...item, value: completeValue }) })
+                : item,
+            ),
+          );
+
+          const ids = dataFormat.getUpdateControlIds();
+
+          if (ids.length && completeControlId) {
+            onChangeEnhance(dataFormat.getDataSource(), ids, { controlId: completeControlId });
+            updateChangeStatus(true);
+          }
+        }, 50);
+      };
+
+      if (valueChanged) {
         dataFormat.updateDataSource({
           controlId: cid,
           value,
@@ -104,30 +133,11 @@ export const getFilterDataByRuleAction = (
           searchByChange: searchByChange,
         });
 
-        if (setComplete) {
-          dataFormat.resetCurrentRuleControlIds();
-          setTimeout(() => {
-            // 禁止重新设置值
-            getFilterDataByRuleAction(dispatch, { props, dataFormat, getState, disabledRuleSet: true });
+        lastRuleSetValueChange = { cid, value };
+      }
 
-            const newErrorItems = dataFormat.getErrorControls();
-            updateErrorItemsAction(
-              dispatch,
-              newErrorItems.map(item =>
-                item.controlId === cid && item.errorType === FORM_ERROR_TYPE.RULE_REQUIRED
-                  ? Object.assign({}, item, { showError: !!checkRequired({ ...item, value }) })
-                  : item,
-              ),
-            );
-
-            const ids = dataFormat.getUpdateControlIds();
-
-            if (ids.length) {
-              onChangeEnhance(dataFormat.getDataSource(), ids, { controlId: cid });
-              updateChangeStatus(true);
-            }
-          }, 50);
-        }
+      if (setComplete) {
+        completeRuleSetValueAction();
       }
     },
   });

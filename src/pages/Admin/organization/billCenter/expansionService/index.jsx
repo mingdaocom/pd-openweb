@@ -1,5 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import { withRouter } from 'react-router-dom';
+import { Checkbox } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
@@ -128,7 +129,7 @@ const DATASYNC_TYPE_LIST = [
   { title: _l('单月包'), money: 10, count: 1, month: _l('本月'), key: 2 },
 ];
 const EXCLUSIVE_TYPE_LIST = !window.platformENV.isPlatform
-  ? [{ title: _l('组织到期时间'), key: 1 }]
+  ? [{ title: _l('授权到期时间'), key: 1 }]
   : [
       { title: _l('组织到期时间'), key: 1 },
       { title: _l('当月有效'), key: 0 },

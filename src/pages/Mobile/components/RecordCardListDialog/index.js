@@ -562,7 +562,7 @@ export default class RecordCardListDialog extends Component {
     const { control = {} } = this.props;
     const { chooseshow, chooseshowids } = control.advancedSetting || {};
     const showControls =
-      chooseshow === '1' ? safeParse(chooseshowids) || [] : control.showControls || this.props.showControls;
+      chooseshow === '1' ? safeParse(chooseshowids, 'array') || [] : control.showControls || this.props.showControls;
     const { controls } = this.state;
     // const titleControl = _.find(controls, c => c.attribute === 1);
     const allControls = [

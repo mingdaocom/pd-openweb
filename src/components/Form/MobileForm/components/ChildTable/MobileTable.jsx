@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 import CellControl from 'worksheet/components/CellControls';
-import { getAdvanceSetting, getControlStyles } from 'src/utils/control';
+import { controlState, getAdvanceSetting, getControlStyles } from 'src/utils/control';
 import { updateRulesData } from '../../../core/formUtils/updateRulesData';
 
 const MobileTableContent = styled.div`
@@ -95,7 +95,9 @@ export default function MobileTable(props) {
 
   const showRows = isEdit || showExpand ? rows : rows.slice(0, maxShowLength);
 
-  const showFields = controls.filter(c => _.find(props.showControls || [], scid => scid === c.controlId));
+  const showFields = controls.filter(
+    c => _.find(props.showControls || [], scid => scid === c.controlId) && controlState(c).visible,
+  );
 
   const showControlsFilter =
     _.isEmpty(h5abstractids) || _.isEmpty(showFields.filter(v => _.includes(h5abstractids, v.controlId)))

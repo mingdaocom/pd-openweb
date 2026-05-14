@@ -23,7 +23,7 @@
   .workflowEditContent {
     &:first-child {
       > :first-child {
-        margin-top: 48px;
+        margin-top: 20px;
       }
       .workflowBox {
         padding-top: 20px;
@@ -502,13 +502,11 @@
   position: absolute;
   top: 55px;
   left: 20px;
-  right: 20px;
   user-select: none;
   height: 48px;
   display: flex;
   align-items: center;
   justify-content: left;
-  background: var(--color-background-secondary);
   &.mobile {
     top: 0;
     justify-content: center;
@@ -526,6 +524,7 @@
     cursor: pointer;
     font-size: 16px;
     color: var(--color-text-secondary);
+    background: rgba(255, 255, 255, 0.1);
     border-radius: 3px;
     margin-right: 8px;
     &:not(.disabled):hover {

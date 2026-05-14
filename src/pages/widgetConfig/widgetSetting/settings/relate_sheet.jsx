@@ -296,7 +296,7 @@ export default function RelateSheet(props) {
       <SettingItem hide={isCustomWidget(data)}>
         {!hideTitle && (
           <div className="settingItemTitle mBottom8">
-            <span>{_l('显示字段')}</span>
+            <span>{_l('关联后显示的字段')}</span>
           </div>
         )}
         <RelateSheetCover hideCover={isSheetDisplay()}>

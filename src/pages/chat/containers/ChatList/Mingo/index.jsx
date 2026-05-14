@@ -129,7 +129,7 @@ const Mingo = props => {
           Content
         ) : (
           <Tooltip
-            title={aiBrandName || 'AI助手'}
+            title={aiBrandName || _l('AI助手')}
             shortcut="M"
             placement="left"
             align={{ offset: [10, 0] }}

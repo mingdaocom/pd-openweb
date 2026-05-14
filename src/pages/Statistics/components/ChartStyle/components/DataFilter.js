@@ -64,7 +64,6 @@ export default class DataFilter extends Component {
         <div className="addonBeforeWrapper valignWrapper mLeft5 mRight5">
           <Select
             className="chartSelect"
-            style={{ width: 60 }}
             value={showXAxisType}
             suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
             onChange={value => {
@@ -86,7 +85,7 @@ export default class DataFilter extends Component {
             </Select.Option>
           </Select>
           <Input
-            style={{ width: 130, paddingLeft: 70 }}
+            style={{ width: 130, paddingLeft: 80 }}
             className="chartInput"
             value={count ? Math.abs(count).toString() : ''}
             onBlur={this.handleSaveCount}

@@ -234,7 +234,7 @@ export default function BulletinSetting(props) {
       setEditStatus({ editing: false, saved: false });
       isUpdate &&
         updatePlatformSetting({ bulletinBoards: newBulletins }, () => {
-          alert('删除成功');
+          alert(_l('删除成功'));
         });
     };
 
@@ -278,7 +278,7 @@ export default function BulletinSetting(props) {
     updatePlatformSetting(
       { bulletinBoards: bulletins.map(item => ({ ...item, link: item.link.trim(), title: item.title.trim() })) },
       () => {
-        alert('保存成功');
+        alert(_l('保存成功'));
         setEditStatus({ editing: false, saved: true });
       },
     );

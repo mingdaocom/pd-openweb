@@ -160,6 +160,7 @@ export default class CommonUserHandle extends Component {
                 )}
               </Fragment>
             )}
+          </Fragment>
         )}
       </div>
     );

@@ -515,7 +515,7 @@ export function formatControlToServer(
             const rows = JSON.parse(control.value);
             result.value = JSON.stringify(
               filterEmptyChildTableRows(rows).map(row =>
-                Object.keys(row).map(key => ({ controlId: key, value: row[key] })),
+                formatRowToServer(row, childTableControls || [], { isDraft, isSubList: true }),
               ),
             );
           } catch (err) {

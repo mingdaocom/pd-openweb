@@ -113,6 +113,13 @@ class WorksheetApi extends Component {
     return _.includes(_.get(md, 'global.Config.DisableModules') || [], 'mcp');
   }
 
+  get hideDataPipeline() {
+    return (
+      _.get(md, 'global.SysSettings.hideDataPipeline') ||
+      ((window.platformENV.isOverseas || window.platformENV.isLocal) && !_.get(md, 'global.Config.EnableDataPipeline'))
+    );
+  }
+
   getAppInfo() {
     const { isSharePage, shareData = {} } = this.props;
 
@@ -317,6 +324,8 @@ class WorksheetApi extends Component {
   getDataPipelineWorksheet = () => {
     const { appInfo } = this.state;
 
+    if (this.hideDataPipeline) return;
+
     this.setState({ dataPipelineLoading: true });
 
     integrationAjax
@@ -499,6 +508,8 @@ class WorksheetApi extends Component {
   renderDataPipelineSide() {
     const { expandIds = [], dataPipelineLoading } = this.state;
     const isOpen = expandIds[0] === 'dataPipeline';
+
+    if (this.hideDataPipeline) return null;
 
     return (
       <div className="worksheetApiMenu">
@@ -1980,7 +1991,11 @@ class WorksheetApi extends Component {
     } = this.state;
     const { isSharePage } = this.props;
     const appId = this.getId();
-    const sidebarList = (SIDEBAR_LIST_MAP[tabIndex] || []).filter(item => !(this.hideMcp && item.key === 'mcpServer'));
+    const sidebarList = (SIDEBAR_LIST_MAP[tabIndex] || []).filter(item => {
+      if (this.hideMcp && item.key === 'mcpServer') return false;
+      if (this.hideDataPipeline && item.key === 'dataPipeline') return false;
+      return true;
+    });
     const lang = window.getCurrentLang();
     const theme = document.documentElement.getAttribute('data-theme') || 'light';
 

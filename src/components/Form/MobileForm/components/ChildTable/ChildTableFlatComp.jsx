@@ -5,8 +5,7 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 import CustomFields from 'src/components/Form';
-import { getTitleTextFromControls } from 'src/utils/control';
-import { isRelateRecordTableControl } from 'src/utils/control';
+import { controlState, getTitleTextFromControls, isRelateRecordTableControl } from 'src/utils/control';
 import CardCellControls from '../RelateRecordCards/CardCellControls';
 
 const FlattenContent = styled.div`
@@ -148,7 +147,9 @@ export default function ChildTableFlatComp(props) {
 
   const [expandIds, setExpandIds] = useState(isEdit ? [] : showRows.map(item => item.rowid));
 
-  const showFields = controls.filter(c => _.find(props.showControls || [], scid => scid === c.controlId)); // 配置可显示字段
+  const showFields = controls.filter(
+    c => _.find(props.showControls || [], scid => scid === c.controlId) && controlState(c).visible,
+  ); // 配置可显示字段
 
   const showControlsFilter =
     _.isEmpty(h5abstractids) || _.isEmpty(controls.filter(v => _.includes(h5abstractids, v.controlId)))

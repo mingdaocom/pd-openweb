@@ -151,7 +151,7 @@ export default function RegularBackup(props) {
           />
           {cycleType === 2 && (
             <div className="flexRow weekWrap">
-              {[_l('日'), _l('一'), _l('二'), _l('三'), _l('四'), _l('五'), _l('六')].map((item, index) => (
+              {[_l('日%25011'), _l('一'), _l('二'), _l('三'), _l('四'), _l('五'), _l('六')].map((item, index) => (
                 <div
                   key={index}
                   className={cx('weekItem flex Hand bold', { active: cycleValue === index })}

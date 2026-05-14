@@ -1338,7 +1338,7 @@ export default class CreateNodeDialog extends Component {
     if (
       !window.platformENV.isLocal &&
       !window.platformENV.isOverseas &&
-      licenseType === 0 &&
+      _.includes([0, 2], licenseType) &&
       item.type === NODE_TYPE.MESSAGE
     ) {
       upgradeVersionDialog({
