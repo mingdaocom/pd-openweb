@@ -805,7 +805,7 @@ export default class UploadTemplateSheet extends React.Component {
             <p className="textSecondary">
               <span>
                 {_l(
-                  '5.可通过代码 #{[qrcode]字段名$[20*20]$} 或 #{[barcode]字段名$[40*10]$} 获取任意字段的二维码 或 条形码。二维码编码方式：QR-code，最大包含150个字（支持汉字）；条形码编码方式：code128，最大包含30个字符（仅支持数字、字母、符号）。',
+                  '5. 可通过代码 #{[qrcode]字段名$[20*20]$} 或 #{[barcode]字段名$[40*10]$} 获取任意字段的二维码 或 条形码。二维码编码方式：QR-code，最大包含150个字（支持汉字）；条形码编码方式：code128，最大包含30个字符（仅支持数字、字母、符号）。如需隐藏条形码下方的显示值字段，则增加_NT控制隐藏，例如 #{[barcode]字段名$[40*10_NT]$} 隐藏条形码下方文字；不加 _NT 仍按原逻辑显示。',
                 )}
               </span>
             </p>

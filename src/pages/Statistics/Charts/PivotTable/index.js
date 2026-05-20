@@ -559,6 +559,8 @@ export default class extends Component {
     const controlMinAndMax = getControlMinAndMax(reportData.yaxisList, reportData.data.data);
     const yaxisListLength = yaxisList.filter(n => !n.hide).length;
     const isHideHeaderLastTr = columns.length && !lines.length && yaxisListLength === 1;
+    const contentColumnIndexOffset = lines.length || (isHideHeaderLastTr ? 1 : 0);
+    const getColumnWidthIndex = index => contentColumnIndexOffset + index;
 
     const getTitle = (id, data) => {
       if (_.isNull(data)) return;
@@ -582,20 +584,20 @@ export default class extends Component {
       const yaxisColumn = yaxisList.map((item, i) => {
         const { rename, controlName, showNumber = true, percent = {} } = item;
         const name = rename || controlName;
-        const dragIndex = index + i + lines.length;
+        const dragIndex = getColumnWidthIndex(index + i);
         return {
           title: () => {
             return (
               <Fragment>
                 {name}
-                {this.renderDrag(isHideHeaderLastTr ? dragIndex + 1 : dragIndex)}
+                {this.renderDrag(dragIndex)}
               </Fragment>
             );
           },
           dataIndex: `${item.controlId}-${index + i}`,
           colSpan: 1,
           className: cx('cell-content', displaySetup.showRowList && isViewOriginalData ? 'contentValue' : undefined),
-          width: this.getColumnWidth(isHideHeaderLastTr ? dragIndex + 1 : dragIndex),
+          width: this.getColumnWidth(dragIndex),
           onCell: record => {
             return {
               onClick: event => {
@@ -640,6 +642,7 @@ export default class extends Component {
           const nextIndex = columnIndex + 1;
           const isObject = _.isObject(data);
           const colSpan = isObject ? data.length : 1;
+          const dragIndex = getColumnWidthIndex(startIndex + index + colSpan - 1);
           const id = columns[columnIndex].cid;
           const title = getTitle(id, data);
           return {
@@ -648,7 +651,7 @@ export default class extends Component {
                   return (
                     <Fragment>
                       {title}
-                      {this.renderDrag(startIndex + 1)}
+                      {this.renderDrag(dragIndex)}
                     </Fragment>
                   );
                 }
@@ -673,7 +676,7 @@ export default class extends Component {
           const colSpan = isObject ? firstItem.length : 1;
           const id = columns[0].cid;
           const children = item.y.length > 1 ? getChildren(1, index, colSpan) : getYaxisList(index);
-          const dragIndex = index + (lines.length || 1);
+          const dragIndex = getColumnWidthIndex(index + colSpan - 1);
           const obj = {
             title: () => {
               return (
@@ -695,7 +698,7 @@ export default class extends Component {
       dataList.push(...getYaxisList(0));
     }
 
-    const columnTotal = yaxisList.length && this.getColumnTotal(result, controlMinAndMax);
+    const columnTotal = yaxisList.length && this.getColumnTotal(result, controlMinAndMax, getColumnWidthIndex);
 
     if (columnSummary.location === 3 && columnTotal) {
       dataList.unshift(columnTotal);
@@ -707,7 +710,7 @@ export default class extends Component {
 
     return dataList;
   }
-  getColumnTotal(result, controlMinAndMax) {
+  getColumnTotal(result, controlMinAndMax, getColumnWidthIndex = _.identity) {
     const { reportData } = this.props;
     const { yaxisList, columns, pivotTable, valueMap } = reportData;
     const { showColumnTotal, columnSummary } = pivotTable || reportData;
@@ -726,12 +729,12 @@ export default class extends Component {
             {sumData.name
               ? `${columnSummary.rename || _l('列汇总')} (${sumData.name})`
               : columnSummary.rename || _l('列汇总')}
-            {yaxisList.length === 1 && this.renderDrag(result.length + 1)}
+            {yaxisList.length === 1 && this.renderDrag(getColumnWidthIndex(result.length - 1))}
           </Fragment>
         );
       },
       children: [],
-      width: yaxisList.length === 1 && this.getColumnWidth(result.length + 1),
+      width: yaxisList.length === 1 && this.getColumnWidth(getColumnWidthIndex(result.length - 1)),
       rowSpan: columns.length,
       colSpan: yaxisList.length,
     };
@@ -758,19 +761,22 @@ export default class extends Component {
         const sumData = _.find(columnSummary.controlList, { controlId: item.t_id }) || {};
 
         if (sumData.number || sumData.percent) {
+          const dragIndex = getColumnWidthIndex(index);
           childrenYaxisList.push({
             title: () => {
-              index = index + 1;
               return (
                 <Fragment>
                   {sumData.name ? `${name} (${sumData.name})` : name}
-                  {this.renderDrag(index)}
+                  {this.renderDrag(dragIndex)}
                 </Fragment>
               );
             },
             dataIndex: `${item.t_id}-${index}`,
             colSpan: 1,
-            width: yaxisList.length === 1 ? this.getColumnWidth(result.length + 1) : this.getColumnWidth(index + 1),
+            width:
+              yaxisList.length === 1
+                ? this.getColumnWidth(getColumnWidthIndex(result.length - 1))
+                : this.getColumnWidth(dragIndex),
             className: 'cell-content',
             render: (value, record, recordIndex) => {
               const newRecord = {

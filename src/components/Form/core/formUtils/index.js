@@ -59,7 +59,8 @@ export const checkValueByFilterRegex = (data = {}, name, formData, recordId) => 
 
       if (
         _.isEmpty(filters) ||
-        _.get(checkValueAvailable({ filters: filters }, newFormatData, recordId), 'isAvailable')
+        (!_.isEmpty(newFormatData) &&
+          _.get(checkValueAvailable({ filters: filters }, newFormatData, recordId), 'isAvailable'))
       ) {
         return !name || !reg || reg.test(name) ? '' : err || _l('请输入有效文本');
       }

@@ -176,6 +176,10 @@ export default function VersionUpgrade(props) {
       portalexpand: externalType === 'monthly' ? PRODUCT_TYPE_ENUM.EXTERNAL_MONTHLY : PRODUCT_TYPE_ENUM.EXTERNAL_YEARLY,
     };
 
+    if (window.platformENV.isOverseas && !window.platformENV.isLocal) {
+      mapping.chunks = PRODUCT_TYPE_ENUM.VECTOR_KNOWLEDGE_CHUNKS;
+    }
+
     return mapping[type];
   };
 

@@ -88,11 +88,6 @@ function ConnectDesDia(props) {
 
   //编辑详细资料
   const handleUploadImg = () => {
-    if (props.data.type === 2 && !_.get(props.data, 'info.allowEdit')) {
-      // 安装的连接默认不可修改连接LOGO；info.allowEdit 为 true 时可修改
-      return;
-    }
-
     Dialog.confirm({
       width: 460,
       title: 'Logo',
@@ -140,15 +135,15 @@ function ConnectDesDia(props) {
           onChange={e => {
             let str = e.target.value;
 
-            if (e.target.value.trim().length > 20) {
-              str = e.target.value.trim().slice(0, 20);
+            if (e.target.value.trim().length > 50) {
+              str = e.target.value.trim().slice(0, 50);
             }
 
             setState({ name: str });
           }}
           placeholder={_l('例如：订单查询、物流查询')}
         />
-        <span className="num">{(name || '').length}/20</span>
+        <span className="num">{(name || '').length}/50</span>
       </div>
       <p className="title">{_l('说明')}</p>
       <div className="Relative">

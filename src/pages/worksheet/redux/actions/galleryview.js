@@ -12,6 +12,20 @@ const pageSizeForGroup = 20;
 const pageSizeForGroupKan = 50;
 const pageSize = 100;
 
+const getGroupName = (newName, oldName, groupControl = {}) => {
+  if (!newName) {
+    return oldName;
+  }
+
+  if (_.includes([27, 48], groupControl.type)) {
+    const parsedName = safeParse(newName);
+    const nameKey = groupControl.type === 27 ? 'departmentName' : 'organizeName';
+    return parsedName && parsedName[nameKey] ? newName : oldName;
+  }
+
+  return newName;
+};
+
 export const fetch = index => {
   return (dispatch, getState) => {
     const { base, filters, galleryview, quickFilter, navGroupFilters, controls, views = [] } = getState().sheet;
@@ -115,7 +129,9 @@ export const fetchMoreByGroup = (index, kanbanKey) => {
       const list = gallery.map(o => {
         if (o.key === kanbanKey) {
           return {
+            ...o,
             ...keyData,
+            name: getGroupName(keyData.name, o.name, groupControl),
             rows: o.rows.concat(data),
           };
         } else {

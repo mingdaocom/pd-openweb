@@ -91,6 +91,8 @@ export default function BulletinBoard(props) {
       {bulletinBoards
         .concat(!bulletinBoards.length ? [{ url: `${md.global.FileStoreConfig.pictureHost}/${coverUrls[0]}` }] : [])
         .map((item, i) => {
+          const imageUrl = isMobile ? `${item.url}${item.url.includes('?') ? '&' : '?'}imageView2/2/h/400` : item.url;
+
           return (
             <div
               key={i}
@@ -101,7 +103,7 @@ export default function BulletinBoard(props) {
               <div
                 className={cx('image', { pointer: item.link })}
                 style={{
-                  backgroundImage: `url(${item.url}${isMobile ? '&imageView2/2/h/400' : ''})`,
+                  backgroundImage: `url(${imageUrl})`,
                   height: `${height}px`,
                 }}
               />

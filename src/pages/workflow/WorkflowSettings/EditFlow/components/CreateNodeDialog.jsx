@@ -1157,7 +1157,11 @@ export default class CreateNodeDialog extends Component {
       { featureId: VersionProductType.interfacePush, type: [NODE_TYPE.PUSH] },
       { featureId: VersionProductType.globalVariable, type: [NODE_TYPE.ACTION], appType: APP_TYPE.GLOBAL_VARIABLE },
       { featureId: VersionProductType.WFLP, type: [NODE_TYPE.LOOP] },
-      { featureId: VersionProductType.PAY, type: [NODE_TYPE.LINK], actionId: ACTION_ID.RECORD_LINK_PAY },
+      {
+        featureId: VersionProductType.PAY,
+        type: [NODE_TYPE.LINK, NODE_TYPE.ACTION],
+        actionId: [ACTION_ID.RECORD_LINK_PAY, ACTION_ID.REFUND],
+      },
       { featureId: VersionProductType.workflowAgent, type: [NODE_TYPE.AGENT] },
       { featureId: VersionProductType.vectorKnowledgeBase, type: [NODE_TYPE.VECTOR] },
       { featureId: VersionProductType.invoice, type: [NODE_TYPE.ACTION], appType: APP_TYPE.INVOICE },
@@ -1167,7 +1171,7 @@ export default class CreateNodeDialog extends Component {
           if (obj.appType) {
             _.remove(o.items, item => _.includes(obj.type, item.type) && obj.appType === item.appType);
           } else if (obj.actionId) {
-            _.remove(o.items, item => _.includes(obj.type, item.type) && obj.actionId === item.actionId);
+            _.remove(o.items, item => _.includes(obj.type, item.type) && _.includes(obj.actionId, item.actionId));
           } else {
             _.remove(o.items, item => _.includes(obj.type, item.type));
           }

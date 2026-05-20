@@ -7,6 +7,7 @@ import styled from 'styled-components';
 import { Icon, Menu, MenuItem, ScrollView } from 'ming-ui';
 import { VerticalMiddle } from 'worksheet/components/Basics';
 import { purchaseMethodFunc } from 'src/components/pay/versionUpgrade/PurchaseMethodModal';
+import { versionUpgradeModal } from 'src/components/pay/versionUpgrade/VersionUpgradeModal';
 import { emitter } from 'src/utils/common';
 import { getCurrentProject } from 'src/utils/project';
 import CommonUserHandle from '../components/CommonUserHandle';
@@ -220,6 +221,20 @@ function AppCenterHeader(props) {
 
   const canCreateProject = md.global.Account.superAdmin || md.global.SysSettings.enableCreateProject;
 
+  const handleUpgrade = () => {
+    const isTrial = currentProject.licenseType == 2;
+
+    if (window.platformENV.isOverseas) {
+      versionUpgradeModal({ projectId: currentProject.projectId });
+      return;
+    }
+
+    purchaseMethodFunc({
+      projectId: currentProject.projectId,
+      isTrial,
+    });
+  };
+
   return (
     <Fragment>
       <Mask className="appCenterHeaderMask" />
@@ -296,15 +311,7 @@ function AppCenterHeader(props) {
               </div>
 
               {!window.platformENV.isLocal && (
-                <div
-                  className="upgrade Hand"
-                  onClick={() =>
-                    purchaseMethodFunc({
-                      projectId: currentProject.projectId,
-                      isTrial: currentProject.licenseType == 2,
-                    })
-                  }
-                >
+                <div className="upgrade Hand" onClick={handleUpgrade}>
                   <i className="icon icon-auto_awesome Font16 TxtMiddle mRight5" />
                   <span className="Font12 textWhite TxtMiddle bold">
                     {currentProject.licenseType == 2 ? _l('购买') : _l('升级')}

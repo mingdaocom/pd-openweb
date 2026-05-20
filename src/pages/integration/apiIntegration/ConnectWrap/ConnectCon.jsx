@@ -309,7 +309,7 @@ function ConnectCon(props) {
                         </span>
                       )}
                     {!!nodeInfo.startEventId &&
-                      (connectData.type === 1 || (connectData.type === 2 && _.get(connectData, 'info.allowEdit'))) && // 自定义连接可编辑；安装连接需 info.allowEdit 为 true 才可编辑 LOGO
+                      [1, 2].includes(connectData.type) && // 自定义连接和安装连接均可编辑名称与描述
                       isConnectOwner && (
                         <Icon
                           icon="edit"
