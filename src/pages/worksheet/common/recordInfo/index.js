@@ -18,14 +18,22 @@ export function openRecordInfo(props) {
   document.body.appendChild(div);
 
   const root = createRoot(div);
+  let destroyed = false;
 
   function destory() {
+    if (destroyed) {
+      return;
+    }
+
+    destroyed = true;
     if (_.isFunction(props.onClose)) {
       props.onClose();
     }
 
-    root.unmount(div);
-    document.body.removeChild(div);
+    root.unmount();
+    if (div.parentNode) {
+      div.parentNode.removeChild(div);
+    }
   }
 
   root.render(<RecordInfo visible {...props} hideRecordInfo={destory} />);

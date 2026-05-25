@@ -58,7 +58,8 @@ export default class Filter extends Component {
     const urlParams = _.get(store.getState(), 'customPage.urlParams') || [];
     const { visible } = this.state;
     const urlParamsColumns = urlParams.map(i => ({ controlName: i, controlId: i }));
-    const filterColumns = [...worksheetInfo.columns, ...urlParamsColumns];
+    const columns = worksheetInfo.columns || [];
+    const filterColumns = [...columns, ...urlParamsColumns];
     const filterItemTexts = filterData(filterColumns, filterItem, true, filterColumns);
     return (
       <div className="mBottom20">
@@ -107,7 +108,7 @@ export default class Filter extends Component {
             projectId={projectId}
             appId={worksheetInfo.appId}
             viewId={filter.viewId}
-            columns={worksheetInfo.columns}
+            columns={columns}
             sheetSwitchPermit={worksheetInfo.switches}
             conditions={filterItem}
             urlParams={sourceType === 1 ? urlParams : undefined}

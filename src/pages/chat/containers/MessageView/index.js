@@ -110,8 +110,12 @@ class MessageView extends Component {
       return;
     }
 
+    if (!_.isArray(newMessages)) {
+      return;
+    }
+
     // 刚加载完第一页的数据
-    if (!prevMessage) {
+    if (!_.isArray(prevMessage)) {
       this.handleScrollEnd();
       return;
     }

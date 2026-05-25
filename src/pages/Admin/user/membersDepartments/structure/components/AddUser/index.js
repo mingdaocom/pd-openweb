@@ -389,7 +389,7 @@ export default class AddUser extends Component {
             </div>
           </div>
         )}
-        {_.isEmpty(user) && md.global.SysSettings.enableSmsCustomContent && (
+        {_.isEmpty(user) && (
           <div className="formGroup">
             <div className="formLabel">{_l('邀请方式')}</div>
             <div>
@@ -405,7 +405,13 @@ export default class AddUser extends Component {
                     value: 'mobile',
                   },
                   { text: _l('自主创建'), value: 'autonomously' },
-                ].filter(item => (window.platformENV.isPlatform ? item.value !== 'autonomously' : true))}
+                ].filter(item =>
+                  window.platformENV.isPlatform
+                    ? item.value !== 'autonomously'
+                    : !md.global.SysSettings.enableSmsCustomContent
+                      ? item.value !== 'mobile'
+                      : true,
+                )}
                 onChange={val => {
                   setTimeout(() => {
                     this.itiFn();

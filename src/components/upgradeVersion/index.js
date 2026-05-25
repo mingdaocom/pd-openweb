@@ -64,14 +64,16 @@ export function buriedUpgradeVersionDialog(projectId, featureId, extra, onOk) {
     )[0];
 
     if (featureId === 38) {
+      const nextVersionType = parseInt(version.versionIdV2 || 0) + 1;
+
       usableVersion = {
-        versionName: TYPE_NAME[parseInt(version.versionIdV2 || 0) + 1],
-        versionType: parseInt(version.versionIdV2 || 0) + 1,
+        versionName: TYPE_NAME[nextVersionType],
+        versionType: TYPE_NAME[nextVersionType] ? nextVersionType : undefined,
       };
     }
 
-    upgradeName = usableVersion.versionName;
-    versionType = usableVersion.versionType;
+    upgradeName = (usableVersion || {}).versionName;
+    versionType = (usableVersion || {}).versionType;
   }
 
   return upgradeVersionDialog({
@@ -81,7 +83,7 @@ export function buriedUpgradeVersionDialog(projectId, featureId, extra, onOk) {
     explainText:
       window.platformENV.isOverseas || window.platformENV.isLocal || md.global.Account.isPortal
         ? _l('请升级版本')
-        : explainText || _l('请升级至%0解锁开启', upgradeName),
+        : explainText || (upgradeName ? _l('请升级至%0解锁开启', upgradeName) : _l('请升级版本')),
     versionType,
     dialogType,
     onOk,

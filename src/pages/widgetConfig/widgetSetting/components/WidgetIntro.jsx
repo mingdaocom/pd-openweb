@@ -173,6 +173,13 @@ export default function WidgetIntro(props) {
       newData.dataSource = '';
     }
 
+    if (info.type === 'AUTO_ID' && data.required) {
+      newData.required = false;
+      if (_.get(advancedSetting, 'required') === '1') {
+        newData = handleAdvancedSettingChange(newData, { required: '0' });
+      }
+    }
+
     // 保存自定义事件
     if (_.get(advancedSetting, 'custom_event')) {
       const newCustomEvent = safeParse(_.get(advancedSetting, 'custom_event') || '[]').map(i => {

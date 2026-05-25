@@ -33,7 +33,9 @@ export default class DepartmentGroupUserList extends Component {
   onlyShowJoinGroup = checked => {
     this.setState({ onlyJoinGroupChecked: !checked });
     safeLocalStorageSetItem('isCheckedGroupOnlyMyJoin', !checked);
-    this.props.userAction();
+    if (_.isFunction(this.props.userAction)) {
+      this.props.userAction();
+    }
   };
 
   render() {

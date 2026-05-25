@@ -207,9 +207,11 @@ class WorkSheet extends Component {
   }
   componentDidMount() {
     const { match, updateBase } = this.props;
-    $(document.body).addClass('fixedScreen');
+    const { body } = document;
+
+    $(body).addClass('fixedScreen');
     if (window.isPublicApp) {
-      $(document.body).addClass('isPublicApp');
+      $(body).addClass('isPublicApp');
     }
 
     const id = this.getValidedWorksheetId(this.props);
@@ -231,7 +233,10 @@ class WorkSheet extends Component {
     });
     this.setCache(this.props.match.params);
     // 禁止浏览器触摸板触发的前进后退
-    document.body.style.overscrollBehaviorX = 'none';
+    if (body) {
+      body.style.overscrollBehaviorX = 'none';
+    }
+
     emitter.on('MINGO_CREATE_RECORD', this.handleMingoCreateRecord);
     window.isWorksheet = true;
   }
@@ -307,10 +312,15 @@ class WorkSheet extends Component {
   }
   componentWillUnmount() {
     const { updateWorksheetLoading } = this.props;
+    const { body } = document;
+
     this.props.updateSheetListLoading(true);
-    $(document.body).removeClass('fixedScreen');
+    $(body).removeClass('fixedScreen');
     // 取消禁止浏览器触摸板触发的前进后退
-    document.body.style.overscrollBehaviorX = null;
+    if (body) {
+      body.style.overscrollBehaviorX = null;
+    }
+
     this.removeAppThemeColor();
     updateWorksheetLoading(true);
     emitter.off('MINGO_CREATE_RECORD', this.handleMingoCreateRecord);

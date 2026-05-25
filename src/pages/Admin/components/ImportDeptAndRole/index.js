@@ -146,7 +146,6 @@ const ColErrorInfo = styled.div`
     font-size: 24px;
     font-family: FZLanTingHeiS;
     font-weight: 600;
-    color: var(--color-white);
     .errorIcon {
       font-size: 44px;
       color: var(--color-error);
@@ -176,7 +175,6 @@ const ListErrorInfo = styled.div`
   font-size: 24px;
   font-family: FZLanTingHeiS;
   font-weight: 600;
-  color: var(--color-white);
   overflow-y: auto;
   .listErrorInfo {
     display: flex;
@@ -269,7 +267,6 @@ const SuccessInfo = styled.div`
   font-size: 24px;
   font-family: FZLanTingHeiS;
   font-weight: 600;
-  color: var(--color-white);
   .successIcon {
     font-size: 44px;
     vertical-align: middle;
@@ -415,7 +412,7 @@ export default class ImportDeptAndRole extends Component {
 
     if (actionResultStatus === 1) {
       return (
-        <SuccessInfo>
+        <SuccessInfo className="flexColumn">
           <div className="successInfo">
             <Icon icon="check_circle" className="successIcon" />
             <span>{_l('成功导入%0条记录', successCount)}</span>

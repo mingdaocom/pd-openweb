@@ -178,8 +178,19 @@ export default function DisplayItem(props) {
           setWidgets(genWidgetRowAndCol(newWidgets));
           setActiveWidget(last(filterBatchWidgets));
         } else {
+          if (!Array.isArray(activePath)) {
+            setBatchDrag(false);
+            return;
+          }
+
           const [batchRow, batchCol] = activePath;
-          const newActiveWidget = widgets[batchRow][batchCol];
+          const newActiveWidget = get(widgets, [batchRow, batchCol]);
+
+          if (!newActiveWidget) {
+            setBatchDrag(false);
+            return;
+          }
+
           handleAddWidgets(
             filterBatchWidgets,
             { activePath },

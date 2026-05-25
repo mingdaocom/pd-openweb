@@ -89,7 +89,12 @@ export default function BottomDragPointer({
                 <CreateByMingoButton
                   className="mingoGenWidgets"
                   onClick={() => {
-                    localStorage.removeItem(`MINGO_CACHE_CREATE_WORKSHEET_BOT_${get(md, 'global.Account.accountId')}`);
+                    if (_.isFunction(get(window, 'localStorage.removeItem'))) {
+                      window.localStorage.removeItem(
+                        `MINGO_CACHE_CREATE_WORKSHEET_BOT_${get(md, 'global.Account.accountId')}`,
+                      );
+                    }
+
                     window.mingoPendingStartTask = { type: MINGO_TASK_TYPE.CREATE_WORKSHEET_ASSIGNMENT };
                     window.mingoPendingCreateWorksheetTaskStatus =
                       MINGO_TASK_STATUS.CREATE_WORKSHEET_ASSIGNMENT_CREATE_WORKSHEET_WIDGETS;

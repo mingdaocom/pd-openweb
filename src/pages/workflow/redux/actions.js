@@ -219,8 +219,14 @@ export const updateNodeData = (processId, data) => (dispatch, getState) => {
 
   if (workflowDetail.id !== processId) {
     const approvalNodeId = getApprovalProcessNodeId(workflowDetail.flowNodeMap, processId);
+    const approvalProcessNode = _.get(workflowDetail, `flowNodeMap.${approvalNodeId}.processNode`);
 
-    workflowDetail.flowNodeMap[approvalNodeId].processNode.flowNodeMap[data.id] = data;
+    if (!approvalProcessNode) {
+      getProcessById(workflowDetail.id, null)(dispatch);
+      return;
+    }
+
+    approvalProcessNode.flowNodeMap[data.id] = data;
   } else {
     workflowDetail.flowNodeMap[data.id] = data;
   }

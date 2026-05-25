@@ -1211,11 +1211,16 @@ export const handleMoveWidgets = (data, widgetProps) => {
 
   let currentRowIndex = head(getPathById(newWidgets, activeWidget.controlId));
   const childrenList = getChildWidgetsBySection(allControls, activeWidget.controlId);
+
+  if (_.isUndefined(currentRowIndex)) {
+    currentRowIndex = newWidgets.length - 1;
+  }
+
   currentRowIndex = currentRowIndex + childrenList.length;
 
   data.map((item, index) => {
     // 如果当前激活控件所在行没有空位则另起下一行，否则放到当前行后面
-    if (isHaveGap(newWidgets[currentRowIndex], item)) {
+    if (newWidgets[currentRowIndex] && isHaveGap(newWidgets[currentRowIndex], item)) {
       newWidgets = update(newWidgets, { [currentRowIndex]: { $push: [item] } });
     } else {
       currentRowIndex = currentRowIndex + 1;

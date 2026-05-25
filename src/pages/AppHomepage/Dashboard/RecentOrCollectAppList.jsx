@@ -184,7 +184,11 @@ const RecentOrCollectAppList = forwardRef(props => {
     );
   };
 
-  const renderItem = ({ item }) => {
+  const renderItem = data => {
+    const item = data.item || data;
+
+    if (!item.id) return null;
+
     const appName = _.get(_.find(appLang, { key: item.id }), 'value') || item.name;
     const itemName = _.get(_.find(appLang, { key: item.itemId }), 'value') || item.itemName;
 

@@ -173,19 +173,21 @@ export function handleSelectTagsValue(param) {
       break;
     case 29:
       const { advancedSetting = {} } = control || {};
+      const oldRows = (safeParse(oldValue) || {}).rows;
+      const newRows = (safeParse(newValue) || {}).rows;
 
       if (
         ([8, 2].includes(requestType) || ['1', '2', '5', '6'].includes(advancedSetting.showtype)) &&
         !oldValue &&
         [1, 2].includes(editType)
       ) {
-        let _data = safeParse(safeParse(newValue).rows, 'array');
+        let _data = safeParse(newRows, 'array');
         oldList = editType === 2 ? _data : [];
         newList = editType === 1 ? _data : [];
         onlyNew = true;
       } else {
-        oldList = safeParse(safeParse(oldValue).rows, 'array');
-        newList = safeParse(safeParse(newValue).rows, 'array');
+        oldList = safeParse(oldRows, 'array');
+        newList = safeParse(newRows, 'array');
       }
 
       break;

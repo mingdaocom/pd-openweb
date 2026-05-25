@@ -463,7 +463,7 @@ export default function RecordOperate(props) {
             onMouseLeave={
               action[0] === 'hover'
                 ? e => {
-                    if (e.relatedTarget.closest('.rowIndex')) {
+                    if (e.relatedTarget && e.relatedTarget.closest && e.relatedTarget.closest('.rowIndex')) {
                       return;
                     }
 
@@ -531,6 +531,8 @@ export default function RecordOperate(props) {
                   viewId,
                   worksheetId,
                   recordId,
+                  workId,
+                  instanceId,
                   isCharge,
                   sheetSwitchPermit,
                   isDraft,
@@ -791,7 +793,7 @@ export default function RecordOperate(props) {
           onMouseLeave={
             action[0] === 'hover'
               ? e => {
-                  if (e.relatedTarget.className.includes('recordOperate')) {
+                  if (e.relatedTarget && e.relatedTarget.closest && e.relatedTarget.closest('.recordOperate')) {
                     return;
                   }
 

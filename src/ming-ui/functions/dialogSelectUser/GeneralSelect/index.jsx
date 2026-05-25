@@ -1309,6 +1309,7 @@ export default class GeneraSelect extends Component {
               unique={this.userSettings.unique}
               keywords={this.state.keywords}
               selectedAccountIds={this.userSettings.selectedAccountIds}
+              userAction={this.userAction}
             />
           );
         } else {

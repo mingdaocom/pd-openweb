@@ -288,7 +288,11 @@ class TaskNode extends Component {
       const id = `svg-${pathIds[0].fromDt.nodeId}-${pathIds[0].toDt.nodeId}`;
       const $svgWrap = document.getElementById(id);
 
-      if ($svgWrap && $svgWrap.childElementCount > 0) {
+      if (!$svgWrap) {
+        return;
+      }
+
+      if ($svgWrap.childElementCount > 0) {
         $svgWrap.childNodes.forEach(child => $svgWrap.removeChild(child));
       }
 

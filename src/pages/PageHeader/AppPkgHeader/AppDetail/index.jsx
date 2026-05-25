@@ -208,7 +208,9 @@ export default class AppInfo extends Component {
   componentWillUnmount() {
     clearTimeout(this.clickTimer);
     $('[rel="icon"]').attr('href', '/file/mdpic/ProjectLogo/favicon.png?t=' + Date.now());
-    document.querySelector('body').classList.remove('leftNavigationStyleWrap');
+    const body = document.querySelector('body');
+
+    body && body.classList.remove('leftNavigationStyleWrap');
     this.props.clearAppDetail();
     emitter.removeListener('CHANGE_THEME_MODE', this.handleChangeThemeMode);
     delete window.updateAppGroups;
@@ -216,15 +218,19 @@ export default class AppInfo extends Component {
   }
 
   checkIsFull = worksheetId => {
+    const wrapper = document.querySelector('#wrapper');
+    if (!wrapper) return;
+
     if (worksheetId) {
-      document.querySelector('#wrapper').classList.add('fullWrapper');
+      wrapper.classList.add('fullWrapper');
     } else {
-      document.querySelector('#wrapper').classList.remove('fullWrapper');
+      wrapper.classList.remove('fullWrapper');
     }
   };
 
   checkNavigationStyle = currentPcNaviStyle => {
     const body = document.querySelector('body');
+
     if ([1, 3].includes(currentPcNaviStyle)) {
       body && body.classList.add('leftNavigationStyleWrap');
     } else {
@@ -354,7 +360,8 @@ export default class AppInfo extends Component {
     if (data.currentPcNaviStyle === 2) {
       this.checkIsFull(worksheetId);
     } else {
-      document.querySelector('#wrapper').classList.remove('fullWrapper');
+      const wrapper = document.querySelector('#wrapper');
+      wrapper && wrapper.classList.remove('fullWrapper');
     }
 
     window.appInfo = data;

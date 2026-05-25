@@ -59,6 +59,7 @@ class FolderChart extends Component {
 
   componentWillUnmount() {
     $('body').off('.folderChart');
+    $(window).off('resize.folderChart');
 
     delete window.feedSelectDate;
     delete window.feedCustomDate;
@@ -296,11 +297,13 @@ class FolderChart extends Component {
     });
 
     // resize 重新渲染
-    $(window).on('resize', () => {
-      if (that.props.taskConfig.viewType === config.folderViewType.folderChart) {
-        that.updateCharts();
-      }
-    });
+    $(window)
+      .off('resize.folderChart')
+      .on('resize.folderChart', () => {
+        if (that.props.taskConfig.viewType === config.folderViewType.folderChart) {
+          that.updateCharts();
+        }
+      });
 
     $(document).on('click.folderChart', event => {
       const $target = $(event.target);
@@ -496,6 +499,17 @@ class FolderChart extends Component {
     }, 200);
   }
 
+  renderChart(id, Chart, config) {
+    const chartNode = $('#' + id)[0];
+
+    if (!chartNode || !Chart) {
+      return;
+    }
+
+    $(chartNode).empty();
+    new Chart(chartNode, config).render();
+  }
+
   folderCharts1(id = 'folderCharts1', source = folderChartSettings.data) {
     const data = [];
 
@@ -525,8 +539,7 @@ class FolderChart extends Component {
       yField: 'value',
       seriesField: 'name',
     };
-    $('#' + id).empty();
-    new this.Column($('#' + id)[0], config).render();
+    this.renderChart(id, this.Column, config);
   }
 
   folderCharts2(id = 'folderCharts2', source = folderChartSettings.data) {
@@ -563,8 +576,7 @@ class FolderChart extends Component {
       yField: 'value',
       seriesField: 'name',
     };
-    $('#' + id).empty();
-    new this.Column($('#' + id)[0], config).render();
+    this.renderChart(id, this.Column, config);
   }
 
   folderCharts3(id = 'folderCharts3', source = folderChartSettings.data) {
@@ -601,8 +613,7 @@ class FolderChart extends Component {
       yField: 'value',
       seriesField: 'name',
     };
-    $('#' + id).empty();
-    new this.Column($('#' + id)[0], config).render();
+    this.renderChart(id, this.Column, config);
   }
 
   folderCharts4(id = 'folderCharts4', source = folderChartSettings.data) {
@@ -639,8 +650,7 @@ class FolderChart extends Component {
       yField: 'value',
       seriesField: 'name',
     };
-    $('#' + id).empty();
-    new this.Column($('#' + id)[0], config).render();
+    this.renderChart(id, this.Column, config);
   }
 
   folderCharts5(id = 'folderCharts5', source = folderChartSettings.data) {
@@ -672,8 +682,7 @@ class FolderChart extends Component {
       yField: 'value',
       seriesField: 'name',
     };
-    $('#' + id).empty();
-    new this.Column($('#' + id)[0], config).render();
+    this.renderChart(id, this.Column, config);
   }
 
   folderCharts6(id = 'folderCharts6', source = folderChartSettings.data) {
@@ -700,8 +709,7 @@ class FolderChart extends Component {
       yField: 'value',
       seriesField: 'name',
     };
-    $('#' + id).empty();
-    new this.Column($('#' + id)[0], config).render();
+    this.renderChart(id, this.Column, config);
   }
 
   folderCharts13(id = 'folderCharts13', source = folderChartSettings.data) {
@@ -728,8 +736,7 @@ class FolderChart extends Component {
       yField: 'value',
       seriesField: 'name',
     };
-    $('#' + id).empty();
-    new this.Column($('#' + id)[0], config).render();
+    this.renderChart(id, this.Column, config);
   }
 
   folderCharts14(id = 'folderCharts14', source = folderChartSettings.data) {
@@ -761,8 +768,7 @@ class FolderChart extends Component {
       yField: 'value',
       seriesField: 'name',
     };
-    $('#' + id).empty();
-    new this.Column($('#' + id)[0], config).render();
+    this.renderChart(id, this.Column, config);
   }
 
   folderCharts15(id = 'folderCharts15', source = folderChartSettings.data) {
@@ -799,8 +805,7 @@ class FolderChart extends Component {
       yField: 'value',
       seriesField: 'name',
     };
-    $('#' + id).empty();
-    new this.Column($('#' + id)[0], config).render();
+    this.renderChart(id, this.Column, config);
   }
 
   folderCharts7(id = 'folderCharts7', source = folderChartSettings.data) {
@@ -834,8 +839,7 @@ class FolderChart extends Component {
       yField: 'value',
       seriesField: 'name',
     };
-    $('#' + id).empty();
-    new this.Column($('#' + id)[0], config).render();
+    this.renderChart(id, this.Column, config);
   }
 
   folderCharts8(id = 'folderCharts8', source = folderChartSettings.data) {
@@ -864,8 +868,7 @@ class FolderChart extends Component {
       yField: 'value',
       seriesField: 'name',
     };
-    $('#' + id).empty();
-    new this.Column($('#' + id)[0], config).render();
+    this.renderChart(id, this.Column, config);
   }
 
   folderCharts9(id = 'folderCharts9', source = folderChartSettings.data) {
@@ -899,8 +902,7 @@ class FolderChart extends Component {
       yField: 'value',
       seriesField: 'name',
     };
-    $('#' + id).empty();
-    new this.Column($('#' + id)[0], config).render();
+    this.renderChart(id, this.Column, config);
   }
 
   folderCharts10(id = 'folderCharts10', source = folderChartSettings.data) {
@@ -934,8 +936,7 @@ class FolderChart extends Component {
       yField: 'value',
       seriesField: 'name',
     };
-    $('#' + id).empty();
-    new this.Column($('#' + id)[0], config).render();
+    this.renderChart(id, this.Column, config);
   }
 
   folderCharts11(id = 'folderCharts11', source = folderChartSettings.data) {
@@ -964,8 +965,7 @@ class FolderChart extends Component {
       yField: 'value',
       seriesField: 'name',
     };
-    $('#' + id).empty();
-    new this.Column($('#' + id)[0], config).render();
+    this.renderChart(id, this.Column, config);
   }
 
   folderCharts12(id = 'folderCharts12') {
@@ -998,8 +998,7 @@ class FolderChart extends Component {
       yField: 'value',
       seriesField: 'name',
     };
-    $('#' + id).empty();
-    new this.Column($('#' + id)[0], config).render();
+    this.renderChart(id, this.Column, config);
   }
 
   folderChartsPie(id, source) {
@@ -1020,8 +1019,7 @@ class FolderChart extends Component {
       colorField: 'type',
       radius: 0.9,
     };
-    $('#' + id).empty();
-    new this.Pie($('#' + id)[0], config).render();
+    this.renderChart(id, this.Pie, config);
   }
 
   /**
@@ -1057,8 +1055,7 @@ class FolderChart extends Component {
       yField: 'value',
       seriesField: 'name',
     };
-    $('#' + id).empty();
-    new this.Column($('#' + id)[0], config).render();
+    this.renderChart(id, this.Column, config);
   }
 
   folderChartsCustom() {

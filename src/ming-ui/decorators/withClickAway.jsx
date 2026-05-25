@@ -21,6 +21,7 @@ function withClickAway(exceptionList, Component = exceptionList) {
     }
     componentWillUnmount() {
       this.mounted = false;
+      clearTimeout(this.bindClickAwayTimer);
       this.unbindClickAway();
     }
     clickAway() {
@@ -33,7 +34,17 @@ function withClickAway(exceptionList, Component = exceptionList) {
         return;
       }
 
-      const el = ReactDom.findDOMNode(this);
+      let el;
+
+      try {
+        el = ReactDom.findDOMNode(this);
+      } catch {
+        return;
+      }
+
+      if (!el) {
+        return;
+      }
 
       if (this.props.ignoreOnHide !== false && !$(el).is(':visible')) {
         return;
@@ -75,7 +86,11 @@ function withClickAway(exceptionList, Component = exceptionList) {
     bindClickAway() {
       // React 的事件比dom事件先执行，��setTimout 延迟方法，等到组件被渲染后再执行
       // setTimeout(() => $(document).on('mouseup', this.checkClickAway), 0);
-      setTimeout(() => document.addEventListener('mousedown', this.checkClickAway, true), 0);
+      this.bindClickAwayTimer = setTimeout(() => {
+        if (this.mounted) {
+          document.addEventListener('mousedown', this.checkClickAway, true);
+        }
+      }, 0);
     }
     unbindClickAway() {
       document.removeEventListener('mousedown', this.checkClickAway, true);

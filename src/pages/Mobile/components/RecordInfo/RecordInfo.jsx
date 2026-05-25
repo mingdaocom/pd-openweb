@@ -1146,6 +1146,7 @@ export default class RecordInfo extends Component {
       filledByAiMap,
       recordTitle,
       isCharge,
+      isSingleView,
     } = this.props;
     const {
       random,
@@ -1203,6 +1204,7 @@ export default class RecordInfo extends Component {
           )}
           <RecordForm
             view={view}
+            isSingleView={isSingleView}
             customwidget={this.customwidget}
             isPublicShare={this.isPublicShare}
             random={random}

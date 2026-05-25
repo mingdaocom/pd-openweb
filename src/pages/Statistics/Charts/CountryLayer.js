@@ -99,15 +99,15 @@ export class CountryLayer extends Component {
   }
   componentDidMount() {
     Promise.all([import('@antv/l7plot')]).then(([l7plot]) => {
-      this.Choropleth = l7plot.Choropleth;
-      this.DotLayer = l7plot.DotLayer;
+      this.Choropleth = _.get(l7plot, 'Choropleth.default') || _.get(l7plot, 'default.Choropleth') || l7plot.Choropleth;
+      this.DotLayer = _.get(l7plot, 'DotLayer.default') || _.get(l7plot, 'default.DotLayer') || l7plot.DotLayer;
       const { reportData, isViewOriginalData, isLinkageData } = this.props;
       const { style, displaySetup } = reportData;
       this.renderChart(this.props);
       this.isViewOriginalData = displaySetup.showRowList && isViewOriginalData;
       this.isLinkageData =
         isLinkageData && !(_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length === 0);
-      if (this.chartEl) {
+      if (this.chartEl && this.CountryLayerChart) {
         this.resizeObserver = new ResizeObserver(() => {
           const scene = this.CountryLayerChart.getScene();
           scene.map.resize();
@@ -153,6 +153,10 @@ export class CountryLayer extends Component {
     }
   }
   renderChart = props => {
+    if (!_.isFunction(this.Choropleth) || !this.chartEl) {
+      return;
+    }
+
     const config = this.getChartConfig(props);
     this.CountryLayerChart = new this.Choropleth(this.chartEl, config);
     this.CountryLayerChart.on('loaded', () => {
@@ -162,7 +166,7 @@ export class CountryLayer extends Component {
 
       const { dotLayerConfig, viewLevel, source } = config;
 
-      if (dotLayerConfig) {
+      if (dotLayerConfig && _.isFunction(this.DotLayer)) {
         const { locationMap } = props.reportData;
         const dotLayer = new this.DotLayer(dotLayerConfig);
         this[`${viewLevel.level}Data`] = { data: source.data, locationMap };

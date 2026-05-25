@@ -513,7 +513,7 @@ function WorksheetTable(props, ref) {
     window.activeTableId = tableId;
     const focusElement = tableDom.querySelector(`.cell-${newIndex}`);
     if (isSubList && !noTriggerHandFocusCell) {
-      if (focusElement.className.includes('lastRow') && focusElement.className.includes('col-1')) {
+      if (focusElement && focusElement.className.includes('lastRow') && focusElement.className.includes('col-1')) {
         window.handFocusCell = true;
       } else {
         window.handFocusCell = false;
@@ -779,7 +779,12 @@ function WorksheetTable(props, ref) {
           : e => {
               let hoverCell = e.target.closest('.cell,.cellForOperate');
 
-              if (!hoverCell && e.target.previousSibling && e.target.previousSibling.classList.contains('cell')) {
+              if (
+                !hoverCell &&
+                e.target.previousSibling &&
+                e.target.previousSibling.classList &&
+                e.target.previousSibling.classList.contains('cell')
+              ) {
                 hoverCell = e.target.previousSibling;
               }
 

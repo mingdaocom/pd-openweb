@@ -398,11 +398,11 @@ export default function WorkflowAction(props) {
   const { onAction, onRevoke, onUrge, onSkip, onUpdateWorkAccounts, onEndInstance, onViewExecDialog, onReset } = props;
   const { workId, status, allowRevoke, allowUrge, flowNode, workItem, createAccount } = data;
   const { type, fastApprove, btnMap = {}, callBackType, id: flowNodeId } = flowNode || {};
+  const { backFlowNodes = [] } = currentWorkflow;
   const allowBatch = type === 4 && fastApprove;
   const allowApproval = allowBatch && workItem;
   const allOverrule = '5' in btnMap && fastApprove && workItem;
-  const allowCallBack = callBackType !== -1 && !allOverrule && fastApprove && workItem;
-  const { backFlowNodes = [] } = currentWorkflow;
+  const allowCallBack = callBackType !== -1 && !allOverrule && fastApprove && workItem && !!backFlowNodes.length;
   const [updateUserDialogVisible, setUpdateUserDialogVisible] = useState(false);
   const urgeDisable = window[`urgeDisable-workId-${workId}`] || data.urgeDisable || false;
   const allowReset = status === 6 && (isCharge || createAccount.accountId === md.global.Account.accountId);

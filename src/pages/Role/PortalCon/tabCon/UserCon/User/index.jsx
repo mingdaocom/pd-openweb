@@ -265,7 +265,7 @@ function User(props) {
           appId={appId}
           registerMode={_.get(portalSetModel, ['registerMode'])}
           roleList={roleList}
-          roleId={!fastFilters || fastFilters.length <= 0 ? '' : fastFilters[0].values[0]} //角色与左侧一致
+          roleId={_.get(fastFilters, [0, 'values', 0], '')} //角色与左侧一致
           isSendMsgs={isSendMsgs}
           changeIsSendMsgs={isSendMsgs => {
             const { baseInfo = {} } = portal;

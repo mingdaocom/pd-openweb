@@ -633,7 +633,7 @@ class EditBox extends React.Component {
             <Fragment>
               <div className="Font14 Bold">{_l('规则名称')}</div>
               <input
-                className="mTop12 ruleNameInput ruleName"
+                className="mTop12 ruleNameInput"
                 value={this.state.name}
                 onChange={e => this.setState({ name: e.target.value })}
                 onBlur={e => {

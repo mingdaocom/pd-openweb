@@ -179,12 +179,20 @@ const MyUpdater = {
     let $textareaUpdater = $('#textarea_Updater');
     let textareaUpdaterEl = $textareaUpdater.get(0);
 
+    const updateTextareaHeight = minHeight => {
+      if (typeof $textareaUpdater.autoTextarea === 'function') {
+        $textareaUpdater.autoTextarea({
+          maxHeight: 220,
+          minHeight,
+        });
+      } else {
+        $textareaUpdater.height(minHeight);
+      }
+    };
+
     // 支持高度自适应
+    updateTextareaHeight(24);
     $textareaUpdater
-      .autoTextarea({
-        maxHeight: 220,
-        minHeight: 24,
-      })
       .focus(function () {
         let msg = $textareaUpdater.val().trim();
 
@@ -204,10 +212,7 @@ const MyUpdater = {
           $(this).attr('style', 'display: block');
         });
 
-        $textareaUpdater.autoTextarea({
-          maxHeight: 220,
-          minHeight: 80,
-        });
+        updateTextareaHeight(80);
         // $textareaUpdater.stop().animate({height: 80}, function () {
         //     $textareaUpdater.autoTextarea({
         //         maxHeight: 220,
@@ -269,10 +274,7 @@ const MyUpdater = {
           //         minHeight: 24
           //     });
           // });
-          $textareaUpdater.autoTextarea({
-            maxHeight: 220,
-            minHeight: 24,
-          });
+          updateTextareaHeight(24);
           $('#myupdaterOP').slideUp();
         }
       }

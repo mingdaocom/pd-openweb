@@ -26,12 +26,12 @@ export default function SelectControls(props) {
 
   useEffect(() => {
     // 延迟聚焦，防止页面重排，导致外层滚动条跳动
-    if (inputRef.current) {
-      const timer = setTimeout(() => {
+    const timer = setTimeout(() => {
+      if (inputRef.current) {
         inputRef.current.focus();
-      }, 200);
-      return () => clearTimeout(timer);
-    }
+      }
+    }, 200);
+    return () => clearTimeout(timer);
   }, []);
 
   return (

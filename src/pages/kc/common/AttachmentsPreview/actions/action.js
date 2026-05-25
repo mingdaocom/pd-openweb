@@ -217,6 +217,9 @@ export function getAttachmentEditDetail(params) {
     masterRecordId,
     masterControlId,
     allowEdit,
+    workId,
+    instanceId,
+    btnId,
   } = params;
   const isNewTab = location.pathname.indexOf('recordfile') > -1 || location.pathname.indexOf('rowfile') > -1;
   const featureType = getFeatureStatus(projectId, VersionProductType.editAttachment);
@@ -241,6 +244,9 @@ export function getAttachmentEditDetail(params) {
         parentRowId: masterRecordId,
         foreignControlId: masterControlId,
         editType: 1, // 1:表单内附件 2:打印模板
+        workId,
+        instanceId,
+        btnId,
       })
       .then(res => {
         dispatch({ type: 'ATTACHMENT_EDIT_DETAIL', wpsEditUrl: res.wpsEditUrl });
@@ -453,6 +459,7 @@ function preLoadMoreAttachments(state, dispatch) {
 
 function changeIndexThunk(dispatch, getState, index, flag, extra = {}) {
   const state = getState();
+  const options = { ...(state.extra || {}), ...extra };
 
   if (flag && flag === 'prev') {
     index = state.index - 1;
@@ -480,11 +487,11 @@ function changeIndexThunk(dispatch, getState, index, flag, extra = {}) {
 
   const currentAttachment = _.assign({}, state.attachments[index]);
 
-  addBehaviorLog('previewFile', extra.worksheetId, {
+  addBehaviorLog('previewFile', options.worksheetId, {
     fileId: _.get(state.attachments || [], `[${index}].sourceNode.fileID`),
-    rowId: extra.recordId,
+    rowId: options.recordId,
   });
-  getAttachmentEditDetail({ ...extra, dispatch, currentAttachment: _.get(state.attachments || [], `[${index}]`) });
+  getAttachmentEditDetail({ ...options, dispatch, currentAttachment: _.get(state.attachments || [], `[${index}]`) });
   dispatch({
     type: 'FILE_PREVIEW_CHANGE_INDEX',
     index,
@@ -492,7 +499,7 @@ function changeIndexThunk(dispatch, getState, index, flag, extra = {}) {
   dispatch({
     type: 'FILE_PREVIEW_LOAD_FILE_START',
   });
-  loadAttachment(currentAttachment, extra)
+  loadAttachment(currentAttachment, options)
     .then(attachment => {
       dispatch({
         type: 'FILE_PREVIEW_LOAD_FILE_SUCESS',

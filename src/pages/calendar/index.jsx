@@ -44,7 +44,9 @@ export default class CalendarEntrypoint extends Component {
   }
   componentWillUnmount() {
     $('html').removeClass('AppCalendar');
-    $('#calendar').fullCalendar('exit');
+    if ($.fn.fullCalendar) {
+      $('#calendar').fullCalendar('exit');
+    }
   }
   render() {
     const { openTaskDetail, taskId } = this.state;

@@ -71,7 +71,9 @@ export default function HideItem(props) {
   }, 500);
 
   const clickHandle = () => {
-    toView();
+    if (_.isFunction(toView)) {
+      toView();
+    }
   };
 
   const viewInfo = VIEW_TYPE_ICON.find(it => it.id === VIEW_DISPLAY_TYPE[item.viewType]) || {};
@@ -142,7 +144,10 @@ export default function HideItem(props) {
             <Icon
               icon="back"
               className="recycleIcon Font18 textTertiary hoverColorPrimary mTop3"
-              onClick={() => onRecycle(item.viewId)}
+              onClick={e => {
+                e.stopPropagation();
+                _.isFunction(onRecycle) && onRecycle(item.viewId);
+              }}
             />
           </Tooltip>
         </span>

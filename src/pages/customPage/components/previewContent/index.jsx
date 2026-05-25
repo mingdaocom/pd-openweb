@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import cx from 'classnames';
 import _ from 'lodash';
@@ -109,8 +109,7 @@ function PreviewContent(props) {
     if (hrefReg.test(value)) return <iframe ref={ref} src={parseLink(value)}></iframe>;
   };
 
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  return <PreviewWrap>{useMemo(renderContent, [parseLink(value)])}</PreviewWrap>;
+  return <PreviewWrap>{renderContent()}</PreviewWrap>;
 }
 
 export function PreviewWraper(props) {

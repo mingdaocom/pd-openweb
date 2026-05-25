@@ -792,6 +792,10 @@ class TableView extends React.Component {
   handleCellClick = (cell, row) => {
     const { allowOpenRecord = true } = this.props;
 
+    if (!row || !row.rowid) {
+      return;
+    }
+
     if (get(this, 'props.worksheetInfo.isRequestingRelationControls') || allowOpenRecord === false) {
       return;
     }

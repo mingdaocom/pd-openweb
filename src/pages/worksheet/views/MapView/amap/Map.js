@@ -343,7 +343,7 @@ class Map extends Component {
   getSetterValue(key, props) {
     if (key === 'center') {
       console.log('----center----', props, this.state.currentPosition);
-      const center = props.isCurrentPosition ? this.state.currentPosition : props.center;
+      const center = props.isCurrentPosition && this.state.currentPosition ? this.state.currentPosition : props.center;
       return getAMapPosition(center);
     }
 

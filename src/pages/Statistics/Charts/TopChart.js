@@ -134,8 +134,8 @@ export default class extends Component {
   setCount(props) {
     const { map, yaxisList } = props.reportData;
     const newYaxisList = formatYaxisList(map, yaxisList);
-    const { summary } = this.props.reportData;
-    const value = summary.sum;
+    const { summary = {} } = props.reportData;
+    const value = summary.sum || 0;
     const count = formatrChartValue(value, false, newYaxisList);
     this.setState({
       newYaxisList,
@@ -396,6 +396,8 @@ export default class extends Component {
   render() {
     const { count, originalCount, dropdownVisible, offset } = this.state;
     const { summary, displaySetup = {} } = this.props.reportData;
+    const showTotal = displaySetup.showTotal && !_.isEmpty(summary);
+
     return (
       <div className="flex flexColumn chartWrapper minHeight0 topChart Relative" ref={el => (this.chartWrapEl = el)}>
         <Dropdown
@@ -409,7 +411,7 @@ export default class extends Component {
         >
           <div className="Absolute" style={{ width: 1, height: 1, left: offset.x, top: offset.y }}></div>
         </Dropdown>
-        {displaySetup.showTotal ? (
+        {showTotal ? (
           <div className="summaryWrap pBottom10">
             <span>{formatSummaryName(summary)}: </span>
             <Tooltip title={originalCount ? originalCount : null}>
@@ -417,7 +419,7 @@ export default class extends Component {
             </Tooltip>
           </div>
         ) : null}
-        <div className={displaySetup.showTotal ? 'showTotalHeight' : 'h100'}>{this.renderTopChart()}</div>
+        <div className={showTotal ? 'showTotalHeight' : 'h100'}>{this.renderTopChart()}</div>
       </div>
     );
   }

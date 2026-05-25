@@ -44,7 +44,7 @@ export default function getTableColumnWidth(
           />,
         );
       });
-      tableDom.appendChild(conForRender);
+      (tableDom || document.body).appendChild(conForRender);
       if (!conForRender.children[0]) {
         conForRender.remove();
         return 150;

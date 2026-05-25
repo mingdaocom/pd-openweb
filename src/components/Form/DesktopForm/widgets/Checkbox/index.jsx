@@ -13,6 +13,12 @@ import { getCheckAndOther } from '../../../core/utils';
 import OtherInput from './OtherInput';
 
 const CheckboxWidgetWrapper = styled.div`
+  .selectAllCheckbox {
+    display: inline-flex;
+    width: fit-content;
+    max-width: 100%;
+  }
+
   .ming.CheckboxGroup > div:nth-child(${props => props.activeIndex}) {
     .ming.Checkbox {
       overflow: unset;
@@ -148,6 +154,7 @@ const CheckboxWidgets = props => {
             background: enumDefault2 === 1 ? item.color : '',
             maxWidth: noMaxWidth ? 'auto' : 140,
           }}
+          title={item.value}
         >
           {item.value}
         </span>
@@ -215,6 +222,7 @@ const CheckboxWidgets = props => {
         <div className="flexColumn w100">
           <Checkbox
             key="select-all"
+            className="selectAllCheckbox"
             title={_l('全选')}
             text={<span style={{ paddingTop: '3px', display: 'inline-block' }}>{_l('全选')}</span>}
             value="select-all"
@@ -357,7 +365,9 @@ const CheckboxWidgets = props => {
         >
           {!keywords.length && allowadd === '1' && canAddOption && (
             <Select.Option disabled className="cursorDefault">
-              <span className="ellipsis customRadioItem textTertiary">{_l('或直接输入添加新选项')}</span>
+              <span className="ellipsis customRadioItem textTertiary" title={_l('或直接输入添加新选项')}>
+                {_l('或直接输入添加新选项')}
+              </span>
             </Select.Option>
           )}
 
@@ -376,7 +386,9 @@ const CheckboxWidgets = props => {
             allowadd === '1' &&
             canAddOption && (
               <Select.Option value={`add_${keywords}`}>
-                <span className="ellipsis customRadioItem ThemeColor3">{_l('添加新的选项：') + keywords}</span>
+                <span className="ellipsis customRadioItem ThemeColor3" title={_l('添加新的选项：') + keywords}>
+                  {_l('添加新的选项：') + keywords}
+                </span>
               </Select.Option>
             )}
         </Select>

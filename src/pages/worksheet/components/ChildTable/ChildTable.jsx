@@ -2253,9 +2253,8 @@ class ChildTable extends React.Component {
                   if (isEmptyRow) {
                     updateRow({ rowid: row.rowid, value: this.newRow({}, { isCreate: true }) });
                     setTimeout(() => {
-                      const activeCell = this.worksheettable.current.table.refs.dom.current.querySelector(
-                        '.cell.cell-' + cellIndex,
-                      );
+                      const tableDom = get(this.worksheettable, 'current.table.refs.dom.current');
+                      const activeCell = tableDom && tableDom.querySelector('.cell.cell-' + cellIndex);
 
                       if (activeCell) {
                         activeCell.click();

@@ -19,7 +19,6 @@ const FailInfoCon = styled.div`
     }
     .detailDesCount {
       font-size: 24px;
-      color: var(--color-white);
       font-weight: 600;
     }
     .desInfo {
@@ -60,7 +59,6 @@ const ImportError = styled.div`
   }
   .errorTxt {
     font-size: 24px;
-    color: var(--color-white);
     font-weight: 600;
     margin: 36px 0 16px;
   }

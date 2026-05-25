@@ -30,11 +30,12 @@ const Drag = styled.div(
 
 const defaultWidth = 400;
 const rightToolbarWidth = 52;
+const getBodyWidth = () => _.get(document.body, 'clientWidth', window.innerWidth || 0);
 
 const ToolbarDrawer = props => {
   const { type, fixing, visible, width, onClose } = props;
   const [dragMaskVisible, setDragMaskVisible] = useState(false);
-  const bodyWidth = document.body.clientWidth;
+  const bodyWidth = getBodyWidth();
   const drawerWidth = bodyWidth - width - rightToolbarWidth;
   const [dragLeft, setDragLeft] = useState(drawerWidth);
   const drawerWidht = bodyWidth - dragLeft - rightToolbarWidth;
@@ -42,7 +43,7 @@ const ToolbarDrawer = props => {
   const maxDrawerWidht = bodyWidth - 250 - rightToolbarWidth;
 
   const handleResize = () => {
-    setDragLeft(_.get(document.body, 'clientWidth') - width - rightToolbarWidth);
+    setDragLeft(getBodyWidth() - width - rightToolbarWidth);
   };
 
   useEffect(() => {

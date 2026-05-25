@@ -102,6 +102,7 @@ class DetailView extends Component {
               view={view}
               chartEntryStyle={appNaviStyle === 2 ? { bottom: 100 } : {}}
               isCharge={isCharge}
+              isSingleView={base.type === 'single'}
             />
           )
         ) : (

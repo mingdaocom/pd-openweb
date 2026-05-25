@@ -41,6 +41,7 @@ export default class Widgets extends Component {
     strDefault: PropTypes.string,
     hint: PropTypes.string,
     otherSheetControlType: PropTypes.number,
+    customButton: PropTypes.shape({}),
     onChange: PropTypes.func,
   };
 
@@ -613,6 +614,7 @@ export default class Widgets extends Component {
       masterData,
       isDraft,
       sourceControlId,
+      customButton,
     } = this.props;
     const { loading, value, showType, currentLocation, gettingLocation, temporaryAttachments } = this.state;
     const allowUpload = (advancedSetting.allowupload || '1') === '1';
@@ -664,6 +666,7 @@ export default class Widgets extends Component {
       allowEditOnline: controlState(this.props, from).editable && !disabled,
       isDraft,
       masterData,
+      customButton,
       advancedSetting,
       attachments,
       knowledgeAtts,

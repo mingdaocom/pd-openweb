@@ -7,11 +7,17 @@ export default function withEscClose(Comp) {
       this.removeEscEvent = this.bindEscEvent();
     }
     componentWillUnmount() {
-      this.removeEscEvent();
+      this.removeEscEvent && this.removeEscEvent();
     }
     bindEscEvent = () => {
-      document.body.addEventListener('keydown', this.closeWhenPressEsc);
-      return () => document.body.removeEventListener('keydown', this.closeWhenPressEsc);
+      const body = document.body;
+
+      if (!body) {
+        return () => {};
+      }
+
+      body.addEventListener('keydown', this.closeWhenPressEsc);
+      return () => body.removeEventListener('keydown', this.closeWhenPressEsc);
     };
     closeWhenPressEsc = e => {
       if (e.key === 'Escape' || e.keyCode === 27) {

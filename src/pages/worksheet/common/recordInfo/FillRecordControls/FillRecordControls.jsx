@@ -40,6 +40,7 @@ class FillRecordControls extends React.Component {
     hideDialog: PropTypes.func,
     onSubmit: PropTypes.func,
     customButtonConfirm: PropTypes.func,
+    customButton: PropTypes.shape({}),
   };
 
   constructor(props) {
@@ -333,6 +334,7 @@ class FillRecordControls extends React.Component {
       sheetSwitchPermit,
       isDraft,
       isBatchRecordLock,
+      customButton,
     } = this.props;
     const { submitLoading, formData, showError, formFlag, isSubmitting } = this.state;
 
@@ -373,6 +375,7 @@ class FillRecordControls extends React.Component {
             ref={this.customwidget}
             popupContainer={document.body}
             data={formData.map(c => ({ ...c, isCustomButtonFillRecord: true }))}
+            controlProps={{ customButton }}
             recordId={recordId}
             viewId={viewId}
             disableRules={!recordId}

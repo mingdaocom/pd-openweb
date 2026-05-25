@@ -124,24 +124,40 @@ export default ({ visible, refreshPosition, refreshThumbnail }) => {
   };
 
   useEffect(() => {
-    document.addEventListener('mousemove', event => {
-      if (!draggable.status) return;
+    const handleMouseMove = event => {
+      if (!draggable.status || !dragElement.current) return;
       dragElement.current.style.transform = `translateX(${event.clientX - draggable.x}px) translateY(${
         event.clientY - draggable.y
       }px)`;
-    });
+    };
 
-    document.addEventListener('mouseup', () => {
-      if (!draggable.status) return;
+    const handleMouseUp = () => {
+      if (!draggable.status || !dragElement.current) {
+        draggable.status = false;
+        return;
+      }
 
       const transform = dragElement.current.style.transform.match(/\(.*?\)/g);
+
+      if (!transform || transform.length < 2) {
+        draggable.status = false;
+        return;
+      }
 
       setFlowViewPosition(
         parseInt(dragElement.current.style.left) + parseInt(transform[0].replace(/[^-\d]/g, '')),
         parseInt(dragElement.current.style.top) + parseInt(transform[1].replace(/[^-\d]/g, '')),
       );
       draggable.status = false;
-    });
+    };
+
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
   }, []);
 
   useEffect(() => {

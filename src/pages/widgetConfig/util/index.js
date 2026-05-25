@@ -542,7 +542,7 @@ export const supportSettingCollapse = (props, key) => {
   }
 
   const isCustom = isCustomWidget(data);
-  const { mode } = window.subListSheetConfig[controlId] || {};
+  const { mode } = (window.subListSheetConfig || {})[controlId] || {};
 
   switch (key) {
     case 'base':

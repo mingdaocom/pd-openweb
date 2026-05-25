@@ -147,7 +147,11 @@ const ganttSource = {
     config.isEndDrag = true;
     props.ganttEndDrop();
     clearInterval(config.setInterval);
-    root.root();
+    if (root) {
+      root.unmount();
+      root = null;
+    }
+
     $('body').removeClass('ganttDraging');
   },
 };

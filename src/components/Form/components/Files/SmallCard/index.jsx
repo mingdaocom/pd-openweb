@@ -26,6 +26,7 @@ const SmallCard = props => {
   const ref = useRef(null);
   const allowReset = allowEditName && !isKc;
   const allowNewPage = recordId && onOpenControlAttachmentInNewTab && _.isEmpty(window.shareState);
+  const canDeleteMDFile = isDeleteFile && _.isFunction(onDeleteMDFile);
 
   useEffect(() => {
     if (isPicture) {
@@ -101,7 +102,7 @@ const SmallCard = props => {
           {_l('下载')}
         </MenuItem>
       )}
-      {isDeleteFile && !showDownloadOfDeleteBtn && (
+      {canDeleteMDFile && !showDownloadOfDeleteBtn && (
         <MenuItem
           key="delete"
           icon={<Icon icon="trash" className="Font17 pRight5" />}
@@ -153,7 +154,7 @@ const SmallCard = props => {
       className={cx('attachmentSmallCard flexRow alignItemsCenter', {
         mobile: isMobile,
         hover: dropdownVisible || isEdit,
-        mRight10: isDeleteFile && isMobile,
+        mRight10: canDeleteMDFile && isMobile,
       })}
       ref={wrapRef}
       onMouseEnter={() => {
@@ -226,7 +227,7 @@ const SmallCard = props => {
                       </div>
                     </Tooltip>
                   )}
-                  {isDeleteFile && (
+                  {canDeleteMDFile && (
                     <Tooltip title={_l('删除')} placement="bottom">
                       <div className="btnWrap pointer delete" onClick={() => setDeleteConfirmVisible(true)}>
                         <Icon className="textTertiary Font17" icon="trash" />
@@ -271,7 +272,7 @@ const SmallCard = props => {
           )}
         </div>
       ) : (
-        isDeleteFile && (
+        canDeleteMDFile && (
           <Icon onClick={() => onDeleteMDFile(data)} className="deleteIcon textTertiary Font19" icon="cancel" />
         )
       )}

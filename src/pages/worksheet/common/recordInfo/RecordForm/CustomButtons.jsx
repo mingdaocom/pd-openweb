@@ -150,6 +150,8 @@ export default class CustomButtons extends React.Component {
     viewId: PropTypes.string,
     worksheetId: PropTypes.string,
     recordId: PropTypes.string,
+    workId: PropTypes.string,
+    instanceId: PropTypes.string,
     buttons: PropTypes.arrayOf(PropTypes.shape({})),
     btnDisable: PropTypes.shape({}),
     loadBtns: PropTypes.func,
@@ -783,6 +785,8 @@ export default class CustomButtons extends React.Component {
       sheetSwitchPermit,
       isDraft,
       selectedRows = [],
+      workId,
+      instanceId,
     } = this.props;
     const { fillRecordControlsVisible } = this.state;
     const { activeBtn = {}, fillRecordId, btnRelateWorksheetId, fillRecordProps } = this;
@@ -808,6 +812,11 @@ export default class CustomButtons extends React.Component {
             sheetSwitchPermit={sheetSwitchPermit}
             writeControls={activeBtn.writeControls}
             continueFill={this.continueFill}
+            customButton={{
+              btnId: activeBtn.btnId,
+              workId,
+              instanceId,
+            }}
             onSubmit={this.fillRecordControls}
             hideDialog={() => {
               this.setStateFn({

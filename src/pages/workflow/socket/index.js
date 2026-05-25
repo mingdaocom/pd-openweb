@@ -185,11 +185,13 @@ export default () => {
             playAudio(filePath);
           }
         } else {
+          const speechPitch = parseInt(pitch, 10);
+          const speechRate = parseInt(speed, 10);
           const utterance = new SpeechSynthesisUtterance(content);
 
           utterance.lang = language; // 设置为中文
-          utterance.pitch = parseInt(pitch); // 音调
-          utterance.rate = parseInt(speed); // 语速
+          utterance.pitch = Number.isFinite(speechPitch) ? speechPitch : 1; // 音调
+          utterance.rate = Number.isFinite(speechRate) ? speechRate : 1; // 语速
           utterance.volume = 1; // 音量
 
           // 播放语音

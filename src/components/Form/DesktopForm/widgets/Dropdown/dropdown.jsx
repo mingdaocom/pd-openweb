@@ -90,6 +90,7 @@ const DropdownComp = props => {
               'pLeft12 pRight12': enumDefault2 === 1,
             },
           )}
+          title={item.value}
           style={{ background: enumDefault2 === 1 ? item.color : '' }}
         >
           {item.value}
@@ -208,7 +209,9 @@ const DropdownComp = props => {
       >
         {!keywords.length && advancedSetting.allowadd === '1' && canAddOption && (
           <Select.Option disabled className="cursorDefault">
-            <span className="ellipsis customRadioItem textTertiary">{_l('或直接输入添加新选项')}</span>
+            <span className="ellipsis customRadioItem textTertiary" title={_l('或直接输入添加新选项')}>
+              {_l('或直接输入添加新选项')}
+            </span>
           </Select.Option>
         )}
 
@@ -234,7 +237,9 @@ const DropdownComp = props => {
           advancedSetting.allowadd === '1' &&
           canAddOption && (
             <Select.Option value={`add_${keywords}`}>
-              <span className="ellipsis customRadioItem ThemeColor3">{_l('添加新的选项：') + keywords}</span>
+              <span className="ellipsis customRadioItem ThemeColor3" title={_l('添加新的选项：') + keywords}>
+                {_l('添加新的选项：') + keywords}
+              </span>
             </Select.Option>
           )}
       </Select>

@@ -60,9 +60,15 @@ const getPointData = reportData => {
       map.forEach((element, index) => {
         const target = element.value.filter(n => n.x === item.x)[0];
 
-        if (yaxisList.length > 1 ? target.m[nControlId] : target.v) {
+        if (!target) {
+          return;
+        }
+
+        const value = yaxisList.length > 1 ? _.get(target, ['m', nControlId]) : target.v;
+
+        if (value) {
           const location = locationMap[target.x];
-          const value = yaxisList.length > 1 ? target.m[nControlId] : target.v;
+
           features.push({
             type: 'Feature',
             properties: {
@@ -70,7 +76,7 @@ const getPointData = reportData => {
               name: xaxesValueMap[target.x],
               value,
               mag: 20,
-              size: yaxisList.length > 1 ? target.m[sizeControlId] : sizeControlId ? target.v : 0,
+              size: yaxisList.length > 1 ? _.get(target, ['m', sizeControlId]) : sizeControlId ? target.v : 0,
               groupKey: element.key,
               colorIndex: index,
             },

@@ -87,6 +87,7 @@ export default class RecordForm extends Component {
       updatePageIndex = () => {},
       view = {},
       workflow,
+      isSingleView,
     } = this.props;
 
     if (isEditRecord || !this.formWrap) {
@@ -107,6 +108,7 @@ export default class RecordForm extends Component {
     const fixedTabsEl = wrapEl?.querySelector('.fixedTabs');
     const fixedSheetNameWrapEl = wrapEl?.querySelector('.fixedSheetNameWrap');
     const mobileFormTopEl = wrapEl?.querySelector('.mobileFormTop');
+    const singleHeader = document.querySelector('.SingleViewHeader');
 
     if (fixedSheetNameWrapEl) {
       if (scrollTop >= mobileFormTopEl.clientHeight) {
@@ -125,7 +127,7 @@ export default class RecordForm extends Component {
     }
 
     if (view.viewType === 6 && view.childType === 1) {
-      fixedTabsEl && fixedTabsEl.classList.add('top41');
+      fixedTabsEl && fixedTabsEl.classList.add(isSingleView && !singleHeader ? 'top0' : 'top41');
     }
   };
 

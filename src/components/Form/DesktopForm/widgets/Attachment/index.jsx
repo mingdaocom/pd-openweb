@@ -30,6 +30,7 @@ export default class Widgets extends Component {
     from: PropTypes.number,
     enumDefault2: PropTypes.number,
     onChange: PropTypes.func,
+    customButton: PropTypes.shape({}),
   };
 
   constructor(props) {
@@ -624,6 +625,7 @@ export default class Widgets extends Component {
       fieldPermission,
       instanceId,
       workId,
+      customButton,
     } = this.props;
     const isOnlyAllowMobile = strDefault.split('')[1] === '1';
     const {
@@ -705,6 +707,7 @@ export default class Widgets extends Component {
       allowEditOnline: controlState(this.props, from).editable && !disabled,
       isDraft,
       masterData,
+      customButton,
       advancedSetting,
       attachments,
       knowledgeAtts,

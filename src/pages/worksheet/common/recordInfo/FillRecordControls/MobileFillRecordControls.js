@@ -331,8 +331,18 @@ class FillRecordControls extends React.Component {
     );
   };
   render() {
-    const { appId, recordId, worksheetId, projectId, hideDialog, title, continueFill, widgetStyle, isBatchRecordLock } =
-      this.props;
+    const {
+      appId,
+      recordId,
+      worksheetId,
+      projectId,
+      hideDialog,
+      title,
+      continueFill,
+      widgetStyle,
+      isBatchRecordLock,
+      customButton,
+    } = this.props;
     const { submitLoading, isSubmitting, formData, showError, formFlag } = this.state;
 
     return (
@@ -360,6 +370,7 @@ class FillRecordControls extends React.Component {
               ref={this.customwidget}
               widgetStyle={widgetStyle}
               data={formData.map(c => ({ ...c, isCustomButtonFillRecord: true }))}
+              controlProps={{ customButton }}
               recordId={recordId}
               from={3}
               projectId={projectId}

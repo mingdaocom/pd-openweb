@@ -396,14 +396,16 @@ export default class CellControl extends React.Component {
     const { tableType, cell, onClick } = this.props;
     const { isediting } = this.state;
     const haveEditingStatus = this.haveEditingStatus(cell);
+    const key = String(e.key || '');
+    const lowerKey = key.toLowerCase();
 
-    if (e.key.toLowerCase() === 'c' && (e.metaKey || e.ctrlKey) && !window.richTextDialogIsActive) {
+    if (lowerKey === 'c' && (e.metaKey || e.ctrlKey) && !window.richTextDialogIsActive) {
       this.handleCopy(cell);
       return;
     }
 
     if (
-      e.key.toLowerCase() === 'v' &&
+      lowerKey === 'v' &&
       (e.metaKey || e.ctrlKey) &&
       (!_.includes([2, 4, 7, 5, 6, 8], cell.type) ||
         (cell.type === 6 && cell.advancedSetting && cell.advancedSetting.showtype === '2')) &&
@@ -413,12 +415,12 @@ export default class CellControl extends React.Component {
       return;
     }
 
-    if ((e.metaKey || e.ctrlKey) && !(e.key.toLowerCase() === 'v' && checkIsTextControl(cell.type))) {
+    if ((e.metaKey || e.ctrlKey) && !(lowerKey === 'v' && checkIsTextControl(cell.type))) {
       return;
     }
 
-    window.cellLastKey = e.key;
-    switch (e.key) {
+    window.cellLastKey = key;
+    switch (key) {
       case 'Backspace':
         if (this.editable && haveEditingStatus && !isediting && !cell.required) {
           this.handleUpdateCell({ value: cell.type === 29 ? '[]' : '' });

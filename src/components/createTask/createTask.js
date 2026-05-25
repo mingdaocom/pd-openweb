@@ -1036,7 +1036,7 @@ CreateTask.Motheds = {
           $('.createTaskConfirm').parent().remove();
         }
       })
-      .fail(function () {
+      .catch(function () {
         $submitBtn.removeAttr('disabled');
         alert(_l('操作失败，请稍后再试'), 2);
       });

@@ -629,6 +629,8 @@ class RecordAction extends Component {
       isBatchOperate,
       batchOptCheckedData = [],
       currentSheetRows = [],
+      workId,
+      instanceId,
     } = this.props;
     const btnTypeStr = activeBtn.writeObject + '' + activeBtn.writeType;
     const isBatchRecordLock = batchOptCheckedData
@@ -655,6 +657,11 @@ class RecordAction extends Component {
           isBatchRecordLock={isBatchRecordLock}
           writeControls={activeBtn.writeControls}
           continueFill={this.continueFill}
+          customButton={{
+            btnId: activeBtn.btnId,
+            workId,
+            instanceId,
+          }}
           worksheetInfo={worksheetInfo}
           widgetStyle={sheetRow.advancedSetting}
           onSubmit={this.fillRecordControls}

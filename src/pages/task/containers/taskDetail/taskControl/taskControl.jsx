@@ -94,13 +94,15 @@ class TaskControl extends Component {
    * 更新字段数据
    */
   updateFieldsData = ({ controlId, isBlur }) => {
-    const errorItems = this.fields.state.errorItems;
-    const { data } = this.fields.getSubmitData({ silent: true });
+    if (!controlId || !this.fields) return;
+
+    const errorItems = this.fields.state.errorItems || [];
+    const { data = [] } = this.fields.getSubmitData({ silent: true });
     const currentData = data.find(item => item.controlId === controlId);
     const controls = this.props.taskControls[this.props.taskId];
     const oldCurrentData = _.find(controls, item => item.controlId === controlId);
 
-    if (!controlId) return;
+    if (!currentData || !oldCurrentData) return;
 
     if (isBlur) {
       if (!errorItems.find(item => item.controlId === controlId) && currentData.value !== oldCurrentData.value) {

@@ -65,13 +65,17 @@ function CommonBoard(props) {
     ...rest
   } = props;
 
+  const $listWrapRef = useRef(null);
+
   const [, drop] = useDrop({
     accept: ITEM_TYPE.RECORD,
     hover(props, monitor) {
       function scroll() {
-        const $wrap = document.querySelector('.boardListWrap');
-        const pos = $wrap.getBoundingClientRect();
+        const $wrap = _.get($listWrapRef, 'current');
         const offset = monitor.getClientOffset();
+        if (!$wrap || !offset) return;
+
+        const pos = $wrap.getBoundingClientRect();
 
         if (offset.x < pos.x + 40) {
           $wrap.scrollLeft -= 20;
@@ -86,7 +90,6 @@ function CommonBoard(props) {
     },
   });
 
-  const $listWrapRef = useRef(null);
   const flagRef = useRef({ preScrollLeft: 0, pending: false });
   const commonBoardRef = useRef(null);
   const [intersectionBox, setIntersectionBox] = useState(null);

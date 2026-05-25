@@ -190,6 +190,9 @@ const Files = props => {
     onAttachmentName,
     flag,
     masterData,
+    customButton = {},
+    workId,
+    instanceId,
     ...otherProps
   } = props;
   const { attachmentData, onChangeAttachmentData } = props;
@@ -312,6 +315,23 @@ const Files = props => {
   const handleMDPreview = data => {
     const { allowShare, allowDownload = false, advancedSetting, projectId, isDraft, allowEditOnline } = props;
     const { allowedit, onlyeditself } = advancedSetting;
+    const attachmentEditContext = {
+      worksheetId: recordBaseInfo.worksheetId,
+      recordId: recordBaseInfo.recordId,
+      controlId,
+      projectId,
+      isDraft,
+      masterWorksheetId: _.get(masterData, 'worksheetId'),
+      masterRecordId: _.get(masterData, 'recordId'),
+      masterControlId: _.get(masterData, 'controlId'),
+      allowEdit:
+        allowEditOnline &&
+        allowedit === '1' &&
+        ((onlyeditself === '1' && md.global.Account.accountId === data.accountId) || onlyeditself !== '1'),
+      workId: recordBaseInfo.workId || workId,
+      instanceId: recordBaseInfo.instanceId || instanceId,
+      ...customButton,
+    };
     const hideFunctions = ['editFileName', 'saveToKnowlege']
       .concat(allowDownload ? [] : ['download'])
       .concat(allowShare ? [] : ['share']);
@@ -351,21 +371,11 @@ const Files = props => {
             showThumbnail: true,
             showAttInfo: false,
             hideFunctions: hideFunctions,
-            worksheetId: recordBaseInfo.worksheetId,
             fileId: data.fileID,
-            recordId: recordBaseInfo.recordId,
-            controlId,
-            projectId,
-            isDraft,
-            masterWorksheetId: _.get(masterData, 'worksheetId'),
-            masterRecordId: _.get(masterData, 'recordId'),
-            masterControlId: _.get(masterData, 'controlId'),
-            allowEdit:
-              allowEditOnline &&
-              allowedit === '1' &&
-              ((onlyeditself === '1' && md.global.Account.accountId === data.accountId) || onlyeditself !== '1'),
+            ...attachmentEditContext,
           },
           {
+            ...attachmentEditContext,
             mdReplaceAttachment: newAttachment => {
               const newAttachmentData = attachmentData.slice();
 
@@ -539,6 +549,9 @@ const Files = props => {
           parentRowId,
           foreignControlId: parentControlId,
           editType: 1, // 1:表单内附件 2:打印模板
+          workId: recordBaseInfo.workId || workId,
+          instanceId: recordBaseInfo.instanceId || instanceId,
+          ...customButton,
         })
         .then(data => {
           if (window.isMingDaoApp && window.MDJS && window.MDJS.onlineEditingURLLoaded) {
@@ -632,4 +645,5 @@ export default Files;
 Files.propTypes = {
   from: PropTypes.number,
   className: PropTypes.string,
+  customButton: PropTypes.shape({}),
 };

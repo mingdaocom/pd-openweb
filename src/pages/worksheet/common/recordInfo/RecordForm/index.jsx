@@ -331,9 +331,14 @@ function RecordForm(props) {
   }
 
   function setStickyBarVisible({ isSplit } = {}) {
+    if (!recordForm.current) return;
+
     const scrollContentElement = recordForm.current.querySelector(isSplit ? '.topCon' : '.recordInfoFormScroll > div');
     const stickyBar = recordForm.current.querySelector('.topCon .stickyBar');
     const recordTitle = recordForm.current.querySelector('.topCon .recordTitle');
+
+    if (!scrollContentElement || !stickyBar) return;
+
     const visible = scrollContentElement.scrollTop > (recordTitle || {}).offsetTop + (recordTitle || {}).offsetHeight;
     stickyBar.id = visible || tabHeaderControl ? 'stickyBarActive' : '';
   }
@@ -359,6 +364,8 @@ function RecordForm(props) {
 
   function setSectionFixed(isScroll = true) {
     if (isSplit || isFixedLeft || isFixedRight) return;
+    if (!recordForm.current) return;
+
     const scrollContentElement = recordForm.current.querySelector('.recordInfoFormScroll > div');
     const sectionTabBarElement = recordForm.current.querySelector('.relateRecordBlock #widgetSectionTabBar');
     const headerElement = recordForm.current.querySelector('.recordInfoFormHeader');

@@ -226,10 +226,14 @@ export default class Member extends Component {
       overlayClosable: false,
       unique: true,
       onSave: jobs => {
-        const accounts = _.cloneDeep(this.props.accounts);
+        const job = (jobs || [])[0];
+        if (!job) return;
 
-        accounts[index].extensionId = jobs[0].jobId;
-        accounts[index].extensionName = jobs[0].jobName;
+        const accounts = _.cloneDeep(this.props.accounts);
+        if (!accounts[index]) return;
+
+        accounts[index].extensionId = job.jobId;
+        accounts[index].extensionName = job.jobName;
 
         this.props.updateSource({ accounts });
       },
@@ -246,10 +250,14 @@ export default class Member extends Component {
       projectId: companyId,
       unique: true,
       onSave: roles => {
-        const accounts = _.cloneDeep(this.props.accounts);
+        const role = (roles || [])[0];
+        if (!role) return;
 
-        accounts[index].extensionId = roles[0].organizeId;
-        accounts[index].extensionName = roles[0].organizeName;
+        const accounts = _.cloneDeep(this.props.accounts);
+        if (!accounts[index]) return;
+
+        accounts[index].extensionId = role.organizeId;
+        accounts[index].extensionName = role.organizeName;
 
         this.props.updateSource({ accounts });
       },
