@@ -42,7 +42,7 @@ const isSupportedPrintControl = ({ control, needVisible, showControls = [], isRe
 };
 
 //处理打印数据
-export const getControlsForPrint = ({ receiveControls, relationMaps = {}, needVisible, info }) => {
+export const getControlsForPrint = ({ receiveControls, relationMaps = {}, needVisible, info = {} }) => {
   const { appId, worksheetId } = info;
 
   const controls = receiveControls

@@ -137,6 +137,7 @@ export default class Branch extends Component {
           )}
           {!isHide &&
             item.flowIds.map((id, i) => {
+              if (!data[id]) return null;
               return (
                 <BranchItem
                   key={id}

@@ -183,7 +183,7 @@ const Apps = props => {
                 overlayClassName="userConfigPopover"
                 overlayStyle={{ padding: 0 }}
                 content={
-                  <PopoverWrap style={{ width: 260, maxHeight: document.body.clientHeight / 1.2, overflowY: 'auto' }}>
+                  <PopoverWrap style={{ width: 260, maxHeight: (document.body?.clientHeight || window.innerHeight) / 1.2, overflowY: 'auto' }}>
                     {popoverApps.map(app => (
                       <div
                         className={cx('itemWrap pointer flexRow alignItemsCenter', { active: appId === app.id })}

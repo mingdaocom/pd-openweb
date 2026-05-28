@@ -149,10 +149,12 @@ class UserCard extends React.Component {
     disabled: PropTypes.bool,
     chatButton: PropTypes.bool, // 是否显示发消息按钮
     newPageChat: PropTypes.bool, // 新页面打开 chat
+    isFromDepartureList: PropTypes.bool, // 是否来自离职列表
   };
   static defaultProps = {
     type: 1, // 1 人员 2 群组 3 通用`小秘书` 4 `任务 文件夹 群组 小秘书`
     chatButton: true,
+    isFromDepartureList: false,
   };
 
   constructor(props) {
@@ -335,7 +337,7 @@ class UserCard extends React.Component {
   };
 
   renderContent() {
-    const { type, sourceId = '', accountId, groupId, chatButton, projectId } = this.props;
+    const { type, sourceId = '', accountId, groupId, chatButton, projectId, isFromDepartureList } = this.props;
     const { data, isSourceValid } = this.state;
     const isPortal = _.includes(sourceId, '#');
     const url = this.getUserLink();
@@ -430,7 +432,7 @@ class UserCard extends React.Component {
                 !md.global.Account.isPortal &&
                 !isPortal &&
                 chatButton &&
-                !notContact &&
+                (isFromDepartureList ? true : !notContact) &&
                 !hideChat && (
                   <Tooltip title={_l('发消息')}>
                     <span className="Hand mLeft10" onClick={this.openChat}>

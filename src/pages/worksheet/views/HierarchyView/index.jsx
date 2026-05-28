@@ -139,8 +139,10 @@ function Hierarchy(props) {
     hover(item, monitor) {
       function scroll() {
         const $wrap = document.querySelector('.hierarchyViewWrap');
-        const pos = $wrap.getBoundingClientRect();
+        if (!$wrap) return;
         const offset = monitor.getClientOffset();
+        if (!offset) return;
+        const pos = $wrap.getBoundingClientRect();
         const { SCROLL_LIMIT, SCROLL_STEP } = SCROLL_CONFIG;
 
         // 向左滚动

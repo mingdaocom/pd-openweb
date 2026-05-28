@@ -782,21 +782,23 @@ export default props => {
             </Tooltip>
           </div>
 
-          <EmailApproval
-            {...props}
-            title={_l('启用邮件通知')}
-            flowNodeMap={data.flowNodeMap[OPERATION_TYPE.EMAIL]}
-            updateSource={(obj, callback) =>
-              updateSource(
-                {
-                  flowNodeMap: Object.assign({}, data.flowNodeMap, {
-                    [OPERATION_TYPE.EMAIL]: Object.assign({}, data.flowNodeMap[OPERATION_TYPE.EMAIL], obj),
-                  }),
-                },
-                callback,
-              )
-            }
-          />
+          {data.flowNodeMap && (
+            <EmailApproval
+              {...props}
+              title={_l('启用邮件通知')}
+              flowNodeMap={data.flowNodeMap[OPERATION_TYPE.EMAIL]}
+              updateSource={(obj, callback) =>
+                updateSource(
+                  {
+                    flowNodeMap: Object.assign({}, data.flowNodeMap, {
+                      [OPERATION_TYPE.EMAIL]: Object.assign({}, data.flowNodeMap[OPERATION_TYPE.EMAIL], obj),
+                    }),
+                  },
+                  callback,
+                )
+              }
+            />
+          )}
 
           <div className="flexRow mTop15 alignItemsCenter">
             <Checkbox

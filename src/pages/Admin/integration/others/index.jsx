@@ -58,8 +58,8 @@ const DATA_INFO = [
     label: _l('平台帐号登录'),
     description:
       window.platformENV.isOverseas || window.platformENV.isLocal
-        ? _l('在组织专属登录页，当开启了SSO、LDAP或第三方企业身份登录时，可关闭平台账号登录入口')
-        : _l('在组织的二级域名登录页面，当组织启用了LDAP、SSO或第三方企业身份登录时，可以关闭本系统账号登录'),
+        ? _l('在组织专属登录页，当开启了SSO、LDAP时，可关闭平台账号登录入口')
+        : _l('在组织的二级域名登录页面，当组织启用了LDAP、SSO时，可以关闭本系统账号登录'),
   },
   {
     key: 'orgKey',

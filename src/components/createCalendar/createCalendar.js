@@ -309,9 +309,11 @@ $.extend(CreateCalendar.prototype, {
       },
       autoFillEndTime: 1,
     };
-    const root = createRoot(document.getElementById('calendarDate'));
+    if (!this._calendarDateRoot) {
+      this._calendarDateRoot = createRoot(document.getElementById('calendarDate'));
+    }
 
-    root.render(
+    this._calendarDateRoot.render(
       <div className="Relative">
         <RangePicker {...rangePickerProps}></RangePicker>
       </div>,

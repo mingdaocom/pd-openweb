@@ -395,9 +395,12 @@ function WorksheetTable(props, ref) {
     }
 
     const headHeight = getTableHeadHeight(visibleColumns.map((c, i) => ({ ...c, width: getColumnWidth(i) })));
-    onColumnHeadHeightUpdate(headHeight + 16);
     return headHeight + 16;
   }, [visibleColumns]);
+
+  useEffect(() => {
+    onColumnHeadHeightUpdate(columnHeadHeight);
+  }, [columnHeadHeight]);
 
   // 按照传入记录数计算宽度
   if (setHeightAsRowCount || !_.isUndefined(rowCount)) {

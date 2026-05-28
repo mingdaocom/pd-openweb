@@ -319,6 +319,7 @@ const CheckboxWidgets = props => {
           disabled={disabled}
           showSearch
           allowClear={checkIds.length > 0}
+          autoClearSearchValue={false}
           listHeight={320}
           placeholder={hint}
           value={checkIds}
@@ -359,7 +360,6 @@ const CheckboxWidgets = props => {
             }
 
             onChange(JSON.stringify(value));
-            setKeywords('');
           }}
           {...selectProps}
         >

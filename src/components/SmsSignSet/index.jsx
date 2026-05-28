@@ -69,11 +69,9 @@ export default function SmsSignSet(props) {
       ) : (
         <div>
           {sign && <span className="mRight12">{sign}</span>}
-          {!window.platformENV.isOverseas && (
-            <span className="ThemeColor3 ThemeHoverColor2 pointer" onClick={() => setVisible(true)}>
-              {sign ? _l('修改') : _l('设置')}
-            </span>
-          )}
+          <span className="ThemeColor3 ThemeHoverColor2 pointer" onClick={() => setVisible(true)}>
+            {sign ? _l('修改') : _l('设置')}
+          </span>
         </div>
       )}
 
@@ -85,7 +83,9 @@ export default function SmsSignSet(props) {
           onCancel={() => setVisible(false)}
           onOk={onSave}
           footerLeftElement={() => {
-            return !loading && !!signList.length ? (
+            return !loading &&
+              !!signList.length &&
+              !(window.platformENV.isOverseas && window.platformENV.isPlatform) ? (
               <div
                 className="ThemeColor3 ThemeHoverColor2 pointer LineHeight36"
                 onClick={() => window.open(`/admin/certinfo/${projectId}`)}

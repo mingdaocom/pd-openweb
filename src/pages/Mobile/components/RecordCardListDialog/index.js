@@ -276,15 +276,16 @@ export default class RecordCardListDialog extends Component {
         appId,
         viewId,
         searchType: 1,
-        pageSize: 20,
+        pageSize: 50,
         pageIndex,
         status: 1,
         keyWords,
         isGetWorksheet: true,
         getType: 7,
         sortControls,
-        filterControls,
+        filterControls: ignoreAllFilters ? [] : filterControls || [],
         fastFilters,
+        shareId: window.publicWorksheetShareId,
       };
     }
 

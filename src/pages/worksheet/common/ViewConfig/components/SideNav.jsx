@@ -228,7 +228,7 @@ export default function SideNav(props) {
                             : item.type === 'Controls'
                               ? hideLengthStr
                               : item.type === 'Setting'
-                                ? VIEW_TYPE_ICON.find(o => o.id === VIEW_DISPLAY_TYPE[view.viewType]).txt
+                                ? VIEW_TYPE_ICON.find(o => o.id === VIEW_DISPLAY_TYPE[view.viewType])?.txt
                                 : item.name}
                         </div>
                       </div>

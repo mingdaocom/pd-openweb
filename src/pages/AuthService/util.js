@@ -43,11 +43,28 @@ export const getDataByFilterXSS = url => {
   }
 };
 
+export const cacheDefaultCountry = ({ emailOrTel = '', dialCode = '' } = {}) => {
+  if (!emailOrTel || emailOrTel.indexOf('@') > -1 || !dialCode) return;
+
+  const iti = initIntlTelInput();
+  iti.setNumber(`${dialCode}${emailOrTel}`);
+  const iso2 = _.get(iti.getSelectedCountryData(), 'iso2');
+
+  if (iso2) {
+    safeLocalStorageSetItem('DefaultCountry', iso2);
+  }
+};
+
 //  注册流程后登录成功跳转
 export const registerSuc = (registerData, action) => {
   const { emailOrTel, dialCode, password } = registerData;
   let request = getRequest();
   let returnUrl = getDataByFilterXSS(request.ReturnUrl || '');
+
+  if (emailOrTel) {
+    safeLocalStorageSetItem('LoginName', emailOrTel);
+  }
+  cacheDefaultCountry({ emailOrTel, dialCode });
 
   if (returnUrl.indexOf('type=privatekey') > -1 || returnUrl.indexOf('oauth/authorize') > -1) {
     location.href = returnUrl;

@@ -498,7 +498,7 @@ export function updateControlOfRow({ cell = {}, cells = [], recordId, rules }, o
         let { value } = cell;
         const control = _.find(controls, { controlId });
 
-        if (control.type === 29) {
+        if (control && control.type === 29) {
           try {
             if (value === 'deleteRowIds: all') {
               value = '[]';

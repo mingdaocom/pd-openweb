@@ -86,6 +86,11 @@ const Search = props => {
   const postListRef = useRef(null);
   const keywordsRef = useRef(keywords);
 
+  const updateKeywords = useCallback(value => {
+    keywordsRef.current = value;
+    setKeywords(value);
+  }, []);
+
   useEffect(() => {
     keywordsRef.current = keywords;
   }, [keywords]);
@@ -166,7 +171,7 @@ const Search = props => {
     handleUpdateApi(props, itemData, true, () => {
       setData(null);
       setOpen(false);
-      setKeywords('');
+      updateKeywords('');
     });
   };
 
@@ -227,9 +232,13 @@ const Search = props => {
       return (
         <div
           className={cx('searchIconBox', { disabled: disabled || !canClick })}
+          onMouseDown={e => {
+            e.preventDefault();
+            e.stopPropagation();
+          }}
           onClick={e => {
             e.stopPropagation();
-            if (!canClick) return alert(_l('最少输入%0个关键字', min), 3);
+            if (_.get(keywordsRef.current, 'length') < parseInt(min)) return alert(_l('最少输入%0个关键字', min), 3);
             handleSearch();
           }}
         >
@@ -290,12 +299,12 @@ const Search = props => {
   // 下拉框
   if (enumDefault === 1) {
     selectProps = {
-      onSearch: keywords => setKeywords(keywords),
+      onSearch: keywords => updateKeywords(keywords),
       filterOption: (inputValue, option) => {
         return `${option.label}`.indexOf(inputValue) > -1;
       },
       onDropdownVisibleChange: open => {
-        setKeywords('');
+        updateKeywords('');
         open ? handleSearch() : searchRef.current.blur();
         onVisibleChange(open);
       },
@@ -306,7 +315,7 @@ const Search = props => {
   if (enumDefault === 2) {
     selectProps = {
       onSearch: keywords => {
-        setKeywords(keywords);
+        updateKeywords(keywords);
         // 实时搜索
         if (clicksearch === '1') {
           if (keywords.length < parseInt(min)) return;
@@ -368,7 +377,7 @@ const Search = props => {
         onBlur={() => {
           setData(null);
           setOpen(false);
-          setKeywords('');
+          updateKeywords('');
           onVisibleChange(false);
         }}
       >

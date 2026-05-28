@@ -81,10 +81,21 @@ export default async function (props) {
   const { worksheetId } = props;
   if (!window.isWeiXin || !worksheetId) return;
 
-  try {
-    await loadWeiXinScript();
-    await initShareConfig(props);
-  } catch (error) {
-    console.error('微信分享初始化失败:', error);
+  const run = async () => {
+    try {
+      await loadWeiXinScript();
+      await initShareConfig(props);
+    } catch (error) {
+      console.error('微信分享初始化失败:', error);
+    }
+  };
+
+  // iOS WeChat 存在 WeixinJSBridge 注入时序问题：wx.config 内部直接访问
+  // WeixinJSBridge，若 Bridge 尚未就绪会抛 ReferenceError。
+  // 与 OrderPay 保持一致，等 Bridge 就绪后再初始化 SDK。
+  if (typeof WeixinJSBridge !== 'undefined') {
+    run();
+  } else {
+    document.addEventListener('WeixinJSBridgeReady', run, false);
   }
 }

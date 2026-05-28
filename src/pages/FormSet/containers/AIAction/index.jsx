@@ -312,10 +312,10 @@ export default function AIAction(props) {
                                 () => setState({ isRename: false, currentActionItem: {} }),
                               );
                             }}
-                            onChange={e => {
+                            onChange={value => {
                               setState({
-                                list: list.map(item =>
-                                  item.btnId === item.btnId ? { ...item, name: e.target.value } : item,
+                                list: list.map(listItem =>
+                                  listItem.btnId === item.btnId ? { ...listItem, name: value } : listItem,
                                 ),
                               });
                             }}

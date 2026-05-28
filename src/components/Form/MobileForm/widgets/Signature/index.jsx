@@ -46,6 +46,9 @@ const Signature = props => {
   const removeCanvasTouchBlockRef = useRef(null);
   const [isEdit, setIsEdit] = useState(false);
   const [popupVisible, setPopupVisible] = useState(false);
+  const [isLandscape, setIsLandscape] = useState(
+    typeof window === 'undefined' ? false : window.innerWidth > window.innerHeight,
+  );
   const [lastInfo, setLastInfo] = useState(null);
 
   const closePopup = () => {
@@ -54,19 +57,43 @@ const Signature = props => {
     props.onClose && props.onClose();
   };
 
+  const destroySignaturePad = () => {
+    removeCanvasTouchBlockRef.current && removeCanvasTouchBlockRef.current();
+    removeCanvasTouchBlockRef.current = null;
+
+    if (signaturePad.current) {
+      signaturePad.current.off();
+      signaturePad.current = null;
+    }
+  };
+
   const initCanvas = () => {
     const canvas = signatureRef.current;
 
     if (!canvas) return;
 
-    removeCanvasTouchBlockRef.current && removeCanvasTouchBlockRef.current();
-    canvas.width = canvas.offsetWidth;
-    canvas.height = canvas.offsetHeight;
+    const signatureDataUrl =
+      signaturePad.current && !signaturePad.current.isEmpty() ? signaturePad.current.toDataURL('image/png') : '';
+
+    destroySignaturePad();
+
+    const width = canvas.offsetWidth;
+    const height = canvas.offsetHeight;
+
+    if (!width || !height) return;
+
+    canvas.width = width;
+    canvas.height = height;
     canvas.getContext('2d');
     signaturePad.current = new SignaturePad.default(canvas, {
       penColor: '#9e9e9e',
       onBegin: () => setIsEdit(true),
     });
+
+    if (signatureDataUrl) {
+      signaturePad.current.fromDataURL(signatureDataUrl, { width, height, ratio: 1 });
+      setIsEdit(true);
+    }
 
     // 阻止签名时点到手机左侧触发浏览器返回
     const blockSwipeBack = e => {
@@ -82,7 +109,7 @@ const Signature = props => {
 
     removeCanvasTouchBlockRef.current = () => {
       ['touchstart', 'touchmove', 'touchend'].forEach(eventName => {
-        canvas.removeEventListener(eventName, blockSwipeBack, { passive: false });
+        canvas.removeEventListener(eventName, blockSwipeBack);
       });
     };
   };
@@ -146,12 +173,10 @@ const Signature = props => {
   };
 
   const clear = () => {
-    signaturePad.current.clear();
+    signaturePad.current && signaturePad.current.clear();
     setIsEdit(false);
     setLastInfo(null);
-    setTimeout(() => {
-      initCanvas();
-    }, 100);
+    setTimeout(initCanvas, 100);
   };
 
   const removeSignature = e => {
@@ -236,6 +261,7 @@ const Signature = props => {
             if (window.isMingDaoApp) {
               openSignature();
             } else {
+              setIsLandscape(window.innerWidth > window.innerHeight);
               setPopupVisible(true);
               setTimeout(initCanvas, 500);
               e.nativeEvent.stopImmediatePropagation();
@@ -246,18 +272,37 @@ const Signature = props => {
           <span>{_l('添加签名')}</span>
         </div>
 
-        <Popup visible={popupVisible} className="mobileModal topRadius">
+        <Popup
+          visible={popupVisible}
+          className={`mobileModal ${isLandscape ? 'full' : 'topRadius'}`}
+          afterClose={destroySignaturePad}
+        >
           <div className="flexColumn leftAlign h100">
-            <div className="flexRow pTop15 pLeft20 pRight20 pBottom8">
-              <div className="Font18 textPrimary flex bold ellipsis">{_l('请在下方空白区域横向书写签名')}</div>
-              <i className="icon-close textTertiary Font20" onClick={closePopup}></i>
-            </div>
+            {!isLandscape && (
+              <div className="flexRow pTop15 pLeft20 pRight20 pBottom8">
+                <div className="Font18 textPrimary flex bold ellipsis">{_l('请在下方空白区域横向书写签名')}</div>
+                <i className="icon-close textTertiary Font20" onClick={closePopup}></i>
+              </div>
+            )}
             {lastInfo ? (
-              <div className="flex">
+              <div
+                className={isLandscape ? 'flex' : undefined}
+                style={isLandscape ? { minHeight: 0 } : { height: 150 }}
+              >
                 <img src={lastInfo.url} className="w100 h100" />
               </div>
             ) : (
-              <canvas ref={signatureRef} id="signatureCanvas" className="signatureCanvas flex"></canvas>
+              <canvas
+                ref={signatureRef}
+                id="signatureCanvas"
+                className={`signatureCanvas${isLandscape ? ' flex' : ''}`}
+                style={{
+                  width: '100%',
+                  ...(isLandscape ? { minHeight: 0 } : { height: 150 }),
+                  display: 'block',
+                  touchAction: 'none',
+                }}
+              ></canvas>
             )}
             {renderFooter()}
           </div>
@@ -275,9 +320,29 @@ const Signature = props => {
 
   useEffect(() => {
     return () => {
-      removeCanvasTouchBlockRef.current && removeCanvasTouchBlockRef.current();
+      destroySignaturePad();
     };
   }, []);
+
+  useEffect(() => {
+    if (!popupVisible) return;
+
+    const handleResize = () => {
+      setIsLandscape(window.innerWidth > window.innerHeight);
+
+      if (!lastInfo) {
+        setTimeout(initCanvas, 300);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    window.addEventListener('orientationchange', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('orientationchange', handleResize);
+    };
+  }, [popupVisible, lastInfo]);
 
   // 只读
   if (disabled) {

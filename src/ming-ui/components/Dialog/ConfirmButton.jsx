@@ -33,17 +33,17 @@ class ConfirmButton extends Component {
           }
 
           if (!noClose) {
-            onClose();
+            onClose && onClose();
           }
         };
 
         promise.then(stopLoading, stopLoading);
       } else {
         if (promise === false) return;
-        onClose();
+        onClose && onClose();
       }
     } else {
-      onClose();
+      onClose && onClose();
     }
   }
 

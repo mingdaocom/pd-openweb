@@ -20,7 +20,7 @@ const previewAttachments = function (options, extra) {
           }
 
           if (rootContainer) {
-            document.body.removeChild(rootContainer);
+            rootContainer.remove();
           }
 
           if (typeof options.closeCallback === 'function') {

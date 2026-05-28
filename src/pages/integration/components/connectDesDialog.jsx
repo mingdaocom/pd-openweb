@@ -42,7 +42,7 @@ const Wrap = styled.div`
   input,
   textarea {
     border: 1px solid var(--color-border-primary);
-    padding: 8px 15px;
+    padding: 8px 58px 8px 15px;
     border-radius: 3px;
     width: 100%;
     &:focus {
@@ -69,6 +69,7 @@ const Wrap = styled.div`
     right: 8px;
     bottom: 10px;
     color: var(--color-text-tertiary);
+    pointer-events: none;
   }
 `;
 
@@ -77,6 +78,10 @@ const WrapAvatorInfo = styled.div`
     margin-left: 40px;
   }
 `;
+
+// 连接名称最多 50 字符，连接说明最多 1000 字符
+const CONNECT_NAME_MAX_LENGTH = 50;
+const CONNECT_EXPLAIN_MAX_LENGTH = 1000;
 
 function ConnectDesDia(props) {
   const [{ iconName, name, explain }, setState] = useSetState({
@@ -135,15 +140,15 @@ function ConnectDesDia(props) {
           onChange={e => {
             let str = e.target.value;
 
-            if (e.target.value.trim().length > 50) {
-              str = e.target.value.trim().slice(0, 50);
+            if (e.target.value.trim().length > CONNECT_NAME_MAX_LENGTH) {
+              str = e.target.value.trim().slice(0, CONNECT_NAME_MAX_LENGTH);
             }
 
             setState({ name: str });
           }}
           placeholder={_l('例如：订单查询、物流查询')}
         />
-        <span className="num">{(name || '').length}/50</span>
+        <span className="num">{(name || '').length}/{CONNECT_NAME_MAX_LENGTH}</span>
       </div>
       <p className="title">{_l('说明')}</p>
       <div className="Relative">
@@ -154,14 +159,14 @@ function ConnectDesDia(props) {
           onChange={e => {
             let str = e.target.value;
 
-            if (e.target.value.trim().length > 600) {
-              str = e.target.value.trim().slice(0, 600);
+            if (e.target.value.trim().length > CONNECT_EXPLAIN_MAX_LENGTH) {
+              str = e.target.value.trim().slice(0, CONNECT_EXPLAIN_MAX_LENGTH);
             }
 
             setState({ explain: str });
           }}
         />
-        <span className="num">{(explain || '').length}/600</span>
+        <span className="num">{(explain || '').length}/{CONNECT_EXPLAIN_MAX_LENGTH}</span>
       </div>
       <div
         className="btn Bold Right"

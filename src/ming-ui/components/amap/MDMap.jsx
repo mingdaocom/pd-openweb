@@ -149,16 +149,18 @@ class GDMap extends Component {
       this._maphHandler.setPosition(lng, lat, resetZoom ? zoom : this._maphHandler.map.getZoom());
 
       // 周边搜索
-      new AMap.PlaceSearch().searchNearBy('', [lng, lat], distance || 100, (status, result) => {
-        if (status === 'complete') {
-          this.setState({
-            defaultList: result.poiList.pois.filter(
-              item => item.location && item.location.lng && this.compareDistance(item.location.lng, item.location.lat),
-            ),
-          });
-        } else {
-          this.setState({ defaultList: [] });
-        }
+      AMap.plugin(['AMap.PlaceSearch'], () => {
+        new AMap.PlaceSearch().searchNearBy('', [lng, lat], distance || 100, (status, result) => {
+          if (status === 'complete') {
+            this.setState({
+              defaultList: result.poiList.pois.filter(
+                item => item.location && item.location.lng && this.compareDistance(item.location.lng, item.location.lat),
+              ),
+            });
+          } else {
+            this.setState({ defaultList: [] });
+          }
+        });
       });
     }
   }
@@ -190,31 +192,33 @@ class GDMap extends Component {
 
     const keywords = _.get(this.searchRef, 'value') || '';
 
-    if (!distance) {
-      new AMap.PlaceSearch().search(keywords.trim(), (status, result) => {
-        this.setState({
-          list:
-            status === 'complete'
-              ? (_.get(result, 'poiList.pois') || []).filter(item => item.location && item.location.lng)
-              : [],
+    AMap.plugin(['AMap.PlaceSearch'], () => {
+      if (!distance) {
+        new AMap.PlaceSearch().search(keywords.trim(), (status, result) => {
+          this.setState({
+            list:
+              status === 'complete'
+                ? (_.get(result, 'poiList.pois') || []).filter(item => item.location && item.location.lng)
+                : [],
+          });
         });
-      });
-      return;
-    }
+        return;
+      }
 
-    new AMap.PlaceSearch({ citylimit: true, pageSize: 50 }).searchNearBy(
-      keywords.trim(),
-      [lng, lat],
-      distance,
-      (status, result) => {
-        this.setState({
-          list:
-            status === 'complete'
-              ? (_.get(result, 'poiList.pois') || []).filter(item => item.location && item.location.lng)
-              : [],
-        });
-      },
-    );
+      new AMap.PlaceSearch({ citylimit: true, pageSize: 50 }).searchNearBy(
+        keywords.trim(),
+        [lng, lat],
+        distance,
+        (status, result) => {
+          this.setState({
+            list:
+              status === 'complete'
+                ? (_.get(result, 'poiList.pois') || []).filter(item => item.location && item.location.lng)
+                : [],
+          });
+        },
+      );
+    });
   };
 
   handleClearAndSet = item => {

@@ -226,6 +226,10 @@ SelectSendTo.prototype = {
     var ST = this;
     var html;
     var selectedItem = ST.listTplData[key];
+    if (!selectedItem) {
+      return;
+    }
+
     ST.selectedData = ST.listData[key];
     if (ST.callback) {
       ST.callback(ST.selectedData);
@@ -778,6 +782,7 @@ ShareAttachment.prototype = {
   },
   activeSendToOther: function (type) {
     var SA = this;
+    if (!SA.options.node) return;
     var $sendToOther = SA.$dialog.find('.sendToOther');
     var $sendToContent = SA.$dialog.find('.sendToContent');
     SA.sendToTargetType = type;

@@ -28,7 +28,7 @@ import { emitter } from 'src/utils/common';
 import { getRowGetType, KVGet, removeTempRecordValueFromLocal, saveTempRecordValueToLocal } from 'src/utils/common';
 import { renderText as renderCellText } from 'src/utils/control';
 import { VersionProductType } from 'src/utils/enum';
-import { getFeatureStatus } from 'src/utils/project';
+import { addBehaviorLog, getFeatureStatus } from 'src/utils/project';
 import { getRecordTempValue } from 'src/utils/record';
 import { replaceControlsTranslateInfo } from 'src/utils/translate';
 import RecordFooter from './RecordFooter';
@@ -360,6 +360,7 @@ export default class RecordInfo extends Component {
 
     const isPublicForm = _.get(window, 'shareState.isPublicForm') && window.shareState.shareId;
     this.setState({ refreshBtnNeedLoading: true }, () => {
+      addBehaviorLog('worksheetRecord', this.props.worksheetId, { rowId: this.state.recordBase?.recordId }); // 埋点
       this.loadRecord(
         {
           needReLoadSheetSwitch: false,
@@ -1056,7 +1057,7 @@ export default class RecordInfo extends Component {
     }
 
     const newRecordId = currentSheetRows[newIndex].rowid;
-
+    addBehaviorLog('worksheetRecord', this.props.worksheetId, { rowId: newRecordId }); // 埋点
     this.setState(
       {
         recordId: newRecordId,

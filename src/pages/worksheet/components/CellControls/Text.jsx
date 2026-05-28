@@ -318,7 +318,7 @@ export default class Text extends React.Component {
       }
     }
 
-    if (e.key.toLowerCase() === 'v' && (e.ctrlKey || e.metaKey)) {
+    if (e.key && e.key.toLowerCase() === 'v' && (e.ctrlKey || e.metaKey)) {
       if (_.isFunction(_.get(navigator, 'clipboard.readText'))) {
         navigator.clipboard
           .readText()

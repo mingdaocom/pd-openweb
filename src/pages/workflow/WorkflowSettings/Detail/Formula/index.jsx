@@ -1122,9 +1122,9 @@ export default class Formula extends Component {
               const isCurrentApp = this.props.relationId === selectedAppId;
               this.switchWorksheet(
                 worksheetId,
-                obj.workSheetName,
+                obj?.workSheetName,
                 !isCurrentApp && selectedAppId,
-                !isCurrentApp && obj.appName,
+                !isCurrentApp && obj?.appName,
               );
             }}
             onHide={() => this.setState({ showOtherWorksheet: false })}

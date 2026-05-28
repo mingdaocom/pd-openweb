@@ -268,10 +268,7 @@ export default function (props) {
       </div>
       <div className="moreActionCon flexRow borderB">
         <div className="flex">
-          <h6 className="mTop20">
-            {_l('通过提交按钮新增时，立即执行工作流')}
-            <i className="icon-beta1 Font16 mLeft5" style={{ color: 'var(--color-success)' }} />
-          </h6>
+          <h6 className="mTop20">{_l('通过提交按钮新增时，立即执行工作流')}</h6>
           <p className="textTertiary">
             {_l(
               '启用后，通过点击表单提交按钮创建的记录，在触发工作流后会立即开始执行（无需系统默认的5s延时等待）。当执行完成或等待时会同时刷新前端数据。',

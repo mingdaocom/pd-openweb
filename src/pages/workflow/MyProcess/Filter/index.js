@@ -417,6 +417,10 @@ export default class Filter extends Component {
             }}
             value={[startDate ? moment(startDate) : null, endDate ? moment(endDate) : null]}
             onChange={date => {
+              if (!date) {
+                this.setState({ startDate: '', endDate: '' }, this.handleChange);
+                return;
+              }
               const [start, end] = date;
               this.setState(
                 {
@@ -444,6 +448,7 @@ export default class Filter extends Component {
             }}
             value={[moment(archivedItem.start), moment(archivedItem.end)]}
             onChange={date => {
+              if (!date) return;
               const [start, end] = date;
               this.props.onChangeArchivedItem({
                 startDate: start.format('YYYY-MM-DD'),

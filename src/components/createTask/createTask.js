@@ -737,7 +737,9 @@ $.extend(CreateTask.prototype, {
     });
 
     // 附件
-    const root = createRoot(document.getElementById('Attachment_updater_createTask'));
+    const attachmentContainer = document.getElementById('Attachment_updater_createTask');
+    if (!attachmentContainer) return;
+    const root = createRoot(attachmentContainer);
     root.render(
       <UploadFiles
         canAddLink
@@ -904,6 +906,7 @@ CreateTask.Motheds = {
     // 成员
     $('.createTaskAddMemberBox .createTaskMember').each(function () {
       var accountId = $(this).attr('data-id');
+      if (!accountId) return;
       if (accountId.indexOf('MD_SpecialAccounts') >= 0) {
         accountId = accountId.split('MD_SpecialAccounts');
         specialAccounts[accountId[0]] = accountId[1];
@@ -966,7 +969,7 @@ CreateTask.Motheds = {
         itemId: settings.itemId,
       })
       .then(function (source) {
-        if (source.status) {
+        if (source.status && source.data) {
           safeLocalStorageSetItem('lastProjectId', settings.ProjectID);
 
           source.data.taskName = source.data.name;

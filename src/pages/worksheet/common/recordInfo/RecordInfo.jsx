@@ -651,7 +651,7 @@ export default class RecordInfo extends Component {
     this.setState({
       tempFormData: tempFormData.map(c => (isRelateRecordTableControl(c) ? { ...c, value: undefined } : c)),
     });
-    // addBehaviorLog('worksheetRecord', worksheetId, { rowId: newRecordId }); // 埋点
+    addBehaviorLog('worksheetRecord', worksheetId || this.state.worksheetId, { rowId: newRecordId }); // 埋点
     this.loadRecord({
       needReLoadSheetSwitch: worksheetId !== this.state.worksheetId,
       recordId: newRecordId,
@@ -1097,6 +1097,7 @@ export default class RecordInfo extends Component {
         if (get(this, 'recordform.current.dataFormat.callStore')) {
           this.recordform.current.dataFormat.callStore('cancelChange');
         }
+
         this.abortChildTable();
         _.isFunction(cb) && cb();
       },
@@ -1118,6 +1119,7 @@ export default class RecordInfo extends Component {
 
     this.setState({ refreshBtnNeedLoading: true });
     const { recordId, worksheetId, appId, viewId } = this.state;
+    addBehaviorLog('worksheetRecord', this.state.worksheetId, { rowId: recordId }); // 埋点
     this.loadRecord({
       recordId,
       closeWhenNotViewData,

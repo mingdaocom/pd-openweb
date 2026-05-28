@@ -89,6 +89,15 @@ class View extends Component {
       this.props.fetchSheetRows({ navGroupFilters: nextProps.mobileNavGroupFilters });
     }
 
+    if (
+      nextProps.base.viewId === this.props.base.viewId &&
+      nextProps.batchOptCheckedData.length &&
+      _.isEmpty(nextProps.viewPermission)
+    ) {
+      const { appId, worksheetId, viewId } = nextProps.base || {};
+      nextProps.updateMobileViewPermission({ appId, worksheetId, viewId });
+    }
+
     this.checkWorksheetRowsBtn(nextProps);
   }
   componentWillUnmount() {
@@ -366,6 +375,7 @@ export default connect(
       'activeSavedFilter',
       'batchCheckAll',
       'batchOptCheckedData',
+      'viewPermission',
       'filterControls',
       'sheetButtons',
       'printList',

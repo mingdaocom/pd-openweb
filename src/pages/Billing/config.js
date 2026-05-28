@@ -19,6 +19,7 @@ export const BASIC_FUNCTION_TYPE = {
   TEXT_OCR: 3,
   TEXT_EXTRACTION: 4,
   PDF_GEN: 5,
+  SMS_INTERNATIONAL: 6,
 };
 
 // 基础功能初始配置数据
@@ -26,12 +27,22 @@ export const initialFunctionData = [
   {
     id: BASIC_FUNCTION_TYPE.SMS,
     name: _l('短信服务'),
+    nameSuffix: _l('中国大陆区'),
     price: null,
     unit: _l('条'),
     description: _l(
       '短信服务可分为验证码短信和自定义短信。自定义短信仅支持发往中国大陆手机号，按70字计一条计费，超过70字以67字每条计费。每个标点、空格、英文字母都算一个字。',
     ),
     chargeLocation: _l('工作流的发送短信节点；公开表单短信验证；外部门户中验证码、邀请、审核等短信服务'),
+  },
+  {
+    id: BASIC_FUNCTION_TYPE.SMS_INTERNATIONAL,
+    name: _l('短信服务'),
+    nameSuffix: _l('国际地区'),
+    price: null,
+    unit: _l('条'),
+    description: _l('未配置国际短信服务商时，由平台代发并收取费用'),
+    chargeLocation: _l('外部门户验证码；公开表单短信验证码'),
   },
   {
     id: BASIC_FUNCTION_TYPE.EMAIL,

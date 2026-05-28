@@ -4,6 +4,7 @@ import _ from 'lodash';
 import { MenuItem } from 'ming-ui';
 import { dialogSelectDept, dialogSelectJob, dialogSelectOrgRole, dialogSelectUser } from 'ming-ui/functions';
 import flowNode from '../../../../api/flowNode';
+import RegExpValidator from 'src/utils/expression';
 import SelectUsersFromApp from '../../../../components/SelectUsersFromApp';
 import { USER_TYPE } from '../../../enum';
 import { getControlTypeName } from '../../../utils';
@@ -116,11 +117,11 @@ export default class SelectUserDropDown extends Component {
     const { unique, updateSource, specialType } = this.props;
     const txt = evt.currentTarget.value.trim();
     const accounts = _.cloneDeep(this.props.accounts) || [];
-    const reg = specialType === 3 ? /(^1[3456789]\d{9}$)|(^\+\d+$)/ : /^[\w-]+(\.[\w-]+)*@[\w-]+(\.[\w-]+)*\.[\w-]+$/i;
+    const isValid = specialType === 3 ? /(^1[3456789]\d{9}$)|(^\+\d+$)/.test(txt) : RegExpValidator.isEmail(txt);
     const members = [];
 
     if (evt.keyCode === 13) {
-      if (reg.test(txt)) {
+      if (isValid) {
         if (!_.find(accounts, obj => obj.type === USER_TYPE.TEXT && obj.entityId === txt)) {
           members.push({
             type: USER_TYPE.TEXT,

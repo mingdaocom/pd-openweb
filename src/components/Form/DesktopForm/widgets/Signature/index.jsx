@@ -479,7 +479,7 @@ const Signature = props => {
               }}
             >
               <i className="icon-e-signature Font17 textTertiary"></i>
-              <span className="mLeft5 text">{_l('添加签名')}</span>
+              <span className="mLeft5 text overflow_ellipsis">{_l('添加签名')}</span>
             </GrayButton>
             {allowappupload && (
               <GenScanUploadQr

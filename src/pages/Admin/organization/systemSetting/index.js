@@ -39,7 +39,9 @@ export default class SystemSetting extends Component {
         {showHeader && (
           <div className="orgManagementHeader">
             <div className="tabBox">
-              {TABS.map(item => {
+              {TABS.filter(
+                item => !(item.key === 'certinfo' && window.platformENV.isOverseas && window.platformENV.isPlatform),
+              ).map(item => {
                 return (
                   <span
                     key={item.key}

@@ -169,7 +169,7 @@ class ImportAndExport extends Component {
           } else if (actionResult === 2) {
             alert(_l('验证码错误'), 3);
           } else if (actionResult === 3) {
-            alert(_l('超出导入数量限制'), 3);
+            alert(_l('今日邀请人数已达上限，请明天再试'), 3);
           } else if (actionResult === 4) {
             alert(_l('超出邀请数量限制'), 3);
           } else {
@@ -206,7 +206,7 @@ class ImportAndExport extends Component {
         {!fileName && (
           <div className="textSecondary mTop24">{_l('·导入成功后，成员会收到邀请链接，验证后可加入组织')}</div>
         )}
-        {!fileName && <div className="textSecondary">{_l('·最多一次可以导入 500 个用户，否则可能导致失效')}</div>}
+        {!fileName && <div className="textSecondary">{_l('·最多一次可以导入 100 个用户，否则可能导致失效')}</div>}
       </div>
     );
   };

@@ -89,10 +89,12 @@ export default class extends React.Component {
                   lazy={'false'}
                   size={32}
                   projectId={props.projectId}
+                  isFromDepartureList={true}
                 />
                 <UserName
                   className="textPrimary Font13 pLeft5 pRight10 pTop3 flex ellipsis"
                   projectId={props.projectId}
+                  isFromDepartureList={true}
                   user={{
                     userName: fullname,
                     accountId: accountId,

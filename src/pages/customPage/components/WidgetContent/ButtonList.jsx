@@ -27,6 +27,12 @@ import { addBehaviorLog, dateConvertToServerZone, mdAppResponse } from 'src/util
 import { genUrl } from '../../util';
 import ButtonDisplay from '../editWidget/button/ButtonDisplay';
 
+const STATIC_ID_CONTROL_KEYS = {
+  [WIDGETS_TO_API_TYPE_ENUM.USER_PICKER]: 'accountId',
+  [WIDGETS_TO_API_TYPE_ENUM.DEPARTMENT]: 'departmentId',
+  [WIDGETS_TO_API_TYPE_ENUM.ORG_ROLE]: 'organizeId',
+};
+
 const ButtonListWrap = styled.div`
   width: 100%;
   display: flex;
@@ -64,6 +70,28 @@ const getOrganize = (projectId, accountId) => {
         resolve(organizes || []);
       });
   });
+};
+
+const getStaticIdValues = input => {
+  const idKey = STATIC_ID_CONTROL_KEYS[input.type];
+
+  if (!idKey) return [];
+
+  return input.value
+    .reduce((values, { staticValue }) => {
+      const parsedValue = _.isString(staticValue) ? safeParse(staticValue) : staticValue;
+
+      if (_.isArray(parsedValue)) {
+        return values.concat(parsedValue);
+      }
+
+      if (_.isObject(parsedValue)) {
+        return values.concat(parsedValue[idKey] || parsedValue.id || staticValue);
+      }
+
+      return values.concat(staticValue);
+    }, [])
+    .filter(value => !_.isNil(value) && value !== '');
 };
 
 let currentBtn = {};
@@ -162,44 +190,49 @@ export function ButtonList({
         controls: inputs
           .filter(item => item.value.length)
           .map(input => {
-            const value = input.value.map(item => {
-              if (item.cid === 'triggerUser') {
-                if (input.type === WIDGETS_TO_API_TYPE_ENUM.USER_PICKER) {
-                  return JSON.stringify([accountId]);
-                } else {
-                  return md.global.Account.fullname;
-                }
-              }
+            const isStaticIdInput = input.value.every(item => !item.cid) && STATIC_ID_CONTROL_KEYS[input.type];
+            const value = isStaticIdInput
+              ? JSON.stringify(getStaticIdValues(input))
+              : input.value
+                  .map(item => {
+                    if (item.cid === 'triggerUser') {
+                      if (input.type === WIDGETS_TO_API_TYPE_ENUM.USER_PICKER) {
+                        return JSON.stringify([accountId]);
+                      } else {
+                        return md.global.Account.fullname;
+                      }
+                    }
 
-              if (item.cid === 'triggerDepartment') {
-                if (input.type === WIDGETS_TO_API_TYPE_ENUM.DEPARTMENT) {
-                  return JSON.stringify(departments.map(item => item.id));
-                } else {
-                  return JSON.stringify(departments.map(item => item.name));
-                }
-              }
+                    if (item.cid === 'triggerDepartment') {
+                      if (input.type === WIDGETS_TO_API_TYPE_ENUM.DEPARTMENT) {
+                        return JSON.stringify(departments.map(item => item.id));
+                      } else {
+                        return JSON.stringify(departments.map(item => item.name));
+                      }
+                    }
 
-              if (item.cid === 'triggerOrg') {
-                if (input.type === WIDGETS_TO_API_TYPE_ENUM.ORG_ROLE) {
-                  return JSON.stringify(organizes.map(item => item.id));
-                } else {
-                  return JSON.stringify(organizes.map(item => item.name));
-                }
-              }
+                    if (item.cid === 'triggerOrg') {
+                      if (input.type === WIDGETS_TO_API_TYPE_ENUM.ORG_ROLE) {
+                        return JSON.stringify(organizes.map(item => item.id));
+                      } else {
+                        return JSON.stringify(organizes.map(item => item.name));
+                      }
+                    }
 
-              if (item.cid === 'triggerTime') {
-                return dateConvertToServerZone(moment().format('YYYY-MM-DD HH:mm:ss'));
-              }
+                    if (item.cid === 'triggerTime') {
+                      return dateConvertToServerZone(moment().format('YYYY-MM-DD HH:mm:ss'));
+                    }
 
-              if (item.cid === 'codeResult') {
-                return scanQRCodeResult;
-              }
+                    if (item.cid === 'codeResult') {
+                      return scanQRCodeResult;
+                    }
 
-              return item.staticValue;
-            });
+                    return item.staticValue;
+                  })
+                  .join('');
             return {
               ...input,
-              value: value.join(''),
+              value,
             };
           }),
       })

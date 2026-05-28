@@ -57,7 +57,10 @@ const Base = () => {
               const chargeLocation = priceData?.chargeLocation || item.chargeLocation || '-';
               return (
                 <tr key={item.id} className="flexRow">
-                  <td className="flex1">{item.name}</td>
+                  <td className="flex1">
+                    {item.name}
+                    {item.nameSuffix && <span className="Font13 textSecondary">（{item.nameSuffix}）</span>}
+                  </td>
                   <td className="flex1">
                     <span>{formattedPrice}</span>
                   </td>

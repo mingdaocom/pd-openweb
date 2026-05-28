@@ -65,10 +65,13 @@ class PostCommentInput extends React.Component {
       const textarea = this.textarea;
 
       if (this.state.isEditing) {
-        $(textarea).autoTextarea({
-          maxHeight: TEXT_AREA_MAX_HEIGHT,
-          minHeight: this.state.isEditing ? TEXT_AREA_MIN_HEIGHT_EXPAND : TEXT_AREA_MIN_HEIGHT_COLLAPSE,
-        });
+        const $textarea = $(textarea);
+        if (typeof $textarea.autoTextarea === 'function') {
+          $textarea.autoTextarea({
+            maxHeight: TEXT_AREA_MAX_HEIGHT,
+            minHeight: TEXT_AREA_MIN_HEIGHT_EXPAND,
+          });
+        }
       } else if (!this.state.hasAttachment) {
         textarea.style.height = '';
       }

@@ -2,7 +2,7 @@ import React from 'react';
 import { Input } from 'antd';
 import { SettingItem } from '../../styled';
 
-export default function WidgetDes({ data, onChange }) {
+export default function WidgetDes({ data = {}, onChange }) {
   return (
     <SettingItem>
       <div className="settingItemTitle">{_l('字段说明')}</div>

@@ -1067,11 +1067,15 @@ export function calcSubTotalCount(values = [], control = {}, currentItem = {}) {
 }
 
 export const showRefreshBtn = ({ disabledFunctions = [], from, recordId, item, isEditing }) => {
+  // 仅公式类字段在编辑态隐藏刷新按钮，其他可刷新字段不受编辑态影响
+  const isFormulaControl = _.includes([31, 38, 53], item.type);
+  const hideFormulaRefreshInEdit = isFormulaControl && isEditing;
+
   return (
     !disabledFunctions.includes('controlRefresh') &&
     from !== FROM.DRAFT &&
     !isPublicLink() &&
-    !isEditing &&
+    !hideFormulaRefreshInEdit &&
     recordId &&
     !recordId.includes('default') &&
     !recordId.includes('temp') &&

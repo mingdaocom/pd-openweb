@@ -506,7 +506,7 @@ export default props => {
   const { isMdFile } = props;
 
   // 正在上传
-  if ('progress' in data) {
+  if (data && typeof data === 'object' && 'progress' in data) {
     const { progress, base } = data;
     return (
       <div className="attachmentImageCard Relative">

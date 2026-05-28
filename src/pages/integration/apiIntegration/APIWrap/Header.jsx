@@ -9,6 +9,10 @@ import { dialogSelectIcon } from 'ming-ui/functions';
 import HistoryVersion from 'src/pages/workflow/WorkflowSettings/Header/HistoryVersion.jsx';
 import { ActWrap, LogoWrap, MenuItemWrap, RedMenuItemWrap } from '../style';
 
+// 接口名称最多 100 字符，接口说明最多 400 字符
+const API_NAME_MAX_LENGTH = 100;
+const API_EXPLAIN_MAX_LENGTH = 400;
+
 const WrapMenu = styled(Menu)`
   .historyVersion {
     top: 0;
@@ -265,8 +269,8 @@ function Header({ data, apkInfo, isConnectOwner, forPage, listId, onCancel, onDe
                     onChange={e => {
                       let str = e.target.value;
 
-                      if (e.target.value.trim().length > 40) {
-                        str = e.target.value.trim().slice(0, 40);
+                      if (e.target.value.trim().length > API_NAME_MAX_LENGTH) {
+                        str = e.target.value.trim().slice(0, API_NAME_MAX_LENGTH);
                       }
 
                       const newData = { ...data, name: str };
@@ -278,7 +282,9 @@ function Header({ data, apkInfo, isConnectOwner, forPage, listId, onCancel, onDe
                     onBlur={e => {
                       const newData = {
                         ...data,
-                        name: !e.target.value.trim() ? _l('未命名API') : e.target.value.trim().slice(0, 40),
+                        name: !e.target.value.trim()
+                          ? _l('未命名API')
+                          : e.target.value.trim().slice(0, API_NAME_MAX_LENGTH),
                       };
                       updateInfo(newData);
                       onDataChange && onDataChange(newData);
@@ -316,15 +322,15 @@ function Header({ data, apkInfo, isConnectOwner, forPage, listId, onCancel, onDe
                 onChange={e => {
                   let str = e.target.value;
 
-                  if (e.target.value.trim().length > 200) {
-                    str = e.target.value.trim().slice(0, 200);
+                  if (e.target.value.trim().length > API_EXPLAIN_MAX_LENGTH) {
+                    str = e.target.value.trim().slice(0, API_EXPLAIN_MAX_LENGTH);
                   }
 
                   const newData = { ...data, explain: str };
                   onDataChange && onDataChange(newData);
                 }}
                 onBlur={e => {
-                  const newData = { ...data, explain: e.target.value.trim().slice(0, 200) };
+                  const newData = { ...data, explain: e.target.value.trim().slice(0, API_EXPLAIN_MAX_LENGTH) };
                   updateInfo(newData);
                   onDataChange && onDataChange(newData);
                   setEditing(false);

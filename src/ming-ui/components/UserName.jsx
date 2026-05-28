@@ -16,6 +16,7 @@ class UserName extends React.Component {
     chatButton: PropTypes.bool,
     projectId: PropTypes.string, // 网络id
     appId: PropTypes.string, //外部门户需要传
+    isFromDepartureList: PropTypes.bool, // 是否来自离职列表
   };
 
   static defaultProps = {
@@ -23,7 +24,7 @@ class UserName extends React.Component {
   };
 
   render() {
-    const { user, className, chatButton, isSecretary = false, projectId, appId } = this.props;
+    const { user, className, chatButton, isSecretary = false, projectId, appId, isFromDepartureList } = this.props;
 
     const disabled =
       this.props.disabled ||
@@ -49,6 +50,7 @@ class UserName extends React.Component {
         chatButton={chatButton}
         projectId={projectId}
         appId={appId}
+        isFromDepartureList={isFromDepartureList}
       >
         <a
           className={cx({ textSecondary: !user.accountId }, className)}

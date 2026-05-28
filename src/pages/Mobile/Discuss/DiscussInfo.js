@@ -264,7 +264,7 @@ class Discuss extends Component {
       if (item.type === 1) return recordDiscussSwitch;
       if (item.type === 3) return recordLogSwitch;
     });
-    const pageType = this.state.pageType ? this.state.pageType : newTabs[0].type;
+    const pageType = this.state.pageType ? this.state.pageType : newTabs[0]?.type;
     const keys = _.keys(temporaryDiscuss).reverse();
     const firstTemporaryDiscuss = _.isEmpty(keys)
       ? {}

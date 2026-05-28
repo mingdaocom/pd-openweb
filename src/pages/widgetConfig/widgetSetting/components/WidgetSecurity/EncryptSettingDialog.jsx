@@ -45,7 +45,7 @@ export default function EncryptSettingDialog(props) {
     >
       <div>
         {_l(
-          '注意：设置后，新保存的字段值将按按照新规则加密，历史值不会自动刷新。之后您需要手动刷新历史数据，未刷新时历史数据可查看，但无法被筛选。',
+          '注意：设置后，新保存的字段值将按照新规则加密，历史值不会自动刷新。之后您需要手动刷新历史数据，未刷新时历史数据可查看，但无法被筛选。',
         )}
         <Support type={3} text={_l('如何刷新数据？')} href="https://help.mingdao.com/worksheet/batch-refresh" />
       </div>

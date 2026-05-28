@@ -394,6 +394,7 @@ const renderSortableItem = props => {
     onShowControl,
     onSelectReNameId,
   } = props;
+  if (!item) return null;
   const axis = _.find(axisControls, { controlId: item.controlId }) || {};
   const control = _.find(allControls, { controlId: item.controlId }) || {};
   const isTime = isTimeControl(axis.type);

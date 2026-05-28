@@ -102,8 +102,9 @@ export default function WidgetIntro(props) {
   const [titleVisible, setTitleVisible] = useState(false);
 
   useEffect(() => {
+    const hideWorksheetControl = md.global?.SysSettings?.hideWorksheetControl || '';
     let newList = ((_.includes([30, 34, 37, 38], type) ? SWITCH_ENUM[type](data) : SWITCH_ENUM[type]) || []).filter(
-      i => i,
+      i => i && !hideWorksheetControl.includes(i),
     );
     newList = newList.map(i => {
       return i === 'SHEET' ? { type: 'SHEET', widgetName: _l('转为工作表') } : { ...DEFAULT_CONFIG[i], type: i };

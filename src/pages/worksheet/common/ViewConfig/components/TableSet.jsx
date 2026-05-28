@@ -145,7 +145,7 @@ export default function TableSet(props) {
             </div>
             <div className="flexRow">
               <div className="w28" />
-              <div className="switchText InlineBlock Normal mLeft12 textSecondary mTop4">
+              <div className="switchText InlineBlock Normal textSecondary mTop4">
                 {_l('无需打开记录详情，在表格行内直接编辑字段')}
               </div>
             </div>
@@ -169,8 +169,8 @@ export default function TableSet(props) {
             </div>
             <div className="flexRow">
               <div className="w28"></div>
-              <div className="switchText InlineBlock Normal mLeft12 textSecondary mTop4">
-                {_l('在表格中生效业务规则，但会影响表格性能')}
+              <div className="switchText InlineBlock Normal textSecondary mTop4">
+                {_l('在表格中生效部分业务规则（样式、锁定及只读交互），会影响表格性能')}
               </div>
             </div>
           </SwitchStyle>

@@ -20,6 +20,11 @@ const FORM_FIELDS = [
   { key: 'allowEdit', txt: _l('是否允许编辑'), required: true },
 ];
 
+// 连接名称最多 50 字符，连接说明最多 1000 字符
+const CONNECT_NAME_MAX_LENGTH = 50;
+const CONNECT_EXPLAIN_MAX_LENGTH = 1000;
+const PUBLISH_FIELD_MAX_LENGTH = 200;
+
 // 默认表单数据
 const getDefaultInfo = () => ({
   name: '',
@@ -209,7 +214,14 @@ function PublishDialog(props) {
       );
     }
 
-    const maxLength = ['name', 'company'].includes(field.key) ? 20 : field.key === 'explain' ? 600 : 200;
+    const maxLength =
+      field.key === 'name'
+        ? CONNECT_NAME_MAX_LENGTH
+        : field.key === 'company'
+          ? 20
+          : field.key === 'explain'
+            ? CONNECT_EXPLAIN_MAX_LENGTH
+            : PUBLISH_FIELD_MAX_LENGTH;
     return (
       <input
         type="text"

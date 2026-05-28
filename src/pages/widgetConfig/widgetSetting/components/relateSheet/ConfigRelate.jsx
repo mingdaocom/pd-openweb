@@ -196,7 +196,13 @@ export default function ConfigRelate(props) {
                       className={cx({ active: item.controlId === selectedControl.controlId })}
                       key={item.controlId}
                       onClick={() => {
-                        setControls({ selectedControl: item });
+                        setControls({
+                          selectedControl: {
+                            ...item,
+                            controlName: item.sourceEntityName || item.controlName,
+                            advancedSetting: { ...item.advancedSetting, showtype: '5' },
+                          },
+                        });
                         setSelectedId({ sheetId: item.dataSource, sheetName: item.controlName });
                       }}
                     >

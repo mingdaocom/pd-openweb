@@ -512,12 +512,69 @@ export const dealCusTomEventActions = (actionItems = [], controls = []) => {
   });
 };
 
+const WORKSHEET_OBJECT_ID_REG = /^[a-f0-9]{24}$/i;
+const RELATE_WORKSHEET_CONTROL_TYPES = [29, 35, 51];
+
+const isUnsavedControl = (control = {}) => control.controlId && control.controlId.includes('-');
+
+const isBlankSubList = (control = {}) => {
+  if (control.type !== 34) return false;
+
+  const { dataSource, controlId } = control;
+
+  if (dataSource && dataSource.includes('-')) return true;
+  if (getAdvanceSetting(control, 'detailworksheettype') === '2') return true;
+  return _.get(window, `subListSheetConfig.${controlId}.mode`) === 'new';
+};
+
+const findInvalidUnsavedRelateControl = (controls = []) => {
+  for (const control of controls) {
+    if (
+      isUnsavedControl(control) &&
+      RELATE_WORKSHEET_CONTROL_TYPES.includes(control.type) &&
+      control.dataSource &&
+      !WORKSHEET_OBJECT_ID_REG.test(control.dataSource)
+    ) {
+      return control;
+    }
+  }
+
+  return null;
+};
+
+const findInvalidRelateWorksheetControl = (controls = []) => {
+  const invalidTopLevel = findInvalidUnsavedRelateControl(controls);
+
+  if (invalidTopLevel) return invalidTopLevel;
+
+  for (const control of controls) {
+    if (isBlankSubList(control) && !_.isEmpty(control.relationControls)) {
+      const invalidNested = findInvalidUnsavedRelateControl(control.relationControls);
+
+      if (invalidNested) return invalidNested;
+    }
+  }
+
+  return null;
+};
+
 // 表单保存前校验
 export const checkWidgetErrorBeforeSave = (controls = [], originControls = []) => {
   let errorMsg = '';
   let errorNum = 3;
 
+  const invalidRelateControl = findInvalidRelateWorksheetControl(controls);
+
+  if (invalidRelateControl) {
+    errorMsg = _l(
+      '%0的关联表配置无效，目标表不存在或已被删除，请关联一张有效的工作表后再保存。',
+      invalidRelateControl.controlName,
+    );
+    errorNum = 2;
+  }
+
   for (const data of controls) {
+    if (errorMsg) break;
     // 自定义事件校验
     const customEvent = getAdvanceSetting(data, 'custom_event') || [];
 

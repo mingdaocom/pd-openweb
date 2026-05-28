@@ -118,7 +118,7 @@ function ExplanDetail(props) {
   };
 
   const getAppList = () => {
-    const { keyword = '' } = this.state;
+    const keyword = '';
     appManagement
       .getAppsForProject({
         projectId,

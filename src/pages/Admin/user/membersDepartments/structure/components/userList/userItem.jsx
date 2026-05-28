@@ -455,7 +455,7 @@ class UserItem extends Component {
     } = this.props;
     const { isMinSc, optListVisible, showWorkHandover, showDelegate, isTopUp, fullDepartmentInfo = {} } = this.state;
     let { jobs, departments, departmentInfos, jobInfos, isDepartmentChargeUser } = user;
-    let departmentData = departmentId ? departmentInfos : departments || departmentInfos || [];
+    let departmentData = departmentId ? (departmentInfos || []) : departments || departmentInfos || [];
     const orgRoleInfos = typeCursor === 2 ? user.orgRoleInfos : user.orgRoles;
     let jobData = jobs || jobInfos;
     let totalColWidth = 0;

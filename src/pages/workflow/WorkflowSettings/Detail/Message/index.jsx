@@ -113,12 +113,16 @@ export default class Message extends Component {
 
   getTwilioBaseInfo = () => {
     if (window.platformENV.isOverseas && window.platformENV.isPlatform) {
-      smsApi
-        .getTwilioProviderBaseInfo({ projectId: this.props.companyId })
-        .then(res => {
-          this.setState({ twilioBaseInfo: res });
-        })
-        .finally(() => this.setState({ twilioLoading: false }));
+      if (this.props.companyId) {
+        smsApi
+          .getTwilioProviderBaseInfo({ projectId: this.props.companyId })
+          .then(res => {
+            this.setState({ twilioBaseInfo: res });
+          })
+          .finally(() => this.setState({ twilioLoading: false }));
+      } else {
+        this.setState({ twilioLoading: false });
+      }
     }
   };
 
@@ -244,7 +248,7 @@ export default class Message extends Component {
         {window.platformENV.isOverseas && window.platformENV.isPlatform && !twilioBaseInfo?.name ? (
           twilioLoading ? (
             <LoadDiv />
-          ) : (
+          ) : !this.props.instanceId ? (
             <div className="flex flexRow alignItemsCenter justifyContentCenter">
               <SmsServiceTipsCard>
                 <div className="flexRow alignItemsCenter">
@@ -261,7 +265,7 @@ export default class Message extends Component {
                 </div>
               </SmsServiceTipsCard>
             </div>
-          )
+          ) : null
         ) : data.messageTemplate.companySignature ? (
           this.renderTemplateContent()
         ) : (
@@ -638,7 +642,7 @@ export default class Message extends Component {
    * 统计字数
    */
   statisticalWordNumber() {
-    const { sign, messageContent } = this.state;
+    const { sign = '', messageContent } = this.state;
     const tagSize = (messageContent.match(/\$[^ \r\n]+?\$/g) || []).length * 8;
 
     return sign.length + messageContent.replace(/\$[^ \r\n]+?\$/g, '').length + tagSize;

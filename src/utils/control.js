@@ -1818,7 +1818,7 @@ export function convertAiRecommendControlToControlData(recommendControl, { works
 
   if (includes(['related', 'multiRelated', 'relatedTable'], type)) {
     control.dataSource = relatedWorksheet === 'self' ? worksheetId : relatedWorksheet?.id;
-    control.showControls = displayField.map(item => item.fieldID);
+    control.showControls = (displayField || []).map(item => item.fieldID);
     if (type === 'related') {
       control.advancedSetting.showtype = String(RELATE_RECORD_SHOW_TYPE.DROPDOWN);
     } else if (type === 'multiRelated') {

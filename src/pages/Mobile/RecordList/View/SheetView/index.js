@@ -407,11 +407,15 @@ class SheetView extends Component {
       worksheetId,
       viewId,
       changeActionSheetModalIndex,
+      permission,
     } = this.props;
 
     let { customBtns = [], showButtons, customButtonLoading, deleteVisible } = this.state;
     const canDelete =
-      isOpenPermit(permitList.delete, sheetSwitchPermit, view.viewId) && !_.isEmpty(batchOptCheckedData);
+      isOpenPermit(permitList.delete, sheetSwitchPermit, view.viewId) &&
+      !_.isEmpty(batchOptCheckedData) &&
+      permission &&
+      permission.canRemove;
     const showCusTomBtn =
       isOpenPermit(permitList.execute, sheetSwitchPermit, view.viewId) && !_.isEmpty(batchOptCheckedData);
     return (
@@ -536,6 +540,7 @@ export default connect(
       ]),
       sheetViewConfig: sheet.sheetview.sheetViewConfig,
       navGroupFilters: sheet.navGroupFilters,
+      permission: mobile.viewPermission,
     };
   },
 

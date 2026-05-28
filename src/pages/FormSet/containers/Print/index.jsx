@@ -106,16 +106,21 @@ class CreatePrintDrawer extends React.Component {
               {_l('新建 Excel 模板')}
               {featureType === '2' && <UpgradeIcon />}
             </div>
-            <p className="printTempDrawerListTitle" style={{ marginTop: '35px' }}>
-              {_l('云打印')}
-            </p>
-            <div className="printTempDrawerListItem" onClick={addKuaiMaiPrintTemp}>
-              <span className="iconbox kuaimaiIconBox">
-                <img className="kuaimaiIcon" src={KuaiMaiIcon} alt="" />
-              </span>
-              {_l('快麦云打印')}
-              {featureType === '2' && <UpgradeIcon />}
-            </div>
+            {/* nocoly 打印模版，隐藏快麦云 */}
+            {window.platformENV.isOverseas ? null : (
+              <React.Fragment>
+                <p className="printTempDrawerListTitle" style={{ marginTop: '35px' }}>
+                  {_l('云打印')}
+                </p>
+                <div className="printTempDrawerListItem" onClick={addKuaiMaiPrintTemp}>
+                  <span className="iconbox kuaimaiIconBox">
+                    <img className="kuaimaiIcon" src={KuaiMaiIcon} alt="" />
+                  </span>
+                  {_l('快麦云打印')}
+                  {featureType === '2' && <UpgradeIcon />}
+                </div>
+              </React.Fragment>
+            )}
           </React.Fragment>
         )}
       </Drawer>

@@ -66,6 +66,7 @@ class EditFlow extends Component {
 
     if (
       prevProps.workflowDetail.flowNodeMap &&
+      this.props.workflowDetail.flowNodeMap &&
       !_.isEqual(prevProps.workflowDetail.flowNodeMap, this.props.workflowDetail.flowNodeMap) &&
       Object.keys(this.props.workflowDetail.flowNodeMap).length === 1
     ) {
@@ -74,6 +75,7 @@ class EditFlow extends Component {
 
     if (
       prevProps.workflowDetail.flowNodeMap &&
+      this.props.workflowDetail.flowNodeMap &&
       Object.keys(prevProps.workflowDetail.flowNodeMap).length !==
         Object.keys(this.props.workflowDetail.flowNodeMap).length
     ) {
@@ -300,7 +302,8 @@ class EditFlow extends Component {
   renderNode = ({ processId, data, firstId, excludeFirstId = false, isApproval }) => {
     const { flowInfo, workflowDetail, isPlugin, workflowTestRunning } = this.props;
     const { startEventId, flowNodeMap, child, isSimple } = workflowDetail;
-    const firstNode = flowNodeMap[startEventId];
+    if (!flowNodeMap) return null;
+    const firstNode = flowNodeMap[startEventId] || {};
     const disabled =
       ((firstNode.appType === APP_TYPE.SHEET || firstNode.appType === APP_TYPE.DATE) && !firstNode.appName) ||
       (firstNode.appType === APP_TYPE.LOOP && !firstNode.executeTime) ||
@@ -511,7 +514,7 @@ class EditFlow extends Component {
         processId: approvalProcessDetail.id,
         relationId: flowInfo.relationId,
         relationType: flowInfo.relationType,
-        selectNodeName: (approvalProcessDetail.flowNodeMap[selectNodeId] || {}).name,
+        selectNodeName: ((approvalProcessDetail.flowNodeMap || {})[selectNodeId] || {}).name,
         isApproval: true,
       };
     }
@@ -579,7 +582,7 @@ class EditFlow extends Component {
       instanceId,
     } = this.state;
 
-    if (_.isEmpty(workflowDetail)) {
+    if (_.isEmpty(workflowDetail) || !workflowDetail.flowNodeMap) {
       return <LoadDiv className="mTop15" />;
     }
 

@@ -114,7 +114,7 @@ export default class LineChart extends React.Component {
                   (_.find(data1, v => v.date === text) || {}).category === 'virtual' ||
                   (_.find(data2, v => v.date === text) || {}).category === 'virtual';
                 if (isVirtual) return null;
-                return moment(text).date() === 1 ? moment(text).format('MM月DD日') : moment(text).format('DD');
+                return moment(text).date() === 1 ? moment(text).format(_l('MM月DD日')) : moment(text).format('DD');
               },
               autoHide: !showEveryXaxis,
             },
@@ -252,7 +252,7 @@ export default class LineChart extends React.Component {
             range: data.length > 1 ? [0, 1] : undefined,
             label: {
               formatter: text => {
-                return moment(text).date() === 1 ? moment(text).format('MM月DD日') : moment(text).format('DD');
+                return moment(text).date() === 1 ? moment(text).format(_l('MM月DD日')) : moment(text).format('DD');
               },
               autoHide: !showEveryXaxis,
             },
@@ -305,7 +305,7 @@ export default class LineChart extends React.Component {
             range: data.length > 6 ? [0, 1] : undefined,
             label: {
               formatter: text => {
-                return moment(text).date() === 1 ? moment(text).format('MM月DD日') : moment(text).format('DD');
+                return moment(text).date() === 1 ? moment(text).format(_l('MM月DD日')) : moment(text).format('DD');
               },
               autoHide: !showEveryXaxis,
             },

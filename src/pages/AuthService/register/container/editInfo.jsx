@@ -34,6 +34,9 @@ export default function (props) {
 
   useEffect(() => {
     const { userCard = {} } = props;
+
+    if (_.isEmpty(userCard)) return;
+
     const { isMustWorkSite, isMustDepartment, isMustJobNumber, isMustJob } = userCard;
 
     if (!isMustWorkSite && !isMustDepartment && !isMustJobNumber && !isMustJob) {

@@ -132,11 +132,11 @@ export const getReportData = ({ reload = false } = {}) => {
     const data = getNewReport(getState().statistics);
 
     const success = result => {
-      result.reportId = report.id;
+      result.reportId = report ? report.id : null;
       const data = fillValueMap(result, pageId);
 
       if (permissions) {
-        const param = mergeReportData(currentReport, result, report.id);
+        const param = mergeReportData(currentReport, result, report ? report.id : null);
         dispatch({
           type: 'CHANGE_STATISTICS_CURRENT_REPORT',
           data: {
@@ -214,6 +214,11 @@ export const getReportData = ({ reload = false } = {}) => {
         })
         .catch(fail);
     } else {
+      if (!report) {
+        fail();
+        return;
+      }
+
       if (reportRequest) {
         reportRequest.abort();
       }
@@ -326,6 +331,8 @@ export const getTableData = () => {
         });
       });
     } else {
+      if (!report) return;
+
       const { filter = {}, sorts, country, reportType } = data;
       const { particleSizeType } = data.xaxes || {};
       const params = {
@@ -408,6 +415,8 @@ export const getReportSingleCacheId = data => {
     } = currentReport.filter || {};
     const { drillParticleSizeType } = currentReport.country || {};
     const { isPersonal, match, contrastType } = data;
+
+    if (!report) return;
 
     if (!isPersonal) {
       dispatch({
@@ -673,6 +682,8 @@ export const changeControlCheckbox = (event, item) => {
     const { checked } = event.target;
 
     if (checked) {
+      if (!base.report) return;
+
       const isNumber = isNumberControl(item.type);
       const isSplit = [reportTypes.BarChart, reportTypes.LineChart, reportTypes.DualAxes].includes(reportType);
 

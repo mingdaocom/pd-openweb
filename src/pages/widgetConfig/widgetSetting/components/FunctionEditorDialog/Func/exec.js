@@ -256,7 +256,10 @@ export default function (control, formData, { update, type, forceSyncRun = false
   let fnType = _.get(expressionData, 'type');
 
   if (!expression) {
-    throw new Error('expression is undefined');
+    return {
+      error: 'EXPRESSION_IS_UNDEFINED',
+      expression,
+    };
   }
 
   let existDeletedControl, existUndefinedFunction;

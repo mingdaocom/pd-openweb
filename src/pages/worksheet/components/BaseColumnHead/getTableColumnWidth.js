@@ -79,6 +79,9 @@ export default function getTableColumnWidth(
 
 export function getMaxControlNameWidthOfControls(controls) {
   function getControlNameWidth(control) {
+    if (!document.body) {
+      return 60;
+    }
     const conForRender = document.createElement('div');
     conForRender.style.zIndex = '-1';
     conForRender.style.display = 'inline-block';

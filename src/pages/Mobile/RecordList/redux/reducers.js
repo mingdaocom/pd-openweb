@@ -423,3 +423,12 @@ export function buttonsCheckStatus(state = {}, action) {
       return state;
   }
 }
+
+export const viewPermission = (state = {}, action) => {
+  switch (action.type) {
+    case 'UPDATE_MOBILEVIEW_PERMISSION':
+      return action.data;
+    default:
+      return state;
+  }
+};

@@ -21,7 +21,7 @@ const RenderAddressBook = props => {
     const callDialog = _.debounce(which => {
       switch (which) {
         case 119:
-          document.querySelector('.toolbarWrap .sessionList').click();
+          document.querySelector('.toolbarWrap .sessionList')?.click();
           break;
         case 113:
           createDiscussion(undefined, (result, isGroup) => {
@@ -42,7 +42,7 @@ const RenderAddressBook = props => {
           break;
         case 109:
         case 77:
-          document.querySelector('.ChatList-wrapper .mingo').click();
+          document.querySelector('.ChatList-wrapper .mingo')?.click();
           break;
         case 70:
         case 102:

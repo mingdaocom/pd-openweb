@@ -21,6 +21,7 @@ export default class UserHead extends React.Component {
     operation: PropTypes.element,
     chatButton: PropTypes.bool, // 是否显示发消息按钮
     newPageChat: PropTypes.bool, // 新页面打开 chat
+    isFromDepartureList: PropTypes.bool, // 是否来自离职列表
   };
 
   static defaultProps = {
@@ -50,7 +51,8 @@ export default class UserHead extends React.Component {
   };
 
   render() {
-    const { user, appId, projectId, operation, headClick, chatButton, newPageChat, size } = this.props;
+    const { user, appId, projectId, operation, headClick, chatButton, newPageChat, isFromDepartureList, size } =
+      this.props;
 
     if (!user) return false;
 
@@ -104,6 +106,7 @@ export default class UserHead extends React.Component {
         disabled={disabled}
         chatButton={chatButton}
         newPageChat={newPageChat}
+        isFromDepartureList={isFromDepartureList}
       >
         {result}
       </UserCard>

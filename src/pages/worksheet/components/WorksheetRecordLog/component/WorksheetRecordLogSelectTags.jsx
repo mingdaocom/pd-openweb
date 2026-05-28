@@ -100,7 +100,8 @@ function WorksheetRecordLogSelectTags(props) {
       let sourceControl = { ...(control || {}).sourceControl, type: sourceControlType };
 
       if ((!sourceControlType && control) || control.type === 29) {
-        sourceControl = control.relationControls.find(l => l.attribute === 1) || control.relationControls[0];
+        sourceControl =
+          (control.relationControls || []).find(l => l.attribute === 1) || (control.relationControls || [])[0];
       }
 
       text = getTitle(item, sourceControl);
@@ -116,7 +117,7 @@ function WorksheetRecordLogSelectTags(props) {
 
       if (type === 35) {
         if (item === _l('未命名')) return item;
-        const titleControl = control.relationControls.find(l => l.controlId === control.sourceTitleControlId);
+        const titleControl = (control.relationControls || []).find(l => l.controlId === control.sourceTitleControlId);
         return titleControl ? renderTextCell({ ...titleControl, value: item }) || text : text;
       }
     }

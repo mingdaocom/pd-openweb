@@ -157,25 +157,32 @@ export default class OrderPay extends Component {
         paymentModule: params.paymentModule ? Number(params.paymentModule) : undefined,
       })
       .then(weChatPayInfo => {
-        WeixinJSBridge.invoke('getBrandWCPayRequest', formatWeChatPayInfo(weChatPayInfo.payInfo), res => {
-          if (res.err_msg == 'get_brand_wcpay_request:ok') {
-            // 使用以上方式判断前端返回,微信团队郑重提示：
-            //res.err_msg将在用户支付成功后返回ok，但并不保证它绝对可靠。
-            this.setState({ payLoading: false });
-          } else if (res.err_msg == 'get_brand_wcpay_request:cancel' || res.err_msg == 'get_brand_wcpay_request:fail') {
-            res.err_msg == 'get_brand_wcpay_request:fail' && alert(res.err_msg, 2);
-            // 取消支付||支付失败
-            window.history.replaceState(
-              {},
-              '',
-              `${location.origin}/orderpay/${orderId}${params.paymentModule ? '/' + params.paymentModule : ''}`,
-            );
-            this.setState({ payLoading: false });
-          } else {
-            alert(res.err_msg, 2);
-            this.setState({ payLoading: false });
-          }
-        });
+        const invokeWxPay = () => {
+          WeixinJSBridge.invoke('getBrandWCPayRequest', formatWeChatPayInfo(weChatPayInfo.payInfo), res => {
+            if (res.err_msg == 'get_brand_wcpay_request:ok') {
+              // 使用以上方式判断前端返回,微信团队郑重提示：
+              //res.err_msg将在用户支付成功后返回ok，但并不保证它绝对可靠。
+              this.setState({ payLoading: false });
+            } else if (res.err_msg == 'get_brand_wcpay_request:cancel' || res.err_msg == 'get_brand_wcpay_request:fail') {
+              res.err_msg == 'get_brand_wcpay_request:fail' && alert(res.err_msg, 2);
+              // 取消支付||支付失败
+              window.history.replaceState(
+                {},
+                '',
+                `${location.origin}/orderpay/${orderId}${params.paymentModule ? '/' + params.paymentModule : ''}`,
+              );
+              this.setState({ payLoading: false });
+            } else {
+              alert(res.err_msg, 2);
+              this.setState({ payLoading: false });
+            }
+          });
+        };
+        if (typeof WeixinJSBridge === 'undefined') {
+          document.addEventListener('WeixinJSBridgeReady', invokeWxPay, false);
+        } else {
+          invokeWxPay();
+        }
       })
       .catch(() => {
         window.history.replaceState(

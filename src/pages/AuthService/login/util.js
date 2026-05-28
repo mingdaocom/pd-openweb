@@ -2,7 +2,7 @@ import moment from 'moment';
 import loginController from 'src/api/login';
 import projectApi from 'src/api/project';
 import workWeiXinController from 'src/api/workWeiXin';
-import { loginSuccessRedirect } from 'src/pages/AuthService/util.js';
+import { cacheDefaultCountry, loginSuccessRedirect } from 'src/pages/AuthService/util.js';
 import { navigateTo } from 'src/router/navigateTo';
 import { browserIsMobile, getRequest } from 'src/utils/common';
 import { compatibleMDJS } from 'src/utils/project';
@@ -13,11 +13,12 @@ import { IntegrationAccountType, LoginResult } from './config.js';
 export const loginCallback = ({ data, onChange }) => {
   // data = { accountResult: 16, state: 7, projectId: '167046ff-fe94-4d7d-8a5e-b9148be9c13f' };
   const request = getRequest();
-  const { projectId, modeType, isNetwork, emailOrTel, fullName, isCheck, step } = data;
+  const { projectId, modeType, isNetwork, emailOrTel, fullName, isCheck, step, dialCode } = data;
 
   //缓存这次登录的账号
   if (modeType === 1) {
     !!emailOrTel && safeLocalStorageSetItem('LoginName', emailOrTel);
+    cacheDefaultCountry({ emailOrTel, dialCode });
   } else {
     !!fullName && safeLocalStorageSetItem('LoginLDAPName', fullName);
   }

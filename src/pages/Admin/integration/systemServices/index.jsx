@@ -202,7 +202,8 @@ class SystemServices extends Component {
         <div className="systemServicesContent">
           <div className="serviceCardsGrid">
             {SERVICE_CARDS.filter(card => !(card.key === 'twilio' && !showTwilioSystemService)).map(card => {
-              if (card.key === 'cloudPrint' && (printLoading || !featureType)) {
+              // nocoly隐藏快麦云
+              if (card.key === 'cloudPrint' && (printLoading || !featureType || window.platformENV.isOverseas)) {
                 return null;
               }
 

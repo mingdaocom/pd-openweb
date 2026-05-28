@@ -2387,9 +2387,9 @@ export const rangeDots = [
 /**
  * 老数据补充默认的 summary.name
  */
-export const formatSummaryName = data => {
+export const formatSummaryName = (data = {}) => {
   if (_.isEmpty(data.name)) {
-    return _.find(normTypes, { value: data.type }).text;
+    return (_.find(normTypes, { value: data.type }) || {}).text || '';
   } else {
     return data.name;
   }

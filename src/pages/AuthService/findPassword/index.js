@@ -77,9 +77,12 @@ export default class FindPassword extends React.Component {
             let actionResult = ActionResult;
 
             if (data.actionResult == actionResult.success) {
-              alert(_l('密码重置成功！'), '1', 3000, () => {
-                _this.updateWarn([]);
-                navigateTo('/login');
+              alert({
+                msg: _l('密码重置成功！'),
+                onClose: () => {
+                  _this.updateWarn([]);
+                  navigateTo('/login');
+                },
               });
             } else {
               if (data.accountResult === actionResult.userInfoNotFound) {
