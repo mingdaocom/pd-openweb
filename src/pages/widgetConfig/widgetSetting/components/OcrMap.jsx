@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from 'react';
+import React, { Fragment, useRef, useState } from 'react';
 import { Dropdown } from 'antd';
 import cx from 'classnames';
 import update from 'immutability-helper';
@@ -56,6 +56,8 @@ const ConfigRelation = styled.div`
   }
 `;
 
+const MAP_FIELDS_DROPDOWN_HEIGHT = 260;
+
 // 获取映射类型
 const getMapByType = type => {
   const { map } = TEMPLATE_TYPE.find(item => item.value === type);
@@ -64,8 +66,20 @@ const getMapByType = type => {
 
 function MapItem(props) {
   const { allControls, ocrMap, value, text, match, withSubList, setMap } = props;
+  const placeholderRef = useRef(null);
   const [isHover, setHover] = useState(false);
+  const [placement, setPlacement] = useState('bottomLeft');
   const getSubList = () => allControls.filter(item => item.type === 34);
+
+  const updatePlacement = () => {
+    const rect = placeholderRef.current && placeholderRef.current.getBoundingClientRect();
+
+    if (!rect) return;
+
+    const bottomSpace = window.innerHeight - rect.bottom;
+    const shouldShowOnTop = bottomSpace < MAP_FIELDS_DROPDOWN_HEIGHT && rect.top > bottomSpace;
+    setPlacement(shouldShowOnTop ? 'topLeft' : 'bottomLeft');
+  };
 
   // 获取所有可选的映射字段
   const getSelectableControls = (match, withSubList = false) => {
@@ -166,13 +180,19 @@ function MapItem(props) {
       <div className="field">
         <Dropdown
           trigger={['click']}
+          placement={placement}
           overlay={
             <SelectFieldsWrap className="mapFieldsWrap">
               <div className="fieldsWrap">{selectableControls.map(renderControlItem)}</div>
             </SelectFieldsWrap>
           }
         >
-          <DropdownPlaceholder onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
+          <DropdownPlaceholder
+            ref={placeholderRef}
+            onClick={updatePlacement}
+            onMouseEnter={() => setHover(true)}
+            onMouseLeave={() => setHover(false)}
+          >
             {isEmpty(info) ? (
               <div className="infoWrap">
                 <div className="name textTertiary">{_l('请选择')}</div>

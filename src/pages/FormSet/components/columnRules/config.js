@@ -100,9 +100,16 @@ export const SUBLIST_PERMISSION_DISPLAY = [
 
 //获取规则名字段长度
 export const getNameWidth = name => {
-  let nameNode = $('<span>' + name + '</span>').css({ display: 'none' });
+  let nameNode = $('<span />')
+    .text(name || '')
+    .css({
+      position: 'absolute',
+      visibility: 'hidden',
+      whiteSpace: 'pre',
+      fontWeight: 'bold',
+    });
   $('body').append(nameNode);
-  let width = nameNode.width() + 6;
+  let width = Math.ceil(nameNode[0].getBoundingClientRect().width) + 5;
   nameNode.remove();
   return width;
 };

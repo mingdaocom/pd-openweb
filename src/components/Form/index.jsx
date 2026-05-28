@@ -1,4 +1,13 @@
-import React, { createContext, useContext, useEffect, useImperativeHandle, useReducer, useRef, useState } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useImperativeHandle,
+  useLayoutEffect,
+  useReducer,
+  useRef,
+  useState,
+} from 'react';
 import _ from 'lodash';
 import { Dialog, Icon, LoadDiv } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
@@ -459,7 +468,7 @@ const Entrance = React.forwardRef((props, ref) => {
     };
   }, []);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     stateRef.current = state;
   }, [state]);
 

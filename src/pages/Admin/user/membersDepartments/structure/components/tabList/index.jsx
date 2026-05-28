@@ -67,6 +67,12 @@ class TabList extends React.Component {
     updateNoDepartmentUsers(false);
     updateCursor('');
     updateTypeCursor(typeCursor);
+
+    const segmentMap = { 2: 'inactive', 3: 'approve' };
+    const segment = segmentMap[typeCursor];
+    const base = `/admin/structure/${projectId}`;
+    history.pushState(null, '', segment ? `${base}/${segment}` : base);
+
     switch (typeCursor) {
       case 0:
         loadAllUsers(projectId, 1);

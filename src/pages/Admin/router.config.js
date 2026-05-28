@@ -45,7 +45,7 @@ export const menuList = [
         key: 'structure',
         routes: [
           {
-            path: '/admin/structure/(.*)/(create|uncursor|importusers)?',
+            path: '/admin/structure/(.*)/(create|inactive|importusers|approve)?',
             component: () => import('./user/membersDepartments'),
           },
           {

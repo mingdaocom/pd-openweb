@@ -398,7 +398,7 @@ function SortableRecordItem(props) {
             };
 
             // 多选作为看板更改多选字段 更新数据
-            if (list.type === 10) {
+            if (list.type === 10 && updateControls[viewControl] !== undefined) {
               const { value } = _.find(data.fields, item => item.controlId === viewControl) || {};
               const currentValue = updateControls[viewControl];
 

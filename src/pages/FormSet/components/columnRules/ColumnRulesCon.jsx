@@ -15,7 +15,9 @@ import RuleItem from './RuleItem';
 class ColumnRulesCon extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+      focusedRuleNameId: '',
+    };
   }
 
   componentWillUnmount() {
@@ -25,6 +27,7 @@ class ColumnRulesCon extends React.Component {
 
   renderCon() {
     const { columnRulesListData = [], grabControlRules, selectRules = {}, activeTab, addColumnRules } = this.props;
+    const { focusedRuleNameId } = this.state;
     const totalData =
       (selectRules.ruleId || '').indexOf('-') >= 0 ? columnRulesListData.concat(selectRules) : columnRulesListData;
 
@@ -51,13 +54,18 @@ class ColumnRulesCon extends React.Component {
           items={renderData}
           itemKey="ruleId"
           helperClass="columnRuleSortableList"
+          canDrag={!focusedRuleNameId}
           onSortEnd={newItems => grabControlRules(newItems)}
           renderItem={({ item }) => (
             <div className="ruleDrabItemContainer">
               <div className={cx('grabIcon')}>
                 <Icon icon="drag" className="TxtMiddle Font14"></Icon>
               </div>
-              <RuleItem ruleData={item} />
+              <RuleItem
+                ruleData={item}
+                onRuleNameFocus={() => this.setState({ focusedRuleNameId: item.ruleId })}
+                onRuleNameBlur={() => this.setState({ focusedRuleNameId: '' })}
+              />
             </div>
           )}
         />

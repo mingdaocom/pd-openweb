@@ -58,8 +58,9 @@ export default class Application extends Component {
       appId = md.global.Account.appId;
     }
 
-    ajaxRequest
-      .checkApp({ appId }, { silent: true })
+    // globals 脚本未就绪时 mdyAPI 会同步抛出，转为 Promise 使 .catch() 可统一捕获
+    Promise.resolve()
+      .then(() => ajaxRequest.checkApp({ appId }, { silent: true }))
       .then(status => {
         localStorage.removeItem('accessPolicyStatus');
         if ([4].includes(status) && ['/role', '/workflow'].some(path => this.props.location.pathname.includes(path))) {

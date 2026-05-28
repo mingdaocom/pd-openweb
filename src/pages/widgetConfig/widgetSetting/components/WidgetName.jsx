@@ -54,7 +54,7 @@ export default function WidgetName(props) {
           }
         }}
         onChange={e => onChange({ controlName: e.target.value })}
-        maxLength="150"
+        maxLength="255"
       />
     </SettingItem>
   );

@@ -16,7 +16,10 @@ const LOCATION_RANGE_TYPE = [
     value: '1',
     text: _l('获取当前位置经纬度'),
     children: (
-      <Tooltip placement="bottom" title={_l('通过手机gps获取经纬度获取定位，使用WGS84坐标系')}>
+      <Tooltip
+        placement="bottom"
+        title={_l('通过手机 GPS 获取当前位置，并自动将WGS84转换为GCJ-02 坐标系，用于在地图上精准定位。')}
+      >
         <i className="icon-help textTertiary Font16 pointer mLeft8"></i>
       </Tooltip>
     ),

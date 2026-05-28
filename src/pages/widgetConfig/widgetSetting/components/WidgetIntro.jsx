@@ -68,7 +68,7 @@ const SWITCH_ENUM = {
   38: item => (item.enumDefault === 2 ? ['DATE'] : ['NUMBER']), // 公式日期计算
   33: ['TEXT'], // 自动编号
   34: item => {
-    const { mode } = window.subListSheetConfig[item.controlId] || {};
+    const { mode } = (window.subListSheetConfig || {})[item.controlId] || {};
     if (item.dataSource && item.dataSource.includes('-')) return [];
     return mode === 'new' ? ['SHEET'] : ['RELATE_SHEET'];
   },

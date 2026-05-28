@@ -213,6 +213,8 @@ class RuleItems extends React.Component {
       selectRules = {},
       ruleData = {},
       columnRulesListData,
+      onRuleNameFocus = () => {},
+      onRuleNameBlur = () => {},
     } = this.props;
     const { showDeleteBox, name } = this.state;
     const { filters = [], ruleItems = [], ruleId, disabled, type, checkType } = ruleData;
@@ -231,12 +233,14 @@ class RuleItems extends React.Component {
             style={{ width: getNameWidth(name) }}
             value={name}
             onFocus={e => {
+              onRuleNameFocus();
               if (e.target) {
                 e.target.style.width = `${getNameWidth(name)}px`;
               }
             }}
             onChange={e => this.setState({ name: e.target.value })}
             onBlur={() => {
+              onRuleNameBlur();
               updateRuleAttr('name', name || ruleData.name, ruleId);
             }}
           />

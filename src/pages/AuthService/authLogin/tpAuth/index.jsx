@@ -83,9 +83,11 @@ function Container() {
           }
         } else {
           if (data.accountResult === LoginResult.accountSuccess) {
+            setPssId(data.sessionId, autoLogin);
+
             import('src/common/preall').then(preall => {
               preall.default({ type: 'function' });
-              setPssId(data.sessionId, autoLogin);
+
               // 登录成功
               if (data.isLoginState) {
                 setState({ bindSuc: true, loading: false });

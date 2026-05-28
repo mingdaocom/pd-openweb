@@ -5,11 +5,11 @@ import * as ACTIONS from '../actions/current';
 const initialState = () => {
   let typeCursor = 0;
 
-  if (location.href.indexOf('admin/approve') > -1) {
+  if (Config.params && Config.params[3] === 'approve') {
     typeCursor = 3;
   }
 
-  if (Config.params && Config.params[3] === 'uncursor') {
+  if (Config.params && Config.params[3] === 'inactive') {
     typeCursor = 2;
   }
 

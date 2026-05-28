@@ -48,7 +48,7 @@ class RecordList extends Component {
         const { value = [] } = data;
         this.props.updateFilterControls(value);
         this.props.changeMobileGroupFilters([]);
-        this.getApp(this.props);
+        this.getApp(this.props, { type: 'single' });
       });
     } else {
       this.props.changeMobileGroupFilters([]);
@@ -62,13 +62,14 @@ class RecordList extends Component {
 
     window.addEventListener('pageshow', this.handleCloseRecordModal);
   }
-  getApp(props) {
+  getApp(props, extra = {}) {
     const { params } = props.match;
     props.updateBase({
       appId: params.appId,
       groupId: params.groupId,
       worksheetId: params.worksheetId,
       viewId: params.viewId,
+      ...extra,
     });
     props.loadWorksheet();
   }

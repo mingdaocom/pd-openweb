@@ -151,7 +151,7 @@ function Monitor(props) {
 
   useEffect(() => {
     getG2plotComponent();
-    () => {
+    return () => {
       g2plotComponent.current.value = null;
       lineChart && lineChart.destroy();
     };
@@ -245,6 +245,7 @@ function Monitor(props) {
   const isDark = window.themeMode === 'dark';
 
   const renderChart = (initChartData = []) => {
+    if (!chantRef.current) return;
     const { Line } = g2plotComponent.current.value;
     lineChart && lineChart.destroy();
     lineChart = new Line(chantRef.current, {
