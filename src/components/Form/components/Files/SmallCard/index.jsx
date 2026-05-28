@@ -390,7 +390,9 @@ export default props => {
             {base.fileExt}
           </div>
         </div>
-        <Icon onClick={() => removeUploadingFile(data)} className="deleteIcon textTertiary Font19" icon="cancel" />
+        {_.isFunction(removeUploadingFile) && (
+          <Icon onClick={() => removeUploadingFile(data)} className="deleteIcon textTertiary Font19" icon="cancel" />
+        )}
       </div>
     );
   }

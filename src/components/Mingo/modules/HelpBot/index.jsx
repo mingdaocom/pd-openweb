@@ -95,7 +95,7 @@ function MingoContent(props, ref) {
     if (window.isMingoShare || !chatId) return;
     setIsLoadingRecommendMessage(true);
     getRecommendMessage(chatId).then(data => {
-      setRecommendMessage(data);
+      setRecommendMessage(data || []);
       setIsLoadingRecommendMessage(false);
     });
   }, []);

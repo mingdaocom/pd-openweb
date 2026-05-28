@@ -480,6 +480,17 @@ function NewRecord(props) {
               setAiToastType={setAiToastType}
             />
           </div>
+          <ProcessToast type={aiToastType} visible={aiToastVisible} onAbort={abortAiParse} />
+          <VoiceProvider onGenerateRecord={handleGenerateRecord} onAbort={abortAiParse}>
+            <MingoCreation
+              ref={mingoCreationRef}
+              onPhotoRecognition={handlePhotoRecognition}
+              voiceInputRef={voiceInputRef}
+              compositeInputRef={compositeInputRef}
+            />
+            <VoiceInput ref={voiceInputRef} />
+            <CompositeInput ref={compositeInputRef} />
+          </VoiceProvider>
         </Fragment>
       )}
       {!window.isMingDaoApp && (
@@ -493,18 +504,6 @@ function NewRecord(props) {
           }}
         ></i>
       )}
-
-      <ProcessToast type={aiToastType} visible={aiToastVisible} onAbort={abortAiParse} />
-      <VoiceProvider onGenerateRecord={handleGenerateRecord} onAbort={abortAiParse}>
-        <MingoCreation
-          ref={mingoCreationRef}
-          onPhotoRecognition={handlePhotoRecognition}
-          voiceInputRef={voiceInputRef}
-          compositeInputRef={compositeInputRef}
-        />
-        <VoiceInput ref={voiceInputRef} />
-        <CompositeInput ref={compositeInputRef} />
-      </VoiceProvider>
     </div>
   );
   const content = (

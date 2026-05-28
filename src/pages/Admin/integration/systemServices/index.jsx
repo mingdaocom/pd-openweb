@@ -207,7 +207,7 @@ class SystemServices extends Component {
                 return null;
               }
 
-              if (card.key === 'weixin' && window.platformENV.isLocal && md.global.SysSettings.hideWeixin) {
+              if (card.key === 'weixin' && md.global.SysSettings.hideWeixin) {
                 return null;
               }
 

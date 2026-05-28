@@ -153,32 +153,32 @@ export default function TestFunctionDialog(props) {
   const [testError, setTestError] = useState(false);
   const [testResultValue, setTestResultValue] = useState('');
   const formData = controlIdsInExpression
-    .map(controlId =>
-      find(controls, c => {
-        return (
-          (/^[a-zA-Z0-9]+-[\w\W]+$/.test(controlId) ? controlId.replace(/[a-zA-Z0-9]+-/, '') : controlId) ===
-          c.controlId
-        );
-      }),
-    )
-    .filter(_.identity)
-    .map(c => ({
-      ...c,
-      type: changeControlType(c),
-      ...(c.type === 30 ? omit(c.sourceControl || { type: c.sourceControlType }, ['controlId', 'controlName']) : {}),
-      size: 12,
-      sectionId: undefined,
-      required: false,
-      fieldPermission: '111',
-      controlPermissions: '111',
-      value: testFormValues[c.controlId],
-      notSupport:
-        [
-          WIDGETS_TO_API_TYPE_ENUM.SUB_LIST,
-          ...(isWorksheetFlow ? [WIDGETS_TO_API_TYPE_ENUM.RELATE_SHEET] : []),
-        ].includes(c.type) || isRelateRecordTableControl(c),
-      notSupportTip: _l('暂不支持调试%0', c.controlName),
-    }));
+    .map(expressionControlId => {
+      const bareId = /^[a-zA-Z0-9]+-[\w\W]+$/.test(expressionControlId)
+        ? expressionControlId.replace(/[a-zA-Z0-9]+-/, '')
+        : expressionControlId;
+      const c = find(controls, ctrl => ctrl.controlId === bareId);
+      if (!c) return null;
+      return {
+        ...c,
+        controlId: expressionControlId,
+        type: changeControlType(c),
+        ...(c.type === 30 ? omit(c.sourceControl || { type: c.sourceControlType }, ['controlId', 'controlName']) : {}),
+        size: 12,
+        sectionId: undefined,
+        required: false,
+        fieldPermission: '111',
+        controlPermissions: '111',
+        value: testFormValues[expressionControlId],
+        notSupport:
+          [
+            WIDGETS_TO_API_TYPE_ENUM.SUB_LIST,
+            ...(isWorksheetFlow ? [WIDGETS_TO_API_TYPE_ENUM.RELATE_SHEET] : []),
+          ].includes(c.type) || isRelateRecordTableControl(c),
+        notSupportTip: _l('暂不支持调试%0', c.controlName),
+      };
+    })
+    .filter(_.identity);
   return (
     <Modal
       visible
@@ -243,9 +243,9 @@ export default function TestFunctionDialog(props) {
                     onOk: selectedRecords => {
                       if (selectedRecords && selectedRecords[0]) {
                         const newFormData = {};
-                        controlIdsInExpression.forEach(controlId => {
-                          controlId = controlId.replace(/[a-zA-Z0-9]+-/, '');
-                          newFormData[controlId] = selectedRecords[0][controlId];
+                        controlIdsInExpression.forEach(expressionControlId => {
+                          const bareId = expressionControlId.replace(/[a-zA-Z0-9]+-/, '');
+                          newFormData[expressionControlId] = selectedRecords[0][bareId];
                         });
                         setTestFormValues(newFormData);
                         setFormFlag(Math.random());
@@ -293,7 +293,7 @@ export default function TestFunctionDialog(props) {
               style={{ width: 90, padding: 0 }}
               onClick={() => {
                 const testResult = execValueFunction(control, formData, {
-                  defaultExpression: expression.replace(/\$([a-zA-Z0-9]+-)(.*?)\$/g, '$$$2$'),
+                  defaultExpression: expression,
                 });
                 setTestError(!!testResult.error);
                 setTestResultValue(testResult.value || '');
