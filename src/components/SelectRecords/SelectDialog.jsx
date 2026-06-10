@@ -254,7 +254,11 @@ export default function SelectDialog({ ...args }) {
   const showNewRecord =
     !loading && allowNewRecord && (get(window, 'shareState.isPublicFormPreview') ? false : worksheetInfo.allowAdd);
   const lineNumberBegin = 0;
-  const controls = replaceControlsTranslateInfo(worksheetInfo.appId, null, get(worksheetInfo, 'template.controls', []));
+  const controls = replaceControlsTranslateInfo(
+    worksheetInfo.appId,
+    worksheetInfo.worksheetId,
+    get(worksheetInfo, 'template.controls', []),
+  );
   const showControls = control.showControls || args.showControls || [];
   const enableFastFilters = get(control, 'advancedSetting.openfastfilters') !== '0';
   const fastFiltersViewId =
@@ -401,7 +405,7 @@ export default function SelectDialog({ ...args }) {
           setActiveRowIndex(newActiveRowIndex);
         }
 
-        tableRef.current.table.focusRow(newActiveRowIndex);
+        tableRef.current?.table?.focusRow(newActiveRowIndex);
       } else if (e.key === 'ArrowUp') {
         const newActiveRowIndex = activeRowIndex - 1;
 
@@ -409,7 +413,7 @@ export default function SelectDialog({ ...args }) {
           setActiveRowIndex(newActiveRowIndex);
         }
 
-        tableRef.current.table.focusRow(newActiveRowIndex);
+        tableRef.current?.table?.focusRow(newActiveRowIndex);
       }
     },
     [activeRowIndex, records, handleConfirm],

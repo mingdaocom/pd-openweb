@@ -91,6 +91,7 @@ const DropButton = styled(Button)`
 `;
 
 function getButtonWidth(button, type) {
+  if (!document.body) return 0;
   const isDebug = window.isDebug;
   let result;
   const div = document.createElement('div');

@@ -441,14 +441,14 @@ function FixedTable(props, ref) {
     // ---
     setTimeout(() => {
       if (defaultScrollLeft) {
-        if (conRef.current.querySelector('.scroll-x .scroll-viewport')) {
+        if (conRef.current && conRef.current.querySelector('.scroll-x .scroll-viewport')) {
           setScrollX(cache, defaultScrollLeft);
           conRef.current.querySelector('.scroll-x .scroll-viewport').scrollLeft = defaultScrollLeft;
         }
       }
     }, 0);
     return () => {
-      conRef.current.removeEventListener('wheel', handleMouseWheel);
+      conRef.current && conRef.current.removeEventListener('wheel', handleMouseWheel);
       if (tablehammer.current) {
         tablehammer.current.off('panmove', handlePanMove);
         tablehammer.current.off('panend', handlePanEnd);

@@ -120,7 +120,7 @@ class AppList extends Component {
   };
   render() {
     let { currentGroupList, loading, groupInfo = {} } = this.state;
-    currentGroupList = currentGroupList.filter(it => !it.webMobileDisplay);
+    currentGroupList = currentGroupList.filter(it => !(window.isMingDaoApp ? it.appDisplay : it.webMobileDisplay));
     const currentProject = getCurrentProject(
       localStorage.getItem('currentProjectId') || (md.global.Account.projects[0] || {}).projectId,
     );

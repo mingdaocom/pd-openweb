@@ -156,12 +156,52 @@ const appPermissions = Component => {
         fixedData: {},
       };
     }
+    getLoadedAppDetail = appId => {
+      const { appDetail = {}, match = {} } = this.props;
+      const { detail = {}, status } = appDetail;
+      const { path = '' } = match;
+
+      if (
+        status === 1 &&
+        path.includes('/mobile/app') &&
+        location.href.includes('mobile/app') &&
+        _.get(detail, 'appNaviStyle') === 2 &&
+        String(_.get(detail, 'id')) === String(appId)
+      ) {
+        return detail;
+      }
+    };
+    useLoadedAppDetail = (appId, data) => {
+      const { fixAccount, fixRemark, fixed, webMobileDisplay, permissionType, appDisplay } = data;
+      const isAuthorityApp = permissionType >= APP_ROLE_TYPE.ADMIN_ROLE;
+
+      window[`timeZone_${appId}`] = data.timeZone;
+      window.appInfo = data;
+      this.setState({
+        loading: false,
+        appStatus: 1,
+        fixedData: {
+          fixAccount,
+          fixRemark,
+          fixed: fixed && !isAuthorityApp,
+          webMobileDisplay,
+          appDisplay,
+        },
+      });
+    };
     componentDidMount() {
       const { params, path } = this.props.match;
       const { appId } = params;
 
       if (['undefined', 'null'].includes(appId) || _.get(window, 'shareState.shareId')) {
         this.setState({ loading: false });
+        return;
+      }
+
+      const loadedAppDetail = this.getLoadedAppDetail(appId);
+
+      if (loadedAppDetail) {
+        this.useLoadedAppDetail(appId, loadedAppDetail);
         return;
       }
 

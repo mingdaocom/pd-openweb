@@ -48,7 +48,7 @@ export default class RecordCollect extends Component {
         const [platformRes, langRes = []] = result;
         const { markedAppItems = [] } = platformRes;
         this.setState({
-          markedAppItems: markedAppItems.filter(o => o && !o.webMobileDisplay),
+          markedAppItems: markedAppItems.filter(o => o && !(window.isMingDaoApp ? o.appDisplay : o.webMobileDisplay)),
           langItems: langRes,
           loading: false,
         });

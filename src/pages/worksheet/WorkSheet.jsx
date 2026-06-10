@@ -346,7 +346,8 @@ class WorkSheet extends Component {
   }
   removeAppThemeColor() {
     if (this.appThemeColorStyle) {
-      document.head.removeChild(this.appThemeColorStyle);
+      this.appThemeColorStyle.remove();
+      this.appThemeColorStyle = null;
     }
   }
   /**

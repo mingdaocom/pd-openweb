@@ -406,7 +406,7 @@ class Subtask extends Component {
   render() {
     const { addSubTask } = this.state;
     const { data } = this.props.taskDetails[this.props.taskId];
-    const subTask = data.subTask;
+    const subTask = data.subTask || [];
     const isHidden = _.includes(this.props.taskFoldStatus[this.props.taskId] || [], 'subTask');
 
     if (!subTask.length && !addSubTask) {
@@ -423,8 +423,8 @@ class Subtask extends Component {
           </Tooltip>
           <div className="subTaskHeader Font14">
             {_l('子任务')}
-            <span className="subTaskComplete mLeft5">{_.filter(data.subTask, item => item.status === 1).length}</span>/
-            <span className="subTaskSum">{data.subTask.length}</span>
+            <span className="subTaskComplete mLeft5">{_.filter(subTask, item => item.status === 1).length}</span>/
+            <span className="subTaskSum">{subTask.length}</span>
             <Tooltip
               title={_l(
                 '如果分解后的任务比较复杂、需要分别指派负责人，或需要在每条任务中分别记录跟进情况的，建议使用子任务。其他情况下，建议使用检查清单来做关键结果追踪，支持将重要检查项一键转为任务',

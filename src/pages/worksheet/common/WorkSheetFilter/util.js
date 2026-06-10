@@ -10,6 +10,7 @@ import { dateServerZoneToAppZone } from 'src/utils/project';
 import {
   API_ENUM_TO_TYPE,
   CONTROL_FILTER_WHITELIST,
+  DATE_COMPARE_FILTER_TYPES,
   DATE_RANGE_TYPE,
   FILTER_CONDITION_TYPE,
   FILTER_RELATION_TYPE,
@@ -364,6 +365,12 @@ export function getConditionOverrideValue(type, condition, valueType, from) {
           maxValue: from === 'relateSheet' ? undefined : moment().endOf('day').format('YYYY-MM-DD HH:mm:ss'),
           dateRange,
           dateRangeType: newDateRangeType,
+        });
+      } else if (includes(DATE_COMPARE_FILTER_TYPES, type)) {
+        // 早于 / 晚于 / 早于等于 / 晚于等于：只支持指定日期，锁定 dateRange 为 18，清空已选值待重新选择
+        return Object.assign({}, base, {
+          dateRange: 18,
+          dateRangeType: newDateRangeType || DATE_RANGE_TYPE.DAY,
         });
       } else {
         return Object.assign({}, base, {

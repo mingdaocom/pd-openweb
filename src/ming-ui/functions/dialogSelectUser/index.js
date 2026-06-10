@@ -162,7 +162,7 @@ class DialogSelectUser extends Component {
       projectId: projectId,
       dataRange: dataRange || 0,
       isSuperWork:
-        projectId && !_.get(window, 'isPublicApp') && checkPermission(projectId, PERMISSION_ENUM.MEMBER) && fromAdmin,
+        fromAdmin && projectId && !_.get(window, 'isPublicApp') && checkPermission(projectId, PERMISSION_ENUM.MEMBER),
       callback: () => {
         this.props.onCancel();
       },

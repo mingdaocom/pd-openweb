@@ -1,11 +1,13 @@
 import React, { Component, Fragment } from 'react';
-import cx from 'classnames';
+import copy from 'copy-to-clipboard';
 import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { Button, Dialog, Icon, Input, LoadDiv } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import application from 'src/api/application';
 import PageTableCon from 'src/pages/Admin/components/PageTableCon';
+import { handleMask } from 'src/pages/Admin/util';
 import { getToken } from 'src/utils/common';
 import RegExpValidator from 'src/utils/expression';
 
@@ -233,6 +235,7 @@ export default class SelfBuiltThirdPartyApp extends Component {
       currentAppItem: null,
       requestLoading: false,
       imageLoading: false,
+      hoveredSecretId: null,
     };
   }
   componentWillMount() {
@@ -272,19 +275,33 @@ export default class SelfBuiltThirdPartyApp extends Component {
       {
         title: _l('App Secret'),
         dataIndex: 'appSecret',
-        width: 180,
+        width: 330,
         ellipsis: true,
         render: (text, item) => {
           const { appSecretVisible } = item;
+          const isHovered = this.state.hoveredSecretId === item.appId;
 
           return (
-            <div className="flexRow valignWrapper overflow_ellipsis w100">
-              <div className="overflow_ellipsis mRight10">{appSecretVisible ? item.appSecret : '********'}</div>
+            <div
+              className="flexRow valignWrapper"
+              onMouseEnter={() => this.setState({ hoveredSecretId: item.appId })}
+              onMouseLeave={() => this.setState({ hoveredSecretId: null })}
+            >
+              <Tooltip title={item.appSecret}>
+                <div className="overflow_ellipsis mRight10">{handleMask(item.appSecret, !appSecretVisible)}</div>
+              </Tooltip>
               <Icon
-                className={cx('pointer', { mBottom8: !appSecretVisible })}
+                className="pointer flexShrink0"
                 icon={appSecretVisible ? 'visibility_off' : 'eye'}
                 onClick={() => this.handleSetAppSecretVisible(item)}
               />
+              {isHovered && (
+                <Icon
+                  className="pointer mLeft8 flexShrink0 textSecondary"
+                  icon="content_copy"
+                  onClick={() => this.handleCopyAppSecret(item)}
+                />
+              )}
             </div>
           );
         },
@@ -344,6 +361,10 @@ export default class SelfBuiltThirdPartyApp extends Component {
     this.setState({
       applicationList: newApplicationList,
     });
+  };
+  handleCopyAppSecret = item => {
+    copy(item.appSecret);
+    alert(_l('复制成功'), 1);
   };
   handleCreateApp = () => {
     const { projectId } = this.props;

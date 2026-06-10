@@ -323,7 +323,11 @@ export const getSubmitDataAction = (
       error: c.store && getSubListErrorOfStore(c.store),
     }))
     .filter(c => !isEmpty(c.error));
-  const totalErrors = errorItems
+  const currentErrorItems = _.uniqBy(
+    errorItems.concat(dataFormat.getErrorControls ? dataFormat.getErrorControls() : []),
+    item => [item.controlId, item.errorType, item.ruleId].filter(_.identity).join('-'),
+  );
+  const totalErrors = currentErrorItems
     .concat(uniqueErrorItems)
     .concat(subListErrorControls)
     .filter(it => _.includes(ids, it.controlId) && !it.ignoreErrorMessage);

@@ -1,4 +1,4 @@
-﻿import dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import isBetween from 'dayjs/plugin/isBetween';
 import _ from 'lodash';
@@ -247,7 +247,7 @@ export const functions = {
       throw new Error(_l('参数不是数字'));
     }
 
-    return _.floor(number, precision);
+    return _.floor(parseFloat(number.toPrecision(15)), precision);
   },
   // 向上舍入
   ROUNDUP: function (number, precision = 0) {
@@ -261,7 +261,7 @@ export const functions = {
       throw new Error(_l('参数不是数字'));
     }
 
-    return _.ceil(_.round(number, precision + 10), precision);
+    return _.ceil(parseFloat(number.toPrecision(15)), precision);
   },
   // 四舍五入
   ROUND: function (number, precision = 0) {
@@ -1536,7 +1536,7 @@ const functionDetailsMap = {
   IF: {
     name: _l('条件语句'),
     type: 'flow',
-    title: _l('设置判断条件，然后根据判断结果TRUE或FALSE来返回不同的文本'),
+    title: _l('设置判断条件，然后根据判断结果true或false来返回不同的文本'),
     des: `
         <bb>${_l(`IF(表达式,成立时输出,不成立时输出)`)}</bb><br />
         <li>${_l(`无论表达式成立或不成立时，输出结果固定为文本类型`)}</li>
@@ -1547,52 +1547,52 @@ const functionDetailsMap = {
     name: _l('求或'),
     type: 'flow',
     title: _l(
-      '判断多个条件中是否有任意一个条件成立，只要有一个参数为逻辑值TRUE，OR函数就返回TRUE。如果所有参数都为逻辑值FALSE，OR函数才返回FALSE',
+      '判断多个条件中是否有任意一个条件成立，只要有一个参数为逻辑值true，OR函数就返回true。如果所有参数都为逻辑值false，OR函数才返回false',
     ),
     des: `
         <bb>${_l(`OR(表达式1,表达式2,...)`)}</bb><br />
-        <b>${_l(`示例：=OR($语文分数$<=60,$英语分数$<=60,$数学分数$<=60) ，结果：TRUE`)}</b><br />
+        <b>${_l(`示例：=OR($语文分数$<=60,$英语分数$<=60,$数学分数$<=60) ，结果：true`)}</b><br />
         ${_l(`验证语数英三门课程是否有任何一门没有及格（实际只有两门及格）`)}`,
   },
   AND: {
     name: _l('求同'),
     type: 'flow',
     title: _l(
-      '判断多个条件是否同时成立，如果所有参数都为逻辑值TRUE，AND函数将返回TRUE，只要其中一个参数为逻辑值FALSE，AND函数就返回FALSE',
+      '判断多个条件是否同时成立，如果所有参数都为逻辑值true，AND函数将返回true，只要其中一个参数为逻辑值false，AND函数就返回false',
     ),
     des: `
         <bb>${_l(`AND(表达式1,表达式2,...)`)}</bb><br />
-        <b>${_l(`示例：=AND($语文分数$>=60,$英语分数$>=60,$数学分数$>=60) ，结果：FALSE`)}</b><br />
+        <b>${_l(`示例：=AND($语文分数$>=60,$英语分数$>=60,$数学分数$>=60) ，结果：false`)}</b><br />
         ${_l(`验证语数英三门课程是否都及格（实际只有两门及格）`)}`,
   },
   NOT: {
     name: _l('求反'),
     type: 'flow',
-    title: _l('对逻辑值求反。如果逻辑值为FALSE，NOT函数将返回TRUE；如果逻辑值为TRUE，NOT函数将返回FALSE'),
+    title: _l('对逻辑值求反。如果逻辑值为false，NOT函数将返回true；如果逻辑值为true，NOT函数将返回false'),
     des: `
         <bb>${_l(`NOT(表达式)`)}</bb><br />
-        <b>${_l(`示例：=NOT($分数$==60) ，结果：TRUE`)}</b><br />
+        <b>${_l(`示例：=NOT($分数$==60) ，结果：true`)}</b><br />
         ${_l(`对成绩是否刚好等于60分求反（实则刚好60分）`)}`,
   },
   FALSE: {
     name: _l('返回 false'),
     type: 'flow',
-    title: _l('直接返回逻辑值FALSE'),
-    des: `<bb>FALSE()</bb></br><b>${_l(`示例：=FALSE() ，结果：FALSE`)}</b>`,
+    title: _l('直接返回逻辑值 false'),
+    des: `<bb>FALSE()</bb></br><b>${_l(`示例：=FALSE() ，结果：false`)}</b>`,
   },
   TRUE: {
     name: _l('返回true'),
     type: 'flow',
-    title: _l('直接返回逻辑值TRUE'),
-    des: `<bb>TRUE()</bb></br><b>${_l(`示例：=TRUE() ，结果：TRUE`)}</b>`,
+    title: _l('直接返回逻辑值true'),
+    des: `<bb>TRUE()</bb></br><b>${_l(`示例：=TRUE() ，结果：true`)}</b>`,
   },
   ISBLANK: {
     name: _l('判断为空'),
     type: 'flow',
-    title: _l('判断单元格是否为空，如果为空，返回TRUE，否则返回FALSE'),
+    title: _l('判断单元格是否为空，如果为空，返回true，否则返回false'),
     des: `
         <bb>${_l(`ISBLANK(文本)`)}</bb><br />
-        <b>${_l(`示例：=ISBLANK($年龄$)，结果：TRUE`)}</b><br />
+        <b>${_l(`示例：=ISBLANK($年龄$)，结果：true`)}</b><br />
         ${_l(`判断年龄字段是否为空`)}`,
   },
   IFS: {
@@ -1614,7 +1614,7 @@ const functionDetailsMap = {
     title: _l('将文本转换为URI编码，可以对包含中文字符的网址进行编码'),
     des: `
         ${_l('不转义')} , / ? : @ & = + $ # <br />
-        <bb>${_l(`ENCODEURL(文本)`)}</bb><br />
+        <bb>${_l(`ENCODEURI(文本)`)}</bb><br />
         <b>${_l(`示例：=ENCODEURI('name=系统')，结果：'name=%E7%B3%BB%E7%BB%9F'`)}</b><br />
         ${_l(`对文本"name=系统"进行编码`)}`,
   },
@@ -1632,9 +1632,9 @@ const functionDetailsMap = {
     type: 'advanced',
     title: _l('将文本转换为URI编码，可以对包含中文字符的网址进行编码'),
     des: `
-        转义 , / ? : @ & = + $ # <br />
-        <bb>${_l(`ENCODEURL(文本)`)}</bb><br />
-        <b>${_l(`示例：=ENCODEURI('name=系统')，结果：'name%3D%E7%B3%BB%E7%BB%9F'`)}</b><br />
+        ${_l('转义')} , / ? : @ & = + $ # <br />
+        <bb>${_l(`ENCODEURICOMPONENT(文本)`)}</bb><br />
+        <b>${_l(`示例：=ENCODEURICOMPONENT('name=系统')，结果：'name%3D%E7%B3%BB%E7%BB%9F'`)}</b><br />
         ${_l(`对文本"name=系统"进行编码`)}`,
   },
   DECODEURICOMPONENT: {
@@ -1642,8 +1642,8 @@ const functionDetailsMap = {
     type: 'advanced',
     title: _l('将URI编码转换为文本，可以对包含中文字符的网址进行解码'),
     des: `
-        <bb>${_l(`DECODEURI(文本)`)}</bb><br />
-        <b>${_l(`示例：=DECODEURI('name%3D%E7%B3%BB%E7%BB%9F')，结果："name=系统"`)}</b><br />
+        <bb>${_l(`DECODEURICOMPONENT(文本)`)}</bb><br />
+        <b>${_l(`示例：=DECODEURICOMPONENT('name%3D%E7%B3%BB%E7%BB%9F')，结果："name=系统"`)}</b><br />
         ${_l(`对文本"name%3D%E7%B3%BB%E7%BB%9F"进行解码`)}`,
   },
   DISTANCE: {
@@ -1703,7 +1703,7 @@ const functionDetailsMap = {
     title: _l('判断一个文本中是否包含指定的字符内容'),
     des: `
         <bb>${_l(`INCLUDE(原文本,检索的字符)`)}</bb><br />
-        <b>${_l(`示例：=INCLUDE("上海市闵行区钦州北路",'闵行')，结果：TRUE`)}</b><br />
+        <b>${_l(`示例：=INCLUDE("上海市闵行区钦州北路",'闵行')，结果：true`)}</b><br />
         ${_l(`判断文本里是否包含"闵行"`)}`,
   },
   GETPOSITION: {

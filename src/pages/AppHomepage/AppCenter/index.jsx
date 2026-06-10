@@ -90,7 +90,8 @@ function AppCenter(props) {
             bulletinPic: `${themeFileUrlPrefix}/${item.themeKey}/banner.jpg`,
           }));
           setAdvancedThemes(themes);
-        });
+        })
+        .catch(_.noop);
 
     return () => {
       emitter.removeListener('CHANGE_CURRENT_PROJECT', changeProject);

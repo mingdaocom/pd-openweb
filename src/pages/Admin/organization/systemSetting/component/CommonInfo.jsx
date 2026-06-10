@@ -345,7 +345,11 @@ export default class CommonInfo extends Component {
                 <span
                   className="adminHoverColor Hand"
                   onClick={() => {
-                    copy(code);
+                    try {
+                      copy(code);
+                    } catch (e) {
+                      // removeRange may throw on some browsers when selection state is unexpected
+                    }
                     alert(_l('复制成功'));
                   }}
                 >
@@ -373,7 +377,11 @@ export default class CommonInfo extends Component {
                 <span
                   className="adminHoverColor Hand"
                   onClick={() => {
-                    copy(Config.projectId);
+                    try {
+                      copy(Config.projectId);
+                    } catch (e) {
+                      // removeRange may throw on some browsers when selection state is unexpected
+                    }
                     alert(_l('复制成功'));
                   }}
                 >

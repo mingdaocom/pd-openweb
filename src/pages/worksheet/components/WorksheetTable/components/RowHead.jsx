@@ -12,6 +12,7 @@ import { updateRecordLockStatus } from 'worksheet/common/recordInfo/crtl';
 import { FlexCenter } from 'worksheet/components/Basics';
 import ChangeSheetLayout from 'worksheet/components/ChangeSheetLayout';
 import RecordOperate from 'worksheet/components/RecordOperate';
+import { VIEW_CONFIG_RECORD_CLICK_ACTION } from 'worksheet/constants/enum';
 import { getHighAuthControls } from 'src/utils/control';
 import { handleRowData } from 'src/utils/record';
 
@@ -445,6 +446,8 @@ export default function RowHead(props) {
         </Fragment>
       )}
       {tableType === 'classic' &&
+        (_.get(view, 'advancedSetting.clicktype') || VIEW_CONFIG_RECORD_CLICK_ACTION.OPEN_RECORD) ===
+          VIEW_CONFIG_RECORD_CLICK_ACTION.OPEN_RECORD &&
         (() => {
           const btn = (
             <OpenRecordBtn className="openRecord" onClick={() => onOpenRecord()}>

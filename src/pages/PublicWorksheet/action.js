@@ -613,7 +613,7 @@ function fillReportSource(receiveControls, publicWorksheetInfo) {
 function formatFileControls(controls) {
   return controls.map(control => {
     if (control.type === 14 && control.value && !_.isEmpty(safeParse(control.value))) {
-      const parsed = JSON.parse(control.value);
+      const parsed = safeParse(control.value);
       parsed.attachmentData = parsed.attachmentData?.filter(item => {
         return item.accountId;
       });
@@ -656,9 +656,7 @@ export function addWorksheetRow(
     receiveControls = fillReportSource(receiveControls, publicWorksheetInfo);
   }
 
-  if (browserIsMobile()) {
-    receiveControls = formatFileControls(receiveControls);
-  }
+  receiveControls = formatFileControls(receiveControls);
 
   publicWorksheetAjax
     .addRow({

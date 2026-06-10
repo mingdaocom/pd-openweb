@@ -319,6 +319,14 @@ export default class RecordInfo extends Component {
       );
     } catch (err) {
       console.error(err);
+
+      if (err && err.resultCode === 4) {
+        if (!this.props.isLandPage && _.isFunction(this.props.onClose)) {
+          this.props.onClose();
+          return;
+        }
+      }
+
       this.setState({
         recordInfo: err,
         abnormal: true,

@@ -1,8 +1,8 @@
 @font-face {
   font-family: "MD_Icon"; /* Project id 2032949 */
-  src: url('iconfont.woff2?t=1775209864095') format('woff2'),
-       url('iconfont.woff?t=1775209864095') format('woff'),
-       url('iconfont.ttf?t=1775209864095') format('truetype');
+  src: url('iconfont.woff2?t=1780988248804') format('woff2'),
+       url('iconfont.woff?t=1780988248804') format('woff'),
+       url('iconfont.ttf?t=1780988248804') format('truetype');
 }
 
 .MD_Icon {
@@ -11,6 +11,58 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-Thinking:before {
+  content: "\ed25";
+}
+
+.icon-finish_delegate:before {
+  content: "\ed22";
+}
+
+.icon-borg:before {
+  content: "\e6d7";
+}
+
+.icon-mcp:before {
+  content: "\ed24";
+}
+
+.icon-skill:before {
+  content: "\ed23";
+}
+
+.icon-claudecode:before {
+  content: "\ed21";
+}
+
+.icon-codex:before {
+  content: "\ed1d";
+}
+
+.icon-cursor:before {
+  content: "\ed20";
+}
+
+.icon-windsurf:before {
+  content: "\ed1f";
+}
+
+.icon-trae-color:before {
+  content: "\ed1e";
+}
+
+.icon-vertical1:before {
+  content: "\e6a9";
+}
+
+.icon-horizontal2:before {
+  content: "\e6aa";
+}
+
+.icon-account:before {
+  content: "\ed1c";
 }
 
 .icon-worksheet_export:before {

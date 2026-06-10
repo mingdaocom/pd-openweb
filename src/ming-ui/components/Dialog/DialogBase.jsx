@@ -151,7 +151,9 @@ class DialogBase extends Component {
     }
 
     if (this.target) {
-      document.body.removeChild(this.target);
+      if (document.body.contains(this.target)) {
+        document.body.removeChild(this.target);
+      }
       this.target = null;
     }
 

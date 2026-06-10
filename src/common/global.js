@@ -171,7 +171,7 @@ window._l = function (key, ...args) {
     const xhrObj = new XMLHttpRequest();
     const script = document.createElement('script');
     const path =
-      (!location.href.match(/mingdao\.com|share\.mingdao\.net/)
+      (!location.href.match(/mingdao\.com|share\.mingdao\.net|theportal\.cn/)
         ? currentLang.path
         : currentLang.path.replace('/staticfiles/lang', 'https://alifile.mingdaocloud.com/lang/HAP')) +
       `?${moment().format('YYYY_MM_DD_') + Math.floor(moment().hour() / 6)}`;

@@ -65,6 +65,7 @@ const Wrapper = styled.div(
     --ck-color-button-default-hover-background: rgba(255, 255, 255, 0.5);
     --ck-color-button-on-background: rgba(255, 255, 255, 0.5);
     --ck-color-button-on-hover-background: rgba(255, 255, 255, 0.5);
+    --ck-color-base-text: var(--color-text-primary);
   }
   .ck {
     &.ckByHtml {

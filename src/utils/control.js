@@ -238,7 +238,7 @@ export function getSortData(type, control = {}) {
   const descendingValue = 1; // 降序
   const ascendingValue = 2; // 升序
 
-  if (type === 6 || type === 8 || type === 33 || type === 34 || (type === 29 && control.enumDefault === 2)) {
+  if (type === 6 || type === 8 || type === 34 || (type === 29 && control.enumDefault === 2)) {
     return [
       {
         text: '1 → 9',
@@ -1539,7 +1539,7 @@ export const getSwitchItemNames = (data, { needDefault, isShow } = {}) => {
   }
 
   // 需要兜底显示
-  if (needDefault) {
+  if (needDefault && defaultData) {
     return defaultData.map(i => {
       const cur = _.find(itemnames, it => it.key === i.key);
       return _.get(cur, 'value') ? cur : i;

@@ -568,7 +568,7 @@ export default class Function {
   }
 
   clearMarkers() {
-    this.markers.forEach(marker => marker.clear());
+    this.editor.getAllMarks().forEach(marker => marker.clear());
     this.markers = [];
     this.onError();
   }
@@ -581,6 +581,7 @@ export default class Function {
   }
 
   markElements() {
+    this.clearMarkers();
     // 处理字段
     this.markControls();
     // 处理函数呈现
@@ -588,7 +589,6 @@ export default class Function {
     // 处理符号
     // this.markSymbol();
     if (this.type === 'mdfunction' && !this.readOnly) {
-      this.clearMarkers();
       // 高亮显示中文符号
       this.markChineseSymbol();
       // 高亮显示未闭合的括号

@@ -112,6 +112,10 @@ class ChatPanel extends Component {
     }
 
     this.ajax = ajax.chatSessionItem(session);
+    if (!this.ajax) {
+      this.setState({ loading: false });
+      return;
+    }
     this.ajax
       .then(result => {
         this.setState({ loading: false });

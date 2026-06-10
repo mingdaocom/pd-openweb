@@ -279,6 +279,21 @@ export const loadWorksheet = noNeedGetApp => (dispatch, getState) => {
       dispatch(fireWhenViewLoaded(view, { controls: template.controls }));
     });
   if (noNeedGetApp) return;
+
+  const detail = appDetail.detail || {};
+
+  if (appNaviStyle === 2 && location.href.includes('mobile/app') && String(detail.id) === String(base.appId)) {
+    dispatch({
+      type: 'MOBILE_UPDATE_IS_CHARGE',
+      value: canEditApp(detail.permissionType, detail.isLock),
+    });
+    dispatch({
+      type: 'MOBILE_APP_COLOR',
+      value: detail.iconColor,
+    });
+    return;
+  }
+
   homeAppAjax
     .getApp({
       appId: base.appId,

@@ -350,7 +350,7 @@ export default class AddEditRulesDialog extends Component {
         {encryptWay === 1000 && (
           <div className="textSecondary mBottom16">
             <span> {_l('配置加密与解密请求地址。当字段数据需要加密或解密时，将请求这些接口完成转换')}</span>
-            <Support type={3} text={_l('帮助')} href="" />
+            <Support type={3} text={_l('帮助')} href="https://help.mingdao.com/org/security#encryption" />
           </div>
         )}
         <FormItem>

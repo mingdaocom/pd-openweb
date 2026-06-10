@@ -199,7 +199,7 @@ export default class ApplicationList extends Component {
 
   renderGroupDetail = ({ canCreateApp, apps = [], type, name, icon, iconUrl, showExpandIcon }) => {
     const { myPlatformLang } = this.props;
-    let appList = apps.filter(o => o && !o.webMobileDisplay); //排除webMobileDisplay h5未发布
+    let appList = apps.filter(o => o && !(window.isMingDaoApp ? o.appDisplay : o.webMobileDisplay));
     const distance = ((this.state.width - 12) / 4 - 56) / 2;
     const { dashboardHideGroup = [] } = this.state;
 

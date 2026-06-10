@@ -303,7 +303,13 @@ export const prepareRequestParams = ({ worksheetId, viewId, rowId, appId }, view
     }
   }
 
-  if ((source.type === 35 || source.type === 29) && !!navlayer && !['1', '999'].includes(navlayer) && !keyWords) {
+  if (
+    (source.type === 35 || source.type === 29) &&
+    !!navlayer &&
+    !['1', '999'].includes(navlayer) &&
+    !keyWords &&
+    !rowId
+  ) {
     params.layer = navlayer;
   }
 

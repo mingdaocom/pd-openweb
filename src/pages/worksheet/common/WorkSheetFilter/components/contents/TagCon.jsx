@@ -23,7 +23,7 @@ function TagCon(props) {
   }, 500);
 
   return (
-    <div className={cx('filterTagCon', { disabled })} onClick={() => inputRef.current.focus()}>
+    <div className={cx('filterTagCon', { disabled })} onClick={() => inputRef.current?.focus()}>
       {data.length
         ? data.map((item, index) => (
             <span className="fiterTagItem" key={index}>

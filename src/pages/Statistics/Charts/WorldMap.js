@@ -294,7 +294,7 @@ export default class extends Component {
     const { themeColor, projectId, customPageConfig = {}, reportData, isThumbnail } = props;
     const { chartColor, chartColorIndex = 1, pageStyleType = 'light' } = customPageConfig;
     const styleConfig = reportData.style || {};
-    const { displaySetup, split, xaxes } = reportData;
+    const { displaySetup, split, xaxes, yaxisList } = reportData;
     const isDark = window.themeMode === 'dark' || (pageStyleType === 'dark' && isThumbnail);
     const style =
       chartColor && chartColorIndex >= (styleConfig.chartColorIndex || 0)
@@ -367,7 +367,7 @@ export default class extends Component {
                 {
                   field: 'value',
                   formatField: () => _l('数值'),
-                  formatValue: value => value,
+                  formatValue: value => formatrChartValue(value, false, yaxisList),
                 },
               ],
             },

@@ -145,7 +145,7 @@ export default function SideNav(props) {
           const isDevCustomView = (_.get(view, 'pluginInfo') || {}).source === 0; //是否可以开发状态的自定义视图
 
           if (it.name === 'base') {
-            actionList = baseSetList[viewTypeText];
+            actionList = baseSetList[viewTypeText] || [];
             if (viewTypeText === 'customize' && isDevCustomView) {
               actionList = viewTypeCustomList;
             }

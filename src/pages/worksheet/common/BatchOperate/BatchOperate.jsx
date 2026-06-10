@@ -20,7 +20,7 @@ import { canEditApp, canEditData, isHaveCharge } from 'worksheet/redux/actions/u
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import Buttons from 'src/pages/worksheet/common/recordInfo/RecordForm/CustomButtonsAutoWidth';
-import { emitter } from 'src/utils/common';
+import { emitter, getFilledRequestParams } from 'src/utils/common';
 import { checkCellIsEmpty } from 'src/utils/control';
 import { handleRecordError } from 'src/utils/record';
 import { replaceBtnsTranslateInfo } from 'src/utils/translate';
@@ -204,13 +204,18 @@ class BatchOperate extends React.Component {
     }
 
     processAjax
-      .startProcess({
-        appId: worksheetId,
-        sources: selectedRows.map(item => item.rowid),
-        triggerId: btn.btnId,
-        pushUniqueId: _.get(window, 'md.global.Config.pushUniqueId'),
-        ...args,
-      })
+      .startProcess(
+        getFilledRequestParams(
+          {
+            appId: worksheetId,
+            sources: selectedRows.map(item => item.rowid),
+            triggerId: btn.btnId,
+            pushUniqueId: _.get(window, 'md.global.Config.pushUniqueId'),
+            ...args,
+          },
+          _.get(filters, 'requestParams'),
+        ),
+      )
       .then(data => {
         if (!data) {
           mdNotification.error({
@@ -303,7 +308,9 @@ class BatchOperate extends React.Component {
       updateArgs.filtersGroup = filtersGroup;
     }
 
-    (isEditSingle ? worksheetAjax.updateWorksheetRow : worksheetAjax.updateWorksheetRows)(updateArgs).then(data => {
+    (isEditSingle ? worksheetAjax.updateWorksheetRow : worksheetAjax.updateWorksheetRows)(
+      getFilledRequestParams(updateArgs, _.get(filters, 'requestParams')),
+    ).then(data => {
       callback();
       if ((isEditSingle ? data.resultCode === 1 : data.successCount === selectedRows.length) && !args.noAlert) {
         alert(_l('修改成功'));
@@ -519,7 +526,7 @@ class BatchOperate extends React.Component {
       }
 
       worksheetAjax
-        .updateWorksheetRows(args)
+        .updateWorksheetRows(getFilledRequestParams(args, _.get(filters, 'requestParams')))
         .then(res => {
           if (res.isSuccess) {
             alert(isLock ? _l('锁定成功') : _l('解锁成功'));
@@ -722,7 +729,7 @@ class BatchOperate extends React.Component {
                       }
 
                       worksheetAjax
-                        .deleteWorksheetRows(args)
+                        .deleteWorksheetRows(getFilledRequestParams(args, _.get(filters, 'requestParams')))
                         .then(res => {
                           if (res.isSuccess) {
                             emitter.emit('ROWS_UPDATE');

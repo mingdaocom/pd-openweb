@@ -124,7 +124,7 @@ class TaskBasic extends Component {
     const { taskId } = this.props;
     const { data } = this.props.taskDetails[taskId];
     const hasAuth = data.auth === config.auth.Charger || data.auth === config.auth.Member;
-    const stages = data.stages.map(item => {
+    const stages = (data.stages || []).map(item => {
       return {
         text: htmlDecodeReg(item.name),
         value: item.id,
@@ -168,7 +168,7 @@ class TaskBasic extends Component {
               />
             </div>
             <div className="flex" />
-            {!data.ancestors.length && (
+            {!(data.ancestors || []).length && (
               <Tooltip title={_l('重新关联项目')}>
                 <span
                   className="folderBtn ThemeColor3 pointer"
@@ -619,7 +619,7 @@ class TaskBasic extends Component {
         <div className="taskContentBox taskContentBasicBox">
           {this.renderFolder()}
           <ul className="parentTaskList">
-            {data.ancestors.map((item, i) =>
+            {(data.ancestors || []).map((item, i) =>
               this.renderParentItem(item, i, hasAuth && i === data.ancestors.length - 1),
             )}
           </ul>
@@ -758,7 +758,7 @@ class TaskBasic extends Component {
                 </span>
               </Tooltip>
               <div className="membersList">
-                {data.member.map((item, i) => this.renderMemberItem(item, i, hasAuth))}
+                {(data.member || []).map((item, i) => this.renderMemberItem(item, i, hasAuth))}
                 {hasAuth && (
                   <Tooltip title={_l('添加任务参与者')}>
                     <span className="ThemeColor3 detailAddMember" onClick={this.addMembers}>

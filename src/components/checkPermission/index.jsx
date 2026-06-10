@@ -17,9 +17,12 @@ const setCacheData = (projectId, data, version) => {
 
 //获取权限版本
 const syncGetVersion = projectId => {
-  const data = versionApi.getVersion({ moduleType: 50, sourceId: projectId }, { ajaxOptions: { sync: true } });
-
-  return data.version;
+  try {
+    const data = versionApi.getVersion({ moduleType: 50, sourceId: projectId }, { ajaxOptions: { sync: true } });
+    return data ? data.version : '';
+  } catch {
+    return '';
+  }
 };
 
 //校验权限--已有用户权限
@@ -46,18 +49,20 @@ export const getMyPermissions = (projectId, isSync = true) => {
     };
 
     if (moment().diff(moment(cache.time), 'm') > 5) {
-      version = syncGetVersion(projectId);
+      if (isSync) {
+        version = syncGetVersion(projectId);
 
-      if (version === cache.version) {
-        setCacheData(projectId, cache.data, version);
-        return cacheSource();
+        if (version === cache.version) {
+          setCacheData(projectId, cache.data, version);
+          return cacheSource();
+        }
       }
     } else {
       return cacheSource();
     }
   }
 
-  if (!version) {
+  if (isSync && !version) {
     version = syncGetVersion(projectId);
   }
 

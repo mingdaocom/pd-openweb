@@ -18,7 +18,8 @@ export const setFavicon = (iconUrl, iconColor) => {
       }
 
       $('[rel="icon"]').attr('href', `data:image/svg+xml;base64,${data}`);
-    });
+    })
+    .catch(() => {});
 };
 
 /**

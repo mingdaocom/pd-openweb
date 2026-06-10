@@ -201,10 +201,10 @@ function ConnectAuth(props) {
               //后端说写死
               {
                 controlId: 'basicAuth',
-                controlName: 'Basic Auth 参数',
+                controlName: `Basic Auth ${_l('参数')}`,
                 type: 2,
                 hide: false,
-                value: '************ (隐藏)',
+                value: `************ (${_l('隐藏')})`,
               },
             ])}
         </div>

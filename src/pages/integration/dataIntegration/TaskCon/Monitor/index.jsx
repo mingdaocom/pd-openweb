@@ -108,11 +108,11 @@ const WrapCon = styled.div`
     }
   }
 `;
-//配置
-let lineChart = null;
 
 function Monitor(props) {
   const g2plotComponent = useRef({});
+  const lineChartRef = useRef(null);
+  const mounted = useRef(false);
   const { currentProjectId: projectId } = props;
   const [
     {
@@ -128,6 +128,7 @@ function Monitor(props) {
       jobId,
       errorDetail,
       showErr,
+      g2plotLoaded,
     },
     setState,
   ] = useSetState({
@@ -146,33 +147,53 @@ function Monitor(props) {
     history: [],
     errorDetail: '',
     showErr: false,
+    g2plotLoaded: false,
   });
   const chantRef = useRef();
 
   useEffect(() => {
+    mounted.current = true;
     getG2plotComponent();
     return () => {
+      mounted.current = false;
       g2plotComponent.current.value = null;
-      lineChart && lineChart.destroy();
+      destroyChart();
     };
   }, []);
 
   useEffect(() => {
+    if (!jobId) return;
+
     getInfo();
     getHistory();
   }, [jobId]);
 
   useEffect(() => {
-    chantRef.current && g2plotComponent.current.value && renderChart(history);
-  }, [chantRef.current, g2plotComponent.current.value, history]);
+    chantRef.current && g2plotLoaded && renderChart(history);
+  }, [g2plotLoaded, history]);
 
   useEffect(() => {
-    getLog();
-  }, [pageIndex]);
+    jobId && getLog();
+  }, [jobId, pageIndex]);
+
+  const destroyChart = () => {
+    if (!lineChartRef.current) return;
+
+    try {
+      lineChartRef.current.destroy();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      lineChartRef.current = null;
+    }
+  };
 
   const getG2plotComponent = () => {
     import('@antv/g2plot').then(data => {
+      if (!mounted.current) return;
+
       g2plotComponent.current.value = data;
+      setState({ g2plotLoaded: true });
     });
   };
 
@@ -186,6 +207,9 @@ function Monitor(props) {
       jobIds: [jobId],
     });
     const tasksTotal = _.get(dayTotalDt, ['tasksTotal', jobId]) || {};
+
+    if (!mounted.current) return;
+
     setState({
       loading: false,
       runningTime: runningDt.runningTime,
@@ -212,7 +236,8 @@ function Monitor(props) {
           },
         );
       });
-      !g2plotComponent.current.value ? getG2plotComponent() : renderChart(initChartData);
+      if (!mounted.current) return;
+
       setState({
         history: initChartData,
       });
@@ -229,6 +254,9 @@ function Monitor(props) {
     }).then(res => {
       const { pageLogs = {} } = res;
       const { content = [], totalPages } = pageLogs;
+
+      if (!mounted.current) return;
+
       setState({
         totalPages,
         list: content,
@@ -245,10 +273,11 @@ function Monitor(props) {
   const isDark = window.themeMode === 'dark';
 
   const renderChart = (initChartData = []) => {
-    if (!chantRef.current) return;
+    if (!mounted.current || !chantRef.current || !g2plotComponent.current.value) return;
+
     const { Line } = g2plotComponent.current.value;
-    lineChart && lineChart.destroy();
-    lineChart = new Line(chantRef.current, {
+    destroyChart();
+    lineChartRef.current = new Line(chantRef.current, {
       data: initChartData,
       xField: 'date',
       yField: 'value',
@@ -315,7 +344,7 @@ function Monitor(props) {
         },
       },
     });
-    lineChart.render();
+    lineChartRef.current.render();
   };
 
   return (

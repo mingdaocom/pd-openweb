@@ -304,15 +304,20 @@ class ChildTable extends React.Component {
       nextProps.control.sideVisible !== this.props.control.sideVisible ||
       nextProps.control.formWidth !== this.props.control.formWidth
     ) {
-      try {
-        setTimeout(() => {
+      setTimeout(() => {
+        try {
           if (this.worksheettable && this.worksheettable.current) {
-            this.worksheettable.current.handleUpdate();
+            const ref = this.worksheettable.current;
+            if (typeof ref.updateSize === 'function') {
+              ref.updateSize();
+            } else if (typeof ref.handleUpdate === 'function') {
+              ref.handleUpdate();
+            }
           }
-        }, 100);
-      } catch (err) {
-        console.error(err);
-      }
+        } catch (err) {
+          console.error(err);
+        }
+      }, 100);
     }
 
     if (!_.isEqual(this.props.rows, nextProps.rows)) {

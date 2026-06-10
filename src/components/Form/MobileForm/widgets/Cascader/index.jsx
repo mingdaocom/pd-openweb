@@ -548,7 +548,7 @@ const Cascader = props => {
         }}
       >
         {!isMultiple || !selectedValues.length ? (
-          <span className={cx('flex ellipsis', { customFormPlaceholder: !selectedValues.length })}>
+          <span className={cx('flex breakAll', { customFormPlaceholder: !selectedValues.length })}>
             {selectedValues[0]?.label || _l('请选择')}
           </span>
         ) : (

@@ -89,7 +89,8 @@ export const insertToRowEnd = ({ widgets, srcPath, srcItem, targetIndex }) => {
     update(removedSrcItem, {
       [targetIndex]: {
         $apply: row => {
-          return row.concat(srcItem).map(item => ({ ...item, size: WHOLE_SIZE / (row.length + 1) }));
+          const safeRow = row || [];
+          return safeRow.concat(srcItem).map(item => ({ ...item, size: WHOLE_SIZE / (safeRow.length + 1) }));
         },
       },
     }),

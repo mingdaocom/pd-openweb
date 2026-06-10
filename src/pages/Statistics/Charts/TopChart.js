@@ -19,13 +19,16 @@ import { formatSummaryName, isFormatNumber } from 'statistics/common';
 import { formatrChartValue, formatYaxisList, getChartColors } from './common';
 
 const formatTopChartData = map => {
+  if (!Array.isArray(map) || !map.length) return [];
   const data = _.get(map[0], 'value') || [];
   const result = [];
 
   const getValues = index => {
     const obj = {};
     map.forEach(data => {
-      obj[data.c_id] = data.value[index].v;
+      if (data && Array.isArray(data.value) && data.value[index] !== undefined) {
+        obj[data.c_id] = data.value[index].v;
+      }
     });
     return obj;
   };
@@ -50,8 +53,12 @@ const TopChartContent = styled.div`
   .index {
     width: 50px;
   }
+  &.isMobile .index {
+    width: 30px;
+    margin-right: 5px;
+  }
   .value {
-    margin-left: 8px;
+    margin-left: 5px;
     text-align: right;
   }
   .valueProgressWrap {
@@ -64,6 +71,12 @@ const TopChartContent = styled.div`
       width: 0;
       height: 100%;
     }
+  }
+  .yaxisList {
+    flex: 1;
+  }
+  &.isMobile .yaxisList {
+    flex: 2;
   }
   .item:hover {
     background-color: ${props => (props.isDark ? '#ffffff1a' : '#f7f7f7')}
@@ -277,7 +290,7 @@ export default class extends Component {
           {xaxes.rename || xaxes.controlName}
         </div>
         {valueProgressVisible && <div className="valueProgressWrap Visibility" />}
-        <div className="flexRow valignWrapper flex">
+        <div className="flexRow valignWrapper yaxisList">
           {yaxisList.map(item => (
             <div key={item.controlId} className="value ellipsis" style={{ width: `${100 / yaxisList.length}%` }}>
               {item.rename || item.controlName}
@@ -361,7 +374,7 @@ export default class extends Component {
             />
           </div>
         )}
-        <div className="flexRow valignWrapper flex">
+        <div className="flexRow valignWrapper yaxisList">
           {yaxisList.map(item => (
             <div
               key={item.controlId}
@@ -376,14 +389,14 @@ export default class extends Component {
     );
   }
   renderTopChart() {
-    const { customPageConfig = {}, reportData, isThumbnail } = this.props;
+    const { customPageConfig = {}, reportData, isThumbnail, isMobile } = this.props;
     const { pageStyleType = 'light' } = customPageConfig;
     const isDark = window.themeMode === 'dark' || (pageStyleType === 'dark' && isThumbnail);
     const { map, yaxisList } = reportData;
     const data = formatTopChartData(map);
     const maxValue = _.max(data.map(data => data[_.get(yaxisList[0], 'controlId')]));
     return (
-      <TopChartContent className="h100 topChart" isDark={isDark} yaxisListLength={yaxisList.length}>
+      <TopChartContent className={cx('h100 topChart', { isMobile })} isDark={isDark} yaxisListLength={yaxisList.length}>
         <ScrollView>
           <Fragment>
             {yaxisList.length > 1 && this.renderHeader(isDark)}

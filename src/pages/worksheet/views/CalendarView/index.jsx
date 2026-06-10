@@ -423,7 +423,7 @@ class RecordCalendar extends Component {
       console.log(error);
     }
 
-    if (calendarcids.length <= 0) {
+    if (!Array.isArray(calendarcids) || calendarcids.length <= 0 || !calendarcids[0]) {
       calendarcids = [{ begin: begindate, end: enddate }]; //兼容老数据
     }
 

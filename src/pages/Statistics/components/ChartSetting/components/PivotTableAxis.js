@@ -106,7 +106,7 @@ const renderOverlay = ({
               <div className="flexRow valignWrapper w100">
                 <div className="flex">{_l('统计空值')}</div>
                 <div className="Font12 textSecondary emptyTypeName">
-                  {xaxisEmpty ? _.find(xaxisEmptyShowTypes, { value: xaxisEmptyType }).text : _l('不显示')}
+                  {xaxisEmpty ? _.find(xaxisEmptyShowTypes, { value: xaxisEmptyType })?.text : _l('不显示')}
                 </div>
               </div>
             }
@@ -147,7 +147,7 @@ const renderOverlay = ({
               <div className="flexRow valignWrapper w100">
                 <div className="flex">{_l('空值显示')}</div>
                 <div className="Font12 textSecondary emptyTypeName">
-                  {_.find(emptyShowTypes, { value: emptyShowType }).text}
+                  {_.find(emptyShowTypes, { value: emptyShowType })?.text}
                 </div>
               </div>
             }
@@ -176,7 +176,7 @@ const renderOverlay = ({
               <div className="flexRow valignWrapper w100">
                 <div className="flex">{_l('显示方式')}</div>
                 <div className="Font12 textSecondary emptyTypeName">
-                  {_.find(displayModes, { value: displayMode }).text}
+                  {_.find(displayModes, { value: displayMode })?.text}
                 </div>
               </div>
             }

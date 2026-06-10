@@ -112,7 +112,7 @@ export default function TelDialog(props) {
       footer={
         <div className="footer">
           <Button
-            type={!hasVerification ? 'link' : 'primary'}
+            type={'link'}
             onClick={() => {
               setCode('');
               if (!hasVerification) {

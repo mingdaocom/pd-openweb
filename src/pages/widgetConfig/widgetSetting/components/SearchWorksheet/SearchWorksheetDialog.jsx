@@ -626,7 +626,7 @@ export default class SearchWorksheetDialog extends Component {
                         data={this.getDropData(controls, data)}
                         renderItem={(selectData = {}) => {
                           return (
-                            <span>
+                            <span title={selectData.text}>
                               {selectData.text}
                               {selectData.isEqualSource && (
                                 <span className="textTertiary subText">（{_l('相同选项集')}）</span>

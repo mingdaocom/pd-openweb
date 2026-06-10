@@ -481,7 +481,7 @@ export default class FillWorksheet extends React.Component {
                 lineHeight: '40px',
                 background: themeBgColor,
                 padding: 0,
-                color: new TinyColor(themeBgColor).isDark() ? '#fff' : 'rgba(0, 0, 0, 0.45)',
+                color: !themeBgColor || new TinyColor(themeBgColor).isDark() ? '#fff' : 'rgba(0, 0, 0, 0.45)',
               }}
               onClick={this.handleSubmit}
             >

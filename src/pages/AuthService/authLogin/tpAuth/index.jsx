@@ -83,10 +83,14 @@ function Container() {
           }
         } else {
           if (data.accountResult === LoginResult.accountSuccess) {
+            // preall 会立即请求 GetGlobalMeta，需先写入 md_pss_id 避免被识别为未登录
             setPssId(data.sessionId, autoLogin);
 
             import('src/common/preall').then(preall => {
               preall.default({ type: 'function' });
+
+              // preall 后 HttpOnly 等全局配置已刷新，再按完整策略补写一次登录态
+              setPssId(data.sessionId, autoLogin);
 
               // 登录成功
               if (data.isLoginState) {

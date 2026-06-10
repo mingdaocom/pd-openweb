@@ -52,3 +52,16 @@ export const allPlatformsHidden = () => {
     isPlatformHidden('welink')
   );
 };
+
+export const handleMask = (val, isMask) => {
+  if (!val) return;
+  if (!isMask) return val;
+
+  const arr = val.split('');
+
+  if (arr.length > 15) {
+    return arr.slice(0, 4).join('') + '*'.repeat(10) + arr.slice(-4).join('');
+  }
+
+  return '*'.repeat(arr.length);
+};

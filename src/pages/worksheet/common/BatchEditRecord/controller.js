@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import worksheetApi from 'src/api/worksheet';
+import { getFilledRequestParams } from 'src/utils/common';
 
 export function handleBatchUpdateRecords({
   appId,
@@ -56,7 +57,7 @@ export function handleBatchUpdateRecords({
     args.searchType = searchArgs.searchType;
   }
 
-  worksheetApi.updateWorksheetRows(args).then(data => {
+  worksheetApi.updateWorksheetRows(getFilledRequestParams(args, _.get(searchArgs, 'requestParams'))).then(data => {
     if (data.isSuccess) {
       clearSelect();
       hideEditRecord();

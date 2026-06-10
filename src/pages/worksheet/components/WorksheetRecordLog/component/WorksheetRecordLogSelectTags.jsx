@@ -7,6 +7,7 @@ import { renderText as renderTextCell } from 'src/utils/control';
 import '../WorksheetRecordLogValue.less';
 
 const getTitle = (value, sourceControl) => {
+  if (!sourceControl) return renderTextCell({ value });
   const data = safeParse(value, 'array');
 
   switch (sourceControl.type) {

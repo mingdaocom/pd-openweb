@@ -9,11 +9,11 @@ import './index.less';
 export default function SelectProject(props) {
   const { changeProject = () => {}, noCache = false, filterExternal = false, projectId } = props;
   let actionSheetHandler = null;
-  const projects = md.global.Account.projects.concat(
+  const projects = (md.global.Account.projects || []).concat(
     filterExternal ? [] : [{ companyName: _l('外部协作'), projectId: 'external' }],
   );
   const projectObj = getCurrentProject(
-    projectId || localStorage.getItem('currentProjectId') || (md.global.Account.projects[0] || {}).projectId,
+    projectId || localStorage.getItem('currentProjectId') || ((md.global.Account.projects || [])[0] || {}).projectId,
   );
 
   const [currentProject, setCurrentProject] = useState(

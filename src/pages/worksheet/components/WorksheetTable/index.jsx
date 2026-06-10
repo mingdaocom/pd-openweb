@@ -265,7 +265,7 @@ function WorksheetTable(props, ref) {
   const { rowHeadWidth = 70, renderRowHead, renderOperates, renderGroupTitle, renderGroupMore } = props;
   const {
     onColumnWidthChange = () => {},
-    onCellClick,
+    onCellClick = () => {},
     onFocusCell = () => {},
     onCellEnter = () => {},
     onCellLeave = () => {},
@@ -579,6 +579,7 @@ function WorksheetTable(props, ref) {
       !e.isInputValue &&
       ((e.target && e.target.classList.contains('stopPropagation')) ||
         (e.key === 'Enter' &&
+          e.target &&
           e.target.tagName.toLowerCase() !== 'body' &&
           !e.target.classList.contains('body') &&
           !e.target.classList.contains('mdModalWrap') &&
@@ -595,8 +596,11 @@ function WorksheetTable(props, ref) {
   }
 
   function focusRow(rowIndex) {
-    const contentHeight = document.querySelector(`.sheetViewTable.id-${tableId}-id .main-center`).clientHeight;
-    const contentScrollTop = document.querySelector(`.sheetViewTable.id-${tableId}-id .scroll-y`).scrollTop;
+    const mainCenterEl = document.querySelector(`.sheetViewTable.id-${tableId}-id .main-center`);
+    const scrollYEl = document.querySelector(`.sheetViewTable.id-${tableId}-id .scroll-y`);
+    if (!mainCenterEl || !scrollYEl) return;
+    const contentHeight = mainCenterEl.clientHeight;
+    const contentScrollTop = scrollYEl.scrollTop;
     const targetRowFullVisible =
       rowIndex * rowHeight >= contentScrollTop && (rowIndex + 1) * rowHeight < contentScrollTop + contentHeight;
     const closeToBottom = rowIndex * rowHeight - contentScrollTop > contentHeight / 2;

@@ -12,7 +12,7 @@ import { addBehaviorLog } from 'src/utils/project';
 const AppItemWrap = styled.div`
   display: flex;
   align-items: center;
-  background-color: var(--color-background-secondary);
+  background-color: var(--color-background-tertiary);
   border-radius: 8px;
   width: calc(50% - 5px);
   height: 56px;

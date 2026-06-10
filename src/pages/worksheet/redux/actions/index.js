@@ -87,7 +87,7 @@ export function fireWhenViewLoaded(view = {}, { forceUpdate, controls } = {}) {
 export function handleLoadOperateButtons({ worksheetInfo }) {
   return dispatch => {
     const actionColumn = flatten(
-      worksheetInfo.views.map(v => safeParse(get(v, 'advancedSetting.actioncolumn'), 'array')),
+      (worksheetInfo.views || []).map(v => safeParse(get(v, 'advancedSetting.actioncolumn'), 'array')),
     );
     const needLoadCustomButtons = !get(window, 'shareState.shareId') && find(actionColumn, c => c.type === 'btn');
     const needLoadPrintList = !get(window, 'shareState.shareId') && find(actionColumn, c => c.type === 'print');

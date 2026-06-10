@@ -54,6 +54,14 @@ export const FILTER_CONDITION_TYPE = {
   NE_FOR_SINGLE: 52, // 不是（单选专用）
 };
 
+// 日期字段「早于 / 晚于 / 早于等于 / 晚于等于」：只支持指定日期，不允许选择动态日期类型
+export const DATE_COMPARE_FILTER_TYPES = [
+  FILTER_CONDITION_TYPE.DATE_LT,
+  FILTER_CONDITION_TYPE.DATE_GT,
+  FILTER_CONDITION_TYPE.DATE_LTE,
+  FILTER_CONDITION_TYPE.DATE_GTE,
+];
+
 export const CONTROL_FILTER_WHITELIST = {
   TEXT: {
     value: 1,

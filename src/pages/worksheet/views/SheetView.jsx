@@ -437,7 +437,7 @@ class TableView extends React.Component {
       this.setState({ buttonsCheckStatus: {} });
     }
 
-    document.body.addEventListener('click', this.outerClickEvent);
+    document.body?.addEventListener('click', this.outerClickEvent);
     emitter.addListener('RELOAD_RECORD_INFO', this.updateRecordEvent);
     emitter.addListener('RELOAD_SHEET_VIEW', this.props.refresh);
     this.bindShift();
@@ -680,7 +680,7 @@ class TableView extends React.Component {
 
   componentWillUnmount() {
     const { abortRequest = () => {} } = this.props;
-    document.body.removeEventListener('click', this.outerClickEvent);
+    document.body?.removeEventListener('click', this.outerClickEvent);
     emitter.removeListener('RELOAD_SHEET_VIEW', this.props.refresh);
     emitter.removeListener('RELOAD_RECORD_INFO', this.updateRecordEvent);
     this.unbindShift();

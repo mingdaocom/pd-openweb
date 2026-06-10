@@ -138,8 +138,10 @@ export default function CalendarSet(props) {
         ];
   }
 
-  const startData = worksheetControls.filter(item => item.controlId === calendarcids[0].begin);
-  const isDelete = calendarcids[0].begin && (!startData || startData.length <= 0);
+  const startData = calendarcids[0]
+    ? worksheetControls.filter(item => item.controlId === calendarcids[0].begin)
+    : [];
+  const isDelete = (calendarcids[0] && calendarcids[0].begin) && (!startData || startData.length <= 0);
   return (
     <React.Fragment>
       <div className="title Font13 bold">{_l('日期')}</div>

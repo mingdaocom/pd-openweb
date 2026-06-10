@@ -136,19 +136,25 @@ function MingoContent(props, ref) {
       // 更新最新一对消息的 id
       const loadAbortController = new AbortController();
       cache.current.loadAbortController = loadAbortController;
-      loadChat(chatId, { signal: loadAbortController.signal, pageSize: 2 }).then(res => {
-        if (loadAbortController.signal.aborted) {
-          return;
-        }
+      loadChat(chatId, { signal: loadAbortController.signal, pageSize: 2 })
+        .then(res => {
+          if (loadAbortController.signal.aborted) {
+            return;
+          }
 
-        const list = res?.data?.list || [];
-        setMessages(prev => {
-          const newMessages = [...prev];
-          newMessages[newMessages.length - 1].id = list[0]?.dataId;
-          newMessages[newMessages.length - 2].id = list[1]?.dataId;
-          return newMessages;
+          const list = res?.data?.list || [];
+          setMessages(prev => {
+            const newMessages = [...prev];
+            newMessages[newMessages.length - 1].id = list[0]?.dataId;
+            newMessages[newMessages.length - 2].id = list[1]?.dataId;
+            return newMessages;
+          });
+        })
+        .catch(error => {
+          if (error.name !== 'AbortError') {
+            console.error(error);
+          }
         });
-      });
       // 获取试一试
       loadRecommendMessage(chatId);
     },
@@ -227,40 +233,46 @@ function MingoContent(props, ref) {
       setIsLoadingChat(true);
     }
 
-    loadChat(chatId, { signal: loadAbortController.signal }).then(res => {
-      if (!res?.data?.list?.length) {
-        setIsLoadingChat(false);
-        if (isLand && !window.isMingoShare) {
-          navigateTo('/mingo');
+    loadChat(chatId, { signal: loadAbortController.signal })
+      .then(res => {
+        if (!res?.data?.list?.length) {
+          setIsLoadingChat(false);
+          if (isLand && !window.isMingoShare) {
+            navigateTo('/mingo');
+          }
+
+          return;
         }
 
-        return;
-      }
-
-      if (loadAbortController.signal.aborted) {
-        return;
-      }
-
-      try {
-        const newMessages = get(res, 'data.list', []).map(item => ({
-          id: item.dataId,
-          role: item.obj === 'AI' ? 'assistant' : 'user',
-          content: convertFastGptMessageToOpenAI(item.value),
-        }));
-        setMessages(newMessages);
-        setIsLoadingChat(false);
-        if (location.search?.includes('from=share')) {
-          cache.current.currentChatItem = assign({}, cache.current.currentChatItem, {
-            title: getContentFromMessage(newMessages[0]?.content),
-          });
+        if (loadAbortController.signal.aborted) {
+          return;
         }
 
-        // 获取试一试
-        loadRecommendMessage(chatId);
-      } catch (error) {
-        console.error(error);
-      }
-    });
+        try {
+          const newMessages = get(res, 'data.list', []).map(item => ({
+            id: item.dataId,
+            role: item.obj === 'AI' ? 'assistant' : 'user',
+            content: convertFastGptMessageToOpenAI(item.value),
+          }));
+          setMessages(newMessages);
+          setIsLoadingChat(false);
+          if (location.search?.includes('from=share')) {
+            cache.current.currentChatItem = assign({}, cache.current.currentChatItem, {
+              title: getContentFromMessage(newMessages[0]?.content),
+            });
+          }
+
+          // 获取试一试
+          loadRecommendMessage(chatId);
+        } catch (error) {
+          console.error(error);
+        }
+      })
+      .catch(error => {
+        if (error.name !== 'AbortError') {
+          console.error(error);
+        }
+      });
   }, []);
 
   function updateChatId(newChatId) {

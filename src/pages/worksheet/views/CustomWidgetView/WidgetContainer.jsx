@@ -39,7 +39,6 @@ function getFilters(filters = {}, quickFilter = [], navGroupFilters = []) {
 
 export default function WidgetContainer(props) {
   const {
-    scriptUrl,
     isServerUrl,
     paramsMap,
     isCharge,
@@ -56,8 +55,24 @@ export default function WidgetContainer(props) {
     navGroupFilters,
     onLoadScript = () => {},
   } = props;
+  let scriptUrl = props.scriptUrl;
+  // 调试模式：通过 ?bundle= 指定本地/沙箱构建的插件脚本地址进行调试
+  let isDebugBundle = false;
+
+  try {
+    const bundleUrl = new URL(location.href).searchParams.get('bundle');
+
+    if (bundleUrl) {
+      scriptUrl = bundleUrl;
+      isDebugBundle = true;
+    }
+  } catch {
+    // 解析 bundle 参数失败时回退到 props.scriptUrl
+  }
+
   const rawPluginRuntimeUrl = get(md, 'global.Config.PluginRuntimeUrl');
-  const isLocalScript = /localhost|127\.0\.0\.1/.test(scriptUrl);
+  // 调试脚本（含云端沙箱隧道地址）需直接加载，跳过跨域 iframe 沙箱代理，避免地址被代理域名拼接污染
+  const isLocalScript = isDebugBundle || /localhost|127\.0\.0\.1/.test(scriptUrl);
   const pluginRuntimeUrl = isLocalScript ? '' : rawPluginRuntimeUrl;
 
   const iframeRef = useRef();
@@ -69,7 +84,8 @@ export default function WidgetContainer(props) {
   const [side, setSide] = useState();
   cache.current = {
     scriptUrl,
-    isServerUrl,
+    // 调试 bundle 为完整的外部地址，不能再拼接文件服务 pubHost
+    isServerUrl: isDebugBundle ? false : isServerUrl,
     paramsMap,
     config: {
       containerId: containerId.current,

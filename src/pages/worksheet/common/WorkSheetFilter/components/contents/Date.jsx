@@ -6,7 +6,13 @@ import { Checkbox, Dropdown, MdAntDateRangePicker } from 'ming-ui';
 import TimeZoneTag from 'ming-ui/components/TimeZoneTag';
 import DatePicker from 'src/components/Form/DesktopForm/widgets/Date';
 import { getDatePickerConfigs, getShowFormat } from 'src/pages/widgetConfig/util/setting.js';
-import { DATE_OPTIONS, DATE_RANGE_TYPE, DATE_RANGE_TYPE_OPTIONS, FILTER_CONDITION_TYPE } from '../../enum';
+import {
+  DATE_COMPARE_FILTER_TYPES,
+  DATE_OPTIONS,
+  DATE_RANGE_TYPE,
+  DATE_RANGE_TYPE_OPTIONS,
+  FILTER_CONDITION_TYPE,
+} from '../../enum';
 
 function getPicker(type) {
   return {
@@ -31,6 +37,8 @@ export default function Date(props) {
     appId,
   } = props;
   const [dayNum, setDayNum] = useState(value);
+  // 早于 / 晚于 / 早于等于 / 晚于等于：只支持指定日期，不允许选择动态日期类型
+  const onlySpecificDate = includes(DATE_COMPARE_FILTER_TYPES, type);
   let dateOptions = DATE_OPTIONS;
   // if (
   //   dateRange === 18 &&
@@ -92,6 +100,12 @@ export default function Date(props) {
   useEffect(() => {
     setDayNum(value);
   }, [value]);
+  useEffect(() => {
+    // 兼容存量数据：这些筛选类型下若残留动态日期类型，强制纠正为指定日期
+    if (onlySpecificDate && dateRange !== 18) {
+      onChange({ dateRange: 18, value: undefined });
+    }
+  }, [onlySpecificDate, dateRange]);
   return (
     <div className="worksheetFilterDateCondition">
       {type === FILTER_CONDITION_TYPE.DATE_BETWEEN || type === FILTER_CONDITION_TYPE.DATE_NBETWEEN ? (
@@ -120,15 +134,17 @@ export default function Date(props) {
           {from !== 'subTotal' && (
             <div className="dateType dateInputCon">
               <Dropdown
-                disabled={disabled}
+                disabled={disabled || onlySpecificDate}
                 data={dateOptions}
                 hiddenValue={[10, 11]}
                 value={
-                  includes([1, 2], dateRangeType) &&
-                  includes([FILTER_CONDITION_TYPE.DATE_EQ, FILTER_CONDITION_TYPE.DATE_NE], type) &&
-                  dateRange === 18
-                    ? dateRange + 0.1 * dateRangeType
-                    : dateRange
+                  onlySpecificDate
+                    ? 18
+                    : includes([1, 2], dateRangeType) &&
+                        includes([FILTER_CONDITION_TYPE.DATE_EQ, FILTER_CONDITION_TYPE.DATE_NE], type) &&
+                        dateRange === 18
+                      ? dateRange + 0.1 * dateRangeType
+                      : dateRange
                 }
                 isAppendToBody
                 menuStyle={{ width: 220 }}

@@ -265,7 +265,10 @@ const Textarea = props => {
           disablePhoto={strDefault.split('')[0] === '1'}
           scantype={advancedSetting.scantype || '0'}
           control={_.find(formData, { controlId }) || {}}
-          onChange={props.onChange}
+          onChange={val => {
+            props.onChange(val);
+            props.onBlur(value, val);
+          }}
         />
       )}
     </Fragment>

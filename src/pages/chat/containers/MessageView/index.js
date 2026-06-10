@@ -123,6 +123,7 @@ class MessageView extends Component {
     // 加载一页
     if (newMessages.length - prevMessage.length >= config.MSG_LENGTH_MORE && direction == 'up') {
       setTimeout(() => {
+        if (!this.scrollView) return;
         const { scrollTo, getScrollInfo } = this.scrollView;
         const { scrollHeight } = getScrollInfo();
         scrollTo({ top: scrollHeight - this.lastScrollHeight });

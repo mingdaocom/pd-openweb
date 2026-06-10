@@ -13,3 +13,12 @@ export const MINGO_TASK_STATUS = {
   CREATE_WORKSHEET_ASSIGNMENT_CREATE_WORKSHEET_SUCCESS: 12,
   CREATE_WORKSHEET_ASSIGNMENT_CREATE_WORKSHEET_WIDGETS: 20,
 };
+
+// 上传文件提示文案：按行拆分为独立翻译条目，避免整段含换行的长文案无法被正确翻译
+export const getUploadFileTooltip = () =>
+  [
+    _l('文件数量：最多5个'),
+    _l('文件大小：单个文件不超过10M'),
+    _l('总字数：所有文档的总字数最多50k，超出自动忽略'),
+    _l('文件格式：PDF / TXT / Word / Excel / 图片'),
+  ].join('\n');

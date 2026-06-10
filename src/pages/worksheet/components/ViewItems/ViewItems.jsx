@@ -49,8 +49,6 @@ export default class ViewItems extends Component {
       recycleData: [],
     };
     this.searchRef = React.createRef();
-    this.containerWrapper = document.getElementById('wrapper');
-    this.containerWrapper.addEventListener('click', this.clickDrawerArea);
   }
   componentWillReceiveProps(nextProps) {
     if (nextProps.sheetInfoLoading && !this.props.sheetInfoLoading) {
@@ -86,10 +84,12 @@ export default class ViewItems extends Component {
     }
   }
   componentDidMount() {
+    this.containerWrapper = document.getElementById('wrapper');
+    this.containerWrapper && this.containerWrapper.addEventListener('click', this.clickDrawerArea);
     this.computeViewItemActiveLeft();
   }
   componentWillUnmount() {
-    this.containerWrapper.removeEventListener('click', this.clickDrawerArea);
+    this.containerWrapper && this.containerWrapper.removeEventListener('click', this.clickDrawerArea);
   }
   clickDrawerArea = e => {
     const { setWorksheetHidden } = this.state;

@@ -172,7 +172,9 @@ function CommonBoard(props) {
 
     emitter.addListener('RELOAD_RECORD_INFO', refresh);
     return () => {
-      document.body.removeEventListener('mousewheel', scrollEvent);
+      if (document.body) {
+        document.body.removeEventListener('mousewheel', scrollEvent);
+      }
       emitter.removeListener('RELOAD_RECORD_INFO', refresh);
       window.removeEventListener('resize', scrollEvent);
       if ($listWrap) {

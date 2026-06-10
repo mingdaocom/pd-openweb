@@ -75,5 +75,6 @@ export function renderTxt(src, cb = () => {}) {
     .then(arrayBuffer => {
       const result = decode(arrayBuffer);
       cb(null, result.text);
-    });
+    })
+    .catch(cb);
 }

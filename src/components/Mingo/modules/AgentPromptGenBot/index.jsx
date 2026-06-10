@@ -10,7 +10,7 @@ import { AI_FEATURE_TYPE } from 'src/utils/enum';
 import MessageList from '../../ChatBot/components/MessageList';
 import ResponseError from '../../ChatBot/components/ResponseError';
 import Send from '../../ChatBot/components/Send';
-import { MINGO_TASK_TYPE } from '../../ChatBot/enum';
+import { getUploadFileTooltip, MINGO_TASK_TYPE } from '../../ChatBot/enum';
 import ResultConfirm from './ResultConfirm';
 
 const MingoContentWrap = styled.div`
@@ -205,9 +205,7 @@ function AgentPromptGenBot(props, ref) {
               { title: 'image', extensions: 'jpg,jpeg,png,heic' },
               { title: 'office', extensions: 'pdf,doc,docx,xls,xlsx,txt' },
             ]}
-            uploadFileToolTip={_l(
-              '文件数量：最多5个\n文件大小：单个文件不超过10M\n总字数：所有文档的总字数最多50k，超出自动忽略\n文件格式：PDF / TXT / Word / Excel / 图片',
-            )}
+            uploadFileToolTip={getUploadFileTooltip()}
             isChatting={isChatting}
             loading={loading}
             isRequesting={isRequesting}

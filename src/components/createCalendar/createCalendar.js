@@ -148,7 +148,9 @@ $.extend(CreateCalendar.prototype, {
       $(this).hide();
     });
 
-    const allDayRoot = createRoot(document.getElementById('allDay'));
+    const allDayEl = document.getElementById('allDay');
+    if (!allDayEl) return;
+    const allDayRoot = createRoot(allDayEl);
     allDayRoot.render(
       <Checkbox
         className="InlineBlock"
@@ -310,7 +312,9 @@ $.extend(CreateCalendar.prototype, {
       autoFillEndTime: 1,
     };
     if (!this._calendarDateRoot) {
-      this._calendarDateRoot = createRoot(document.getElementById('calendarDate'));
+      const calendarDateEl = document.getElementById('calendarDate');
+      if (!calendarDateEl) return;
+      this._calendarDateRoot = createRoot(calendarDateEl);
     }
 
     this._calendarDateRoot.render(

@@ -21,12 +21,14 @@ const formatChartData = (data, splitId) => {
       const name = item.x;
       data.forEach(element => {
         const target = element.value.filter(n => n.originalX === item.originalX)[0];
-        result.push({
-          name,
-          originalId: item.originalX,
-          [splitId]: element.originalKey,
-          ...target.m,
-        });
+        if (target) {
+          result.push({
+            name,
+            originalId: item.originalX,
+            [splitId]: element.originalKey,
+            ...target.m,
+          });
+        }
       });
     });
   } else {

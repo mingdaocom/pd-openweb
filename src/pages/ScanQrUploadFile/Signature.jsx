@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Button, Signature } from 'ming-ui';
 import attachmentAjax from 'src/api/attachment';
+import { browserIsMobile } from 'src/utils/common';
 
 const SignatureWrap = styled.div`
   width: 100%;
@@ -37,10 +38,38 @@ const Footer = styled.div`
 
 const SignatureComp = ({ disabled, scanId, scanInfo, onComplete = () => {} }) => {
   const signatureRef = useRef();
+  const wrapRef = useRef();
   const [isUploading, setIsUploading] = useState(false);
   const [started, setStarted] = useState(false);
   const [hideCanvas, setHideCanvas] = useState(false);
   const [isLandscape, setIsLandscape] = useState(window.innerWidth > window.innerHeight);
+
+  // 阻止整个签名区域（含 padding）左滑触发 iOS 浏览器返回手势（仅 H5 环境）
+  useEffect(() => {
+    if (!browserIsMobile()) return;
+
+    const el = wrapRef.current;
+    if (!el) return;
+
+    const blockSwipeBack = e => {
+      if (e.target.closest('button, a, [role="button"]')) return;
+      e.stopPropagation();
+      if (e.cancelable) {
+        e.preventDefault();
+      }
+    };
+
+    ['touchstart', 'touchmove', 'touchend'].forEach(eventName => {
+      el.addEventListener(eventName, blockSwipeBack, { passive: false });
+    });
+
+    return () => {
+      ['touchstart', 'touchmove', 'touchend'].forEach(eventName => {
+        el.removeEventListener(eventName, blockSwipeBack);
+      });
+    };
+  }, []);
+
   useEffect(() => {
     const handleResize = () => {
       setIsLandscape(window.innerWidth > window.innerHeight);
@@ -55,8 +84,9 @@ const SignatureComp = ({ disabled, scanId, scanInfo, onComplete = () => {} }) =>
       window.removeEventListener('resize', handleResize);
     };
   }, []);
+
   return (
-    <SignatureWrap>
+    <SignatureWrap ref={wrapRef}>
       <div className="tip">{_l('请在下方空白区域横向书写签名')}</div>
       <Content>
         {!hideCanvas && (

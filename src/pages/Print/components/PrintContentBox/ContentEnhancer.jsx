@@ -17,7 +17,7 @@ const ContentEnhancer = props => {
     setApprovalList,
     showApproval,
     immediateGetApprovalDetail = {},
-    receiveControls,
+    receiveControls = [],
     relationRowsValues,
     view = {},
     signature = [],

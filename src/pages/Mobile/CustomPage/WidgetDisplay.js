@@ -15,7 +15,7 @@ import ViewContent from './ViewContent';
 const WidgetContent = styled.div`
   flex: 1;
   box-sizing: border-box;
-  padding: 8px 15px;
+  padding: 8px 10px;
   height: 100%;
   &.button {
     display: flex;

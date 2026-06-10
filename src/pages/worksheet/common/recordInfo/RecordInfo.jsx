@@ -565,8 +565,15 @@ export default class RecordInfo extends Component {
       if (res.resultCode === 4) {
         if (from !== RECORD_INFO_FROM.WORKSHEET_ROW_LAND) {
           hideRecordInfo();
+          return;
         }
 
+        this.setState({
+          abnormal: true,
+          loading: false,
+          recordinfo: res || {},
+          refreshBtnNeedLoading: false,
+        });
         return;
       }
 

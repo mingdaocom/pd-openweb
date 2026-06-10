@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import worksheetAjax from 'src/api/worksheet';
+import { getFilledRequestParams } from 'src/utils/common';
 
 export function refreshRecord({
   updateControls,
@@ -47,7 +48,7 @@ export function refreshRecord({
   }
 
   worksheetAjax
-    .refreshWorksheetRows(args)
+    .refreshWorksheetRows(getFilledRequestParams(args, _.get(searchArgs, 'requestParams')))
     .then(cb)
     .catch(() => {
       alert(_l('修改失败'), 2);

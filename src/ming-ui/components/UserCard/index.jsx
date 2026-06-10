@@ -1,5 +1,6 @@
 import React from 'react';
 import cx from 'classnames';
+import copy from 'copy-to-clipboard';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import Trigger from 'rc-trigger';
@@ -415,6 +416,18 @@ class UserCard extends React.Component {
             </div>
 
             <div className="Font20">
+              <Tooltip title={_l('复制用户ID ')}>
+                <span
+                  className="Hand"
+                  onClick={e => {
+                    e.stopPropagation();
+                    copy(data.accountId);
+                    alert(_l('复制成功'));
+                  }}
+                >
+                  <span className="actionButton icon-ID ThemeHoverColor3 textTertiary" />
+                </span>
+              </Tooltip>
               <Tooltip title={_l('刷新')}>
                 <span
                   className="Hand"
@@ -423,7 +436,7 @@ class UserCard extends React.Component {
                     this.fetchData(true);
                   }}
                 >
-                  <span className="actionButton icon-task-later ThemeHoverColor3 textTertiary" />
+                  <span className="actionButton icon-task-later ThemeHoverColor3 textTertiary mLeft10" />
                 </span>
               </Tooltip>
               {data.status === USER_STATUS.NORMAL &&

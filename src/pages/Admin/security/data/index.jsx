@@ -212,7 +212,12 @@ export default class DataCom extends Component {
               {
                 key: 'addressVisibleRange',
                 title: _l('加密规则'),
-                description: _l('配置工作表字段的加密存储规则，用于保护敏感数据的数据库安全'),
+                description: (
+                  <span>
+                    {_l('配置工作表字段的加密存储规则，用于保护敏感数据的数据库安全')}
+                    <Support text={_l('帮助')} type={3} href="https://help.mingdao.com/org/security#encryption" />
+                  </span>
+                ),
                 showSlideIcon: true,
                 featureId: VersionProductType.dataEnctypt,
                 onClick: () => this.setState({ showEncryptRules: true }),

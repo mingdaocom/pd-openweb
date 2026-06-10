@@ -329,11 +329,14 @@ export function init() {
           });
           return;
         });
-      if (relateWorksheetInfo && relateWorksheetInfo.resultCode !== 1) {
-        dispatch({
-          type: 'UPDATE_TABLE_STATE',
-          value: { error: _l('没有可查询内容') },
-        });
+      if (!relateWorksheetInfo || relateWorksheetInfo.resultCode !== 1) {
+        if (relateWorksheetInfo) {
+          dispatch({
+            type: 'UPDATE_TABLE_STATE',
+            value: { error: _l('没有可查询内容') },
+          });
+        }
+
         return;
       }
     } else {
@@ -369,6 +372,7 @@ export function init() {
       }
 
       relateWorksheetInfo = res.worksheet;
+      if (!relateWorksheetInfo) return;
       const { addedRecordIds, deletedRecordIds, isDeleteAll } = get(getState(), 'changes');
 
       if (isEmpty(addedRecordIds) && isEmpty(deletedRecordIds) && !isDeleteAll) {

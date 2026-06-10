@@ -120,6 +120,9 @@ const PrintContentBox = props => {
         });
         setControlProcessedMap(nextControlMap);
       })
+      .catch(() => {
+        setControlProcessedMap(nextControlMap);
+      })
       .finally(() => {
         setLoading(false);
         updateShowPrintAndSaveButtons(true);

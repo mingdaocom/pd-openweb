@@ -347,6 +347,9 @@ function RecordForm(props) {
   const TopCon = isSplit ? ScrollView : Div;
 
   function scrollToTable() {
+    // 标签页设置在顶部时，切换标签页不滚动（避免内容跳动）
+    if (_.get(widgetStyle, 'tabposition') === '2') return;
+
     const $recordInfoFormScroll = $(recordForm.current).find('.recordInfoFormScroll');
     const $relateRecordBlockCon = $(recordForm.current).find('.relateRecordBlockCon');
 

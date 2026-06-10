@@ -1,9 +1,11 @@
 import React, { Component, createRef, Fragment, useEffect, useState } from 'react';
+import copy from 'copy-to-clipboard';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Dialog, Icon, Input, Textarea } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import projectEncryptAjax from 'src/api/projectEncrypt';
+import { handleMask } from 'src/pages/Admin/util';
 import AddEditRulesDialog from './AddEditRulesDialog';
 import { encryptList } from './constant';
 
@@ -39,22 +41,6 @@ const Wrap = styled.div`
 `;
 
 const errors = { 0: _l('保存失败'), 3: _l('名称重复'), 21: _l('Key无效'), 22: _l('IV无效') };
-
-const handleMask = (val, isMask) => {
-  if (!val) return;
-  if (!isMask) return val;
-
-  let arr = val.split('');
-  let result = arr.map((it, index) => {
-    if (arr.length > 15 && (index < 4 || index > arr.length - 5)) {
-      return it;
-    }
-
-    return '*';
-  });
-
-  return result.join('');
-};
 
 function EditBaseInfo(props) {
   const { visible, onCancel, ruleDetail = {}, projectId, getDetail = () => {}, updateCurrentRow = () => {} } = props;
@@ -195,23 +181,41 @@ export default class EncryptBaseInfo extends Component {
         </div>
         {ruleDetail.type == 1000 ? (
           <Fragment>
-            <div>加密请求地址</div>
+            <div>{_l('加密请求地址')}</div>
             <div className="Gray mBottom30">
               {handleMask(ruleDetail.encryptUrl, maskEncryptUrl)}
-              <Tooltip title={maskIv ? _l('解码') : _l('掩码')}>
+              <Tooltip title={maskEncryptUrl ? _l('解码') : _l('掩码')}>
                 <i
                   className={`icon Font14 textDisabled mLeft10 ${maskEncryptUrl ? 'icon-eye_off' : 'icon-eye'}`}
                   onClick={() => this.setState({ maskEncryptUrl: !maskEncryptUrl })}
                 ></i>
               </Tooltip>
+              <Tooltip title={_l('复制')}>
+                <i
+                  className="icon icon-content_copy Font14 textDisabled mLeft10 pointer"
+                  onClick={() => {
+                    copy(ruleDetail.encryptUrl);
+                    alert(_l('复制成功'), 1);
+                  }}
+                ></i>
+              </Tooltip>
             </div>
-            <div>解密请求地址</div>
+            <div>{_l('解密请求地址')}</div>
             <div className="Gray mBottom30">
               {handleMask(ruleDetail.decryptUrl, maskDecryptUrl)}
               <Tooltip title={maskDecryptUrl ? _l('解码') : _l('掩码')}>
                 <i
                   className={`icon Font14 textDisabled mLeft10 ${maskDecryptUrl ? 'icon-eye_off' : 'icon-eye'}`}
                   onClick={() => this.setState({ maskDecryptUrl: !maskDecryptUrl })}
+                ></i>
+              </Tooltip>
+              <Tooltip title={_l('复制')}>
+                <i
+                  className="icon icon-content_copy Font14 textDisabled mLeft10 pointer"
+                  onClick={() => {
+                    copy(ruleDetail.decryptUrl);
+                    alert(_l('复制成功'), 1);
+                  }}
                 ></i>
               </Tooltip>
             </div>
@@ -224,6 +228,15 @@ export default class EncryptBaseInfo extends Component {
                     <i
                       className={`icon Font14 textDisabled mLeft10 ${maskToken ? 'icon-eye_off' : 'icon-eye'}`}
                       onClick={() => this.setState({ maskToken: !maskToken })}
+                    ></i>
+                  </Tooltip>
+                  <Tooltip title={_l('复制')}>
+                    <i
+                      className="icon icon-content_copy Font14 textDisabled mLeft10 pointer"
+                      onClick={() => {
+                        copy(ruleDetail.token);
+                        alert(_l('复制成功'), 1);
+                      }}
                     ></i>
                   </Tooltip>
                 </Fragment>
@@ -243,6 +256,15 @@ export default class EncryptBaseInfo extends Component {
                   onClick={() => this.setState({ maskKey: !maskKey })}
                 ></i>
               </Tooltip>
+              <Tooltip title={_l('复制')}>
+                <i
+                  className="icon icon-content_copy Font14 textDisabled mLeft10 pointer"
+                  onClick={() => {
+                    copy(ruleDetail.key);
+                    alert(_l('复制成功'), 1);
+                  }}
+                ></i>
+              </Tooltip>
             </div>
             <div>IV</div>
             <div className="Gray mBottom30">
@@ -251,6 +273,15 @@ export default class EncryptBaseInfo extends Component {
                 <i
                   className={`icon Font14 textDisabled mLeft10 ${maskIv ? 'icon-eye_off' : 'icon-eye'}`}
                   onClick={() => this.setState({ maskIv: !maskIv })}
+                ></i>
+              </Tooltip>
+              <Tooltip title={_l('复制')}>
+                <i
+                  className="icon icon-content_copy Font14 textDisabled mLeft10 pointer"
+                  onClick={() => {
+                    copy(ruleDetail.iv);
+                    alert(_l('复制成功'), 1);
+                  }}
                 ></i>
               </Tooltip>
             </div>

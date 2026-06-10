@@ -308,7 +308,7 @@ function SheetHeader(props) {
               placement="bottomLeft"
               overlayClassName="sheetDescPopoverOverlay"
               content={
-                <div className="popoverContent" style={{ maxHeight: document.body.clientHeight / 2 }}>
+                <div className="popoverContent" style={{ maxHeight: (document.body?.clientHeight || window.innerHeight) / 2 }}>
                   <RichText
                     data={getTranslateInfo(appId, null, worksheetId).description || desc || ''}
                     disabled={true}

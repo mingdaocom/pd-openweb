@@ -91,7 +91,7 @@ gulp.task('clean-build', done => {
   done();
 });
 
-const blackWordList = ['http://hart-dev.com', 'batheticrecords.com', 'http://developer.yahoo.com/yui/license.html'];
+const blackWordList = ['http://hart-dev.com', 'batheticrecords.com', 'http://developer.yahoo.com/yui/license.html', 'http://tybenz.com'];
 
 gulp.task('editCode', () => {
   return gulp

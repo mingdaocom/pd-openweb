@@ -205,6 +205,7 @@ export async function fetchFilterData({ worksheetId, filterId, setWorksheetContr
 }
 
 export const getControlIcon = control => {
+  if (!control) return '';
   const type = control.type === 30 ? control.sourceControlType : control.type;
 
   return getIconByType(type);

@@ -96,7 +96,7 @@ const TYPELIST = [_l('手机邀请'), _l('邮箱邀请')];
 
 function AddUserByTelDialog(props) {
   const { appId, show, setAddUserByTelDialog, getUserList, roleList, registerMode = {} } = props;
-  const roleId = props.roleId || roleList.find(o => o.isDefault).roleId;
+  const roleId = props.roleId || (roleList.find(o => o.isDefault) || roleList[0])?.roleId;
   const [loading, setLoading] = useState(false); //
   const [list, setList] = useState([{ phone: '', name: '', roleId: roleId }]);
   const [isSendMsgs, setIsSend] = useState(true); //

@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { Popup } from 'antd-mobile';
 import cx from 'classnames';
 import _ from 'lodash';
@@ -58,28 +58,39 @@ export default function MoreAction(props) {
     dealMarked = () => {},
     dealViewHideNavi = () => {},
   } = props;
-  const [roleEntryVisible, setRoleEntryVisible] = useState(true);
+  const hasManagePermission = canEditData(detail.permissionType) || canEditApp(detail.permissionType, detail.isLock);
+  const [roleEntryVisible, setRoleEntryVisible] = useState(hasManagePermission);
   const [languageVisible, setLanguageVisible] = useState(false);
   const [appLangs, setAppLangs] = useState([]);
   const [langList, setLangList] = useState({});
   const [originalLang, setOriginalLang] = useState('');
+  const currentAppIdRef = useRef(detail.id);
+  const appInfoPromiseRef = useRef();
+  const roleSettingPromiseRef = useRef();
+  const langListPromiseRef = useRef();
 
   const handleLanguageClose = () => {
     setLanguageVisible(false);
   };
 
-  const loadLangList = _appLangs => {
-    if (!_.isEmpty(langList)) return;
-    fixedDataApi
+  const loadLangList = (_appLangs = [], _originalLang = originalLang) => {
+    const langCodes = _appLangs
+      .map(n => n.langCode)
+      .concat(_originalLang)
+      .filter(n => n);
+
+    if (_.isEmpty(langCodes) || langListPromiseRef.current) return;
+
+    const currentAppId = detail.id;
+    langListPromiseRef.current = fixedDataApi
       .loadLangList({
-        langCodes: _appLangs
-          .map(n => n.langCode)
-          .concat(originalLang)
-          .filter(n => n),
+        langCodes,
       })
       .then(list => {
-        setLangList(list);
-      });
+        if (currentAppIdRef.current !== currentAppId) return;
+        setLangList(list || {});
+      })
+      .catch(() => {});
   };
 
   const handleSetLang = value => {
@@ -121,54 +132,66 @@ export default function MoreAction(props) {
       });
   };
 
-  const getAppLangs = new Promise(resolve => {
-    appManagementApi
-      .getAppLangs({
-        appId: detail.id,
-        projectId: detail.projectId,
-      })
-      .then(data => {
-        resolve(data || []);
-      });
-  });
-
-  const getOriginLang = new Promise(resolve => {
-    homeApi
-      .getApp({
-        appId: detail.id,
-      })
-      .then((data = {}) => {
-        resolve(data.originalLang || '');
-      });
-  });
-
   const getAppInfo = () => {
-    Promise.all([getAppLangs, getOriginLang]).then(values => {
+    if (!detail.id || appInfoPromiseRef.current) return;
+
+    const currentAppId = detail.id;
+    appInfoPromiseRef.current = Promise.all([
+      appManagementApi
+        .getAppLangs({
+          appId: detail.id,
+          projectId: detail.projectId,
+        })
+        .then(data => data || [])
+        .catch(() => []),
+      homeApi
+        .getApp({
+          appId: detail.id,
+        })
+        .then((data = {}) => data.originalLang || '')
+        .catch(() => ''),
+    ]).then(values => {
+      if (currentAppIdRef.current !== currentAppId) return;
       const [_appLangs, _originLang] = values;
       setAppLangs(_appLangs);
       setOriginalLang(_originLang);
-      loadLangList(_appLangs);
+      loadLangList(_appLangs, _originLang);
     });
   };
 
   useEffect(() => {
-    if (visible) {
-      if (!canEditData(detail.permissionType) && !canEditApp(detail.permissionType, detail.isLock)) {
-        appManagementApi
-          .getAppRoleSetting({
-            appId: detail.id,
-          })
-          .then(data => {
-            const { appSettingsEnum } = data;
-            setRoleEntryVisible(appSettingsEnum === 1);
-          });
-      }
+    currentAppIdRef.current = detail.id;
+    appInfoPromiseRef.current = null;
+    roleSettingPromiseRef.current = null;
+    langListPromiseRef.current = null;
+    setRoleEntryVisible(hasManagePermission);
+    setLanguageVisible(false);
+    setAppLangs([]);
+    setLangList({});
+    setOriginalLang('');
+  }, [detail.id]);
 
-      if (!appLangs.length) {
-        getAppInfo();
-      }
+  useEffect(() => {
+    if (!visible || !detail.id) return;
+
+    if (hasManagePermission) {
+      setRoleEntryVisible(true);
+    } else if (!roleSettingPromiseRef.current) {
+      const currentAppId = detail.id;
+      roleSettingPromiseRef.current = appManagementApi
+        .getAppRoleSetting({
+          appId: detail.id,
+        })
+        .then((data = {}) => {
+          if (currentAppIdRef.current !== currentAppId) return;
+          const { appSettingsEnum } = data;
+          setRoleEntryVisible(appSettingsEnum === 1);
+        })
+        .catch(() => {});
     }
-  }, [visible]);
+
+    getAppInfo();
+  }, [visible, detail.id, detail.projectId, detail.permissionType, detail.isLock, hasManagePermission]);
 
   return (
     <Fragment>

@@ -516,6 +516,7 @@ export default function OnlySyncStep(props) {
   };
 
   const onChangeSheet = sheet => {
+    if (!sheet) return;
     const initMapping = getInitFieldsMapping(
       _.get(sourceFields, [currentTab.db, currentTab.table, 'fields']) || [],
       isSourceAppType,

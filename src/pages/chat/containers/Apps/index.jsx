@@ -134,6 +134,8 @@ const Apps = props => {
   }, []);
 
   useEffect(() => {
+    if (typeof ResizeObserver === 'undefined') return;
+
     const resizeObserver = new ResizeObserver(() => {
       if (appsWrap.current) {
         setAppShowCount(getShowAppsCount(_.get(appsWrap.current, 'clientHeight') || 0));

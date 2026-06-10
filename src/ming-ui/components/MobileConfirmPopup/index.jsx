@@ -66,7 +66,7 @@ const PopupWrap = styled(Popup)`
       color: var(--color-white);
     }
     .delete {
-      background-color: var(--color-error);
+      background-color: var(--color-error) !important;
       color: var(--color-white);
     }
   }

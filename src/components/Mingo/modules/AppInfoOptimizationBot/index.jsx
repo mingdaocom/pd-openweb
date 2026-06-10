@@ -12,6 +12,7 @@ import { AI_FEATURE_TYPE } from 'src/utils/enum';
 import MessageList from '../../ChatBot/components/MessageList';
 import ResponseError from '../../ChatBot/components/ResponseError';
 import Send from '../../ChatBot/components/Send';
+import { getUploadFileTooltip } from '../../ChatBot/enum';
 import AppOptimizationComp from './AppOptimizationComp';
 import Recommend from './Recommend';
 import { ConfigPanel } from './Recommend';
@@ -316,9 +317,7 @@ function MingoContent(props, ref) {
               { title: 'image', extensions: 'jpg,jpeg,png,heic' },
               { title: 'office', extensions: 'pdf,doc,docx,xls,xlsx,txt' },
             ]}
-            uploadFileToolTip={_l(
-              '文件数量：最多5个\n文件大小：单个文件不超过10M\n总字数：所有文档的总字数最多50k，超出自动忽略\n文件格式：PDF / TXT / Word / Excel / 图片',
-            )}
+            uploadFileToolTip={getUploadFileTooltip()}
             isChatting={isChatting}
             loading={loading}
             isRequesting={isRequesting}

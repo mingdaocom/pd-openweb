@@ -325,7 +325,7 @@ class AppHome extends React.Component {
   renderCollectAppList = () => {
     const { myPlatformData, myPlatformLang } = this.props;
     let { markedAppItems = [] } = myPlatformData;
-    markedAppItems = markedAppItems.filter(o => o && !o.webMobileDisplay);
+    markedAppItems = markedAppItems.filter(o => o && !(window.isMingDaoApp ? o.appDisplay : o.webMobileDisplay));
     if (_.isEmpty(markedAppItems)) return;
 
     return (
@@ -368,7 +368,7 @@ class AppHome extends React.Component {
       .filter(_.identity);
 
     if (_.isEmpty(recentAppIds) && _.isEmpty(recentAppItems)) return;
-    let list = recentType === 'app' ? recentApps.filter(o => o && !o.webMobileDisplay) : recentAppItems;
+    let list = recentType === 'app' ? recentApps.filter(o => o && !(window.isMingDaoApp ? o.appDisplay : o.webMobileDisplay)) : recentAppItems;
     list = _.isEmpty(list)
       ? list
       : list.concat([{ id: 'empty' }, { id: 'empty' }, { id: 'empty' }, { id: 'empty' }, { id: 'empty' }]);

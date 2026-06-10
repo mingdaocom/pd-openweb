@@ -483,7 +483,7 @@ export default class extends Component {
 
           if (_.isNumber(rightValue)) {
             const { dot } = _.find(rightY.yaxisList, { controlId: id }) || {};
-            const labelValue = formatrChartValue(rightValue, false, newRightYaxisList, value ? undefined : id);
+            const labelValue = formatrChartValue(rightValue, false, newRightYaxisList, rightValue ? undefined : id);
 
             if (accumulatePerPile) {
               return {
