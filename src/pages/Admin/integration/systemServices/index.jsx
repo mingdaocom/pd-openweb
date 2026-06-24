@@ -170,7 +170,7 @@ class SystemServices extends Component {
     if (this.state.authLoading) return;
 
     // 私有部署非平台版
-    if (window.platformENV.isLocal && !window.platformENV.isPlatform) {
+    if ((window.platformENV.isLocal || window.platformENV.isOverseas) && !window.platformENV.isPlatform) {
       this.setState({ privateAuthDialogVisible: true });
       return;
     }

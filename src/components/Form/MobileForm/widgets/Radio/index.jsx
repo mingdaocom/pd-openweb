@@ -9,10 +9,11 @@ import OtherInput from '../Checkbox/OtherInput';
 
 const RadioWidget = props => {
   const { disabled, value, advancedSetting = {}, enumDefault2, options, vertical } = props;
-  const { direction = '2' } = advancedSetting;
+  const { direction = '2', readonlyshowall } = advancedSetting;
   const { checkIds } = getCheckAndOther(value);
+  const readOnlyShow = readonlyshowall === '1' && disabled ? true : !disabled;
   const displayOptions = options.filter(
-    item => !item.isDeleted && (_.includes(checkIds, item.key) || (!item.hide && !disabled)),
+    item => !item.isDeleted && (_.includes(checkIds, item.key) || (!item.hide && readOnlyShow)),
   );
 
   const renderItem = (item, checkIds) => {

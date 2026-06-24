@@ -66,11 +66,11 @@ class Header extends Component {
       if (openType === OPEN_TYPE.slide) {
         afterUpdateTaskStatus(source, status, isAll);
 
-        source.tasks.forEach(item => {
+        (source.tasks || []).forEach(item => {
           afterUpdateTaskDateInfo(item.taskId, item.startTime, item.deadline, item.actualStartTime, item.completedTime);
         });
 
-        const ids = source.taskIDs.map(id => {
+        const ids = (source.taskIDs || []).map(id => {
           return {
             taskId: id,
           };

@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Checkbox, Dropdown, LoadDiv, RadioGroup } from 'ming-ui';
@@ -199,10 +199,7 @@ export default class AccountChart extends React.Component {
                   className="systemSettingsZone textPrimary"
                   border
                   value={this.state.map}
-                  data={[
-                    { text: _l('高德地图'), value: 0 },
-                    { text: _l('Google地图'), value: 1 },
-                  ]}
+                  data={this.state.mapList}
                   onChange={value => {
                     this.sureSettings('map', value, () => {
                       this.setState({ map: value });

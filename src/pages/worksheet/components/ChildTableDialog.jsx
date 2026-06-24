@@ -2,7 +2,7 @@
 import { useKey } from 'react-use';
 import cx from 'classnames';
 import _, { get, includes } from 'lodash';
-import styled from 'styled-components';
+import styled, { createGlobalStyle } from 'styled-components';
 import { Button, Dialog, Modal } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import functionWrap from 'ming-ui/components/FunctionWrap';
@@ -108,6 +108,15 @@ const Content = styled.div`
   }
 `;
 
+// 子表从记录详情打开全屏时，弹窗顶部留出 115px，使遮罩后的「记录已修改」提示条可见
+const FULL_SCREEN_TOP_OFFSET = 115;
+const FullScreenTopOffsetStyle = createGlobalStyle`
+  .mdModal.childTableFromRecordFullScreen {
+    height: calc(100% - ${FULL_SCREEN_TOP_OFFSET}px) !important;
+    vertical-align: bottom !important;
+  }
+`;
+
 function hasNoRelationRelateControl(controls) {
   return !!_.find(controls, c => c.type === 29 && _.isEmpty(c.relationControls));
 }
@@ -144,7 +153,7 @@ export default function ChildTableDialog(props) {
   const [refreshFlag, setRefreshFlag] = useState(Math.random());
   const [value, setValue] = useState({});
   const [isSaving, setIsSaving] = useState(false);
-  const conHeight = window.innerHeight - 32 - 50;
+  const conHeight = window.innerHeight - 32 - 50 - (callFromDialog ? FULL_SCREEN_TOP_OFFSET : 0);
   const maxHeight = conHeight - 31 - 36 - 10;
   const maxShowRowCount = Math.floor((maxHeight - 30 - 40) / rowHeight);
   const width = window.innerWidth - 32 * 2 > 1600 ? 1600 : window.innerWidth - 32 * 2;
@@ -233,25 +242,49 @@ export default function ChildTableDialog(props) {
       type="fixed"
       verticalAlign="bottom"
       width={width}
+      className={cx({ childTableFromRecordFullScreen: callFromDialog && isFullScreen })}
       closeIcon={<span />}
       bodyStyle={{ padding: 0, position: 'relative' }}
       fullScreen={isFullScreen}
       onCancel={onClose}
     >
+      {callFromDialog && isFullScreen && <FullScreenTopOffsetStyle />}
       <Con>
         <Header>
-          <div className="inner flexRow">
+          <div className="inner flexRow flexCenter">
             <div className="main ellipsis" title={control.controlName}>
               {control.controlName}
             </div>
             <div className="flex"></div>
+            {openFrom === 'cell' && changed && (
+              <Fragment>
+                <Button
+                  loading={isSaving}
+                  className="mRight20 flex-shrink-0"
+                  onClick={() => {
+                    handleSave();
+                    // try {
+                    //   if (includes(['input', 'textarea'], document.activeElement.tagName.toLowerCase())) {
+                    //     document.activeElement.blur();
+                    //     document.querySelector('.recordInfoForm').dispatchEvent(new MouseEvent('mousedown'));
+                    //   }
+                    // } catch (err) {
+                    //   console.error(err);
+                    // }
+                    // setTimeout(handleSave, window.cellTextIsBlurring ? 2000 : 0);
+                  }}
+                >
+                  {_l('保存')}
+                </Button>
+              </Fragment>
+            )}
             <Tooltip
               title={isFullScreen ? _l('退出') : _l('全屏')}
               shortcut={window.isMacOs ? '⌘/' : 'Ctrl+/'}
               placement="bottom"
             >
               <IconBtn
-                className="mRight10 ThemeHoverColor3"
+                className="ThemeHoverColor3"
                 onClick={() => {
                   if (callFromDialog) {
                     onClose();
@@ -290,29 +323,6 @@ export default function ChildTableDialog(props) {
               </Tooltip>
             )}
           </div>
-          {openFrom === 'cell' && changed && (
-            <Fragment>
-              <div className="flex"></div>
-              <Button
-                loading={isSaving}
-                className="mRight35 flex-shrink-0"
-                onClick={() => {
-                  handleSave();
-                  // try {
-                  //   if (includes(['input', 'textarea'], document.activeElement.tagName.toLowerCase())) {
-                  //     document.activeElement.blur();
-                  //     document.querySelector('.recordInfoForm').dispatchEvent(new MouseEvent('mousedown'));
-                  //   }
-                  // } catch (err) {
-                  //   console.error(err);
-                  // }
-                  // setTimeout(handleSave, window.cellTextIsBlurring ? 2000 : 0);
-                }}
-              >
-                {_l('保存')}
-              </Button>
-            </Fragment>
-          )}
         </Header>
         <Content>
           <ChildTable

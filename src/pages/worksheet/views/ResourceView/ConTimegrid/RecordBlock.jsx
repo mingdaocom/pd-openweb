@@ -14,6 +14,8 @@ import { handleRecordClick } from 'src/utils/record';
 import { lineHeight, timeWidth, timeWidthHalf, types } from '../config';
 import { getTops } from '../util';
 
+const CLICK_MOVE_THRESHOLD = 3;
+
 const Wrap = styled.div`
   cursor: ${props => (props.dragDisable ? 'auto' : 'grab')};
   max-width: ${props => props.maxWidth}px;
@@ -75,6 +77,7 @@ const Wrap = styled.div`
 
 export default function RecordBlock(props) {
   const $ref = useRef(null);
+  const needRefresh = useRef(false);
   const {
     worksheetInfo,
     appId,
@@ -119,21 +122,20 @@ export default function RecordBlock(props) {
   }, []);
   const onQueryChange = () => {
     handleReplaceState('page', 'recordDetail', () => setState({ recordInfoVisible: false }));
-    refresh();
+    if (needRefresh.current) {
+      needRefresh.current = false;
+      refresh();
+    }
   };
 
   const handleMouseDown = event => {
-    if (!window.isCanvasTime) {
-      return;
-    }
-
     event.stopPropagation();
     const allList = getTops(resourceDataByKey);
     const { left, before, after, top } = props.row;
     const x = event.clientX;
     const y = event.clientY;
-    let changValue = null;
-    let changValueY = null;
+    let changValue = 0;
+    let changValueY = 0;
     let newKey = null;
 
     document.onmousemove = event => {
@@ -154,11 +156,13 @@ export default function RecordBlock(props) {
     };
 
     document.onmouseup = () => {
+      const moveX = changValue || 0;
+      const moveY = changValueY || 0;
       $ref.current.style.transform = 'none';
       $ref.current.style.zIndex = 0;
-      if (Math.abs(changValue) <= 0 && Math.abs(changValueY) <= 0) {
+      if (Math.abs(moveX) <= CLICK_MOVE_THRESHOLD && Math.abs(moveY) <= CLICK_MOVE_THRESHOLD) {
         handleRecordClick(view, props.row, () => {
-          $ref.current.style.top = `${top + changValueY}px`;
+          $ref.current.style.top = `${top}px`;
           if (window.isMingDaoApp && (!window.shareState.shareId || window.APP_OPEN_NEW_PAGE)) {
             window.location.href = `/mobile/record/${appId}/${worksheetId}/${viewId}/${props.row.rowid}`;
             return;
@@ -171,17 +175,17 @@ export default function RecordBlock(props) {
         document.onmouseup = null;
       } else {
         if ((before || after) && !!newKey && newKey !== keyForGroup) {
-          $ref.current.style.top = `${top + changValueY}px`;
+          $ref.current.style.top = `${top + moveY}px`;
           handleUpdateRecordTime(null, null, newKey);
         } else {
-          const start = Math.round((left + changValue) / oneWidth);
+          const start = Math.round((left + moveX) / oneWidth);
           let startTime = moment(gridTimes[start <= 0 ? 0 : start].date).format('YYYY-MM-DD HH:mm');
           let endTime = moment(moment(startTime).add(row.diff)).format('YYYY-MM-DD HH:mm');
-          $ref.current.style.left = `${left + changValue}px`;
+          $ref.current.style.left = `${left + moveX}px`;
           if (resourceDataByKey.length <= 1 || !newKey || newKey === keyForGroup) {
-            Math.abs(changValue) > 0 && handleUpdateRecordTime(startTime, endTime);
+            Math.abs(moveX) > CLICK_MOVE_THRESHOLD && handleUpdateRecordTime(startTime, endTime);
           } else {
-            $ref.current.style.top = `${top + changValueY}px`;
+            $ref.current.style.top = `${top + moveY}px`;
             !!newKey && newKey !== keyForGroup && handleUpdateRecordTime(startTime, endTime, newKey);
           }
         }
@@ -379,7 +383,13 @@ export default function RecordBlock(props) {
             hideRecordInfo={() => {
               setState({ recordInfoVisible: false });
               emitter.emit('ROWS_UPDATE');
-              refresh();
+              if (needRefresh.current) {
+                needRefresh.current = false;
+                refresh();
+              }
+            }}
+            updateSuccess={() => {
+              needRefresh.current = true;
             }}
             recordId={props.row.rowid}
             worksheetId={worksheetId}

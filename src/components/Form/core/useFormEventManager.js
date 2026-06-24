@@ -340,7 +340,7 @@ export const useFormEventManager = ({ containerRef, stateRef, from, disabledTabs
           e.target.closest('.MDMap') ||
           e.target.closest('.UploadFilesTriggerPanel') ||
           e.target.closest('.ant-picker-dropdown') ||
-          e.target.className.includes('ant-picker') ||
+          e.target.classList.contains('ant-picker') ||
           (activeData.type === 14 && document.querySelector('.folderSelectDialog')) ||
           e.target.closest('.CityPickerPanelTrigger'))
       ) {

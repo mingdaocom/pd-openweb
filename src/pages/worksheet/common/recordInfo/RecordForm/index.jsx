@@ -543,7 +543,8 @@ function RecordForm(props) {
                   <StickyBar
                     className="stickyBar"
                     onClick={() => {
-                      recordForm.current.querySelector('.recordInfoFormScroll > div').scrollTop = 0;
+                      const scrollEl = recordForm.current.querySelector('.recordInfoFormScroll > div');
+                      if (scrollEl) scrollEl.scrollTop = 0;
                       // 左右布局时，回到顶部同时，跳转第一个标签页
                       if (tabHeaderControl) {
                         handleSectionClick();

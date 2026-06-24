@@ -17,6 +17,8 @@ const EmbedWrap = styled.div`
     ${props => (props.viewType === VIEW_DISPLAY_TYPE.sheet && !isPublicLink() ? '' : `height: ${props.height}px;`)}
     &.chartPadding {
       padding: 8px 16px 16px;
+      position: relative;
+      z-index: 1;
     }
     .SingleViewHeader.mobile {
       display: none !important;

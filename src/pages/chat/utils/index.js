@@ -106,7 +106,7 @@ export const sortSession = (sessions, value, messageListShowType = md.global.Acc
  * @param {*} sessionList
  */
 export const formatSessionList = sessionList => {
-  sessionList = sessionList.filter(item => item);
+  sessionList = (Array.isArray(sessionList) ? sessionList : []).filter(item => item);
   return sessionList.map(item => {
     return formatSession(item);
   });

@@ -25,6 +25,7 @@ export const getEmbedValue = (embedData = {}, id) => {
 };
 
 export const compareWithTime = (start, end, type) => {
+  if (!start || !end) return false;
   const startTime = parseInt(start.split(':')[0]) * 60 + parseInt(start.split(':')[1]);
   const endTime = parseInt(end.split(':')[0]) * 60 + parseInt(end.split(':')[1]);
 

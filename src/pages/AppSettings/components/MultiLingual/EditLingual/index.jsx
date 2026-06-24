@@ -219,12 +219,15 @@ export default function Edit(props) {
             </Select.Option>
             {langs
               .filter(data => data.langCode !== langInfo.langCode)
-              .map(data => (
-                <Select.Option key={data.id} value={data.id}>
-                  {_.find(allLangList, { langCode: data.langCode })[currentLangKey]}(
-                  {_.find(allLangList, { langCode: data.langCode }).localLang})
-                </Select.Option>
-              ))}
+              .map(data => {
+                const langItem = _.find(allLangList, { langCode: data.langCode });
+                if (!langItem) return null;
+                return (
+                  <Select.Option key={data.id} value={data.id}>
+                    {langItem[currentLangKey]}({langItem.localLang})
+                  </Select.Option>
+                );
+              })}
           </Select>
         </div>
       </div>

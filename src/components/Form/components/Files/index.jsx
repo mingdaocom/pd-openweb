@@ -1,4 +1,4 @@
-import React, { Fragment, useContext, useEffect, useRef, useState } from 'react';
+import React, { Fragment, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { ConfigProvider } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
@@ -91,6 +91,7 @@ const renderSortableItem = props => {
       browse: isKc ? !!data.shareUrl : true,
       fileClassName: getClassNameByExt(data.attachmentType === 5 ? false : data.ext),
       fileSize: formatFileSize(data.filesize),
+      isUrlPreview: window.platformENV.isLocal && ['.HEIC', '.HEIF'].includes(data.ext.toLocaleUpperCase()),
       isMore:
         (fileProps.wpsEditUrl ||
           allowShare ||
@@ -108,6 +109,7 @@ const renderSortableItem = props => {
       fileClassName: getClassNameByExt(data.fileExt),
       isPicture: RegExpValidator.fileIsPicture(data.fileExt),
       fileSize: formatFileSize(data.fileSize),
+      isUrlPreview: window.platformENV.isLocal && ['.HEIC', '.HEIF'].includes(data.fileExt.toLocaleUpperCase()),
       url: data.previewUrl || data.url || '',
     });
   }
@@ -198,7 +200,9 @@ const Files = props => {
   const { attachmentData, onChangeAttachmentData } = props;
   const { knowledgeAtts, onChangeKnowledgeAtts } = props;
   const { attachments, onChangeAttachments, from } = props;
-  const allAttachments = attachments.concat(knowledgeAtts).concat(attachmentData);
+  const allAttachments = useMemo(() => {
+    return sortFiles(attachments.concat(knowledgeAtts).concat(attachmentData));
+  }, [attachments, knowledgeAtts, attachmentData]);
   const [sortAllAttachments, setSortAllAttachments] = useState(allAttachments);
   const [viewMoreVisible, setViewMoreVisible] = useState(false);
   const [viewMore, setViewMore] = useState(props.viewMore);
@@ -220,38 +224,42 @@ const Files = props => {
     ) === WIDGETS_TO_API_TYPE_ENUM.SUB_LIST;
 
   useEffect(() => {
-    const allAttachments = attachments.concat(knowledgeAtts).concat(attachmentData);
-    setSortAllAttachments(sortFiles(allAttachments));
-    if (isLargeImageCard) {
-      const imageAttachments = sortAllAttachments.filter(filterImageAttachments);
+    const frame = requestAnimationFrame(() => {
+      setSortAllAttachments(allAttachments);
 
-      if (props.viewMore && imageAttachments.length > showLineCount) {
-        setViewMoreVisible(true);
-      }
-    } else {
-      const current = _.get(ref, 'current') || {};
+      if (isLargeImageCard) {
+        const imageAttachments = allAttachments.filter(filterImageAttachments);
 
-      if (_.isFunction(current.getContainer) && current.getContainer()) {
-        const el = current.getContainer();
-        const { clientHeight, clientWidth } = el.querySelector('.attachmentFilesWrap');
-
-        if (props.viewMore) {
-          setViewMore(true);
-          setViewMoreVisible(clientHeight > el.clientHeight);
-        }
-
-        if (!isMobile && clientWidth && ['1'].includes(showType)) {
-          setSmallSize(clientWidth <= 160);
-        }
-
-        if (!isMobile && clientWidth && ['2', '3'].includes(showType)) {
-          setSmallSize(clientWidth <= 300);
+        if (props.viewMore && imageAttachments.length > showLineCount) {
+          setViewMoreVisible(true);
         }
       } else {
-        props.viewMore && setViewMore(false);
+        const current = _.get(ref, 'current') || {};
+
+        if (_.isFunction(current.getContainer) && current.getContainer()) {
+          const el = current.getContainer();
+          const { clientHeight, clientWidth } = el.querySelector('.attachmentFilesWrap');
+
+          if (props.viewMore) {
+            setViewMore(true);
+            setViewMoreVisible(clientHeight > el.clientHeight);
+          }
+
+          if (!isMobile && clientWidth && ['1'].includes(showType)) {
+            setSmallSize(clientWidth <= 160);
+          }
+
+          if (!isMobile && clientWidth && ['2', '3'].includes(showType)) {
+            setSmallSize(clientWidth <= 300);
+          }
+        } else {
+          props.viewMore && setViewMore(false);
+        }
       }
-    }
-  }, [attachments, knowledgeAtts, flag]);
+    });
+
+    return () => cancelAnimationFrame(frame);
+  }, [allAttachments, flag, isLargeImageCard, props.viewMore, showLineCount, showType]);
 
   useEffect(() => {
     return () => {
@@ -428,11 +436,7 @@ const Files = props => {
     const res = attachments.map(item => {
       return {
         name: `${item.originalFileName || _l('未命名')}${item.fileExt}`,
-        path: item.previewUrl
-          ? `${item.previewUrl}`
-          : item.url
-            ? `${item.url}${item.url.includes('?') ? '&' : '?'}imageView2/1/w/200/h/140`
-            : `${item.serverName}${item.key}`,
+        path: item.previewUrl ? `${item.previewUrl}` : item.url ? item.url : `${item.serverName}${item.key}`,
         previewAttachmentType: 'QINIU',
         size: item.fileSize,
         fileid: item.fileID,

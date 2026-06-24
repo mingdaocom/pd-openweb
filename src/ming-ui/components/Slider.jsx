@@ -23,7 +23,7 @@ const Con = styled.div`
   padding-left: 7px;
   padding-right: 7px;
   user-select: none;
-  ${({ hasScale }) => (hasScale ? 'padding-bottom: 20px;' : '')}
+  ${({ hasScale }) => (hasScale ? 'padding-bottom: 44px;' : '')}
   ${({ isMobile }) => (isMobile ? 'padding-left: 0px;' : '')}
 `;
 const Bar = styled.div`
@@ -93,36 +93,19 @@ const ScalePoint = styled.span`
 `;
 
 const ScaleTextWrap = styled.div`
-  display: flex;
-  overflow: hidden;
-  width: ${({ total }) => `${total}%`};
+  position: absolute;
+  left: 0;
+  top: 100%;
+  width: 100%;
+  height: 30px;
   .contentItem {
-    flex: 1;
-    text-align: center;
-    transform: translateX(-50%);
-    &:first-child {
-      text-align: right;
-      .scaleText {
-        text-align: left;
-        width: 50%;
-      }
-    }
-    &:last-child {
-      text-align: left;
-      .scaleText {
-        text-align: right;
-        width: 50%;
-      }
-    }
-    .scaleText {
-      display: inline-block;
-      user-select: none;
-      margin: 10px 0 0 1px;
-      white-space: pre-wrap;
-      word-wrap: break-word;
-      word-break: break-word;
-      overflow: visible;
-    }
+    position: absolute;
+    top: 10px;
+    user-select: none;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    word-break: break-word;
+    overflow: visible;
   }
 `;
 
@@ -290,17 +273,21 @@ export default function Slider(props) {
   const scalePoints = useMemo(
     () =>
       (itemnames || [])
-        .map(c => ({
-          percent: Math.ceil((Number(c.key * (showAsPercent ? 100 : 1) - min) / (max - min)) * 100),
-          value: Number(c.key),
-          text: c.value,
-        }))
+        .map(c => {
+          const value = Number(c.key);
+          const normalizedValue = value * (showAsPercent ? 100 : 1);
+          return {
+            percent: Math.ceil(((normalizedValue - min) / (max - min)) * 100),
+            value,
+            normalizedValue,
+            text: c.value,
+          };
+        })
         .filter(c => _.isNumber(c.value) && !_.isNaN(c.value) && !_.isUndefined(c.text)),
-    [itemnames],
+    [itemnames, max, min, showAsPercent],
   );
-  let data = scalePoints.filter(scale => scale.value >= min && scale.value <= max);
-  const hasMin = _.findIndex(data, v => v.value === min) !== -1;
-  const scalePointsLength = hasMin ? data.length : data.length + 1;
+  let data = scalePoints.filter(scale => scale.normalizedValue >= min && scale.normalizedValue <= max);
+  const hasMin = _.findIndex(data, v => v.normalizedValue === min) !== -1;
   data = hasMin ? data : [{ text: '' }].concat(data);
 
   let valuePercent = Math.ceil(((_.isUndefined(value) ? 0 : value - min) / (max - min)) * 100);
@@ -452,9 +439,10 @@ export default function Slider(props) {
         <Content ref={contentRef} style={{ width: `${valuePercent}%`, backgroundColor: color }} />
         {showScale &&
           scalePoints
-            .filter(scale => scale.value >= min && scale.value <= max)
+            .filter(scale => scale.normalizedValue >= min && scale.normalizedValue <= max)
             .map((scale, i) => (
               <ScalePointClick
+                key={`${scale.normalizedValue}-${i}`}
                 style={{
                   left: `calc(${scale.percent}% - 4px)`,
                   cursor: disabled ? 'default' : 'pointer',
@@ -463,18 +451,17 @@ export default function Slider(props) {
                   disabled
                     ? _.noop
                     : e => {
-                        updateValue(scale.value * (showAsPercent ? 100 : 1), true);
+                        updateValue(scale.normalizedValue, true);
                         e.stopPropagation();
                       }
                 }
               >
                 <Tooltip
-                  title={showTip ? <span>{scale.value}</span> : undefined}
+                  title={showTip ? <span>{scale.normalizedValue + (showAsPercent ? '%' : '')}</span> : undefined}
                   placement={tipDirection || 'top'}
                   align={{ offset: [0, -2] }}
                 >
                   <ScalePoint
-                    key={i}
                     className={'scale'}
                     value={scale.value}
                     color={scale.percent < valuePercent ? color : 'var(--color-background-disabled)'}
@@ -484,19 +471,63 @@ export default function Slider(props) {
               </ScalePointClick>
             ))}
         {showScale && showScaleText && (
-          <ScaleTextWrap total={(100 / (scalePointsLength - 1)) * scalePointsLength}>
-            {data.map(scale => (
-              <div className="contentItem">
-                <span
-                  className="scaleText"
+          <ScaleTextWrap>
+            {data.map((scale, index) => {
+              const getPercent = target => {
+                if (!target || !_.isNumber(target.percent)) return 0;
+                if (target.percent < 0) return 0;
+                if (target.percent > 100) return 100;
+                return target.percent;
+              };
+
+              const percent = getPercent(scale);
+              const prevPercent = getPercent(data[index - 1]);
+              const nextPercent = getPercent(data[index + 1]);
+              const isFirst = percent <= 0 || index === 0;
+              const isLast = percent >= 100 || index === data.length - 1;
+              const leftBoundaryPercent = isFirst ? 0 : (prevPercent + percent) / 2;
+              const rightBoundaryPercent = isLast ? 100 : (percent + nextPercent) / 2;
+              const slotGapPercent = 1.6;
+              const adjustedLeftBoundaryPercent = leftBoundaryPercent + (isFirst ? 0 : slotGapPercent);
+              const adjustedRightBoundaryPercent = rightBoundaryPercent - (isLast ? 0 : slotGapPercent);
+              const textWidthPercent = (() => {
+                if (isFirst) {
+                  return Math.max(adjustedRightBoundaryPercent, 4);
+                }
+
+                if (isLast) {
+                  return Math.max(100 - adjustedLeftBoundaryPercent, 4);
+                }
+
+                const safeWidth = Math.min(
+                  percent - adjustedLeftBoundaryPercent,
+                  adjustedRightBoundaryPercent - percent,
+                );
+                return Math.max(safeWidth * 2, 4);
+              })();
+              const textLeftPercent = isFirst ? 0 : isLast ? 100 : percent;
+              const textTransform = isFirst ? 'translateX(0)' : isLast ? 'translateX(-100%)' : 'translateX(-50%)';
+              const textAlign = isFirst ? 'left' : isLast ? 'right' : 'center';
+              return (
+                <div
+                  key={`${scale.normalizedValue || 'min'}-${index}`}
+                  className={`contentItem${isFirst ? ' first' : ''}${isLast ? ' last' : ''}`}
                   style={{
-                    color: valuePercent < scale.percent ? 'var(--color-text-tertiary)' : 'var(--color-text-title)',
+                    left: `${textLeftPercent}%`,
+                    width: `${textWidthPercent}%`,
+                    maxWidth: `${textWidthPercent}%`,
+                    transform: textTransform,
+                    textAlign,
+                    color:
+                      _.isNumber(scale.percent) && valuePercent < scale.percent
+                        ? 'var(--color-text-tertiary)'
+                        : 'var(--color-text-title)',
                   }}
                 >
                   {scale.text}
-                </span>
-              </div>
-            ))}
+                </div>
+              );
+            })}
           </ScaleTextWrap>
         )}
 

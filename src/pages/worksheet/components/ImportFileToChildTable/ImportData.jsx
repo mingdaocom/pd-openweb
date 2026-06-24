@@ -247,7 +247,7 @@ function PasteEdit(props) {
   const [data = [], setData] = useState(
     new Array(11).fill(undefined).map(() => new Array(controls.length).fill(undefined)),
   );
-  const valuedData = data.filter(row => !_.isEmpty(row.filter(_.identity)));
+  const valuedData = data.filter(row => row && !_.isEmpty(row.filter(_.identity)));
   const ctrlChar = window.isMacOs ? 'Command' : 'Ctrl';
   const updateCellDataByIndex = useCallback(
     (index, value) => {

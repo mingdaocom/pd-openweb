@@ -458,9 +458,21 @@ class RowData {
     const { controlId, value } = changes;
     this.formData.updateDataSource({ controlId, value });
     let updatedControlIds = this.formData.controlIds.concat('rowid');
-    updatedControlIds = updatedControlIds.concat(
-      controls.filter(c => includes([30, 31, 32], c.type) && includes(c.dataSource, controlId)).map(c => c.controlId),
-    );
+    // 收集受异步赋值影响的派生字段（他表字段30/公式31/文本组合32），需包含传递依赖：
+    // 例如「关联字段 -> 数值字段 -> 公式字段」中公式并未直接引用关联字段，单跳过滤会漏掉，导致界面不实时计算
+    const affectedIds = new Set([controlId, ...this.formData.controlIds]);
+    const derivedControls = controls.filter(c => includes([30, 31, 32], c.type));
+    let hasNewAffected = true;
+    while (hasNewAffected) {
+      hasNewAffected = false;
+      derivedControls.forEach(c => {
+        if (!affectedIds.has(c.controlId) && [...affectedIds].some(id => includes(c.dataSource, id))) {
+          affectedIds.add(c.controlId);
+          updatedControlIds.push(c.controlId);
+          hasNewAffected = true;
+        }
+      });
+    }
     updateRow(pick(this.getRow(), updatedControlIds));
   }
   getRow() {

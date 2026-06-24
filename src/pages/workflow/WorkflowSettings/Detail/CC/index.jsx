@@ -386,7 +386,7 @@ export default class CC extends Component {
   getWorksheetInfo(worksheetId) {
     worksheet.getWorksheetInfo({ worksheetId, getViews: true }).then(data => {
       if (data.resultCode === 1) {
-        this.setState({ views: data.views });
+        this.setState({ views: data.views || [] });
       }
     });
   }

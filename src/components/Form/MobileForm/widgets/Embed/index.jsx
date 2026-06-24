@@ -22,6 +22,8 @@ const EmbedWrap = styled.div`
       props.isMobileView ? `height: ${props.height}px;position: absolute; transform: translate(0px, 0px);` : ''}
     &.chartPadding {
       padding: 8px 16px 16px;
+      position: relative;
+      z-index: 1;
     }
     .SingleViewHeader.mobile {
       display: none !important;

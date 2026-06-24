@@ -1618,6 +1618,7 @@ export default class GeneraSelect extends Component {
 
   renderHead() {
     const { keywords } = this.state;
+    const { showTabs = [] } = this.userSettings;
     return (
       <Fragment>
         <div className="GSelect-head-searchArea">
@@ -1630,7 +1631,11 @@ export default class GeneraSelect extends Component {
             ref={searchInput => {
               this._searchInput = searchInput;
             }}
-            placeholder={this.checkIsProject() ? _l('搜索用户 / 部门 / 群组') : _l('搜索用户')}
+            placeholder={
+              this.checkIsProject() && !_.includes(showTabs, 'structureUsers')
+                ? _l('搜索用户 / 部门 / 群组')
+                : _l('搜索用户')
+            }
           />
           {keywords && (
             <div className="GSelect-head-searchArea--deleteIcon">

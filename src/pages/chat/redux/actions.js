@@ -1147,7 +1147,7 @@ export const updateMessage = message => (dispatch, getState) => {
 
         // 图片消息，替换 url
         if (socket && socket.msg.files) {
-          item.msg.files.url = socket.msg.files.url;
+          item.msg.files = socket.msg.files;
         }
       }
 

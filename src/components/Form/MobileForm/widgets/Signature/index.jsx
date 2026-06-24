@@ -86,7 +86,7 @@ const Signature = props => {
     canvas.height = height;
     canvas.getContext('2d');
     signaturePad.current = new SignaturePad.default(canvas, {
-      penColor: '#9e9e9e',
+      penColor: '#151515',
       onBegin: () => setIsEdit(true),
     });
 
@@ -346,7 +346,13 @@ const Signature = props => {
 
   // 只读
   if (disabled) {
-    return <div className="cardWrap" onClick={preview} style={{ height: '130px', backgroundImage: `url(${value})` }} />;
+    return (
+      <div
+        className="cardWrap signatureCard"
+        onClick={preview}
+        style={{ height: '130px', backgroundImage: `url(${value})` }}
+      />
+    );
   }
 
   if (onlySignature) {
@@ -357,7 +363,7 @@ const Signature = props => {
     <Fragment>
       {value ? (
         <div
-          className="cardWrap"
+          className="cardWrap signatureCard"
           onClick={e => {
             value && preview(e);
             e.nativeEvent.stopImmediatePropagation();

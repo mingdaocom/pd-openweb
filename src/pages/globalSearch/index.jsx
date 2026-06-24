@@ -169,7 +169,7 @@ export default class GlobalSearch extends Component {
       pageIndex,
     };
 
-    if (dateRange && dateRange.key !== 'clear') {
+    if (dateRange && dateRange.key !== 'clear' && dateRange.value) {
       searchParam.startDate = moment(dateRange.value[0]).format('YYYY-MM-DD');
       searchParam.endDate = moment(dateRange.value[1]).format('YYYY-MM-DD');
     }

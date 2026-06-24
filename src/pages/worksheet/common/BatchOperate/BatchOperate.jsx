@@ -22,6 +22,7 @@ import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import Buttons from 'src/pages/worksheet/common/recordInfo/RecordForm/CustomButtonsAutoWidth';
 import { emitter, getFilledRequestParams } from 'src/utils/common';
 import { checkCellIsEmpty } from 'src/utils/control';
+import { formatQuickFilter } from 'src/utils/filter';
 import { handleRecordError } from 'src/utils/record';
 import { replaceBtnsTranslateInfo } from 'src/utils/translate';
 import { getGroupControlId } from 'src/utils/worksheet';
@@ -706,19 +707,7 @@ class BatchOperate extends React.Component {
 
                       if (args.isAll) {
                         args.excludeRowIds = selectedRows.map(item => item.rowid);
-                        args.fastFilters = (quickFilter || []).map(f =>
-                          _.pick(f, [
-                            'controlId',
-                            'dataType',
-                            'spliceType',
-                            'filterType',
-                            'dateRange',
-                            'value',
-                            'values',
-                            'minValue',
-                            'maxValue',
-                          ]),
-                        );
+                        args.fastFilters = formatQuickFilter(_.isArray(quickFilter) ? quickFilter : []);
                         args.navGroupFilters = navGroupFilters;
                         args.filterControls = filters.filterControls;
                         args.filtersGroup = filters.filtersGroup;

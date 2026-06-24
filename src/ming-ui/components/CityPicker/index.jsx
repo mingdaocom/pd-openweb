@@ -184,6 +184,14 @@ export default function CityPicker(props) {
     return citys;
   };
 
+  const isParticularlyCityChild = item => {
+    const id = String(_.get(item, 'id') || '');
+
+    if (level !== 2 || !/^\d{6}$/.test(id) || particularlyCity.includes(id)) return false;
+
+    return particularlyCity.some(cityId => id.startsWith(cityId.slice(0, 2)));
+  };
+
   const getAllPathCitysByID = () => {
     if (loadingId) return;
 
@@ -248,7 +256,9 @@ export default function CityPicker(props) {
       })
       .then(res => {
         setLoadingId(false);
-        keywords ? setData(res.citys) : setData(data.slice(0, key).concat([getSortCitys(res.citys)]));
+        keywords
+          ? setData((res.citys || []).filter(item => !isParticularlyCityChild(item)))
+          : setData(data.slice(0, key).concat([getSortCitys(res.citys)]));
       });
   };
 

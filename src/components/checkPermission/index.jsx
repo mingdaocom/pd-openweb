@@ -18,7 +18,7 @@ const setCacheData = (projectId, data, version) => {
 //获取权限版本
 const syncGetVersion = projectId => {
   try {
-    const data = versionApi.getVersion({ moduleType: 50, sourceId: projectId }, { ajaxOptions: { sync: true } });
+    const data = versionApi.getVersion({ moduleType: 50, sourceId: projectId }, { ajaxOptions: { sync: true }, silent: true });
     return data ? data.version : '';
   } catch {
     return '';
@@ -79,7 +79,7 @@ export const getMyPermissions = (projectId, isSync = true) => {
     });
   }
 
-  const res = roleApi.getMyPermissions({ projectId }, { ajaxOptions: { sync: true } });
+  const res = roleApi.getMyPermissions({ projectId }, { ajaxOptions: { sync: true }, silent: true });
 
   setCacheData(projectId, res.permissionIds, version);
 

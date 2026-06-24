@@ -945,6 +945,7 @@ export const getCaretPosition = ctrl => {
  * 设置光标位置
  */
 export const setCaretPosition = (ctrl, caretPos) => {
+  if (!ctrl) return;
   if (ctrl.createTextRange) {
     let range = ctrl.createTextRange();
     range.move('character', caretPos);

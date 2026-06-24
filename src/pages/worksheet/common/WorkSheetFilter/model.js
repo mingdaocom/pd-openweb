@@ -319,7 +319,7 @@ export function createActions(dispatch) {
 export function createReducer(state = {}, action) {
   function updateWithLastAction(oldState, updates) {
     if (_.isEmpty(updates)) return oldState;
-    return update(oldState, { ...updates, lastAction: { $set: action.type + Date.now() } });
+    return update(oldState || {}, { ...updates, lastAction: { $set: action.type + Date.now() } });
   }
 
   switch (action.type) {
@@ -349,15 +349,19 @@ export function createReducer(state = {}, action) {
         needSave: { $set: !_.get(action, 'value.name') },
         nameIsUpdated: { $set: !!_.get(action, 'value.name') },
         editingFilterVersion: { $set: Math.random() },
-        editingFilter: { $merge: action.value },
+        editingFilter: {
+          $apply: filter => ({ ...(filter || {}), ...action.value }),
+        },
       });
     case 'ADD_CONDITION':
+      if (!state.editingFilter) return state;
       return updateWithLastAction(state, {
         needSave: { $set: true },
         editingFilterVersion: { $set: Math.random() },
         editingFilter: { conditionsGroups: { [action.groupIndex]: { conditions: { $push: [action.condition] } } } },
       });
     case 'UPDATE_CONDITION':
+      if (!state.editingFilter) return state;
       return updateWithLastAction(state, {
         needSave: { $set: true },
         editingFilterVersion: { $set: Math.random() },
@@ -374,6 +378,7 @@ export function createReducer(state = {}, action) {
         },
       });
     case 'UPDATE_CONDITIONS_GROUP':
+      if (!state.editingFilter) return state;
       return updateWithLastAction(state, {
         needSave: { $set: true },
         editingFilterVersion: { $set: Math.random() },
@@ -395,6 +400,7 @@ export function createReducer(state = {}, action) {
         },
       });
     case 'DELETE_CONDITION':
+      if (!state.editingFilter) return state;
       return updateWithLastAction(state, {
         needSave: { $set: true },
         editingFilterVersion: { $set: Math.random() },
@@ -403,6 +409,7 @@ export function createReducer(state = {}, action) {
         },
       });
     case 'DELETE_CONDITIONS_GROUP':
+      if (!state.editingFilter) return state;
       return updateWithLastAction(state, {
         needSave: { $set: true },
         editingFilterVersion: { $set: Math.random() },
@@ -411,6 +418,7 @@ export function createReducer(state = {}, action) {
         },
       });
     case 'CLEAR_CONDITIONS':
+      if (!state.editingFilter) return state;
       return updateWithLastAction(state, {
         needSave: { $set: true },
         editingFilterVersion: { $set: Math.random() },
@@ -425,12 +433,14 @@ export function createReducer(state = {}, action) {
         loading: { $set: action.value },
       });
     case 'ADD_GROUP':
+      if (!state.editingFilter) return state;
       return updateWithLastAction(state, {
         needSave: { $set: true },
         editingFilterVersion: { $set: Math.random() },
         editingFilter: { isGroup: { $set: true }, conditionsGroups: { $push: [action.group] } },
       });
     case 'DELETE_GROUP':
+      if (!state.editingFilter) return state;
       return updateWithLastAction(state, {
         needSave: { $set: true },
         editingFilterVersion: { $set: Math.random() },

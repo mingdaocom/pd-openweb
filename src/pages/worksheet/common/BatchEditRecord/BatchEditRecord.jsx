@@ -133,12 +133,12 @@ export default function BatchEditRecord(props) {
       .map(row => row.rowid);
 
     if (!allWorksheetIsSelected && hasAuthRowIds.length === 0) {
-      alert(_l('无权限修改选择的%0', worksheetInfo.entityName), 2);
+      alert(_l('无权限修改选择的%0', worksheetInfo?.entityName), 2);
       return false;
     }
 
     if (hasError) {
-      alert(_l('请正确填写%0', worksheetInfo.entityName), 3);
+      alert(_l('请正确填写%0', worksheetInfo?.entityName), 3);
       return false;
     }
 
@@ -231,7 +231,7 @@ export default function BatchEditRecord(props) {
       },
       setIsUpdating,
     });
-  }, [selectedControls, refCache]);
+  }, [selectedControls, refCache, worksheetInfo]);
   useEffect(() => {
     if (activeControl) {
       setSelectedControls(prev => [

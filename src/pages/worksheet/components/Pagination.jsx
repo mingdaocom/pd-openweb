@@ -215,7 +215,7 @@ export default class Pagination extends React.Component {
               isAppendToBody
               border
               value={pageSize}
-              renderTitle={selected => _l('%0行', selected.text)}
+              renderTitle={selected => _l('%0行', selected ? selected.text : pageSize)}
               data={pageSizeNums}
               onChange={changePageSize}
             />

@@ -79,7 +79,7 @@ export default ({
         border
         renderTitle={() => (
           <Fragment>
-            {USER_TASK_NULL_TYPE.find(o => o.value === userTaskNullType).text}
+            {(USER_TASK_NULL_TYPE.find(o => o.value === userTaskNullType) || {}).text}
             {userTaskNullType === 2 && (
               <Tooltip
                 title={_l(

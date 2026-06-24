@@ -217,7 +217,8 @@ export function formatControlToServer(
   switch (control.type) {
     case 10:
     case 11:
-      let options = JSON.parse(result.value || '[]');
+      let options = safeParse(result.value, 'array');
+      if (!Array.isArray(options)) options = [];
 
       options.forEach((item, i) => {
         if ((item || '').indexOf('add_') > -1) {
@@ -766,7 +767,14 @@ export const dealUserRange = (control = {}, data = [], masterData = {}) => {
 
 // 加载第三方集成 SDK
 export function loadSDK() {
-  const isWx = window.isWeiXin && !window.platformENV.isOverseas && !window.platformENV.isLocal && !window.isWxWork;
+  const isIOS = window.isIphone || window.isIPad || window.navigator.userAgent.toLowerCase().includes('ipod');
+  const isDesktopMac = window.isMacOs && !isIOS;
+  const isWx =
+    window.isWeiXin &&
+    !isDesktopMac &&
+    !window.platformENV.isOverseas &&
+    !window.platformENV.isLocal &&
+    !window.isWxWork;
 
   if (window.isDingTalk && !window.dd) {
     loadScript('https://g.alicdn.com/dingding/dingtalk-jsapi/2.6.41/dingtalk.open.js');

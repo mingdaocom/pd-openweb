@@ -77,6 +77,7 @@ const DesktopForm = props => {
           id={id}
           key={id}
           data-instance-id={formItemId}
+          data-control-type={item.type}
         >
           {item.type === 22 && _.includes([FROM.H5_ADD, FROM.H5_EDIT], from) && (
             <div className="relative" style={{ height: 10 }}>

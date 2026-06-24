@@ -94,7 +94,7 @@ export default class Signature extends React.Component {
     return (
       <div className="cellAttachment cellAttachmentSignature ellipsis Hand" style={{ height: rowHeight - 10 }}>
         <img
-          style={{ height: rowHeight - 10 }}
+          style={{ height: rowHeight - 10, backgroundColor: '#ffffff' }}
           crossOrigin="anonymous"
           className="thumbnail"
           role="presentation"

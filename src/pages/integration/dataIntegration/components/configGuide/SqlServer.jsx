@@ -1,16 +1,47 @@
 import React, { useState } from 'react';
 import accountAuth from './images/accountAuth.png';
+import accountAuthEn from './images/accountAuth_en.png';
 import createAdminAccount from './images/createAdminAccount.png';
+import createAdminAccountEn from './images/createAdminAccount_en.png';
 import enableAuth from './images/enableAuth.png';
+import enableAuthEn from './images/enableAuth_en.png';
 import enableCDC from './images/enableCDC.png';
+import enableCDCEn from './images/enableCDC_en.png';
 import queryAgentState from './images/queryAgentState.png';
+import queryAgentStateEn from './images/queryAgentState_en.png';
 import restartDb from './images/restartDb.png';
+import restartDbEn from './images/restartDb_en.png';
 import startAgent from './images/startAgent.png';
+import startAgentEn from './images/startAgent_en.png';
 import './index.less';
+
+const GUIDE_IMAGES = {
+  zh: {
+    accountAuth,
+    startAgent,
+    restartDb,
+    queryAgentState,
+    createAdminAccount,
+    enableCDC,
+    enableAuth,
+  },
+  en: {
+    accountAuth: accountAuthEn,
+    startAgent: startAgentEn,
+    restartDb: restartDbEn,
+    queryAgentState: queryAgentStateEn,
+    createAdminAccount: createAdminAccountEn,
+    enableCDC: enableCDCEn,
+    enableAuth: enableAuthEn,
+  },
+};
+
+const CHINESE_LANGS = ['zh-Hans', 'zh-Hant'];
 
 export default function SqlServerGuide(props) {
   const { type } = props;
   const [currentPic, setCurrentPic] = useState('');
+  const guideImages = CHINESE_LANGS.includes(window.getCurrentLang()) ? GUIDE_IMAGES.zh : GUIDE_IMAGES.en;
 
   return type === 'source' ? (
     <div className="guideWrapper">
@@ -54,7 +85,13 @@ export default function SqlServerGuide(props) {
 
         <h5>{_l('SQLServer账号的权限说明')}</h5>
         <p>{_l('只有开启数据库CDC才需要sysadmin权限，其余场景下无需sysadmin权限。')}</p>
-        <img id="accountAuth" src={accountAuth} onClick={() => setCurrentPic('accountAuth')} />
+        <img
+          id="accountAuth"
+          src={guideImages.accountAuth}
+          loading="lazy"
+          decoding="async"
+          onClick={() => setCurrentPic('accountAuth')}
+        />
         <p>TIPS：{_l('如使用数据库读写权限创建同步任务，需在创建数据源的时候必须指定数据库')}</p>
 
         <h5>{_l('创建专用用户并授权')}</h5>
@@ -105,11 +142,29 @@ export default function SqlServerGuide(props) {
           <div>EXEC master.dbo.xp_servicecontrol N'STOP', N'SQLSERVERAGENT'</div>
         </div>
         <p className="subTitle">{_l('3. Windows 环境操作开启 CDC agent，点击下图位置代理开启：')}</p>
-        <img id="startAgent" src={startAgent} onClick={() => setCurrentPic('startAgent')} />
+        <img
+          id="startAgent"
+          src={guideImages.startAgent}
+          loading="lazy"
+          decoding="async"
+          onClick={() => setCurrentPic('startAgent')}
+        />
         <p>{_l('重新启动数据库')}</p>
-        <img id="restartDb" src={restartDb} onClick={() => setCurrentPic('restartDb')} />
+        <img
+          id="restartDb"
+          src={guideImages.restartDb}
+          loading="lazy"
+          decoding="async"
+          onClick={() => setCurrentPic('restartDb')}
+        />
         <p>{_l('再次查询Agent 状态，确认状态变更为Running')}</p>
-        <img id="queryAgentState" src={queryAgentState} onClick={() => setCurrentPic('queryAgentState')} />
+        <img
+          id="queryAgentState"
+          src={guideImages.queryAgentState}
+          loading="lazy"
+          decoding="async"
+          onClick={() => setCurrentPic('queryAgentState')}
+        />
         <p>
           {_l('参考微软官方文档关于')}
           <a
@@ -130,11 +185,24 @@ export default function SqlServerGuide(props) {
           </a>
         </p>
         <p className="subTitle">{_l('1. 创建账号，如需要开启数据库CDC，则需要权限为 System Admin')}</p>
-        <img id="createAdminAccount" src={createAdminAccount} onClick={() => setCurrentPic('createAdminAccount')} />
+        <img
+          id="createAdminAccount"
+          src={guideImages.createAdminAccount}
+          loading="lazy"
+          decoding="async"
+          onClick={() => setCurrentPic('createAdminAccount')}
+        />
         <p className="subTitle">{_l('2. 腾讯云如何开启数据库的CDC')}</p>
         <p>{_l('路径：实例列表-数据库管理-其他-「开启/关闭数据库变更数据库捕获」')}</p>
         <p>{_l('这里只能开启 数据库的CDC，创建表之后 还需要根据表的状态，在确定是否需要开启表的CDC')}</p>
-        <img id="enableCDC" src={enableCDC} className="mBottom10" onClick={() => setCurrentPic('enableCDC')} />
+        <img
+          id="enableCDC"
+          src={guideImages.enableCDC}
+          loading="lazy"
+          decoding="async"
+          className="mBottom10"
+          onClick={() => setCurrentPic('enableCDC')}
+        />
 
         <h5>{_l('阿里云SQLServer')}</h5>
         <p>{_l('这里是关于阿里云上开启CDC的补充，其余部分参考上方配置')}</p>
@@ -151,7 +219,13 @@ export default function SqlServerGuide(props) {
             https://help.aliyun.com/document_detail/170736.html
           </a>
         </p>
-        <img id="enableAuth" src={enableAuth} onClick={() => setCurrentPic('enableAuth')} />
+        <img
+          id="enableAuth"
+          src={guideImages.enableAuth}
+          loading="lazy"
+          decoding="async"
+          onClick={() => setCurrentPic('enableAuth')}
+        />
         <p>
           {_l('更多配置项参考')}
           <a
@@ -190,9 +264,9 @@ export default function SqlServerGuide(props) {
         </div>
       </div>
       {!!currentPic && (
-        <div class="markImg" onClick={() => setCurrentPic('')}>
+        <div className="markImg" onClick={() => setCurrentPic('')}>
           <div className="h100 flexRow alignItemsCenter">
-            <img src={require(`./images/${currentPic}.png`)} />
+            <img src={guideImages[currentPic]} loading="lazy" decoding="async" />
           </div>
         </div>
       )}

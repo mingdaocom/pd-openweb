@@ -163,6 +163,7 @@ const CloudPrint = props => {
           }));
 
           if (!item.systemField?.fields) {
+            if (!item.systemField) item.systemField = {};
             item.systemField.fields = [];
           }
 
@@ -216,10 +217,12 @@ const CloudPrint = props => {
       toControlId: item.toControlId,
       fromTableName: item.fromTableName,
     }));
-    mapData.systemField.fields = mapData.systemField.fields.map(item => ({
-      controlId: item.controlId,
-      controlName: item.controlName,
-    }));
+    if (mapData.systemField?.fields) {
+      mapData.systemField.fields = mapData.systemField.fields.filter(Boolean).map(item => ({
+        controlId: item.controlId,
+        controlName: item.controlName,
+      }));
+    }
 
     if (!mapData.value || !mapData.value.length) {
       alert(_l('请解析并绑定模板字段'), 2);

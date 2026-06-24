@@ -31,7 +31,7 @@ const TileWrap = styled.div`
 
 const CheckboxWidget = props => {
   const { enumDefault2, advancedSetting = {}, value, disabled, options = [], controlName, formDisabled, type } = props;
-  const { checktype, direction, allowadd, showselectall, chooseothertype } = advancedSetting;
+  const { checktype, direction, allowadd, showselectall, chooseothertype, readonlyshowall } = advancedSetting;
   const { checkIds, otherValue } = getCheckAndOther(value);
   const isDropDown = checktype === '1';
 
@@ -126,7 +126,7 @@ const CheckboxWidget = props => {
 
   // 平铺
   const renderTile = checkIds => {
-    const readOnlyShow = !disabled;
+    const readOnlyShow = readonlyshowall === '1' && disabled ? true : !disabled;
     const displayOptions = options.filter(
       item => !item.isDeleted && (_.includes(checkIds, item.key) || (!item.hide && readOnlyShow)),
     );

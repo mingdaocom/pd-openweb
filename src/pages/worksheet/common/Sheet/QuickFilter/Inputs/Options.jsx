@@ -116,7 +116,7 @@ function pickOptions(options, navfilters) {
 }
 
 export default function Options(props) {
-  const { control, advancedSetting = {}, onChange = () => {} } = props;
+  const { control, advancedSetting = {}, onChange = () => {}, viewId } = props;
   const { allowitem, direction, navshow, navfilters, shownullitem, nullitemname } = advancedSetting;
   let { options } = control;
 
@@ -137,6 +137,7 @@ export default function Options(props) {
   }
 
   const multiple = String(allowitem) === '2';
+  const controlKey = `${viewId || ''}-${control.controlId}`;
 
   function handleChange(value) {
     onChange({
@@ -177,6 +178,7 @@ export default function Options(props) {
     return (
       <Con>
         <Dropdown
+          key={controlKey}
           fromFilter
           {...{
             ...control,
@@ -198,6 +200,7 @@ export default function Options(props) {
     return (
       <Con isMultiple>
         <Checkbox
+          key={controlKey}
           {...{
             ...control,
             advancedSetting: { ...control.advancedSetting, checktype: '1', chooseothertype: '0' },
@@ -232,4 +235,5 @@ Options.propTypes = {
   control: shape({}),
   advancedSetting: shape({}),
   onChange: func,
+  viewId: string,
 };

@@ -389,11 +389,14 @@ export default function (options) {
           if (!$(this).val().trim()) {
             $mdUpdaterTextareaUpdater.val(_l('知会工作是一种美德') + '...').addClass('textTertiary');
           }
-        })
-        .autoTextarea({
+        });
+
+      if (typeof $mdUpdaterTextareaUpdater.autoTextarea === 'function') {
+        $mdUpdaterTextareaUpdater.autoTextarea({
           maxHeight: 150,
           minHeight: 72,
         });
+      }
 
       MentionsInput({
         input: mdUpdaterTextareaUpdaterEl,

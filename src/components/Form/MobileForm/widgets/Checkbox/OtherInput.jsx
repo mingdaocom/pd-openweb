@@ -15,7 +15,7 @@ const OtherInputWrap = styled.div`
 `;
 
 const OtherInput = props => {
-  const { isSubList, type, advancedSetting = {}, value, options = {}, className, disabled, fromFilter } = props;
+  const { advancedSetting = {}, value, options = {}, className, disabled, fromFilter } = props;
   const { checkIds, otherValue } = getCheckAndOther(value);
 
   const textareaRef = useRef(null);
@@ -51,9 +51,9 @@ const OtherInput = props => {
 
   if (fromFilter || (disabled && !otherValue)) return null;
 
-  if (checkIds.includes('other') && noDelOptions.find(i => i.key === 'other') && (!isSubList || type !== 10)) {
+  if (checkIds.includes('other') && noDelOptions.find(i => i.key === 'other')) {
     return (
-      <OtherInputWrap className={className}>
+      <OtherInputWrap className={`mTop10 ${className ? className : ''}`}>
         <textarea
           ref={textareaRef}
           maxLength={200}

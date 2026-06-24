@@ -480,7 +480,8 @@ export default class FileComponent extends Component {
     let isPicture = RegExpValidator.fileIsPicture(fileResponse.fileExt);
     let isMDLink = fileResponse.viewType === 5;
     const url = fileResponse.previewUrl || fileResponse.url || '';
-
+    const isUrlPreview =
+      window.platformENV.isLocal && ['.HEIC', '.HEIF'].includes(fileResponse.fileExt.toLocaleUpperCase());
     return isPicture ? (
       <Fragment>
         {isKc ? (
@@ -491,11 +492,13 @@ export default class FileComponent extends Component {
         {this.renderFileImage(
           isKc
             ? fileResponse.viewUrl
-            : `${
-                url.indexOf('imageView2') > -1
-                  ? url.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/1/w/200/h/140')
-                  : url + '&imageView2/1/w/200/h/140'
-              }`,
+            : isUrlPreview
+              ? url
+              : `${
+                  url.indexOf('imageView2') > -1
+                    ? url.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/1/w/200/h/140')
+                    : url + '&imageView2/1/w/200/h/140'
+                }`,
         )}
       </Fragment>
     ) : (

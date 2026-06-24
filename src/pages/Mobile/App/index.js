@@ -286,7 +286,6 @@ class App extends Component {
     const firstSheet = sheetList[0];
 
     if (!firstSheet) {
-      this.state.selectedTab !== 'more' && this.setState({ selectedTab: 'more' });
       return;
     }
 

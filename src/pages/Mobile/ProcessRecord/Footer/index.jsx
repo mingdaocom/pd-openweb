@@ -219,7 +219,8 @@ export default class Footer extends Component {
         ignoreError: isStash,
         ignoreAlert: isStash,
         silent: isStash,
-        ignoreDialog: !_.includes(['submit', 'pass', 'overrule', 'return', 'after'], action),
+        // pass/overrule/return/after 在 handleClick 已预校验，保存时不再弹 newErrorDialog
+        ignoreDialog: _.includes(['pass', 'overrule', 'return', 'after'], action) ? true : action !== 'submit',
       });
     }
   };

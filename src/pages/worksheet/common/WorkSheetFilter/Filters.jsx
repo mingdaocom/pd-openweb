@@ -175,7 +175,7 @@ function Filters(props, ref) {
       setQueryButtonDisabled(true);
     }
 
-    if (filter.id.startsWith('new')) {
+    if (filter && filter.id.startsWith('new')) {
       setActiveFilter();
     }
   }

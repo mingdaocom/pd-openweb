@@ -373,9 +373,9 @@ const CheckboxWidgets = props => {
 
           {renderSelectAll()}
 
-          {noDelOptions.map((item, i) => {
+          {noDelOptions.map(item => {
             return (
-              <Select.Option value={item.key} key={i} className={cx({ isEmpty: item.key === 'isEmpty' })}>
+              <Select.Option value={item.key} key={item.key} className={cx({ isEmpty: item.key === 'isEmpty' })}>
                 {renderList(item, true)}
               </Select.Option>
             );

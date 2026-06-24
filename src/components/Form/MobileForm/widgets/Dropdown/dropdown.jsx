@@ -19,10 +19,12 @@ const OptionsWrap = styled.div`
 
 const Dropdown = props => {
   const { value, disabled, advancedSetting = {}, enumDefault2, options, hint, selectProps = {}, formDisabled } = props;
+  const { readonlyshowall } = advancedSetting;
 
   let noDelOptions = options.filter(item => !item.isDeleted && !item.hide);
   const delOptions = options.filter(item => item.isDeleted || item.hide);
   const { checkIds } = getCheckAndOther(value);
+  const readOnlyShow = readonlyshowall === '1' && disabled;
 
   checkIds.forEach(item => {
     if ((item || '').toString().indexOf('add_') > -1 && !selectProps.noPushAdd_) {
@@ -69,7 +71,9 @@ const Dropdown = props => {
           })}
         >
           <OptionsWrap>
-            {checkIds.length ? (
+            {readOnlyShow ? (
+              noDelOptions.map(item => <div key={item.key}>{renderItem(item)}</div>)
+            ) : checkIds.length ? (
               noDelOptions
                 .concat(delOptions)
                 .filter(item => _.includes(checkIds, item.key))

@@ -349,7 +349,7 @@ export function handleLifeEffect(
   $tableElement.on('mousemove', handleTableMouseMove);
   emitter.addListener('TRIGGER_TABLE_KEYDOWN_' + tableId, handleKeyDown);
   window.addEventListener('keydown', handleKeyDown);
-  document.body.addEventListener('click', handleOuterClick);
+  document.body && document.body.addEventListener('click', handleOuterClick);
   return () => {
     emitter.removeListener('TRIGGER_CHANGE_COLUMN_WIDTH_MASK_' + tableId, showColumnWidthChangeMask);
     $tableElement.off('mouseenter', '.cell:not(.row-id-groupTitle)', handleCellEnter);
@@ -359,7 +359,7 @@ export function handleLifeEffect(
     $tableElement.off('mousemove', handleTableMouseMove);
     window.removeEventListener('keydown', handleKeyDown);
     emitter.removeListener('TRIGGER_TABLE_KEYDOWN_' + tableId, handleKeyDown);
-    document.body.removeEventListener('click', handleOuterClick);
+    document.body && document.body.removeEventListener('click', handleOuterClick);
   };
 }
 

@@ -64,6 +64,11 @@ export function getFormDataForNewRecord({
   writeControls = [],
 }) {
   return new Promise((resolve, reject) => {
+    if (!worksheetInfo?.roleType || !worksheetInfo.allowAdd) {
+      reject(_l('该表已删除或没有权限'));
+      return;
+    }
+
     let controls = _.cloneDeep(worksheetInfo.template.controls);
 
     function handle() {

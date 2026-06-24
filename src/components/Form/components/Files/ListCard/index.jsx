@@ -27,8 +27,10 @@ const ListCard = props => {
     isSubListFile,
   } = props;
   const { onDeleteMDFile, onOpenControlAttachmentInNewTab, onMDPreview, onAttachmentName } = props;
-  const { isKc, browse, fileClassName, fileSize, isDownload } = props;
-  const previewUrl = data.previewUrl.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, `imageView2/2/w/200/h/140`);
+  const { isKc, browse, fileClassName, fileSize, isDownload, isUrlPreview } = props;
+  const previewUrl = isUrlPreview
+    ? data.previewUrl
+    : data.previewUrl.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, `imageView2/2/w/200/h/140`);
   const [dropdownVisible, setDropdownVisible] = useState(false);
   const [deleteConfirmVisible, setDeleteConfirmVisible] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
@@ -43,7 +45,7 @@ const ListCard = props => {
           setIsPicture(false);
         });
     }
-  }, []);
+  }, [isPicture, previewUrl]);
 
   const renderDropdownOverlay = (
     <Menu style={{ width: 150 }} className="Relative">
@@ -231,12 +233,14 @@ const ListCard = props => {
 const NotSaveListCard = props => {
   const { data, isMobile, allowSort } = props;
   const { onDeleteKCFile, onDeleteFile, onResetNameFile, onKCPreview, onPreview } = props;
-  const { isKc, fileClassName, isPicture, fileSize, url } = props;
+  const { isKc, fileClassName, isPicture, fileSize, url, isUrlPreview } = props;
   const previewImageUrl = isKc
     ? data.viewUrl
-    : url.indexOf('imageView2') > -1
-      ? url.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/1/w/200/h/140')
-      : url + `${url.includes('?') ? '&' : '?'}imageView2/1/w/200/h/140`;
+    : isUrlPreview
+      ? url
+      : url.indexOf('imageView2') > -1
+        ? url.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/1/w/200/h/140')
+        : url + `${url.includes('?') ? '&' : '?'}imageView2/1/w/200/h/140`;
   const [isEdit, setIsEdit] = useState(false);
 
   const handlePreview = () => {

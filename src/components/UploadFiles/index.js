@@ -480,6 +480,10 @@ export default class UploadFiles extends Component {
   onMDPreview(id, index) {
     const currentFile = this.state.attachmentData[index];
 
+    if (!currentFile) {
+      return;
+    }
+
     // 如果是文件夹就跳转
     if (currentFile.attachmentType === 5) {
       window.open(currentFile.shareUrl);
@@ -581,11 +585,7 @@ export default class UploadFiles extends Component {
           attachments: quData.map(item => {
             const result = {
               name: `${item.originalFileName || '未命名'}${item.fileExt}`,
-              path: item.previewUrl
-                ? `${item.previewUrl}`
-                : item.url
-                  ? `${item.url}&imageView2/1/w/200/h/140`
-                  : `${item.serverName}${item.key}`,
+              path: item.previewUrl ? `${item.previewUrl}` : item.url ? item.url : `${item.serverName}${item.key}`,
               previewAttachmentType: 'QINIU',
               size: item.fileSize,
               fileid: item.fileID,

@@ -1,5 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import copy from 'copy-to-clipboard';
 import _ from 'lodash';
 import styled from 'styled-components';
 import UserBaseProfile from 'src/components/UserInfoComponents/UserBaseProfile.jsx';
@@ -55,6 +56,18 @@ class InfoTop extends React.PureComponent {
               ''
             )}
           </div>
+          <div>
+            <span
+              className="NoUnderline pointer"
+              onClick={() => {
+                copy(userInfo.accountId);
+                alert(_l('复制成功'));
+              }}
+            >
+              <span className="mLeft10 TxtMiddle icon-ID Font18 ThemeColor4" title={_l('复制用户ID')} />
+              <span className="TxtMiddle Font12 ThemeColor4 pLeft5 mRight30">{_l('复制用户ID')}</span>
+            </span>
+          </div>
           {isMe ? (
             <a className="Right ThemeColor4 Font12" href="/personal?type=information" target="_blank">
               {_l('修改个人设置')}
@@ -63,7 +76,7 @@ class InfoTop extends React.PureComponent {
             <React.Fragment>
               <div className="Left">
                 <a href="javascript:void(0);" className="NoUnderline">
-                  <span className="mLeft10 TxtMiddle icon-replyto Font18 ThemeColor4" title={_l('发送私信')} />
+                  <span className="TxtMiddle icon-replyto Font18 ThemeColor4" title={_l('发送私信')} />
                   <span className="TxtMiddle Font12 ThemeColor4 pLeft5" onClick={sendMessage}>
                     {_l('发送私信')}
                   </span>

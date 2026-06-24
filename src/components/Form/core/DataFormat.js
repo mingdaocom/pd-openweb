@@ -845,7 +845,10 @@ export default class DataFormat {
           // 动态默认值 函数
           if (currentItem.advancedSetting && currentItem.advancedSetting.defaultfunc && currentItem.type !== 30) {
             delete currentItem.advancedSetting.defsource;
-            if (_.get(safeParse(currentItem.advancedSetting.defaultfunc), 'type') === 'javascript') {
+            // 导入且已有值时保留导入值，不被函数默认值覆盖（与动态默认值 defsource 保持一致）
+            if (currentItem.isImportFromExcel && currentItem.value) {
+              value = currentItem.value;
+            } else if (_.get(safeParse(currentItem.advancedSetting.defaultfunc), 'type') === 'javascript') {
               asyncUpdateMdFunction({
                 formData: this.data,
                 fnControl: currentItem,

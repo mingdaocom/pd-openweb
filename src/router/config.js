@@ -1,4 +1,6 @@
-export const ROUTE_CONFIG = {
+import { addSubPathOfRoutes } from 'src/utils/common';
+
+export const ROUTE_CONFIG = addSubPathOfRoutes({
   chatWindow: {
     path: '/chat_window',
     component: () => import('src/pages/chat/detail'),
@@ -290,7 +292,7 @@ export const ROUTE_CONFIG = {
     path: '/app',
     redirect: '/dashboard',
   },
-};
+});
 
 const withoutHeaderPathList = [
   'demo',

@@ -19,7 +19,7 @@ const LargeImageCard = props => {
         setIsError(true);
         setLoading(false);
       });
-  }, []);
+  }, [previewUrl]);
 
   return (
     <div className="attachmentLargeImageCard">
@@ -60,7 +60,7 @@ const LargeImageCard = props => {
 
 export default props => {
   const { data, ...otherProps } = props;
-  const { isMdFile, isKc } = props;
+  const { isMdFile, isKc, isUrlPreview } = props;
   const isPicture = isMdFile
     ? RegExpValidator.fileIsPicture(data.fileExt || data.ext)
     : RegExpValidator.fileIsPicture(data.fileExt);
@@ -71,7 +71,9 @@ export default props => {
 
   if (isMdFile) {
     const { browse, onMDPreview } = props;
-    const previewUrl = data.previewUrl.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, `imageView2/0`);
+    const previewUrl = isUrlPreview
+      ? data.previewUrl
+      : data.previewUrl.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, `imageView2/0`);
     return (
       <LargeImageCard
         {...otherProps}
@@ -86,9 +88,11 @@ export default props => {
     const { url, onKCPreview, onPreview } = props;
     const previewImageUrl = isKc
       ? data.viewUrl
-      : url.indexOf('imageView2') > -1
-        ? url.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/0')
-        : url + `${url.includes('?') ? '&' : '?'}imageView2/0`;
+      : isUrlPreview
+        ? url
+        : url.indexOf('imageView2') > -1
+          ? url.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/0')
+          : url + `${url.includes('?') ? '&' : '?'}imageView2/0`;
     return (
       <LargeImageCard
         {...otherProps}

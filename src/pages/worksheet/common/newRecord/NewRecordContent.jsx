@@ -53,6 +53,7 @@ const EditingBarCon = styled.div`
   overflow: hidden;
   height: 86px;
 `;
+const FOCUS_CONTROL_TYPES = [2, 3, 4, 5, 6, 7, 8];
 
 function checkVisibility(el) {
   return new Promise(resolve => {
@@ -66,18 +67,32 @@ function checkVisibility(el) {
 
 function focusInput(formcon) {
   if (!formcon) return;
-  const isMobile = browserIsMobile();
+  if (browserIsMobile()) return;
 
-  if (isMobile) return;
+  const formItems = [...formcon.querySelectorAll('.customFormItem')].filter(
+    item => !item.querySelector('.customFormNull'),
+  );
 
-  const firstText = formcon.querySelector('.customFormTextareaBox');
+  for (const el of formItems) {
+    const controlType = Number(el.getAttribute('data-control-type'));
 
-  if (firstText) {
-    checkVisibility(firstText).then(isVisible => {
-      if (isVisible) {
-        firstText.click();
-      }
-    });
+    if (!_.includes(FOCUS_CONTROL_TYPES, controlType)) {
+      continue;
+    }
+
+    const focusTarget =
+      el.querySelector('.customFormTextareaBox:not(.customFormReadonly):not(.controlDisabled)') ||
+      el.querySelector('.customFormControlBox.classtabfocus:not(.controlDisabled)') ||
+      el.querySelector('.customFormControlBox:not(.customFormReadonly):not(.controlDisabled)');
+
+    if (focusTarget) {
+      checkVisibility(focusTarget).then(isVisible => {
+        if (isVisible) {
+          focusTarget.click();
+        }
+      });
+      break;
+    }
   }
 }
 
@@ -146,6 +161,7 @@ function NewRecordForm(props) {
   const [originFormdata, setOriginFormdata] = useState([]);
   const [formdata, setFormdata] = useState([]);
   const { projectId, publicShareUrl, visibleType } = worksheetInfo;
+  const [formError, setFormError] = useState();
   const [errorVisible, setErrorVisible] = useState();
   const [random, setRandom] = useState();
   const [requesting, setRequesting] = useState();
@@ -586,14 +602,23 @@ function NewRecordForm(props) {
     async function load() {
       if (_.isEmpty(formdata)) {
         setWorksheetInfo(props.worksheetInfo);
-        let newFormdata = await getFormDataForNewRecord({
-          isCustomButton,
-          worksheetInfo: props.worksheetInfo,
-          defaultRelatedSheet,
-          defaultFormData,
-          defaultFormDataEditable,
-          writeControls,
-        });
+        let newFormdata;
+
+        try {
+          newFormdata = await getFormDataForNewRecord({
+            isCustomButton,
+            worksheetInfo: props.worksheetInfo,
+            defaultRelatedSheet,
+            defaultFormData,
+            defaultFormDataEditable,
+            writeControls,
+          });
+        } catch (err) {
+          setFormError(typeof err === 'string' ? err : _l('该表已删除或没有权限'));
+          setFormLoading(false);
+          cache.current.formLoading = false;
+          return;
+        }
 
         setOriginFormdata(newFormdata);
         cache.current.originFormdata = newFormdata;
@@ -879,125 +904,134 @@ function NewRecordForm(props) {
             />
           )}
           {showTitle && <div className="newRecordTitle ellipsis Font20 mBottom10 Bold">{recordTitle}</div>}
-          <div className="customFieldsCon" ref={formcon}>
-            {(!isMobile || isRenderForm) && (
-              <RecordForm
-                from={2}
-                isDraft={isDraft}
-                isMingoCreate={isMingoCreate}
-                type="new"
-                loading={formLoading || loading || isSettingTempData}
-                recordbase={{
-                  appId,
-                  worksheetId,
-                  viewId,
-                  from,
-                  isCharge,
-                  allowEdit: true,
-                }}
-                sheetSwitchPermit={sheetSwitchPermit}
-                widgetStyle={worksheetInfo.advancedSetting}
-                masterRecordRowId={masterRecordRowId || (masterRecord || {}).rowId}
-                registerCell={({ item, cell }) => (cellObjs.current[item.controlId] = { item, cell })}
-                mountRef={ref => (customwidget.current = ref.current)}
-                formFlag={random}
-                recordinfo={worksheetInfo}
-                formdata={(formdata || []).filter(
-                  it =>
-                    !_.includes(
-                      [
-                        'wfname',
-                        'wfstatus',
-                        'wfcuaids',
-                        'wfrtime',
-                        'wfftime',
-                        'wfdtime',
-                        'wfcaid',
-                        'wfctime',
-                        'wfcotime',
-                        'rowid',
-                        'uaid',
-                      ],
-                      it.controlId,
-                    ),
-                )}
-                relateRecordData={relateRecordData}
-                worksheetId={worksheetId}
-                showError={errorVisible}
-                filledByAiMap={isMobile ? props.mobileFilledByAiMap : filledByAiMap}
-                onChange={(data, ids, { noSaveTemp } = {}) => {
-                  setFilledByAiMap(prev => ({
-                    ...prev,
-                    [ids[0]]: undefined,
-                  }));
-                  if (isSubmitting.current || maskLoading) {
-                    return;
-                  }
+          {formError ? (
+            <div className="flexColumn alignItemsCenter justifyContentCenter h100 textTertiary Font15">{formError}</div>
+          ) : (
+            <div className="customFieldsCon" ref={formcon}>
+              {(!isMobile || isRenderForm) && (
+                <RecordForm
+                  from={2}
+                  isDraft={isDraft}
+                  isMingoCreate={isMingoCreate}
+                  type="new"
+                  loading={formLoading || loading || isSettingTempData}
+                  recordbase={{
+                    appId,
+                    worksheetId,
+                    viewId,
+                    from,
+                    isCharge,
+                    allowEdit: true,
+                  }}
+                  sheetSwitchPermit={sheetSwitchPermit}
+                  widgetStyle={worksheetInfo.advancedSetting}
+                  masterRecordRowId={masterRecordRowId || (masterRecord || {}).rowId}
+                  registerCell={({ item, cell }) => (cellObjs.current[item.controlId] = { item, cell })}
+                  mountRef={ref => (customwidget.current = ref.current)}
+                  formFlag={random}
+                  recordinfo={worksheetInfo}
+                  formdata={(formdata || []).filter(
+                    it =>
+                      !_.includes(
+                        [
+                          'wfname',
+                          'wfstatus',
+                          'wfcuaids',
+                          'wfrtime',
+                          'wfftime',
+                          'wfdtime',
+                          'wfcaid',
+                          'wfctime',
+                          'wfcotime',
+                          'rowid',
+                          'uaid',
+                        ],
+                        it.controlId,
+                      ),
+                  )}
+                  relateRecordData={relateRecordData}
+                  worksheetId={worksheetId}
+                  showError={errorVisible}
+                  filledByAiMap={isMobile ? props.mobileFilledByAiMap : filledByAiMap}
+                  onChange={(data, ids, { noSaveTemp } = {}) => {
+                    setFilledByAiMap(prev => ({
+                      ...prev,
+                      [ids[0]]: undefined,
+                    }));
+                    if (isSubmitting.current || maskLoading) {
+                      return;
+                    }
 
-                  setFormdata([...data]);
-                  if (needCache && !noSaveTemp && cache.current.formUserChanged) {
-                    cache.current.tempSaving = saveTempRecordValueToLocal(
-                      saveKey,
-                      worksheetId,
-                      JSON.stringify({ create_at: Date.now(), value: getRecordTempValue(data, relateRecordData) }),
-                    );
-                  }
-                }}
-                onSave={onSave}
-                onError={() => {
-                  onSubmitEnd();
-                }}
-                onRelateRecordsChange={(control, records) => {
-                  if (!customwidget.current || !customwidget.current.dataFormat) {
-                    return;
-                  }
+                    setFormdata([...data]);
+                    if (needCache && !noSaveTemp && cache.current.formUserChanged) {
+                      cache.current.tempSaving = saveTempRecordValueToLocal(
+                        saveKey,
+                        worksheetId,
+                        JSON.stringify({ create_at: Date.now(), value: getRecordTempValue(data, relateRecordData) }),
+                      );
+                    }
+                  }}
+                  onSave={onSave}
+                  onError={() => {
+                    onSubmitEnd();
+                  }}
+                  onRelateRecordsChange={(control, records) => {
+                    if (!customwidget.current || !customwidget.current.dataFormat) {
+                      return;
+                    }
 
-                  customwidget.current.dataFormat.updateDataSource({
-                    controlId: control.controlId,
-                    value: String((records || []).length),
-                    data: records,
-                  });
-                  customwidget.current.updateRenderData();
-                  setFormdata(
-                    formdata.map(item =>
-                      item.controlId === control.controlId ? { ...item, value: String((records || []).length) } : item,
-                    ),
-                  );
-                  const newRelateRecordData = {
-                    ...relateRecordData,
-                    [control.controlId]: { ...control, value: records },
-                  };
-                  setRelateRecordData(newRelateRecordData);
-                  if (viewId) {
-                    cache.current.tempSaving = saveTempRecordValueToLocal(
-                      'tempNewRecord',
-                      worksheetId,
-                      JSON.stringify({ create_at: Date.now(), value: getRecordTempValue(formdata, relateRecordData) }),
-                    );
-                  }
-                }}
-                updateRelateRecordTableCount={(controlId, num) => {
-                  if (customwidget.current && customwidget.current.dataFormat) {
-                    customwidget.current.dataFormat?.updateDataSource({
-                      controlId,
-                      value: String(num),
+                    customwidget.current.dataFormat.updateDataSource({
+                      controlId: control.controlId,
+                      value: String((records || []).length),
+                      data: records,
                     });
                     customwidget.current.updateRenderData();
-                  }
+                    setFormdata(
+                      formdata.map(item =>
+                        item.controlId === control.controlId
+                          ? { ...item, value: String((records || []).length) }
+                          : item,
+                      ),
+                    );
+                    const newRelateRecordData = {
+                      ...relateRecordData,
+                      [control.controlId]: { ...control, value: records },
+                    };
+                    setRelateRecordData(newRelateRecordData);
+                    if (viewId) {
+                      cache.current.tempSaving = saveTempRecordValueToLocal(
+                        'tempNewRecord',
+                        worksheetId,
+                        JSON.stringify({
+                          create_at: Date.now(),
+                          value: getRecordTempValue(formdata, relateRecordData),
+                        }),
+                      );
+                    }
+                  }}
+                  updateRelateRecordTableCount={(controlId, num) => {
+                    if (customwidget.current && customwidget.current.dataFormat) {
+                      customwidget.current.dataFormat?.updateDataSource({
+                        controlId,
+                        value: String(num),
+                      });
+                      customwidget.current.updateRenderData();
+                    }
 
-                  setFormdata(prevFormData =>
-                    prevFormData.map(item => (item.controlId === controlId ? { ...item, value: String(num) } : item)),
-                  );
-                }}
-                projectId={projectId || props.projectId}
-                onWidgetChange={() => {
-                  onWidgetChange();
-                  cache.current.formUserChanged = true;
-                }}
-                onManualWidgetChange={onManualWidgetChange}
-              />
-            )}
-          </div>
+                    setFormdata(prevFormData =>
+                      prevFormData.map(item => (item.controlId === controlId ? { ...item, value: String(num) } : item)),
+                    );
+                  }}
+                  projectId={projectId || props.projectId}
+                  onWidgetChange={() => {
+                    onWidgetChange();
+                    cache.current.formUserChanged = true;
+                  }}
+                  onManualWidgetChange={onManualWidgetChange}
+                />
+              )}
+            </div>
+          )}
         </RecordCon>
       </Con>
     </RecordInfoContext.Provider>

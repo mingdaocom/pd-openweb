@@ -1,4 +1,4 @@
-import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import React, { forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import { useClickAway } from 'react-use';
 import cx from 'classnames';
 import _, { get, isFunction } from 'lodash';
@@ -375,6 +375,7 @@ function previewAttachment({
 function HoverPreviewPanel(props) {
   const {
     isPicture,
+    shouldUseOriginalPreviewUrl,
     isSubList,
     editable,
     cell = {},
@@ -390,7 +391,7 @@ function HoverPreviewPanel(props) {
   const { originalFilename, ext = '', filesize } = attachment;
   const { controlId, advancedSetting, sourceControlId } = cell;
   const { appId, viewId, worksheetId, recordId, disableDownload } = cellInfo;
-  const [loading, setLoading] = useState(true);
+  const [loadedImageUrl, setLoadedImageUrl] = useState('');
   const allowDelete =
     !(get(window, 'shareState.shareId') && !recordId.startsWith('temp-') && !recordId.startsWith('default-')) &&
     (advancedSetting.allowdelete || '1');
@@ -403,7 +404,11 @@ function HoverPreviewPanel(props) {
     attachment.fileID &&
     attachment.fileID.length === 36 &&
     allowDownload === '1';
-  const imageUrl = attachment.previewUrl.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/2/h/160');
+  const previewUrl = attachment.previewUrl || '';
+  const imageUrl = shouldUseOriginalPreviewUrl
+    ? previewUrl
+    : previewUrl.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/2/h/160');
+  const loading = isPicture && loadedImageUrl !== imageUrl;
   const allowNewPage = recordId && !recordId.startsWith('temp-') && _.isEmpty(window.shareState);
 
   const handleOpenControlAttachmentInNewTab = (fileId, options = {}) => {
@@ -423,14 +428,21 @@ function HoverPreviewPanel(props) {
   };
 
   useEffect(() => {
+    if (!imageUrl) return;
+    let canceled = false;
     const image = new Image();
 
     image.onload = () => {
-      setLoading(false);
+      if (!canceled) {
+        setLoadedImageUrl(imageUrl);
+      }
     };
 
     image.src = imageUrl;
-  }, []);
+    return () => {
+      canceled = true;
+    };
+  }, [imageUrl]);
   function handleDelete() {
     if (isSubList) {
       deleteLocalAttachment(attachment.fileID);
@@ -536,8 +548,10 @@ function AttachmentImage(props) {
 
   const imgRef = useRef();
   useEffect(() => {
+    const image = imgRef.current;
+
     return () => {
-      if (imgRef.current) imgRef.current.src = '';
+      if (image) image.src = '';
     };
   }, []);
   return (
@@ -573,18 +587,18 @@ function Attachment(props) {
   } = props;
   const { appId, recordId, worksheetId, from, masterData = () => {} } = cellInfo;
   const { attachment } = props;
-  const [isPicture, setIsPicture] = useState(RegExpValidator.fileIsPicture(attachment.ext));
-  const smallThumbnailUrl = (attachment.previewUrl || '').replace(
-    /imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/,
-    'imageView2/2/h/' + fileHeight,
-  );
+  const attachmentPreviewKey = `${attachment.fileID || ''}-${attachment.previewUrl || ''}-${attachment.ext || ''}`;
+  const [imageLoadErrorKey, setImageLoadErrorKey] = useState('');
+  const isPicture = RegExpValidator.fileIsPicture(attachment.ext) && imageLoadErrorKey !== attachmentPreviewKey;
+  const shouldUseOriginalPreviewUrl =
+    _.get(window, 'platformENV.isLocal') && ['.HEIC', '.HEIF'].includes((attachment.ext || '').toLocaleUpperCase());
+  const previewUrl = attachment.previewUrl || '';
+  const smallThumbnailUrl = shouldUseOriginalPreviewUrl
+    ? previewUrl
+    : previewUrl.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/2/h/' + fileHeight);
 
   const isSingleFile = attachments.length === 1;
   const clickTimeoutRef = useRef(null);
-
-  useEffect(() => {
-    setIsPicture(RegExpValidator.fileIsPicture(attachment.ext));
-  }, [attachment.ext]);
 
   const handleClick = e => {
     e.stopPropagation();
@@ -694,6 +708,7 @@ function Attachment(props) {
       popup={
         <HoverPreviewPanel
           isPicture={isPicture}
+          shouldUseOriginalPreviewUrl={shouldUseOriginalPreviewUrl}
           isSubList={isSubList}
           editable={editable && !(cell.required && isSingleFile && !isSubList)}
           sheetSwitchPermit={sheetSwitchPermit}
@@ -731,7 +746,7 @@ function Attachment(props) {
             crossOrigin="anonymous"
             role="presentation"
             src={smallThumbnailUrl}
-            onError={() => setIsPicture(false)}
+            onError={() => setImageLoadErrorKey(attachmentPreviewKey)}
             style={{ width: 'auto', height: fileHeight, objectFit }}
           />
         ) : (
@@ -794,8 +809,21 @@ function CellAttachments(props, sourceRef) {
     editable = false;
   }
 
-  const [uploadFileVisible, setUploadFileVisible] = useState(isediting);
-  const [attachments, setAttachments] = useState(parseValue(value));
+  const [uploadFileVisible, setUploadFileVisible] = useState(true);
+  const parsedAttachments = useMemo(() => parseValue(value), [value]);
+  const [attachmentsState, setAttachmentsState] = useState(() => ({
+    value,
+    attachments: parsedAttachments,
+  }));
+  const attachments = attachmentsState.value === value ? attachmentsState.attachments : parsedAttachments;
+
+  const setAttachments = nextAttachments => {
+    setAttachmentsState({
+      value,
+      attachments: nextAttachments,
+    });
+  };
+
   const [temporaryAttachments, setTemporaryAttachments] = useState([]);
   const [temporaryKnowledgeAtts, setTemporaryKnowledgeAtts] = useState([]);
   const showFileValue = _.isUndefined(advancedSetting.showfilename)
@@ -813,6 +841,7 @@ function CellAttachments(props, sourceRef) {
       switch (e.key) {
         case 'Escape':
           updateEditingStatus(false);
+          setUploadFileVisible(true);
           break;
         default:
       }
@@ -835,16 +864,9 @@ function CellAttachments(props, sourceRef) {
       )
     ) {
       updateEditingStatus(false);
-    }
-  });
-  useEffect(() => {
-    if (isediting) {
       setUploadFileVisible(true);
     }
-  }, [isediting]);
-  useEffect(() => {
-    setAttachments(parseValue(value));
-  }, [value]);
+  });
   function handleChange(_attachments) {
     const attachmentList = _attachments || attachments;
     const submitData = {};
@@ -885,6 +907,7 @@ function CellAttachments(props, sourceRef) {
       },
     );
     updateEditingStatus(false);
+    setUploadFileVisible(true);
     setTemporaryAttachments([]);
     setTemporaryKnowledgeAtts([]);
   }

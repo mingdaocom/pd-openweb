@@ -82,6 +82,7 @@ export default class ImportExcel extends React.Component {
         },
         UploadProgress(up, file = {}) {
           const fileList = comp.state.fileList.update(file.id, fileItem => {
+            if (!fileItem) return fileItem;
             fileItem.loaded = file?.loaded;
             fileItem.status = UPLOAD_STATUS.UPLOADING;
             return fileItem;
@@ -94,6 +95,7 @@ export default class ImportExcel extends React.Component {
           const filePaths = comp.state.filePaths.concat();
           filePaths.push({ id: md.global.FileStoreConfig.documentHost + '/' + key, type: 1, name: file.name });
           const fileList = comp.state.fileList.update(file.id, fileItem => {
+            if (!fileItem) return fileItem;
             fileItem.status = UPLOAD_STATUS.COMPLETE;
             fileItem.name = file.name;
             fileItem.ext = file.name.split('.')[file.name.split('.').length - 1];

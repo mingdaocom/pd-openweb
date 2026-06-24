@@ -16,7 +16,7 @@ const Con = styled.div`
 
 export default function ImportFileToChildTable(props) {
   const { maxCount = 1000, dataCount, projectId, worksheetId, controlId, onClose, onAddRows } = props;
-  const controls = props.controls.filter(c => _.includes(CHILD_TABLE_ALLOW_IMPORT_CONTROL_TYPES, c.type));
+  const controls = (props.controls || []).filter(c => _.includes(CHILD_TABLE_ALLOW_IMPORT_CONTROL_TYPES, c.type));
   const [sheets, setSheets] = useState([]);
   const [cellsData, setCellsData] = useState([]);
   const [excelUrl, setExcelUrl] = useState();

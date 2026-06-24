@@ -79,7 +79,7 @@ const initShareConfig = async props => {
 
 export default async function (props) {
   const { worksheetId } = props;
-  if (!window.isWeiXin || !worksheetId) return;
+  if (!window.isWeiXin || window.isMacOs || !worksheetId) return;
 
   const run = async () => {
     try {

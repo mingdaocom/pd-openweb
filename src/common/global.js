@@ -11,6 +11,7 @@ import versionApi from 'src/api/version';
 import { PUBLIC_KEY } from 'src/utils/enum';
 import { getPssId } from 'src/utils/pssId';
 import langConfig from './langConfig';
+import './cookies';
 
 const axios = baseAxios.create();
 

@@ -38,12 +38,14 @@ const ImageCard = props => {
     isSubListFile,
   } = props;
   const { onDeleteMDFile, onOpenControlAttachmentInNewTab, onMDPreview, onAttachmentName } = props;
-  const { isKc, browse, fileClassName, fileSize, isMore, isDownload } = props;
+  const { isKc, browse, fileClassName, fileSize, isMore, isDownload, isUrlPreview } = props;
   const fullShow = coverType === '1';
-  const previewUrl = data.previewUrl.replace(
-    /imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/,
-    `imageView2/${fullShow ? 2 : 1}/w/200/h/140`,
-  );
+  const previewUrl = isUrlPreview
+    ? data.previewUrl
+    : data.previewUrl.replace(
+        /imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/,
+        `imageView2/${fullShow ? 2 : 1}/w/200/h/140`,
+      );
   const [dropdownVisible, setDropdownVisible] = useState(false);
   const [deleteConfirmVisible, setDeleteConfirmVisible] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
@@ -65,14 +67,14 @@ const ImageCard = props => {
           setIsPicture(false);
         });
     }
-  }, []);
+  }, [isPicture, previewUrl]);
 
   useEffect(() => {
     if (allowReset && wrapRef && wrapRef.current) {
       const el = wrapRef.current.parentNode.parentNode;
       el && (el.draggable = !isEdit);
     }
-  }, [isEdit]);
+  }, [allowReset, isEdit]);
 
   const renderDropdownOverlay = (
     <Menu style={{ width: 150 }} className="Relative" onClick={e => e.stopPropagation()}>
@@ -347,14 +349,16 @@ const ImageCard = props => {
 const NotSaveImageCard = props => {
   const { data, isMobile, coverType } = props;
   const { onDeleteKCFile, onDeleteFile, onResetNameFile, onKCPreview, onPreview } = props;
-  const { isKc, fileClassName, fileSize, url } = props;
+  const { isKc, fileClassName, fileSize, url, isUrlPreview } = props;
   const size = 'w/200/h/140';
   const mode = coverType === '1' ? 2 : 1;
   const previewImageUrl = isKc
     ? data.viewUrl
-    : url.indexOf('imageView2') > -1
-      ? url.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, `imageView2/${mode}/${size}`)
-      : url + `${url.includes('?') ? '&' : '?'}imageView2/${mode}/${size}`;
+    : isUrlPreview
+      ? url
+      : url.indexOf('imageView2') > -1
+        ? url.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, `imageView2/${mode}/${size}`)
+        : url + `${url.includes('?') ? '&' : '?'}imageView2/${mode}/${size}`;
   const [isEdit, setIsEdit] = useState(false);
   const [isPicture, setIsPicture] = useState(props.isPicture);
   const [imgClassName, setImgClassName] = useState('w100');
@@ -379,7 +383,7 @@ const NotSaveImageCard = props => {
           setIsPicture(false);
         });
     }
-  }, []);
+  }, [isPicture, previewImageUrl]);
 
   const handleFocus = () => {
     setTimeout(() => {

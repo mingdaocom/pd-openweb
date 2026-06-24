@@ -51,7 +51,7 @@ export default class SingleControlValue extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (this.props.item.type === 2 && prevProps.item.fieldValue !== this.props.item.fieldValue && this.tagtextarea) {
+    if (this.props.item.type === 2 && prevProps.item.fieldValue !== this.props.item.fieldValue && this.tagtextarea && this.tagtextarea.cmObj) {
       const cursor = this.tagtextarea.cmObj.getCursor();
 
       this.tagtextarea.setValue(this.props.item.fieldValue);

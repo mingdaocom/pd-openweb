@@ -93,7 +93,9 @@ export default function DateFilter(props) {
         {value.key === 'clear'
           ? _l('按更新时间')
           : value.key === 'custom'
-            ? `${moment(value.value[0]).format('YYYY-MM-DD')}${_l('至')}${moment(value.value[1]).format('YYYY-MM-DD')}`
+            ? value.value
+              ? `${moment(value.value[0]).format('YYYY-MM-DD')}${_l('至')}${moment(value.value[1]).format('YYYY-MM-DD')}`
+              : _l('自定义日期')
             : value.label}
       </span>
     </Trigger>

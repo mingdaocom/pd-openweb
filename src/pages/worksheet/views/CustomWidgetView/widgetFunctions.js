@@ -155,6 +155,7 @@ export const utils = {
         ...args,
         ...(isMobile
           ? {
+              appId: args.appId || (args.worksheetInfo && args.worksheetInfo.appId),
               rowId: args.recordId,
               className: 'full',
               updateSuccess: (rowIds, newRow) => {

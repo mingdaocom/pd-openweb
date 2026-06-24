@@ -46,7 +46,7 @@ export default props => {
             }}
           />
           <div className="flexRow alignItemsCenter mTop10 btns">
-            <Button type="text" onClick={() => setIsEdit(false)}>
+            <Button type="text" onClick={() => setIsEdit && setIsEdit(false)}>
               {_l('取消')}
             </Button>
             <Button
@@ -57,8 +57,8 @@ export default props => {
                   return;
                 }
 
-                onSave(fileName);
-                setIsEdit(false);
+                onSave && onSave(fileName);
+                setIsEdit && setIsEdit(false);
               }}
             >
               {_l('保存')}
@@ -67,7 +67,7 @@ export default props => {
         </ResetNameWrap>
       }
       popupVisible={isEdit}
-      onPopupVisibleChange={visible => setIsEdit(visible)}
+      onPopupVisibleChange={visible => setIsEdit && setIsEdit(visible)}
       popupAlign={{
         points: ['tc', 'bc'],
         offset: [0, 10],

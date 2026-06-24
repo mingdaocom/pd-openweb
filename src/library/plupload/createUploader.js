@@ -62,6 +62,16 @@ export default option => {
     return !find(option.ext_blacklist, ext => endsWith(file.name.toLowerCase(), ext.toLowerCase()));
   }
 
+  function triggerUploadError(up, file, message) {
+    file.status = window.plupload.FAILED;
+    up.trigger('Error', {
+      file,
+      code: undefined,
+      message,
+    });
+    up.removeFile(file);
+  }
+
   (function resetChunkSize() {
     const ie = (function detectIEVersion() {
       let v = 4;
@@ -314,7 +324,12 @@ export default option => {
   });
 
   uploader.bind('ChunkUploaded', function ChunkUploaded(up, file, info) {
-    const res = JSON.parse(info.response);
+    const res = safeParse(info.response, 'object');
+    if (!res.ctx) {
+      triggerUploadError(up, file, _l('上传失败，请稍后再试。'));
+      return;
+    }
+
     file.ctx = file.ctx ? file.ctx + ',' + res.ctx : res.ctx;
     const leftSize = info.total - info.offset;
     let chunkSize = up.getOption && up.getOption('chunk_size');
@@ -427,7 +442,12 @@ export default option => {
   });
 
   uploader.bind('FileUploaded', function (up, file, info) {
-    info.response = JSON.parse(info.response);
+    info.response = safeParse(info.response, 'object');
+    if (!info.response.ctx && !info.response.key) {
+      triggerUploadError(up, file, _l('上传失败，请稍后再试。'));
+      return;
+    }
+
     if (!info.response.ctx) {
       if (initFunc.FileUploaded) {
         info.originalFileName = decodeURIComponent(info.originalFileName);
@@ -437,33 +457,72 @@ export default option => {
       let fileExt = `.${RegExpValidator.getExtOfFileName(file.name)}`;
       let isPic = RegExpValidator.fileIsPicture(fileExt);
 
-      const res = (option.getToken || getToken)(
-        [{ bucket: option.bucket || (isPic ? 4 : 3), ext: fileExt }],
-        option.type,
-        option.getTokenParam,
-        { ajaxOptions: { sync: true } },
-      );
+      let tokenInfo =
+        file.key && file.token
+          ? {
+              key: file.key,
+              uptoken: file.token,
+              fileName: file.fileName,
+              serverName: file.serverName,
+              url: file.url,
+            }
+          : null;
+
+      if (!tokenInfo) {
+        try {
+          tokenInfo = ((option.getToken || getToken)(
+            [{ bucket: option.bucket || (isPic ? 4 : 3), ext: fileExt }],
+            option.type,
+            option.getTokenParam,
+            { ajaxOptions: { sync: true } },
+          ) || [])[0];
+        } catch (err) {
+          console.error(err);
+          triggerUploadError(up, file, _l('获取上传凭证失败，请稍后重试。'));
+          return;
+        }
+      }
+
+      if (!tokenInfo || !tokenInfo.key || !tokenInfo.uptoken) {
+        triggerUploadError(up, file, _l('获取上传凭证失败，请稍后重试。'));
+        return;
+      }
+
+      file.key = file.key || tokenInfo.key;
+      file.token = file.token || tokenInfo.uptoken;
+      file.fileName = file.fileName || tokenInfo.fileName;
+      file.serverName = file.serverName || tokenInfo.serverName;
+      file.url = file.url || tokenInfo.url;
+
       $.ajax({
-        url: option.url.replace(/(\/)$/, '') + '/mkfile/' + (file.size ? file.size : 0) + '/key/' + btoa(res[0].key),
+        url: option.url.replace(/(\/)$/, '') + '/mkfile/' + (file.size ? file.size : 0) + '/key/' + btoa(tokenInfo.key),
         type: 'POST',
         beforeSend: request => {
           request.setRequestHeader('Content-Type', 'text/plain;charset=UTF-8');
-          request.setRequestHeader('Authorization', 'UpToken ' + res[0].uptoken);
+          request.setRequestHeader('Authorization', 'UpToken ' + tokenInfo.uptoken);
         },
         data: file.ctx,
         processData: false,
         async: false,
       }).then(response => {
         if (typeof response === 'string') {
-          response = JSON.parse(response);
+          response = safeParse(response, 'object');
         }
 
+        if (!response.key) {
+          triggerUploadError(up, file, _l('上传失败，请稍后再试。'));
+          return;
+        }
+
+        const fileKey = file.key || tokenInfo.key;
+        const serverFileName = file.fileName || tokenInfo.fileName || '';
+
         response.fileExt = fileExt;
-        response.fileName = RegExpValidator.getNameOfFileName(res[0].fileName);
-        response.filePath = file.key.replace(new RegExp(file.fileName), '');
+        response.fileName = RegExpValidator.getNameOfFileName(serverFileName || file.name);
+        response.filePath = serverFileName ? fileKey.replace(serverFileName, '') : '';
         response.originalFileName = encodeURIComponent(RegExpValidator.getNameOfFileName(file.name));
         response.serverName = file.serverName;
-        file.url = res[0].url;
+        file.url = tokenInfo.url;
 
         if (initFunc.FileUploaded) {
           initFunc.FileUploaded(up, file, { response });

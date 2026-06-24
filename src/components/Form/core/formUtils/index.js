@@ -1109,44 +1109,42 @@ export const onValidator = ({ item, data, masterData, ignoreRequired, verifyAllC
         if (!value) {
           errorType = '';
         } else {
-          if (min || max) {
-            const minDate = min
-              ? getDynamicValue(data, Object.assign({}, item, { advancedSetting: { defsource: min } }), masterData)
-              : '';
-            const maxDate = max
-              ? getDynamicValue(data, Object.assign({}, item, { advancedSetting: { defsource: max } }), masterData)
-              : '';
+          const mAppTime = moment(appTimeZoneValue);
+
+          if (!mAppTime.isValid()) {
+            errorType = '';
+          } else {
+            if (min || max) {
+              const minDate = min
+                ? getDynamicValue(data, Object.assign({}, item, { advancedSetting: { defsource: min } }), masterData)
+                : '';
+              const maxDate = max
+                ? getDynamicValue(data, Object.assign({}, item, { advancedSetting: { defsource: max } }), masterData)
+                : '';
+
+              if (
+                (minDate && mAppTime < moment(minDate)) ||
+                (maxDate && mAppTime > moment(maxDate))
+              ) {
+                errorType = FORM_ERROR_TYPE.DATE_TIME_RANGE;
+                errorText = FORM_ERROR_TYPE_TEXT.DATE_TIME_RANGE(appTimeZoneValue, minDate, maxDate);
+              }
+            }
 
             if (
-              (minDate && moment(appTimeZoneValue) < moment(minDate)) ||
-              (maxDate && moment(appTimeZoneValue) > moment(maxDate))
+              allowweek.indexOf(mAppTime.day() === 0 ? '7' : mAppTime.day()) === -1 &&
+              !errorType
             ) {
-              errorType = FORM_ERROR_TYPE.DATE_TIME_RANGE;
-              errorText = FORM_ERROR_TYPE_TEXT.DATE_TIME_RANGE(appTimeZoneValue, minDate, maxDate);
+              errorType = FORM_ERROR_TYPE.DATE;
             }
-          }
 
-          if (
-            allowweek.indexOf(moment(appTimeZoneValue).day() === 0 ? '7' : moment(appTimeZoneValue).day()) === -1 &&
-            !errorType
-          ) {
-            errorType = FORM_ERROR_TYPE.DATE;
-          }
-
-          if (
-            !errorType &&
-            (compareWithTime(
-              start,
-              `${moment(appTimeZoneValue).hour()}:${moment(appTimeZoneValue).minute()}`,
-              'isAfter',
-            ) ||
-              compareWithTime(
-                end,
-                `${moment(appTimeZoneValue).hour()}:${moment(appTimeZoneValue).minute()}`,
-                'isBefore',
-              ))
-          ) {
-            errorType = FORM_ERROR_TYPE.DATE_TIME;
+            if (
+              !errorType &&
+              (compareWithTime(start, `${mAppTime.hour()}:${mAppTime.minute()}`, 'isAfter') ||
+                compareWithTime(end, `${mAppTime.hour()}:${mAppTime.minute()}`, 'isBefore'))
+            ) {
+              errorType = FORM_ERROR_TYPE.DATE_TIME;
+            }
           }
         }
       }

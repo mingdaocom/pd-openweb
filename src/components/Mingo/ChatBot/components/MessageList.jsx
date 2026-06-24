@@ -896,6 +896,7 @@ function MessageList(
                 if (isRegenerate) {
                   currentMessageIndex = messages.findIndex(item => item.id === messageId);
                   prevMessage = messages[currentMessageIndex - 1];
+                  if (!prevMessage) return;
                   newContent = getContentFromMessage(prevMessage.content);
                   fromMessageId = prevMessage.id;
                   if (isFunction(handleRegenerate)) {

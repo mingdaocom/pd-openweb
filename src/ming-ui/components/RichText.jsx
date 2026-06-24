@@ -627,7 +627,9 @@ const RichText = forwardRef((props, ref) => {
               if (clipboardData && isWordContent(clipboardData)) {
                 // 弹出提示框，询问用户是否去掉格式
                 const userChoice = window.confirm(
-                  '正在粘贴来自 word 文档的内容。确定后，将清除格式以纯文本粘贴；取消后，将保留格式粘贴（由于格式兼容问题可能导致内容丢失）。',
+                  _l(
+                    '正在粘贴来自 word 文档的内容。确定后，将清除格式以纯文本粘贴；取消后，将保留格式粘贴（由于格式兼容问题可能导致内容丢失）。',
+                  ),
                 );
 
                 if (userChoice) {

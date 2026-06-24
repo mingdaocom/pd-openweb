@@ -32,6 +32,7 @@ class Menu extends Component {
 
     if (this.props.isSubMenu) {
       const parentMenuItem = ReactDom.findDOMNode(this.props.parentMenuItem);
+      if (!parentMenuItem) return;
       const parentRect = parentMenuItem.getBoundingClientRect();
       pos.left =
         (parentRect.left + 2 * parentRect.width > Math.max(document.documentElement.clientWidth, window.innerWidth || 0)
@@ -40,11 +41,13 @@ class Menu extends Component {
       pos.top = parentMenuItem.offsetTop - parentMenuItem.parentElement.scrollTop;
     } else {
       const el = ReactDom.findDOMNode(this);
+      if (!el) return;
       const rect = el.getBoundingClientRect();
       let bodyRect = document.body.getBoundingClientRect();
 
       if (this.props.con) {
-        bodyRect = document.querySelector(this.props.con).getBoundingClientRect();
+        const conEl = document.querySelector(this.props.con);
+        if (conEl) bodyRect = conEl.getBoundingClientRect();
       }
 
       if (rect.left + rect.width >= bodyRect.left + bodyRect.width) {

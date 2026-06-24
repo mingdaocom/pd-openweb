@@ -117,7 +117,7 @@ export const replaceRulesTranslateInfo = (appId, worksheetId, rules) => {
   return rules.map(rule => {
     const translateInfo = getTranslateInfo(appId, worksheetId, rule.ruleId);
 
-    if (rule.type === 1) {
+    if (rule.type === 1 && rule.ruleItems && rule.ruleItems[0]) {
       rule.ruleItems[0].message = translateInfo.message || rule.ruleItems[0].message;
     }
 

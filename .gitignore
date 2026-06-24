@@ -1,26 +1,35 @@
-﻿# ignore macOS DS_Store files
+﻿# macOS and Windows system files
 .DS_Store
-#ignore thumbnails created by windows
 Thumbs.db
+
+# Local environment files
 .env
+.iconfont-session
+.claude/settings.local.json
+.agents/settings.local.json
+/themes/
+
+# Merge conflict and editor backup files
 *.orig
 *.BASE
 *.LOCAL
 *.REMOTE
 *~HEAD
-*.less.js
+
+# Generated files and build output
 /build
 node_modules
-node_modules/*
-**/node_modules/*
-.happypack/
 .cache-loader/
+*.less.js
 
-**/.vscode/**
-*.vscode
+# Keep the shared VS Code settings, ignore local workspace files
+.vscode/*
+!.vscode/settings.json
 
 # Use yarn
 package-lock.json
 
+# Tool output
+.codegraph/
 .scannerwork
 *.llog

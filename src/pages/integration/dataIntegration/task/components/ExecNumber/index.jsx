@@ -62,7 +62,7 @@ export default ({ projectId }) => {
     if (!checked) {
       Dialog.confirm({
         title: _l('是否开启自动订购？'),
-        description: _l('开启后，当月剩余执行额度为2%时，自动购买 100信用点/10万行 的单月包，从账户信用点余额中扣款。'),
+        description: _l('开启后，当月剩余执行额度为2%时，自动购买 10信用点/1万行 的单月包，从账户信用点余额中扣款。'),
         onOk: () => setAutoPurchaseDataPipelineExtPack(!checked),
       });
       return;

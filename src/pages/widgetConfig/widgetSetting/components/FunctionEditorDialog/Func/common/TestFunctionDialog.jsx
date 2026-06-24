@@ -295,8 +295,9 @@ export default function TestFunctionDialog(props) {
                 const testResult = execValueFunction(control, formData, {
                   defaultExpression: expression,
                 });
+                const { value } = testResult;
                 setTestError(!!testResult.error);
-                setTestResultValue(testResult.value || '');
+                setTestResultValue(_.isUndefined(value) || _.isNull(value) || _.isNaN(value) ? '' : String(value));
               }}
             >
               {_l('测试')}

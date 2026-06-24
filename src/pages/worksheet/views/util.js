@@ -229,6 +229,7 @@ export const renderTitleByViewtitle = (row, controls, view, useDateConvertToServ
   defaultValue.map(o => {
     if (controlFields.includes(`$${o}$`)) {
       const control = controls.find(it => it.controlId === o);
+      if (!control) return;
       str =
         str +
         renderCellText(

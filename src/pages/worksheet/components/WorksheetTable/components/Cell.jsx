@@ -369,8 +369,8 @@ function Cell(props) {
         !disableQuickEdit &&
         rowIndex >= 0 &&
         columnIndex > 0 &&
-        control.fieldPermission &&
-        (control.fieldPermission[1] === '0' || control.fieldPermission[0] === '0'),
+        (!!row.sys_lock ||
+          (control.fieldPermission && (control.fieldPermission[1] === '0' || control.fieldPermission[0] === '0'))),
       fixedRow: rowIndex === 0,
       lastFixedColumn: columnIndex === fixedColumnCount && fixedColumnCount !== 0,
       // focus: !_.isUndefined(cache.focusIndex) && cellIndex === cache.focusIndex,

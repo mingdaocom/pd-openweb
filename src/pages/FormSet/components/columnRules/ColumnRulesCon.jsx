@@ -51,6 +51,8 @@ class ColumnRulesCon extends React.Component {
     return (
       <ScrollView className="rulesCon">
         <SortableList
+          key={activeTab}
+          flag={String(activeTab)}
           items={renderData}
           itemKey="ruleId"
           helperClass="columnRuleSortableList"
@@ -111,6 +113,7 @@ class ColumnRulesCon extends React.Component {
                   onClick={() => {
                     if (hasRuleChanged(columnRulesListData, selectRules)) return;
                     selectRules.ruleId && clearColumnRules();
+                    this.setState({ focusedRuleNameId: '' });
                     updateActiveTab(item.value);
                   }}
                 >
