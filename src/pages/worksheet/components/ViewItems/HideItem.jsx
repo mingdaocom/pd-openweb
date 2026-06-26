@@ -113,7 +113,9 @@ export default function HideItem(props) {
           onFocus={handleFocus}
         />
       ) : (
-        <span className="viewName ellipsis">{getTranslateInfo(appId, null, item.viewId).name || item.name}</span>
+        <span className="viewName ellipsis" title={getTranslateInfo(appId, null, item.viewId).name || item.name}>
+          {getTranslateInfo(appId, null, item.viewId).name || item.name}
+        </span>
       )}
       {isCharge &&
         type === 'drawerWorksheetShowList' &&

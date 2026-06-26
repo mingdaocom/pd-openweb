@@ -338,6 +338,7 @@ function RelationSearch(props) {
       return;
     }
 
+    const { instanceId, workId } = _.get(control, 'dataFormat.current') || {};
     const args = {
       worksheetId,
       viewId,
@@ -352,6 +353,8 @@ function RelationSearch(props) {
       pageSize: control.enumDefault === 1 ? 1 : PAGE_SIZE,
       getWorksheet: pageIndex === 1,
       getRules: pageIndex === 1,
+      instanceId,
+      workId,
     };
     sheetAjax.getRowRelationRows(args).then(res => {
       setWorksheetAllowAdd(_.get(res, 'worksheet.allowAdd'));

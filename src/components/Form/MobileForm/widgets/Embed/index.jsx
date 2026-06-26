@@ -74,6 +74,7 @@ const Embed = props => {
   const iframeRef = useRef(null);
   const embedWatch = useRef(null);
   const viewControlsRef = useRef([]);
+  const currentTimeRef = useRef(new Date());
   const latestResultData = useRef('');
   const latestProps = useRef(props);
   const { appid, reportid, wsid } = enumDefault === 1 ? {} : safeParse(dataSource || '{}');
@@ -140,8 +141,23 @@ const Embed = props => {
     }
   };
 
-  const setValue = () => {
-    const { enumDefault, value, formData, recordId } = latestProps.current;
+  const getFilterResult = (currentProps, currentTimeForSecond) =>
+    getFilter({
+      control: {
+        ...currentProps,
+        relationControls: viewControlsRef.current || [],
+        recordId: currentProps.recordId,
+        ignoreFilterControl: currentProps.enumDefault === 2,
+      },
+      appId,
+      formData: currentProps.formData,
+      ignoreEmptyRule: true,
+      currentTimeForSecond,
+    }) || [{}];
+
+  const setValue = ({ useCachedCurrentTime = false } = {}) => {
+    const currentProps = latestProps.current;
+    const { enumDefault, value } = currentProps;
     const _resultData = latestResultData.current;
 
     if (enumDefault === 1) {
@@ -149,27 +165,26 @@ const Embed = props => {
         setState({ resultData: value });
       }
     } else {
-      const filterResult = getFilter({
-        control: {
-          ...props,
-          relationControls: viewControlsRef.current || [],
-          recordId,
-          ignoreFilterControl: enumDefault === 2,
-        },
-        appId,
-        formData,
-        ignoreEmptyRule: true,
-      }) || [{}];
+      const currentTimeForSecond = useCachedCurrentTime ? currentTimeRef.current : new Date();
+      const filterResult = getFilterResult(currentProps, currentTimeForSecond);
 
       if (!_.isEqual(_resultData, filterResult)) {
-        setState({ resultData: filterResult, needUpdate: Math.random() });
+        if (useCachedCurrentTime) {
+          const latestCurrentTime = new Date();
+          const latestFilterResult = getFilterResult(currentProps, latestCurrentTime);
+          currentTimeRef.current = latestCurrentTime;
+          setState({ resultData: latestFilterResult, needUpdate: Math.random() });
+        } else {
+          currentTimeRef.current = currentTimeForSecond;
+          setState({ resultData: filterResult, needUpdate: Math.random() });
+        }
       }
     }
   };
 
   useEffect(() => {
     initFunc();
-    embedWatch.current = setInterval(setValue, 3000);
+    embedWatch.current = setInterval(() => setValue({ useCachedCurrentTime: true }), 3000);
     return () => {
       clearInterval(embedWatch.current);
     };

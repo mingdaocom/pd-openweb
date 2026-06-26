@@ -854,15 +854,21 @@ class ChildTable extends React.Component {
         },
       });
       this.dataFormatCacheMap.set(cacheKey, formdata);
-      formdata.data.forEach(c => {
-        c.isImportFromExcel = false;
-        c.isQueryWorksheetFill = false;
-      });
     } else {
       formdata = this.dataFormatCacheMap.get(cacheKey);
     }
 
     if (controlId) {
+      // 用户真正编辑该行后，导入/查询填充语义才失效，解除对默认值联动的守卫。
+      // 不能在构造后立即清除：关联记录类默认值需异步拉取详情后回填，
+      // 立即清除会抢在异步回填之前，导致 isImportFromExcel 守卫失效、导入值被默认值覆盖。
+      if (userTriggerChange) {
+        formdata.data.forEach(c => {
+          c.isImportFromExcel = false;
+          c.isQueryWorksheetFill = false;
+        });
+      }
+
       formdata.updateDataSource({ controlId, value, userTriggerChange });
     }
 

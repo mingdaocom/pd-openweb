@@ -9,6 +9,7 @@ import { FlexCenter } from 'worksheet/components/Basics';
 import { emitter } from 'src/utils/common';
 import Filters from './Filters';
 import { formatForSave } from './model';
+import { clearSheetFilterIdUrl, getSheetFilterIdFromUrl, saveSheetFilterIdToUrl } from './util';
 
 const ClickAway = createDecoratedComponent(withClickAway);
 
@@ -41,11 +42,74 @@ const SelectedFilter = styled(FlexCenter)`
 
 export default function FiltersPopup(props) {
   const { zIndex, actions, state, onChange, getPopupContainer, disableAdd, ...rest } = props;
-  const { worksheetId = '', viewId = '', type = '', filterCompId, className, isSingleView = false } = rest;
+  const {
+    worksheetId = '',
+    viewId = '',
+    type = '',
+    filterCompId,
+    className,
+    isSingleView = false,
+    persistFilterToUrl = false,
+  } = rest;
   const filtersRef = useRef();
   const btnRef = useRef();
+  const didMountRef = useRef(false);
   const [popupVisible, setPopupVisible] = useState();
   const { needSave, editingFilter, activeFilter } = state;
+  // 仅在调用方显式开启时（主视图工具栏）才把选中的筛选器落 url，其它复用场景（单视图、关联记录表、回收站等）一律不参与；
+  // 公开分享/公开应用下接口受限，关闭该能力，避免还原失败
+  const canPersistFilterToUrl =
+    persistFilterToUrl === true &&
+    !!viewId &&
+    !!worksheetId &&
+    !_.get(window, 'shareState.shareId') &&
+    !window.isPublicApp;
+
+  // 刷新/分享链接进入时，按 url 里的筛选器 id 还原选中并应用（Filters 弹层未打开时也需生效，故放在常驻的 FiltersPopup 上）
+  useEffect(() => {
+    if (!canPersistFilterToUrl) {
+      return;
+    }
+
+    const urlFilterId = getSheetFilterIdFromUrl();
+
+    if (!urlFilterId) {
+      return;
+    }
+
+    actions.loadFilters(worksheetId, data => {
+      const found = _.find(data, { id: urlFilterId });
+
+      if (found) {
+        actions.setActiveFilter(found);
+        onChange({ filterControls: formatForSave(found) });
+      } else {
+        // 筛选器已被删除：清除 url，并触发一次空筛选加载（视图首次加载已被跳过，避免空白）
+        clearSheetFilterIdUrl();
+        onChange({ filterControls: [] });
+      }
+    });
+  }, []);
+
+  // 选中/切换/清除筛选器时，保持 url 与当前选中状态同步（首次挂载跳过，避免覆盖待还原的 url）
+  useEffect(() => {
+    if (!didMountRef.current) {
+      didMountRef.current = true;
+      return;
+    }
+
+    if (!canPersistFilterToUrl) {
+      return;
+    }
+
+    const activeId = activeFilter && activeFilter.id;
+
+    if (activeId && !/^new/.test(activeId)) {
+      saveSheetFilterIdToUrl(activeId);
+    } else {
+      clearSheetFilterIdUrl();
+    }
+  }, [activeFilter && activeFilter.id]);
 
   function handleWorksheetHeadAddFilter(control) {
     setPopupVisible(true);

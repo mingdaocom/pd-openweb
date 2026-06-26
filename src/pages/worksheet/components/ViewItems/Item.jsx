@@ -155,7 +155,10 @@ export default class Item extends Component {
               }}
             />
           ) : (
-            <span className="ellipsis bold">
+            <span
+              className="ellipsis bold"
+              title={isManageView ? _l('数据管理') : getTranslateInfo(appId, null, item.viewId).name || item.name}
+            >
               {isManageView ? _l('数据管理') : getTranslateInfo(appId, null, item.viewId).name || item.name}
             </span>
           )}

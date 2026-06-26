@@ -9,6 +9,7 @@ import styled from 'styled-components';
 import { Skeleton } from 'ming-ui';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
 import DragMask from 'worksheet/common/DragMask';
+import { getSheetFilterIdFromUrl } from 'worksheet/common/WorkSheetFilter/util';
 import { VIEW_DISPLAY_TYPE } from 'worksheet/constants/enum';
 import * as actions from 'worksheet/redux/actions';
 import { canEditApp, canEditData } from 'worksheet/redux/actions/util.js';
@@ -18,6 +19,7 @@ import { setSysWorkflowTimeControlFormat } from 'src/pages/worksheet/views/Calen
 import { navigateTo } from 'src/router/navigateTo';
 import { getTranslateInfo } from 'src/utils/app';
 import { emitter as globalEmitter } from 'src/utils/common';
+import { needHideViewFilters } from 'src/utils/filter';
 import GroupFilter from './GroupFilter';
 import QuickFilter from './QuickFilter';
 import SheetContext from './SheetContext';
@@ -233,7 +235,18 @@ function Sheet(props) {
     <View
       {...basePara}
       viewConfigVisible={viewConfigVisible}
-      noLoadAtDidMount={_.isArray(filtersGroup) && !_.isEmpty(filtersGroup)}
+      noLoadAtDidMount={
+        (_.isArray(filtersGroup) && !_.isEmpty(filtersGroup)) ||
+        // url 上有选中的筛选器待还原时，跳过首次默认加载，避免与还原后的筛选加载重复请求；
+        // 还原由常驻的 FiltersPopup 在筛选器列表拉取完成后触发（命中带筛选、未命中空筛选），故视图不会空白。
+        // 与 SheetHeader 的 persistFilterToUrl 开关保持一致：仅主视图（非单视图嵌入）、且非公开分享/公开应用时参与
+        (type !== 'single' &&
+          !chartId &&
+          !needHideViewFilters(view) &&
+          !_.get(window, 'shareState.shareId') &&
+          !window.isPublicApp &&
+          !!getSheetFilterIdFromUrl())
+      }
     />
   );
   useEffect(() => {

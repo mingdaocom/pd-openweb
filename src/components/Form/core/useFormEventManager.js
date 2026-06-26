@@ -341,6 +341,10 @@ export const useFormEventManager = ({ containerRef, stateRef, from, disabledTabs
           e.target.closest('.UploadFilesTriggerPanel') ||
           e.target.closest('.ant-picker-dropdown') ||
           e.target.classList.contains('ant-picker') ||
+          e.target.classList.contains('ant-picker-year-btn') ||
+          e.target.classList.contains('ant-picker-month-btn') ||
+          e.target.classList.contains('ant-picker-decade-btn') ||
+          e.target.classList.contains('ant-picker-cell-inner') ||
           (activeData.type === 14 && document.querySelector('.folderSelectDialog')) ||
           e.target.closest('.CityPickerPanelTrigger'))
       ) {

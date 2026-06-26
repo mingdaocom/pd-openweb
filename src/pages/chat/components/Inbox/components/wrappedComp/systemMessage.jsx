@@ -196,8 +196,7 @@ export default class SystemMessage extends PureComponent {
         // 反馈给 HAP
         if (href.indexOf('agent/feedback/') > -1) {
           const agentParams = match('/agent/feedback/:processId/:nodeId/:instanceId');
-          const { params } = agentParams(href) || {};
-          const { processId, nodeId, instanceId } = params;
+          const { processId, nodeId, instanceId } = agentParams(href)?.params || {};
 
           evt.preventDefault();
           evt.stopPropagation();

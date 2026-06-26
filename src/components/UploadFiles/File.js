@@ -481,7 +481,7 @@ export default class FileComponent extends Component {
     let isMDLink = fileResponse.viewType === 5;
     const url = fileResponse.previewUrl || fileResponse.url || '';
     const isUrlPreview =
-      window.platformENV.isLocal && ['.HEIC', '.HEIF'].includes(fileResponse.fileExt.toLocaleUpperCase());
+      window.platformENV.isLocal && ['.HEIC', '.HEIF'].includes(fileResponse.fileExt?.toLocaleUpperCase());
     return isPicture ? (
       <Fragment>
         {isKc ? (

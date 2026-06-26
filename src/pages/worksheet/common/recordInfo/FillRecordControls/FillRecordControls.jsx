@@ -243,6 +243,10 @@ class FillRecordControls extends React.Component {
       return;
     }
 
+    if (!this.customwidget.current) {
+      return;
+    }
+
     this.setState({ submitLoading: true });
     this.customwidget.current.submitFormData();
   }

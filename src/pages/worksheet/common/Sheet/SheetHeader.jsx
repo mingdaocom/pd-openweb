@@ -308,7 +308,10 @@ function SheetHeader(props) {
               placement="bottomLeft"
               overlayClassName="sheetDescPopoverOverlay"
               content={
-                <div className="popoverContent" style={{ maxHeight: (document.body?.clientHeight || window.innerHeight) / 2 }}>
+                <div
+                  className="popoverContent"
+                  style={{ maxHeight: (document.body?.clientHeight || window.innerHeight) / 2 }}
+                >
                   <RichText
                     data={getTranslateInfo(appId, null, worksheetId).description || desc || ''}
                     disabled={true}
@@ -435,6 +438,7 @@ function SheetHeader(props) {
                         columns={controls}
                         zIndex={1000}
                         filterResigned={false} // 筛选---人员层不显示离职栏
+                        persistFilterToUrl={!isSingleView} // 仅主视图工具栏将选中的筛选器落 url
                         onChange={({ searchType, filterControls }) => {
                           updateFiltersWithView({ searchType, filterControls });
                         }}

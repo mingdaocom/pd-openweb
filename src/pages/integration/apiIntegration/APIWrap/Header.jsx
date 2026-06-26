@@ -44,6 +44,9 @@ const HeadTop = styled.div`
 `;
 
 function Header({ data, apkInfo, isConnectOwner, forPage, listId, onCancel, onDel, updateInfo, onDataChange }) {
+  // API 名称、说明与图标使用同一编辑权限；安装 API 仍展示图标，仅有权限时可修改。
+  const canEditApiInfo = [1, 2].includes(apkInfo.type) && isConnectOwner;
+
   // 内部状态管理
   const [editing, setEditing] = useState(false);
   const [editingName, setEditingName] = useState(false);
@@ -74,7 +77,7 @@ function Header({ data, apkInfo, isConnectOwner, forPage, listId, onCancel, onDe
 
   const renderIcon = () => {
     const onClickIcon = () => {
-      if (!isConnectOwner) return;
+      if (!canEditApiInfo) return;
 
       dialogSelectIcon({
         hideInput: true,
@@ -232,7 +235,8 @@ function Header({ data, apkInfo, isConnectOwner, forPage, listId, onCancel, onDe
           </ActWrap>
         )}
         <div className="Hand apiDes flexRow flex">
-          {apkInfo.type === 1 && renderIcon()}
+          {/* 安装 API 也需要展示图标，点击修改权限在 renderIcon 内统一判断。 */}
+          {renderIcon()}
           <div className={cx('apiTop Relative', { flex: true, w150: !forPage })}>
             <div className="flexRow">
               <Tooltip
@@ -246,11 +250,7 @@ function Header({ data, apkInfo, isConnectOwner, forPage, listId, onCancel, onDe
                 <span
                   className="name LineHeight35 Block WordBreak flex Font22"
                   onClick={() => {
-                    if (
-                      (apkInfo.type === 1 || //自定义
-                        apkInfo.type === 2) && // 安装超管和拥有者可以修改描述和名称
-                      isConnectOwner
-                    ) {
+                    if (canEditApiInfo) {
                       setEditingName(true);
                     }
                   }}
@@ -300,11 +300,7 @@ function Header({ data, apkInfo, isConnectOwner, forPage, listId, onCancel, onDe
               <span
                 className="des textTertiary Block mTop8 WordBreak"
                 onClick={() => {
-                  if (
-                    (apkInfo.type === 1 || //自定义
-                      apkInfo.type === 2) && // 安装超管和拥有者可以修改描述和名称
-                    isConnectOwner
-                  ) {
+                  if (canEditApiInfo) {
                     setEditing(true);
                   }
                 }}

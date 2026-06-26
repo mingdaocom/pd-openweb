@@ -1064,15 +1064,17 @@ export const onValidator = ({ item, data, masterData, ignoreRequired, verifyAllC
 
       // 证件
       if (item.type === 7) {
+        // 证件号不允许首尾空格，使用原始值校验，避免去空格后误判通过
+        const credValue = (item.value || '').toString();
         if (!value) {
           errorType = '';
-        } else if (item.enumDefault === 1 && !Validator.isIdCardNumber(value)) {
+        } else if (item.enumDefault === 1 && !Validator.isIdCardNumber(credValue)) {
           errorType = FORM_ERROR_TYPE.ID_CARD;
-        } else if (item.enumDefault === 2 && !Validator.isPassportNumber(value)) {
+        } else if (item.enumDefault === 2 && !Validator.isPassportNumber(credValue)) {
           errorType = FORM_ERROR_TYPE.PASSPORT;
-        } else if (item.enumDefault === 3 && !Validator.isHkPassportNumber(value)) {
+        } else if (item.enumDefault === 3 && !Validator.isHkPassportNumber(credValue)) {
           errorType = FORM_ERROR_TYPE.HK_PASSPORT;
-        } else if (item.enumDefault === 4 && !Validator.isTwPassportNumber(value)) {
+        } else if (item.enumDefault === 4 && !Validator.isTwPassportNumber(credValue)) {
           errorType = FORM_ERROR_TYPE.TW_PASSPORT;
         }
       }

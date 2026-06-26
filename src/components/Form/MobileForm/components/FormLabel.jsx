@@ -190,7 +190,7 @@ export default ({
         disabled={disabled}
         item={item}
         showTitle={showTitle}
-        {...widgetStyle}
+        {..._.omit(widgetStyle, 'title')}
         titleSize={titleSize}
         titleStyle={titleStyle}
         titleColor={titlecolor}

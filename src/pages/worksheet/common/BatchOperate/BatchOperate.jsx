@@ -317,6 +317,8 @@ class BatchOperate extends React.Component {
         alert(_l('修改成功'));
       } else if (isEditSingle && data.resultCode !== 1) {
         handleRecordError(data.resultCode);
+      } else if (!isEditSingle && data.successCount === 0 && !args.noAlert) {
+        alert(_l('选中记录不满足条件'), 2);
       }
 
       if (data.resultCode !== 1 && !data.isSuccess) return;

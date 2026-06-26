@@ -642,11 +642,11 @@ export const functions = {
     if (!text || (!start && !end)) {
       return text;
     } else if (!start) {
-      return (text.match(new RegExp(`^(.+?)${end}`)) || '')[1];
+      return (text.match(new RegExp(`^(.+?)${end}`)) || [])[1] || '';
     } else if (!end) {
-      return (text.match(new RegExp(`${start}(.+?)$`)) || '')[1];
+      return (text.match(new RegExp(`${start}(.+?)$`)) || [])[1] || '';
     } else {
-      return (text.match(new RegExp(`${start}(.+?)${end}`)) || '')[1];
+      return (text.match(new RegExp(`${start}(.+?)${end}`)) || [])[1] || '';
     }
   },
   // 查找多个文本
@@ -694,7 +694,7 @@ export const functions = {
     return value[key] || '';
   },
   COUNTCHAR: function (value) {
-    return value.replace(/(\r\n|\n)/g, '').length;
+    return String(value ?? '').replace(/(\r\n|\n)/g, '').length;
   },
   // 圆周率
   PI: function () {

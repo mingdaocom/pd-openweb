@@ -247,7 +247,7 @@ const ProcessDefaultConfig = {
 let sheetRequest = null;
 
 function BtnSetting(props) {
-  const { pageId, activeIndex, appPkg = {}, btnSetting, btnConfig, components, setBtnSetting, onDel, onCopy } = props;
+  const { pageId, activeIndex, appPkg = {}, btnSetting = {}, btnConfig, components, setBtnSetting, onDel, onCopy } = props;
   const appId = appPkg.id;
   const btnSettingParam = _.get(btnSetting, 'param');
   const [displayType, setDisplayType] = useState('setting');

@@ -760,7 +760,7 @@ class TableView extends React.Component {
   };
 
   updateRecordEvent = ({ worksheetId, recordId }) => {
-    const { viewId, controls, updateRows, hideRows, sheetViewData } = this.props;
+    const { viewId, updateRows, hideRows, sheetViewData } = this.props;
     const { rows } = sheetViewData;
 
     if (worksheetId === this.props.worksheetId && _.find(rows, r => r.rowid === recordId)) {
@@ -770,7 +770,6 @@ class TableView extends React.Component {
         rowId: recordId,
         viewId,
         worksheetId,
-        controls,
       }).then(row => {
         if (row.resultCode === 1 && row.isViewData) {
           updateRows(

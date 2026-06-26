@@ -36,7 +36,9 @@ export default class RelateRecordList extends React.PureComponent {
     super(props);
     this.state = {
       loading: _.isEmpty(props.staticRecords),
-      keyWords: '',
+      // 用父级保留的搜索词初始化：下拉关闭(destroyPopupOnHide)会卸载本组件，
+      // 重新打开时据此带关键词重新拉取最新数据，落回上次搜索结果而非全量列表
+      keyWords: props.keyWords || '',
       records: props.staticRecords || [],
       pageIndex: 1,
       activeId: undefined,
