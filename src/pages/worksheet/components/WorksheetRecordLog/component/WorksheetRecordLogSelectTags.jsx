@@ -62,8 +62,8 @@ function WorksheetRecordLogSelectTags(props) {
     }
 
     if (needPreview) {
-      let oldObj = safeParse(data.oldValue);
-      let newObj = safeParse(data.newValue);
+      let oldObj = safeParse(data.oldValue) || {};
+      let newObj = safeParse(data.newValue) || {};
       let Record = {
         appId: oldObj.appId || newObj.appId,
         worksheetId: oldObj.worksheetId || newObj.worksheetId,

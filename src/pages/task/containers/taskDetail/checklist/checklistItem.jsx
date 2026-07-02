@@ -35,10 +35,12 @@ class ChecklistOperator extends Component {
 
 const cardSource = {
   beginDrag(props, monitor, component) {
-    const preview = findDOMNode(component).outerHTML;
-    const componentRect = findDOMNode(component).getBoundingClientRect();
-    const outerWidth = $(findDOMNode(component)).outerWidth();
-    config.height = $(findDOMNode(component)).outerHeight();
+    const domNode = findDOMNode(component);
+    if (!domNode) return {};
+    const preview = domNode.outerHTML;
+    const componentRect = domNode.getBoundingClientRect();
+    const outerWidth = $(domNode).outerWidth();
+    config.height = $(domNode).outerHeight();
     config.offset = {
       x: config.mouseOffset.left - componentRect.left,
       y: config.mouseOffset.top - componentRect.top,

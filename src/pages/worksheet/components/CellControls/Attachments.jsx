@@ -886,23 +886,7 @@ function CellAttachments(props, sourceRef) {
       },
       {
         callback: data => {
-          let parsedValue = [];
-
-          try {
-            parsedValue = JSON.parse(data[cell.controlId]);
-          } catch (err) {
-            console.log(err);
-          }
-
-          setAttachments(
-            parsedValue.map(file => ({
-              ext: file.ext,
-              fileID: file.fileID,
-              originalFilename: file.originalFilename,
-              previewUrl: file.previewUrl,
-              refId: file.refId,
-            })),
-          );
+          setAttachments(parseValue(data[cell.controlId]));
         },
       },
     );

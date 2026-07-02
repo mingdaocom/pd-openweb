@@ -263,7 +263,7 @@ export const getTimeList = cb => {
     if (type === 'Month') {
       listN = list.list;
     } else if (type === 'Week') {
-      list.list.map(o => listN.push(...o.times));
+      list.list.map(o => listN.push(...(o.times || [])));
     } else if (type === 'Year') {
       list.list.map(o => {
         (o.times || []).map(it => {

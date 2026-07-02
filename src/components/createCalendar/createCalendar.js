@@ -768,6 +768,7 @@ CreateCalendar.methods = {
     var isExistes;
     var existsIds = [];
     var existsAccounts = [];
+    var newUsers = [];
 
     // 页面上已经存在的成员
     $('.createAddMemberBox .createMember').each(function () {
@@ -813,6 +814,7 @@ CreateCalendar.methods = {
       });
 
       if (!isExistes) {
+        newUsers.push(users[i]);
         memberList += `<span class="imgMemberBox noInsert" data-id="${users[i].accountId || ''}" data-account="${
           users[i].account || ''
         }" data-name="${htmlEncodeReg(users[i].fullname) || ''}"></span>`;
@@ -823,11 +825,12 @@ CreateCalendar.methods = {
     $memberList.each(function (index, elem) {
       CreateCalendar.methods.checkUserBusyState($(elem));
     });
-    $('.createAddMember').before($memberList);
+    $('.createAddMemberBox .createAddMember').before($memberList);
     $('.createAddMemberBox')
       .find('.imgMemberBox.noInsert')
       .each((i, ele) => {
-        const user = users[i];
+        const user = newUsers[i];
+        if (!user) return;
         $(ele).removeClass('noInsert');
 
         const root = createRoot(ele);

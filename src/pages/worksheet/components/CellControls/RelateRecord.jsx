@@ -132,9 +132,10 @@ export default class RelateRecord extends React.Component {
 
           updateEditingStatus(true);
           setTimeout(() => {
-            const input = document.querySelector(`.cell-${tableId}-${recordId}-${cell.controlId} input`);
+            const cellClass = `cell-${tableId}-${recordId}-${cell.controlId}`;
+            const input = document.querySelector(`.${CSS.escape(cellClass)} input`);
 
-            if (this.dropdownRef.current) {
+            if (this.dropdownRef.current && input) {
               this.dropdownRef.current.setState({ keywords: (input.value = e.key) });
             }
           }, 100);

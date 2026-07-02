@@ -27,9 +27,12 @@ export const getMapKey = keyName => {
   return mapInfo;
 };
 
+const isPluginsReady = () =>
+  window.AMap && window.AMap.Map && window.AMap.Geocoder && window.AMap.Geolocation;
+
 export default class MapLoader {
   loadJs() {
-    if (window.AMap && window.AMap.Map) {
+    if (isPluginsReady()) {
       return Promise.resolve(window.AMap);
     }
 
@@ -64,7 +67,7 @@ export default class MapLoader {
         });
 
       const aMapTimer = setInterval(() => {
-        if (window.AMap && window.AMap.Map) {
+        if (isPluginsReady()) {
           resolve(window.AMap);
           clearInterval(aMapTimer);
         }

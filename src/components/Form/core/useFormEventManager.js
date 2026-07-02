@@ -374,11 +374,11 @@ export const useFormEventManager = ({ containerRef, stateRef, from, disabledTabs
     if (browserIsMobile()) return;
 
     window.addEventListener('keydown', handleTabChange);
-    document.body.addEventListener('click', handleClickOutSide);
+    document.body?.addEventListener('click', handleClickOutSide);
 
     return () => {
       window.removeEventListener('keydown', handleTabChange);
-      document.body.removeEventListener('click', handleClickOutSide);
+      document.body?.removeEventListener('click', handleClickOutSide);
     };
   }, [handleTabChange]);
 

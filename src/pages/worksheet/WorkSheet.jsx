@@ -120,7 +120,7 @@ const WorkSheetContainer = props => {
         const { appSectionId, workSheetInfo = [], childSections = [] } = data;
         const child = childSections.map(data => {
           const { parentId } = data;
-          return data.workSheetInfo.map(data => {
+          return (data.workSheetInfo || []).map(data => {
             return {
               ...data,
               appSectionId: parentId,

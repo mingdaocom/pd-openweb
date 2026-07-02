@@ -165,6 +165,8 @@ class Header extends React.Component {
       frameDoc.document.write(`<html><head></head><body>${printContentHtml}</body></html>`);
       frameDoc.document.close();
 
+      const printFrameWindow = window.frames && window.frames[printFrame.name];
+
       if (!window.onafterprint) {
         const mediaQueryCallback = function (mql) {
           if (!mql.matches && printFrame) {
@@ -172,15 +174,17 @@ class Header extends React.Component {
           }
         };
 
-        const mediaQueryList = window.frames[printFrame.name].matchMedia('print');
-        mediaQueryList.addListener(mediaQueryCallback);
-        window.frames[printFrame.name].focus();
-        window.frames[printFrame.name].onfocus = function () {
-          return mediaQueryCallback(mediaQueryList);
-        };
+        if (printFrameWindow) {
+          const mediaQueryList = printFrameWindow.matchMedia('print');
+          mediaQueryList.addListener(mediaQueryCallback);
+          printFrameWindow.focus();
+          printFrameWindow.onfocus = function () {
+            return mediaQueryCallback(mediaQueryList);
+          };
+        }
       }
 
-      window.frames[printFrame.name].print();
+      (printFrameWindow || printFrame.contentWindow).print();
       return false;
     }
 

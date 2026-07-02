@@ -154,6 +154,7 @@ class DialogBase extends Component {
       if (document.body.contains(this.target)) {
         document.body.removeChild(this.target);
       }
+
       this.target = null;
     }
 
@@ -353,6 +354,10 @@ class DialogBase extends Component {
           </div>
         </div>
       );
+    }
+
+    if (!this.target) {
+      return null;
     }
 
     return createPortal(container, this.target);

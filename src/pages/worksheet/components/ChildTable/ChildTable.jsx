@@ -729,6 +729,7 @@ class ChildTable extends React.Component {
     this.triggerCustomEvent();
 
     setTimeout(() => {
+      if (!this.worksheettable.current) return;
       const activeCell = this.worksheettable.current.table.refs.dom.current.querySelector(
         '.cell.row-id-' + rowId + '.canedit',
       );
@@ -2337,7 +2338,8 @@ class ChildTable extends React.Component {
 
                     const upRowId = getUpRowId();
                     const upRowIndex = upRowId && findIndex(tableData, { rowid: upRowId });
-                    const scrollY = this.worksheettable.current.table.refs.dom.current.querySelector('.scroll-y');
+                    const tableDom = get(this.worksheettable, 'current.table.refs.dom.current');
+                    const scrollY = tableDom && tableDom.querySelector('.scroll-y');
 
                     if (scrollY) {
                       const newRowBottomToTop = (upRowIndex + 2) * rowHeight;
@@ -2347,12 +2349,14 @@ class ChildTable extends React.Component {
                       console.table({ newRowBottomToTop, conHeight, conScrollTop, newRowVisible });
                       if (!newRowVisible) {
                         setTimeout(() => {
+                          if (!this.worksheettable.current) return;
                           this.worksheettable.current.table.refs.setScroll(0, newRowBottomToTop + 10 - conHeight);
                         }, 100);
                       }
                     }
 
                     setTimeout(() => {
+                      if (!this.worksheettable.current) return;
                       const activeCell = this.worksheettable.current.table.refs.dom.current.querySelector(
                         '.cell.row-id-' + row.rowid + '.canedit',
                       );

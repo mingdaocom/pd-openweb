@@ -128,6 +128,7 @@ export function PreviewWraper(props) {
   };
 
   const handleOpen = () => {
+    if (!hrefReg.test(value)) return;
     window.open(parseLink(value, param));
   };
 

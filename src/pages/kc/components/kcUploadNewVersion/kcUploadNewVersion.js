@@ -78,8 +78,8 @@ UploadNewVersion.prototype = {
   },
   addAsNewVersion: function () {
     var NV = this;
-    var versionDes = NV.$newVersionFileDetail.val().trim();
-    var versionName = NV.$newVersionFileName.val().trim();
+    var versionDes = NV.$newVersionFileDetail ? (NV.$newVersionFileDetail.val() || '').trim() : '';
+    var versionName = NV.$newVersionFileName ? (NV.$newVersionFileName.val() || '').trim() : '';
     if (!NV.filePath) {
       alert(_l('正在上传中，无法执行此操作'), 3);
       return false;

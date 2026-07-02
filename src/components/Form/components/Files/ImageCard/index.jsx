@@ -514,13 +514,13 @@ export default props => {
     const { progress, base } = data;
     return (
       <div className="attachmentImageCard Relative">
-        <Icon
-          icon="close"
-          className="closeIcon flexRow alignItemsCenter justifyContentCenter"
-          onClick={() => {
-            removeUploadingFile(data);
-          }}
-        />
+        {_.isFunction(removeUploadingFile) && (
+          <Icon
+            icon="close"
+            className="closeIcon flexRow alignItemsCenter justifyContentCenter"
+            onClick={() => removeUploadingFile(data)}
+          />
+        )}
         <div className="attachmentFile h100 flexColumn">
           <div className="flexRow alignItemsCenter justifyContentCenter flex uploadingProcessCircle">
             <Progress.Circle

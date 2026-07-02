@@ -247,7 +247,8 @@ class Actions {
             filter: formatOriginFilterGroupValue(data),
           });
           setTimeout(() => {
-            document.querySelector('.filter_' + data.filterId + ' .editIcon').click();
+            const editIconEl = document.querySelector('.filter_' + data.filterId + ' .editIcon');
+            if (editIconEl) editIconEl.click();
           }, 100);
         } else {
           this.dispatch({

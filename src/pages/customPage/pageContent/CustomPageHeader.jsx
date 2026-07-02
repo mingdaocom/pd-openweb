@@ -59,7 +59,7 @@ export default function CustomPageHeader(props) {
   const { icon, workSheetName, urlTemplate, configuration } = currentSheet;
   const pageId = ids.worksheetId;
   const [visible, updateVisible] = useState({ popupVisible: false, editIntroVisible: false });
-  const desc = urlTemplate ? configuration.desc : props.desc;
+  const desc = urlTemplate ? configuration?.desc : props.desc;
   const { popupVisible, editIntroVisible } = visible;
   const name = pageName !== workSheetName ? workSheetName || pageName : pageName || workSheetName;
   const showName = getTranslateInfo(appId, null, pageId).name || name;
@@ -327,7 +327,7 @@ export default function CustomPageHeader(props) {
           hide:
             appPkg.currentPcNaviStyle === 2
               ? false
-              : !(urlTemplate ? configuration.hideHeaderBar === '0' : pageConfig.headerVisible),
+              : !(urlTemplate ? configuration?.hideHeaderBar === '0' : pageConfig.headerVisible),
         })}
         style={{
           zIndex: pageConfig.pageBgImage ? 0 : 2,

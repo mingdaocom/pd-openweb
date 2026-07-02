@@ -68,22 +68,32 @@ export const getMyPermissions = (projectId, isSync = true) => {
 
   if (!isSync) {
     return new Promise((resolve, reject) => {
-      roleApi.getMyPermissions({ projectId }).then(res => {
-        if (res) {
-          setCacheData(projectId, res.permissionIds, version);
-          resolve(res.permissionIds || []);
-        } else {
-          reject();
-        }
-      });
+      roleApi
+        .getMyPermissions({ projectId })
+        .then(res => {
+          if (res) {
+            setCacheData(projectId, res.permissionIds, version);
+            resolve(res.permissionIds || []);
+          } else {
+            reject();
+          }
+        })
+        .catch(reject);
     });
   }
 
-  const res = roleApi.getMyPermissions({ projectId }, { ajaxOptions: { sync: true }, silent: true });
+  try {
+    const res = roleApi.getMyPermissions({ projectId }, { ajaxOptions: { sync: true }, silent: true });
 
-  setCacheData(projectId, res.permissionIds, version);
+    if (res) {
+      setCacheData(projectId, res.permissionIds, version);
+      return res.permissionIds || [];
+    }
+  } catch (e) {
+    // 同步 XHR 网络异常时返回空权限，避免抛出 NetworkError 触发 ErrorBoundary
+  }
 
-  return res.permissionIds || [];
+  return [];
 };
 
 //校验权限--需要获取权限
@@ -132,12 +142,15 @@ export default function PermissionContainer(props) {
         version = syncGetVersion(projectId);
       }
 
-      roleApi.getMyPermissions({ projectId }).then(res => {
-        if (res && res.permissionIds) {
-          setCacheData(projectId, res.permissionIds, version);
-          setHasAuth(hasPermission(res.permissionIds, needPermission));
-        }
-      });
+      roleApi
+        .getMyPermissions({ projectId })
+        .then(res => {
+          if (res && res.permissionIds) {
+            setCacheData(projectId, res.permissionIds, version);
+            setHasAuth(hasPermission(res.permissionIds, needPermission));
+          }
+        })
+        .catch(_.noop);
     }
   }, []);
 

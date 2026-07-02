@@ -516,7 +516,7 @@ export default class Record extends Component {
       >
         {_.get(window, 'shareState.shareId') ? <div style={{ width: 22 }} /> : this.renderMore()}
         {this.renderTitle()}
-        {displayControls.map((data, index) =>
+        {(displayControls || []).map((data, index) =>
           this.renderControl(_.find(controls, { controlId: data.controlId }) || data, index + 1),
         )}
         {this.renderStartTime()}

@@ -65,7 +65,7 @@ export function navigateTo(url, isReplace = false, noRedirect = false) {
     }
   }
 
-  if (url === location.href) {
+  if (url === location.href || url === location.pathname + location.search + location.hash) {
     return;
   }
 

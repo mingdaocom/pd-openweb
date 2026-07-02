@@ -88,7 +88,7 @@ export const formatChartData = (data, yaxisList, { isPile, isAccumulate, accumul
     const name = item.originalX;
     cloneData.forEach((element, index) => {
       const lastElement = cloneData[index - 1];
-      const lastValue = lastElement && isPile ? lastElement.value.filter(n => n.originalX === item.originalX)[0].v : 0;
+      const lastValue = lastElement && isPile ? (lastElement.value.filter(n => n.originalX === item.originalX)[0]?.v ?? 0) : 0;
       const current = element.value.filter(n => {
         if (isPile && n.originalX === name) {
           n.v = n.v + lastValue;

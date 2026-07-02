@@ -112,6 +112,10 @@ export default function Filter(props) {
         })
         .then(data => {
           const filtersGroup = data[0];
+          if (!filtersGroup || !filtersGroup.filters) {
+            setLoading(false);
+            return;
+          }
           setFilter({
             ...filtersGroup,
             filters: filtersGroup.filters.map(f => {
