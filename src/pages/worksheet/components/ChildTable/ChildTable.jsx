@@ -45,7 +45,7 @@ import { SYS } from 'src/pages/widgetConfig/config/widget.js';
 import { canAsUniqueWidget } from 'src/pages/widgetConfig/util/setting';
 import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
 import { browserIsMobile } from 'src/utils/common';
-import { controlState, getTitleTextFromControls } from 'src/utils/control';
+import { checkCellIsEmpty, controlState, getTitleTextFromControls } from 'src/utils/control';
 import { controlBatchCanEdit } from 'src/utils/control';
 import { isRelateRecordTableControl, parseAdvancedSetting, replaceByIndex } from 'src/utils/control';
 import { sortControlByIds, updateOptionsOfControls } from 'src/utils/control';
@@ -793,7 +793,8 @@ class ChildTable extends React.Component {
       formdata = new DataFormat({
         requestPool: this.requestPool,
         data: this.state.controls.map(c => {
-          let controlValue = (row || {})[c.controlId];
+          const importedValue = (row || {})[c.controlId];
+          let controlValue = importedValue;
 
           if (_.isUndefined(controlValue) && (isCreate || !row)) {
             controlValue = c.value;
@@ -803,7 +804,9 @@ class ChildTable extends React.Component {
             ...c,
             isSubList: true,
             isQueryWorksheetFill,
-            isImportFromExcel,
+            // 仅对真正导入了非空值的单元格打 isImportFromExcel：未映射/空的列其值来自默认值或计算，
+            // 不应被导入守卫保护，否则其首遍计算值会被当作导入值保留，挡掉依赖回填后的二次重算
+            isImportFromExcel: isImportFromExcel && !checkCellIsEmpty(importedValue),
             value: controlValue,
           };
         }),

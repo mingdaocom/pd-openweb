@@ -46,8 +46,7 @@ export default function FreeField(props) {
   }, [controlId, worksheetId]);
 
   return (
-    <div style={{ position: 'relative', height: controlHeight ? `${controlHeight}px` : '200px' }}>
-      {disabled && <div style={{ position: 'absolute', inset: 0, zIndex: 1 }} />}
+    <div style={{ height: controlHeight ? `${controlHeight}px` : '200px' }}>
       <FreeFieldRunner
         type="production"
         code={code}

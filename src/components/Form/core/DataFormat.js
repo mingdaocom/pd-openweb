@@ -846,7 +846,12 @@ export default class DataFormat {
           if (currentItem.advancedSetting && currentItem.advancedSetting.defaultfunc && currentItem.type !== 30) {
             delete currentItem.advancedSetting.defsource;
             // 导入且已有值时保留导入值，不被函数默认值覆盖（与动态默认值 defsource 保持一致）
-            if (currentItem.isImportFromExcel && currentItem.value) {
+            // 用 checkCellIsEmpty 判空：关联记录等类型的空值是 '[]' 这类真值字符串，
+            // 不能直接用 currentItem.value 判断，否则空的导入项会被误判为“有值”而阻止默认值重算
+            // 排除 type 53：公式控件在构造时被伪装成 defaultfunc（见本文件顶部 data.map），它是纯计算字段，
+            // 导入带进来的值不是用户输入，必须始终跟随依赖重算；否则首遍算出的值（如依赖字段尚未异步回填时）
+            // 会被守卫当作“导入值”保留，导致依赖二次更新后公式不再重算而停在旧值
+            if (currentItem.type !== 53 && currentItem.isImportFromExcel && !checkCellIsEmpty(currentItem.value)) {
               value = currentItem.value;
             } else if (_.get(safeParse(currentItem.advancedSetting.defaultfunc), 'type') === 'javascript') {
               asyncUpdateMdFunction({
@@ -874,7 +879,9 @@ export default class DataFormat {
 
           // 动态默认值
           if (currentItem.advancedSetting && currentItem.advancedSetting.defsource && currentItem.type !== 30) {
-            if (currentItem.isImportFromExcel && currentItem.value) {
+            // 用 checkCellIsEmpty 判空：关联记录等类型的空值是 '[]' 这类真值字符串，
+            // 直接用 currentItem.value 会把空的导入项误判为“有值”，导致关联记录详情异步回填后默认值不再重算
+            if (currentItem.isImportFromExcel && !checkCellIsEmpty(currentItem.value)) {
               value = currentItem.value;
             } else {
               value = getDynamicValue(this.data, currentItem, this.masterData);
