@@ -145,9 +145,11 @@ export function formatFormulaDate({ value, unit = '6', hideUnitStr, dot = 0 }) {
   }
 
   const unitStr = unitType.text;
+  // 逐级进位规则：12 月 = 1 年、30 天 = 1 月、24 时 = 1 天、60 分 = 1 时、60 秒 = 1 分
+  // 年必须按 12 个月折算，否则与月的进位基数不自洽（如 120 月会算成 9 年 10 月）
   const unitTimes = {
     6: 1, // 秒
-    5: 365 * 24 * 60 * 60, // 年
+    5: 12 * 30 * 24 * 60 * 60, // 年
     4: 30 * 24 * 60 * 60, // 月
     3: 24 * 60 * 60, // 天
     2: 60 * 60, // 时
@@ -173,9 +175,14 @@ export function formatFormulaDate({ value, unit = '6', hideUnitStr, dot = 0 }) {
     { value: allSeconds, unit: _l('秒') },
   ]
     .slice(0, 6 - Number(unit) || 6)
-    .filter(item => item.value !== 0 || item.unit === unitStr)
+    .filter(item => item.value !== 0)
     .map(item => item.value + item.unit)
     .join('');
+
+  // 各级都为 0 时（如 0 月）兜底展示本单位
+  if (!result) {
+    result = 0 + unitStr;
+  }
 
   if (hideUnitStr) {
     result = result.slice(0, -1);

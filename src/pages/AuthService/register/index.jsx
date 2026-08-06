@@ -301,7 +301,7 @@ export default function () {
     <WrapCom>
       <DocumentTitle title={state.title} />
       <WrapBg homeImage={state.homeImage} />
-      <div className={`loginBox ${state.step === 'create' ? 'createOrgLoginBox' : ''}`}>
+      <div className="loginBox">
         <div className={`loginContainer ${state.step === 'create' ? 'createOrgContainer' : ''}`}>
           <ChangeLang className="authServiceLang" />
           <Header

@@ -168,7 +168,9 @@
     background-color: var(--color-background-primary);
   }
   .header {
-    padding: 10px 0 30px;
+    flex-shrink: 0;
+    padding: 10px 24px 30px;
+    background-color: var(--color-background-primary);
     .switchButton {
       padding: 0 16px;
       margin-right: 8px;
@@ -205,8 +207,15 @@
     font-weight: bold;
   }
   .rowDetailCon {
+    height: 100%;
+    overflow: hidden;
+    // 头部操作栏固定，仅表单区域滚动
+    > .scrollViewContainer {
+      min-height: 0;
+    }
+  }
+  .forCon {
     padding: 0 24px 14px;
-    overflow: auto;
   }
   .footer {
     height: 36px;

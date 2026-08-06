@@ -162,6 +162,7 @@ export default class CustomButtons extends React.Component {
     onUpdate: PropTypes.func,
     setCustomButtonActive: PropTypes.func,
     onButtonClick: PropTypes.func,
+    onButtonTriggerFail: PropTypes.func,
   };
 
   static defaultProps = {
@@ -174,6 +175,7 @@ export default class CustomButtons extends React.Component {
     triggerCallback: () => {},
     setCustomButtonActive: () => {},
     onButtonClick: () => {},
+    onButtonTriggerFail: () => {},
   };
 
   state = {};
@@ -379,7 +381,7 @@ export default class CustomButtons extends React.Component {
   };
 
   triggerImmediately = (btnId, btn) => {
-    const { worksheetId, recordId, loadBtns, onButtonClick } = this.props;
+    const { worksheetId, recordId, loadBtns, onButtonClick, onButtonTriggerFail } = this.props;
     onButtonClick(btnId);
     processAjax
       .startProcess({
@@ -395,6 +397,8 @@ export default class CustomButtons extends React.Component {
             description: _l('失败，记录不满足执行条件或流程尚未启用'),
             duration: 3,
           });
+          // 流程没有启动，不会有执行结束的推送回执，需就地解除点击态，否则按钮一直灰着
+          onButtonTriggerFail(btnId);
         } else {
           loadBtns();
         }

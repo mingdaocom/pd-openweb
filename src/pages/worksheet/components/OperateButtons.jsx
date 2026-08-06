@@ -82,6 +82,7 @@ const CardWrapper = styled.div`
 
 export default function OperateButtons({
   refreshFlag,
+  resetFlag,
   row = {},
   status,
   rowHeight,
@@ -89,6 +90,7 @@ export default function OperateButtons({
   isInCard,
   recordId,
   entityName = _l('记录'),
+  onRefreshButtonStatus = () => {},
   onUpdateRow = () => {},
   onCopySuccess = () => {},
   onDeleteSuccess = () => {},
@@ -134,11 +136,13 @@ export default function OperateButtons({
       }, 0);
     }
   });
+  // resetFlag 由外部在流程执行结束后递增：像「界面推送」这类不写记录的流程执行完后 utime 不变，
+  // 只靠行数据变化无法解除点击后的置灰状态。
   useEffect(() => {
     return () => {
       setBtnDisable({});
     };
-  }, [row.rowid, row.utime, refreshFlag]);
+  }, [row.rowid, row.utime, refreshFlag, resetFlag]);
   if (isEmpty(context)) return null;
   if (
     !buttons.length ||
@@ -267,6 +271,12 @@ export default function OperateButtons({
           onButtonClick={btnId => {
             setBtnDisable(old => ({ ...old, [btnId]: true }));
           }}
+          onButtonTriggerFail={btnId => {
+            // 只释放本次点击态，能不能点仍由服务端返回的执行条件（button.disabled）决定，
+            // 所以这里同时重取该行按钮的执行条件，避免解除点击态后停留在过期的可执行状态。
+            setBtnDisable(old => _.omit(old, [btnId]));
+            onRefreshButtonStatus(recordId);
+          }}
           sheetSwitchPermit={sheetSwitchPermit}
           visibleNum={visibleNum}
         />
@@ -277,8 +287,10 @@ export default function OperateButtons({
 
 OperateButtons.propTypes = {
   isInCard: PropTypes.bool,
+  resetFlag: PropTypes.number,
   recordId: PropTypes.string,
   relateRecordControlId: PropTypes.string,
+  onRefreshButtonStatus: PropTypes.func,
   onUpdateRow: PropTypes.func,
   onCopySuccess: PropTypes.func,
   onDeleteSuccess: PropTypes.func,

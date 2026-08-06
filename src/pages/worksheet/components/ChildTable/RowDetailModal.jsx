@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import cx from 'classnames';
 import PropTypes from 'prop-types';
 import { Button, Modal, ScrollView } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import IconBtn from 'worksheet/common/recordInfo/RecordForm/IconBtn.jsx';
 import { browserIsMobile } from 'src/utils/common';
 import RowDetail from './RowDetail';
@@ -34,31 +35,31 @@ export default function RowDetailModal(props) {
     };
   }, []);
   const content = (
-    <ScrollView>
-      <div className="rowDetailCon flexColumn">
-        <div className="header flexRow">
-          <Button
-            size="mdbig"
-            type="ghostgray"
-            disabled={switchDisabled.prev}
-            className="switchButton"
-            onClick={() => !switchDisabled.prev && onSwitch({ prev: true })}
-          >
-            <i className="icon icon-arrow-up-border"></i>
-            <span className="text">{_l('上一条')}</span>
-          </Button>
-          <Button
-            size="mdbig"
-            type="ghostgray"
-            disabled={switchDisabled.next}
-            className="switchButton"
-            onClick={() => !switchDisabled.next && onSwitch({ next: true })}
-          >
-            <i className="icon icon-arrow-down-border"></i>
-            <span className="text">{_l('下一条')}</span>
-          </Button>
-          <div className="flex" />
-          {!disabled && allowDelete && (
+    <div className="rowDetailCon flexColumn">
+      <div className="header flexRow">
+        <Button
+          size="mdbig"
+          type="ghostgray"
+          disabled={switchDisabled.prev}
+          className="switchButton"
+          onClick={() => !switchDisabled.prev && onSwitch({ prev: true })}
+        >
+          <i className="icon icon-arrow-up-border"></i>
+          <span className="text">{_l('上一条')}</span>
+        </Button>
+        <Button
+          size="mdbig"
+          type="ghostgray"
+          disabled={switchDisabled.next}
+          className="switchButton"
+          onClick={() => !switchDisabled.next && onSwitch({ next: true })}
+        >
+          <i className="icon icon-arrow-down-border"></i>
+          <span className="text">{_l('下一条')}</span>
+        </Button>
+        <div className="flex" />
+        {!disabled && allowDelete && (
+          <Tooltip title={_l('删除')} placement="bottom" align={{ offset: [0, 0] }}>
             <IconBtn
               className="headerBtn Hand hoverColorPrimary delete"
               onClick={() => {
@@ -68,7 +69,9 @@ export default function RowDetailModal(props) {
             >
               <i className="icon icon-trash"></i>
             </IconBtn>
-          )}
+          </Tooltip>
+        )}
+        <Tooltip title={_l('关闭')} placement="bottom" align={{ offset: [0, 0] }}>
           <IconBtn
             className="headerBtn Hand hoverColorPrimary"
             onClick={() => {
@@ -79,14 +82,16 @@ export default function RowDetailModal(props) {
           >
             <i className="icon icon-close"></i>
           </IconBtn>
-        </div>
+        </Tooltip>
+      </div>
 
-        <div className="forCon flex">
+      <ScrollView className="flex">
+        <div className="forCon">
           <div className="title">{title}</div>
           <RowDetail ref={formContent} {...props} />
         </div>
-      </div>
-    </ScrollView>
+      </ScrollView>
+    </div>
   );
   return (
     <Modal

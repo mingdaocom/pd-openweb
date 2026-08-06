@@ -447,6 +447,7 @@ class TableViewBase extends React.Component {
     this.state = {
       disableMaskDataControls: {},
       buttonsCheckStatus: {},
+      operateBtnResetFlag: {},
       columnHeadHeight: 34,
     };
     this.tableId = uuidv4();
@@ -482,6 +483,7 @@ class TableViewBase extends React.Component {
     emitter.addListener('RELOAD_RECORD_INFO', this.updateRecordEvent);
     emitter.addListener('RELOAD_SHEET_VIEW', this.props.refresh);
     emitter.addListener('ADD_RECORD_TO_SHEETVIEW', this.addRecordToViewEvent);
+    emitter.addListener('RECORD_WORKFLOW_UPDATE', this.recordWorkflowUpdateEvent);
     this.bindShift();
     window[`getTableColumnWidth-${this.props.worksheetId}`] = control => {
       const width = getTableColumnWidth(
@@ -651,12 +653,8 @@ class TableViewBase extends React.Component {
               .checkWorksheetRowsBtn({
                 worksheetId: this.props.worksheetId,
                 rowIds,
-                // 分组按钮在 operatesButtons 里是 group_ref，其 btnId 是合成的 group:xxx，
-                // 真正的成员按钮 id 在 b.buttons 内。需展开成员真实 btnId，否则组内按钮拿不到执行状态，
-                // OperateButtons 里按 status 判定会把分组内按钮全部置灰。
-                btnIds: _.flatMap(operatesButtons, b =>
-                  b.type === 'group_ref' && _.isArray(b.buttons) ? b.buttons.map(member => member.btnId) : [b.btnId],
-                ),
+                // 组内按钮拿不到执行状态时，OperateButtons 里按 status 判定会把分组内按钮全部置灰。
+                btnIds: this.getOperateButtonCheckIds(operatesButtons),
               })
               .then(data => {
                 const buttonsCheckStatus = {};
@@ -757,6 +755,7 @@ class TableViewBase extends React.Component {
     emitter.removeListener('RELOAD_SHEET_VIEW', this.props.refresh);
     emitter.removeListener('RELOAD_RECORD_INFO', this.updateRecordEvent);
     emitter.removeListener('ADD_RECORD_TO_SHEETVIEW', this.addRecordToViewEvent);
+    emitter.removeListener('RECORD_WORKFLOW_UPDATE', this.recordWorkflowUpdateEvent);
     this.unbindShift();
     if (this.refreshTimer) {
       clearInterval(this.refreshTimer);
@@ -860,6 +859,30 @@ class TableViewBase extends React.Component {
         }
       });
     }
+  };
+
+  // 自定义按钮触发的流程执行结束（成功/失败/未启用）后，解除行内快捷按钮的点击态并重取执行条件。
+  // 不能只依赖行数据变化：像「界面推送」这类流程不写记录，utime 不变，
+  // OperateButtons 内按 [rowid, utime, refreshFlag] 判定的清理逻辑永远不会触发，按钮会一直灰着。
+  recordWorkflowUpdateEvent = ({ recordId, status } = {}) => {
+    const { sheetViewData = {} } = this.props;
+
+    // status 1 为执行中，非终态不解除
+    if (status === 1) return;
+
+    const rowIds = String(recordId || '')
+      .split(',')
+      .filter(id => id && _.find(sheetViewData.rows, r => r.rowid === id));
+
+    if (!rowIds.length) return;
+
+    this.setState(prevState => ({
+      operateBtnResetFlag: rowIds.reduce(
+        (acc, id) => ({ ...acc, [id]: (get(prevState.operateBtnResetFlag, id) || 0) + 1 }),
+        prevState.operateBtnResetFlag,
+      ),
+    }));
+    rowIds.forEach(id => this.checkSingleRowBtns(id));
   };
 
   // 外部（如工作流推送打开记录）提交或新增记录后，将记录加为当前表的最新记录
@@ -1629,7 +1652,7 @@ class TableViewBase extends React.Component {
       updateRows,
     } = this.props;
     const recordId = row.rowid;
-    const { buttonsCheckStatus } = this.state;
+    const { buttonsCheckStatus, operateBtnResetFlag } = this.state;
     const status = buttonsCheckStatus ? Object.values(buttonsCheckStatus)[0] || {} : {};
     return (
       <div
@@ -1649,11 +1672,13 @@ class TableViewBase extends React.Component {
         <OperateButtons
           status={status}
           refreshFlag={sheetViewData.refreshFlag}
+          resetFlag={get(operateBtnResetFlag, recordId)}
           row={row}
           rowHeight={ROW_HEIGHT[view.rowHeight] || 34}
           recordId={recordId}
           controls={controls}
           entityName={worksheetInfo.entityName}
+          onRefreshButtonStatus={this.checkSingleRowBtns}
           onUpdateRow={data => {
             if (!data) return;
             const rowId = data.rowid || recordId;
@@ -1759,24 +1784,31 @@ class TableViewBase extends React.Component {
     return <div style={style} className={newClassName}></div>;
   };
 
+  // 分组按钮在 operatesButtons 里是 group_ref，其 btnId 是合成的 group:xxx，
+  // 真正的成员按钮 id 在 b.buttons 内，校验执行状态时必须展开成员真实 btnId。
+  getOperateButtonCheckIds = operatesButtons =>
+    _.flatMap(operatesButtons, b =>
+      b.type === 'group_ref' && _.isArray(b.buttons) ? b.buttons.map(member => member.btnId) : [b.btnId],
+    );
+
   checkSingleRowBtns = rowId => {
     const { worksheetId, sheetFetchParams } = this.props;
     const operatesButtons = this.getOperateButtons(this.props);
     if (!operatesButtons.length || !rowId) return;
-    if (!rowId) return;
+    const btnIds = this.getOperateButtonCheckIds(operatesButtons);
     worksheetAjax
       .checkWorksheetRowsBtn({
         worksheetId,
         rowIds: [rowId],
-        btnIds: operatesButtons.map(b => b.btnId),
+        btnIds,
       })
       .then(data => {
         const { pageIndex, pageSize } = sheetFetchParams;
         const key = `${pageIndex}x${pageSize}`;
         const newBtnCheckStatus = { ...get(this.state.buttonsCheckStatus, key, {}) };
         // 清除之前状态
-        operatesButtons.forEach(btn => {
-          delete newBtnCheckStatus[`${rowId}-${btn.btnId}`];
+        btnIds.forEach(btnId => {
+          delete newBtnCheckStatus[`${rowId}-${btnId}`];
         });
         // 添加新状态
         data.forEach(item => {

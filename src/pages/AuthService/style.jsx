@@ -23,14 +23,6 @@ export const WrapCom = styled.div`
     min-height: auto;
     box-sizing: border-box;
     padding: 24px 0;
-    &.createOrgLoginBox {
-      flex: 0 0 auto;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-      min-height: auto;
-      padding: 48px 0 48px;
-    }
     .loginContainer {
       width: 100%;
       min-width: 400px;
@@ -157,9 +149,6 @@ export const WrapCom = styled.div`
           top: 32px;
           right: 24px;
         }
-      }
-      &.createOrgLoginBox {
-        padding: 32px 0 48px;
       }
     }
   }
